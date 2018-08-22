@@ -1,3 +1,6 @@
+# Added for the initial dev phase and is to be removed when first entering production
+package-lock.json
+
 # Logs
 logs
 *.log
@@ -29,9 +32,6 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -59,3 +59,12 @@ typings/
 
 # next.js build output
 .next
+
+# production
+/build
+
+# misc react env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
