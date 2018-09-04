@@ -1,0 +1,35 @@
+{
+  "parser": "babel-eslint",
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "16.4.2",
+      "flowVersion": "0.77"
+    }
+  },
+  "plugins": [
+    "flowtype"
+  ],
+  "rules": {
+    "flowtype/define-flow-type": 1,
+    "flowtype/use-flow-type": 1
+  },
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": true,
+      "jsx": true
+    }
+  },
+  "env": {
+    "node": true,
+    "worker": true,
+    "mocha": true,
+    "browser": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ]
+}
