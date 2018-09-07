@@ -1,0 +1,4 @@
+[
+    {"id":1,"name":"SPM whale annotation","start":"2017-06-01T00:00:00.000Z","end":"2017-12-30T00:00:00.000Z","annotation_set_id":1,"tasks_count":55,"complete_tasks_count":55,"datasets_count":2},
+    {"id":2,"name":"SPM whale annotation v2","start":"2018-06-01T00:00:00.000Z","end":"2018-12-30T00:00:00.000Z","annotation_set_id":1,"tasks_count":55,"complete_tasks_count":85,"datasets_count":3}
+]

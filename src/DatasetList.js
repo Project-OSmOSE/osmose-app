@@ -5,10 +5,10 @@ import request from 'superagent';
 if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
 const API_URL = process.env.REACT_APP_API_URL + '/dataset/list';
 
-type DatasetsProps = {
+type DatasetListProps = {
   app_token: string
 };
-type DatasetsState = {
+type DatasetListState = {
   datasets: Array<{
     id: number,
     name: string,
@@ -23,7 +23,7 @@ type DatasetsState = {
     message: string
   }
 };
-class Datasets extends Component<DatasetsProps, DatasetsState> {
+class DatasetList extends Component<DatasetListProps, DatasetListState> {
   state = {
     datasets: [],
     error: null
@@ -34,7 +34,7 @@ class Datasets extends Component<DatasetsProps, DatasetsState> {
     return this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
       this.setState({
         datasets: req.body
-      })
+      });
     }).catch(err => {
       if (err.status && err.status === 401) {
         // Server returned 401 which means token was revoked
@@ -43,7 +43,7 @@ class Datasets extends Component<DatasetsProps, DatasetsState> {
       }
       this.setState({
         error: err
-      })
+      });
     });
   }
 
@@ -96,4 +96,4 @@ class Datasets extends Component<DatasetsProps, DatasetsState> {
   }
 }
 
-export default Datasets;
+export default DatasetList;

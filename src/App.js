@@ -2,8 +2,9 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
-import Datasets from './Datasets';
 import Login from './Login';
+import DatasetList from './DatasetList';
+import AnnotationCampaignList from './AnnotationCampaignList';
 
 import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
@@ -12,7 +13,7 @@ const Navbar = () => (
   <div className="col-sm-3 border rounded">
     <ul>
       <li><Link to="/datasets">Datasets</Link></li>
-      <li><Link to="/">Annotation campaigns</Link></li>
+      <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
     </ul>
   </div>
 );
@@ -28,8 +29,9 @@ const OdeApp = (props: OdeAppProps) => (
     <div className="row text-left h-100 main">
       <Navbar />
       <Switch>
-        <Route exact path='/' render={() => <Datasets app_token={props.app_token} />} />
-        <Route path='/datasets' render={() => <Datasets app_token={props.app_token} />} />
+        <Route exact path='/' render={() => <DatasetList app_token={props.app_token} />} />
+        <Route path='/datasets' render={() => <DatasetList app_token={props.app_token} />} />
+        <Route path='/annotation-campaigns' render={() => <AnnotationCampaignList app_token={props.app_token} />} />
       </Switch>
     </div>
   </div>
