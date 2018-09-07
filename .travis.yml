@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - '9'
+sudo: false
+
+# To add once travis is setup and working
+#notifications:
+#  slack:
+#    secure:
