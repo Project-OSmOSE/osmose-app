@@ -1,19 +1,46 @@
+// @flow
 import React, { Component } from 'react';
 import request from 'superagent';
 
-class Datasets extends Component {
-  state = {
-    datasets: []
+if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
+const API_URL = process.env.REACT_APP_API_URL + '/dataset/list';
+
+type DatasetsProps = {
+  app_token: string
+};
+type DatasetsState = {
+  datasets: Array<{
+    id: number,
+    name: string,
+    type: string,
+    files_type: string,
+    files_count: number,
+    start_date: string,
+    end_date: string
+  }>,
+  error: ?{
+    status: number,
+    message: string
   }
-  getData = request.get(process.env.REACT_APP_API_URL + '/dataset/list')
+};
+class Datasets extends Component<DatasetsProps, DatasetsState> {
+  state = {
+    datasets: [],
+    error: null
+  }
+  getData = request.get(API_URL)
 
   componentDidMount() {
-    if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-    return this.getData.then(req => {
+    return this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
       this.setState({
         datasets: req.body
       })
     }).catch(err => {
+      if (err.status && err.status === 401) {
+        // Server returned 401 which means token was revoked
+        document.cookie = 'token=;max-age=0';
+        window.location.reload();
+      }
       this.setState({
         error: err
       })
