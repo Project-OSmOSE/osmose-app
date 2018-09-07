@@ -3,7 +3,6 @@ node_js:
   - '9'
 sudo: false
 
-# To add once travis is setup and working
-#notifications:
-#  slack:
-#    secure:
+notifications:
+  slack:
+    secure: "dtkqzbLz9w1vuDorYgSEaE/8eLJMRTPv70zuf4cfcVQ49zU8bLTzOdQhDxudqwa9sXBqp7nTO6GXFOFziGZQe8JB+EnkYpDQ1utndBU8sT8TrxX5sH7G8L0zvUgjnl1fDfN4442hG7NxFxBRkeu+b70VOeiozS1SnHHpPo4IDVtk83NSNBekWhsA2YITR87M9cmx2vg2fCwiZllTyC3Fza1P28toLjlq7Ruo/qdcp9x/DxOp+POtmSWqEgReaEvXWT4G4xRCjORXbcWLd4ucyqyAOvVD1HZspTIPSpZQchrXqNdqzQTtrku+Lx9/WasqHjbwkyghqzpQgjciw31uw7Dn40O6/JkkUR+NP+X/bHOvJdOA6JJoPtCCpLffDuLxIPKrE96MoTu7HGWYOt0vjSoy0XYnqxUpjZjxrSQrEuNLtrGRQUj56YwEOVK6CFNLFDDxgM3m5JfcSEFfQiDbyzgBX283Hl9hANOa39ptgy0Iu3egUHVqciBTLR+tb1X1UDfpnNlTf9CIL/ukgOl9JDUnandSMmsd3Y7dU5F0NiE9xKhfRFs0DMa2rByqMAd6TwBYxN7uP3Jk/HpaQ7u/U4660d0DTuLNNXkxoUDL+sD7Evm+hf6/QgRr3b3cZhYlyGEzlFHFJ+ftErQMxGKIFhGbJlNgUCD/IvG3N7LjyLo="
