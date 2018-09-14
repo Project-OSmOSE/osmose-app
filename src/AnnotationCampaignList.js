@@ -95,7 +95,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           {annotation_campaigns}
           </tbody>
         </table>
-        <p className="text-center"><Link to="#" className="btn btn-primary">New annotation campaign</Link></p>
+        <p className="text-center"><Link to="/create-annotation-campaign" className="btn btn-primary">New annotation campaign</Link></p>
       </div>
     )
   }
