@@ -6,6 +6,7 @@ import Login from './Login';
 import DatasetList from './DatasetList';
 import AnnotationCampaignList from './AnnotationCampaignList';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';
+import AnnotationTaskList from './AnnotationTaskList';
 
 import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
@@ -34,6 +35,7 @@ const OdeApp = (props: OdeAppProps) => (
         <Route path='/datasets' render={() => <DatasetList app_token={props.app_token} />} />
         <Route path='/annotation-campaigns' render={() => <AnnotationCampaignList app_token={props.app_token} />} />
         <Route path='/create-annotation-campaign' render={route_props => <CreateAnnotationCampaign app_token={props.app_token} {...route_props} />} />
+        <Route path='/annotation_tasks/:campaign_id' render={route_props => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
       </Switch>
     </div>
   </div>

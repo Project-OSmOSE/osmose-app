@@ -1,0 +1,7 @@
+[
+    {"id":1,"status":2,"filename":"A32C0001.WAV","dataset_name":"SPMAuralA2010","start":"2010-08-19T18:00:00.000Z","end":"2010-08-19T18:45:00.000Z"},
+    {"id":2,"status":1,"filename":"A32C0002.WAV","dataset_name":"SPMAuralA2010","start":"2010-08-19T19:00:00.000Z","end":"2010-08-19T19:45:00.000Z"},
+    {"id":3,"status":0,"filename":"A32C0003.WAV","dataset_name":"SPMAuralA2010","start":"2010-08-19T20:00:00.000Z","end":"2010-08-19T20:45:00.000Z"},
+    {"id":4,"status":0,"filename":"7F210000.WAV","dataset_name":"SPMAuralB2010","start":"2010-08-19T17:00:00.000Z","end":"2010-08-19T17:45:00.000Z"},
+    {"id":5,"status":0,"filename":"7F210001.WAV","dataset_name":"SPMAuralB2010","start":"2010-08-19T18:00:00.000Z","end":"2010-08-19T18:45:00.000Z"}
+]
