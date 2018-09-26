@@ -14,6 +14,14 @@ npm install
 echo "REACT_APP_API_URL=http://localhost:7231/data.ode.org/v1" > .env.development.local
 ```
 
+### Setting up the audio-annotator submodule:
+
+```sh
+# This will set up submodules (audio-annotator here) with all the code from origin master's latest commit
+git submodule update --init --remote --merge
+# You can always go into public/audio-annotator and use git to pull another version if needed (or to update)
+```
+
 ### Setting up development environment:
 
 You should have FeatureService set up, you'd typically do it the following way:

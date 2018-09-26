@@ -367,10 +367,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
           <div className="form-group row">
             <div className="col-sm-6">
-              <input id="cac-start" className="form-control" type="text" value={this.state.new_ac_start} onChange={this.handleStartChange} placeholder="Start Date" />
+              <input id="cac-start" className="form-control" type="text" value={this.state.new_ac_start} onChange={this.handleStartChange} placeholder="Start Date (YYYY-MM-DD)" />
             </div>
             <div className="col-sm-6">
-              <input id="cac-end" className="form-control" type="text" value={this.state.new_ac_end} onChange={this.handleEndChange} placeholder="End Date" />
+              <input id="cac-end" className="form-control" type="text" value={this.state.new_ac_end} onChange={this.handleEndChange} placeholder="End Date (YYYY-MM-DD)" />
             </div>
           </div>
 

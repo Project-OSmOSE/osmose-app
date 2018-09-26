@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import request from 'superagent';
 
 if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
@@ -71,7 +72,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
           <td>{start_date.toLocaleString()}</td>
           <td>{diff_time.toUTCString().split(' ')[4]}</td>
           <td>{status_names[annotation_task.status]}</td>
-          <td><a href="#">Task link</a></td>
+          <td><Link to={'/audio-annotator/' + annotation_task.id}>Task link</Link></td>
         </tr>
       );
     });

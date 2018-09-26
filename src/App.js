@@ -7,6 +7,7 @@ import DatasetList from './DatasetList';
 import AnnotationCampaignList from './AnnotationCampaignList';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';
 import AnnotationTaskList from './AnnotationTaskList';
+import AudioAnnotator from './AudioAnnotator';
 
 import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
@@ -73,6 +74,7 @@ class App extends Component<void, AppState> {
       return (
         <Router>
           <Switch>
+            <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render={() => <OdeApp app_token={this.state.app_token} />} />
           </Switch>
         </Router>
