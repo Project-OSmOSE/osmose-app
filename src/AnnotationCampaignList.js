@@ -57,7 +57,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
     const annotation_campaigns = this.state.annotation_campaigns.map(annotation_campaign => {
       return (
         <tr key={annotation_campaign.id}>
-          <td>{annotation_campaign.name}</td>
+          <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>Set n°{annotation_campaign.annotation_set_id}</td>
           <td>{annotation_campaign.datasets_count}</td>
           <td>{new Date(annotation_campaign.start).toDateString()}</td>

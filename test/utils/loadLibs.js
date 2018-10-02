@@ -48,3 +48,12 @@ process.on('unhandledRejection', (reason, promise) => {
     console.log('Unhandled Rejection at: ', promise, 'reason:', reason);
   }
 });
+
+// Setting up URL functions https://github.com/jsdom/jsdom/issues/1721
+function noOp () { }
+if (typeof URL.createObjectURL === 'undefined') {
+  Object.defineProperty(URL, 'createObjectURL', { value: noOp})
+}
+if (typeof URL.revokeObjectURL === 'undefined') {
+  Object.defineProperty(URL, 'revokeObjectURL', { value: noOp})
+}

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
@@ -24,7 +24,8 @@ describe('testing AnnotationCampaignList component', function () {
             let lines = wrapper.find('tr');
             assert.deepEqual(lines.length, 3, 'There should be 3 lines, 1 for the header and 1 for each of the 2 annotation campaigns');
             lines.slice(1).map((line, index) => {
-                assert(line.text().includes(annotation_campaigns[index].name), 'Line number ' + index + ' should have name ' + annotation_campaigns[index].name);
+                let first_link_text = line.find('Link').first().props().children;
+                assert.deepEqual(first_link_text, annotation_campaigns[index].name);
             });
             wrapper.unmount();
         });
