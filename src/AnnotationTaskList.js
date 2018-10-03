@@ -49,6 +49,8 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
         // Server returned 401 which means token was revoked
         document.cookie = 'token=;max-age=0';
         window.location.reload();
+      } else if (err.status && err.status === 404 && err.response) {
+        err.message = err.response.body.detail;
       }
       this.setState({
         error: err

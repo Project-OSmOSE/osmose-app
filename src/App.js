@@ -13,17 +13,23 @@ import AudioAnnotator from './AudioAnnotator';
 import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
 
-const Navbar = () => (
+type NavbarProps = {
+  logout: (event: SyntheticEvent<HTMLInputElement>) => void
+};
+const Navbar = (props: NavbarProps) => (
   <div className="col-sm-3 border rounded">
     <ul>
       <li><Link to="/datasets">Datasets</Link></li>
       <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
+      <br />
+      <li><button className="btn btn-secondary" onClick={props.logout}>Logout</button></li>
     </ul>
   </div>
 );
 
 type OdeAppProps = {
-  app_token: string
+  app_token: string,
+  logout: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 const OdeApp = (props: OdeAppProps) => (
   <div className="container">
@@ -31,7 +37,7 @@ const OdeApp = (props: OdeAppProps) => (
       <div className="col-sm-12"><h1>Ocean Data Explorer</h1></div>
     </div>
     <div className="row text-left h-100 main">
-      <Navbar />
+      <Navbar logout={props.logout}/>
       <Switch>
         <Route exact path='/' render={() => <DatasetList app_token={props.app_token} />} />
         <Route path='/datasets' render={() => <DatasetList app_token={props.app_token} />} />
@@ -68,7 +74,16 @@ class App extends Component<void, AppState> {
       app_token: token
     });
     // Cookie is set to expire after 30 days
-    document.cookie = 'token=' + token + ';max-age=2592000';
+    document.cookie = 'token=' + token + ';max-age=2592000;path=/';
+  }
+
+  // The history parameter should be the react-router history
+  logout = (history: Array<string>) => {
+    document.cookie = 'token=;max-age=0';
+    this.setState({
+      app_token: ''
+    });
+    history.push('/');
   }
 
   render() {
@@ -77,7 +92,7 @@ class App extends Component<void, AppState> {
         <Router>
           <Switch>
             <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
-            <Route render={() => <OdeApp app_token={this.state.app_token} />} />
+            <Route render={route_props => <OdeApp app_token={this.state.app_token} logout={() => this.logout(route_props.history)} />} />
           </Switch>
         </Router>
       )

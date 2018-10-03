@@ -29,11 +29,11 @@ class Login extends Component<LoginProps, LoginState> {
   }
 
   handleLoginChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({login: event.currentTarget.value});
+    this.setState({login: event.currentTarget.value.trim()});
   }
 
   handlePasswordChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({password: event.currentTarget.value});
+    this.setState({password: event.currentTarget.value.trim()});
   }
 
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {

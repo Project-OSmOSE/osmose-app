@@ -80,10 +80,14 @@ describe('testing CreateAnnotationCampaign component', function () {
         nock(process.env.REACT_APP_API_URL).get('/user/list').reply(200, users);
         let wrapper = mount(<CreateAnnotationCampaign />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {
-            wrapper.update()
+            wrapper.update();
             let dataset_text = wrapper.find('#cac-dataset').text();
             datasets.forEach(dataset => {
-                assert(dataset_text.includes(dataset.name), dataset.name + ' not found');
+                if (dataset.files_type === '.wav') {
+                    assert(dataset_text.includes(dataset.name), dataset.name + ' not found');
+                } else {
+                    assert(!dataset_text.includes(dataset.name), dataset.name + ' should not be here');
+                }
             })
             let as_text = wrapper.find('#cac-annotation-set').text();
             annotation_sets.forEach(annotation_set => {

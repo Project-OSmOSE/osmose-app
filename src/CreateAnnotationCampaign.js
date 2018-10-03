@@ -176,8 +176,9 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     // This should be fixed in a future rework of API calls
     return Promise.all([
       this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav'});
         this.setState({
-          dataset_choices: utils.arrayToObject(req.body, 'id')
+          dataset_choices: utils.arrayToObject(datasets, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -314,11 +315,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     event.preventDefault();
     this.setState({error: null});
     let res = {
-      name: this.state.new_ac_name,
-      desc: this.state.new_ac_desc,
+      name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
+      desc: this.state.new_ac_desc.trim(),
       datasets: Object.keys(this.state.new_ac_datasets),
-      start: this.state.new_ac_start,
-      end: this.state.new_ac_end,
+      start: this.state.new_ac_start.trim(),
+      end: this.state.new_ac_end.trim(),
       annotation_set: this.state.new_ac_annotation_set,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
