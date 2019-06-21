@@ -71,7 +71,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
         <tr key={annotation_task.id}>
           <td>{annotation_task.filename}</td>
           <td>{annotation_task.dataset_name}</td>
-          <td>{start_date.toLocaleString()}</td>
+          <td>{start_date.toLocaleDateString()}</td>
           <td>{diff_time.toUTCString().split(' ')[4]}</td>
           <td>{status_names[annotation_task.status]}</td>
           <td><Link to={'/audio-annotator/' + annotation_task.id}>Task link</Link></td>
@@ -96,7 +96,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
             <tr>
               <th>Filename</th>
               <th>Dataset</th>
-              <th>Start Date</th>
+              <th>Date</th>
               <th>Duration</th>
               <th>Status</th>
               <th>Link</th>

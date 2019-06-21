@@ -60,13 +60,18 @@ class AudioAnnotator extends Component<AudioAnnotatorProps> {
   render() {
     return (
       <div>
-        <div className="annotation">
-            <div className="labels"></div>
-            <div className="audio_visual"></div>
-            <div className="play_bar"></div>
-            <div className="hidden_img"></div>
-            <div className="creation_stage_container"></div>
-            <div className="submit_container"></div>
+        <div id="audio-annotator" className="undisplayed">
+          <div className="annotation">
+              <div className="labels"></div>
+              <div className="audio_visual"></div>
+              <div className="play_bar"></div>
+              <div className="hidden_img"></div>
+              <div className="creation_stage_container"></div>
+              <div className="submit_container"></div>
+          </div>
+        </div>
+        <div id="audio-annotator-loader" className="loader">
+          LOADING
         </div>
       </div>
     );

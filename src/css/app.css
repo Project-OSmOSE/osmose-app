@@ -8,3 +8,14 @@
   font-weight: bold;
   white-space: pre-line;
 }
+
+.undisplayed {
+  visibility: hidden;
+}
+
+.loader {
+  font-size: 16em;
+  position: absolute;
+  top: 100px;
+  left: 200px;
+}
