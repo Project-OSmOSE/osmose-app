@@ -3,7 +3,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import nock from 'nock';
 
-import AudioAnnotator from '../src/AudioAnnotator';
+import LegacyAudioAnnotator from '../src/LegacyAudioAnnotator';
 
 describe('minimal testing of AudioAnnotator component', function () {
     this.timeout(20000);
@@ -17,7 +17,7 @@ describe('minimal testing of AudioAnnotator component', function () {
                 }
             }
         };
-        let wrapper = mount(<AudioAnnotator {...props}/>);
+        let wrapper = mount(<LegacyAudioAnnotator {...props}/>);
         assert.deepEqual(document.querySelectorAll('script').length, 14);
         wrapper.unmount();
     });
