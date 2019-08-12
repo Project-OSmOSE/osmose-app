@@ -93,7 +93,7 @@ class App extends Component<void, AppState> {
         <Router>
           <Switch>
             <Route path='/audio-annotator/legacy/:annotation_task_id' render={route_props => <LegacyAudioAnnotator app_token={this.state.app_token} {...route_props} />} />
-            <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} src="/sound.wav" {...route_props} />} />
+            <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render={route_props => <OdeApp app_token={this.state.app_token} logout={() => this.logout(route_props.history)} />} />
           </Switch>
         </Router>

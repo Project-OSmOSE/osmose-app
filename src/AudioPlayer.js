@@ -131,6 +131,10 @@ class AudioPlayer extends React.Component<AudioPlayerProps> {
     }
   }
 
+  componentWillUnmount() {
+    this.clearListenTrack();
+  }
+
   /**
    * Set an interval to call props.onListen every props.listenInterval time period
    */

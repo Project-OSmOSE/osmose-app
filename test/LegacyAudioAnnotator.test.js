@@ -1,7 +1,7 @@
 import assert from 'assert';
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { mount, shallow } from 'enzyme';
-import nock from 'nock';
 
 import LegacyAudioAnnotator from '../src/LegacyAudioAnnotator';
 
@@ -17,7 +17,11 @@ describe('minimal testing of AudioAnnotator component', function () {
                 }
             }
         };
-        let wrapper = mount(<LegacyAudioAnnotator {...props}/>);
+        let wrapper = mount(
+            <MemoryRouter>
+                <LegacyAudioAnnotator {...props}/>
+            </MemoryRouter>
+        );
         assert.deepEqual(document.querySelectorAll('script').length, 14);
         wrapper.unmount();
     });

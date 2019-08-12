@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 import './css/font-awesome-4.7.0.min.css';
 import './css/audio-annotator/materialize.min.css';
@@ -62,6 +63,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps> {
       <div>
         <div id="audio-annotator" className="undisplayed">
           <div className="annotation">
+              <p><Link to={'/audio-annotator/' + this.props.match.params.annotation_task_id}>
+                <button className="btn btn-submit" type="button">Switch to new annotator</button>
+              </Link></p>
               <div className="labels"></div>
               <div className="audio_visual"></div>
               <div className="play_bar"></div>
