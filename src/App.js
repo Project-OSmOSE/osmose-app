@@ -9,7 +9,7 @@ import AnnotationCampaignDetail from './AnnotationCampaignDetail';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';
 import AnnotationTaskList from './AnnotationTaskList';
 import LegacyAudioAnnotator from './LegacyAudioAnnotator';
-import AudioAnnotator from './AudioAnnotator';
+import AudioAnnotator from './AudioAnnotator/AudioAnnotator';
 
 import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
