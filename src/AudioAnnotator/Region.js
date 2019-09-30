@@ -9,6 +9,7 @@ const HEADER_MARGIN: number = 3;
 
 type RegionProps = {
   annotation: Annotation,
+  color: string,
   timePxRatio: number,
   freqPxRatio: number,
   offsetTop: number,
@@ -57,6 +58,8 @@ class Region extends Component<RegionProps, RegionState> {
   }
 
   render() {
+    const isActive: boolean = this.props.annotation.active;
+
     const styles = {
       wrapper: {
         left: this.state.left,
@@ -67,13 +70,17 @@ class Region extends Component<RegionProps, RegionState> {
       header: {
         height: HEADER_HEIGHT,
         marginBottom: HEADER_MARGIN,
+        backgroundColor: isActive ? this.props.color : `${this.props.color}88`,
+        border: isActive ? `2px solid ${this.props.color}` : `2px solid ${this.props.color}88`,
+      },
+      headerSpan: {
+        height: `${HEADER_HEIGHT}px`,
       },
       body: {
         height: this.state.height - HEADER_HEIGHT - HEADER_MARGIN,
+        border: isActive ? `2px solid ${this.props.color}` : `2px solid ${this.props.color}88`,
       },
     };
-
-    const activeClass = this.props.annotation.active ? "active" : "inactive";
 
     return (
       <div
@@ -81,7 +88,7 @@ class Region extends Component<RegionProps, RegionState> {
         style={styles.wrapper}
       >
         <p
-          className={`d-flex region-header region-header--${activeClass}`}
+          className="d-flex region-header"
           style={styles.header}
         >
           <button
@@ -91,6 +98,7 @@ class Region extends Component<RegionProps, RegionState> {
           <span
             className="flex-fill text-center"
             onClick={this.selectAnnotation}
+            style={styles.headerSpan}
           >{this.props.annotation.annotation}</span>
           <button
             className="btn-simple fa fa-times-circle"
@@ -99,7 +107,7 @@ class Region extends Component<RegionProps, RegionState> {
         </p>
 
         <div
-          className={`region-body region-body--${activeClass}`}
+          className="region-body"
           style={styles.body}
         ></div>
       </div>

@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import * as utils from '../utils';
 
 import type { Annotation } from './AudioAnnotator';
 import Region from './Region';
@@ -13,6 +14,7 @@ const Y_AXIS_SIZE: number = 30;
 
 
 type WorkbenchProps = {
+  tagColors: Map<string, string>,
   currentTime: number,
   duration: number,
   startFrequency: number,
@@ -254,6 +256,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       <Region
         key={ann.id}
         annotation={ann}
+        color={utils.getTagColor(this.props.tagColors, ann.annotation)}
         timePxRatio={this.state.timePxRatio}
         freqPxRatio={this.state.freqPxRatio}
         offsetTop={offsetTop}

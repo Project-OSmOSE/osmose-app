@@ -2,9 +2,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
+import * as utils from '../utils';
 
 import AudioPlayer from './AudioPlayer';
 import Workbench from './Workbench';
+
+import type { ToastMsg } from '../Toast';
+import Toast from '../Toast';
 
 import '../css/font-awesome-4.7.0.min.css';
 import '../css/annotator.css';
@@ -47,6 +51,8 @@ type AudioAnnotatorProps = {
 
 type AudioAnnotatorState = {
   error: ?string,
+  toastMsg: ?ToastMsg,
+  tagColors: Map<string, string>,
   isLoading: boolean,
   isPlaying: boolean,
   stopTime: ?number,
@@ -69,6 +75,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     this.state = {
       error: undefined,
+      toastMsg: undefined,
+      tagColors: new Map(),
       isLoading: true,
       isPlaying: false,
       stopTime: undefined,
@@ -98,6 +106,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
         // Finally, setting state
         this.setState({
+          tagColors: utils.buildTagColors(task.annotationTags),
           task,
           duration,
           frequencyRange,
@@ -117,10 +126,16 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   buildErrorMessage = (err: any) => {
-    return 'Status: ' + err.status.toString() +
-      ' - Reason: ' + err.message +
-      (err.response.body.title ? ` - ${err.response.body.title}` : '') +
-      (err.response.body.detail ? ` - ${err.response.body.detail}` : '');
+    if (err !== null && typeof err === 'object' && err.status && err.message) {
+      return 'Status: ' + err.status.toString() +
+        ' - Reason: ' + err.message +
+        (err.response.body.title ? ` - ${err.response.body.title}` : '') +
+        (err.response.body.detail ? ` - ${err.response.body.detail}` : '');
+    } else if (typeof err === 'string') {
+      return err;
+    } else {
+      return err.toString();
+    }
   }
 
   seekTo = (newTime: number) => {
@@ -176,6 +191,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       {}, annotation, { id: maxId ? (maxId + 1).toString() : '1' }
     );
 
+    if (this.state.annotations.length === 0) {
+      this.setState({
+        toastMsg: {msg: 'Select a tag to annotate the box.', lvl: 'primary'},
+      });
+    }
+
     this.activateAnnotation(newAnnotation);
   }
 
@@ -219,7 +240,24 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         .filter(ann => !ann.active)
         .concat(newAnnotation);
 
-      this.setState({annotations});
+      this.setState({
+        annotations,
+        toastMsg: undefined,
+      });
+    }
+  }
+
+  checkAndSubmitAnnotations = () => {
+    const emptyAnnotations = this.state.annotations
+      .filter((ann: Annotation) => ann.annotation.length === 0);
+
+    if (emptyAnnotations.length > 0) {
+      this.activateAnnotation(emptyAnnotations.shift());
+      this.setState({
+        toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
+      });
+    } else {
+      this.submitAnnotations();
     }
   }
 
@@ -321,6 +359,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
           <div className="row">
             <Workbench
+              tagColors={this.state.tagColors}
               currentTime={this.state.currentTime}
               duration={this.state.duration}
               startFrequency={task.boundaries.startFrequency}
@@ -338,7 +377,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </div>
 
           <div className="row controls">
-            <p className="col-sm-4">
+            <p className="col-sm-1">
               <button
                 className={`btn-simple btn-play fa ${playStatusClass}`}
                 onClick={this.playPause}
@@ -348,11 +387,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             <p className="col-sm-4 text-center">
               <button
                 className="btn btn-submit"
-                onClick={this.submitAnnotations}
+                onClick={this.checkAndSubmitAnnotations}
                 type="button"
               >Submit &amp; load next recording</button>
             </p>
-            <p className="col-sm-4 text-right">
+            <div className="col-sm-4">
+              <Toast toastMsg={this.state.toastMsg}></Toast>
+            </div>
+            <p className="col-sm-3 text-right">
               {this.formatTimestamp(this.state.currentTime)}
               &nbsp;/&nbsp;
               {this.formatTimestamp(this.state.duration)}
@@ -389,15 +431,32 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const ann: Annotation = activeAnn;
       const task: AnnotationTask = this.state.task;
 
-      const tags = task.annotationTags.map((tag, idx) => (
-        <li key={`tag-${idx.toString()}`}>
-          <button
-            className={`btn ${(ann.annotation === tag) ? 'btn-tag-selected' : 'btn-tag'}`}
-            onClick={() => this.toggleTag(tag)}
-            type="button"
-          >{tag}</button>
-        </li>
-      ));
+      const tags = task.annotationTags.map((tag, idx) => {
+        const color: string = utils.getTagColor(this.state.tagColors, tag);
+
+        const style = {
+          inactive: {
+            backgroundColor: color,
+            border: 'none',
+            color: '#ffffff',
+          },
+          active: {
+            backgroundColor: 'transparent',
+            border: `1px solid ${color}`,
+            color: color,
+          },
+        };
+        return (
+          <li key={`tag-${idx.toString()}`}>
+            <button
+              className="btn"
+              style={(ann.annotation === tag) ? style.active : style.inactive}
+              onClick={() => this.toggleTag(tag)}
+              type="button"
+            >{tag}</button>
+          </li>
+        );
+      });
 
       return (
         <div className="card">
