@@ -4,10 +4,6 @@ html {
 
 /* Annotator */
 
-.annotator {
-  width: 97% !important;
-}
-
 .annotator-nav {
   display: flex;
   flex-direction: row;
@@ -26,8 +22,6 @@ html {
 .btn-simple, .btn-simple:enabled {
   background-color: transparent;
   border: 0;
-  margin: 0;
-  padding: 0;
 }
 
 .toasty {
@@ -90,16 +84,52 @@ html {
 /* Workbench */
 
 .workbench {
+  margin: 0 auto 10px;
   position: relative;
-  height: 600px;
   background-color: #eeeeee;
+}
+
+.workbench-controls {
+  position: absolute;
+  top: 10px;
+  left: 100px;
+  background-color: #ffffff;
+  border-radius: 5px;
+}
+.workbench-controls > * {
+  display: inline-block;
+  padding: 5px;
+}
+.workbench-controls > select {
+  height: auto;
+  width: auto;
+  margin-right: 20px;
+}
+.workbench-controls > button, .workbench-controls > span {
+  font-size: 20px;
+  padding: 5px;
+}
+
+.canvas-wrapper {
+  position: absolute;
+  right: 0;
+  overflow-x: scroll;
 }
 
 .canvas {
   display: block;
   position: absolute;
-  right: 0;
   cursor: crosshair;
+}
+
+.time-axis {
+  display: block;
+  position: absolute;
+}
+
+.freq-axis {
+  display: block;
+  position: absolute;
 }
 
 .region {
@@ -122,13 +152,17 @@ html {
   align-self: center;
 }
 
+.region-header > button {
+  padding: 0;
+}
+
 .region-body {
   width: 100%;
 }
 
 /* Controls */
 
-.controls > p {
+.annotator-controls > p {
   margin-bottom: 0;
 }
 

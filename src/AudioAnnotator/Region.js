@@ -20,30 +20,7 @@ type RegionProps = {
   onRegionClicked: (Annotation) => void,
 };
 
-type RegionState = {
-  left: number,
-  top: number,
-  width: number,
-  height: number,
-};
-
-class Region extends Component<RegionProps, RegionState> {
-  constructor(props: RegionProps) {
-    super(props);
-
-    const duration: number = props.annotation.endTime - props.annotation.startTime;
-    const freqRange: number = props.annotation.endFrequency - props.annotation.startFrequency;
-
-    const width: number = Math.floor(this.props.timePxRatio * duration);
-    const height: number = Math.floor(this.props.freqPxRatio * freqRange) + HEADER_HEIGHT + HEADER_MARGIN;
-
-    this.state = {
-      left : Math.floor(this.props.offsetLeft),
-      top: Math.floor(this.props.offsetTop) - HEADER_HEIGHT - HEADER_MARGIN,
-      width,
-      height,
-    };
-  }
+class Region extends Component<RegionProps> {
 
   playAnnotation = () => {
     this.props.onRegionPlayed(this.props.annotation);
@@ -60,12 +37,18 @@ class Region extends Component<RegionProps, RegionState> {
   render() {
     const isActive: boolean = this.props.annotation.active;
 
+    const duration: number = this.props.annotation.endTime - this.props.annotation.startTime;
+    const freqRange: number = this.props.annotation.endFrequency - this.props.annotation.startFrequency;
+
+    const width: number = Math.floor(this.props.timePxRatio * duration);
+    const height: number = Math.floor(this.props.freqPxRatio * freqRange) + HEADER_HEIGHT + HEADER_MARGIN;
+
     const styles = {
       wrapper: {
-        left: this.state.left,
-        top: this.state.top,
-        width: this.state.width,
-        height: this.state.height,
+        left: Math.floor(this.props.offsetLeft),
+        top: Math.floor(this.props.offsetTop) - HEADER_HEIGHT - HEADER_MARGIN,
+        width: width,
+        height: height,
       },
       header: {
         height: HEADER_HEIGHT,
@@ -77,8 +60,8 @@ class Region extends Component<RegionProps, RegionState> {
         height: `${HEADER_HEIGHT}px`,
       },
       body: {
-        height: this.state.height - HEADER_HEIGHT - HEADER_MARGIN,
         border: isActive ? `2px solid ${this.props.color}` : `2px solid ${this.props.color}88`,
+        height: height - HEADER_HEIGHT - HEADER_MARGIN,
       },
     };
 

@@ -18,6 +18,13 @@ if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing i
 const API_URL = process.env.REACT_APP_API_URL + '/annotation-task';
 
 
+export type SpectroUrlsParams = {
+  nfft: number,
+  winsize: number,
+  overlap: number,
+  urls: Array<string>,
+};
+
 type AnnotationTask = {
   annotationTags: Array<string>,
   boundaries: {
@@ -27,7 +34,7 @@ type AnnotationTask = {
     endFrequency: number,
   },
   audioUrl: string,
-  spectroUrls: any,
+  spectroUrls: Array<SpectroUrlsParams>,
 };
 
 export type Annotation = {
@@ -98,21 +105,25 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .then(result => {
         const task: AnnotationTask = result.body.task;
 
-        // Computing duration (in seconds)
-        const startDate = new Date(task.boundaries.startTime);
-        const endDate = new Date(task.boundaries.endTime)
-        const duration: number = (endDate.getTime() - startDate.getTime()) / 1000;
-        const frequencyRange: number = task.boundaries.endFrequency - task.boundaries.startFrequency;
+        if (task.annotationTags.length > 0 && task.spectroUrls.length > 0) {
+          // Computing duration (in seconds)
+          const startDate = new Date(task.boundaries.startTime);
+          const endDate = new Date(task.boundaries.endTime)
+          const duration: number = (endDate.getTime() - startDate.getTime()) / 1000;
+          const frequencyRange: number = task.boundaries.endFrequency - task.boundaries.startFrequency;
 
-        // Finally, setting state
-        this.setState({
-          tagColors: utils.buildTagColors(task.annotationTags),
-          task,
-          duration,
-          frequencyRange,
-          isLoading: false,
-          error: undefined,
-        });
+          // Finally, setting state
+          this.setState({
+            tagColors: utils.buildTagColors(task.annotationTags),
+            task,
+            duration,
+            frequencyRange,
+            isLoading: false,
+            error: undefined,
+          });
+        } else {
+          this.setState({isLoading: false, error: 'Not enough data to retrieve spectrograms'});
+        }
       })
       .catch(err => {
         if (err.status && err.status === 401) {
@@ -308,18 +319,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
   }
 
-  formatTimestamp = (rawSeconds: number) => {
-    const hours: number = Math.floor(rawSeconds / 3600);
-    const minutes: number = Math.floor(rawSeconds / 60) % 60;
-    const seconds: number = Math.floor(rawSeconds) % 60;
-    const ms: number = rawSeconds - seconds;
-
-    return String(hours).padStart(2, '0') + ':'
-      + String(minutes).padStart(2, '0') + ':'
-      + String(seconds).padStart(2, '0') + '.'
-      + ms.toFixed(3).slice(-3);
-  }
-
   render() {
     if (this.state.isLoading) {
       return <p>Loading...</p>;
@@ -357,26 +356,24 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             src={task.audioUrl}
           ></AudioPlayer>
 
-          <div className="row">
-            <Workbench
-              tagColors={this.state.tagColors}
-              currentTime={this.state.currentTime}
-              duration={this.state.duration}
-              startFrequency={task.boundaries.startFrequency}
-              frequencyRange={this.state.frequencyRange}
-              spectrogramUrl={task.spectroUrls['100%']}
-              annotations={this.state.annotations}
-              onAnnotationCreated={this.saveAnnotation}
-              onAnnotationUpdated={this.updateAnnotation}
-              onAnnotationDeleted={this.deleteAnnotation}
-              onAnnotationSelected={this.activateAnnotation}
-              onAnnotationPlayed={this.play}
-              onSeek={this.seekTo}
-            >
-            </Workbench>
-          </div>
+          <Workbench
+            tagColors={this.state.tagColors}
+            currentTime={this.state.currentTime}
+            duration={this.state.duration}
+            startFrequency={task.boundaries.startFrequency}
+            frequencyRange={this.state.frequencyRange}
+            spectroUrlsParams={task.spectroUrls}
+            annotations={this.state.annotations}
+            onAnnotationCreated={this.saveAnnotation}
+            onAnnotationUpdated={this.updateAnnotation}
+            onAnnotationDeleted={this.deleteAnnotation}
+            onAnnotationSelected={this.activateAnnotation}
+            onAnnotationPlayed={this.play}
+            onSeek={this.seekTo}
+          >
+          </Workbench>
 
-          <div className="row controls">
+          <div className="row annotator-controls">
             <p className="col-sm-1">
               <button
                 className={`btn-simple btn-play fa ${playStatusClass}`}
@@ -395,9 +392,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <Toast toastMsg={this.state.toastMsg}></Toast>
             </div>
             <p className="col-sm-3 text-right">
-              {this.formatTimestamp(this.state.currentTime)}
+              {utils.formatTimestamp(this.state.currentTime)}
               &nbsp;/&nbsp;
-              {this.formatTimestamp(this.state.duration)}
+              {utils.formatTimestamp(this.state.duration)}
             </p>
           </div>
 
@@ -464,8 +461,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <div className="card-body d-flex justify-content-between">
             <p className="card-text">
               <i className="fa fa-clock-o"></i>&nbsp;
-              {this.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-              {this.formatTimestamp(ann.endTime)}<br />
+              {utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+              {utils.formatTimestamp(ann.endTime)}<br />
               <i className="fa fa-arrow-up"></i>&nbsp;
               {ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
               {ann.endFrequency.toFixed(2)} Hz
@@ -496,8 +493,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       >
         <td>
           <i className="fa fa-clock-o"></i>&nbsp;
-          {this.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
-          {this.formatTimestamp(annotation.endTime)}
+          {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
+          {utils.formatTimestamp(annotation.endTime)}
         </td>
         <td>
           <i className="fa fa-arrow-up"></i>&nbsp;
