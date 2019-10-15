@@ -50,6 +50,7 @@ type AnnotationTask = {
   spectroUrls: Array<SpectroUrlsParams>,
   prevAnnotations: Array<RawAnnotation>,
   campaignId: number,
+  instructionsUrl: ?string,
 };
 
 type AudioAnnotatorProps = {
@@ -347,7 +348,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         <div className="annotator container-fluid">
           <div className="row">
             <h1 className="col-sm-6">Ocean Data Explorer</h1>
-            <ul className="col-sm-6 annotator-nav">
+            <p className="col-sm-3 annotator-nav">{this.renderInstructionsLink()}</p>
+            <ul className="col-sm-3 annotator-nav">
               <li><Link
                 to={`/annotation_tasks/${task.campaignId}`}
                 title="Go back to annotation campaign tasks"
@@ -518,6 +520,21 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         </td>
       </tr>
     );
+  }
+
+  renderInstructionsLink = () => {
+    if (this.state.task && this.state.task.instructionsUrl) {
+      return (
+        <span>
+          <a
+            className="btn btn-warning"
+            href={this.state.task.instructionsUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >How to annotate</a>
+        </span>
+      );
+    }
   }
 }
 

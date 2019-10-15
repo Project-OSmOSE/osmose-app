@@ -9,7 +9,7 @@ html {
   flex-direction: row;
   justify-content: end;
 }
-.annotator-nav > li {
+.annotator-nav > span, .annotator-nav > li {
   padding: 10px 10px 0 10px;
 }
 
