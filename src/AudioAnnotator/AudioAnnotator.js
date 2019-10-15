@@ -354,9 +354,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               >
                 Campaign&apos;s task list
               </Link></li>
-              <li><Link to={'/audio-annotator/legacy/' + this.props.match.params.annotation_task_id}>
-                Switch to old annotator
-              </Link></li>
             </ul>
           </div>
 

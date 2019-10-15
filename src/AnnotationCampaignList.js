@@ -17,8 +17,10 @@ type ACLState = {
     datasets_count: number,
     start: string,
     end: string,
+    tasks_count: number,
     complete_tasks_count: number,
-    tasks_count: number
+    user_tasks_count: number,
+    user_complete_tasks_count: number,
   }>,
   error: ?{
     status: number,
@@ -62,7 +64,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           <td>{annotation_campaign.datasets_count}</td>
           <td>{new Date(annotation_campaign.start).toDateString()}</td>
           <td>{new Date(annotation_campaign.end).toDateString()}</td>
-          <td>{annotation_campaign.complete_tasks_count} / {annotation_campaign.tasks_count}</td>
+          <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
           <td><Link to={'/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>
         </tr>
       );
