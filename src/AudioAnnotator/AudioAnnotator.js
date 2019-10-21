@@ -17,6 +17,9 @@ import '../css/annotator.css';
 if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
 const API_URL = process.env.REACT_APP_API_URL + '/annotation-task';
 
+// Playback rates
+const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
+
 
 export type SpectroUrlsParams = {
   nfft: number,
@@ -71,6 +74,7 @@ type AudioAnnotatorState = {
   stopTime: ?number,
   currentTime: number,
   duration: number,
+  playbackRate: number,
   frequencyRange: number,
   task: ?AnnotationTask,
   taskStartTime: number,
@@ -95,6 +99,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       stopTime: undefined,
       currentTime: 0,
       duration: 0,
+      playbackRate: 1.0,
       frequencyRange: 0,
       task: undefined,
       taskStartTime: now.getTime(),
@@ -331,6 +336,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
   }
 
+  changePlaybackRate = (event: SyntheticInputEvent<HTMLSelectElement>) => {
+    this.setState({
+      playbackRate: parseFloat(event.target.value),
+    });
+  }
+
   render() {
     if (this.state.isLoading) {
       return <p>Loading...</p>;
@@ -343,6 +354,21 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const playStatusClass = this.state.isPlaying ? "fa-pause-circle" : "fa-play-circle";
       const sortedAnnotations: Array<Annotation> = this.state.annotations
         .sort((a, b) => a.startTime - b.startTime);
+
+      const playbackRateOptions = AVAILABLE_RATES.map(rate => (
+        <option key={`rate-${rate}`} value={rate.toString()}>{rate.toString()}x</option>
+      ));
+      let playbackRateSelect = undefined;
+      // $FlowFixMe
+      if (this.audioPlayer && this.audioPlayer.audioElement.mozPreservesPitch !== undefined) {
+        playbackRateSelect = (
+          <select
+            className="form-control select-rate"
+            defaultValue={this.state.playbackRate}
+            onChange={this.changePlaybackRate}
+          >{playbackRateOptions}</select>
+        );
+      }
 
       return (
         <div className="annotator container-fluid">
@@ -366,6 +392,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             onLoadedMetadata={() => this.updateProgress(0)}
             preload="auto"
             ref={(element) => { if (element) this.audioPlayer = element; } }
+            playbackRate={this.state.playbackRate}
             src={task.audioUrl}
           ></AudioPlayer>
 
@@ -387,14 +414,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </Workbench>
 
           <div className="row annotator-controls">
-            <p className="col-sm-1">
+            <p className="col-sm-1 text-right">
               <button
                 className={`btn-simple btn-play fa ${playStatusClass}`}
                 onClick={this.playPause}
               ></button>
             </p>
+            <p className="col-sm-1">
+              {playbackRateSelect}
+            </p>
 
-            <p className="col-sm-4 text-center">
+            <p className="col-sm-3 text-center">
               <button
                 className="btn btn-submit"
                 onClick={this.checkAndSubmitAnnotations}
