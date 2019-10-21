@@ -438,7 +438,10 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     let bigStep: number = 2000;
 
     const frequencyOnScreen: number = this.state.wrapperHeight / this.state.freqPxRatio;
-    if (frequencyOnScreen <= 500) {
+    if (frequencyOnScreen <= 200) {
+      step = 5;
+      bigStep = 20;
+    } else if (frequencyOnScreen > 200 && frequencyOnScreen <= 500) {
       step = 10;
       bigStep = 100;
     } else if (frequencyOnScreen > 500 && frequencyOnScreen <= 2000) {
@@ -460,7 +463,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     context.font = '10px Arial';
 
     let i: number = 0;
-    for (i = startFreq ; i <= endFreq ; i += 10) {
+    for (i = startFreq ; i <= endFreq ; i += 5) {
       if (i % step === 0) {
         const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
 
