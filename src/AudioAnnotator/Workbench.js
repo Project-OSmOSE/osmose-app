@@ -437,17 +437,16 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     let step: number = 500; // step of scale (in hz)
     let bigStep: number = 2000;
 
-    const frequencyOnScreen: number = this.state.wrapperHeight / this.state.freqPxRatio;
-    if (frequencyOnScreen <= 200) {
+    if (this.props.frequencyRange <= 200) {
       step = 5;
       bigStep = 20;
-    } else if (frequencyOnScreen > 200 && frequencyOnScreen <= 500) {
+    } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
       step = 10;
       bigStep = 100;
-    } else if (frequencyOnScreen > 500 && frequencyOnScreen <= 2000) {
+    } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
       step = 20;
       bigStep = 100;
-    } else if (frequencyOnScreen > 2000 && frequencyOnScreen <= 20000) {
+    } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
       step = 500;
       bigStep = 2000;
     } else {
@@ -512,7 +511,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     if (this.state.newAnnotation) {
       const ann: Annotation = this.state.newAnnotation;
       const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
-      const y: number = Math.floor(canvas.height - ann.startFrequency * this.state.freqPxRatio);
+      const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
+      const y: number = Math.floor(canvas.height - freqOffset);
       const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
       const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
       context.strokeStyle = 'blue';
@@ -604,7 +604,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   renderRegion = (ann: Annotation) => {
     // Top offset
-    const offsetTop: number = CANVAS_HEIGHT - ann.endFrequency * this.state.freqPxRatio;
+    const freqOffset: number = (ann.endFrequency - this.props.startFrequency) * this.state.freqPxRatio;
+    const offsetTop: number = CANVAS_HEIGHT - freqOffset;
 
     // Left offset
     const offsetLeft: number = ann.startTime * this.state.timePxRatio;
