@@ -13,6 +13,7 @@ type ACLState = {
   annotation_campaigns: Array<{
     id: number,
     name: string,
+    instructionsUrl: ?string,
     annotation_set_id: number,
     datasets_count: number,
     start: string,
@@ -56,21 +57,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   }
 
   render() {
-    const annotation_campaigns = this.state.annotation_campaigns.map(annotation_campaign => {
-      return (
-        <tr key={annotation_campaign.id}>
-          <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
-          <td>Set n°{annotation_campaign.annotation_set_id}</td>
-          <td>{annotation_campaign.datasets_count}</td>
-          <td>{new Date(annotation_campaign.start).toDateString()}</td>
-          <td>{new Date(annotation_campaign.end).toDateString()}</td>
-          <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
-          <td><Link to={'/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>
-        </tr>
-      );
-    });
-
-    if(this.state.error) {
+    if (this.state.error) {
       return (
         <div className="col-sm-9 border rounded">
           <h1>Annotation Campaigns</h1>
@@ -79,9 +66,44 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
       )
     }
 
+    const annotation_campaigns = this.state.annotation_campaigns.map(annotation_campaign => {
+      let instructions = <span>-</span>;
+      if (annotation_campaign.instructionsUrl) {
+        instructions = (
+          <a
+            href={annotation_campaign.instructionsUrl}
+            title="Instructions on how to annotate tasks for this campaign"
+            rel="noopener noreferrer"
+            target="_blank"
+          >Instructions</a>
+        );
+      }
+
+      return (
+        <tr key={annotation_campaign.id}>
+          <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
+          <td>Set n°{annotation_campaign.annotation_set_id}</td>
+          <td>{annotation_campaign.datasets_count}</td>
+          <td>{new Date(annotation_campaign.start).toDateString()}</td>
+          <td>{new Date(annotation_campaign.end).toDateString()}</td>
+          <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
+          <td>{instructions}</td>
+          <td><Link to={'/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>
+        </tr>
+      );
+    });
+
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">Annotation Campaigns</h1>
+        <p className="text-center">
+          <a
+            className="btn btn-warning"
+            href="https://github.com/Project-ODE/FrontApp/blob/master/docs/user_guide_annotator.md"
+            rel="noopener noreferrer"
+            target="_blank"
+          ><span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>
+        </p>
         <table className="table table-bordered">
           <thead>
             <tr>
@@ -91,6 +113,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
               <th>Start Date</th>
               <th>End Date</th>
               <th>Progress</th>
+              <th>Campaign instructions</th>
               <th>Annotation Link</th>
             </tr>
           </thead>

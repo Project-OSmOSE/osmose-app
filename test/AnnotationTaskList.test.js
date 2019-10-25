@@ -4,6 +4,7 @@ import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
 import AnnotationTaskList from '../src/AnnotationTaskList';
+import details from './fixtures/annotation_campaign_detail.json';
 import annotation_tasks from './fixtures/annotation_task_list.json';
 
 describe('testing AnnotationTaskList component', function () {
@@ -16,6 +17,7 @@ describe('testing AnnotationTaskList component', function () {
     });
 
     it('shows the correct annotation_tasks', () => {
+        nock(process.env.REACT_APP_API_URL).get('/annotation-campaign/5').reply(200, details);
         nock(process.env.REACT_APP_API_URL).get('/annotation-task/campaign/5/my-list').reply(200, annotation_tasks);
         let wrapper = shallow(<AnnotationTaskList match={{ params: { campaign_id: 5 } }} />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {

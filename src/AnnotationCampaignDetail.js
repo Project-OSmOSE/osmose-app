@@ -62,7 +62,8 @@ type ACDState = {
     start: string,
     end: string,
     annotation_set_id: number,
-    owner_id: number
+    owner_id: number,
+    instructionsUrl: ?string,
   },
   tasks: Array<{
     annotator_id: number,

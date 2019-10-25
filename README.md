@@ -2,6 +2,8 @@
 
 Front-end Application sourcing data from FeatureService. It is a React application meant to manage datasets, launch annotation campaigns and annotate dataset files.
 
+For more information about what the application can do or how to use the annotator, see the [user guide](docs/user_guide_annotator.md).
+
 ## Installation
 
 ```sh
