@@ -16,14 +16,6 @@ npm install
 echo "REACT_APP_API_URL=http://localhost:7231/data.ode.org/v1" > .env.development.local
 ```
 
-### Setting up the audio-annotator submodule:
-
-```sh
-# This will set up submodules (audio-annotator here) with all the code from origin master's latest commit
-git submodule update --init --remote --merge
-# You can always go into public/audio-annotator and use git to pull another version if needed (or to update)
-```
-
 ### Setting up development environment:
 
 You should have FeatureService set up, you'd typically do it the following way:
@@ -57,3 +49,7 @@ NODE_ENV=test node server.js -c config.test.yaml
 npm start
 npm test
 ```
+
+## Inspired by CrowdCurio
+
+This project started as a wrapper around [CrowdCurio annotator](https://github.com/CrowdCurio/audio-annotator). As our use case diverged we decided to restart from scratch, using CrowdCurio as inspiration. Some features are still missing: waveform representation of the audio file, [user feedback](https://github.com/CrowdCurio/audio-annotator#feedback-mechanisms) through test audio files (that already has reference annotations), and advanced tracking of user actions (deleted_annotations and annotation_events: `start-to-create`, `offline-create`, `add-annoation-label`, `add-proxity-label`, `delete`, `play-region`, `select-for-edit`, `region-moved-end`, `region-moved-start`).
