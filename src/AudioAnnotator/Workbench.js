@@ -16,7 +16,8 @@ const SCROLLBAR_RESERVED: number = 20;
 type Spectrogram = {
   start: number,
   end: number,
-  image: Image,
+  src: string,
+  image: ?Image,
 };
 
 type SpectroParams = {
@@ -62,6 +63,7 @@ type WorkbenchState = {
   currentZoom: number,
   spectrograms: Array<SpectroDetails>,
   newAnnotation: ?Annotation,
+  loadingZoomLvl: number,
 };
 
 class Workbench extends Component<WorkbenchProps, WorkbenchState> {
@@ -109,6 +111,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       currentZoom: 1,
       spectrograms: [],
       newAnnotation: undefined,
+      loadingZoomLvl: 1,
     };
 
     this.wrapperRef = React.createRef();
@@ -147,11 +150,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
         const images = [...Array(zoom)].map((_, i) => {
           const start: number = i * step;
           const end: number = (i + 1) * step;
-
-          const image = new Image();
-          image.src = `${base.urlPrefix}${base.urlFileName}_${zoom.toString()}_${i}${base.urlFileExtension}`;
-          image.onload = this.renderCanvas;
-          return {start, end, image};
+          const src: string = `${base.urlPrefix}${base.urlFileName}_${zoom.toString()}_${i}${base.urlFileExtension}`;
+          return {start, end, src, image: undefined};
         });
 
         return Object.assign({}, base, {zoom, images});
@@ -159,14 +159,59 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     });
   }
 
+  onSpectroImageComplete = () => {
+    // Re-render canvas with new image
+    this.renderCanvas();
+
+    // Retrieve current loading zoom with current details
+    const details: ?SpectroDetails = this.getSpectrosForCurrentDetails()
+      .find(details => details.zoom === this.state.loadingZoomLvl);
+
+    if (details) {
+      // Check if zoom lvl is loaded
+      const isZoomLvlLoaded: boolean = details.images
+        .reduce((acc, cur) => acc && cur.image ? cur.image.complete : false, true);
+
+      if (isZoomLvlLoaded) {
+        // Go on with next level if exists
+        const zoomLevels = this.getSpectrosForCurrentDetails()
+          .map(details => details.zoom)
+          .sort((a, b) => a - b);
+        const zoomIdx: number = zoomLevels.findIndex(factor => factor === this.state.loadingZoomLvl);
+
+        if (zoomIdx < zoomLevels.length - 1) {
+          this.setState({
+            loadingZoomLvl: zoomLevels[zoomIdx + 1],
+          }, this.loadNextZoomLevel);
+        }
+      }
+    }
+  }
+
+  loadNextZoomLevel() {
+    const oldDetails: ?SpectroDetails = this.getSpectrosForCurrentDetails()
+      .find(details => details.zoom === this.state.loadingZoomLvl);
+
+    if (oldDetails) {
+      const newImages: Array<Spectrogram> = oldDetails.images.map(spectro => {
+        const image = new Image();
+        image.src = spectro.src;
+        image.onload = this.onSpectroImageComplete;
+        return Object.assign({}, spectro, { image: image });
+      });
+
+      const filteredDetails: Array<SpectroDetails> = this.getAllSpectrosButCurrentForZoom(this.state.loadingZoomLvl);
+
+      this.setState({
+        spectrograms: filteredDetails.concat(Object.assign({}, oldDetails, { images: newImages })),
+      });
+    }
+  }
+
   componentDidMount() {
     // Handling spectrogram images
-    /* @todo Currently we load all images at this time, not only displayed ones
-     * Implement a cache system which will load images when needed
-     */
-
     const spectrograms: Array<SpectroDetails> = this.buildSpectrogramsDetails(this.props.spectroUrlsParams);
-    this.setState({spectrograms});
+    this.setState({spectrograms}, this.loadNextZoomLevel);
 
     // Add event listeners at the document level
     // (the user is able to release the click on any zone)
@@ -243,11 +288,26 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }
   }
 
-  getCurrentDetails(): Array<SpectroDetails> {
+  getSpectrosForCurrentDetails(): Array<SpectroDetails> {
     return this.state.spectrograms.filter((details: SpectroDetails) =>
       (this.state.currentParams.nfft === details.nfft) &&
         (this.state.currentParams.winsize === details.winsize) &&
         (this.state.currentParams.overlap === details.overlap)
+    );
+  }
+
+  getAllSpectrosButCurrentForZoom(zoomIdx: number): Array<SpectroDetails> {
+    return this.state.spectrograms.filter((details: SpectroDetails) =>
+      (
+        (this.state.currentParams.nfft === details.nfft) &&
+        (this.state.currentParams.winsize === details.winsize) &&
+        (this.state.currentParams.overlap === details.overlap) &&
+        (zoomIdx !== details.zoom)
+      ) || (
+        (this.state.currentParams.nfft !== details.nfft) ||
+        (this.state.currentParams.winsize !== details.winsize) ||
+        (this.state.currentParams.overlap !== details.overlap)
+      )
     );
   }
 
@@ -259,14 +319,17 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       overlap: fullParams.overlap,
       zoom: 1,
     };
-    this.setState({currentParams: newParams}, this.renderCanvas);
+    this.setState({
+      currentParams: newParams,
+      loadingZoomLvl: 1,
+    }, this.loadNextZoomLevel);
   }
 
   zoom = (direction: number, xFrom: ?number) => {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
     const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
 
-    const zoomLevels = this.getCurrentDetails()
+    const zoomLevels = this.getSpectrosForCurrentDetails()
       .map(details => details.zoom)
       .sort((a, b) => a - b);
 
@@ -491,13 +554,15 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw spectro images
-    const spectrograms = this.getCurrentDetails().find(details => details.zoom === this.state.currentZoom);
+    const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
+
     if (spectrograms) {
       spectrograms.images.forEach(spectro => {
         if (spectro.image && spectro.image.complete) {
+          const image = spectro.image;
           const x = spectro.start * this.state.timePxRatio;
           const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
-          context.drawImage(spectro.image, x, 0, width, canvas.height);
+          context.drawImage(image, x, 0, width, canvas.height);
         }
       });
     }
