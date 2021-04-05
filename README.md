@@ -3,21 +3,33 @@
 OSmOSE stands for Open Science meets Ocean Sounds Explorers.
 This repository contains the showcase website of the association.
 
-## Template
+## Installation / development
 
-The template is [Solid State](https://html5up.net/solid-state) by [HTML5 UP](https://html5up.net/). From template README:
+```sh
+# Install the modules from the package.json file
+npm install
+# Run development server
+npm start
+# Run test suite
+npm test
+# Run Storybook
+npm run storybook
+```
 
-Solid State by HTML5 UP
-html5up.net | @ajlkn
-Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+All the files (components and stories) under `src/stories` were created by Storybook and are temporarly kept to be used as examples for stories creation. More data about Storybook in the dedicated [storybook internal documentation](docs/storybook.md).
 
-aj@lkn.io | @ajlkn
+## Libraries used
 
-Credits:
+The site was bootstrapped with:
 
-* Icons:
-    * Font Awesome (fontawesome.io)
-* Other:
-    * jQuery (jquery.com)
-    * Scrollex (github.com/ajlkn/jquery.scrollex)
-    * Responsive Tools (github.com/ajlkn/responsive-tools)
+* [Create React App](https://github.com/facebook/create-react-app) **with TypeScript enabled**. You can see the dedicated [React page](docs/react.md) in the internal documentation.
+* [Storybook](https://storybook.js.org/). You can see the dedicated [Storybook page](docs/storybook.md) in the internal documentation.
+
+Boostrap history:
+
+```sh
+npx create-react-app --template typescript osmose-website
+npx -p @storybook/cli sb init
+npm install --save react-router-dom
+npm install --save-dev @types/react-router-dom
+```
