@@ -1,4 +1,4 @@
-"""config URL Configuration
+"""backend URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -26,7 +26,7 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
-from config.views import testview
+from backend.views import testview
 
 
 # Serializers define the API representation.
