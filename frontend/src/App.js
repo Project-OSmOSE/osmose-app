@@ -63,7 +63,7 @@ class App extends Component<void, AppState> {
 
   componentDidMount() {
     if (document.cookie) {
-      let tokenItem = document.cookie.split(';').filter((item) => item.includes('token='))[0];
+      let tokenItem = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
       if (tokenItem) {
         this.setState({
           app_token: tokenItem.split('=').pop()

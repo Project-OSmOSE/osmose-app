@@ -15,7 +15,7 @@ describe('testing Login component', function () {
     });
 
     it('correctly use handleToken prop for 200 response', () => {
-        nock(process.env.REACT_APP_API_URL).post('/authentication/authenticate').reply(200, {token: 'TestToken'});
+        nock(/.*/).post('/api/token/').reply(200, {access: 'TestToken'});
         let token = '';
         let handleToken = (t) => { token = t };
         let wrapper = shallow(<Login handleToken={handleToken} />);
@@ -26,7 +26,7 @@ describe('testing Login component', function () {
     });
 
     it('correctly sets error message for 401 response', () => {
-        nock(process.env.REACT_APP_API_URL).post('/authentication/authenticate').reply(401);
+        nock(/.*/).post('/api/token/').reply(401);
         let wrapper = shallow(<Login />);
         return wrapper.instance().handleSubmit({preventDefault: () => null}).then(() => {
             assert.deepEqual(wrapper.state('error').message, 'Access denied', "Error message isn't correct");
@@ -35,7 +35,7 @@ describe('testing Login component', function () {
     });
 
     it('sends default error message for 400 response', () => {
-        nock(process.env.REACT_APP_API_URL).post('/authentication/authenticate').reply(400);
+        nock(/.*/).post('/api/token/').reply(400);
         let wrapper = shallow(<Login />);
         return wrapper.instance().handleSubmit({preventDefault: () => null}).then(() => {
             assert.deepEqual(wrapper.state('error').message, 'Bad Request', "Error message isn't correct");
@@ -52,8 +52,8 @@ describe('testing Login component', function () {
     });
 
     it('works when re-submitting after an error', () => {
-        nock(process.env.REACT_APP_API_URL).post('/authentication/authenticate').reply(401);
-        nock(process.env.REACT_APP_API_URL).post('/authentication/authenticate').reply(200);
+        nock(/.*/).post('/api/token/').reply(401);
+        nock(/.*/).post('/api/token/').reply(200);
         let handleToken = () => { return 'it works' };
         let wrapper = shallow(<Login handleToken={handleToken} />);
         return wrapper.instance().handleSubmit({preventDefault: () => null}).then(() => {

@@ -2,8 +2,7 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const API_URL = process.env.REACT_APP_API_URL + '/authentication/authenticate';
+const API_URL = '/api/token/';
 
 type LoginProps = {
   handleToken: (token: string) => void
@@ -42,7 +41,7 @@ class Login extends Component<LoginProps, LoginState> {
     this.sendData = request.post(API_URL);
     let loginInfo = {username: this.state.login, password: this.state.password};
     return this.sendData.send(loginInfo).then(res => {
-      return this.props.handleToken(res.body.token);
+      return this.props.handleToken(res.body.access);
     }).catch(err => {
       // Checking if this is an HTTP error
       if (err.status && err.response) {

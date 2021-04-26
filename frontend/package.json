@@ -2,6 +2,7 @@
   "name": "ODE-FrontApp",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "eslint": "^5.8.0",
     "react": "^16.9.0",
