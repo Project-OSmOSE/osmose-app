@@ -1,0 +1,16 @@
+{
+    "campaign": {
+        "id": 1,
+        "name": "SPM whale annotation",
+        "desc": "Campaign description",
+        "start": "2018-06-01T00:00:00.000Z",
+        "end": "2018-12-30T00:00:00.000Z",
+        "annotation_set_id": 1,
+        "owner_id": 5
+    },
+    "tasks": [
+        {"count": 3,"annotator_id": 3,"status": 2},
+        {"count": 5,"annotator_id": 3,"status": 0},
+        {"count": 8,"annotator_id": 4,"status": 0}
+    ]
+}

@@ -1,0 +1,199 @@
+html {
+  overflow-y: scroll;
+}
+
+/* Annotator */
+
+.annotator-nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+.annotator-nav > span, .annotator-nav > li {
+  padding: 10px 10px 0 10px;
+}
+
+/* Generic elements */
+
+.row {
+  margin-bottom: 10px;
+}
+
+.btn-simple, .btn-simple:enabled {
+  background-color: transparent;
+  border: 0;
+}
+
+.toasty {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: auto 0 !important;
+  z-index: 1;
+  left: 0;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.toasty > button {
+  float: right;
+  line-height: inherit;
+  vertical-align: middle;
+}
+
+.toasty-hidden {
+  visibility: hidden;
+}
+
+.toasty-showing {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s;
+  animation: fadein 0.5s;
+}
+
+.toasty-visible {
+  visibility: visible;
+}
+
+.toasty-hiding {
+  visibility: visible;
+  -webkit-animation: fadeout 0.5s;
+  animation: fadeout 0.5s;
+}
+
+@-webkit-keyframes fadein {
+  from { bottom: -30px; opacity: 0; }
+  to { bottom: 0; opacity: 1; }
+}
+
+@keyframes fadein {
+  from { bottom: -30px; opacity: 0; }
+  to { bottom: 0; opacity: 1; }
+}
+
+@-webkit-keyframes fadeout {
+  from  { bottom: 0; opacity: 1; }
+  to { bottom: 30px; opacity: 0; }
+}
+
+@keyframes fadeout {
+  from { bottom: 0; opacity: 1; }
+  to { bottom: 30px; opacity: 0; }
+}
+
+/* Workbench */
+
+.workbench {
+  margin: 0 auto 10px;
+  position: relative;
+  background-color: #eeeeee;
+}
+
+.workbench-controls {
+  position: absolute;
+  top: 10px;
+  left: 100px;
+  background-color: #ffffff;
+  border-radius: 5px;
+}
+.workbench-controls > * {
+  display: inline-block;
+  padding: 5px;
+}
+.workbench-controls > select {
+  height: auto;
+  width: auto;
+  margin-right: 20px;
+}
+.workbench-controls > button, .workbench-controls > span {
+  font-size: 20px;
+  padding: 5px;
+}
+
+.canvas-wrapper {
+  position: absolute;
+  right: 0;
+  overflow-x: scroll;
+}
+
+.canvas {
+  display: block;
+  position: absolute;
+  cursor: crosshair;
+}
+
+.time-axis {
+  display: block;
+  position: absolute;
+}
+
+.freq-axis {
+  display: block;
+  position: absolute;
+}
+
+.region {
+  position: absolute;
+}
+
+.region-header {
+  width: 100%;
+  min-width: 100px;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.region-header > span {
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  align-self: center;
+}
+
+.region-header > button {
+  padding: 0;
+}
+
+.region-body {
+  width: 100%;
+}
+
+/* Controls */
+
+.annotator-controls > p {
+  margin-bottom: 0;
+}
+
+.btn-play {
+  color: #00b1b9;
+  font-size: 40px;
+}
+.btn-play:hover {
+  color: #00b1b9;
+}
+
+/* Annotation details */
+
+.btn-tag, .btn-tag:hover, .btn-tag:focus {
+  background-color: transparent;
+  border-color: #00b1b9;
+  color: #00b1b9;
+}
+
+.btn-tag-selected, .btn-tag-selected:hover, .btn-tag-selected:focus {
+  background-color: #00b1b9;
+  border: none;
+  color: #ffffff;
+}
+
+.annotation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: right;
+}
+
+.annotation-tags li {
+  margin: 5px;
+}

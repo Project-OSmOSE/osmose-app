@@ -1,0 +1,22 @@
+[
+	{
+		"id":1,
+		"name":"SPM annotation set",
+		"desc":"Annotation set made for the SPM collection",
+		"tags":[
+			"Mysticète",
+			"Humpback Whale",
+			"Minke Whale",
+			"Odontocète",
+			"Killer Whale",
+			"Beluga",
+			"Sperm Whale",
+			"Common Dolphin",
+			"Striped Dolphin",
+			"Pilot Whale",
+			"Rain",
+			"Vessel",
+			"Chain"
+		]
+	}
+]
