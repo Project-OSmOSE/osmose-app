@@ -14,8 +14,7 @@ import '../css/font-awesome-4.7.0.min.css';
 import '../css/annotator.css';
 
 // API constants
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const API_URL = process.env.REACT_APP_API_URL + '/annotation-task';
+const API_URL = '/api/annotation-task/';
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];

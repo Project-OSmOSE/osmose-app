@@ -32,8 +32,8 @@ describe('testing AnnotationCampaignDetail component', function () {
     });
 
     it('contains the info from the API calls and DownloadButton', () => {
-        nock(process.env.REACT_APP_API_URL).get('/annotation-campaign/1').reply(200, details);
-        nock(process.env.REACT_APP_API_URL).get('/user/list').reply(200, users);
+        nock(/.*/).get('/api/annotation-campaign/1').reply(200, details);
+        nock(/.*/).get('/api/user/').reply(200, users);
         let wrapper = shallow(<AnnotationCampaignDetail match={{ params: { campaign_id: 1 } }} />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {
             wrapper.update()

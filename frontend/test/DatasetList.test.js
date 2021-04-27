@@ -16,7 +16,7 @@ describe('testing DatasetList component', function () {
     });
 
     it('shows the correct datasets', () => {
-        nock(process.env.REACT_APP_API_URL).get('/dataset/list').reply(200, datasets);
+        nock(/.*/).get('/api/dataset/').reply(200, datasets);
         let wrapper = shallow(<DatasetList />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {
             wrapper.update();

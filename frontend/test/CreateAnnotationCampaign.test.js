@@ -75,9 +75,9 @@ describe('testing CreateAnnotationCampaign component', function () {
     });
 
     it('contains the info from the API calls', () => {
-        nock(process.env.REACT_APP_API_URL).get('/dataset/list').reply(200, datasets);
-        nock(process.env.REACT_APP_API_URL).get('/annotation-set/list').reply(200, annotation_sets);
-        nock(process.env.REACT_APP_API_URL).get('/user/list').reply(200, users);
+        nock(/.*/).get('/api/dataset/').reply(200, datasets);
+        nock(/.*/).get('/api/annotation-set/').reply(200, annotation_sets);
+        nock(/.*/).get('/api/user/').reply(200, users);
         let wrapper = mount(<CreateAnnotationCampaign />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {
             wrapper.update();
@@ -113,7 +113,7 @@ describe('testing CreateAnnotationCampaign component', function () {
             'annotation_goal',
             'annotation_method'
         ];
-        nock(process.env.REACT_APP_API_URL).post('/annotation-campaign/new', body => {
+        nock(/.*/).post('/api/annotation-campaign/', body => {
             expectedFields.forEach(field => {
                 assert(field in body, 'POST request should have "' + field + '" field');
             });

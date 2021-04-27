@@ -2,8 +2,7 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const API_URL = process.env.REACT_APP_API_URL + '/dataset/list';
+const API_URL = '/api/dataset/';
 
 type DatasetListProps = {
   app_token: string

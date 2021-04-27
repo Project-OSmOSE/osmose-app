@@ -4,11 +4,10 @@ import React, { Component } from 'react';
 import request from 'superagent';
 import * as utils from './utils';
 
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const GET_DATASETS_API_URL = process.env.REACT_APP_API_URL + '/dataset/list';
-const GET_ANNOTATION_SETS_API_URL = process.env.REACT_APP_API_URL + '/annotation-set/list';
-const GET_USERS_API_URL = process.env.REACT_APP_API_URL + '/user/list';
-const POST_ANNOTATION_CAMPAIGN_API_URL = process.env.REACT_APP_API_URL + '/annotation-campaign/new';
+const GET_DATASETS_API_URL = '/api/dataset/';
+const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';
+const GET_USERS_API_URL = '/api/user/';
+const POST_ANNOTATION_CAMPAIGN_API_URL = '/api/annotation-campaign/';
 
 type choices_type = {
   [?number]: {

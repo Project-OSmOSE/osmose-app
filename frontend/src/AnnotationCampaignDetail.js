@@ -2,10 +2,9 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const API_URL = process.env.REACT_APP_API_URL + '/annotation-campaign/';
-const USER_API_URL = process.env.REACT_APP_API_URL + '/user/list';
-const REPORT_API_URL = process.env.REACT_APP_API_URL + '/annotation-campaign/report/';
+const API_URL = '/api/annotation-campaign/';
+const USER_API_URL = '/api/user/';
+const REPORT_API_URL = '/api/annotation-campaign/report/';
 
 type DownloadButtonProps = {
   url: string,

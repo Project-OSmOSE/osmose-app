@@ -17,7 +17,7 @@ describe('testing AnnotationCampaignList component', function () {
     });
 
     it('shows the correct annotation campaigns', () => {
-        nock(process.env.REACT_APP_API_URL).get('/annotation-campaign/list').reply(200, annotation_campaigns);
+        nock(/.*/).get('/api/annotation-campaign/').reply(200, annotation_campaigns);
         let wrapper = shallow(<AnnotationCampaignList />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {
             wrapper.update();

@@ -26,7 +26,8 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
-from backend.views import testview
+from backend.api.views import dataset_index, user_index, annotation_campaign_show, annotation_campaign_index_create, annotation_campaign_report_show
+from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update
 
 
 # Serializers define the API representation.
@@ -48,11 +49,17 @@ router.register(r'users', UserViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tests/', testview),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/dataset/', dataset_index),
+    path('api/user/', user_index),
+    path('api/annotation-campaign/<int:id>', annotation_campaign_show),
+    path('api/annotation-campaign/', annotation_campaign_index_create),
+    path('api/annotation-campaign/<int:id>/report/', annotation_campaign_report_show),
+    path('api/annotation-set/', annotation_set_index),
+    path('api/annotation-task/campaign/<int:campaign_id>', annotation_task_index),
+    path('api/annotation-task/<int:id>', annotation_task_show),
+    path('api/annotation-task/<int:id>/update-results', annotation_task_update),
 ]
-
-#urlpatterns = format_suffix_patterns(urlpatterns)

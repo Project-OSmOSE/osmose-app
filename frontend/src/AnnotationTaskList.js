@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import request from 'superagent';
 
 // API constants
-if (!process.env.REACT_APP_API_URL) throw new Error('REACT_APP_API_URL missing in env');
-const CAMPAIGN_API_URL = process.env.REACT_APP_API_URL + '/annotation-campaign/';
-const TASKS_API_URL = process.env.REACT_APP_API_URL + '/annotation-task/campaign/ID/my-list';
+const CAMPAIGN_API_URL = '/api/annotation-campaign/';
+const TASKS_API_URL = '/api/annotation-task/campaign/ID';
 
 const TASK_STATUS_FINISHED = 2;
 
