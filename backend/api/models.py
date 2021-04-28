@@ -15,16 +15,16 @@ class AudioMetadatum(models.Model):
     class Meta:
         db_table = 'audio_metadata'
 
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-    num_channels = models.IntegerField()
-    sample_rate_khz = models.FloatField()
-    total_samples = models.IntegerField()
-    sample_bits = models.IntegerField()
-    gain_db = models.FloatField()
-    gain_rel = models.FloatField()
-    dutycycle_rdm = models.FloatField()
-    dutycycle_rim = models.FloatField()
+    start = models.DateTimeField(null=True)
+    end = models.DateTimeField(null=True)
+    num_channels = models.IntegerField(null=True)
+    sample_rate_khz = models.FloatField(null=True)
+    total_samples = models.IntegerField(null=True)
+    sample_bits = models.IntegerField(null=True)
+    gain_db = models.FloatField(null=True)
+    gain_rel = models.FloatField(null=True)
+    dutycycle_rdm = models.FloatField(null=True)
+    dutycycle_rim = models.FloatField(null=True)
 
 
 class DatasetType(models.Model):
@@ -73,6 +73,7 @@ class AnnotationSet(models.Model):
 
     name = models.CharField(max_length=255)
     desc = models.TextField()
+    tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -95,14 +96,14 @@ class Dataset(models.Model):
     dataset_path = models.CharField(max_length=255)
     status = models.IntegerField()
     files_type = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
 
-    audio_metadata = models.ForeignKey(AudioMetadatum, on_delete=models.CASCADE)
+    audio_metadatum = models.ForeignKey(AudioMetadatum, on_delete=models.CASCADE, null=True)
     dataset_type = models.ForeignKey(DatasetType, on_delete=models.CASCADE)
-    geo_metadata = models.ForeignKey(GeoMetadatum, on_delete=models.CASCADE)
+    geo_metadatum = models.ForeignKey(GeoMetadatum, on_delete=models.CASCADE, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    tabular_metadata = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE)
+    tabular_metadatum = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE, null=True)
 
 
 class TabularMetadataVariable(models.Model):
@@ -132,15 +133,6 @@ class AnnotationCampaign(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class AnnotationSetTag(models.Model):
-    class Meta:
-        db_table = 'annotation_set_tags'
-
-
-    annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
-    annotation_tag = models.ForeignKey(AnnotationTag, on_delete=models.CASCADE)
-
-
 class CollectionDataset(models.Model):
     class Meta:
         db_table = 'collection_datasets'
@@ -159,7 +151,7 @@ class DatasetFile(models.Model):
     size = models.BigIntegerField()
 
     audio_metadata = models.ForeignKey(AudioMetadatum, on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='dataset_files')
     tabular_metadata = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE)
 
 

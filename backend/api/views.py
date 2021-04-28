@@ -4,21 +4,26 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 
+from django.db.models import Count
+from backend.api.models import Dataset, AnnotationSet
+from django.contrib.auth.models import User
+
 @api_view(http_method_names=['GET'])
 def dataset_index(request):
+    datasets = Dataset.objects.annotate(Count('dataset_files')).select_related('dataset_type')
     return Response([{
-        'id': 5,
-        'name': 'test',
-        'files_type': 'wav',
-        'start_date': '22/421/242242',
-        'end_date': '22/421/24221',
-        'files_count': 1337,
-        'type': 'top'
-    }])
+        'id': dataset.id,
+        'name': dataset.name,
+        'files_type': dataset.files_type,
+        'start_date': dataset.start_date,
+        'end_date': dataset.end_date,
+        'files_count': dataset.dataset_files__count,
+        'type': dataset.dataset_type.name
+    } for dataset in datasets])
 
 @api_view(http_method_names=['GET'])
 def user_index(request):
-    return Response([{"id": 42, "email": "string"}])
+    return Response([{"id": user.id, "email": user.email} for user in User.objects.all()])
 
 @api_view(http_method_names=['GET'])
 def annotation_campaign_show(request, id):
@@ -91,14 +96,13 @@ def annotation_campaign_report_show(request, id):
 
 @api_view(http_method_names=['GET'])
 def annotation_set_index(request):
+    annotation_sets = AnnotationSet.objects.all()
     return Response([{
-        "id": 42,
-        "name": "string",
-        "desc": "string",
-        "tags": [
-          "string"
-        ]
-    }])
+        "id": annotation_set.id,
+        "name": annotation_set.name,
+        "desc": annotation_set.desc,
+        "tags": list(annotation_set.tags.values_list('name', flat=True))
+    } for annotation_set in annotation_sets])
 
 @api_view(http_method_names=['GET'])
 def annotation_task_index(request, campaign_id):
