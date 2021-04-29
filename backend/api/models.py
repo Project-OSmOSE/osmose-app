@@ -130,6 +130,7 @@ class AnnotationCampaign(models.Model):
     end = models.DateTimeField()
 
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
+    datasets = models.ManyToManyField(Dataset)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
@@ -150,9 +151,9 @@ class DatasetFile(models.Model):
     filepath = models.CharField(max_length=255)
     size = models.BigIntegerField()
 
-    audio_metadata = models.ForeignKey(AudioMetadatum, on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='dataset_files')
-    tabular_metadata = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='files')
+    audio_metadatum = models.ForeignKey(AudioMetadatum, on_delete=models.CASCADE, null=True)
+    tabular_metadatum = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE, null=True)
 
 
 class TabularMetadataShape(models.Model):
@@ -165,24 +166,15 @@ class TabularMetadataShape(models.Model):
     tabular_metadata_variable = models.ForeignKey(TabularMetadataVariable, on_delete=models.CASCADE, related_name='variable')
 
 
-class AnnotationCampaignDataset(models.Model):
-    class Meta:
-        db_table = 'annotation_campaign_datasets'
-
-
-    annotation_campaign = models.ForeignKey(AnnotationCampaign, on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
-
-
 class AnnotationTask(models.Model):
     class Meta:
         db_table = 'annotation_tasks'
 
     status = models.IntegerField()
 
-    annotation_campaign = models.ForeignKey(AnnotationCampaign, on_delete=models.CASCADE)
-    annotator = models.ForeignKey(User, on_delete=models.CASCADE)
-    dataset_file = models.ForeignKey(DatasetFile, on_delete=models.CASCADE)
+    annotation_campaign = models.ForeignKey(AnnotationCampaign, on_delete=models.CASCADE, related_name='tasks')
+    annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='annotation_tasks')
+    dataset_file = models.ForeignKey(DatasetFile, on_delete=models.CASCADE, related_name='annotation_tasks')
 
 
 class AnnotationResult(models.Model):

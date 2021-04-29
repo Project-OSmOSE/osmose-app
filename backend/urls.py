@@ -55,7 +55,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/dataset/', dataset_index),
     path('api/user/', user_index),
-    path('api/annotation-campaign/<int:id>', annotation_campaign_show),
+    path('api/annotation-campaign/<int:campaign_id>', annotation_campaign_show),
     path('api/annotation-campaign/', annotation_campaign_index_create),
     path('api/annotation-campaign/<int:id>/report/', annotation_campaign_report_show),
     path('api/annotation-set/', annotation_set_index),
