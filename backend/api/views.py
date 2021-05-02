@@ -1,11 +1,12 @@
 from django.http import Http404, HttpResponse
+from django.utils.http import urlquote
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 
 from django.db.models import Count
-from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign
+from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask
 from django.contrib.auth.models import User
 
 @api_view(http_method_names=['GET'])
@@ -69,7 +70,6 @@ def annotation_campaign_index_create(request):
             ]
         })
     else:
-        print(request.user.id, request.user.email)
         campaigns = AnnotationCampaign.objects.annotate(Count('datasets')).prefetch_related('tasks')
         return Response([{
             'id': campaign.id,
@@ -104,19 +104,55 @@ def annotation_set_index(request):
 
 @api_view(http_method_names=['GET'])
 def annotation_task_index(request, campaign_id):
+    tasks = AnnotationTask.objects.filter(
+        annotator_id=request.user.id,
+        annotation_campaign_id=campaign_id
+    ).prefetch_related('dataset_file', 'dataset_file__dataset', 'dataset_file__audio_metadatum')
     return Response([{
-        "id": 42,
-        "status": 42,
-        "filename": "string",
-        "dataset_name": "string",
-        "start": "string",
-        "end": "string"
-    }])
+        'id': task.id,
+        'status': task.status,
+        'filename': task.dataset_file.filename,
+        'dataset_name': task.dataset_file.dataset.name,
+        'start': task.dataset_file.audio_metadatum.start,
+        'end': task.dataset_file.audio_metadatum.end
+    } for task in tasks])
 
 @api_view(http_method_names=['GET'])
-def annotation_task_show(request, id):
-    pass
+def annotation_task_show(request, task_id):
+    task = AnnotationTask.objects.prefetch_related(
+        'annotation_campaign',
+        'annotation_campaign__annotation_set',
+        'dataset_file__audio_metadatum',
+        'dataset_file__dataset__audio_metadatum'
+    ).get(id=task_id)
+    df_sample_rate = task.dataset_file.audio_metadatum.sample_rate_khz
+    ds_sample_rate = task.dataset_file.dataset.audio_metadatum.sample_rate_khz
+    sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
+    spectros = ['50h_0_1_0.png', '50h_0_2_0.png', '50h_0_2_1.png', '50h_0_4_0.png', '50h_0_4_1.png', '50h_0_4_2.png',
+    '50h_0_4_3.png', '50h_0_8_0.png', '50h_0_8_1.png', '50h_0_8_2.png', '50h_0_8_3.png', '50h_0_8_4.png', '50h_0_8_5.png',
+    '50h_0_8_6.png', '50h_0_8_7.png']
+    spectro_urls = [{
+        'nfft': 4096,
+        'winsize': 2000,
+        'overlap': 90,
+        'urls': [urlquote(f'/static/nfft=4096 winsize=2000 overlap=90/{spectro}') for spectro in spectros]
+    }]
+    return Response({
+        'task': {
+            'campaignId': task.annotation_campaign_id,
+            'annotationTags': list(task.annotation_campaign.annotation_set.tags.values_list('name', flat=True)),
+            'boundaries': {
+                'startTime': task.dataset_file.audio_metadatum.start,
+                'endTime': task.dataset_file.audio_metadatum.end,
+                'startFrequency': 0,
+                'endFrequency': sample_rate / 2
+            },
+            'audioUrl': '/static/50h_0.wav',
+            'audioRate': sample_rate,
+            'spectroUrls': spectro_urls,
+            'prevAnnotations': []
+    }})
 
 @api_view(http_method_names=['POST'])
-def annotation_task_update(request, id):
-    pass
+def annotation_task_update(request, task_id):
+    return Response({'next_task': task_id+1})
