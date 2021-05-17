@@ -57,7 +57,7 @@ urlpatterns = [
     path('api/user/', user_index),
     path('api/annotation-campaign/<int:campaign_id>', annotation_campaign_show),
     path('api/annotation-campaign/', annotation_campaign_index_create),
-    path('api/annotation-campaign/<int:id>/report/', annotation_campaign_report_show),
+    path('api/annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),
     path('api/annotation-set/', annotation_set_index),
     path('api/annotation-task/campaign/<int:campaign_id>', annotation_task_index),
     path('api/annotation-task/<int:task_id>', annotation_task_show),

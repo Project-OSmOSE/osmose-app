@@ -181,13 +181,13 @@ class AnnotationResult(models.Model):
     class Meta:
         db_table = 'annotation_results'
 
-    startTime = models.FloatField()
-    endTime = models.FloatField()
-    startFrequency = models.FloatField()
-    endFrequency = models.FloatField()
+    start_time = models.FloatField(null=True)
+    end_time = models.FloatField(null=True)
+    start_frequency = models.FloatField(null=True)
+    end_frequency = models.FloatField(null=True)
 
     annotation_tag = models.ForeignKey(AnnotationTag, on_delete=models.CASCADE)
-    annotation_task = models.ForeignKey(AnnotationTask, on_delete=models.CASCADE)
+    annotation_task = models.ForeignKey(AnnotationTask, on_delete=models.CASCADE, related_name='results')
 
 
 class AnnotationSession(models.Model):
@@ -198,4 +198,4 @@ class AnnotationSession(models.Model):
     end = models.DateTimeField()
     session_output = models.JSONField()
 
-    annotation_task = models.ForeignKey(AnnotationTask, on_delete=models.CASCADE)
+    annotation_task = models.ForeignKey(AnnotationTask, on_delete=models.CASCADE, related_name='sessions')

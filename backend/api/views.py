@@ -1,5 +1,9 @@
+from datetime import datetime
+
 from django.http import Http404, HttpResponse
 from django.utils.http import urlquote
+from django.shortcuts import get_object_or_404
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -86,7 +90,7 @@ def annotation_campaign_index_create(request):
         } for campaign in campaigns])
 
 @api_view(http_method_names=['GET'])
-def annotation_campaign_report_show(request, id):
+def annotation_campaign_report_show(request, campaign_id):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="export.csv"'
     response.write('csv,file')
@@ -155,4 +159,29 @@ def annotation_task_show(request, task_id):
 
 @api_view(http_method_names=['POST'])
 def annotation_task_update(request, task_id):
-    return Response({'next_task': task_id+1})
+    task = get_object_or_404(AnnotationTask, pk=task_id)
+    if task.annotator_id != request.user.id:
+        raise Http404()
+    tags = dict(map(reversed, task.annotation_campaign.annotation_set.tags.values_list('id', 'name')))
+    for annotation in request.data['annotations']:
+        task.results.create(
+            start_time=annotation.get('startTime'),
+            end_time=annotation.get('endTime'),
+            start_frequency=annotation.get('start_frequency'),
+            end_frequency=annotation.get('end_frequency'),
+            annotation_tag_id=tags[annotation['annotation']]
+        )
+    task.sessions.create(
+        start=datetime.fromtimestamp(request.data['task_start_time']),
+        end=datetime.fromtimestamp(request.data['task_end_time']),
+        session_output=request.data
+    )
+    task.status = 2
+    task.save()
+    next_task = AnnotationTask.objects.filter(
+        annotator_id=request.user.id,
+        annotation_campaign_id=task.annotation_campaign_id
+    ).exclude(status=2).order_by('dataset_file__audio_metadatum__start').first()
+    if next_task is None:
+        return Response({'next_task': None, 'campaign_id': task.annotation_campaign_id})
+    return Response({'next_task': next_task.id})
