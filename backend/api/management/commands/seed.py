@@ -41,7 +41,7 @@ class Command(management.BaseCommand):
         geo_metadatum = GeoMetadatum.objects.create(name='Saint-Pierre-et-Miquelon',
             desc='South of Saint-Pierre-et-Miquelon')
         self.dataset = Dataset.objects.create(name='SPM Aural A 2010', start_date='2010-08-19',
-            end_date='2010-11-02', files_type='WAV files', status=1, dataset_type=dataset_type,
+            end_date='2010-11-02', files_type='.wav', status=1, dataset_type=dataset_type,
             audio_metadatum=audio_metadatum, geo_metadatum=geo_metadatum, owner=self.admin)
         for k in range(50):
             start = parse_datetime('2012-10-03T12:00:00+0200')
