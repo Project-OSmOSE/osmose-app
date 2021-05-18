@@ -14,6 +14,8 @@ from django.db.models import Count, F
 from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask, AnnotationResult
 from django.contrib.auth.models import User
 
+from backend.settings import STATIC_URL
+
 @api_view(http_method_names=['GET'])
 def dataset_index(request):
     datasets = Dataset.objects.annotate(Count('files')).select_related('dataset_type')
@@ -146,22 +148,28 @@ def annotation_task_index(request, campaign_id):
 def annotation_task_show(request, task_id):
     task = AnnotationTask.objects.prefetch_related(
         'annotation_campaign',
+        'annotation_campaign__spectro_configs',
         'annotation_campaign__annotation_set',
         'dataset_file__audio_metadatum',
+        'dataset_file__dataset',
+        'dataset_file__dataset__spectro_configs',
         'dataset_file__dataset__audio_metadatum'
     ).get(id=task_id)
     df_sample_rate = task.dataset_file.audio_metadatum.sample_rate_khz
     ds_sample_rate = task.dataset_file.dataset.audio_metadatum.sample_rate_khz
     sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
-    spectros = ['50h_0_1_0.png', '50h_0_2_0.png', '50h_0_2_1.png', '50h_0_4_0.png', '50h_0_4_1.png', '50h_0_4_2.png',
-    '50h_0_4_3.png', '50h_0_8_0.png', '50h_0_8_1.png', '50h_0_8_2.png', '50h_0_8_3.png', '50h_0_8_4.png', '50h_0_8_5.png',
-    '50h_0_8_6.png', '50h_0_8_7.png']
+    root_url = STATIC_URL + f'datasets/{task.dataset_file.dataset.dataset_path}'
+    spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(task.annotation_campaign.spectro_configs.all())
+    # We should probably use filename for sound_name but this allows to simplify seeding
+    sound_name = task.dataset_file.filepath.split('/')[-1].replace('.wav', '')
     spectro_urls = [{
-        'nfft': 4096,
-        'winsize': 2000,
-        'overlap': 90,
-        'urls': [urlquote(f'/static/nfft=4096 winsize=2000 overlap=90/{spectro}') for spectro in spectros]
-    }]
+        'nfft': spectro_config.nfft,
+        'winsize': spectro_config.window_size,
+        'overlap': spectro_config.overlap,
+        'urls': [
+            urlquote(f'{root_url}/spectrograms/{spectro_config.name}/{sound_name}/{tile}')
+        for tile in spectro_config.zoom_tiles]
+    } for spectro_config in spectros_configs]
     prev_annotations = task.results.values(
         'id',
         annotation=F('annotation_tag__name'),
@@ -180,7 +188,7 @@ def annotation_task_show(request, task_id):
                 'startFrequency': 0,
                 'endFrequency': sample_rate / 2
             },
-            'audioUrl': '/static/50h_0.wav',
+            'audioUrl': f'{root_url}/{task.dataset_file.filepath}',
             'audioRate': sample_rate,
             'spectroUrls': spectro_urls,
             'prevAnnotations': prev_annotations

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from random import shuffle
+from math import log
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -75,7 +76,7 @@ class AnnotationSet(models.Model):
         db_table = 'annotation_sets'
 
     name = models.CharField(max_length=255)
-    desc = models.TextField()
+    desc = models.TextField(null=True)
     tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -86,7 +87,7 @@ class Collection(models.Model):
         db_table = 'collections'
 
     name = models.CharField(max_length=255)
-    desc = models.TextField()
+    desc = models.TextField(null=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -96,6 +97,7 @@ class Dataset(models.Model):
         db_table = 'datasets'
 
     name = models.CharField(max_length=255)
+    desc = models.TextField(null=True)
     dataset_path = models.CharField(max_length=255)
     status = models.IntegerField()
     files_type = models.CharField(max_length=255)
@@ -107,6 +109,26 @@ class Dataset(models.Model):
     geo_metadatum = models.ForeignKey(GeoMetadatum, on_delete=models.CASCADE, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tabular_metadatum = models.ForeignKey(TabularMetadatum, on_delete=models.CASCADE, null=True)
+
+
+class SpectroConfig(models.Model):
+    name = models.CharField(max_length=255)
+    desc = models.TextField(null=True)
+    nfft = models.IntegerField()
+    window_size = models.IntegerField()
+    overlap = models.FloatField()
+    zoom_level = models.IntegerField()
+
+    datasets = models.ManyToManyField(Dataset, related_name='spectro_configs')
+
+    @property
+    def zoom_tiles(self):
+        n_zooms = int(log(self.zoom_level, 2)) + 1
+        for zoom_power in range(0, n_zooms):
+            zoom_level = 2**zoom_power
+            for zoom_tile in range(0, zoom_level):
+                yield f'tile_{zoom_level}_{zoom_tile}.png'
+
 
 
 class TabularMetadataVariable(models.Model):
@@ -134,6 +156,7 @@ class AnnotationCampaign(models.Model):
 
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField(Dataset)
+    spectro_configs = models.ManyToManyField(SpectroConfig, related_name='annotation_campaigns')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def add_annotator(self, annotator, files_target=None, method='sequential'):

@@ -26,6 +26,7 @@ class Command(management.BaseCommand):
         self._create_datasets()
         self._create_annotation_sets()
         self._create_annotation_campaigns()
+        self._create_spectro_configs()
         self._create_annotation_results()
 
     def _create_users(self):
@@ -45,12 +46,13 @@ class Command(management.BaseCommand):
             desc='South of Saint-Pierre-et-Miquelon')
         self.dataset = Dataset.objects.create(name='SPM Aural A 2010', start_date='2010-08-19',
             end_date='2010-11-02', files_type='.wav', status=1, dataset_type=dataset_type,
-            audio_metadatum=audio_metadatum, geo_metadatum=geo_metadatum, owner=self.admin)
+            audio_metadatum=audio_metadatum, geo_metadatum=geo_metadatum, owner=self.admin,
+            dataset_path='dataset_path')
         for k in range(self.datafile_count):
             start = parse_datetime('2012-10-03T12:00:00+0200')
             end = start + timedelta(minutes=15)
             audio_metadatum = AudioMetadatum.objects.create(start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k)))
-            self.dataset.files.create(filename=f'sound{k:03d}.wav', size=58982478, audio_metadatum=audio_metadatum)
+            self.dataset.files.create(filename=f'sound{k:03d}.wav', filepath='audio/50h_0.wav', size=58982478, audio_metadatum=audio_metadatum)
 
     def _create_annotation_sets(self):
         sets = [
@@ -86,6 +88,26 @@ class Command(management.BaseCommand):
                 for user in self.users:
                     campaign.tasks.create(dataset_file=file, annotator=user, status=0)
             self.campaigns.append(campaign)
+
+    def _create_spectro_configs(self):
+        spectro_config1 = self.dataset.spectro_configs.create(
+            name='spectro_config1',
+            nfft=4096,
+            window_size=2000,
+            overlap=90,
+            zoom_level=8
+        )
+        spectro_config2 = self.dataset.spectro_configs.create(
+            name='spectro_config1',
+            nfft=2048,
+            window_size=1000,
+            overlap=90,
+            zoom_level=8
+        )
+        self.campaigns[0].spectro_configs.add(spectro_config2)
+        for campaign in self.campaigns:
+            campaign.spectro_configs.add(spectro_config1)
+            campaign.save()
 
     def _create_annotation_results(self):
         campaign = self.campaigns[0]
