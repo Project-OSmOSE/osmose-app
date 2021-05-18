@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 
 from django.db import transaction
-from django.db.models import Count
-from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask
+from django.db.models import Count, F
+from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask, AnnotationResult
 from django.contrib.auth.models import User
 
 @api_view(http_method_names=['GET'])
@@ -92,9 +92,29 @@ def annotation_campaign_index_create(request):
 
 @api_view(http_method_names=['GET'])
 def annotation_campaign_report_show(request, campaign_id):
+    campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="export.csv"'
-    response.write('csv,file')
+    response['Content-Disposition'] = f'attachment; filename="{campaign.name.replace(" ", "_")}.csv"'
+    response.write('dataset,filename,start_time,end_time,start_frequency,end_frequency,annotation,annotator\n')
+    results = AnnotationResult.objects.prefetch_related(
+        'annotation_task',
+        'annotation_task__annotator',
+        'annotation_task__dataset_file',
+        'annotation_task__dataset_file__dataset',
+        'annotation_tag'
+    ).filter(annotation_task__annotation_campaign_id=campaign_id)
+    for result in results:
+        line = [
+            result.annotation_task.dataset_file.dataset.name,
+            result.annotation_task.dataset_file.filename,
+            str(result.start_time or ''),
+            str(result.end_time or ''),
+            str(result.start_frequency or ''),
+            str(result.end_frequency or ''),
+            result.annotation_tag.name,
+            result.annotation_task.annotator.username
+        ]
+        response.write(','.join(line) + '\n')
     return response
 
 @api_view(http_method_names=['GET'])
@@ -142,6 +162,14 @@ def annotation_task_show(request, task_id):
         'overlap': 90,
         'urls': [urlquote(f'/static/nfft=4096 winsize=2000 overlap=90/{spectro}') for spectro in spectros]
     }]
+    prev_annotations = task.results.values(
+        'id',
+        annotation=F('annotation_tag__name'),
+        startTime=F('start_time'),
+        endTime=F('end_time'),
+        startFrequency=F('start_frequency'),
+        endFrequency=F('end_frequency')
+    )
     return Response({
         'task': {
             'campaignId': task.annotation_campaign_id,
@@ -155,7 +183,7 @@ def annotation_task_show(request, task_id):
             'audioUrl': '/static/50h_0.wav',
             'audioRate': sample_rate,
             'spectroUrls': spectro_urls,
-            'prevAnnotations': []
+            'prevAnnotations': prev_annotations
     }})
 
 @api_view(http_method_names=['POST'])

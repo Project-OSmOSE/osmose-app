@@ -1,6 +1,7 @@
 import os, glob
 
 from datetime import datetime
+from random import randint, choice
 
 #from faker import Faker
 
@@ -20,16 +21,18 @@ class Command(management.BaseCommand):
         # Cleanup
         management.call_command('flush', verbosity=0, interactive=False)
         # Creation
+        self.datafile_count = 50
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
         self._create_annotation_campaigns()
+        self._create_annotation_results()
 
     def _create_users(self):
         users = ['dc', 'ek', 'ja', 'pnhd', 'ad', 'rv']
         password = 'osmose29'
         self.admin = User.objects.create_user('admin', 'admin@osmose.xyz', password, is_superuser=True)
-        self.users = []
+        self.users = [self.admin]
         for user in users:
             self.users.append(User.objects.create_user(user, f'{user}@osmose.xyz', password))
 
@@ -43,7 +46,7 @@ class Command(management.BaseCommand):
         self.dataset = Dataset.objects.create(name='SPM Aural A 2010', start_date='2010-08-19',
             end_date='2010-11-02', files_type='.wav', status=1, dataset_type=dataset_type,
             audio_metadatum=audio_metadatum, geo_metadatum=geo_metadatum, owner=self.admin)
-        for k in range(50):
+        for k in range(self.datafile_count):
             start = parse_datetime('2012-10-03T12:00:00+0200')
             end = start + timedelta(minutes=15)
             audio_metadatum = AudioMetadatum.objects.create(start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k)))
@@ -75,9 +78,31 @@ class Command(management.BaseCommand):
             {'name': 'Test DCLDE LF campaign', 'desc': 'Test annotation campaign DCLDE LF 2015', 'start': '2012-06-22',
             'end': '2012-06-26'},
         ]
+        self.campaigns = []
         for campaign_data, annotation_set in zip(campaigns, self.annotation_sets):
             campaign = AnnotationCampaign.objects.create(**campaign_data, annotation_set=annotation_set, owner=self.admin)
             campaign.datasets.add(self.dataset)
             for file in self.dataset.files.all():
-                for user in self.users + [self.admin]:
+                for user in self.users:
                     campaign.tasks.create(dataset_file=file, annotator=user, status=0)
+            self.campaigns.append(campaign)
+
+    def _create_annotation_results(self):
+        campaign = self.campaigns[0]
+        tags = self.annotation_sets[0].tags.values_list('id', flat=True)
+        for user in self.users:
+            done_files = randint(5, self.datafile_count - 5)
+            tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
+            for task in tasks:
+                for _ in range(randint(1,5)):
+                    start_time = randint(0, 600)
+                    start_frequency = randint(0, 10000)
+                    task.results.create(
+                        start_time = start_time,
+                        end_time = start_time + randint(30, 300),
+                        start_frequency = start_frequency,
+                        end_frequency = start_frequency + randint(2000, 5000),
+                        annotation_tag_id = choice(tags)
+                    )
+                task.status = 2
+                task.save()
