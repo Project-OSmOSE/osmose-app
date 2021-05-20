@@ -110,7 +110,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const taskId: number = this.props.match.params.annotation_task_id;
 
     // Retrieve current task
-    request.get(API_URL + '/' + taskId.toString())
+    request.get(API_URL + taskId.toString())
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .then(result => {
         const task: AnnotationTask = result.body.task;
@@ -307,7 +307,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const taskStartTime: number = Math.floor(this.state.taskStartTime / 1000);
     const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
-    request.post(API_URL + '/' + taskId.toString() + '/update-results')
+    request.post(API_URL + taskId.toString() + '/update-results')
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .send({
         annotations: cleanAnnotations,

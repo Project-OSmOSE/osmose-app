@@ -1,0 +1,69 @@
+# Fichier gitlab-ci.yml pour le déploiement de l'application sur l'infrastructure d'IFREMER
+#
+# Les informations des conteneurs sont les suivantes :
+#
+# * osmose_back
+#     * Les variables d'environnement suivantes doivent être déclarées au run :
+#         * ENV : production (par défaut l'environnement est celui de développement)
+#         * SECRET_KEY : clé de sécurité pour l'application (ex : résultat de "openssl rand -base64 32")
+#         * OSMOSE_HOST : URL du projet (ex : osmose.ifremer.fr)
+#         * OSMOSE_DB_HOST : hôte (IP / DNS) de la BDD (ex : 127.0.0.1)
+#         * OSMOSE_DB_PORT : port de la BDD (ex : 5432)
+#         * OSMOSE_DB_USER : user BDD (ex : osmose)
+#         * OSMOSE_DB_PWD : mot de passe BDD
+#         * OSMOSE_DB_BASE : nom de la base dédiée à l'application (ex : osmose)
+#     * Port exposé : 8000
+#     * Le conteneur peut être lancé avec l'UID:GID 101:101
+#     * Dossier destiné au montage datawork : /opt/datawork
+#     * Dossier destiné au montage des fichiers static du back : /opt/staticfiles
+#
+# * osmose_front
+#     * Les variables d'environnement suivantes doivent être déclarées au run :
+#         * OSMOSE_BACK_HOST : hostname Docker du conteneur back (ex : osmose_back)
+#     * Port exposé : 8080
+#     * Le conteneur peut être lancé avec l'UID:GID 101:101
+#     * Dossier destiné au montage datawork : /opt/datawork
+#     * Dossier destiné au montage des fichiers static du back : /opt/staticfiles
+
+
+stages:
+  - build_image
+
+image: docker:latest
+services:
+  - docker:dind
+variables:
+  DOCKER_DRIVER: overlay2
+  ANSIBLE_FORCE_COLOR: '1'
+
+osmose_front:
+  script:
+    - test -n "${CI_BUILD_TOKEN}" && docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY} || true
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION} -f ./dockerfiles/front.dockerfile .
+    - docker push ${REGISTRY_PATH} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION}
+  stage: build_image
+  only:
+    - master
+  tags:
+    - docker_image_runner
+  variables:
+    APP_NAME: osmose_front
+    APP_VERSION: 1.1.1
+    CI_REGISTRY: gitlab-registry.ifremer.fr
+    CI_PROJECT_PATH: dev_ops/shared_docker_image_factory/imt_osmose
+
+osmose_back:
+  script:
+    - test -n "${CI_BUILD_TOKEN}" && docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY} || true
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION} -f ./dockerfiles/back.dockerfile .
+    - docker push ${REGISTRY_PATH} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION}
+  stage: build_image
+  only:
+    - master
+  tags:
+    - docker_image_runner
+  variables:
+    APP_NAME: osmose_back
+    APP_VERSION: 1.1.1
+    CI_REGISTRY: gitlab-registry.ifremer.fr
+    CI_PROJECT_PATH: dev_ops/shared_docker_image_factory/imt_osmose

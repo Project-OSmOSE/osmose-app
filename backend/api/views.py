@@ -158,7 +158,7 @@ def annotation_task_show(request, task_id):
     df_sample_rate = task.dataset_file.audio_metadatum.sample_rate_khz
     ds_sample_rate = task.dataset_file.dataset.audio_metadatum.sample_rate_khz
     sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
-    root_url = STATIC_URL + f'datasets/{task.dataset_file.dataset.dataset_path}'
+    root_url = STATIC_URL + task.dataset_file.dataset.dataset_path
     spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(task.annotation_campaign.spectro_configs.all())
     # We should probably use filename for sound_name but this allows to simplify seeding
     sound_name = task.dataset_file.filepath.split('/')[-1].replace('.wav', '')

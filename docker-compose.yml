@@ -1,0 +1,64 @@
+version: '3.6'
+
+services:
+  osmose_back:
+    build:
+      context: .
+      dockerfile: dockerfiles/back.dockerfile
+    image: osmose_back-image
+    container_name: osmose_back
+    user: "101:101"
+    environment:
+      ENV: production
+      SECRET_KEY: "${SECRET_KEY}"
+      OSMOSE_HOST: "${OSMOSE_HOST}"
+      OSMOSE_DB_HOST: db
+      OSMOSE_DB_PORT: 5432
+      OSMOSE_DB_USER: "${OSMOSE_DB_USER}"
+      OSMOSE_DB_PWD: "${OSMOSE_DB_PWD}"
+      OSMOSE_DB_BASE: "${OSMOSE_DB_USER}"
+    volumes:
+      - static:/opt/staticfiles
+      - ./volumes/datawork:/opt/datawork:ro
+    restart: always
+
+  osmose_front:
+    build:
+      context: .
+      dockerfile: dockerfiles/front.dockerfile
+    image: osmose_front-image
+    container_name: osmose_front
+    user: "101:101"
+    environment:
+      OSMOSE_BACK_HOST: osmose_back
+    volumes:
+      - static:/opt/staticfiles:ro
+      - ./volumes/datawork:/opt/datawork:ro
+    restart: always
+
+  db:
+    image: postgres:13.3-alpine
+    container_name: osmose_db
+    environment:
+      POSTGRES_USER: "${OSMOSE_DB_USER}"
+      POSTGRES_PASSWORD: "${OSMOSE_DB_PWD}"
+    volumes:
+      - ./volumes/postgresql:/var/lib/postgresql/data
+    restart: always
+
+  https-portal:
+    image: steveltn/https-portal:1.19
+    container_name: osmose_https-portal
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+    environment:
+      DOMAINS: "${OSMOSE_HOST} -> http://osmose_front:8080"
+      STAGE: production
+    restart: always
+
+volumes:
+  https-portal-data:
+  static:

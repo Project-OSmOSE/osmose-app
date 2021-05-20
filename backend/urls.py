@@ -47,19 +47,28 @@ router.register(r'users', UserViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
-urlpatterns = [
+backend_urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/dataset/', dataset_index),
-    path('api/user/', user_index),
-    path('api/annotation-campaign/<int:campaign_id>', annotation_campaign_show),
-    path('api/annotation-campaign/', annotation_campaign_index_create),
-    path('api/annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),
-    path('api/annotation-set/', annotation_set_index),
-    path('api/annotation-task/campaign/<int:campaign_id>', annotation_task_index),
-    path('api/annotation-task/<int:task_id>', annotation_task_show),
-    path('api/annotation-task/<int:task_id>/update-results', annotation_task_update),
+]
+
+api_urlpatterns = [
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('dataset/', dataset_index),
+    path('user/', user_index),
+    path('annotation-campaign/<int:campaign_id>', annotation_campaign_show),
+    path('annotation-campaign/', annotation_campaign_index_create),
+    path('annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),
+    path('annotation-set/', annotation_set_index),
+    path('annotation-task/campaign/<int:campaign_id>', annotation_task_index),
+    path('annotation-task/<int:task_id>', annotation_task_show),
+    path('annotation-task/<int:task_id>/update-results', annotation_task_update),
+]
+
+# All paths are prefixed with backend or api for easier proxy use
+urlpatterns = [
+    path('backend/', include(backend_urlpatterns)),
+    path('api/', include(api_urlpatterns))
 ]

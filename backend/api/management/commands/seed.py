@@ -16,10 +16,17 @@ from backend.api.models import DatasetType, GeoMetadatum, AudioMetadatum, Datase
 class Command(management.BaseCommand):
     help = 'Seeds the DB with fake data (deletes all existing data first)'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--init-only', action='store_true', default=False, help='Only run the first time')
+
     def handle(self, *args, **options):
-        #self.faker = Faker()
+        # If init_only we run only if there is no seeded data yet
+        if options['init_only'] and User.objects.count() > 0:
+            return
+
         # Cleanup
         management.call_command('flush', verbosity=0, interactive=False)
+
         # Creation
         self.datafile_count = 50
         self._create_users()
@@ -32,7 +39,7 @@ class Command(management.BaseCommand):
     def _create_users(self):
         users = ['dc', 'ek', 'ja', 'pnhd', 'ad', 'rv']
         password = 'osmose29'
-        self.admin = User.objects.create_user('admin', 'admin@osmose.xyz', password, is_superuser=True)
+        self.admin = User.objects.create_user('admin', 'admin@osmose.xyz', password, is_superuser=True, is_staff=True)
         self.users = [self.admin]
         for user in users:
             self.users.append(User.objects.create_user(user, f'{user}@osmose.xyz', password))
@@ -47,7 +54,7 @@ class Command(management.BaseCommand):
         self.dataset = Dataset.objects.create(name='SPM Aural A 2010', start_date='2010-08-19',
             end_date='2010-11-02', files_type='.wav', status=1, dataset_type=dataset_type,
             audio_metadatum=audio_metadatum, geo_metadatum=geo_metadatum, owner=self.admin,
-            dataset_path='dataset_path')
+            dataset_path='seed/dataset_path')
         for k in range(self.datafile_count):
             start = parse_datetime('2012-10-03T12:00:00+0200')
             end = start + timedelta(minutes=15)

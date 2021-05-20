@@ -1,0 +1,6 @@
+# Ignore git folder
+.git
+# Ignore node packages
+frontend/node_modules
+# Ignore volumes folders
+volumes
