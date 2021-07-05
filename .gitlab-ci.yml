@@ -13,7 +13,7 @@
 #         * OSMOSE_DB_PWD : mot de passe BDD
 #         * OSMOSE_DB_BASE : nom de la base dédiée à l'application (ex : osmose)
 #     * Port exposé : 8000
-#     * Le conteneur peut être lancé avec l'UID:GID 101:101
+#     * Le conteneur peut être lancé avec l'UID:GID 202377:11436 (dcazau:gosmose)
 #     * Dossier destiné au montage datawork : /opt/datawork
 #     * Dossier destiné au montage des fichiers static du back : /opt/staticfiles
 #
@@ -48,14 +48,14 @@ osmose_front:
     - docker_image_runner
   variables:
     APP_NAME: osmose_front
-    APP_VERSION: 1.1.1
+    APP_VERSION: 1.1.2
     CI_REGISTRY: gitlab-registry.ifremer.fr
     CI_PROJECT_PATH: dev_ops/shared_docker_image_factory/imt_osmose
 
 osmose_back:
   script:
     - test -n "${CI_BUILD_TOKEN}" && docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY} || true
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION} -f ./dockerfiles/back.dockerfile .
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION} --build-arg UID=202377 --build-arg GID=11436 -f ./dockerfiles/back.dockerfile .
     - docker push ${REGISTRY_PATH} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${APP_NAME}:${APP_VERSION}
   stage: build_image
   only:
@@ -64,6 +64,6 @@ osmose_back:
     - docker_image_runner
   variables:
     APP_NAME: osmose_back
-    APP_VERSION: 1.1.1
+    APP_VERSION: 1.1.2
     CI_REGISTRY: gitlab-registry.ifremer.fr
     CI_PROJECT_PATH: dev_ops/shared_docker_image_factory/imt_osmose
