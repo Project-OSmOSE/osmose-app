@@ -1,8 +1,12 @@
+import csv
 from datetime import datetime
 
 from django.http import Http404, HttpResponse
 from django.utils.http import urlquote
 from django.shortcuts import get_object_or_404
+
+from django.utils.dateparse import parse_datetime
+from datetime import timedelta
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,10 +15,10 @@ from rest_framework.decorators import api_view
 
 from django.db import transaction
 from django.db.models import Count, F
-from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask, AnnotationResult
+from backend.api.models import Dataset, AnnotationSet, AnnotationCampaign, AnnotationTask, AnnotationResult, DatasetType, AudioMetadatum, GeoMetadatum
 from django.contrib.auth.models import User
 
-from backend.settings import STATIC_URL
+from backend.settings import STATIC_URL, DATASET_IMPORT_FOLDER, DATASET_FILES_FOLDER, DATASET_SPECTRO_FOLDER
 
 @api_view(http_method_names=['GET'])
 def dataset_index(request):
@@ -168,7 +172,7 @@ def annotation_task_show(request, task_id):
         'overlap': spectro_config.overlap,
         'urls': [
             urlquote(f'{root_url}/spectrograms/{spectro_config.name}/{sound_name}/{tile}')
-        for tile in spectro_config.zoom_tiles]
+        for tile in spectro_config.zoom_tiles(sound_name)]
     } for spectro_config in spectros_configs]
     prev_annotations = task.results.values(
         'id',
@@ -222,3 +226,85 @@ def annotation_task_update(request, task_id):
     if next_task is None:
         return Response({'next_task': None, 'campaign_id': task.annotation_campaign_id})
     return Response({'next_task': next_task.id})
+
+@api_view(http_method_names=['GET'])
+def is_staff(request):
+    return Response({'is_staff': request.user.is_staff})
+
+@transaction.atomic
+@api_view(http_method_names=['GET'])
+def dataset_import(request):
+    if not request.user.is_staff:
+        return HttpResponse('Unauthorized', status=401)
+
+    dataset_names = Dataset.objects.values_list('name', flat=True)
+    new_datasets = []
+
+    # TODO: we should also check for new spectros in existing datasets (or dataset update)
+    # Check for new datasets
+    with open(DATASET_IMPORT_FOLDER / 'datasets.csv') as csvfile:
+        for dataset in csv.DictReader(csvfile):
+            if dataset['name'] not in dataset_names:
+                new_datasets.append(dataset)
+
+    for dataset in new_datasets:
+        # We need to split dataset name into a correct folder : dataset name + subfolder name
+        name_root, *name_params = dataset['name'].split('_')
+        name_params = '_'.join(name_params)
+
+        # Create dataset metadata
+        datatype = DatasetType.objects.filter(name=dataset['dataset_type_name']).first() # double check if nothing else better
+        if not datatype:
+            datatype = DatasetType.objects.create(
+                name=dataset['dataset_type_name'],
+                desc=dataset['dataset_type_desc'],
+            )
+        with open(DATASET_IMPORT_FOLDER / name_root / 'raw/metadata.csv') as csvfile:
+             audio_raw = list(csv.DictReader(csvfile))[0]
+        audio_metadatum = AudioMetadatum.objects.create(
+            num_channels=audio_raw['nchannels'],
+            sample_rate_khz=audio_raw['orig_fs'],
+            sample_bits=audio_raw['sound_sample_size_in_bits'],
+            start=parse_datetime(audio_raw['start_date']),
+            end=parse_datetime(audio_raw['end_date'])
+        )
+        geo_metadatum = GeoMetadatum.objects.create(
+            name=dataset['location_name'],
+            desc=dataset['location_desc']
+        )
+
+        # Create dataset
+        curr_dataset = Dataset.objects.create(
+            name=dataset['name'],
+            dataset_path=DATASET_IMPORT_FOLDER / name_root / 'raw/audio' / name_params,
+            status=1,
+            files_type=dataset['files_type'],
+            dataset_type=datatype,
+            start_date=audio_metadatum.start.date(),
+            end_date=audio_metadatum.end.date(),
+            audio_metadatum=audio_metadatum,
+            geo_metadatum=geo_metadatum,
+            owner=request.user,
+        )
+
+        # Create dataset_files
+        with open(DATASET_IMPORT_FOLDER / name_root / 'raw/audio/timestamp.csv') as csvfile:
+            for timestamp_data in csv.reader(csvfile):
+                filename, start_timestamp = timestamp_data
+                start = parse_datetime(start_timestamp)
+                audio_metadatum = AudioMetadatum.objects.create(start=start, end=(start + timedelta(seconds=float(audio_raw['audioFile_duration']))))
+                curr_dataset_file = curr_dataset.files.create(
+                    filename=filename,
+                    filepath=DATASET_IMPORT_FOLDER / name_root / 'raw/audio' / name_params / filename,
+                    size=0,
+                    audio_metadatum=audio_metadatum
+                )
+
+        # We should run import spectros on all datasets after dataset creation
+        curr_spectros = curr_dataset.spectro_configs.values_list('name', flat=True)
+        with open(DATASET_IMPORT_FOLDER / name_root / DATASET_SPECTRO_FOLDER / name_params / 'spectrograms.csv') as csvfile:
+            for spectro in csv.DictReader(csvfile):
+                if spectro['name'] not in curr_spectros:
+                    curr_dataset.spectro_configs.create(**spectro)
+
+    return Response('ok')

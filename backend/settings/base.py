@@ -100,6 +100,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'backend/api/static'
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+DATASET_IMPORT_FOLDER = Path('/opt/datawork/dataset')
+DATASET_FILES_FOLDER = Path('raw/audio')
+DATASET_SPECTRO_FOLDER = Path('analysis/spectrograms')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

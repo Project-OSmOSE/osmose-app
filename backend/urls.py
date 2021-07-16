@@ -27,7 +27,7 @@ from rest_framework import routers, serializers, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
 from backend.api.views import dataset_index, user_index, annotation_campaign_show, annotation_campaign_index_create, annotation_campaign_report_show
-from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update
+from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update, is_staff, dataset_import
 
 
 # Serializers define the API representation.
@@ -57,7 +57,9 @@ api_urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('dataset/', dataset_index),
+    path('dataset/import', dataset_import),
     path('user/', user_index),
+    path('user/is_staff', is_staff),
     path('annotation-campaign/<int:campaign_id>', annotation_campaign_show),
     path('annotation-campaign/', annotation_campaign_index_create),
     path('annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),

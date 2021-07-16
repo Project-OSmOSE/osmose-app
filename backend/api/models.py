@@ -121,13 +121,12 @@ class SpectroConfig(models.Model):
 
     datasets = models.ManyToManyField(Dataset, related_name='spectro_configs')
 
-    @property
-    def zoom_tiles(self):
+    def zoom_tiles(self, tile_name):
         n_zooms = int(log(self.zoom_level, 2)) + 1
         for zoom_power in range(0, n_zooms):
             zoom_level = 2**zoom_power
             for zoom_tile in range(0, zoom_level):
-                yield f'tile_{zoom_level}_{zoom_tile}.png'
+                yield f'{tile_name}_{zoom_level}_{zoom_tile}.png'
 
 
 
