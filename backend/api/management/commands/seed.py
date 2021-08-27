@@ -105,7 +105,7 @@ class Command(management.BaseCommand):
             zoom_level=8
         )
         spectro_config2 = self.dataset.spectro_configs.create(
-            name='spectro_config1',
+            name='spectro_config2',
             nfft=2048,
             window_size=1000,
             overlap=90,

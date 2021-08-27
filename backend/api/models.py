@@ -12,7 +12,10 @@ class AnnotationTag(models.Model):
     class Meta:
         db_table = 'annotation_tags'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
 
 
 class AudioMetadatum(models.Model):
@@ -35,7 +38,10 @@ class DatasetType(models.Model):
     class Meta:
         db_table = 'dataset_types'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
 
 
@@ -43,7 +49,10 @@ class GeoMetadatum(models.Model):
     class Meta:
         db_table = 'geo_metadata'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
     location = models.TextField()
     region = models.TextField()
@@ -65,7 +74,7 @@ class TabularMetadatum(models.Model):
     class Meta:
         db_table = 'tabular_metadata'
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
     dimension_count = models.IntegerField()
     variable_count = models.IntegerField()
@@ -75,7 +84,10 @@ class AnnotationSet(models.Model):
     class Meta:
         db_table = 'annotation_sets'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True)
     tags = models.ManyToManyField(AnnotationTag)
 
@@ -86,7 +98,7 @@ class Collection(models.Model):
     class Meta:
         db_table = 'collections'
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -96,7 +108,10 @@ class Dataset(models.Model):
     class Meta:
         db_table = 'datasets'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True)
     dataset_path = models.CharField(max_length=255)
     status = models.IntegerField()
@@ -112,7 +127,10 @@ class Dataset(models.Model):
 
 
 class SpectroConfig(models.Model):
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True)
     nfft = models.IntegerField()
     window_size = models.IntegerField()
@@ -147,7 +165,10 @@ class AnnotationCampaign(models.Model):
     class Meta:
         db_table = 'annotation_campaigns'
 
-    name = models.CharField(max_length=255)
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
     instructions_url = models.TextField()
     start = models.DateTimeField()
@@ -205,6 +226,9 @@ class CollectionDataset(models.Model):
 class DatasetFile(models.Model):
     class Meta:
         db_table = 'dataset_files'
+
+    def __str__(self):
+        return str(self.filename)
 
     filename = models.CharField(max_length=255)
     filepath = models.CharField(max_length=255)

@@ -1,3 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
+from backend.api.models import Dataset, DatasetFile, AnnotationSet, AnnotationCampaign, SpectroConfig, DatasetType, AudioMetadatum, GeoMetadatum
+
+admin.site.register(Dataset, admin.ModelAdmin)
+admin.site.register(DatasetFile, admin.ModelAdmin)
+admin.site.register(AnnotationSet, admin.ModelAdmin)
+admin.site.register(AnnotationCampaign, admin.ModelAdmin)
+admin.site.register(DatasetType, admin.ModelAdmin)
+admin.site.register(AudioMetadatum, admin.ModelAdmin)
+admin.site.register(GeoMetadatum, admin.ModelAdmin)
+admin.site.register(SpectroConfig, admin.ModelAdmin)
