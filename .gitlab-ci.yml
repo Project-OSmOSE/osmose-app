@@ -12,6 +12,7 @@
 #         * OSMOSE_DB_USER : user BDD (ex : osmose)
 #         * OSMOSE_DB_PWD : mot de passe BDD
 #         * OSMOSE_DB_BASE : nom de la base dédiée à l'application (ex : osmose)
+#         * OSMOSE_SENTRY_URL : url pour le monitoring d'erreurs Sentry
 #     * Port exposé : 8000
 #     * Le conteneur peut être lancé avec l'UID:GID 202377:11436 (dcazau:gosmose)
 #     * Dossier destiné au montage datawork : /opt/datawork
