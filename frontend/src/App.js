@@ -17,7 +17,7 @@ import './css/bootstrap-4.1.3.min.css';
 
 import './css/app.css';
 
-const API_URL = '/api/dataset/import';
+const API_URL = '/api/dataset/datawork_import';
 
 type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void,
