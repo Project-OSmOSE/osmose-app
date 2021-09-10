@@ -26,6 +26,7 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from backend.api.views import dataset_index, user_index, annotation_campaign_show, annotation_campaign_index_create, annotation_campaign_report_show
 from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update, is_staff, dataset_import
 
@@ -51,6 +52,8 @@ backend_urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('schema', SpectacularAPIView.as_view(), name='schema'),
+    path('swagger', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger')
 ]
 
 api_urlpatterns = [
