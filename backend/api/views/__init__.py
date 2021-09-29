@@ -19,96 +19,11 @@ from django.contrib.auth.models import User
 from backend.settings import STATIC_URL
 
 from backend.api.views.dataset import DatasetViewSet
+from backend.api.views.annotation_campaign import AnnotationCampaignViewSet
 
 @api_view(http_method_names=['GET'])
 def user_index(request):
     return Response([{"id": user.id, "email": user.email} for user in User.objects.all()])
-
-@api_view(http_method_names=['GET'])
-def annotation_campaign_show(request, campaign_id):
-    campaign = AnnotationCampaign.objects.get(id=campaign_id)
-    user_tasks = campaign.tasks.filter(annotator_id=request.user.id)
-    return Response({
-        'campaign': {
-            'id': campaign.id,
-            'name': campaign.name,
-            'desc': campaign.desc,
-            'instructionsUrl': campaign.instructions_url,
-            'start': campaign.start,
-            'end': campaign.end,
-            'annotation_set_id': campaign.annotation_set_id,
-            'owner_id': campaign.owner_id,
-        },
-        'tasks': [res for res in campaign.tasks.values('status', 'annotator_id').annotate(count=Count('status'))]
-    })
-
-@transaction.atomic
-@api_view(http_method_names=['GET', 'POST'])
-def annotation_campaign_index_create(request):
-    if request.method == 'POST':
-        campaign = AnnotationCampaign(
-            name=request.data['name'],
-            desc=request.data['desc'],
-            start=request.data['start'],
-            end=request.data['end'],
-            annotation_set_id=request.data['annotation_set'],
-            owner_id=request.user.id
-        )
-        campaign.save()
-        campaign.datasets.set(Dataset.objects.filter(id__in=request.data['datasets']))
-        file_count = sum(campaign.datasets.annotate(Count('files')).values_list('files__count', flat=True))
-        total_goal = file_count * int(request.data['annotation_goal'])
-        annotator_goal, remainder = divmod(total_goal, len(request.data['annotators']))
-        annotation_method = ['random', 'sequential'][int(request.data['annotation_method'])]
-        for annotator in User.objects.filter(id__in=request.data['annotators']):
-            files_target = annotator_goal
-            if remainder > 0:
-                files_target += 1
-                remainder -= 1
-            campaign.add_annotator(annotator, files_target, annotation_method)
-        return Response({'id': campaign.id})
-
-    campaigns = AnnotationCampaign.objects.annotate(Count('datasets')).prefetch_related('tasks')
-    return Response([{
-        'id': campaign.id,
-        'name': campaign.name,
-        'instructionsUrl': campaign.instructions_url,
-        'start': campaign.start,
-        'end': campaign.end,
-        'annotation_set_id': campaign.annotation_set_id,
-        'tasks_count': campaign.tasks.count(),
-        'user_tasks_count': campaign.tasks.filter(annotator_id=request.user.id).count(),
-        'complete_tasks_count': campaign.tasks.filter(status=2).count(),
-        'user_complete_tasks_count': campaign.tasks.filter(annotator_id=request.user.id, status=2).count(),
-        'datasets_count': campaign.datasets__count
-    } for campaign in campaigns])
-
-@api_view(http_method_names=['GET'])
-def annotation_campaign_report_show(request, campaign_id):
-    campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{campaign.name.replace(" ", "_")}.csv"'
-    response.write('dataset,filename,start_time,end_time,start_frequency,end_frequency,annotation,annotator\n')
-    results = AnnotationResult.objects.prefetch_related(
-        'annotation_task',
-        'annotation_task__annotator',
-        'annotation_task__dataset_file',
-        'annotation_task__dataset_file__dataset',
-        'annotation_tag'
-    ).filter(annotation_task__annotation_campaign_id=campaign_id)
-    for result in results:
-        line = [
-            result.annotation_task.dataset_file.dataset.name,
-            result.annotation_task.dataset_file.filename,
-            str(result.start_time or ''),
-            str(result.end_time or ''),
-            str(result.start_frequency or ''),
-            str(result.end_frequency or ''),
-            result.annotation_tag.name,
-            result.annotation_task.annotator.username
-        ]
-        response.write(','.join(line) + '\n')
-    return response
 
 @api_view(http_method_names=['GET'])
 def annotation_set_index(request):

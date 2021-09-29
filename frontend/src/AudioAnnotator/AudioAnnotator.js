@@ -52,7 +52,7 @@ type AnnotationTask = {
   spectroUrls: Array<SpectroUrlsParams>,
   prevAnnotations: Array<RawAnnotation>,
   campaignId: number,
-  instructionsUrl: ?string,
+  instructions_url: ?string,
 };
 
 type AudioAnnotatorProps = {
@@ -568,11 +568,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   renderInstructionsLink = () => {
-    if (this.state.task && this.state.task.instructionsUrl) {
+    if (this.state.task && this.state.task.instructions_url) {
       return (
         <span>
           <a
-            href={this.state.task.instructionsUrl}
+            href={this.state.task.instructions_url}
             rel="noopener noreferrer"
             target="_blank"
           ><span className="fa fa-info-circle"></span>&nbsp;Campaign instructions</a>

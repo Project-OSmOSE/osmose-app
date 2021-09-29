@@ -28,14 +28,15 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from backend.api.views import user_index, annotation_campaign_show, annotation_campaign_index_create, annotation_campaign_report_show
+from backend.api.views import user_index
 from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update, is_staff
-from backend.api.views import DatasetViewSet
+from backend.api.views import DatasetViewSet, AnnotationCampaignViewSet
 
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'dataset', DatasetViewSet, basename='test_dataset')
+router.register(r'annotation_campaign', AnnotationCampaignViewSet, basename='test_dataset')
 
 # Backend urls are for admin & api documentation
 backend_urlpatterns = [
@@ -51,9 +52,6 @@ api_urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('user/', user_index),
     path('user/is_staff', is_staff),
-    path('annotation-campaign/<int:campaign_id>', annotation_campaign_show),
-    path('annotation-campaign/', annotation_campaign_index_create),
-    path('annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),
     path('annotation-set/', annotation_set_index),
     path('annotation-task/campaign/<int:campaign_id>', annotation_task_index),
     path('annotation-task/<int:task_id>', annotation_task_show),
