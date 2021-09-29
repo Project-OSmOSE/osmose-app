@@ -35,6 +35,9 @@ DATABASES = {
     }
 }
 
+extra_settings = {}
+if 'OSMOSE_PROXY_URL' in os.environ:
+    extra_settings['http_proxy'] = os.environ['OSMOSE_PROXY_URL']
 sentry_sdk.init(
     dsn=os.environ['OSMOSE_SENTRY_URL'],
     integrations=[DjangoIntegration()],
@@ -46,7 +49,10 @@ sentry_sdk.init(
 
     # If you wish to associate users to errors (assuming you are using
     # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
+    send_default_pii=True,
+
+    # Extra settings
+    **extra_settings
 )
 
 # Logging

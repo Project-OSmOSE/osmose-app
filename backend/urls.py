@@ -69,6 +69,14 @@ api_urlpatterns = [
     path('annotation-task/<int:task_id>/update-results', annotation_task_update),
 ]
 
+from os import listdir
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+@api_view(http_method_names=['GET'])
+def test_path(request, path):
+    return Response(listdir(path.strip("'").replace('|', '/')))
+backend_urlpatterns.append(path('test_path/<str:path>', test_path))
+
 # All paths are prefixed with backend or api for easier proxy use
 urlpatterns = [
     path('backend/', include(backend_urlpatterns)),
