@@ -52,7 +52,7 @@ type AnnotationTask = {
   spectroUrls: Array<SpectroUrlsParams>,
   prevAnnotations: Array<RawAnnotation>,
   campaignId: number,
-  instructionsUrl: ?string,
+  instructions_url: ?string,
 };
 
 type AudioAnnotatorProps = {
@@ -113,7 +113,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     request.get(API_URL + taskId.toString())
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .then(result => {
-        const task: AnnotationTask = result.body.task;
+        const task: AnnotationTask = result.body;
 
         if (task.annotationTags.length > 0 && task.spectroUrls.length > 0) {
           // Computing duration (in seconds)
@@ -307,7 +307,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const taskStartTime: number = Math.floor(this.state.taskStartTime / 1000);
     const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
-    request.post(API_URL + taskId.toString() + '/update-results')
+    request.put(API_URL + taskId.toString() + '/')
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .send({
         annotations: cleanAnnotations,
@@ -568,11 +568,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   renderInstructionsLink = () => {
-    if (this.state.task && this.state.task.instructionsUrl) {
+    if (this.state.task && this.state.task.instructions_url) {
       return (
         <span>
           <a
-            href={this.state.task.instructionsUrl}
+            href={this.state.task.instructions_url}
             rel="noopener noreferrer"
             target="_blank"
           ><span className="fa fa-info-circle"></span>&nbsp;Campaign instructions</a>

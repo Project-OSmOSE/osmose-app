@@ -18,55 +18,41 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+Also using DRF routers, see:
+https://www.django-rest-framework.org/api-guide/routers/
 """
 
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth.models import User
-from rest_framework import routers, serializers, viewsets
+
+from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
-from backend.api.views import dataset_index, user_index, annotation_campaign_show, annotation_campaign_index_create, annotation_campaign_report_show
-from backend.api.views import annotation_set_index, annotation_task_index, annotation_task_show, annotation_task_update, is_staff, dataset_import
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from backend.api.views import DatasetViewSet, UserViewSet, AnnotationSetViewSet
+from backend.api.views import AnnotationTaskViewSet, AnnotationCampaignViewSet
 
-# Serializers define the API representation.
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'is_staff']
-
-# ViewSets define the view behavior.
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-# Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
+# Backend urls are for admin & api documentation
 backend_urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('schema', SpectacularAPIView.as_view(), name='schema'),
+    path('swagger', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger')
 ]
 
+# API urls are meant to be used by our React frontend
+api_router = routers.DefaultRouter()
+api_router.register(r'dataset', DatasetViewSet, basename='dataset')
+api_router.register(r'user', UserViewSet, basename='user')
+api_router.register(r'annotation-set', AnnotationSetViewSet, basename='annotation-set')
+api_router.register(r'annotation-campaign', AnnotationCampaignViewSet, basename='annotation-campaign')
+api_router.register(r'annotation-task', AnnotationTaskViewSet, basename='annotation-task')
 api_urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('dataset/', dataset_index),
-    path('dataset/import', dataset_import),
-    path('user/', user_index),
-    path('user/is_staff', is_staff),
-    path('annotation-campaign/<int:campaign_id>', annotation_campaign_show),
-    path('annotation-campaign/', annotation_campaign_index_create),
-    path('annotation-campaign/<int:campaign_id>/report/', annotation_campaign_report_show),
-    path('annotation-set/', annotation_set_index),
-    path('annotation-task/campaign/<int:campaign_id>', annotation_task_index),
-    path('annotation-task/<int:task_id>', annotation_task_show),
-    path('annotation-task/<int:task_id>/update-results', annotation_task_update),
+    path('', include(api_router.urls)),
 ]
 
 from os import listdir

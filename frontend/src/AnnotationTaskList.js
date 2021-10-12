@@ -28,7 +28,7 @@ type AnnotationTaskListState = {
     end: string,
     annotation_set_id: number,
     owner_id: number,
-    instructionsUrl: ?string,
+    instructions_url: ?string,
   },
   annotation_tasks: Array<{
     id: number,
@@ -115,11 +115,11 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
     });
 
     let instructions = undefined;
-    if (this.state.campaign && this.state.campaign.instructionsUrl) {
+    if (this.state.campaign && this.state.campaign.instructions_url) {
       instructions = (
         <a
           className="btn btn-warning"
-          href={this.state.campaign.instructionsUrl}
+          href={this.state.campaign.instructions_url}
           rel="noopener noreferrer"
           target="_blank"
         ><span className="fa fa-info-circle"></span>&nbsp;Campaign instructions</a>

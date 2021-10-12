@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'backend.api.apps.ApiConfig',
 ]
 
@@ -119,5 +120,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Spectacular params for swagger-ui api documentation
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OSMOSE API',
+    'DESCRIPTION': 'Backend API for OSMOSE project meant to be used by the React frontend',
+    # 'VERSION': '1.0.0',
 }

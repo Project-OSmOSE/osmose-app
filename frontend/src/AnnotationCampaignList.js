@@ -12,7 +12,7 @@ type ACLState = {
   annotation_campaigns: Array<{
     id: number,
     name: string,
-    instructionsUrl: ?string,
+    instructions_url: ?string,
     annotation_set_id: number,
     datasets_count: number,
     start: string,
@@ -67,10 +67,10 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
 
     const annotation_campaigns = this.state.annotation_campaigns.map(annotation_campaign => {
       let instructions = <span>-</span>;
-      if (annotation_campaign.instructionsUrl) {
+      if (annotation_campaign.instructions_url) {
         instructions = (
           <a
-            href={annotation_campaign.instructionsUrl}
+            href={annotation_campaign.instructions_url}
             title="Instructions on how to annotate tasks for this campaign"
             rel="noopener noreferrer"
             target="_blank"
