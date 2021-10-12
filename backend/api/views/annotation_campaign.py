@@ -14,7 +14,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_field, inline_ser
 
 from backend.utils.renderers import CSVRenderer
 from backend.utils.validators import valid_model_ids
-from backend.api.models import AnnotationCampaign, AnnotationResult, Dataset, AnnotationSet
+from backend.api.models import AnnotationCampaign, AnnotationResult, Dataset, AnnotationSet, SpectroConfig
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     tasks_count = serializers.SerializerMethodField()
@@ -94,16 +94,26 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
     annotation_set_id = serializers.IntegerField(validators=[valid_model_ids(AnnotationSet)])
     datasets = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(Dataset)])
+    spectros = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(SpectroConfig)])
     annotators = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(User)])
     annotation_method = serializers.IntegerField(min_value=0, max_value=1)
     annotation_goal = serializers.IntegerField(min_value=1)
+    instructions_url = serializers.CharField(allow_null=True)
 
     class Meta:
         model = AnnotationCampaign
         fields = [
             'id', 'name', 'desc', 'instructions_url', 'start', 'end', 'annotation_set_id',
-            'datasets', 'annotators', 'annotation_method', 'annotation_goal'
+            'datasets', 'spectros', 'annotators', 'annotation_method', 'annotation_goal'
         ]
+
+    def validate(self, data):
+        """Validates that chosen spectros correspond to chosen datasets"""
+        db_spectros = Dataset.objects.filter(id__in=data['datasets']).values_list('spectro_configs', flat=True)
+        bad_vals = set(data['spectros']) - set(db_spectros)
+        if bad_vals:
+            raise serializers.ValidationError(f"{bad_vals} not valid ids for spectro configs of given datasets")
+        return data
 
     def create(self, validated_data):
         campaign = AnnotationCampaign(
@@ -115,7 +125,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             owner_id=validated_data['owner_id']
         )
         campaign.save()
-        campaign.datasets.set(Dataset.objects.filter(id__in=validated_data['datasets']))
+        campaign.datasets.set(validated_data['datasets'])
+        campaign.spectro_configs.set(validated_data['spectros'])
         file_count = sum(campaign.datasets.annotate(Count('files')).values_list('files__count', flat=True))
         total_goal = file_count * int(validated_data['annotation_goal'])
         annotator_goal, remainder = divmod(total_goal, len(validated_data['annotators']))

@@ -7,23 +7,33 @@ from django.db.models import Count
 from django.utils.dateparse import parse_datetime
 from django.http import HttpResponse
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.utils import extend_schema_field, extend_schema
 
-from backend.api.models import Dataset, DatasetType, AudioMetadatum, GeoMetadatum
+from backend.api.models import Dataset, DatasetType, AudioMetadatum, GeoMetadatum, SpectroConfig
 from backend.settings import DATASET_IMPORT_FOLDER, DATASET_SPECTRO_FOLDER
+
+
+class SpectroConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpectroConfig
+        exclude = ['datasets']
+
 
 class DatasetSerializer(serializers.ModelSerializer):
     files_count = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    spectros = SpectroConfigSerializer(many=True, source='spectro_configs')
 
     class Meta:
         model = Dataset
-        fields = ['id', 'name', 'files_type', 'start_date', 'end_date', 'files_count', 'type']
+        fields = ['id', 'name', 'files_type', 'start_date', 'end_date', 'files_count', 'type', 'spectros']
+        depth = 1
 
     @extend_schema_field(serializers.IntegerField)
     def get_files_count(self, dataset):
@@ -31,6 +41,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 
     def get_type(self, dataset):
         return dataset.dataset_type.name
+
 
 class DatasetViewSet(viewsets.ViewSet):
     """
