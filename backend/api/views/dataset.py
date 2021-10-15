@@ -22,7 +22,7 @@ from backend.settings import DATASET_IMPORT_FOLDER, DATASET_SPECTRO_FOLDER, DATA
 class SpectroConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpectroConfig
-        exclude = ['datasets']
+        fields = '__all__'
 
 
 class DatasetSerializer(serializers.ModelSerializer):
@@ -64,12 +64,14 @@ class DatasetViewSet(viewsets.ViewSet):
             return HttpResponse('Unauthorized', status=401)
 
         dataset_names = Dataset.objects.values_list('name', flat=True)
+        csv_dataset_names = []
         new_datasets = []
 
         # TODO: we should also check for new spectros in existing datasets (or dataset update)
         # Check for new datasets
         with open(DATASET_IMPORT_FOLDER / 'datasets.csv') as csvfile:
             for dataset in csv.DictReader(csvfile):
+                csv_dataset_names.append(dataset['name'])
                 if dataset['name'] not in dataset_names:
                     new_datasets.append(dataset)
 
@@ -128,13 +130,16 @@ class DatasetViewSet(viewsets.ViewSet):
                         audio_metadatum=audio_metadatum
                     )
 
-            # We should run import spectros on all datasets after dataset creation
-            curr_spectros = curr_dataset.spectro_configs.values_list('name', flat=True)
-            spectro_csv_path = DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_SPECTRO_FOLDER / dataset['conf_folder'] / 'spectrograms.csv'
+        # Check for new spectro configs
+        datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
+        for dataset in datasets_to_check:
+            curr_spectros = dataset.spectro_configs.values_list('name', flat=True)
+            dataset_folder = dataset.dataset_path.split('/')[-1]
+            spectro_csv_path = DATASET_IMPORT_FOLDER / dataset_folder / DATASET_SPECTRO_FOLDER / dataset.dataset_conf / 'spectrograms.csv'
             with open(spectro_csv_path) as csvfile:
                 for spectro in csv.DictReader(csvfile):
                     if spectro['name'] not in curr_spectros:
-                        curr_dataset.spectro_configs.create(**spectro)
+                        dataset.spectro_configs.create(**spectro)
 
         queryset = Dataset.objects.filter(id__in=created_datasets).annotate(Count('files')).select_related('dataset_type')
         serializer = self.serializer_class(queryset, many=True)

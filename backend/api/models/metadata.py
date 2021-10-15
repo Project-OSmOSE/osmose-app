@@ -45,8 +45,6 @@ class SpectroConfig(models.Model):
     overlap = models.FloatField()
     zoom_level = models.IntegerField()
 
-    datasets = models.ManyToManyField('Dataset', related_name='spectro_configs')
-
     def zoom_tiles(self, tile_name):
         n_zooms = int(log(self.zoom_level, 2)) + 1
         for zoom_power in range(0, n_zooms):

@@ -47,6 +47,7 @@ class Dataset(models.Model):
     geo_metadatum = models.ForeignKey('GeoMetadatum', on_delete=models.CASCADE, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True, blank=True)
+    spectro_configs = models.ManyToManyField('SpectroConfig', related_name='datasets')
 
 
 
