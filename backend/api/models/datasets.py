@@ -40,11 +40,11 @@ class Dataset(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
 
-    audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True)
+    audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True, blank=True)
     dataset_type = models.ForeignKey(DatasetType, on_delete=models.CASCADE)
-    geo_metadatum = models.ForeignKey('GeoMetadatum', on_delete=models.CASCADE, null=True)
+    geo_metadatum = models.ForeignKey('GeoMetadatum', on_delete=models.CASCADE, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True)
+    tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True, blank=True)
 
 
 
@@ -68,5 +68,5 @@ class DatasetFile(models.Model):
     size = models.BigIntegerField()
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='files')
-    audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True)
-    tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True)
+    audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True, blank=True)
+    tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True, blank=True)

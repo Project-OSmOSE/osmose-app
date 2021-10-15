@@ -9,16 +9,16 @@ class AudioMetadatum(models.Model):
     class Meta:
         db_table = 'audio_metadata'
 
-    start = models.DateTimeField(null=True)
-    end = models.DateTimeField(null=True)
-    num_channels = models.IntegerField(null=True)
-    sample_rate_khz = models.FloatField(null=True)
-    total_samples = models.IntegerField(null=True)
-    sample_bits = models.IntegerField(null=True)
-    gain_db = models.FloatField(null=True)
-    gain_rel = models.FloatField(null=True)
-    dutycycle_rdm = models.FloatField(null=True)
-    dutycycle_rim = models.FloatField(null=True)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+    num_channels = models.IntegerField(null=True, blank=True)
+    sample_rate_khz = models.FloatField(null=True, blank=True)
+    total_samples = models.IntegerField(null=True, blank=True)
+    sample_bits = models.IntegerField(null=True, blank=True)
+    gain_db = models.FloatField(null=True, blank=True)
+    gain_rel = models.FloatField(null=True, blank=True)
+    dutycycle_rdm = models.FloatField(null=True, blank=True)
+    dutycycle_rim = models.FloatField(null=True, blank=True)
 
 
 class GeoMetadatum(models.Model):

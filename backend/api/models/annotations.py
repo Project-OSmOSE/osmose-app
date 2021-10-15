@@ -99,10 +99,10 @@ class AnnotationResult(models.Model):
     class Meta:
         db_table = 'annotation_results'
 
-    start_time = models.FloatField(null=True)
-    end_time = models.FloatField(null=True)
-    start_frequency = models.FloatField(null=True)
-    end_frequency = models.FloatField(null=True)
+    start_time = models.FloatField(null=True, blank=True)
+    end_time = models.FloatField(null=True, blank=True)
+    start_frequency = models.FloatField(null=True, blank=True)
+    end_frequency = models.FloatField(null=True, blank=True)
 
     annotation_tag = models.ForeignKey(AnnotationTag, on_delete=models.CASCADE)
     annotation_task = models.ForeignKey(AnnotationTask, on_delete=models.CASCADE, related_name='results')
