@@ -35,6 +35,8 @@ class Dataset(models.Model):
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True)
     dataset_path = models.CharField(max_length=255)
+    dataset_conf = models.CharField(max_length=255, null=True, blank=True,
+        help_text='Specific configuration folder used for this dataset')
     status = models.IntegerField()
     files_type = models.CharField(max_length=255)
     start_date = models.DateField(null=True)

@@ -102,6 +102,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 DATASET_IMPORT_FOLDER = Path('/opt/datawork/dataset')
+DATASET_EXPORT_PATH = Path('datawork/dataset') # linked to nginx conf
 DATASET_FILES_FOLDER = Path('raw/audio')
 DATASET_SPECTRO_FOLDER = Path('analysis/spectrograms')
 

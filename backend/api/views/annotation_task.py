@@ -3,9 +3,7 @@
 from datetime import datetime
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 from django.utils.http import urlquote
-from django.db.models import F
 
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
@@ -14,7 +12,7 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, extend_schema_field
 
 from backend.api.models import AnnotationCampaign, AnnotationTask, AnnotationResult, SpectroConfig
-from backend.settings import STATIC_URL
+from backend.settings import STATIC_URL, DATASET_SPECTRO_FOLDER
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
     filename = serializers.CharField(source='dataset_file.filename')
@@ -51,10 +49,8 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     urls = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        if 'sound_name' in kwargs:
-            self.sound_name = kwargs.pop('sound_name')
-        if 'root_url' in kwargs:
-            self.root_url = kwargs.pop('root_url')
+        if 'dataset_file' in kwargs:
+            self.dataset_file = kwargs.pop('dataset_file')
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -63,9 +59,13 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_urls(self, spectro_config):
+        root_url = STATIC_URL + self.dataset_file.dataset.dataset_path
+        sound_name = self.dataset_file.filepath.split('/')[-1].replace('.wav', '')
+        dataset_conf = self.dataset_file.dataset.dataset_conf or ''
+        spectro_path = DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
         return [
-            urlquote(f'{self.root_url}/spectrograms/{spectro_config.name}/{self.sound_name}/{tile}')
-            for tile in spectro_config.zoom_tiles(self.sound_name)
+            urlquote(f'{root_url}/{spectro_path}/{sound_name}/{tile}')
+            for tile in spectro_config.zoom_tiles(sound_name)
         ]
 
 
@@ -104,10 +104,8 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskSpectroSerializer(many=True))
     def get_spectroUrls(self, task):
-        root_url = STATIC_URL + task.dataset_file.dataset.dataset_path
-        sound_name = task.dataset_file.filepath.split('/')[-1].replace('.wav', '')
         spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(task.annotation_campaign.spectro_configs.all())
-        return AnnotationTaskSpectroSerializer(spectros_configs, many=True, root_url=root_url, sound_name=sound_name).data
+        return AnnotationTaskSpectroSerializer(spectros_configs, many=True, dataset_file=task.dataset_file).data
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
     def get_prevAnnotations(self, task):

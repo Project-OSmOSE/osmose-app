@@ -16,7 +16,7 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema_field, extend_schema
 
 from backend.api.models import Dataset, DatasetType, AudioMetadatum, GeoMetadatum, SpectroConfig
-from backend.settings import DATASET_IMPORT_FOLDER, DATASET_SPECTRO_FOLDER
+from backend.settings import DATASET_IMPORT_FOLDER, DATASET_SPECTRO_FOLDER, DATASET_FILES_FOLDER, DATASET_EXPORT_PATH
 
 
 class SpectroConfigSerializer(serializers.ModelSerializer):
@@ -75,10 +75,6 @@ class DatasetViewSet(viewsets.ViewSet):
 
         created_datasets = []
         for dataset in new_datasets:
-            # We need to split dataset name into a correct folder : dataset name + subfolder name
-            name_root, *name_params = dataset['name'].split('_')
-            name_params = '_'.join(name_params)
-
             # Create dataset metadata
             datatype = DatasetType.objects.filter(name=dataset['dataset_type_name']).first() # double check if nothing else better
             if not datatype:
@@ -86,7 +82,7 @@ class DatasetViewSet(viewsets.ViewSet):
                     name=dataset['dataset_type_name'],
                     desc=dataset['dataset_type_desc'],
                 )
-            with open(DATASET_IMPORT_FOLDER / name_root / 'raw/metadata.csv') as csvfile:
+            with open(DATASET_IMPORT_FOLDER / dataset['folder_name'] / 'raw/metadata.csv') as csvfile:
                  audio_raw = list(csv.DictReader(csvfile))[0]
             audio_metadatum = AudioMetadatum.objects.create(
                 num_channels=audio_raw['nchannels'],
@@ -103,10 +99,11 @@ class DatasetViewSet(viewsets.ViewSet):
             # Create dataset
             curr_dataset = Dataset.objects.create(
                 name=dataset['name'],
-                dataset_path=DATASET_IMPORT_FOLDER / name_root / 'raw/audio' / name_params,
+                dataset_path=DATASET_EXPORT_PATH / dataset['folder_name'],
                 status=1,
                 files_type=dataset['files_type'],
                 dataset_type=datatype,
+                dataset_conf=dataset['conf_folder'],
                 start_date=audio_metadatum.start.date(),
                 end_date=audio_metadatum.end.date(),
                 audio_metadatum=audio_metadatum,
@@ -116,7 +113,7 @@ class DatasetViewSet(viewsets.ViewSet):
             created_datasets.append(curr_dataset.id)
 
             # Create dataset_files
-            with open(DATASET_IMPORT_FOLDER / name_root / 'raw/audio/timestamp.csv') as csvfile:
+            with open(DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_FILES_FOLDER / 'timestamp.csv') as csvfile:
                 for timestamp_data in csv.reader(csvfile):
                     filename, start_timestamp = timestamp_data
                     start = parse_datetime(start_timestamp)
@@ -126,14 +123,15 @@ class DatasetViewSet(viewsets.ViewSet):
                     )
                     curr_dataset.files.create(
                         filename=filename,
-                        filepath=DATASET_IMPORT_FOLDER / name_root / 'raw/audio' / name_params / filename,
+                        filepath=DATASET_FILES_FOLDER / dataset['conf_folder'] / filename,
                         size=0,
                         audio_metadatum=audio_metadatum
                     )
 
             # We should run import spectros on all datasets after dataset creation
             curr_spectros = curr_dataset.spectro_configs.values_list('name', flat=True)
-            with open(DATASET_IMPORT_FOLDER / name_root / DATASET_SPECTRO_FOLDER / name_params / 'spectrograms.csv') as csvfile:
+            spectro_csv_path = DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_SPECTRO_FOLDER / dataset['conf_folder'] / 'spectrograms.csv'
+            with open(spectro_csv_path) as csvfile:
                 for spectro in csv.DictReader(csvfile):
                     if spectro['name'] not in curr_spectros:
                         curr_dataset.spectro_configs.create(**spectro)
