@@ -58,7 +58,7 @@ services:
       - https-portal-data:/var/lib/https-portal
     environment:
       DOMAINS: "${OSMOSE_HOST} -> http://osmose_front:8080"
-      STAGE: production
+      STAGE: "${HTTPS_PORTAL_STAGE:-production}"
     restart: always
 
 volumes:

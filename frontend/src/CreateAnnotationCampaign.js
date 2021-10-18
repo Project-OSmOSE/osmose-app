@@ -313,16 +313,23 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
     this.setState({error: null});
+    let spectros = Object.values(this.state.new_ac_datasets).map(d => {
+      return d.spectros.map(s => {
+        return s.id;
+      });
+    }).flat(1);
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
       datasets: Object.keys(this.state.new_ac_datasets),
-      start: this.state.new_ac_start.trim(),
-      end: this.state.new_ac_end.trim(),
-      annotation_set: this.state.new_ac_annotation_set,
+      spectros: spectros,
+      start: this.state.new_ac_start.trim() + 'T00:00',
+      end: this.state.new_ac_end.trim() + 'T00:00',
+      annotation_set_id: this.state.new_ac_annotation_set,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
-      annotation_method: this.state.new_ac_annotation_method
+      annotation_method: this.state.new_ac_annotation_method,
+      instructions_url: null
     };
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)

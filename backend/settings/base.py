@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -102,6 +103,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 DATASET_IMPORT_FOLDER = Path('/opt/datawork/dataset')
+DATASET_EXPORT_PATH = Path('datawork/dataset') # linked to nginx conf
 DATASET_FILES_FOLDER = Path('raw/audio')
 DATASET_SPECTRO_FOLDER = Path('analysis/spectrograms')
 
@@ -122,6 +124,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# rest_framework_simplejwt params
+SIMPLE_JWT = {
+    # TODO : return to a more conservative setting after implenting refresh in front
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=8)
 }
 
 # Spectacular params for swagger-ui api documentation

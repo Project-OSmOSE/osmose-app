@@ -3,18 +3,16 @@
 from datetime import datetime
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 from django.utils.http import urlquote
-from django.db.models import F
 
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from drf_spectacular.utils import extend_schema, extend_schema_field
+from drf_spectacular.utils import extend_schema, extend_schema_field, OpenApiParameter, OpenApiTypes
 
 from backend.api.models import AnnotationCampaign, AnnotationTask, AnnotationResult, SpectroConfig
-from backend.settings import STATIC_URL
+from backend.settings import STATIC_URL, DATASET_SPECTRO_FOLDER
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
     filename = serializers.CharField(source='dataset_file.filename')
@@ -51,10 +49,8 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     urls = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        if 'sound_name' in kwargs:
-            self.sound_name = kwargs.pop('sound_name')
-        if 'root_url' in kwargs:
-            self.root_url = kwargs.pop('root_url')
+        if 'dataset_file' in kwargs:
+            self.dataset_file = kwargs.pop('dataset_file')
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -63,9 +59,13 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_urls(self, spectro_config):
+        root_url = STATIC_URL + self.dataset_file.dataset.dataset_path
+        sound_name = self.dataset_file.filepath.split('/')[-1].replace('.wav', '')
+        dataset_conf = self.dataset_file.dataset.dataset_conf or ''
+        spectro_path = DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
         return [
-            urlquote(f'{self.root_url}/spectrograms/{spectro_config.name}/{self.sound_name}/{tile}')
-            for tile in spectro_config.zoom_tiles(self.sound_name)
+            urlquote(f'{root_url}/{spectro_path}/{sound_name}/{tile}')
+            for tile in spectro_config.zoom_tiles(sound_name)
         ]
 
 
@@ -91,6 +91,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             'endFrequency': self.get_audioRate(task) / 2
         }
 
+    @extend_schema_field(serializers.CharField())
     def get_audioUrl(self, task):
         root_url = STATIC_URL + task.dataset_file.dataset.dataset_path
         return f'{root_url}/{task.dataset_file.filepath}'
@@ -104,10 +105,8 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskSpectroSerializer(many=True))
     def get_spectroUrls(self, task):
-        root_url = STATIC_URL + task.dataset_file.dataset.dataset_path
-        sound_name = task.dataset_file.filepath.split('/')[-1].replace('.wav', '')
         spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(task.annotation_campaign.spectro_configs.all())
-        return AnnotationTaskSpectroSerializer(spectros_configs, many=True, root_url=root_url, sound_name=sound_name).data
+        return AnnotationTaskSpectroSerializer(spectros_configs, many=True, dataset_file=task.dataset_file).data
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
     def get_prevAnnotations(self, task):
@@ -145,14 +144,18 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation tasks related actions
     """
 
+    queryset = AnnotationTask.objects.all()
     serializer_class = AnnotationTaskSerializer
 
-    @extend_schema(responses=AnnotationTaskSerializer(many=True))
+    @extend_schema(
+        parameters=[OpenApiParameter('campaign_id', int, OpenApiParameter.PATH)],
+        responses=AnnotationTaskSerializer(many=True)
+    )
     @action(detail=False, url_path='campaign/(?P<campaign_id>[^/.]+)')
     def campaign_list(self, request, campaign_id):
         """List tasks for given annotation campaign"""
         get_object_or_404(AnnotationCampaign, pk=campaign_id)
-        queryset = AnnotationTask.objects.filter(
+        queryset = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=campaign_id
         ).prefetch_related('dataset_file', 'dataset_file__dataset', 'dataset_file__audio_metadatum')
@@ -162,7 +165,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationTaskRetrieveSerializer)
     def retrieve(self, request, pk):
         """Retrieve annotation task instructions to the corresponding id"""
-        queryset = AnnotationTask.objects.prefetch_related(
+        queryset = self.queryset.prefetch_related(
             'annotation_campaign',
             'annotation_campaign__spectro_configs',
             'annotation_campaign__annotation_set',
@@ -178,13 +181,13 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     @extend_schema(request=AnnotationTaskUpdateSerializer, responses=AnnotationTaskUpdateOutputCampaignSerializer)
     def update(self, request, pk):
         """Update an annotation task with new results"""
-        queryset = AnnotationTask.objects.filter(annotator=request.user.id)
+        queryset = self.queryset.filter(annotator=request.user.id)
         task = get_object_or_404(queryset, pk=pk)
         update_serializer = AnnotationTaskUpdateSerializer(task, data=request.data)
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
 
-        next_task = AnnotationTask.objects.filter(
+        next_task = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=task.annotation_campaign_id
         ).exclude(status=2).order_by('dataset_file__audio_metadatum__start').first()
