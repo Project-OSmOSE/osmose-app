@@ -39,6 +39,7 @@ class DatasetSerializer(serializers.ModelSerializer):
     def get_files_count(self, dataset):
         return dataset.files__count
 
+    @extend_schema_field(serializers.CharField)
     def get_type(self, dataset):
         return dataset.dataset_type.name
 

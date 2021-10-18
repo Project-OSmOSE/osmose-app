@@ -144,19 +144,19 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation campaign related actions
     """
 
+    queryset = AnnotationCampaign.objects.all()
     serializer_class = AnnotationCampaignListSerializer
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = AnnotationCampaign.objects.annotate(Count('datasets')).prefetch_related('tasks')
+        queryset = self.queryset.annotate(Count('datasets')).prefetch_related('tasks')
         serializer = self.serializer_class(queryset, many=True, user_id=request.user.id)
         return Response(serializer.data)
 
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
     def retrieve(self, request, pk=None):
         """Show a specific annotation campaign"""
-        queryset = AnnotationCampaign.objects.all()
-        annotation_campaign = get_object_or_404(queryset, pk=pk)
+        annotation_campaign = get_object_or_404(self.queryset, pk=pk)
         serializer = AnnotationCampaignRetrieveSerializer(annotation_campaign)
         return Response(serializer.data)
 

@@ -9,7 +9,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from drf_spectacular.utils import extend_schema, extend_schema_field
+from drf_spectacular.utils import extend_schema, extend_schema_field, OpenApiParameter, OpenApiTypes
 
 from backend.api.models import AnnotationCampaign, AnnotationTask, AnnotationResult, SpectroConfig
 from backend.settings import STATIC_URL, DATASET_SPECTRO_FOLDER
@@ -91,6 +91,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             'endFrequency': self.get_audioRate(task) / 2
         }
 
+    @extend_schema_field(serializers.CharField())
     def get_audioUrl(self, task):
         root_url = STATIC_URL + task.dataset_file.dataset.dataset_path
         return f'{root_url}/{task.dataset_file.filepath}'
@@ -143,14 +144,18 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation tasks related actions
     """
 
+    queryset = AnnotationTask.objects.all()
     serializer_class = AnnotationTaskSerializer
 
-    @extend_schema(responses=AnnotationTaskSerializer(many=True))
+    @extend_schema(
+        parameters=[OpenApiParameter('campaign_id', int, OpenApiParameter.PATH)],
+        responses=AnnotationTaskSerializer(many=True)
+    )
     @action(detail=False, url_path='campaign/(?P<campaign_id>[^/.]+)')
     def campaign_list(self, request, campaign_id):
         """List tasks for given annotation campaign"""
         get_object_or_404(AnnotationCampaign, pk=campaign_id)
-        queryset = AnnotationTask.objects.filter(
+        queryset = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=campaign_id
         ).prefetch_related('dataset_file', 'dataset_file__dataset', 'dataset_file__audio_metadatum')
@@ -160,7 +165,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationTaskRetrieveSerializer)
     def retrieve(self, request, pk):
         """Retrieve annotation task instructions to the corresponding id"""
-        queryset = AnnotationTask.objects.prefetch_related(
+        queryset = self.queryset.prefetch_related(
             'annotation_campaign',
             'annotation_campaign__spectro_configs',
             'annotation_campaign__annotation_set',
@@ -176,13 +181,13 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     @extend_schema(request=AnnotationTaskUpdateSerializer, responses=AnnotationTaskUpdateOutputCampaignSerializer)
     def update(self, request, pk):
         """Update an annotation task with new results"""
-        queryset = AnnotationTask.objects.filter(annotator=request.user.id)
+        queryset = self.queryset.filter(annotator=request.user.id)
         task = get_object_or_404(queryset, pk=pk)
         update_serializer = AnnotationTaskUpdateSerializer(task, data=request.data)
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
 
-        next_task = AnnotationTask.objects.filter(
+        next_task = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=task.annotation_campaign_id
         ).exclude(status=2).order_by('dataset_file__audio_metadatum__start').first()
