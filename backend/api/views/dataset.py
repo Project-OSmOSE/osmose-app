@@ -68,7 +68,6 @@ class DatasetViewSet(viewsets.ViewSet):
         csv_dataset_names = []
         new_datasets = []
 
-        # TODO: we should also check for new spectros in existing datasets (or dataset update)
         # Check for new datasets
         with open(DATASET_IMPORT_FOLDER / 'datasets.csv') as csvfile:
             for dataset in csv.DictReader(csvfile):
@@ -79,12 +78,10 @@ class DatasetViewSet(viewsets.ViewSet):
         created_datasets = []
         for dataset in new_datasets:
             # Create dataset metadata
-            datatype = DatasetType.objects.filter(name=dataset['dataset_type_name']).first() # double check if nothing else better
-            if not datatype:
-                datatype = DatasetType.objects.create(
-                    name=dataset['dataset_type_name'],
-                    desc=dataset['dataset_type_desc'],
-                )
+            datatype, _ = DatasetType.objects.update_or_create(
+                name=dataset['dataset_type_name'],
+                defaults={'desc': dataset['dataset_type_desc']}
+            )
             with open(DATASET_IMPORT_FOLDER / dataset['folder_name'] / 'raw/metadata.csv') as csvfile:
                  audio_raw = list(csv.DictReader(csvfile))[0]
             audio_metadatum = AudioMetadatum.objects.create(
@@ -94,9 +91,9 @@ class DatasetViewSet(viewsets.ViewSet):
                 start=parse_datetime(audio_raw['start_date']),
                 end=parse_datetime(audio_raw['end_date'])
             )
-            geo_metadatum = GeoMetadatum.objects.create(
+            geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
                 name=dataset['location_name'],
-                desc=dataset['location_desc']
+                defaults={'desc': dataset['location_desc']}
             )
 
             # Create dataset
@@ -134,13 +131,17 @@ class DatasetViewSet(viewsets.ViewSet):
         # Check for new spectro configs
         datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
         for dataset in datasets_to_check:
-            curr_spectros = dataset.spectro_configs.values_list('name', flat=True)
+            dataset_spectros = []
             dataset_folder = dataset.dataset_path.split('/')[-1]
-            spectro_csv_path = DATASET_IMPORT_FOLDER / dataset_folder / DATASET_SPECTRO_FOLDER / dataset.dataset_conf / 'spectrograms.csv'
+            conf_folder = dataset.dataset_conf or ''
+            spectro_csv_path = DATASET_IMPORT_FOLDER / dataset_folder / DATASET_SPECTRO_FOLDER / conf_folder / 'spectrograms.csv'
             with open(spectro_csv_path) as csvfile:
                 for spectro in csv.DictReader(csvfile):
-                    if spectro['name'] not in curr_spectros:
-                        dataset.spectro_configs.create(**spectro)
+                    name = spectro.pop('name')
+                    dataset_spectros.append(
+                        SpectroConfig.objects.update_or_create(name=name, defaults=spectro)[0]
+                    )
+            dataset.spectro_configs.set(dataset_spectros)
 
         queryset = Dataset.objects.filter(id__in=created_datasets).annotate(Count('files')).select_related('dataset_type')
         serializer = self.serializer_class(queryset, many=True)
