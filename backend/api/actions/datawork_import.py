@@ -30,11 +30,12 @@ def datawork_import(*, importer):
             name=dataset['dataset_type_name'],
             defaults={'desc': dataset['dataset_type_desc']}
         )
-        with open(DATASET_IMPORT_FOLDER / dataset['folder_name'] / 'raw/metadata.csv') as csvfile:
+        audio_folder = DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_FILES_FOLDER / dataset['conf_folder']
+        with open(audio_folder / 'metadata.csv') as csvfile:
              audio_raw = list(csv.DictReader(csvfile))[0]
         audio_metadatum = AudioMetadatum.objects.create(
             num_channels=audio_raw['nchannels'],
-            sample_rate_khz=audio_raw['orig_fs'],
+            sample_rate_khz=audio_raw['dataset_fs'],
             sample_bits=audio_raw['sound_sample_size_in_bits'],
             start=parse_datetime(audio_raw['start_date']),
             end=parse_datetime(audio_raw['end_date'])
@@ -61,13 +62,13 @@ def datawork_import(*, importer):
         created_datasets.append(curr_dataset.id)
 
         # Create dataset_files
-        with open(DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_FILES_FOLDER / 'timestamp.csv') as csvfile:
+        with open(audio_folder / 'timestamp.csv') as csvfile:
             for timestamp_data in csv.reader(csvfile):
                 filename, start_timestamp = timestamp_data
                 start = parse_datetime(start_timestamp)
                 audio_metadatum = AudioMetadatum.objects.create(
                     start=start,
-                    end=(start + timedelta(seconds=float(audio_raw['audioFile_duration'])))
+                    end=(start + timedelta(seconds=float(audio_raw['dataset_fileDuration'])))
                 )
                 curr_dataset.files.create(
                     filename=filename,
