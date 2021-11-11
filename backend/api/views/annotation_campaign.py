@@ -98,7 +98,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
     annotators = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(User)])
     annotation_method = serializers.IntegerField(min_value=0, max_value=1)
     annotation_goal = serializers.IntegerField(min_value=1)
-    instructions_url = serializers.CharField(allow_null=True)
+    instructions_url = serializers.CharField(allow_blank=True)
 
     class Meta:
         model = AnnotationCampaign
@@ -122,7 +122,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             start=validated_data['start'],
             end=validated_data['end'],
             annotation_set_id=validated_data['annotation_set_id'],
-            owner_id=validated_data['owner_id']
+            owner_id=validated_data['owner_id'],
+            instructions_url=validated_data['instructions_url']
         )
         campaign.save()
         campaign.datasets.set(validated_data['datasets'])

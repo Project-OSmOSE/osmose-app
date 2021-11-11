@@ -132,6 +132,7 @@ type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
   new_ac_datasets: choices_type,
+  new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
   new_ac_annotation_set: number,
@@ -139,10 +140,12 @@ type CACState = {
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
   dataset_choices: choices_type,
+  spectro_choices: choices_type,
   annotation_set_choices: {
     [?number]: annotation_set_type
   },
   annotator_choices: choices_type,
+  new_ac_instructions_url: string,
   error: ?{
     status: number,
     message: string
@@ -154,6 +157,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_name: '',
     new_ac_desc: '',
     new_ac_datasets: {},
+    new_ac_spectros: {},
     new_ac_start: '',
     new_ac_end: '',
     new_ac_annotation_set: 0,
@@ -161,8 +165,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
     dataset_choices: {},
+    spectro_choices: {},
     annotation_set_choices: {},
     annotator_choices: {},
+    new_ac_instructions_url: '',
     error: null
   }
   getDatasets = request.get(GET_DATASETS_API_URL)
@@ -237,26 +243,41 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.setState({new_ac_desc: event.currentTarget.value});
   }
 
-  handleAddDataset = (event: SyntheticEvent<HTMLInputElement>) => {
-    let dataset_id = parseInt(event.currentTarget.value, 10);
-    let dataset_choices = Object.assign({}, this.state.dataset_choices);
-    let new_ac_datasets = Object.assign({}, this.state.new_ac_datasets);
-    new_ac_datasets[dataset_id] = dataset_choices[dataset_id];
-    delete dataset_choices[dataset_id];
+  handleDatasetChanged = (event: SyntheticInputEvent<HTMLSelectElement>) => {
+    let new_ac_datasets = {};
+    let spectro_choices = {};
+    if (event.target.value !== '') {
+      let dataset_id = parseInt(event.target.value, 10);
+      new_ac_datasets[dataset_id] = this.state.dataset_choices[dataset_id];
+      spectro_choices = utils.arrayToObject(new_ac_datasets[dataset_id].spectros, 'id');
+    }
     this.setState({
       new_ac_datasets: new_ac_datasets,
-      dataset_choices: dataset_choices
+      spectro_choices: spectro_choices,
+      new_ac_spectros: {},
     });
   }
 
-  handleRemoveDataset = (dataset_id: number) => {
-    let dataset_choices = Object.assign({}, this.state.dataset_choices);
-    let new_ac_datasets = Object.assign({}, this.state.new_ac_datasets);
-    dataset_choices[dataset_id] = new_ac_datasets[dataset_id];
-    delete new_ac_datasets[dataset_id];
+  handleAddSpectro = (event: SyntheticEvent<HTMLInputElement>) => {
+    let spectro_id = parseInt(event.currentTarget.value, 10);
+    let spectro_choices = Object.assign({}, this.state.spectro_choices);
+    let new_ac_spectros = Object.assign({}, this.state.new_ac_spectros);
+    new_ac_spectros[spectro_id] = spectro_choices[spectro_id];
+    delete spectro_choices[spectro_id];
     this.setState({
-      new_ac_datasets: new_ac_datasets,
-      dataset_choices: dataset_choices
+      new_ac_spectros: new_ac_spectros,
+      spectro_choices: spectro_choices,
+    });
+  }
+
+  handleRemoveSpectro = (spectro_id: number) => {
+    let spectro_choices = Object.assign({}, this.state.spectro_choices);
+    let new_ac_spectros = Object.assign({}, this.state.new_ac_spectros);
+    spectro_choices[spectro_id] = new_ac_spectros[spectro_id];
+    delete new_ac_spectros[spectro_id];
+    this.setState({
+      new_ac_spectros: new_ac_spectros,
+      spectro_choices: spectro_choices,
     });
   }
 
@@ -295,6 +316,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.setState({new_ac_end: event.currentTarget.value});
   }
 
+  handleInstructionsChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({new_ac_instructions_url: event.currentTarget.value});
+  }
+
   handleAnnotationSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
   }
@@ -313,23 +338,18 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
     this.setState({error: null});
-    let spectros = Object.values(this.state.new_ac_datasets).map(d => {
-      return d.spectros.map(s => {
-        return s.id;
-      });
-    }).flat(1);
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
       datasets: Object.keys(this.state.new_ac_datasets),
-      spectros: spectros,
+      spectros: Object.keys(this.state.new_ac_spectros),
       start: this.state.new_ac_start.trim() + 'T00:00',
       end: this.state.new_ac_end.trim() + 'T00:00',
       annotation_set_id: this.state.new_ac_annotation_set,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
-      instructions_url: null
+      instructions_url: this.state.new_ac_instructions_url.trim(),
     };
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
@@ -352,6 +372,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   render() {
+    const datasetOptions = utils.objectValues(this.state.dataset_choices).map(dataset => (
+      <option key={`dataset-${dataset.id}`} value={dataset.id.toString()}>{dataset.name}</option>
+    ));
+
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">Create Annotation Campaign</h1>
@@ -369,7 +393,23 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
           </div>
 
           <div className="form-group">
-            <ListChooser choice_type="dataset" choices_list={this.state.dataset_choices} chosen_list={this.state.new_ac_datasets} onSelectChange={this.handleAddDataset} onDelClick={this.handleRemoveDataset} />
+            <select
+              className="form-control"
+              onChange={this.handleDatasetChanged}
+            >
+              <option key="dataset-void" value="">Select a dataset</option>
+              {datasetOptions}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <ListChooser
+              choice_type="spectro"
+              choices_list={this.state.spectro_choices}
+              chosen_list={this.state.new_ac_spectros}
+              onSelectChange={this.handleAddSpectro}
+              onDelClick={this.handleRemoveSpectro}
+            />
           </div>
 
           <div className="form-group row">
@@ -388,6 +428,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
           <div className="form-group">
             <label>Choose annotators:</label>
             <ListChooser choice_type="user" choices_list={this.state.annotator_choices} chosen_list={this.state.new_ac_annotators} onSelectChange={this.handleAddAnnotator} onDelClick={this.handleRemoveAnnotator} />
+          </div>
+
+          <div className="form-group">
+            <input id="cac-instructions" className="form-control" type="text" value={this.state.new_ac_instructions_url} onChange={this.handleInstructionsChange} placeholder="Campaign instructions URL" />
           </div>
 
           <div className="form-group row">
