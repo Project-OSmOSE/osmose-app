@@ -92,13 +92,16 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
 
 class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
+    desc = serializers.CharField(allow_blank=True)
+    instructions_url = serializers.CharField(allow_blank=True)
+    start = serializers.DateTimeField(required=False)
+    end = serializers.DateTimeField(required=False)
     annotation_set_id = serializers.IntegerField(validators=[valid_model_ids(AnnotationSet)])
     datasets = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(Dataset)])
     spectros = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(SpectroConfig)])
     annotators = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(User)])
     annotation_method = serializers.IntegerField(min_value=0, max_value=1)
     annotation_goal = serializers.IntegerField(min_value=1)
-    instructions_url = serializers.CharField(allow_blank=True)
 
     class Meta:
         model = AnnotationCampaign
@@ -118,12 +121,12 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         campaign = AnnotationCampaign(
             name=validated_data['name'],
-            desc=validated_data['desc'],
-            start=validated_data['start'],
-            end=validated_data['end'],
+            desc=validated_data.get('desc'),
+            start=validated_data.get('start'),
+            end=validated_data.get('end'),
             annotation_set_id=validated_data['annotation_set_id'],
             owner_id=validated_data['owner_id'],
-            instructions_url=validated_data['instructions_url']
+            instructions_url=validated_data.get('instructions_url')
         )
         campaign.save()
         campaign.datasets.set(validated_data['datasets'])

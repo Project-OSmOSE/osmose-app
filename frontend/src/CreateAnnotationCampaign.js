@@ -343,13 +343,17 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       desc: this.state.new_ac_desc.trim(),
       datasets: Object.keys(this.state.new_ac_datasets),
       spectros: Object.keys(this.state.new_ac_spectros),
-      start: this.state.new_ac_start.trim() + 'T00:00',
-      end: this.state.new_ac_end.trim() + 'T00:00',
       annotation_set_id: this.state.new_ac_annotation_set,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
+    };
+    if (this.state.new_ac_start) {
+      res['start'] = this.state.new_ac_start.trim() + 'T00:00'
+    };
+    if (this.state.new_ac_end) {
+      res['end'] = this.state.new_ac_end.trim() + 'T00:00'
     };
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
