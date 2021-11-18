@@ -21,14 +21,12 @@ type DatasetListState = {
   error: ?{
     status: number,
     message: string
-  },
-  success: string
+  }
 };
 class DatasetList extends Component<DatasetListProps, DatasetListState> {
   state = {
     datasets: [],
-    error: null,
-    success: ''
+    error: null
   }
   getData = request.get(GET_DATASET_API_URL)
   startImport = request.get(IMPORT_DATASET_API_URL)
@@ -57,9 +55,7 @@ class DatasetList extends Component<DatasetListProps, DatasetListState> {
 
   import = () => {
     return this.startImport.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        this.setState({
-          success: 'Import in progress',
-        });
+      window.location.reload();
     }).catch(err => {
       if (err.status && err.status === 401) {
         // Server returned 401 which means token was revoked
