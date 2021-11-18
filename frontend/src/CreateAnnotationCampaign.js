@@ -348,13 +348,13 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
-    };
+    }
     if (this.state.new_ac_start) {
       res['start'] = this.state.new_ac_start.trim() + 'T00:00'
-    };
+    }
     if (this.state.new_ac_end) {
       res['end'] = this.state.new_ac_end.trim() + 'T00:00'
-    };
+    }
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
     .then(() => {
@@ -366,8 +366,16 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         window.location.reload();
       }
       else if (err.status && err.response) {
+        // Build an error message
+        const message = Object
+          .entries(err.response.body)
+          .map(([key, value]) => `${key}: ${value.join(' - ')}`)
+          .join("\n");
         this.setState({
-          error: err
+          error: {
+            status: err.status,
+            message: message
+          }
         });
       } else {
         throw err;
