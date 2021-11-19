@@ -144,7 +144,9 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation tasks related actions
     """
 
-    queryset = AnnotationTask.objects.all()
+    queryset = AnnotationTask.objects.all().prefetch_related(
+        'dataset_file__audio_metadatum'
+    ).order_by('dataset_file__audio_metadatum__start')
     serializer_class = AnnotationTaskSerializer
 
     @extend_schema(
@@ -158,7 +160,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         queryset = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=campaign_id
-        ).prefetch_related('dataset_file', 'dataset_file__dataset', 'dataset_file__audio_metadatum')
+        ).prefetch_related('dataset_file', 'dataset_file__dataset')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -169,7 +171,6 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             'annotation_campaign',
             'annotation_campaign__spectro_configs',
             'annotation_campaign__annotation_set',
-            'dataset_file__audio_metadatum',
             'dataset_file__dataset',
             'dataset_file__dataset__spectro_configs',
             'dataset_file__dataset__audio_metadatum'
@@ -187,10 +188,14 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
 
-        next_task = self.queryset.filter(
+        task_date = task.dataset_file.audio_metadatum.start
+        next_tasks = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=task.annotation_campaign_id
-        ).exclude(status=2).order_by('dataset_file__audio_metadatum__start').first()
+        ).exclude(status=2)
+        next_task = next_tasks.filter(dataset_file__audio_metadatum__start__gte=task_date).first()
+        if next_task is None:
+            next_task = next_tasks.first()
         if next_task is None:
             return Response({'next_task': None, 'campaign_id': task.annotation_campaign_id})
         return Response({'next_task': next_task.id, 'campaign_id': None})

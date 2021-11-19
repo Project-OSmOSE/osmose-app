@@ -83,8 +83,8 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>Set n°{annotation_campaign.annotation_set_id}</td>
           <td>{annotation_campaign.datasets_count}</td>
-          <td>{new Date(annotation_campaign.start).toDateString()}</td>
-          <td>{new Date(annotation_campaign.end).toDateString()}</td>
+          <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
+          <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
           <td>{instructions}</td>
           <td><Link to={'/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>

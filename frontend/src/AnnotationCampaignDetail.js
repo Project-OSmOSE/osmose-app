@@ -161,8 +161,8 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <h1 className="text-center">{campaign.name}</h1>
         <div className="row">
           <div className="col-sm-4"><b>Annotation set:</b> #{campaign.annotation_set_id}</div>
-          <div className="col-sm-4"><b>Start:</b> {new Date(campaign.start).toLocaleDateString()}</div>
-          <div className="col-sm-4"><b>End:</b> {new Date(campaign.end).toLocaleDateString()}</div>
+          <div className="col-sm-4"><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
+          <div className="col-sm-4"><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
         </div>
         <div className="col-sm-12 border rounder">
           <center><h3>Description</h3></center>

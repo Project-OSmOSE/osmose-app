@@ -4,6 +4,10 @@ See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 """
 
 from datetime import timedelta
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '(7ez_3daj2vkxl+pq8fbk8cav8$y4wrs!(!x(q!ec01iq2k7gl'
@@ -32,3 +36,11 @@ DATABASES = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8)
 }
+
+# Override datawork import path, we use the same folder as for docker-compose
+DATASET_IMPORT_FOLDER = BASE_DIR / 'volumes/datawork/dataset'
+# Adding volumes folder to staticfiles dirs
+STATICFILES_DIRS = [
+    BASE_DIR / 'backend/api/static',
+    BASE_DIR / 'volumes'
+]

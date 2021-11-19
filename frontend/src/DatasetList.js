@@ -2,7 +2,8 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-const API_URL = '/api/dataset/';
+const GET_DATASET_API_URL = '/api/dataset/';
+const IMPORT_DATASET_API_URL = '/api/dataset/datawork_import/';
 
 type DatasetListProps = {
   app_token: string
@@ -27,7 +28,8 @@ class DatasetList extends Component<DatasetListProps, DatasetListState> {
     datasets: [],
     error: null
   }
-  getData = request.get(API_URL)
+  getData = request.get(GET_DATASET_API_URL)
+  startImport = request.get(IMPORT_DATASET_API_URL)
 
   componentDidMount() {
     return this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
@@ -48,6 +50,22 @@ class DatasetList extends Component<DatasetListProps, DatasetListState> {
 
   componentWillUnmount() {
     this.getData.abort();
+    this.startImport.abort();
+  }
+
+  import = () => {
+    return this.startImport.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+      window.location.reload();
+    }).catch(err => {
+      if (err.status && err.status === 401) {
+        // Server returned 401 which means token was revoked
+        document.cookie = 'token=;max-age=0';
+        window.location.reload();
+      }
+      this.setState({
+        error: err
+      });
+    });
   }
 
   render() {
@@ -90,6 +108,9 @@ class DatasetList extends Component<DatasetListProps, DatasetListState> {
             {datasets}
           </tbody>
         </table>
+        <p className="text-center">
+          <button className="btn btn-primary" onClick={this.import}>Import</button>
+        </p>
       </div>
     )
   }
