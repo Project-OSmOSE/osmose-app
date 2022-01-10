@@ -144,6 +144,30 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             campaign.add_annotator(annotator, files_target, annotation_method)
         return campaign
 
+class AnnotationCampaignAddAnnotatorsSerializer(serializers.Serializer):
+    """
+    If annotation_goal (the number of files wanted to be annotated) is not given then the whole
+    dataset will be targeted.
+
+    The parameter annotation_method is 0 for sequential and 1 for random.
+    """
+    annotators = serializers.ListField(child=serializers.IntegerField(), validators=[valid_model_ids(User)])
+    annotation_method = serializers.IntegerField(min_value=0, max_value=1)
+    annotation_goal = serializers.IntegerField(min_value=1, required=False)
+
+    def create(self, validated_data):
+        campaign = AnnotationCampaign.objects.get(pk=validated_data['campaign_id'])
+
+        files_target = 0
+        if 'annotation_goal' in validated_data:
+            files_target = validated_data['annotation_goal']
+        else:
+            files_target = sum(campaign.datasets.annotate(Count('files')).values_list('files__count', flat=True))
+        annotation_method = ['random', 'sequential'][int(validated_data['annotation_method'])]
+        for annotator in User.objects.filter(id__in=validated_data['annotators']):
+            campaign.add_annotator(annotator, files_target, annotation_method)
+        return campaign
+
 class AnnotationCampaignViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for annotation campaign related actions
@@ -168,10 +192,25 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @transaction.atomic
     @extend_schema(request=AnnotationCampaignCreateSerializer, responses=AnnotationCampaignRetrieveAuxCampaignSerializer)
     def create(self, request):
+        """Create a new annotation campaign"""
         create_serializer = AnnotationCampaignCreateSerializer(data=request.data)
         create_serializer.is_valid(raise_exception=True)
         campaign = create_serializer.save(owner_id=request.user.id)
         serializer = AnnotationCampaignRetrieveAuxCampaignSerializer(campaign)
+        return Response(serializer.data)
+
+    @extend_schema(request=AnnotationCampaignAddAnnotatorsSerializer, responses=AnnotationCampaignRetrieveSerializer)
+    @action(detail=True, methods=['post'])
+    def add_annotators(self, request, pk=None):
+        """Add an annotator to a given annotation campaign"""
+        annotation_campaign = get_object_or_404(self.queryset, pk=pk)
+        if not request.user.is_staff or not request.user == annotation_campaign.owner:
+            return HttpResponse('Unauthorized', status=401)
+
+        add_annotators_serializer = AnnotationCampaignAddAnnotatorsSerializer(data=request.data)
+        add_annotators_serializer.is_valid(raise_exception=True)
+        campaign = add_annotators_serializer.save(campaign_id=pk)
+        serializer = AnnotationCampaignRetrieveSerializer(campaign)
         return Response(serializer.data)
 
     @extend_schema(

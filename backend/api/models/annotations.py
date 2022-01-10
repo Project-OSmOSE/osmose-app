@@ -52,6 +52,7 @@ class AnnotationCampaign(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def add_annotator(self, annotator, files_target=None, method='sequential'):
+        """Create a files_target number of annotation tasks assigned to annotator for a given method"""
         if method not in ['sequential', 'random']:
             raise ValueError(f'Given method argument "{method}" is not supported')
         dataset_files = self.datasets.values_list('files__id', flat=True)
