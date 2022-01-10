@@ -77,6 +77,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     audioRate = serializers.SerializerMethodField()
     spectroUrls = serializers.SerializerMethodField()
     prevAnnotations = serializers.SerializerMethodField()
+    annotationScope = serializers.IntegerField(source='annotation_campaign.annotation_scope')
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):

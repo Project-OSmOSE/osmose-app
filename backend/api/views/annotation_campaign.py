@@ -107,7 +107,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
         model = AnnotationCampaign
         fields = [
             'id', 'name', 'desc', 'instructions_url', 'start', 'end', 'annotation_set_id',
-            'datasets', 'spectros', 'annotators', 'annotation_method', 'annotation_goal'
+            'datasets', 'spectros', 'annotators', 'annotation_method', 'annotation_goal',
+            'annotation_scope'
         ]
 
     def validate(self, data):

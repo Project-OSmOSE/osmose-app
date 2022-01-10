@@ -31,6 +31,8 @@ class AnnotationSet(models.Model):
 
 
 class AnnotationCampaign(models.Model):
+    AnnotationScope = models.IntegerChoices('AnnotationScope', 'RECTANGLE WHOLE')
+
     class Meta:
         db_table = 'annotation_campaigns'
 
@@ -46,6 +48,7 @@ class AnnotationCampaign(models.Model):
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField('Dataset')
     spectro_configs = models.ManyToManyField('SpectroConfig', related_name='annotation_campaigns')
+    annotation_scope = models.IntegerField(choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def add_annotator(self, annotator, files_target=None, method='sequential'):

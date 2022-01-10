@@ -73,23 +73,24 @@ class Command(management.BaseCommand):
                 'tags': ['Dcall', '40-Hz']
             }
         ]
-        self.annotation_sets = []
+        self.annotation_sets = {}
         for seed_set in sets:
             annotation_set = AnnotationSet.objects.create(name=seed_set['name'], desc=seed_set['desc'], owner=self.admin)
             for tag in seed_set['tags']:
                 annotation_set.tags.create(name=tag)
-            self.annotation_sets.append(annotation_set)
+            self.annotation_sets[seed_set['name']] = annotation_set
 
     def _create_annotation_campaigns(self):
         campaigns = [
             {'name': 'Test SPM campaign', 'desc': 'Test annotation campaign', 'start': '2010-08-19', 'end': '2010-11-02',
-            'instructions_url': 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon'},
+            'instructions_url': 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon', 'annotation_scope': 1,
+            'annotation_set': self.annotation_sets['Test SPM campaign']},
             {'name': 'Test DCLDE LF campaign', 'desc': 'Test annotation campaign DCLDE LF 2015', 'start': '2012-06-22',
-            'end': '2012-06-26'},
+            'end': '2012-06-26', 'annotation_set': self.annotation_sets['Test DCLDE LF campaign'], 'annotation_scope': 2},
         ]
         self.campaigns = []
-        for campaign_data, annotation_set in zip(campaigns, self.annotation_sets):
-            campaign = AnnotationCampaign.objects.create(**campaign_data, annotation_set=annotation_set, owner=self.admin)
+        for campaign_data in campaigns:
+            campaign = AnnotationCampaign.objects.create(**campaign_data, owner=self.admin)
             campaign.datasets.add(self.dataset)
             for file in self.dataset.files.all():
                 for user in self.users:
@@ -118,7 +119,7 @@ class Command(management.BaseCommand):
 
     def _create_annotation_results(self):
         campaign = self.campaigns[0]
-        tags = self.annotation_sets[0].tags.values_list('id', flat=True)
+        tags = list(self.annotation_sets.values())[0].tags.values_list('id', flat=True)
         for user in self.users:
             done_files = randint(5, self.datafile_count - 5)
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
