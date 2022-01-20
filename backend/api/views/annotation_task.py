@@ -120,7 +120,17 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
     task_start_time = serializers.IntegerField()
     task_end_time = serializers.IntegerField()
 
+    def validate_annotations(self, annotations):
+        """Validates that annotations correspond to annotation set tags"""
+        set_tags = set(self.instance.annotation_campaign.annotation_set.tags.values_list('name', flat=True))
+        update_tags = set(ann['annotation_tag']['name'] for ann in annotations)
+        unknown_tags = update_tags - set_tags
+        if unknown_tags:
+            raise serializers.ValidationError(f"{unknown_tags} not valid tags from annotation set {set_tags}.")
+        return annotations
+
     def update(self, task, validated_data):
+        task.results.all().delete()
         tags = dict(map(reversed, task.annotation_campaign.annotation_set.tags.values_list('id', 'name')))
         for annotation in validated_data['annotations']:
             annotation['annotation_tag_id'] = tags[annotation.pop('annotation_tag')['name']]
