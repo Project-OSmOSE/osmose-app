@@ -34,10 +34,10 @@ class AnnotationTaskBoundarySerializer(serializers.Serializer):
 
 class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     annotation = serializers.CharField(source='annotation_tag.name')
-    startTime = serializers.FloatField(source='start_time')
-    endTime = serializers.FloatField(source='end_time')
-    startFrequency = serializers.FloatField(source='start_frequency')
-    endFrequency = serializers.FloatField(source='end_frequency')
+    startTime = serializers.FloatField(source='start_time', allow_null=True)
+    endTime = serializers.FloatField(source='end_time', allow_null=True)
+    startFrequency = serializers.FloatField(source='start_frequency', allow_null=True)
+    endFrequency = serializers.FloatField(source='end_frequency', allow_null=True)
 
     class Meta:
         model = AnnotationResult
