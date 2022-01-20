@@ -64,6 +64,9 @@ class DatasetViewSet(viewsets.ViewSet):
         except FileNotFoundError as error:
             capture_exception(error)
             return HttpResponse(error, status=400)
+        except PermissionError as error:
+            capture_exception(error)
+            return HttpResponse(error, status=400)
         except KeyError as error:
             capture_exception(error)
             return HttpResponse(f'One of the import CSV is missing the following column : {error}', status=400)
