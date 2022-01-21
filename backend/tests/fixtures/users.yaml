@@ -1,0 +1,75 @@
+- model: auth.user
+  pk: 1
+  fields:
+    password: pbkdf2_sha256$260000$feTgAHGUORap4GdDRevQw9$+z6wt7UIKOW6wvT2xA+S3J98/wwWtXhJvc4Twj9ZboU=
+    last_login: 2022-01-13 11:24:30.780664+00:00
+    is_superuser: true
+    username: admin
+    first_name: ''
+    last_name: ''
+    email: admin@osmose.xyz
+    is_staff: true
+    is_active: true
+    date_joined: 2022-01-13 11:23:54.864049+00:00
+    groups: []
+    user_permissions: []
+- model: auth.user
+  pk: 2
+  fields:
+    password: pbkdf2_sha256$260000$c06Dcsm4RkLszlSpDalJwp$vQ8t03HyQo/Kor/pjUTy/OP67FKhHwaFJvOcfK47BNQ=
+    last_login: null
+    is_superuser: false
+    username: staff
+    first_name: ''
+    last_name: ''
+    email: staff@osmose.xyz
+    is_staff: true
+    is_active: true
+    date_joined: 2022-01-13 11:23:55.021555+00:00
+    groups: []
+    user_permissions: []
+- model: auth.user
+  pk: 3
+  fields:
+    password: pbkdf2_sha256$260000$TAMACmptFSTfk012v1C5j5$nxZJR7BaJfl/FkJlUh9+kImzlRLVfSKBz2vBYWdmU6M=
+    last_login: null
+    is_superuser: false
+    username: user1
+    first_name: ''
+    last_name: ''
+    email: user1@osmose.xyz
+    is_staff: false
+    is_active: true
+    date_joined: 2022-01-13 11:23:55.174840+00:00
+    groups: []
+    user_permissions: []
+- model: auth.user
+  pk: 4
+  fields:
+    password: pbkdf2_sha256$260000$DiMK3wAVwkrQxqrXy19FkE$zWL0vEmca9RaKJFd99OpUB8bE9ww0xATdYNm5iZen7s=
+    last_login: null
+    is_superuser: false
+    username: user2
+    first_name: ''
+    last_name: ''
+    email: user2@osmose.xyz
+    is_staff: false
+    is_active: true
+    date_joined: 2022-01-13 11:23:55.327920+00:00
+    groups: []
+    user_permissions: []
+- model: auth.user
+  pk: 5
+  fields:
+    password: pbkdf2_sha256$260000$DiMK3wAVwkrQxqrXy19FkE$zWL0vEmca9RaKJFd99OpUB8bE9ww0xATdYNm5iZen7s=
+    last_login: null
+    is_superuser: false
+    username: user3
+    first_name: ''
+    last_name: ''
+    email: user3@osmose.xyz
+    is_staff: false
+    is_active: true
+    date_joined: 2022-01-13 11:23:55.327920+00:00
+    groups: []
+    user_permissions: []

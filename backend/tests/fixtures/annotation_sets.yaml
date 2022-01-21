@@ -1,0 +1,49 @@
+- model: api.annotationtag
+  pk: 1
+  fields:
+    name: Mysticetes
+- model: api.annotationtag
+  pk: 2
+  fields:
+    name: Odoncetes
+- model: api.annotationtag
+  pk: 3
+  fields:
+    name: Boat
+- model: api.annotationtag
+  pk: 4
+  fields:
+    name: Rain
+- model: api.annotationtag
+  pk: 5
+  fields:
+    name: Other
+- model: api.annotationtag
+  pk: 6
+  fields:
+    name: Dcall
+- model: api.annotationtag
+  pk: 7
+  fields:
+    name: 40-Hz
+- model: api.annotationset
+  pk: 1
+  fields:
+    name: Test SPM campaign
+    desc: Annotation set made for Test SPM campaign
+    owner: 1
+    tags:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+- model: api.annotationset
+  pk: 2
+  fields:
+    name: Test DCLDE LF campaign
+    desc: Test annotation campaign DCLDE LF 2015
+    owner: 1
+    tags:
+    - 6
+    - 7

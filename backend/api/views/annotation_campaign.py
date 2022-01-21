@@ -205,8 +205,8 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     def add_annotators(self, request, pk=None):
         """Add an annotator to a given annotation campaign"""
         annotation_campaign = get_object_or_404(self.queryset, pk=pk)
-        if not request.user.is_staff or not request.user == annotation_campaign.owner:
-            return HttpResponse('Unauthorized', status=401)
+        if not request.user.is_staff and not request.user == annotation_campaign.owner:
+            return HttpResponse('Unauthorized', status=403)
 
         add_annotators_serializer = AnnotationCampaignAddAnnotatorsSerializer(data=request.data)
         add_annotators_serializer.is_valid(raise_exception=True)

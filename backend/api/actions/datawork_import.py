@@ -5,9 +5,9 @@ from datetime import timedelta
 
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
+from django.conf import settings
 
 from backend.api.models import Dataset, DatasetType, AudioMetadatum, GeoMetadatum, SpectroConfig
-from backend.settings import DATASET_IMPORT_FOLDER, DATASET_SPECTRO_FOLDER, DATASET_FILES_FOLDER, DATASET_EXPORT_PATH
 
 @transaction.atomic
 def datawork_import(*, importer):
@@ -17,7 +17,7 @@ def datawork_import(*, importer):
     new_datasets = []
 
     # Check for new datasets
-    with open(DATASET_IMPORT_FOLDER / 'datasets.csv') as csvfile:
+    with open(settings.DATASET_IMPORT_FOLDER / 'datasets.csv') as csvfile:
         for dataset in csv.DictReader(csvfile):
             csv_dataset_names.append(dataset['name'])
             if dataset['name'] not in dataset_names:
@@ -30,7 +30,7 @@ def datawork_import(*, importer):
             name=dataset['dataset_type_name'],
             defaults={'desc': dataset['dataset_type_desc']}
         )
-        audio_folder = DATASET_IMPORT_FOLDER / dataset['folder_name'] / DATASET_FILES_FOLDER / dataset['conf_folder']
+        audio_folder = settings.DATASET_IMPORT_FOLDER / dataset['folder_name'] / settings.DATASET_FILES_FOLDER / dataset['conf_folder']
         with open(audio_folder / 'metadata.csv') as csvfile:
              audio_raw = list(csv.DictReader(csvfile))[0]
         audio_metadatum = AudioMetadatum.objects.create(
@@ -48,7 +48,7 @@ def datawork_import(*, importer):
         # Create dataset
         curr_dataset = Dataset.objects.create(
             name=dataset['name'],
-            dataset_path=DATASET_EXPORT_PATH / dataset['folder_name'],
+            dataset_path=settings.DATASET_EXPORT_PATH / dataset['folder_name'],
             status=1,
             files_type=dataset['files_type'],
             dataset_type=datatype,
@@ -72,7 +72,7 @@ def datawork_import(*, importer):
                 )
                 curr_dataset.files.create(
                     filename=filename,
-                    filepath=DATASET_FILES_FOLDER / dataset['conf_folder'] / filename,
+                    filepath=settings.DATASET_FILES_FOLDER / dataset['conf_folder'] / filename,
                     size=0,
                     audio_metadatum=audio_metadatum
                 )
@@ -83,7 +83,7 @@ def datawork_import(*, importer):
         dataset_spectros = []
         dataset_folder = dataset.dataset_path.split('/')[-1]
         conf_folder = dataset.dataset_conf or ''
-        spectro_csv_path = DATASET_IMPORT_FOLDER / dataset_folder / DATASET_SPECTRO_FOLDER / conf_folder / 'spectrograms.csv'
+        spectro_csv_path = settings.DATASET_IMPORT_FOLDER / dataset_folder / settings.DATASET_SPECTRO_FOLDER / conf_folder / 'spectrograms.csv'
         with open(spectro_csv_path) as csvfile:
             for spectro in csv.DictReader(csvfile):
                 name = spectro.pop('name')

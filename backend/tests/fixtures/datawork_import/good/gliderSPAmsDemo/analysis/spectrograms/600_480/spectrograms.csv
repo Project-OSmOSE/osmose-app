@@ -1,0 +1,2 @@
+name,nfft,window_size,overlap,zoom_level,desc
+nfft=4096 winsize=512 overlap=85 cvr=-70:0,4096,512,0.85,8,Demo spectro config

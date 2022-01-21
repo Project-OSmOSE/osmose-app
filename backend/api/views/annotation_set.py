@@ -1,4 +1,4 @@
-"""User DRF-Viewset file"""
+"""Annotation set DRF-Viewset file"""
 
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response

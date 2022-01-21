@@ -138,3 +138,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Backend API for OSMOSE project meant to be used by the React frontend',
     # 'VERSION': '1.0.0',
 }
+
+# Fixtures location for testing
+FIXTURE_DIRS = (BASE_DIR / 'backend/tests/fixtures',)

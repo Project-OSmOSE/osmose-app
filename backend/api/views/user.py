@@ -34,7 +34,7 @@ class UserViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List users"""
-        queryset = User.objects.all()
+        queryset = User.objects.all().order_by('id')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -48,7 +48,7 @@ class UserViewSet(viewsets.ViewSet):
     def create(self, request):
         """Create new user, only available to staff"""
         if not request.user.is_staff:
-            return HttpResponse('Unauthorized', status=401)
+            return HttpResponse('Unauthorized', status=403)
 
         create_serializer = UserCreateSerializer(data=request.data)
         create_serializer.is_valid(raise_exception=True)

@@ -29,3 +29,10 @@ npm install
 # Run
 npm start
 ```
+
+### Testing
+
+```bash
+poetry run python manage.py test
+cd frontend; npm test
+```
