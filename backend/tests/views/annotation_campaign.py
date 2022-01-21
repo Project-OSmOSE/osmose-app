@@ -194,7 +194,9 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             'start_frequency',
             'end_frequency',
             'annotation',
-            'annotator'
+            'annotator',
+            'start_datetime',
+            'end_datetime'
         ])
         self.assertEqual(response.data[1], [
             'SPM Aural A 2010',
@@ -204,5 +206,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             '6432.0',
             '12864.0',
             'Odoncetes',
-            'user2'
+            'user2',
+            '2012-10-03T16:01:59.635+00:00',
+            '2012-10-03T16:04:38.488+00:00'
         ])

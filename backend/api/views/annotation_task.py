@@ -91,7 +91,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             'startTime': task.dataset_file.audio_metadatum.start,
             'endTime': task.dataset_file.audio_metadatum.end,
             'startFrequency': 0,
-            'endFrequency': self.get_audioRate(task) / 2
+            'endFrequency': task.dataset_file.sample_rate_khz / 2
         }
 
     @extend_schema_field(serializers.CharField())
@@ -101,10 +101,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.IntegerField())
     def get_audioRate(self, task):
-        df_sample_rate = task.dataset_file.audio_metadatum.sample_rate_khz
-        ds_sample_rate = task.dataset_file.dataset.audio_metadatum.sample_rate_khz
-        sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
-        return sample_rate
+        return task.dataset_file.sample_rate_khz
 
     @extend_schema_field(AnnotationTaskSpectroSerializer(many=True))
     def get_spectroUrls(self, task):

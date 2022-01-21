@@ -73,3 +73,11 @@ class DatasetFile(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name='files')
     audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True, blank=True)
     tabular_metadatum = models.ForeignKey('TabularMetadatum', on_delete=models.CASCADE, null=True, blank=True)
+
+    @property
+    def sample_rate_khz(self):
+        """Returns data from file audio_metadatum if there, else from dataset audio_metadatum"""
+        df_sample_rate = self.audio_metadatum.sample_rate_khz
+        ds_sample_rate = self.dataset.audio_metadatum.sample_rate_khz
+        sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
+        return sample_rate

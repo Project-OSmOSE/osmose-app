@@ -1,5 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 
+from datetime import timedelta
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -218,12 +220,12 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         responses={(200, 'text/csv'): str},
         examples=[OpenApiExample(
             'CSV campaign results example',
-            value="""dataset,filename,start_time,end_time,start_frequency,end_frequency,annotation,annotator
-SPM Aural A,sound000.wav,418.0,572.0,9370.0,11567.0,Boat,Albert
-SPM Aural A,sound000.wav,543.0,663.0,6333.0,9119.0,Rain,Albert
-SPM Aural A,sound001.wav,30.0,233.0,549.0,3551.0,Odoncetes,Albert
-SPM Aural A,sound001.wav,1.0,151.0,5751.0,9341.0,Rain,Albert
-SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert""",
+            value="""dataset,filename,start_time,end_time,start_frequency,end_frequency,annotation,annotator,start_datetime,end_datetime
+SPM Aural A,sound000.wav,418.0,572.0,9370.0,11567.0,Boat,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00
+SPM Aural A,sound000.wav,543.0,663.0,6333.0,9119.0,Rain,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00
+SPM Aural A,sound001.wav,30.0,233.0,549.0,3551.0,Odoncetes,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00
+SPM Aural A,sound001.wav,1.0,151.0,5751.0,9341.0,Rain,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00
+SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00""",
             media_type='text/csv'
         )]
     )
@@ -231,24 +233,41 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert""",
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
         campaign = get_object_or_404(AnnotationCampaign, pk=pk)
-        data = ['dataset filename start_time end_time start_frequency end_frequency annotation annotator'.split()]
+        data = [[
+            'dataset',
+            'filename',
+            'start_time',
+            'end_time',
+            'start_frequency',
+            'end_frequency',
+            'annotation',
+            'annotator',
+            'start_datetime',
+            'end_datetime'
+        ]]
         results = AnnotationResult.objects.prefetch_related(
             'annotation_task',
             'annotation_task__annotator',
             'annotation_task__dataset_file',
             'annotation_task__dataset_file__dataset',
+            'annotation_task__dataset_file__audio_metadatum',
             'annotation_tag'
         ).filter(annotation_task__annotation_campaign_id=pk)
         for result in results:
+            audio_meta = result.annotation_task.dataset_file.audio_metadatum
+            max_frequency = result.annotation_task.dataset_file.sample_rate_khz / 2
+            max_time = (audio_meta.end - audio_meta.start).seconds
             data.append([
                 result.annotation_task.dataset_file.dataset.name,
                 result.annotation_task.dataset_file.filename,
-                str(result.start_time or ''),
-                str(result.end_time or ''),
-                str(result.start_frequency or ''),
-                str(result.end_frequency or ''),
+                str(result.start_time or '0'),
+                str(result.end_time or str(max_time)),
+                str(result.start_frequency or '0'),
+                str(result.end_frequency or max_frequency),
                 result.annotation_tag.name,
-                result.annotation_task.annotator.username
+                result.annotation_task.annotator.username,
+                (audio_meta.start + timedelta(seconds=(result.start_time or 0))).isoformat(timespec='milliseconds'),
+                (audio_meta.start + timedelta(seconds=(result.end_time or max_time))).isoformat(timespec='milliseconds')
             ])
         response = Response(data)
         response['Content-Disposition'] = f'attachment; filename="{campaign.name.replace(" ", "_")}.csv"'
