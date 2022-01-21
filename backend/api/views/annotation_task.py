@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.http import urlquote
 
@@ -170,6 +171,27 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         get_object_or_404(AnnotationCampaign, pk=campaign_id)
         queryset = self.queryset.filter(
             annotator_id=request.user.id,
+            annotation_campaign_id=campaign_id
+        ).prefetch_related('dataset_file', 'dataset_file__dataset')
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter('campaign_id', int, OpenApiParameter.PATH),
+            OpenApiParameter('user_id', int, OpenApiParameter.PATH),
+        ],
+        responses=AnnotationTaskSerializer(many=True)
+    )
+    @action(detail=False, url_path='campaign/(?P<campaign_id>[^/.]+)/user/(?P<user_id>[^/.]+)')
+    def campaign_user_list(self, request, campaign_id, user_id):
+        """List tasks for given annotation campaign and user"""
+        annotation_campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
+        if not request.user.is_staff or not request.user == annotation_campaign.owner:
+            return HttpResponse('Unauthorized', status=401)
+
+        queryset = self.queryset.filter(
+            annotator_id=user_id,
             annotation_campaign_id=campaign_id
         ).prefetch_related('dataset_file', 'dataset_file__dataset')
         serializer = self.serializer_class(queryset, many=True)
