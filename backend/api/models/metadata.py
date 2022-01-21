@@ -39,7 +39,7 @@ class SpectroConfig(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
+    desc = models.TextField(null=True, blank=True)
     nfft = models.IntegerField()
     window_size = models.IntegerField()
     overlap = models.FloatField()

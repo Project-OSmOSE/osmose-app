@@ -24,7 +24,7 @@ class AnnotationSet(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
+    desc = models.TextField(null=True, blank=True)
     tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -40,10 +40,10 @@ class AnnotationCampaign(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
-    instructions_url = models.TextField(null=True)
-    start = models.DateTimeField(null=True)
-    end = models.DateTimeField(null=True)
+    desc = models.TextField(null=True, blank=True)
+    instructions_url = models.TextField(null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
 
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField('Dataset')

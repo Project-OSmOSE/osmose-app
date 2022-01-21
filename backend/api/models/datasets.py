@@ -9,7 +9,7 @@ class Collection(models.Model):
         db_table = 'collections'
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
+    desc = models.TextField(null=True, blank=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -33,14 +33,14 @@ class Dataset(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
+    desc = models.TextField(null=True, blank=True)
     dataset_path = models.CharField(max_length=255)
     dataset_conf = models.CharField(max_length=255, null=True, blank=True,
         help_text='Specific configuration folder used for this dataset')
     status = models.IntegerField()
     files_type = models.CharField(max_length=255)
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
 
     audio_metadatum = models.ForeignKey('AudioMetadatum', on_delete=models.CASCADE, null=True, blank=True)
     dataset_type = models.ForeignKey(DatasetType, on_delete=models.CASCADE)
