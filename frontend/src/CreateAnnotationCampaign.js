@@ -136,6 +136,7 @@ type CACState = {
   new_ac_start: string,
   new_ac_end: string,
   new_ac_annotation_set: number,
+  new_ac_annotation_mode: number,
   new_ac_annotators: choices_type,
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
@@ -164,6 +165,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_annotators: {},
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
+    new_ac_annotation_mode: 1,
     dataset_choices: {},
     spectro_choices: {},
     annotation_set_choices: {},
@@ -324,6 +326,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
   }
 
+  handleAnnotationModeChange =(event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({new_ac_annotation_mode: parseInt(event.currentTarget.value, 10)});
+  }
+
   handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let new_val = parseInt(event.currentTarget.value, 10);
     new_val = Math.max(1, new_val);
@@ -344,6 +350,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       datasets: Object.keys(this.state.new_ac_datasets),
       spectros: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
+      annotation_scope: this.state.new_ac_annotation_mode,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
@@ -435,6 +442,19 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
           <div className="form-group">
             <ShowAnnotationSet annotation_sets={this.state.annotation_set_choices} onChange={this.handleAnnotationSetChange} />
+          </div>
+
+          <div className="form-group">
+            <label className="col-sm-7 col-form-label">Annotation mode</label>
+            <select
+              id="cac-annotation-mode"
+              value={this.state.new_ac_annotation_mode}
+              className="form-control"
+              onChange={this.handleAnnotationModeChange}
+            >
+              <option value={1}>Boxes</option>
+              <option value={2}>Whole file</option>
+            </select>
           </div>
 
           <div className="form-group">

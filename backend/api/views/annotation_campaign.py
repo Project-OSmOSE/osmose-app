@@ -126,6 +126,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             start=validated_data.get('start'),
             end=validated_data.get('end'),
             annotation_set_id=validated_data['annotation_set_id'],
+            annotation_scope=validated_data['annotation_scope'],
             owner_id=validated_data['owner_id'],
             instructions_url=validated_data.get('instructions_url')
         )
