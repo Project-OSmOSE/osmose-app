@@ -183,7 +183,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <p className="text-center">
           <DownloadButton
             app_token={this.props.app_token}
-            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
+            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id.toString())}
             value={"Download CSV results"}
             filename={campaign.name.replace(' ', '_') + '.csv'}
           />

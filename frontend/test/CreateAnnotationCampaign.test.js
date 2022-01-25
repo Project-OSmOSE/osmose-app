@@ -106,12 +106,12 @@ describe('testing CreateAnnotationCampaign component', function () {
             'name',
             'desc',
             'datasets',
-            'start',
-            'end',
-            'annotation_set',
+            'annotation_set_id',
+            'annotation_scope',
             'annotators',
             'annotation_goal',
-            'annotation_method'
+            'annotation_method',
+            'instructions_url'
         ];
         nock(/.*/).post('/api/annotation-campaign/', body => {
             expectedFields.forEach(field => {

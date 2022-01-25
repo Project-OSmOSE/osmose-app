@@ -54,7 +54,7 @@ class DatasetList extends Component<DatasetListProps, DatasetListState> {
   }
 
   import = () => {
-    return this.startImport.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+    return this.startImport.set('Authorization', 'Bearer ' + this.props.app_token).then(() => {
       window.location.reload();
     }).catch(err => {
       if (err.status && err.status === 401) {

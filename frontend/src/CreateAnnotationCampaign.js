@@ -356,12 +356,9 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
     }
-    if (this.state.new_ac_start) {
-      res['start'] = this.state.new_ac_start.trim() + 'T00:00'
-    }
-    if (this.state.new_ac_end) {
-      res['end'] = this.state.new_ac_end.trim() + 'T00:00'
-    }
+    const start: ?string = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
+    const end: ?string = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
+    res = Object.assign({}, res, {start, end});
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
     .then(() => {
@@ -376,7 +373,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         // Build an error message
         const message = Object
           .entries(err.response.body)
-          .map(([key, value]) => `${key}: ${value.join(' - ')}`)
+          .map(([key, value]) => Array.isArray(value) ? `${key}: ${value.join(' - ')}` : '')
           .join("\n");
         this.setState({
           error: {
@@ -413,6 +410,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
           <div className="form-group">
             <select
+              id="cac-dataset"
               className="form-control"
               onChange={this.handleDatasetChanged}
             >
