@@ -10,20 +10,7 @@ from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema, inline_serializer
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
-
-class UserCreateSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    def create(self, validated_data):
-        return User.objects.create_user(
-            validated_data['username'], validated_data['email'], validated_data['password']
-        )
+from backend.api.serializers import UserSerializer, UserCreateSerializer
 
 class UserViewSet(viewsets.ViewSet):
     """

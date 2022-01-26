@@ -21,7 +21,6 @@
     tabular_metadatum: null
     spectro_configs:
     - 1
-    - 2
 - model: api.datasetfile
   pk: 1
   fields:

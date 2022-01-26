@@ -150,7 +150,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             'startTime': parse_datetime('2012-10-03T10:00:00Z')
         })
         self.assertEqual(response.data['audioUrl'], '/backend/static/seed/dataset_path/audio/50h_0.wav')
-        self.assertEqual(len(response.data['spectroUrls']), 2)
+        self.assertEqual(len(response.data['spectroUrls']), 1)
         self.assertEqual(
             list(response.data['spectroUrls'][0].keys()),
             ['nfft', 'winsize', 'overlap', 'urls']

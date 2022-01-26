@@ -32,7 +32,7 @@ def datawork_import(*, importer):
         )
         audio_folder = settings.DATASET_IMPORT_FOLDER / dataset['folder_name'] / settings.DATASET_FILES_FOLDER / dataset['conf_folder']
         with open(audio_folder / 'metadata.csv') as csvfile:
-             audio_raw = list(csv.DictReader(csvfile))[0]
+            audio_raw = list(csv.DictReader(csvfile))[0]
         audio_metadatum = AudioMetadatum.objects.create(
             num_channels=audio_raw['nchannels'],
             sample_rate_khz=audio_raw['dataset_fs'],

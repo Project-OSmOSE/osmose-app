@@ -51,7 +51,7 @@ class DatasetViewSetTestCase(APITestCase):
             ['id', 'name', 'files_type', 'start_date', 'end_date', 'files_count', 'type', 'spectros']
         )
         self.assertEqual(response.data[0]['name'], 'SPM Aural A 2010')
-        self.assertEqual(len(response.data[0]['spectros']), 2)
+        self.assertEqual(len(response.data[0]['spectros']), 1)
 
     def test_datawork_import_for_user(self):
         """Dataset view 'datawork_import' is forbidden for non-staff"""

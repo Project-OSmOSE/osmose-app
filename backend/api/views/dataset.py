@@ -2,42 +2,16 @@
 
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from drf_spectacular.utils import extend_schema_field, extend_schema
 from sentry_sdk import capture_exception
 
-from backend.api.models import Dataset, SpectroConfig
+from backend.api.models import Dataset
 from backend.api.actions import datawork_import
-
-
-class SpectroConfigSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SpectroConfig
-        fields = '__all__'
-
-
-class DatasetSerializer(serializers.ModelSerializer):
-    files_count = serializers.SerializerMethodField()
-    type = serializers.SerializerMethodField()
-    spectros = SpectroConfigSerializer(many=True, source='spectro_configs')
-
-    class Meta:
-        model = Dataset
-        fields = ['id', 'name', 'files_type', 'start_date', 'end_date', 'files_count', 'type', 'spectros']
-        depth = 1
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_files_count(self, dataset):
-        return dataset.files__count
-
-    @extend_schema_field(serializers.CharField)
-    def get_type(self, dataset):
-        return dataset.dataset_type.name
+from backend.api.serializers import DatasetSerializer
 
 
 class DatasetViewSet(viewsets.ViewSet):
