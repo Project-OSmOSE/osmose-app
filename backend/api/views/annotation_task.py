@@ -77,6 +77,9 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             'dataset_file__dataset__audio_metadatum'
         )
         task = get_object_or_404(queryset, pk=pk)
+        if task.status == 0:
+            task.status = 1
+            task.save()
         serializer = AnnotationTaskRetrieveSerializer(task)
         return Response(serializer.data)
 

@@ -130,7 +130,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     # Testing 'create'
 
     def test_create(self):
-        """AnnotationCampaign view 'create' returns 401 if no user is authenticated"""
+        """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
         url = reverse('annotation-campaign-list')
@@ -181,7 +181,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     # Testing 'report'
 
     def test_report(self):
-        """AnnotationCampaign view 'report' returns 401 if no user is authenticated"""
+        """AnnotationCampaign view 'report' returns CSV report"""
         url = reverse('annotation-campaign-report', kwargs={ 'pk': 1 })
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -210,3 +210,14 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             '2012-10-03T16:01:59.635+00:00',
             '2012-10-03T16:04:38.488+00:00'
         ])
+
+    # Testing 'report_status'
+
+    def test_report_status(self):
+        """AnnotationCampaign view 'report_status' returns CSV report"""
+        url = reverse('annotation-campaign-report-status', kwargs={ 'pk': 1 })
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 6)
+        self.assertEqual(response.data[0], ['dataset', 'filename', 'admin', 'user2'])
+        self.assertEqual(response.data[1], ['SPM Aural A 2010', 'sound001.wav', 'CREATED', 'CREATED'])

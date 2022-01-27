@@ -14,7 +14,7 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from backend.utils.renderers import CSVRenderer
-from backend.api.models import AnnotationCampaign, AnnotationResult
+from backend.api.models import AnnotationCampaign, AnnotationResult, AnnotationTask
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveSerializer,
@@ -123,4 +123,40 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             ])
         response = Response(data)
         response['Content-Disposition'] = f'attachment; filename="{campaign.name.replace(" ", "_")}.csv"'
+        return response
+
+    @extend_schema(
+        responses={(200, 'text/csv'): str},
+        examples=[OpenApiExample(
+            'CSV campaign task status example',
+            value="""dataset,filename,alice,bob,carol,dan,erin
+SPM Aural A 2010,sound035.wav,FINISHED,CREATED,FINISHED,FINISHED,CREATED
+SPM Aural A 2010,sound036.wav,FINISHED,CREATED,FINISHED,STARTED,CREATED
+SPM Aural A 2010,sound037.wav,FINISHED,CREATED,STARTED,CREATED,CREATED
+SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
+            media_type='text/csv'
+        )]
+    )
+    @action(detail=True, renderer_classes=[CSVRenderer])
+    def report_status(self, request, pk=None):
+        """Returns the CSV report on tasks status for the given campaign"""
+        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        header = ['dataset', 'filename']
+        annotators = campaign.annotators.distinct().order_by('username').values_list('username', flat=True)
+        data = [header + list(annotators)]
+        tasks = campaign.tasks.select_related(
+            'dataset_file', 'dataset_file__dataset', 'annotator'
+        ).order_by(
+            'dataset_file__dataset__name', 'dataset_file__filename','annotator__username'
+        ).values_list(
+            'dataset_file__dataset__name', 'dataset_file__filename','status'
+        )
+        status = lambda x: AnnotationTask.StatusChoices(x).name
+        # Grouping by len(annotators) (see https://stackoverflow.com/a/3415150/2730032)
+        for line in zip(*[iter(tasks)]*len(annotators)):
+            # We take dataset name + filename from first cell in line
+            # and then the status from all of the cells
+            data.append(list(line[0][0:2]) + [status(cell[-1]) for cell in line])
+        response = Response(data)
+        response['Content-Disposition'] = f'attachment; filename="{campaign.name.replace(" ", "_")}_status.csv"'
         return response

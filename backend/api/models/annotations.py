@@ -51,6 +51,8 @@ class AnnotationCampaign(models.Model):
     annotation_scope = models.IntegerField(choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    annotators = models.ManyToManyField(to=User, through='AnnotationTask', related_name='task_campaigns')
+
     def add_annotator(self, annotator, files_target=None, method='sequential'):
         """Create a files_target number of annotation tasks assigned to annotator for a given method"""
         if method not in ['sequential', 'random']:
@@ -89,10 +91,12 @@ class AnnotationCampaign(models.Model):
 
 
 class AnnotationTask(models.Model):
+    StatusChoices = models.IntegerChoices('StatusChoices', 'CREATED STARTED FINISHED', start=0)
+
     class Meta:
         db_table = 'annotation_tasks'
 
-    status = models.IntegerField()
+    status = models.IntegerField(choices=StatusChoices.choices, default=StatusChoices.CREATED)
 
     annotation_campaign = models.ForeignKey(AnnotationCampaign, on_delete=models.CASCADE, related_name='tasks')
     annotator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='annotation_tasks')

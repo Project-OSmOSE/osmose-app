@@ -45,7 +45,7 @@ describe('testing AnnotationCampaignDetail component', function () {
             assert.deepEqual(table_lines.length, 3, 'Should have 3 table lines (header + 2 lines)');
             assert.deepEqual(table_lines.at(1).text(), 'ek@test.ode3/8');
             // Checking download button
-            assert.deepEqual(wrapper.find(DownloadButton).length, 1, 'Should have one DownloadButton');
+            assert.deepEqual(wrapper.find(DownloadButton).length, 2, 'Should have two DownloadButton');
             wrapper.unmount();
         });
     });
