@@ -10,17 +10,26 @@ from backend.api.models import Dataset, SpectroConfig
 class SpectroConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpectroConfig
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DatasetSerializer(serializers.ModelSerializer):
     files_count = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
-    spectros = SpectroConfigSerializer(many=True, source='spectro_configs')
+    spectros = SpectroConfigSerializer(many=True, source="spectro_configs")
 
     class Meta:
         model = Dataset
-        fields = ['id', 'name', 'files_type', 'start_date', 'end_date', 'files_count', 'type', 'spectros']
+        fields = [
+            "id",
+            "name",
+            "files_type",
+            "start_date",
+            "end_date",
+            "files_count",
+            "type",
+            "spectros",
+        ]
         depth = 1
 
     @extend_schema_field(serializers.IntegerField)

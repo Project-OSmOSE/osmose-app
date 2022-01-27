@@ -8,13 +8,17 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('api', '0009_add_blanks_choices'),
+        ("api", "0009_add_blanks_choices"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='annotators',
-            field=models.ManyToManyField(related_name='task_campaigns', through='api.AnnotationTask', to=settings.AUTH_USER_MODEL),
+            model_name="annotationcampaign",
+            name="annotators",
+            field=models.ManyToManyField(
+                related_name="task_campaigns",
+                through="api.AnnotationTask",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

@@ -23,7 +23,9 @@ class DatasetViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List available datasets"""
-        queryset = Dataset.objects.annotate(Count('files')).select_related('dataset_type')
+        queryset = Dataset.objects.annotate(Count("files")).select_related(
+            "dataset_type"
+        )
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -31,7 +33,7 @@ class DatasetViewSet(viewsets.ViewSet):
     def datawork_import(self, request):
         """Import new datasets from datawork"""
         if not request.user.is_staff:
-            return HttpResponse('Unauthorized', status=403)
+            return HttpResponse("Unauthorized", status=403)
 
         try:
             new_datasets = datawork_import(importer=request.user)
@@ -43,8 +45,11 @@ class DatasetViewSet(viewsets.ViewSet):
             return HttpResponse(error, status=400)
         except KeyError as error:
             capture_exception(error)
-            return HttpResponse(f'One of the import CSV is missing the following column : {error}', status=400)
+            return HttpResponse(
+                f"One of the import CSV is missing the following column : {error}",
+                status=400,
+            )
 
-        queryset = new_datasets.annotate(Count('files')).select_related('dataset_type')
+        queryset = new_datasets.annotate(Count("files")).select_related("dataset_type")
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0004_blank_fields'),
+        ("api", "0004_blank_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dataset',
-            name='dataset_conf',
-            field=models.CharField(blank=True, help_text='Specific configuration folder used for this dataset', max_length=255, null=True),
+            model_name="dataset",
+            name="dataset_conf",
+            field=models.CharField(
+                blank=True,
+                help_text="Specific configuration folder used for this dataset",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

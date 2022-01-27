@@ -1,9 +1,13 @@
 # OsmoseApp
 
 [![Continuous integration][ci-badge]][ci-link]
+[![Code style: black][black-badge]][black-link]
 
 [ci-badge]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml/badge.svg
 [ci-link]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml
+
+[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[black-link]: https://github.com/psf/black
 
 ## Deployment
 
@@ -44,4 +48,13 @@ cd frontend; npm test
 
 # Run backend coverage
 coverage run ./manage.py test && coverage report
+```
+
+### Before pushing to github
+
+```bash
+# Be sure not to forget any migrations
+poetry run ./manage.py makemigrations
+# Also don't forget to use black in order to unify code style
+poetry run black backend
 ```

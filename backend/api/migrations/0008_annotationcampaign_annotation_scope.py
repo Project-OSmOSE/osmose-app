@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0007_auto_20211117_1245'),
+        ("api", "0007_auto_20211117_1245"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='annotation_scope',
-            field=models.IntegerField(choices=[(1, 'Rectangle'), (2, 'Whole')], default=1),
+            model_name="annotationcampaign",
+            name="annotation_scope",
+            field=models.IntegerField(
+                choices=[(1, "Rectangle"), (2, "Whole")], default=1
+            ),
         ),
     ]

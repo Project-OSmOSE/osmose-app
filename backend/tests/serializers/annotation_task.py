@@ -7,22 +7,29 @@ from django.test import TestCase
 from backend.api.serializers import AnnotationTaskUpdateSerializer
 from backend.api.models import AnnotationTask
 
+
 class AnnotationTaskUpdateSerializerTestCase(TestCase):
     """Test AnnotationTaskUpdateSerializer which updates a task with new results"""
 
-    fixtures = ['users', 'datasets', 'annotation_sets', 'annotation_campaigns_tasks', 'annotation_results_sessions']
+    fixtures = [
+        "users",
+        "datasets",
+        "annotation_sets",
+        "annotation_campaigns_tasks",
+        "annotation_results_sessions",
+    ]
     update_data = {
-        'annotations': [
+        "annotations": [
             {
-                'annotation': 'Boat',
-                'startTime': 10,
-                'endTime': 50,
-                'startFrequency': 100,
-                'endFrequency': 200
+                "annotation": "Boat",
+                "startTime": 10,
+                "endTime": 50,
+                "startFrequency": 100,
+                "endFrequency": 200,
             }
         ],
-        'task_start_time': 10,
-        'task_end_time': 60
+        "task_start_time": 10,
+        "task_end_time": 60,
     }
 
     def test_with_valid_data(self):
@@ -41,12 +48,12 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
         """Fails validation when given an unknown tag with correct message"""
         task = AnnotationTask.objects.first()
         update_data = deepcopy(self.update_data)
-        update_data['annotations'][0]['annotation'] = 'Unknown'
+        update_data["annotations"][0]["annotation"] = "Unknown"
         update_serializer = AnnotationTaskUpdateSerializer(task, data=update_data)
         self.assertFalse(update_serializer.is_valid())
-        self.assertEquals(list(update_serializer.errors.keys()), ['annotations'])
-        self.assertEquals(len(update_serializer.errors['annotations']), 1)
+        self.assertEquals(list(update_serializer.errors.keys()), ["annotations"])
+        self.assertEquals(len(update_serializer.errors["annotations"]), 1)
         self.assertIn(
             "{'Unknown'} not valid tags from annotation set",
-            str(update_serializer.errors['annotations'][0])
+            str(update_serializer.errors["annotations"][0]),
         )

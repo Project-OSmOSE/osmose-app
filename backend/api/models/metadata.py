@@ -7,7 +7,7 @@ from django.db import models
 
 class AudioMetadatum(models.Model):
     class Meta:
-        db_table = 'audio_metadata'
+        db_table = "audio_metadata"
 
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
@@ -23,7 +23,7 @@ class AudioMetadatum(models.Model):
 
 class GeoMetadatum(models.Model):
     class Meta:
-        db_table = 'geo_metadata'
+        db_table = "geo_metadata"
 
     def __str__(self):
         return str(self.name)
@@ -48,14 +48,14 @@ class SpectroConfig(models.Model):
     def zoom_tiles(self, tile_name):
         n_zooms = int(log(self.zoom_level, 2)) + 1
         for zoom_power in range(0, n_zooms):
-            zoom_level = 2**zoom_power
+            zoom_level = 2 ** zoom_power
             for zoom_tile in range(0, zoom_level):
-                yield f'{tile_name}_{zoom_level}_{zoom_tile}.png'
+                yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
 
 
 class TabularMetadatum(models.Model):
     class Meta:
-        db_table = 'tabular_metadata'
+        db_table = "tabular_metadata"
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
@@ -65,7 +65,7 @@ class TabularMetadatum(models.Model):
 
 class TabularMetadataVariable(models.Model):
     class Meta:
-        db_table = 'tabular_metadata_variables'
+        db_table = "tabular_metadata_variables"
 
     name = models.CharField(max_length=255)
     desc = models.TextField()
@@ -78,9 +78,13 @@ class TabularMetadataVariable(models.Model):
 
 class TabularMetadataShape(models.Model):
     class Meta:
-        db_table = 'tabular_metadata_shapes'
+        db_table = "tabular_metadata_shapes"
 
     dimension_position = models.IntegerField()
 
-    tabular_metadata_dimension = models.ForeignKey(TabularMetadataVariable, on_delete=models.CASCADE, related_name='dimension')
-    tabular_metadata_variable = models.ForeignKey(TabularMetadataVariable, on_delete=models.CASCADE, related_name='variable')
+    tabular_metadata_dimension = models.ForeignKey(
+        TabularMetadataVariable, on_delete=models.CASCADE, related_name="dimension"
+    )
+    tabular_metadata_variable = models.ForeignKey(
+        TabularMetadataVariable, on_delete=models.CASCADE, related_name="variable"
+    )

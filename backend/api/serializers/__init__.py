@@ -11,7 +11,7 @@ from backend.api.serializers.annotation_campaign import (
     AnnotationCampaignRetrieveAuxTaskSerializer,
     AnnotationCampaignRetrieveSerializer,
     AnnotationCampaignCreateSerializer,
-    AnnotationCampaignAddAnnotatorsSerializer
+    AnnotationCampaignAddAnnotatorsSerializer,
 )
 from backend.api.serializers.annotation_task import (
     AnnotationTaskSerializer,
@@ -20,5 +20,5 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskSpectroSerializer,
     AnnotationTaskRetrieveSerializer,
     AnnotationTaskUpdateSerializer,
-    AnnotationTaskUpdateOutputCampaignSerializer
+    AnnotationTaskUpdateOutputCampaignSerializer,
 )

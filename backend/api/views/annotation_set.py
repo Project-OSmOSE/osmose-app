@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from backend.api.models import AnnotationSet
 from backend.api.serializers import AnnotationSetSerializer
 
+
 class AnnotationSetViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for user-related actions
