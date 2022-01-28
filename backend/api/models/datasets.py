@@ -1,20 +1,30 @@
 """Dataset-related models"""
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Collection(models.Model):
+    """
+    This table contains collections which are groups of datasets which are meant to be logical groupings, for example
+    datasets coming from a common project.
+    """
+
     class Meta:
         db_table = "collections"
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class DatasetType(models.Model):
+    """
+    Table containing the possible data types for dataset’s. These data types are not about the technical storage of the
+    data (csv or wav for example) but more about the domain applications (sea currents, weather data, etc…).
+    """
+
     class Meta:
         db_table = "dataset_types"
 
@@ -26,6 +36,15 @@ class DatasetType(models.Model):
 
 
 class Dataset(models.Model):
+    """
+    This table contains general metadata of the dataset as well as links to other metadata tables with more specific
+    scopes.
+
+    Specific metadata like audio_metadata can be specified either at dataset level or at dataset_file level.
+    It can be specified in both with parameters (or other information) common to all files written at dataset level
+    and changing parameters at file level.
+    """
+
     class Meta:
         db_table = "datasets"
 
@@ -53,22 +72,23 @@ class Dataset(models.Model):
     geo_metadatum = models.ForeignKey(
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tabular_metadatum = models.ForeignKey(
         "TabularMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     spectro_configs = models.ManyToManyField("SpectroConfig", related_name="datasets")
-
-
-class CollectionDataset(models.Model):
-    class Meta:
-        db_table = "collection_datasets"
-
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    collections = models.ManyToManyField(Collection, related_name="datasets")
 
 
 class DatasetFile(models.Model):
+    """
+    This table contains the metadata and link to metadata of the different files composing a dataset.
+
+    Specific metadata like audio_metadata can be specified either at dataset level or at dataset_file level.
+    It can be specified in both with parameters (or other information) common to all files written at dataset level
+    and changing parameters at file level.
+    """
+
     class Meta:
         db_table = "dataset_files"
 
@@ -90,6 +110,8 @@ class DatasetFile(models.Model):
     @property
     def sample_rate_khz(self):
         """Returns data from file audio_metadatum if there, else from dataset audio_metadatum"""
+        # Pylint can't follow foreign keys when using string identifiers instead of model
+        # pylint: disable=no-member
         df_sample_rate = self.audio_metadatum.sample_rate_khz
         ds_sample_rate = self.dataset.audio_metadatum.sample_rate_khz
         sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate

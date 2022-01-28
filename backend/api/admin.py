@@ -1,3 +1,5 @@
+"""Python module for Django admin interface"""
+
 from django.contrib import admin
 
 from backend.api.models import (

@@ -1,5 +1,8 @@
 """Dataset DRF serializers file"""
 
+# Serializers have too many false-positives on the following warnings:
+# pylint: disable=missing-function-docstring, no-self-use, abstract-method
+
 from rest_framework import serializers
 
 from drf_spectacular.utils import extend_schema_field
@@ -8,12 +11,16 @@ from backend.api.models import Dataset, SpectroConfig
 
 
 class SpectroConfigSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic SpectroConfig data"""
+
     class Meta:
         model = SpectroConfig
         fields = "__all__"
 
 
 class DatasetSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic Dataset data"""
+
     files_count = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     spectros = SpectroConfigSerializer(many=True, source="spectro_configs")

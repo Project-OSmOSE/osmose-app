@@ -4,10 +4,15 @@ from collections import defaultdict
 from random import shuffle
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class AnnotationTag(models.Model):
+    """
+    This table contains tags which are used to constitute annotation_sets and serve to annotate files for annotation
+    campaigns.
+    """
+
     class Meta:
         db_table = "annotation_tags"
 
@@ -18,6 +23,11 @@ class AnnotationTag(models.Model):
 
 
 class AnnotationSet(models.Model):
+    """
+    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    and can be used for multiple datasets and annotation campaigns.
+    """
+
     class Meta:
         db_table = "annotation_sets"
 
@@ -28,10 +38,18 @@ class AnnotationSet(models.Model):
     desc = models.TextField(null=True, blank=True)
     tags = models.ManyToManyField(AnnotationTag)
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class AnnotationCampaign(models.Model):
+    """
+    Table containing an annotation_campaign, to be used with the table annotation_campaign_datasets. A researcher
+    wanting to have a number of annotated datasets will chose a annotation_set and launch a campaign.
+
+    For AnnotationScope RECTANGLE means annotating through boxes first, WHOLE means annotating presence/absence for the
+    whole file first (boxes can be used to augment annotation).
+    """
+
     AnnotationScope = models.IntegerChoices("AnnotationScope", "RECTANGLE WHOLE")
 
     class Meta:
@@ -54,10 +72,12 @@ class AnnotationCampaign(models.Model):
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE
     )
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     annotators = models.ManyToManyField(
-        to=User, through="AnnotationTask", related_name="task_campaigns"
+        to=settings.AUTH_USER_MODEL,
+        through="AnnotationTask",
+        related_name="task_campaigns",
     )
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
@@ -103,6 +123,11 @@ class AnnotationCampaign(models.Model):
 
 
 class AnnotationTask(models.Model):
+    """
+    This table represents the need to annotate a specific dataset_file by a specific user in the course of an annotation
+    campaign and is linked to by the resulting annotation results.
+    """
+
     StatusChoices = models.IntegerChoices(
         "StatusChoices", "CREATED STARTED FINISHED", start=0
     )
@@ -118,7 +143,9 @@ class AnnotationTask(models.Model):
         AnnotationCampaign, on_delete=models.CASCADE, related_name="tasks"
     )
     annotator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="annotation_tasks"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="annotation_tasks",
     )
     dataset_file = models.ForeignKey(
         "DatasetFile", on_delete=models.CASCADE, related_name="annotation_tasks"
@@ -126,6 +153,10 @@ class AnnotationTask(models.Model):
 
 
 class AnnotationResult(models.Model):
+    """
+    This table contains the resulting tag associations for specific annotation_tasks
+    """
+
     class Meta:
         db_table = "annotation_results"
 
@@ -141,6 +172,12 @@ class AnnotationResult(models.Model):
 
 
 class AnnotationSession(models.Model):
+    """
+    This table contains the AudioAnnotator sessions output linked to the annotation of a specific dataset file. There
+    can be multiple AA sessions for a annotation_tasks, the result of the latest session should be equal to the
+    dataset’s file annotation.
+    """
+
     class Meta:
         db_table = "annotation_sessions"
 

@@ -55,6 +55,8 @@ coverage run ./manage.py test && coverage report
 ```bash
 # Be sure not to forget any migrations
 poetry run ./manage.py makemigrations
+# You should run Pylint regularly when coding to get tips and avoid bad patterns
+poetry run pylint backend
 # Also don't forget to use black in order to unify code style
 poetry run black backend
 ```

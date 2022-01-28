@@ -1,17 +1,27 @@
 """Annotation campaign DRF serializers file"""
 
+# Serializers have too many false-positives on the following warnings:
+# pylint: disable=missing-function-docstring, no-self-use, abstract-method
+
 from django.db.models import Count
-from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
 from drf_spectacular.utils import extend_schema_field
 
 from backend.utils.validators import valid_model_ids
-from backend.api.models import AnnotationCampaign, Dataset, AnnotationSet, SpectroConfig
+from backend.api.models import (
+    User,
+    AnnotationCampaign,
+    Dataset,
+    AnnotationSet,
+    SpectroConfig,
+)
 
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
+    """Serializer meant to output list of AnnotationCampaigns augmented data"""
+
     tasks_count = serializers.SerializerMethodField()
     user_tasks_count = serializers.SerializerMethodField()
     complete_tasks_count = serializers.SerializerMethodField()
@@ -62,6 +72,10 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):
+    """
+    Serializer meant to output AnnotationCampaign basic data used in AnnotationCampaignRetrieveSerializer
+    """
+
     annotation_set_id = serializers.IntegerField()
 
     class Meta:
@@ -79,12 +93,18 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
 
 
 class AnnotationCampaignRetrieveAuxTaskSerializer(serializers.Serializer):
+    """
+    Serializer meant to output AnnotationTask basic data used in AnnotationCampaignRetrieveSerializer
+    """
+
     status = serializers.IntegerField()
     annotator_id = serializers.IntegerField()
     count = serializers.IntegerField()
 
 
 class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
+    """Serializer meant to output AnnotationCampaign data augmented with tasks data"""
+
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
 
@@ -102,6 +122,8 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
 
 class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
+    """Serializer meant for AnnotationCampaign creation with corresponding tasks"""
+
     desc = serializers.CharField(allow_blank=True)
     instructions_url = serializers.CharField(allow_blank=True)
     start = serializers.DateTimeField(required=False)
@@ -143,17 +165,17 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             "annotation_scope",
         ]
 
-    def validate(self, data):
+    def validate(self, attrs):
         """Validates that chosen spectros correspond to chosen datasets"""
-        db_spectros = Dataset.objects.filter(id__in=data["datasets"]).values_list(
+        db_spectros = Dataset.objects.filter(id__in=attrs["datasets"]).values_list(
             "spectro_configs", flat=True
         )
-        bad_vals = set(data["spectros"]) - set(db_spectros)
+        bad_vals = set(attrs["spectros"]) - set(db_spectros)
         if bad_vals:
             raise serializers.ValidationError(
                 f"{bad_vals} not valid ids for spectro configs of given datasets"
             )
-        return data
+        return attrs
 
     def create(self, validated_data):
         campaign = AnnotationCampaign(
@@ -192,6 +214,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
 
 class AnnotationCampaignAddAnnotatorsSerializer(serializers.Serializer):
     """
+    Serializer meant to update AnnotationCampagin with new annotators and corresponding tasks.
+
     If annotation_goal (the number of files wanted to be annotated) is not given then the whole
     dataset will be targeted.
 
@@ -204,13 +228,13 @@ class AnnotationCampaignAddAnnotatorsSerializer(serializers.Serializer):
     annotation_method = serializers.IntegerField(min_value=0, max_value=1)
     annotation_goal = serializers.IntegerField(min_value=1, required=False)
 
-    def update(self, campaign, validated_data):
+    def update(self, instance, validated_data):
         files_target = 0
         if "annotation_goal" in validated_data:
             files_target = validated_data["annotation_goal"]
         else:
             files_target = sum(
-                campaign.datasets.annotate(Count("files")).values_list(
+                instance.datasets.annotate(Count("files")).values_list(
                     "files__count", flat=True
                 )
             )
@@ -218,5 +242,5 @@ class AnnotationCampaignAddAnnotatorsSerializer(serializers.Serializer):
             int(validated_data["annotation_method"])
         ]
         for annotator in User.objects.filter(id__in=validated_data["annotators"]):
-            campaign.add_annotator(annotator, files_target, annotation_method)
-        return campaign
+            instance.add_annotator(annotator, files_target, annotation_method)
+        return instance

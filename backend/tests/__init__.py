@@ -1,3 +1,5 @@
+"""Entrypoint for testing, import all tests to run here"""
+
 from .views.user import *
 from .views.dataset import *
 from .views.annotation_set import *

@@ -1,5 +1,8 @@
 """Annotation task DRF serializers file"""
 
+# Serializers have too many false-positives on the following warnings:
+# pylint: disable=missing-function-docstring, no-self-use, abstract-method
+
 from datetime import datetime
 
 from django.utils.http import urlquote
@@ -13,6 +16,8 @@ from backend.api.models import AnnotationTask, AnnotationResult, SpectroConfig
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic AnnotationTask data"""
+
     filename = serializers.CharField(source="dataset_file.filename")
     dataset_name = serializers.CharField(source="dataset_file.dataset.name")
     start = serializers.DateTimeField(source="dataset_file.audio_metadatum.start")
@@ -24,6 +29,8 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
 
 
 class AnnotationTaskBoundarySerializer(serializers.Serializer):
+    """Serializer meant to output DatasetFile boundary data"""
+
     startTime = serializers.DateTimeField()
     endTime = serializers.DateTimeField()
     startFrequency = serializers.FloatField()
@@ -31,6 +38,12 @@ class AnnotationTaskBoundarySerializer(serializers.Serializer):
 
 
 class AnnotationTaskResultSerializer(serializers.ModelSerializer):
+    """
+    Serializer meant to output basic AnnotationResult data
+
+    It is used for prevAnnotations field AnnotationTaskRetrieveSerializer
+    """
+
     annotation = serializers.CharField(source="annotation_tag.name")
     startTime = serializers.FloatField(source="start_time", allow_null=True)
     endTime = serializers.FloatField(source="end_time", allow_null=True)
@@ -50,6 +63,12 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
 
 
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
+    """
+    Serializer meant to output basic SpectroConfig data
+
+    It is used for spectroUrls field AnnotationTaskRetrieveSerializer
+    """
+
     winsize = serializers.IntegerField(source="window_size")
     urls = serializers.SerializerMethodField()
 
@@ -64,6 +83,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_urls(self, spectro_config):
+        """This returns urls for spectrogram zoom tiles"""
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
@@ -77,6 +97,10 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
 
 class AnnotationTaskRetrieveSerializer(serializers.Serializer):
+    """Serializer meant to return the input needed for the AudioAnnotator to process AnnotationTask"""
+
+    # This class uses legacy method names for backward-compatibility
+    # pylint: disable=invalid-name
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
     annotationTags = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
@@ -104,7 +128,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         }
 
     @extend_schema_field(serializers.CharField())
-    def get_audioUrl(self, task):
+    def get_audioUrl(self, task):  # pylint: disable=invalid-name
         root_url = settings.STATIC_URL + task.dataset_file.dataset.dataset_path
         return f"{root_url}/{task.dataset_file.filepath}"
 
@@ -149,29 +173,42 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         return annotations
 
-    def update(self, task, validated_data):
-        task.results.all().delete()
+    def update(self, instance, validated_data):
+        """
+        The update of an AnnotationTask will delete previous results and add new ones (new annotations).
+
+        It will also change task status to FINISHED.
+        """
+        instance.results.all().delete()
         tags = dict(
             map(
                 reversed,
-                task.annotation_campaign.annotation_set.tags.values_list("id", "name"),
+                instance.annotation_campaign.annotation_set.tags.values_list(
+                    "id", "name"
+                ),
             )
         )
         for annotation in validated_data["annotations"]:
             annotation["annotation_tag_id"] = tags[
                 annotation.pop("annotation_tag")["name"]
             ]
-            task.results.create(**annotation)
-        task.sessions.create(
+            instance.results.create(**annotation)
+        instance.sessions.create(
             start=datetime.fromtimestamp(validated_data["task_start_time"]),
             end=datetime.fromtimestamp(validated_data["task_end_time"]),
             session_output=validated_data,
         )
-        task.status = 2
-        task.save()
-        return task
+        instance.status = 2
+        instance.save()
+        return instance
 
 
 class AnnotationTaskUpdateOutputCampaignSerializer(serializers.Serializer):
+    """
+    Serializer class meant for the output of an AnnotationTask update.
+
+    It indicates to the AudioAnnotator what is the next task and/or current campaign_id.
+    """
+
     next_task = serializers.IntegerField(allow_null=True)
     campaign_id = serializers.IntegerField(allow_null=True)

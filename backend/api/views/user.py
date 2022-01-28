@@ -1,7 +1,6 @@
 """User DRF-Viewset file"""
 
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from rest_framework import viewsets, serializers
@@ -10,6 +9,7 @@ from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema, inline_serializer
 
+from backend.api.models import User
 from backend.api.serializers import UserSerializer, UserCreateSerializer
 
 
@@ -17,6 +17,9 @@ class UserViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for user-related actions
     """
+
+    # For ViewSet-derived classes Pylint gives some false-positives
+    # pylint: disable=no-self-use
 
     serializer_class = UserSerializer
 

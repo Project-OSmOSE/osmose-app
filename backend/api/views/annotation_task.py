@@ -2,7 +2,6 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -10,7 +9,7 @@ from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from backend.api.models import AnnotationCampaign, AnnotationTask
+from backend.api.models import User, AnnotationCampaign, AnnotationTask
 from backend.api.serializers import (
     AnnotationTaskSerializer,
     AnnotationTaskRetrieveSerializer,

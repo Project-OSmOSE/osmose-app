@@ -1,17 +1,24 @@
 """User DRF serializers file"""
 
-from django.contrib.auth.models import User
+# Serializers have too many false-positives on the following warnings:
+# pylint: disable=missing-function-docstring, no-self-use, abstract-method
 
 from rest_framework import serializers
 
+from backend.api.models import User
+
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic User data"""
+
     class Meta:
         model = User
         fields = ["id", "username", "email"]
 
 
 class UserCreateSerializer(serializers.Serializer):
+    """Serializer meant for User creation"""
+
     username = serializers.CharField()
     email = serializers.EmailField()
     password = serializers.CharField()

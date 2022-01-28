@@ -19,12 +19,16 @@ from backend.api.models import (
 @transaction.atomic
 def datawork_import(*, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
+    # TODO : break up this process to remove code smell and in order to help with unit testing
+    # pylint: disable=too-many-locals
     dataset_names = Dataset.objects.values_list("name", flat=True)
     csv_dataset_names = []
     new_datasets = []
 
     # Check for new datasets
-    with open(settings.DATASET_IMPORT_FOLDER / "datasets.csv") as csvfile:
+    with open(
+        settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+    ) as csvfile:
         for dataset in csv.DictReader(csvfile):
             csv_dataset_names.append(dataset["name"])
             if dataset["name"] not in dataset_names:
@@ -43,7 +47,7 @@ def datawork_import(*, importer):
             / settings.DATASET_FILES_FOLDER
             / dataset["conf_folder"]
         )
-        with open(audio_folder / "metadata.csv") as csvfile:
+        with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
         audio_metadatum = AudioMetadatum.objects.create(
             num_channels=audio_raw["nchannels"],
@@ -73,7 +77,7 @@ def datawork_import(*, importer):
         created_datasets.append(curr_dataset.id)
 
         # Create dataset_files
-        with open(audio_folder / "timestamp.csv") as csvfile:
+        with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
             for timestamp_data in csv.reader(csvfile):
                 filename, start_timestamp = timestamp_data
                 start = parse_datetime(start_timestamp)
@@ -106,7 +110,7 @@ def datawork_import(*, importer):
             / conf_folder
             / "spectrograms.csv"
         )
-        with open(spectro_csv_path) as csvfile:
+        with open(spectro_csv_path, encoding="utf-8") as csvfile:
             for spectro in csv.DictReader(csvfile):
                 name = spectro.pop("name")
                 dataset_spectros.append(

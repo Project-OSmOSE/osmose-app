@@ -28,7 +28,6 @@ from django.urls import path, include
 
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework.urlpatterns import format_suffix_patterns
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from backend.api.views import DatasetViewSet, UserViewSet, AnnotationSetViewSet

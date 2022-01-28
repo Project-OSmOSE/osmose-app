@@ -29,6 +29,9 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation campaign related actions
     """
 
+    # For ViewSet-derived classes Pylint gives some false-positives
+    # pylint: disable=no-self-use
+
     queryset = AnnotationCampaign.objects.all()
     serializer_class = AnnotationCampaignListSerializer
 
@@ -82,6 +85,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         examples=[
             OpenApiExample(
                 "CSV campaign results example",
+                # pylint: disable-next=line-too-long
                 value="""dataset,filename,start_time,end_time,start_frequency,end_frequency,annotation,annotator,start_datetime,end_datetime
 SPM Aural A,sound000.wav,418.0,572.0,9370.0,11567.0,Boat,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00
 SPM Aural A,sound000.wav,543.0,663.0,6333.0,9119.0,Rain,Albert,2012-05-03T11:10:03+00:00,2012-05-03T11:10:48+00:00

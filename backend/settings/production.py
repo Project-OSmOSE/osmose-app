@@ -35,9 +35,12 @@ DATABASES = {
     }
 }
 
+# Sentry logging
 extra_settings = {}
 if "OSMOSE_PROXY_URL" in os.environ:
     extra_settings["http_proxy"] = os.environ["OSMOSE_PROXY_URL"]
+# Pylint has a false-positive on sentry use, see https://github.com/getsentry/sentry-python/issues/1081
+# pylint: disable-next=abstract-class-instantiated
 sentry_sdk.init(
     dsn=os.environ["OSMOSE_SENTRY_URL"],
     integrations=[DjangoIntegration()],
