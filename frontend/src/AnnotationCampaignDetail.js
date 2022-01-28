@@ -5,6 +5,7 @@ import request from 'superagent';
 const API_URL = '/api/annotation-campaign/';
 const USER_API_URL = '/api/user/';
 const REPORT_API_URL = '/api/annotation-campaign/ID/report/';
+const STATUS_REPORT_API_URL = '/api/annotation-campaign/ID/report_status/';
 
 type DownloadButtonProps = {
   url: string,
@@ -183,8 +184,15 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <p className="text-center">
           <DownloadButton
             app_token={this.props.app_token}
-            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
+            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id.toString())}
             value={"Download CSV results"}
+            filename={campaign.name.replace(' ', '_') + '.csv'}
+          />
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <DownloadButton
+            app_token={this.props.app_token}
+            url={STATUS_REPORT_API_URL.replace('ID', this.props.match.params.campaign_id.toString())}
+            value={"Download CSV task status"}
             filename={campaign.name.replace(' ', '_') + '.csv'}
           />
         </p>

@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import * as utils from '../utils';
 
 import type { Annotation, SpectroUrlsParams } from './AudioAnnotator';
+import { TYPE_BOX } from './AudioAnnotator';
 import Region from './Region';
 
 // Component dimensions constants
@@ -52,6 +53,7 @@ type WorkbenchProps = {
   onAnnotationPlayed: (Annotation) => void,
   onAnnotationSelected: (Annotation) => void,
   onSeek: any,
+  drawingEnabled: boolean,
 };
 
 type WorkbenchState = {
@@ -379,25 +381,28 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
   }
 
   onStartNewAnnotation = (event: SyntheticPointerEvent<HTMLCanvasElement>) => {
-    const newTime: number = this.getTimeFromClientX(event.clientX);
-    const newFrequency: number = this.getFrequencyFromClientY(event.clientY);
+    if (this.props.drawingEnabled) {
+      const newTime: number = this.getTimeFromClientX(event.clientX);
+      const newFrequency: number = this.getFrequencyFromClientY(event.clientY);
 
-    this.isDrawing = true;
-    this.drawPxMove = 0;
-    this.drawStartTime = newTime;
-    this.drawStartFrequency = newFrequency;
+      this.isDrawing = true;
+      this.drawPxMove = 0;
+      this.drawStartTime = newTime;
+      this.drawStartFrequency = newFrequency;
 
-    const newAnnotation: Annotation = {
-      id: '',
-      annotation: '',
-      startTime: newTime,
-      endTime: newTime,
-      startFrequency: newFrequency,
-      endFrequency: newFrequency,
-      active: false,
-    };
+      const newAnnotation: Annotation = {
+        type: TYPE_BOX,
+        id: '',
+        annotation: '',
+        startTime: newTime,
+        endTime: newTime,
+        startFrequency: newFrequency,
+        endFrequency: newFrequency,
+        active: false,
+      };
 
-    this.setState({newAnnotation});
+      this.setState({newAnnotation});
+    }
   }
 
   computeNewAnnotation = (e: PointerEvent) => {
@@ -405,6 +410,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     const currentFrequency: number = this.getFrequencyFromClientY(e.clientY);
 
     const newAnnotation: Annotation = {
+      type: TYPE_BOX,
       id: '',
       annotation: '',
       startTime: Math.min(currentTime, this.drawStartTime),
@@ -610,6 +616,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       },
     };
 
+    const drawableStatusClass = this.props.drawingEnabled ? "drawable" : "";
+
     return (
       <div
         className="workbench rounded"
@@ -643,7 +651,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
           style={style.wrapper}
         >
           <canvas
-            className="canvas"
+            className={`canvas ${drawableStatusClass}`}
             ref={this.canvasRef}
             height={CANVAS_HEIGHT}
             width={CANVAS_WIDTH}

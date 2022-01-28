@@ -6,8 +6,16 @@ from django.db import models
 
 
 class AudioMetadatum(models.Model):
+    """
+    This table contains the metadata to audio recordings like hydrophone readings for example.
+
+    We follow the same dutycycle convention as Tethys: Duty cycle is represented by the recording duration and the
+    interval from the start of one recording session to the next. A duration of 3 m and an interval of 5 m would
+    represent a 60% duty cycle, 3 m on, 2 m off.
+    """
+
     class Meta:
-        db_table = 'audio_metadata'
+        db_table = "audio_metadata"
 
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
@@ -22,40 +30,57 @@ class AudioMetadatum(models.Model):
 
 
 class GeoMetadatum(models.Model):
+    """
+    Table containing geographical information on the dataset. It can be either just a name with a description, a
+    specific GPS location or geographical region represented by a polygon of GPS coordinates. It can also be a
+    combination of those.
+    """
+
     class Meta:
-        db_table = 'geo_metadata'
+        db_table = "geo_metadata"
 
     def __str__(self):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
+    # TODO : move to PostGIS-aware fields, see https://docs.djangoproject.com/en/3.2/ref/contrib/gis/
     location = models.TextField()
     region = models.TextField()
 
 
 class SpectroConfig(models.Model):
+    """
+    Table containing spectrogram configuration used for datasets and annotation campaigns.
+    """
+
     def __str__(self):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True)
+    desc = models.TextField(null=True, blank=True)
     nfft = models.IntegerField()
     window_size = models.IntegerField()
     overlap = models.FloatField()
     zoom_level = models.IntegerField()
 
     def zoom_tiles(self, tile_name):
+        """Generate zoom tile filenames for SpectroConfig"""
         n_zooms = int(log(self.zoom_level, 2)) + 1
         for zoom_power in range(0, n_zooms):
-            zoom_level = 2**zoom_power
+            zoom_level = 2 ** zoom_power
             for zoom_tile in range(0, zoom_level):
-                yield f'{tile_name}_{zoom_level}_{zoom_tile}.png'
+                yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
 
 
 class TabularMetadatum(models.Model):
+    """
+    This table contains metadata of matrix-like data, for example NetCDF and CSV files. It is used in conjunction with
+    tabular_metadata_variables and tabular_metadata_shapes.
+    """
+
     class Meta:
-        db_table = 'tabular_metadata'
+        db_table = "tabular_metadata"
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField()
@@ -64,8 +89,13 @@ class TabularMetadatum(models.Model):
 
 
 class TabularMetadataVariable(models.Model):
+    """
+    This table contains the variables of a tabular_metadata. This representation is inspired by the NetCDF format and as
+    such variables can be dimensions. A dimension is here represented by a variable where dimension_size is not NULL.
+    """
+
     class Meta:
-        db_table = 'tabular_metadata_variables'
+        db_table = "tabular_metadata_variables"
 
     name = models.CharField(max_length=255)
     desc = models.TextField()
@@ -77,10 +107,19 @@ class TabularMetadataVariable(models.Model):
 
 
 class TabularMetadataShape(models.Model):
+    """
+    Table representing variables’ shapes. The shape of a variable is represented by specifying the dimensions of the
+    different axes alongside which the variable data is defined.
+    """
+
     class Meta:
-        db_table = 'tabular_metadata_shapes'
+        db_table = "tabular_metadata_shapes"
 
     dimension_position = models.IntegerField()
 
-    tabular_metadata_dimension = models.ForeignKey(TabularMetadataVariable, on_delete=models.CASCADE, related_name='dimension')
-    tabular_metadata_variable = models.ForeignKey(TabularMetadataVariable, on_delete=models.CASCADE, related_name='variable')
+    tabular_metadata_dimension = models.ForeignKey(
+        TabularMetadataVariable, on_delete=models.CASCADE, related_name="dimension"
+    )
+    tabular_metadata_variable = models.ForeignKey(
+        TabularMetadataVariable, on_delete=models.CASCADE, related_name="variable"
+    )

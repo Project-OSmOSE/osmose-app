@@ -16,7 +16,8 @@
     "build": "react-scripts build",
     "test": "mocha --require ./test/utils/loadLibs.js && echo 'Running flow' && flow check",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "mocha": "mocha --require ./test/utils/loadLibs.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

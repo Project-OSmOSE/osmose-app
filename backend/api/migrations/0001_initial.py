@@ -15,287 +15,565 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AnnotationCampaign',
+            name="AnnotationCampaign",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField()),
-                ('instructions_url', models.TextField()),
-                ('start', models.DateTimeField()),
-                ('end', models.DateTimeField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField()),
+                ("instructions_url", models.TextField()),
+                ("start", models.DateTimeField()),
+                ("end", models.DateTimeField()),
             ],
             options={
-                'db_table': 'annotation_campaigns',
+                "db_table": "annotation_campaigns",
             },
         ),
         migrations.CreateModel(
-            name='AnnotationTag',
+            name="AnnotationTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'annotation_tags',
+                "db_table": "annotation_tags",
             },
         ),
         migrations.CreateModel(
-            name='AudioMetadatum',
+            name="AudioMetadatum",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField(null=True)),
-                ('end', models.DateTimeField(null=True)),
-                ('num_channels', models.IntegerField(null=True)),
-                ('sample_rate_khz', models.FloatField(null=True)),
-                ('total_samples', models.IntegerField(null=True)),
-                ('sample_bits', models.IntegerField(null=True)),
-                ('gain_db', models.FloatField(null=True)),
-                ('gain_rel', models.FloatField(null=True)),
-                ('dutycycle_rdm', models.FloatField(null=True)),
-                ('dutycycle_rim', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start", models.DateTimeField(null=True)),
+                ("end", models.DateTimeField(null=True)),
+                ("num_channels", models.IntegerField(null=True)),
+                ("sample_rate_khz", models.FloatField(null=True)),
+                ("total_samples", models.IntegerField(null=True)),
+                ("sample_bits", models.IntegerField(null=True)),
+                ("gain_db", models.FloatField(null=True)),
+                ("gain_rel", models.FloatField(null=True)),
+                ("dutycycle_rdm", models.FloatField(null=True)),
+                ("dutycycle_rim", models.FloatField(null=True)),
             ],
             options={
-                'db_table': 'audio_metadata',
+                "db_table": "audio_metadata",
             },
         ),
         migrations.CreateModel(
-            name='Collection',
+            name="Collection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField(null=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField(null=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'collections',
+                "db_table": "collections",
             },
         ),
         migrations.CreateModel(
-            name='Dataset',
+            name="Dataset",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField(null=True)),
-                ('dataset_path', models.CharField(max_length=255)),
-                ('status', models.IntegerField()),
-                ('files_type', models.CharField(max_length=255)),
-                ('start_date', models.DateField(null=True)),
-                ('end_date', models.DateField(null=True)),
-                ('audio_metadatum', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.audiometadatum')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField(null=True)),
+                ("dataset_path", models.CharField(max_length=255)),
+                ("status", models.IntegerField()),
+                ("files_type", models.CharField(max_length=255)),
+                ("start_date", models.DateField(null=True)),
+                ("end_date", models.DateField(null=True)),
+                (
+                    "audio_metadatum",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.audiometadatum",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'datasets',
+                "db_table": "datasets",
             },
         ),
         migrations.CreateModel(
-            name='DatasetType',
+            name="DatasetType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField()),
             ],
             options={
-                'db_table': 'dataset_types',
+                "db_table": "dataset_types",
             },
         ),
         migrations.CreateModel(
-            name='GeoMetadatum',
+            name="GeoMetadatum",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField()),
-                ('location', models.TextField()),
-                ('region', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField()),
+                ("location", models.TextField()),
+                ("region", models.TextField()),
             ],
             options={
-                'db_table': 'geo_metadata',
+                "db_table": "geo_metadata",
             },
         ),
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('to_execute', models.TextField()),
-                ('locked_at', models.DateTimeField()),
-                ('locked_by', models.CharField(max_length=255)),
-                ('status', models.IntegerField()),
-                ('result', models.TextField()),
-                ('queue', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("to_execute", models.TextField()),
+                ("locked_at", models.DateTimeField()),
+                ("locked_by", models.CharField(max_length=255)),
+                ("status", models.IntegerField()),
+                ("result", models.TextField()),
+                ("queue", models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'jobs',
+                "db_table": "jobs",
             },
         ),
         migrations.CreateModel(
-            name='TabularMetadatum',
+            name="TabularMetadatum",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField()),
-                ('dimension_count', models.IntegerField()),
-                ('variable_count', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField()),
+                ("dimension_count", models.IntegerField()),
+                ("variable_count", models.IntegerField()),
             ],
             options={
-                'db_table': 'tabular_metadata',
+                "db_table": "tabular_metadata",
             },
         ),
         migrations.CreateModel(
-            name='TabularMetadataVariable',
+            name="TabularMetadataVariable",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField()),
-                ('data_type', models.CharField(max_length=255)),
-                ('dimension_size', models.IntegerField()),
-                ('variable_position', models.IntegerField()),
-                ('tabular_metadata', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.tabularmetadatum')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField()),
+                ("data_type", models.CharField(max_length=255)),
+                ("dimension_size", models.IntegerField()),
+                ("variable_position", models.IntegerField()),
+                (
+                    "tabular_metadata",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.tabularmetadatum",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'tabular_metadata_variables',
+                "db_table": "tabular_metadata_variables",
             },
         ),
         migrations.CreateModel(
-            name='TabularMetadataShape',
+            name="TabularMetadataShape",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dimension_position', models.IntegerField()),
-                ('tabular_metadata_dimension', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='dimension', to='api.tabularmetadatavariable')),
-                ('tabular_metadata_variable', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='variable', to='api.tabularmetadatavariable')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dimension_position", models.IntegerField()),
+                (
+                    "tabular_metadata_dimension",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="dimension",
+                        to="api.tabularmetadatavariable",
+                    ),
+                ),
+                (
+                    "tabular_metadata_variable",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="variable",
+                        to="api.tabularmetadatavariable",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'tabular_metadata_shapes',
+                "db_table": "tabular_metadata_shapes",
             },
         ),
         migrations.CreateModel(
-            name='SpectroConfig',
+            name="SpectroConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField(null=True)),
-                ('nfft', models.IntegerField()),
-                ('window_size', models.IntegerField()),
-                ('overlap', models.FloatField()),
-                ('zoom_level', models.IntegerField()),
-                ('datasets', models.ManyToManyField(related_name='spectro_configs', to='api.Dataset')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField(null=True)),
+                ("nfft", models.IntegerField()),
+                ("window_size", models.IntegerField()),
+                ("overlap", models.FloatField()),
+                ("zoom_level", models.IntegerField()),
+                (
+                    "datasets",
+                    models.ManyToManyField(
+                        related_name="spectro_configs", to="api.Dataset"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DatasetFile',
+            name="DatasetFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('filename', models.CharField(max_length=255)),
-                ('filepath', models.CharField(max_length=255)),
-                ('size', models.BigIntegerField()),
-                ('audio_metadatum', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.audiometadatum')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='api.dataset')),
-                ('tabular_metadatum', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.tabularmetadatum')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("filename", models.CharField(max_length=255)),
+                ("filepath", models.CharField(max_length=255)),
+                ("size", models.BigIntegerField()),
+                (
+                    "audio_metadatum",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.audiometadatum",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="files",
+                        to="api.dataset",
+                    ),
+                ),
+                (
+                    "tabular_metadatum",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.tabularmetadatum",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'dataset_files',
+                "db_table": "dataset_files",
             },
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='dataset_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.datasettype'),
+            model_name="dataset",
+            name="dataset_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="api.datasettype"
+            ),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='geo_metadatum',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.geometadatum'),
+            model_name="dataset",
+            name="geo_metadatum",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.geometadatum",
+            ),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="dataset",
+            name="owner",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='tabular_metadatum',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.tabularmetadatum'),
+            model_name="dataset",
+            name="tabular_metadatum",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.tabularmetadatum",
+            ),
         ),
         migrations.CreateModel(
-            name='CollectionDataset',
+            name="CollectionDataset",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('collection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.collection')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.dataset')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "collection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.collection"
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.dataset"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'collection_datasets',
+                "db_table": "collection_datasets",
             },
         ),
         migrations.CreateModel(
-            name='AnnotationTask',
+            name="AnnotationTask",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.IntegerField()),
-                ('annotation_campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to='api.annotationcampaign')),
-                ('annotator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='annotation_tasks', to=settings.AUTH_USER_MODEL)),
-                ('dataset_file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='annotation_tasks', to='api.datasetfile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("status", models.IntegerField()),
+                (
+                    "annotation_campaign",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tasks",
+                        to="api.annotationcampaign",
+                    ),
+                ),
+                (
+                    "annotator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="annotation_tasks",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "dataset_file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="annotation_tasks",
+                        to="api.datasetfile",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'annotation_tasks',
+                "db_table": "annotation_tasks",
             },
         ),
         migrations.CreateModel(
-            name='AnnotationSet',
+            name="AnnotationSet",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('desc', models.TextField(null=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('tags', models.ManyToManyField(to='api.AnnotationTag')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("desc", models.TextField(null=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                ("tags", models.ManyToManyField(to="api.AnnotationTag")),
             ],
             options={
-                'db_table': 'annotation_sets',
+                "db_table": "annotation_sets",
             },
         ),
         migrations.CreateModel(
-            name='AnnotationSession',
+            name="AnnotationSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField()),
-                ('end', models.DateTimeField()),
-                ('session_output', models.JSONField()),
-                ('annotation_task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sessions', to='api.annotationtask')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start", models.DateTimeField()),
+                ("end", models.DateTimeField()),
+                ("session_output", models.JSONField()),
+                (
+                    "annotation_task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sessions",
+                        to="api.annotationtask",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'annotation_sessions',
+                "db_table": "annotation_sessions",
             },
         ),
         migrations.CreateModel(
-            name='AnnotationResult',
+            name="AnnotationResult",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.FloatField(null=True)),
-                ('end_time', models.FloatField(null=True)),
-                ('start_frequency', models.FloatField(null=True)),
-                ('end_frequency', models.FloatField(null=True)),
-                ('annotation_tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.annotationtag')),
-                ('annotation_task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='results', to='api.annotationtask')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start_time", models.FloatField(null=True)),
+                ("end_time", models.FloatField(null=True)),
+                ("start_frequency", models.FloatField(null=True)),
+                ("end_frequency", models.FloatField(null=True)),
+                (
+                    "annotation_tag",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.annotationtag",
+                    ),
+                ),
+                (
+                    "annotation_task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="results",
+                        to="api.annotationtask",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'annotation_results',
+                "db_table": "annotation_results",
             },
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='annotation_set',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.annotationset'),
+            model_name="annotationcampaign",
+            name="annotation_set",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="api.annotationset"
+            ),
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='datasets',
-            field=models.ManyToManyField(to='api.Dataset'),
+            model_name="annotationcampaign",
+            name="datasets",
+            field=models.ManyToManyField(to="api.Dataset"),
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="annotationcampaign",
+            name="owner",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='spectro_configs',
-            field=models.ManyToManyField(related_name='annotation_campaigns', to='api.SpectroConfig'),
+            model_name="annotationcampaign",
+            name="spectro_configs",
+            field=models.ManyToManyField(
+                related_name="annotation_campaigns", to="api.SpectroConfig"
+            ),
         ),
     ]

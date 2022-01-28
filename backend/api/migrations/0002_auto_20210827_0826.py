@@ -6,53 +6,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='annotationcampaign',
-            name='name',
+            model_name="annotationcampaign",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='annotationset',
-            name='name',
+            model_name="annotationset",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='annotationtag',
-            name='name',
+            model_name="annotationtag",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='collection',
-            name='name',
+            model_name="collection",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='dataset',
-            name='name',
+            model_name="dataset",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='datasettype',
-            name='name',
+            model_name="datasettype",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='geometadatum',
-            name='name',
+            model_name="geometadatum",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='spectroconfig',
-            name='name',
+            model_name="spectroconfig",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='tabularmetadatum',
-            name='name',
+            model_name="tabularmetadatum",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
     ]

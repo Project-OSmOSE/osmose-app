@@ -122,6 +122,10 @@ html {
   cursor: crosshair;
 }
 
+.drawable {
+  cursor: crosshair;
+}
+
 .time-axis {
   display: block;
   position: absolute;

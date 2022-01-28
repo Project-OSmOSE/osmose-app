@@ -1,0 +1,303 @@
+- model: api.datasettype
+  pk: 1
+  fields:
+    name: Coastal audio recordings
+    desc: ''
+- model: api.dataset
+  pk: 1
+  fields:
+    name: SPM Aural A 2010
+    desc: null
+    dataset_path: seed/dataset_path
+    dataset_conf: null
+    status: 1
+    files_type: .wav
+    start_date: 2010-08-19
+    end_date: 2010-11-02
+    audio_metadatum: 1
+    dataset_type: 1
+    geo_metadatum: 1
+    owner: 1
+    tabular_metadatum: null
+    spectro_configs:
+    - 1
+- model: api.datasetfile
+  pk: 1
+  fields:
+    filename: sound001.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 2
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 2
+  fields:
+    filename: sound002.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 3
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 3
+  fields:
+    filename: sound003.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 4
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 4
+  fields:
+    filename: sound004.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 5
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 5
+  fields:
+    filename: sound005.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 6
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 6
+  fields:
+    filename: sound006.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 7
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 7
+  fields:
+    filename: sound007.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 8
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 8
+  fields:
+    filename: sound008.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 9
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 9
+  fields:
+    filename: sound009.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 10
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 10
+  fields:
+    filename: sound010.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 11
+    tabular_metadatum: null
+- model: api.datasetfile
+  pk: 11
+  fields:
+    filename: sound011.wav
+    filepath: audio/50h_0.wav
+    size: 58982478
+    dataset: 1
+    audio_metadatum: 12
+    tabular_metadatum: null
+- model: api.audiometadatum
+  pk: 1
+  fields:
+    start: null
+    end: null
+    num_channels: 1
+    sample_rate_khz: 32768.0
+    total_samples: 88473600
+    sample_bits: 16
+    gain_db: 22.0
+    gain_rel: -165.0
+    dutycycle_rdm: 45.0
+    dutycycle_rim: 60.0
+- model: api.audiometadatum
+  pk: 2
+  fields:
+    start: 2012-10-03 10:00:00+00:00
+    end: 2012-10-03 10:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 3
+  fields:
+    start: 2012-10-03 11:00:00+00:00
+    end: 2012-10-03 11:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 4
+  fields:
+    start: 2012-10-03 12:00:00+00:00
+    end: 2012-10-03 12:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 5
+  fields:
+    start: 2012-10-03 13:00:00+00:00
+    end: 2012-10-03 13:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 6
+  fields:
+    start: 2012-10-03 14:00:00+00:00
+    end: 2012-10-03 14:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 7
+  fields:
+    start: 2012-10-03 15:00:00+00:00
+    end: 2012-10-03 15:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 8
+  fields:
+    start: 2012-10-03 16:00:00+00:00
+    end: 2012-10-03 16:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 9
+  fields:
+    start: 2012-10-03 17:00:00+00:00
+    end: 2012-10-03 17:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 10
+  fields:
+    start: 2012-10-03 18:00:00+00:00
+    end: 2012-10-03 18:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 11
+  fields:
+    start: 2012-10-03 19:00:00+00:00
+    end: 2012-10-03 19:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.audiometadatum
+  pk: 12
+  fields:
+    start: 2012-10-03 20:00:00+00:00
+    end: 2012-10-03 20:15:00+00:00
+    num_channels: null
+    sample_rate_khz: null
+    total_samples: null
+    sample_bits: null
+    gain_db: null
+    gain_rel: null
+    dutycycle_rdm: null
+    dutycycle_rim: null
+- model: api.geometadatum
+  pk: 1
+  fields:
+    name: Saint-Pierre-et-Miquelon
+    desc: South of Saint-Pierre-et-Miquelon
+    location: ''
+    region: ''
+- model: api.spectroconfig
+  pk: 1
+  fields:
+    name: spectro_config1
+    desc: null
+    nfft: 4096
+    window_size: 2000
+    overlap: 90.0
+    zoom_level: 8
+- model: api.spectroconfig
+  pk: 2
+  fields:
+    name: spectro_config2
+    desc: null
+    nfft: 2048
+    window_size: 1000
+    overlap: 90.0
+    zoom_level: 8

@@ -100,7 +100,7 @@ class App extends Component<void, AppState> {
             <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render=
               {route_props =>
-                <OdeApp app_token={this.state.app_token} logout={() => this.logout(route_props.history)} import={this.import} />
+                <OdeApp app_token={this.state.app_token} logout={() => this.logout(route_props.history)} />
               }
             />
           </Switch>

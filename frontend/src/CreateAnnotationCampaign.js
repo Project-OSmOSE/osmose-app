@@ -136,6 +136,7 @@ type CACState = {
   new_ac_start: string,
   new_ac_end: string,
   new_ac_annotation_set: number,
+  new_ac_annotation_mode: number,
   new_ac_annotators: choices_type,
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
@@ -164,6 +165,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_annotators: {},
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
+    new_ac_annotation_mode: 1,
     dataset_choices: {},
     spectro_choices: {},
     annotation_set_choices: {},
@@ -324,6 +326,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
   }
 
+  handleAnnotationModeChange =(event: SyntheticEvent<HTMLInputElement>) => {
+    this.setState({new_ac_annotation_mode: parseInt(event.currentTarget.value, 10)});
+  }
+
   handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let new_val = parseInt(event.currentTarget.value, 10);
     new_val = Math.max(1, new_val);
@@ -344,17 +350,15 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       datasets: Object.keys(this.state.new_ac_datasets),
       spectros: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
+      annotation_scope: this.state.new_ac_annotation_mode,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
     }
-    if (this.state.new_ac_start) {
-      res['start'] = this.state.new_ac_start.trim() + 'T00:00'
-    }
-    if (this.state.new_ac_end) {
-      res['end'] = this.state.new_ac_end.trim() + 'T00:00'
-    }
+    const start: ?string = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
+    const end: ?string = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
+    res = Object.assign({}, res, {start, end});
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
     .then(() => {
@@ -369,7 +373,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         // Build an error message
         const message = Object
           .entries(err.response.body)
-          .map(([key, value]) => `${key}: ${value.join(' - ')}`)
+          .map(([key, value]) => Array.isArray(value) ? `${key}: ${value.join(' - ')}` : '')
           .join("\n");
         this.setState({
           error: {
@@ -406,6 +410,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
           <div className="form-group">
             <select
+              id="cac-dataset"
               className="form-control"
               onChange={this.handleDatasetChanged}
             >
@@ -435,6 +440,19 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
           <div className="form-group">
             <ShowAnnotationSet annotation_sets={this.state.annotation_set_choices} onChange={this.handleAnnotationSetChange} />
+          </div>
+
+          <div className="form-group">
+            <label className="col-sm-7 col-form-label">Annotation mode</label>
+            <select
+              id="cac-annotation-mode"
+              value={this.state.new_ac_annotation_mode}
+              className="form-control"
+              onChange={this.handleAnnotationModeChange}
+            >
+              <option value={1}>Boxes</option>
+              <option value={2}>Whole file</option>
+            </select>
           </div>
 
           <div className="form-group">

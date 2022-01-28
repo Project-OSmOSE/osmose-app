@@ -6,17 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0005_dataset_dataset_conf'),
+        ("api", "0005_dataset_dataset_conf"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='spectroconfig',
-            name='datasets',
+            model_name="spectroconfig",
+            name="datasets",
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='spectro_configs',
-            field=models.ManyToManyField(related_name='datasets', to='api.SpectroConfig'),
+            model_name="dataset",
+            name="spectro_configs",
+            field=models.ManyToManyField(
+                related_name="datasets", to="api.SpectroConfig"
+            ),
         ),
     ]

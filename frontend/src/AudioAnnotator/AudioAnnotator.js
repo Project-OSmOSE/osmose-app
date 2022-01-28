@@ -19,6 +19,9 @@ const API_URL = '/api/annotation-task/';
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
 
+// Annotation scopes
+const SCOPE_RECTANGLE: number = 1;
+const SCOPE_WHOLE: number = 2;
 
 export type SpectroUrlsParams = {
   nfft: number,
@@ -30,13 +33,23 @@ export type SpectroUrlsParams = {
 export type RawAnnotation = {
   id: string,
   annotation: string,
+  startTime: ?number,
+  endTime: ?number,
+  startFrequency: ?number,
+  endFrequency: ?number,
+};
+
+export const TYPE_TAG: string = 'tag';
+export const TYPE_BOX: string = 'box';
+
+export type Annotation = {
+  type: string,
+  id: string,
+  annotation: string,
   startTime: number,
   endTime: number,
   startFrequency: number,
   endFrequency: number,
-};
-
-export type Annotation = RawAnnotation & {
   active: boolean,
 };
 
@@ -53,6 +66,7 @@ type AnnotationTask = {
   prevAnnotations: Array<RawAnnotation>,
   campaignId: number,
   instructions_url: ?string,
+  annotationScope: number,
 };
 
 type AudioAnnotatorProps = {
@@ -123,9 +137,36 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           const frequencyRange: number = task.boundaries.endFrequency - task.boundaries.startFrequency;
 
           // Load previous annotations
-          const annotations: Array<Annotation> = task.prevAnnotations.map((ann: RawAnnotation) =>
-            Object.assign({}, ann, {active: false})
-          );
+          const annotations: Array<Annotation> = task.prevAnnotations.map((ann: RawAnnotation) => {
+            const isBoxAnnotation = (typeof ann.startTime === 'number') &&
+              (typeof ann.endTime === 'number') &&
+              (typeof ann.startFrequency === 'number') &&
+              (typeof ann.endFrequency === 'number');
+
+            if (isBoxAnnotation) {
+              return {
+                type: TYPE_BOX,
+                id: ann.id,
+                annotation: ann.annotation,
+                startTime: ann.startTime ? ann.startTime : 0,
+                endTime: ann.endTime ? ann.endTime : 0,
+                startFrequency: ann.startFrequency ? ann.startFrequency : 0,
+                endFrequency: ann.endFrequency ? ann.endFrequency : 0,
+                active: false,
+              };
+            } else {
+              return {
+                type: TYPE_TAG,
+                id: ann.id,
+                annotation: ann.annotation,
+                startTime: -1,
+                endTime: -1,
+                startFrequency: -1,
+                endFrequency: -1,
+                active: false,
+              };
+            }
+          });
 
           // Finally, setting state
           this.setState({
@@ -208,23 +249,53 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  getCurrentTag = () => {
+    const activeTag = this.state.annotations.find((ann: Annotation) => ann.active && ann.type === TYPE_TAG);
+    if (activeTag) {
+      return activeTag.annotation;
+    }
+    return "";
+  };
+
   saveAnnotation = (annotation: Annotation) => {
+    const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
+
     const maxId: ?number = this.state.annotations
       .map(ann => parseInt(ann.id, 10))
       .sort((a, b) => b - a)
       .shift();
+    const newId: string = maxId ? (maxId + 1).toString() : '1';
 
-    const newAnnotation: Annotation = Object.assign(
-      {}, annotation, { id: maxId ? (maxId + 1).toString() : '1' }
-    );
+    if (isPresenceMode) {
+      if (annotation.type === TYPE_BOX) {
+        const newAnnotation: Annotation = Object.assign(
+          {}, annotation, {id: newId, annotation: this.getCurrentTag()}
+        );
 
-    if (this.state.annotations.length === 0) {
-      this.setState({
-        toastMsg: {msg: 'Select a tag to annotate the box.', lvl: 'primary'},
-      });
+        const annotations: Array<Annotation> = this.state.annotations.concat(newAnnotation);
+
+        this.setState({annotations});
+      } else {
+        // Type: TYPE_TAG
+        const newAnnotation: Annotation = Object.assign(
+          {}, annotation, {id: newId}
+        );
+
+        this.activateAnnotation(newAnnotation);
+      }
+    } else {
+      const newAnnotation: Annotation = Object.assign(
+        {}, annotation, {id: newId}
+      );
+
+      if (this.state.annotations.length === 0) {
+        this.setState({
+          toastMsg: {msg: 'Select a tag to annotate the box.', lvl: 'primary'},
+        });
+      }
+
+      this.activateAnnotation(newAnnotation);
     }
-
-    this.activateAnnotation(newAnnotation);
   }
 
   updateAnnotation = (annotation: Annotation) => {
@@ -243,20 +314,24 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   activateAnnotation = (annotation: Annotation) => {
-    const activated: Annotation = Object.assign(
-      {}, annotation, { active: true }
-    );
-    const annotations: Array<Annotation> = this.state.annotations
-      .filter(ann => ann.id !== activated.id)
-      .map(ann => Object.assign({}, ann, { active: false }))
-      .concat(activated);
+    const isBoxMode = !!this.state.task && this.state.task.annotationScope === SCOPE_RECTANGLE;
 
-    this.setState({annotations});
+    if (isBoxMode || annotation.type === TYPE_TAG) {
+      const activated: Annotation = Object.assign(
+        {}, annotation, { active: true }
+      );
+      const annotations: Array<Annotation> = this.state.annotations
+        .filter(ann => ann.id !== activated.id)
+        .map(ann => Object.assign({}, ann, { active: false }))
+        .concat(activated);
+
+      this.setState({annotations});
+    }
   }
 
-  toggleTag = (tag: string) => {
+  toggleAnnotationTag = (tag: string) => {
     const activeAnn: ?Annotation = this.state.annotations
-      .find(ann => ann.active);
+      .find(ann => ann.type === TYPE_BOX && ann.active);
 
     if (activeAnn) {
       const newTag: string = (activeAnn.annotation === tag) ? '' : tag;
@@ -271,6 +346,42 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         annotations,
         toastMsg: undefined,
       });
+    }
+  }
+
+  toggleGlobalTag = (tag: string) => {
+    const matchingAnnotation: ?Annotation = this.state.annotations
+      .find(ann => ann.type === TYPE_TAG && ann.annotation === tag);
+
+    if (matchingAnnotation) {
+      const isTagCurrent: boolean = this.getCurrentTag() === tag;
+
+      if (isTagCurrent) {
+        // Tag is present and current: unable it (delete all related annotations)
+        const annotations: Array<Annotation> = this.state.annotations
+          .filter(ann => ann.annotation !== tag);
+
+        this.setState({
+          annotations,
+          toastMsg: undefined,
+        });
+      } else {
+        // Tag is present but not active: activate it
+        this.activateAnnotation(matchingAnnotation);
+      }
+    } else {
+      // Tag is not present: create it
+      const newAnnotation: Annotation = {
+        type: TYPE_TAG,
+        id: '',
+        annotation: tag,
+        startTime: -1,
+        endTime: -1,
+        startFrequency: -1,
+        endFrequency: -1,
+        active: true,
+      };
+      this.saveAnnotation(newAnnotation);
     }
   }
 
@@ -294,13 +405,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const cleanAnnotations: Array<RawAnnotation> = this.state.annotations
       .sort((a, b) => a.startTime - b.startTime)
       .map(ann => {
+        const startTime = ann.type === TYPE_BOX ? ann.startTime : null;
+        const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
+        const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
+        const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
         return {
           id: ann.id,
-          startTime: ann.startTime,
-          endTime: ann.endTime,
+          startTime,
+          endTime,
           annotation: ann.annotation,
-          startFrequency: ann.startFrequency,
-          endFrequency: ann.endFrequency,
+          startFrequency,
+          endFrequency,
         };
       });
     const now: Date = new Date();
@@ -351,8 +466,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     } else {
       const task: AnnotationTask = this.state.task;
       const playStatusClass = this.state.isPlaying ? "fa-pause-circle" : "fa-play-circle";
-      const sortedAnnotations: Array<Annotation> = this.state.annotations
-        .sort((a, b) => a.startTime - b.startTime);
 
       const playbackRateOptions = AVAILABLE_RATES.map(rate => (
         <option key={`rate-${rate}`} value={rate.toString()}>{rate.toString()}x</option>
@@ -369,8 +482,19 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         );
       }
 
+      // Displayable annotations (for presence mode)
+      const boxAnnotations = this.state.annotations.filter((ann: Annotation) => ann.type === TYPE_BOX);
+
+      // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
+      const isDrawingEnabled = !!task && (task.annotationScope === SCOPE_RECTANGLE || (
+        task.annotationScope === SCOPE_WHOLE && this.getCurrentTag() !== ''
+      ));
+
+      // Rendering
       return (
         <div className="annotator container-fluid">
+
+          {/* Header */}
           <div className="row">
             <h1 className="col-sm-6">APLOSE</h1>
             <p className="col-sm-4 annotator-nav">
@@ -388,6 +512,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             </ul>
           </div>
 
+          {/* Audio player (hidden) */}
           <AudioPlayer
             // controls
             listenInterval={10}
@@ -399,6 +524,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             src={task.audioUrl}
           ></AudioPlayer>
 
+          {/* Workbench (spectrogram viz, box drawing) */}
           <Workbench
             tagColors={this.state.tagColors}
             currentTime={this.state.currentTime}
@@ -406,16 +532,18 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             startFrequency={task.boundaries.startFrequency}
             frequencyRange={this.state.frequencyRange}
             spectroUrlsParams={task.spectroUrls}
-            annotations={this.state.annotations}
+            annotations={boxAnnotations}
             onAnnotationCreated={this.saveAnnotation}
             onAnnotationUpdated={this.updateAnnotation}
             onAnnotationDeleted={this.deleteAnnotation}
             onAnnotationSelected={this.activateAnnotation}
             onAnnotationPlayed={this.play}
             onSeek={this.seekTo}
+            drawingEnabled={isDrawingEnabled}
           >
           </Workbench>
 
+          {/* Toolbar (play button, play speed, submit button, timer) */}
           <div className="row annotator-controls">
             <p className="col-sm-1 text-right">
               <button
@@ -444,37 +572,53 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             </p>
           </div>
 
-          <div className="row">
-            <div className="col-sm-6">
-              {this.renderActiveAnnotation()}
-            </div>
-            <div className="col-sm-6">
-              <table className="table table-hover">
-                <thead>
-                  <tr className="text-center table-light">
-                    <th colSpan="3">Annotations</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedAnnotations.map(annotation => this.renderListAnnotation(annotation))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* Tag and annotations management */}
+          {this.renderAnnotationArea()}
 
         </div>
       );
     }
   }
 
-  renderActiveAnnotation = () => {
-    const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
+  annotationSorter = (a: Annotation, b: Annotation): number => {
+    if (this.state.task && this.state.task.annotationScope === SCOPE_WHOLE) {
+      if (a.annotation !== b.annotation) {
+        return a.annotation.localeCompare(b.annotation);
+      }
+    }
+    return a.startTime - b.startTime;
+  }
 
-    if (activeAnn && this.state.task) {
-      const ann: Annotation = activeAnn;
-      const task: AnnotationTask = this.state.task;
+  renderAnnotationArea = () => {
+    const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
+    const sortedAnnotations: Array<Annotation> = this.state.annotations.sort(this.annotationSorter);
 
-      const tags = task.annotationTags.map((tag, idx) => {
+    return (
+      <div className="row">
+        <div className="col-sm-6">
+          {isPresenceMode ? this.renderTagList() : this.renderActiveAnnotation()}
+        </div>
+        <div className="col-sm-6">
+          <table className="table table-hover">
+            <thead>
+              <tr className="text-center table-light">
+                <th colSpan="3">Annotations</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  renderTags = (tagNames: Array<string>, activeTags: Array<string>) => {
+    if (this.state.task) {
+      const isPresenceMode = this.state.task.annotationScope === SCOPE_WHOLE;
+
+      const tags = tagNames.map((tag, idx) => {
         const color: string = utils.getTagColor(this.state.tagColors, tag);
 
         const style = {
@@ -493,13 +637,32 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <li key={`tag-${idx.toString()}`}>
             <button
               className="btn"
-              style={(ann.annotation === tag) ? style.active : style.inactive}
-              onClick={() => this.toggleTag(tag)}
+              style={(activeTags.includes(tag)) ? style.active : style.inactive}
+              onClick={() => isPresenceMode ? this.toggleGlobalTag(tag) : this.toggleAnnotationTag(tag)}
               type="button"
             >{tag}</button>
           </li>
         );
       });
+
+      return (
+        <React.Fragment>{tags}</React.Fragment>
+      );
+    } else {
+      return (
+        <React.Fragment></React.Fragment>
+      );
+    }
+
+  }
+
+  renderActiveAnnotation = () => {
+    const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
+
+    if (activeAnn && this.state.task) {
+      const ann: Annotation = activeAnn;
+
+      const tags = this.renderTags(this.state.task.annotationTags, [ann.annotation]);
 
       return (
         <div className="card">
@@ -531,28 +694,74 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
-  renderListAnnotation = (annotation: Annotation) => {
-    return (
-      <tr
-        key={`listann-${annotation.id}`}
-        onClick={() => this.activateAnnotation(annotation)}
-      >
-        <td>
-          <i className="fa fa-clock-o"></i>&nbsp;
-          {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
-          {utils.formatTimestamp(annotation.endTime)}
-        </td>
-        <td>
-          <i className="fa fa-arrow-up"></i>&nbsp;
-          {annotation.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-          {annotation.endFrequency.toFixed(2)} Hz
-        </td>
-        <td>
-          <i className="fa fa-tag"></i>&nbsp;
-          {(annotation.annotation !== '') ? annotation.annotation : '-'}
-        </td>
-      </tr>
-    );
+  renderTagList = () => {
+    if (this.state.task) {
+      const allTags: Array<string> = this.state.task.annotationTags;
+      const activeTags: Array<string> = this.state.annotations
+        .filter((ann: Annotation) => ann.type === TYPE_TAG)
+        .map((ann: Annotation) => ann.annotation);
+      const tags = this.renderTags(allTags, activeTags);
+
+      return (
+        <div className="card">
+          <h6 className="card-header text-center">Presence / Absence</h6>
+          <div className="card-body">
+            <ul className="card-text annotation-tags">
+              {tags}
+            </ul>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="card">
+          <h6 className="card-header text-center">Presence / Absence</h6>
+          <div className="card-body">
+            <p className="card-text text-center">-</p>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  renderAnnotationListItem = (annotation: Annotation) => {
+    if (annotation.type === TYPE_BOX) {
+      return (
+        <tr
+          key={`listann-${annotation.id}`}
+          onClick={() => this.activateAnnotation(annotation)}
+        >
+          <td>
+            <i className="fa fa-clock-o"></i>&nbsp;
+            {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
+            {utils.formatTimestamp(annotation.endTime)}
+          </td>
+          <td>
+            <i className="fa fa-arrow-up"></i>&nbsp;
+            {annotation.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+            {annotation.endFrequency.toFixed(2)} Hz
+          </td>
+          <td>
+            <i className="fa fa-tag"></i>&nbsp;
+            {(annotation.annotation !== '') ? annotation.annotation : '-'}
+          </td>
+        </tr>
+      );
+    } else if (annotation.type === TYPE_TAG) {
+      return (
+        <tr
+          key={`listen-${annotation.id}`}
+          onClick={() => this.activateAnnotation(annotation)}
+        >
+          <td colSpan="3">
+            <strong>
+              <i className="fa fa-tag"></i>&nbsp;
+              {annotation.annotation}
+            </strong>
+          </td>
+        </tr>
+      );
+    }
   }
 
   renderUserGuideLink = () => {
