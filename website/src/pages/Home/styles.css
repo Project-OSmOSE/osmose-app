@@ -1,0 +1,93 @@
+div.home{
+    background-image: url('../../img/illust/pexels-berend-de-kort-1452701_1920_1077.webp');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: rgba(34, 106, 189, 0.26);
+    background-blend-mode: multiply;
+    min-height: 100vh;
+}
+
+div.home div.pagetitle {
+    min-height: 15rem;
+    border: 0;
+    /* background-color: rgba(57, 117, 136, 0.26); */
+    /* box-shadow: 0 0 50px 30px rgba(57, 117, 136, 0.26); */
+}
+
+div.home div.pagetitle img{
+    display: none;
+}
+
+div.home h1{
+    font-size: 42px;
+    text-align: left !important;
+    text-transform: none !important;
+    margin: 2rem;
+    padding: 3rem;
+    /* background-color: rgba(57, 117, 136, 0.26); */
+    /* box-shadow: 0 0 50px 30px rgba(57, 117, 136, 0.26); */
+}
+
+div.home h1 p.subtitle{
+    font-size: 20px;
+    font-style: italic;
+    letter-spacing: 2px;
+}
+
+@media screen and (max-width: 767px) {
+
+    div.home h1{
+        font-size: 32px;
+        letter-spacing: 5px !important;
+    }
+    div.home h1 p.subtitle{
+        font-size: 18px;
+    }
+
+}
+
+div.home .grid {
+    display: grid;
+    -ms-grid-columns: auto;
+    grid-template-columns: auto;  /* 1 column for mobile display */
+    padding: 0;
+    margin: 0;
+}
+
+div.home .grid .card {
+    max-height: 80vh;
+    border: 0;
+}
+
+@media screen and (min-width: 768px) {
+    /* 2 columns for large screens */
+    div.home .grid {
+        -ms-grid-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+    div.home .grid .card {
+        height: 45vw;
+    }
+}
+
+div.home .grid .card img,
+div.home .grid .card picture {
+    -o-object-fit: cover;
+    object-fit: cover;
+    min-height: 100%;
+}
+
+div.home .grid .card .overlay h2 {
+    margin: 0;
+    padding-top: 0;
+}
+
+div.home div.bottom-space{
+    min-height: 20vh;
+    height: 10rem;
+    border: 0;
+}
+
+footer.footer{
+    margin-top: 0;
+}

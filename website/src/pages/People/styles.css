@@ -1,0 +1,30 @@
+/* div.people{
+} */
+
+div.people .grid-container {
+    display: grid;
+    -ms-grid-columns: auto;
+    grid-template-columns: auto;  /* on déclare 1 colonne de base */
+    grid-gap: 30px;
+    padding: 0;
+    margin: 0;
+}
+@media screen and (min-width: 576px) {
+    div.people .grid-container {
+        -ms-grid-columns: 1fr 30px 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media screen and (min-width: 768px) {
+    div.people.grid-container {
+        -ms-grid-columns: 1fr 30px 1fr 30px 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* div.people p.quote:before{
+
+}
+div.people p.quote:after{
+
+} */

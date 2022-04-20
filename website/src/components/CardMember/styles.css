@@ -1,0 +1,11 @@
+/* div.cardMember {
+
+} */
+
+div.cardMember img{
+    border-radius: 50%;
+    min-width: 10vh;
+    min-height: 10vh;
+    max-height: 20vh;
+    max-width: 20vh;
+}

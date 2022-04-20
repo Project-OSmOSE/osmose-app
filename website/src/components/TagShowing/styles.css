@@ -1,0 +1,37 @@
+div.tagshowing {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    /* width: 40%; */
+}
+
+div.tagshowing.nodisplay{
+    display: none;
+}
+
+div.tagshowing h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+div.tagshowing h3 > a {
+    color: #002d80;
+}
+
+div.tagshowing img.illustration{
+    /* min-width: none; */
+    max-width: 80%;
+    width: 350px;
+    float: center;
+    display: block;
+    margin: 1rem auto;
+    background-color: aliceblue;
+}
+
+@media screen and (min-width: 768px) {
+    div.tagshowing img.illustration{
+        /* max-width: 80%; */
+        width: 30%;
+        float: right;
+        margin: 1rem;
+    }
+}
