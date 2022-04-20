@@ -1,0 +1,107 @@
+id,engName,engDesc,occurrence,parentTag,childrenTag,type,image,sound
+mysticeti,Mysticeti (baleen whale),Description.,75,root,bowheadwhale southernrightwhale northatlanticrightwhale northpacificrightwhale pygmyrightwhale commonminkewhale southernminkewhale graywhale humpbackwhale finwhale bluewhale omuraswhale edenswhale riceswhale seiwhale brydeswhale,order,example.jpg,null
+delphinidae,Delphinidae (oceanic dolphin),Description.,12,root,bottlenosedolphin indopacificbottlenosedolphin narrowbeakeddolphin commondolphin longbeakedcommondolphin spinnerdolphin clymenedolphin stripeddolphin pantropicalspotteddolphin atlanticspotteddolphin frasersdolphin whitebeakeddolphin whitesideddolphin pacificwhitesideddolphin pealesdolphin hourglassdolphin duskydolphin killerwhale shortfinnedpilotwhale pilotwhale pygmykillerwhale melonheadwhale falsekillerwhale rissodolphin commersonsdolphin chileandolphin heavisidesdolphin hectorsdolphin nothernrightwhaledolphin southernrightwhaledolphin,order,example.jpg,null
+monodontidae,Monodontidae,Description.,0,root,belugawhale narwhal,order,example.jpg,null
+phocoeninae,Phocoeninae (porpoise),Description.,0,root,harbourporpoise finlessporpoise spectacledporpoise vaquita dallsporpoise,order,example.jpg,null
+ziphidae,Ziphidae (beaked whale),null,0,root,ziphius arnouxsbeakedwhale bairdbeakedwhale shepherdsbeakedwhale tropicalbottlenosewhale  nothernbottlenosewhale southernbottlenosewhale hectorsbeakedwhale truesbeakedwhale gervaissbeakedwhale sowerbysbeakedwhale graysbeakedwhale pygmybeakedwhale andrewsbeakedwhale spadetoothedwhale hubbsbeakedwhale ginkgotoothedbeakedwhale stejnegersbeakedwhale straptoothedwhale blainvillesbeakedwhale perrinsbeakedwhale,order,example.jpg,null
+physeteroidea,Sperm whale & kogiidae,Description.,32,root,spermwhale pygmyspermwhale dwarfwhale,order,example.jpg,null
+human,Human source,I’m human.,0,root,boat,order,example.jpg,null
+nature,Natural source,Description,3,root,rain wind,order,example.jpg,null
+bowheadwhale,Bowhead whale,Description.,0,mysticeti,null,specie,Balaena_mysticetus_NOAA.jpg,null
+southernrightwhale,Southern right whale,Description.,0,mysticeti,null,specie,Eubalaena_australis3_flipped.jpg,null
+northatlanticrightwhale,North Atlantic right whale,Description,0,mysticeti,null,specie,Eubalaena_glacialis_NOAA.jpg,null
+northpacificrightwhale,North Pacific right whale,Description,22,mysticeti,null,specie,example.jpg,null
+pygmyrightwhale,Pygmy right whale,Description,0,mysticeti,null,specie,Caperea_marginata_3_flipped.jpg,null
+commonminkewhale,Common minke whale,Description,0,mysticeti,null,specie,Balaenoptera_acutorostrata_NOAA.jpg,null
+southernminkewhale,Southern minke whale,Description,12,mysticeti,null,specie,Rorcual_austral_3_flipped.jpg,null
+graywhale,Gray whale,Description,6,mysticeti,null,specie,Eschrichtius_robustus_NOAA.jpg,null
+humpbackwhale,Humpback whale,Description,0,mysticeti,null,specie,Megaptera_novaeangliae_NOAA.jpg,null
+finwhale,Fin whale,Description,56,mysticeti,null,specie,Rorcual_comun_(Balaenoptera_physalus)_flipped.jpg,null
+bluewhale,Blue whale,The blue whale is a humongous mammal.,0,mysticeti,null,specie,Balaenoptera_musculus_NOAA.jpg,null
+omuraswhale,Omura’s whale,The Omura’s whale is a big mammal.,0,mysticeti,null,specie,example.jpg,null
+edenswhale,Eden’s whale,The Eden’s whale is a big mammal.,0,mysticeti,null,specie,Balaenoptera_edeni.jpg,null
+riceswhale,Rice’s whale,The Rices’s whale is a big mammal.,12,mysticeti,null,specie,example.jpg,null
+seiwhale,Sei whale,The sei whale is a big mammal.,0,mysticeti,null,specie,Balaenoptera_borealis.jpg,null
+brydeswhale,Bryde’s whale,The Bryde’s whale is a big mammal.,0,mysticeti,null,specie,Rorcual_de_Bryde.jpg,null
+bottlenosedolphin,Bottlenose dolphin,Description.,0,delphinidae,null,specie,example.jpg,null
+indopacificbottlenosedolphin,Indo Pacific bottlenose dolphin,null,0,delphinidae,null,specie,example.jpg,null
+narrowbeakeddolphin,Narrow beaked dolphin,null,0,delphinidae,null,specie,example.jpg,null
+commondolphin,Common dolphin,Description.,34,delphinidae,null,specie,example.jpg,null
+longbeakedcommondolphin,Long-beaked common dolphin,Description.,0,delphinidae,null,specie,example.jpg,null
+spinnerdolphin,Spinner dolphin,null,0,delphinidae,null,specie,example.jpg,null
+clymenedolphin,Clymene dolphin,null,0,delphinidae,null,specie,example.jpg,null
+stripeddolphin,Striped dolphin,null,0,delphinidae,null,specie,example.jpg,null
+pantropicalspotteddolphin,Pantropical spotted dolphin,null,0,delphinidae,null,specie,example.jpg,null
+atlanticspotteddolphin,Atlantic spotted dolphin,null,0,delphinidae,null,specie,example.jpg,null
+frasersdolphin,Fraser’s dolphin,null,0,delphinidae,null,specie,example.jpg,null
+whitebeakeddolphin,White-beaked dolphin,null,0,delphinidae,null,specie,example.jpg,null
+whitesideddolphin,White-sided dolphin,null,0,delphinidae,null,specie,example.jpg,null
+pacificwhitesideddolphin,Pacific white sided dolphin,null,0,delphinidae,null,specie,example.jpg,null
+pealesdolphin,Peale’s dolphin,null,0,delphinidae,null,specie,example.jpg,null
+hourglassdolphin,Hourglass dolphin,null,0,delphinidae,null,specie,example.jpg,null
+duskydolphin,Dusky dolphin,null,0,delphinidae,null,specie,example.jpg,null
+killerwhale,Killer whale,null,0,delphinidae,null,specie,Orcinus_orca_NOAA_2.jpg,null
+shortfinnedpilotwhale,Short-finned pilot whale,null,0,delphinidae,null,specie,example.jpg,null
+pilotwhale,Pilot whale,null,0,delphinidae,null,specie,example.jpg,null
+pygmykillerwhale,Pygmy killer whale,null,0,delphinidae,null,specie,example.jpg,null
+melonheadwhale,Melon head whale,null,0,delphinidae,null,specie,example.jpg,null
+falsekillerwhale,False killer whale,null,0,delphinidae,null,specie,example.jpg,null
+rissodolphin,Risso dolphin,null,0,delphinidae,null,specie,example.jpg,null
+commersonsdolphin,Commerson’s dolphin,null,0,delphinidae,null,specie,example.jpg,null
+chileandolphin,Chilean dolphin,null,12,delphinidae,null,specie,example.jpg,null
+heavisidesdolphin,Heaviside’s dolphin,null,0,delphinidae,null,specie,example.jpg,null
+hectorsdolphin,Hector’s dolphin,null,0,delphinidae,null,specie,example.jpg,null
+nothernrightwhaledolphin,Nothern right whale dolphin,null,12,delphinidae,null,specie,example.jpg,null
+southernrightwhaledolphin,Southern right whale dolphin,null,0,delphinidae,null,specie,example.jpg,null
+belugawhale,Beluga whale,Description.,0,monodontidae,null,specie,example.jpg,null
+narwhal,Narwhal,Description.,0,monodontidae,null,specie,example.jpg,null
+harbourporpoise,Harbour porpoise,null,0,phocoeninae,null,specie,example.jpg,null
+finlessporpoise,Finless porpoise,null,0,phocoeninae,null,specie,example.jpg,null
+spectacledporpoise,Spectacled porpoise,null,0,phocoeninae,null,specie,example.jpg,null
+vaquita,Vaquita,null,0,phocoeninae,null,specie,example.jpg,null
+dallsporpoise,Dall’s porpoise,null,0,phocoeninae,null,specie,example.jpg,null
+ziphius,Ziphius,null,0,ziphidae,null,specie,example.jpg,null
+arnouxsbeakedwhale,Arnoux’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+bairdbeakedwhale,Baird beaked whale,null,3,ziphidae,null,specie,example.jpg,null
+shepherdsbeakedwhale,Shepherd’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+tropicalbottlenosewhale,Tropical bottlenose whale,null,0,ziphidae,null,specie,example.jpg,null
+nothernbottlenosewhale,Nothern bottlenose whale,null,0,ziphidae,null,specie,Hyperoodon.jpg,null
+southernbottlenosewhale,Southern bottlenose whale,null,0,ziphidae,null,specie,example.jpg,null
+hectorsbeakedwhale,Hector’s beaked whale,null,4,ziphidae,null,specie,example.jpg,null
+truesbeakedwhale,True’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+gervaissbeakedwhale,Gervais’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+sowerbysbeakedwhale,Sowerby’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+graysbeakedwhale,Gray’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+pygmybeakedwhale,Pygmy beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+andrewsbeakedwhale,Andrew’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+spadetoothedwhale,Spade-toothed whale,null,0,ziphidae,null,specie,example.jpg,null
+hubbsbeakedwhale,Hubbs’ beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+ginkgotoothedbeakedwhale,Ginkgo-toothed beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+stejnegersbeakedwhale,Stejneger’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+straptoothedwhale,Strap-toothed whale,null,0,ziphidae,null,specie,example.jpg,null
+blainvillesbeakedwhale,Blainville’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+perrinsbeakedwhale,Perrin’s beaked whale,null,0,ziphidae,null,specie,example.jpg,null
+spermwhale,Sperm whale,null,32,physeteroidea,null,specie,Physeter_macrocephalus_NOAA.jpg,null
+pygmyspermwhale,Pygmy sperm whale,null,0,physeteroidea,null,specie,example.jpg,null
+dwarfwhale,Dwarf whale,null,0,physeteroidea,null,specie,example.jpg,null
+boat,Boat,null,34,human,null,specie,example.jpg,null
+rain,Rain,Description.,41,nature,null,specie,example.jpg,null
+wind,Wind,Description.,23,nature,null,specie,example.jpg,null
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,
+,,,,,,sound,,

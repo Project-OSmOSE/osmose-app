@@ -1,0 +1,33 @@
+/* div.worldMap {
+
+} */
+
+/* div.worldMap div.myMap {
+    background-color: rgb(224, 237, 241);
+} */
+
+div.worldMap div.leaflet-container{
+    min-height: 50vh;
+    height: 50vw;
+    max-height: 60vh;
+}
+
+/* div.worldMap div.infos {
+
+} */
+
+div.worldMap div#list,
+div.worldMap div#metadata {
+    min-height: 25vh;
+    width: 45%;
+}
+
+div.worldMap div#list div {
+    height: 200px;
+    background-color: rgb(224, 237, 241);
+}
+
+div.worldMap div#metadata div {
+    height: 200px;
+    background-color: rgb(224, 237, 241);
+}

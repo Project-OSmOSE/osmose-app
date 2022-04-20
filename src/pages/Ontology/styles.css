@@ -1,0 +1,19 @@
+/* div.ontology{
+
+} */
+
+div.ontology h1{
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: 3rem;
+    margin: 2rem 0;
+    /* line-height: 1.2rem; */
+    color: #000000 !important;
+}
+
+div.ontology h1 a,
+div.ontology h2 a,
+div.ontology h3 a{
+    color: #002d80 !important;
+}

@@ -1,0 +1,29 @@
+/* div.explore{
+
+} */
+
+/* div.explore div.leaflet-container{
+    min-height: 40vh;
+    height: 60vw;
+    max-height: 70vh;
+} */
+
+div.explore .grid-container{
+    display: grid;
+    -ms-grid-columns: auto;
+    grid-template-columns: auto;
+    grid-gap: 10px;
+    /* padding: 0;
+    margin: 0; */
+}
+
+@media screen and (min-width: 992px) {
+    div.explore .grid-container {
+        -ms-grid-columns: 1fr 10px 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+div.explore .grid-container .half{
+    margin-top: -1.5rem;
+    margin-bottom: -1.5rem;
+}

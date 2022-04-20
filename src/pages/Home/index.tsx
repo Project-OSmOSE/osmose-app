@@ -1,31 +1,64 @@
-import React from 'react';
-import { Card } from '../../components/Card';
+import { PageTitle } from '../../components/PageTitle';
+import { Link } from 'react-router-dom';
 
 import './styles.css';
-import logo from '../../images/logo_OSmOSE_neg.png'
-import projectImg from '../../images/logo_project.png';
-import peopleImg from '../../images/logo_people.png';
+
+import imgProject from '../../img/illust/pexels-elianne-dipp-4666753_848_636.webp';
+import imgExplore from '../../img/illust/pexels-jeremy-bishop-2422915_848_636.webp';
 
 export const Home: React.FC = () => {
+  
   return (
-    <div className="home">
-      <img src={logo} alt="OSmOSE logo: Open Science meets Ocean Sound Explorers" />
-      <section>
-        <Card title="Project Overview" detailsUrl="/project" img={projectImg}>
-          <p>OSmOSE aims to facilitate interactions between the different <strong>Underwater Passive Acoustics (UPA)</strong> actors, to achieve more collaborative works, i.e. tend to the FAIR principles.</p>
-          <p>How? Through open sciences and active collaboration on one (Science) side, and developing big data oriented and web based tools on the other (Technology) side.</p>
-        </Card>
-      </section>
-      <section>
-        <Card title="People" detailsUrl="/people" img={peopleImg} imgSide="right">
-          <p>OSmOSE is made of several teams working togeter:</p>
-          <ul>
-            <li><strong>ODE (Ocean Data Explorer)</strong>: develop all the computer technology used to manage and process Data (at scale with speed and in context, naturally Big)</li>
-            <li><strong>AIe</strong>: Develop all the computer technology used to mage computers learn and recognize ocean sounds like humans</li>
-            <li><strong>Underwater Passive Acoustics sciences</strong>: do all the ocean science based on UPA (mainly about whale monitoring and conservation for the moment)</li>
-          </ul>
-        </Card>
-      </section>
+<div className="home">
+
+  <PageTitle 
+  // img={imgBanner} 
+  // imgAlt="Home banner" 
+  // imgSet=""
+  >
+    <h1 className="m-1 m-sm-5 p-3 p-sm-5">
+      <p className="mb-4"> Open Science meets Ocean Sound Explorers </p>
+      <p className="mb-4 subtitle"> Underwater passive acoustics for ocean observation </p>
+    </h1>
+  </PageTitle>
+
+  <div className="container-fluid grid">
+
+    <div className="card mx-3 mx-sm-5 p-2 overflow-hidden">
+      <img 
+      className="card-img-top" 
+      alt="Capture d'&eacute;cran du projet." 
+      title="Cliquez pour voir le projet."
+      loading="lazy" 
+      src={imgProject}
+      // srcSet= 
+      />
+      <div className="card-img-overlay pb-1 d-flex overlay justify-content-center">
+        <h2 className="card-title text-white align-self-center">Meet</h2>
+        <Link to="./project" title="Découvrez OSmOSE." className="stretched-link"></Link>
+      </div>
     </div>
+
+    <div className="card mx-3 mx-sm-5 p-2 overflow-hidden">
+      <img 
+      className="card-img-top" 
+      alt="Capture d'&eacute;cran du projet." 
+      title="Click to explore datas."
+      loading="lazy" 
+      src={imgExplore}
+      // srcSet= 
+      />
+      <div className="card-img-overlay pb-1 d-flex overlay justify-content-center">
+        <h2 className="card-title text-white align-self-center">Explore</h2>
+        <Link to="./explore" title="Explorer les données." className="stretched-link"></Link>
+      </div>
+    </div>
+
+    <div className="bottom-space">
+     {/* Space after cards */}
+    </div>
+
+  </div>
+</div>
   );
 }

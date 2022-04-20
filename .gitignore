@@ -8,6 +8,8 @@
 # testing
 /coverage
 /storybook-static
+/.storybook
+*/stories
 
 # production
 /build
@@ -18,7 +20,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
+.unused/
+/*.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

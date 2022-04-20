@@ -5,24 +5,46 @@ import './App.css';
 
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
-import { People } from './pages/People';
 import { Project } from './pages/Project';
+import { Explore } from './pages/Explore';
+import { People } from './pages/People';
+import { Ontology } from './pages/Ontology';
 
 const App: React.FC = () => {
   return (
     <Router>
       <Switch>
-        <Layout>
-          <Route exact path="/">
+
+        <Route exact path="/">
+          <Layout>
             <Home />
-          </Route>
-          <Route path="/project">
+          </Layout>
+        </Route>
+
+        <Route path="/project">
+          <Layout>
             <Project />
-          </Route>
-          <Route path="/people">
+          </Layout>
+        </Route>
+
+        <Route path="/explore">
+          <Layout>
+            <Explore />
+          </Layout>
+        </Route>
+
+        <Route path="/people">
+          <Layout>
             <People />
-          </Route>
-        </Layout>
+          </Layout>
+        </Route>
+
+        <Route path="/ontology">
+          <Layout>
+            <Ontology />
+          </Layout>
+        </Route>
+
       </Switch>
     </Router>
   );
