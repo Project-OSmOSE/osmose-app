@@ -1,7 +1,7 @@
 # Front dockerfile
 
-# Build stage
-FROM node:16-alpine3.13 as build
+# Build app stage
+FROM node:16-alpine3.13 as build-app
 
 WORKDIR /opt
 
@@ -13,6 +13,19 @@ COPY frontend .
 
 RUN npm run build
 
+# Build website stage
+FROM node:16-alpine3.13 as build-website
+
+WORKDIR /opt
+
+COPY website/package.json .
+
+RUN npm install
+
+COPY website .
+
+RUN npm run build
+
 # Deploy stage
 FROM nginxinc/nginx-unprivileged:1.20-alpine
 
@@ -21,7 +34,8 @@ ARG GID=101
 
 COPY ./dockerfiles/nginx.conf.template /etc/nginx/templates/default.conf.template
 
-COPY --from=build /opt/build /usr/share/nginx/html
+COPY --from=build-app /opt/build /usr/share/nginx/app
+COPY --from=build-website /opt/build /usr/share/nginx/website
 
 USER 0
 
