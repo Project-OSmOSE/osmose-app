@@ -2,6 +2,10 @@
 
 } */
 
+div.explore h3 a{
+    color: #003c80;
+}
+
 /* div.explore div.leaflet-container{
     min-height: 40vh;
     height: 60vw;
@@ -23,7 +27,6 @@ div.explore .grid-container{
         grid-template-columns: 1fr 1fr;
     }
 }
-div.explore .grid-container .half{
-    margin-top: -1.5rem;
-    margin-bottom: -1.5rem;
-}
+
+/* div.explore .grid-container .half{
+} */
