@@ -4,7 +4,7 @@ li.treelistitem{
     padding-left: 20px;
     list-style-type: none;
     line-height: 2.2rem;
-    font-size: larger;
+    /* font-size: larger; */
 }
 
 li.treelistitem::after{
@@ -14,9 +14,9 @@ li.treelistitem::after{
     position: absolute;
     left: -38px;
     top: 1.2rem;
-    border-top: solid 3px #002d80;
+    border-top: solid 3px #1a60af;
 }
 
 li.treelistitem > a{
-    color: black;
+    color: #002d80;
 }

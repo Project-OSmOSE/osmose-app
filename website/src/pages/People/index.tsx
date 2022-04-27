@@ -2,7 +2,7 @@ import { PageTitle } from '../../components/PageTitle';
 import { Banner } from '../../components/Banner';
 import { Card } from '../../components/Card';
 import { CardMember } from '../../components/CardMember';
-import { CardMemberTextless } from '../../components/CardMember/CardMemberTextless';
+import { CardMemberTextless } from '../../components/CardMemberTextless';
 
 import './styles.css';
 

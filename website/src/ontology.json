@@ -19,7 +19,7 @@
         "engName": "Southern right whale",
         "engDesc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.",
         "image": "Eubalaena_australis3_flipped.jpg",
-        "occurrence": 0,
+        "occurrence": 2,
         "parentTag": "mysticeti",
         "childrenTag": null
     },
@@ -27,7 +27,7 @@
         "engName": "North Atlantic right whale",
         "engDesc": "Description",
         "image": "Eubalaena_glacialis_NOAA.jpg",
-        "occurrence": 0,
+        "occurrence": 12,
         "parentTag": "mysticeti",
         "childrenTag": null
     },
@@ -285,7 +285,7 @@
         "engName": "Killer whale",
         "engDesc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.",
         "image": "Orcinus_orca_NOAA_2.jpg",
-        "occurrence": 0,
+        "occurrence": 4,
         "parentTag": "delphinidae",
         "childrenTag": null
     },
