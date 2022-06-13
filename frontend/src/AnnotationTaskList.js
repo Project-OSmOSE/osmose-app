@@ -109,7 +109,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
           <td>{start_date.toLocaleDateString()}</td>
           <td>{diff_time.toUTCString().split(' ')[4]}</td>
           <td>{status_names[annotation_task.status]}</td>
-          <td><Link to={'/audio-annotator/' + annotation_task.id}>Task link</Link></td>
+          <td><Link to={'/app/audio-annotator/' + annotation_task.id}>Task link</Link></td>
         </tr>
       );
     });

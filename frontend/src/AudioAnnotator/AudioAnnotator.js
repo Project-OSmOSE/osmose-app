@@ -504,7 +504,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             <ul className="col-sm-2 annotator-nav">
               <li><Link
                 className="btn btn-danger"
-                to={`/annotation_tasks/${task.campaignId}`}
+                to={`/app/annotation_tasks/${task.campaignId}`}
                 title="Go back to annotation campaign tasks"
               >
                 Back to campaign

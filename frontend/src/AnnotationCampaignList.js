@@ -80,14 +80,14 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
 
       return (
         <tr key={annotation_campaign.id}>
-          <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
+          <td><Link to={'app/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>Set n°{annotation_campaign.annotation_set_id}</td>
           <td>{annotation_campaign.datasets_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
           <td>{instructions}</td>
-          <td><Link to={'/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>
+          <td><Link to={'/app/annotation_tasks/' + annotation_campaign.id}>My tasks</Link></td>
         </tr>
       );
     });
@@ -120,7 +120,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           {annotation_campaigns}
           </tbody>
         </table>
-        <p className="text-center"><Link to="/create-annotation-campaign" className="btn btn-primary">New annotation campaign</Link></p>
+        <p className="text-center"><Link to="/app/create-annotation-campaign" className="btn btn-primary">New annotation campaign</Link></p>
       </div>
     )
   }

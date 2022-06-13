@@ -11,7 +11,7 @@ RUN npm install
 
 COPY frontend .
 
-RUN npm run build
+RUN PUBLIC_URL=/app npm run build
 
 # Build website stage
 FROM node:16-alpine3.13 as build-website

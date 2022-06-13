@@ -23,8 +23,8 @@ type NavbarProps = {
 const Navbar = (props: NavbarProps) => (
   <div className="col-sm-3 border rounded">
     <ul>
-      <li><Link to="/datasets">Datasets</Link></li>
-      <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
+      <li><Link to="/app/datasets">Datasets</Link></li>
+      <li><Link to="/app/annotation-campaigns">Annotation campaigns</Link></li>
       <br />
       <li><button className="btn btn-secondary" onClick={props.logout}>Logout</button></li>
     </ul>
@@ -43,12 +43,12 @@ const OdeApp = (props: OdeAppProps) => (
     <div className="row text-left h-100 main">
       <Navbar logout={props.logout} />
       <Switch>
-        <Route exact path='/' render={() => <DatasetList app_token={props.app_token} />} />
-        <Route path='/datasets' render={() => <DatasetList app_token={props.app_token} />} />
-        <Route path='/annotation-campaigns' render={() => <AnnotationCampaignList app_token={props.app_token} />} />
-        <Route path='/create-annotation-campaign' render={route_props => <CreateAnnotationCampaign app_token={props.app_token} {...route_props} />} />
-        <Route path='/annotation_tasks/:campaign_id' render={route_props => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
-        <Route path='/annotation_campaign/:campaign_id' render={route_props => <AnnotationCampaignDetail app_token={props.app_token} {...route_props} />} />
+        <Route exact path='/app/' render={() => <DatasetList app_token={props.app_token} />} />
+        <Route path='/app/datasets' render={() => <DatasetList app_token={props.app_token} />} />
+        <Route path='/app/annotation-campaigns' render={() => <AnnotationCampaignList app_token={props.app_token} />} />
+        <Route path='/app/create-annotation-campaign' render={route_props => <CreateAnnotationCampaign app_token={props.app_token} {...route_props} />} />
+        <Route path='/app/annotation_tasks/:campaign_id' render={route_props => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
+        <Route path='/app/annotation_campaign/:campaign_id' render={route_props => <AnnotationCampaignDetail app_token={props.app_token} {...route_props} />} />
       </Switch>
     </div>
   </div>
@@ -97,7 +97,7 @@ class App extends Component<void, AppState> {
       return (
         <Router>
           <Switch>
-            <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
+            <Route path='/app/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render=
               {route_props =>
                 <OdeApp app_token={this.state.app_token} logout={() => this.logout(route_props.history)} />
