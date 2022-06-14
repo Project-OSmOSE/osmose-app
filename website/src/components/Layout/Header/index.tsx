@@ -5,6 +5,7 @@ import './styles.css';
 import logo from '../../../img/logo/logo_seul_couleur.png';
 
 export const Header: React.FC = () => {
+  let appUrl = 'https://' + window.location.hostname + '/app/';
   return (
 <header className="Navigation">
   <nav className="navbar navbar-expand-md navbar-light bg-light py-0" role="navigation">
@@ -22,7 +23,7 @@ export const Header: React.FC = () => {
     <div id="main-nav" className="collapse navbar-collapse justify-content-end align-self-stretch">
       <ul className="navbar-nav text-center">
         <li className="mx-5 mx-md-4 nav-item">
-          <Link to="/app/" className="nav-link navigation-link">Annotator</Link>
+          <a href={appUrl} className="nav-link navigation-link">Annotator</a>
         </li>
         <li className="mx-5 mx-md-4 nav-item d-none pipe">
           <span className="nav-link navigation-link">|</span>

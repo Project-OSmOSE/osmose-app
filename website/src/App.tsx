@@ -11,7 +11,6 @@ import { People } from './pages/People';
 import { Ontology } from './pages/Ontology';
 
 const App: React.FC = () => {
-  let hostname = window.location.hostname;
   return (
     <Router>
       <Switch>
@@ -45,8 +44,6 @@ const App: React.FC = () => {
             <Ontology />
           </Layout>
         </Route>
-
-        <Redirect from="/app" to="//{hostname}/app" />
 
       </Switch>
     </Router>
