@@ -5,7 +5,7 @@ import { TagShowing } from '../../components/TagShowing';
 import { Link } from 'react-router-dom';
 
 import './styles.css';
-import jsonFile from '../../ontology.json';
+// import jsonFile from '../../ontology.json';
 import imgExplore from '../../img/illust/pexels-jeremy-bishop-2422915_1920_thin.jpg';
 
 function arraysIntersection(array1: Array<string>, array2: Array<string>){
@@ -57,8 +57,8 @@ function createElems(ontology : any, seenSpecies: Array<string>, seenFamilies: A
 }
 
 export const Explore: React.FC = () => {
-  const ontology: any = JSON.parse(JSON.stringify(jsonFile));
-  const seenSpecies: Array<string> = getSeenSpecies(ontology);
+  // const ontology: any = JSON.parse(JSON.stringify(jsonFile));
+  // const seenSpecies: Array<string> = getSeenSpecies(ontology);
 
   return (
 <div className="explore">
@@ -85,8 +85,9 @@ export const Explore: React.FC = () => {
     <h2 id="ontology">Ontology</h2>
 
     <div className="container grid-container">
+      Construction in progress.
 
-      {createElems(ontology, seenSpecies, arraysIntersection(seenSpecies, getFamilies(ontology)))}
+      {/* {createElems(ontology, seenSpecies, arraysIntersection(seenSpecies, getFamilies(ontology)))} */}
 
     </div>
   </div>
