@@ -16,6 +16,7 @@ import './css/bootstrap-4.1.3.min.css';
 
 import './css/app.css';
 
+const hostname = window.location.hostname;
 
 type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void
@@ -23,6 +24,7 @@ type NavbarProps = {
 const Navbar = (props: NavbarProps) => (
   <div className="col-sm-3 border rounded">
     <ul>
+      <li><a href="/..">Back to main site</a></li>
       <li><Link to="/datasets">Datasets</Link></li>
       <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
       <br />
@@ -95,7 +97,7 @@ class App extends Component<void, AppState> {
   render() {
     if (this.state.app_token) {
       return (
-        <Router>
+        <Router basename='/app'>
           <Switch>
             <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render=

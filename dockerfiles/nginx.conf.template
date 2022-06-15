@@ -1,15 +1,23 @@
+# See https://tonny.medium.com/how-to-use-nginx-to-service-multiple-react-apps-641501e92581
+map $http_referer $webroot {
+    "~/app" "/usr/share/nginx/app";
+    "~/"    "/usr/share/nginx/website";
+}
+
 server {
   listen 8080;
   server_name osmose;
 
-  location / {
-    root /usr/share/nginx/website;
-    try_files $uri /index.html;
+  location /app {
+    root /usr/share/nginx/;
   }
 
-  location /app {
-    root /usr/share/nginx/app;
-    try_files $uri /index.html;
+  location / {
+    root /usr/share/nginx/website/;
+  }
+
+  location /static {
+    root $webroot;
   }
 
   location /api/ {
