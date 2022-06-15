@@ -43,7 +43,7 @@ export const Project: React.FC = () => {
     </Card>
   </section>
 
-  <Banner>
+  {/* <Banner>
     <p>
       <span className="spring">4</span> <br/>
       partners
@@ -56,7 +56,7 @@ export const Project: React.FC = () => {
       <span className="spring">3</span> <br/>
       collaborative studies <br/>
     </p>
-  </Banner>
+  </Banner> */}
 
   <section className="container my-5">
     <Card
@@ -86,7 +86,7 @@ export const Project: React.FC = () => {
     </Card>
   </section>
 
-  <Banner>
+  {/* <Banner>
     <p>
       <span className="spring">13</span> <br/>
       datasets
@@ -103,7 +103,7 @@ export const Project: React.FC = () => {
       <span className="spring">10</span> <br/>
       annotation classes <br/>
     </p>
-  </Banner>
+  </Banner> */}
 
   <section className="container my-5">
     <Card

@@ -8,7 +8,7 @@ import { Home } from './pages/Home';
 import { Project } from './pages/Project';
 import { Explore } from './pages/Explore';
 import { People } from './pages/People';
-import { Ontology } from './pages/Ontology';
+// import { Ontology } from './pages/Ontology';
 
 const App: React.FC = () => {
   return (
@@ -39,11 +39,11 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        <Route path="/ontology">
+        {/* <Route path="/ontology">
           <Layout>
             <Ontology />
           </Layout>
-        </Route>
+        </Route> */}
 
       </Switch>
     </Router>
