@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-// import { JsxChild, JsxElement, JsxEmit, JsxTagNameExpression } from 'typescript';
 
 import './styles.css';
 
@@ -136,7 +135,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({
             url='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
           /> */}
 
-          <Marker 
+          {/* <Marker 
           // position={coord}
           position={[0.0, 0.0]}
           >
@@ -161,7 +160,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({
             <Popup>
               Description here.
             </Popup>
-          </Marker>
+          </Marker> */}
 
           {/* {addMarker()} */}
           {/* {addAllMarkers()} */}

@@ -1,10 +1,8 @@
 import React from 'react';
-// import { Link } from 'react-router-dom';
 
 import './styles.css';
 
 export const Banner: React.FC = ({
-  // images must be squares
   children
 }) => {
   return (
