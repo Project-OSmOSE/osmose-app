@@ -16,8 +16,6 @@ import './css/bootstrap-4.1.3.min.css';
 
 import './css/app.css';
 
-const hostname = window.location.hostname;
-
 type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void
 };
@@ -82,7 +80,7 @@ class App extends Component<void, AppState> {
       app_token: token
     });
     // Cookie is set to expire after 30 days
-    document.cookie = 'token=' + token + ';max-age=2592000;path=/';
+    document.cookie = 'token=' + token + ';max-age=28000;path=/';
   }
 
   // The history parameter should be the react-router history
