@@ -77,6 +77,7 @@ class Login extends Component<LoginProps, LoginState> {
             </form>
           </div>
         </div>
+        <a href="/..">Back to main site</a>
       </div>
     )
   }

@@ -69,7 +69,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
     }).catch(err => {
       if (err.status && err.status === 401) {
         // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0';
+        document.cookie = 'token=;max-age=0;path=/';
         window.location.reload();
       } else if (err.status && err.status === 404 && err.response) {
         err.message = err.response.body.detail;

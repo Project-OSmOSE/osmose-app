@@ -16,13 +16,13 @@ import './css/bootstrap-4.1.3.min.css';
 
 import './css/app.css';
 
-
 type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 const Navbar = (props: NavbarProps) => (
   <div className="col-sm-3 border rounded">
     <ul>
+      <li><a href="/..">Back to main site</a></li>
       <li><Link to="/datasets">Datasets</Link></li>
       <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
       <br />
@@ -79,13 +79,13 @@ class App extends Component<void, AppState> {
     this.setState({
       app_token: token
     });
-    // Cookie is set to expire after 30 days
-    document.cookie = 'token=' + token + ';max-age=2592000;path=/';
+    // Cookie is set to expire a bit before 8 hours
+    document.cookie = 'token=' + token + ';max-age=28000;path=/';
   }
 
   // The history parameter should be the react-router history
   logout = (history: Array<string>) => {
-    document.cookie = 'token=;max-age=0';
+    document.cookie = 'token=;max-age=0;path=/';
     this.setState({
       app_token: ''
     });
@@ -95,7 +95,7 @@ class App extends Component<void, AppState> {
   render() {
     if (this.state.app_token) {
       return (
-        <Router>
+        <Router basename='/app'>
           <Switch>
             <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route render=

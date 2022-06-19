@@ -24,6 +24,7 @@ This project uses poetry (`pip install poetry`) for Python dev and npm for Javas
 # Initial setup
 poetry install
 docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis
+poetry run ./manage.py migrate
 poetry run ./manage.py seed
 # Run
 docker start devdb

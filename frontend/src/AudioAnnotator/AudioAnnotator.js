@@ -185,7 +185,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .catch(err => {
         if (err.status && err.status === 401) {
           // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0';
+          document.cookie = 'token=;max-age=0;path=/';
           window.location.reload();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
@@ -434,15 +434,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const campaignId: number = result.body.campaign_id;
 
         if (nextTask) {
-          window.location.href = '/audio-annotator/' + nextTask.toString();
+          window.location.href = '/app/audio-annotator/' + nextTask.toString();
         } else {
-          window.location.href = '/annotation_tasks/' + campaignId.toString();
+          window.location.href = '/app/annotation_tasks/' + campaignId.toString();
         }
       })
       .catch(err => {
         if (err.status && err.status === 401) {
           // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0';
+          document.cookie = 'token=;max-age=0;path=/';
           window.location.reload();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
