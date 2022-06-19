@@ -185,7 +185,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .catch(err => {
         if (err.status && err.status === 401) {
           // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0';
+          document.cookie = 'token=;max-age=0;path=/';
           window.location.reload();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
@@ -442,7 +442,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .catch(err => {
         if (err.status && err.status === 401) {
           // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0';
+          document.cookie = 'token=;max-age=0;path=/';
           window.location.reload();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});

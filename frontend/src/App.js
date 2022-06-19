@@ -79,13 +79,13 @@ class App extends Component<void, AppState> {
     this.setState({
       app_token: token
     });
-    // Cookie is set to expire after 30 days
+    // Cookie is set to expire a bit before 8 hours
     document.cookie = 'token=' + token + ';max-age=28000;path=/';
   }
 
   // The history parameter should be the react-router history
   logout = (history: Array<string>) => {
-    document.cookie = 'token=;max-age=0';
+    document.cookie = 'token=;max-age=0;path=/';
     this.setState({
       app_token: ''
     });

@@ -115,7 +115,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
     }).catch(err => {
       if (err.status && err.status === 401) {
         // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0';
+        document.cookie = 'token=;max-age=0;path=/';
         window.location.reload();
       }
       this.setState({
