@@ -85,7 +85,7 @@ class App extends Component<void, AppState> {
 
   // The history parameter should be the react-router history
   logout = (history: Array<string>) => {
-    document.cookie = 'token=;max-age=0';
+    document.cookie = 'token=;max-age=0;path=/';
     this.setState({
       app_token: ''
     });
