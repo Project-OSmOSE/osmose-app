@@ -191,11 +191,11 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
   }
 
   loadNextZoomLevel() {
-    const oldDetails: ?SpectroDetails = this.getSpectrosForCurrentDetails()
+    const currentDetails: ?SpectroDetails = this.getSpectrosForCurrentDetails()
       .find(details => details.zoom === this.state.loadingZoomLvl);
 
-    if (oldDetails) {
-      const newImages: Array<Spectrogram> = oldDetails.images.map(spectro => {
+    if (currentDetails) {
+      const newImages: Array<Spectrogram> = currentDetails.images.map(spectro => {
         const image = new Image();
         image.src = spectro.src;
         image.onload = this.onSpectroImageComplete;
@@ -205,7 +205,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       const filteredDetails: Array<SpectroDetails> = this.getAllSpectrosButCurrentForZoom(this.state.loadingZoomLvl);
 
       this.setState({
-        spectrograms: filteredDetails.concat(Object.assign({}, oldDetails, { images: newImages })),
+        spectrograms: filteredDetails.concat(Object.assign({}, currentDetails, { images: newImages })),
       });
     }
   }
@@ -222,6 +222,18 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
   }
 
   componentDidUpdate(prevProps: WorkbenchProps) {
+    // Check if task has changed (new spectrogram URLS)
+    const prevSpectroUrls: Array<SpectroUrlsParams> = prevProps.spectroUrlsParams;
+    const newSpectroUrls: Array<SpectroUrlsParams> = this.props.spectroUrlsParams;
+
+    if (newSpectroUrls.length > 0 && prevSpectroUrls.length > 0 && newSpectroUrls[0] !== prevSpectroUrls[0]) {
+      const spectrograms: Array<SpectroDetails> = this.buildSpectrogramsDetails(newSpectroUrls);
+      this.setState({
+        spectrograms,
+        loadingZoomLvl: 1,
+      }, this.loadNextZoomLevel);
+    }
+
     // Scroll if progress bar reach the right edge of the screen
     const wrapper: HTMLElement = this.wrapperRef.current;
     const canvas: HTMLCanvasElement = this.canvasRef.current;
