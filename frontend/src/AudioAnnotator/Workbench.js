@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import * as utils from '../utils';
 
-import type { Annotation, SpectroUrlsParams } from './AudioAnnotator';
+import type { Annotation, FileMetadata, SpectroUrlsParams } from './AudioAnnotator';
 import { TYPE_BOX } from './AudioAnnotator';
 import Region from './Region';
 
@@ -43,6 +43,7 @@ type WorkbenchProps = {
   tagColors: Map<string, string>,
   currentTime: number,
   duration: number,
+  fileMetadata: FileMetadata,
   startFrequency: number,
   frequencyRange: number,
   spectroUrlsParams: Array<SpectroUrlsParams>,
@@ -648,6 +649,11 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
           <button className="btn-simple fa fa-search-plus" onClick={() => this.zoom(1)}></button>
           <button className="btn-simple fa fa-search-minus" onClick={() => this.zoom(-1)}></button>
           <span>{this.state.currentZoom}x</span>
+        </p>
+
+        <p className="workbench-info">
+          File : <strong>{this.props.fileMetadata.name}</strong> - Sampling : <strong>{this.props.fileMetadata.audioRate} Hz</strong><br />
+          Start date : <strong>{this.props.fileMetadata.date.toUTCString()}</strong>
         </p>
 
         <canvas

@@ -30,6 +30,12 @@ export type SpectroUrlsParams = {
   urls: Array<string>,
 };
 
+export type FileMetadata = {
+  name: string,
+  date: Date,
+  audioRate: number,
+};
+
 export type RawAnnotation = {
   id: string,
   annotation: string,
@@ -61,6 +67,7 @@ type AnnotationTask = {
     startFrequency: number,
     endFrequency: number,
   },
+  audioRate: number,
   audioUrl: string,
   spectroUrls: Array<SpectroUrlsParams>,
   prevAnnotations: Array<RawAnnotation>,
@@ -497,6 +504,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         );
       }
 
+      // File data
+      const fileMetadata: FileMetadata = {
+        name: task.audioUrl.split('/').pop(),
+        date: new Date(task.boundaries.startTime),
+        audioRate: task.audioRate,
+      };
+
       // Displayable annotations (for presence mode)
       const boxAnnotations = this.state.annotations.filter((ann: Annotation) => ann.type === TYPE_BOX);
 
@@ -544,6 +558,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             tagColors={this.state.tagColors}
             currentTime={this.state.currentTime}
             duration={this.state.duration}
+            fileMetadata={fileMetadata}
             startFrequency={task.boundaries.startFrequency}
             frequencyRange={this.state.frequencyRange}
             spectroUrlsParams={task.spectroUrls}
