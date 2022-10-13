@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import request from 'superagent';
 
 const API_URL = '/api/annotation-campaign/';
@@ -170,6 +171,9 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
           {campaign.desc}
         </div>
         <br />
+        <p className="text-center">
+          <Link to={'/annotation_campaign/' + campaign.id + '/edit'} className="btn btn-primary">Add annotators</Link>
+        </p>
         <table className="table table-bordered">
           <thead>
             <tr>
