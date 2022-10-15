@@ -4,44 +4,12 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
-import { ListChooser, ShowAnnotationSet } from '../src/CreateAnnotationCampaign';
+import { ShowAnnotationSet } from '../src/CreateAnnotationCampaign';
 import CreateAnnotationCampaign from '../src/CreateAnnotationCampaign';
 
 import datasets from './fixtures/dataset_list.json';
 import annotation_sets from './fixtures/annotation_set_list.json';
 import users from './fixtures/user_list.json';
-
-describe('testing ListChooser component', function () {
-    this.timeout(20000);
-
-    it('mounts properly with correct selections', () => {
-        let choices_list = [
-            { id: 2, name: 'B' },
-            { id: 3, name: 'C' },
-            { id: 4, name: 'D' }
-        ];
-        let chosen_list = [
-            { id: 1, name: 'A' },
-            { id: 5, name: 'E' }
-        ];
-        let onSelectChange = () => null;
-        let onDelClick = () => null;
-        let wrapper = mount(
-            <ListChooser
-                choice_type='obj'
-                choices_list={choices_list}
-                chosen_list={chosen_list}
-                onSelectChange={onSelectChange}
-                onDelClick={onDelClick}
-            />
-        );
-        let chosen_elements = wrapper.find('div.border.rounded').map(div => { return div.text(); });
-        assert.deepEqual(chosen_elements, [ 'A x', 'E x' ]);
-        let options = wrapper.find('option').map(option => { return option.text(); });
-        assert.deepEqual(options, [ 'Select a obj', 'B', 'C', 'D' ]);
-        wrapper.unmount();
-    });
-});
 
 describe('testing ShowAnnotationSet component', function () {
     this.timeout(20000);
