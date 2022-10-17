@@ -2,11 +2,14 @@
 
 import React, { Component } from 'react';
 import request from 'superagent';
-import ListChooser, { choices_type } from './ListChooser';
+import ListChooser from './ListChooser';
+import type { choices_type } from './ListChooser';
 import * as utils from './utils';
 
-const API_URL = '/api/annotation-campaign/';
+const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';
+const STAFF_API_URL = '/api/user/is_staff';
+const POST_ANNOTATION_CAMPAIGN_API_URL = '/api/annotation-campaign/ID/add_annotators/';
 
 type EACProps = {
   match: {
@@ -14,7 +17,7 @@ type EACProps = {
       campaign_id: number
     }
   },
-  app_token: String,
+  app_token: string,
   history: {
     push: (url: string) => void
   }
@@ -26,6 +29,7 @@ type EACState = {
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
   annotator_choices: choices_type,
+  isStaff: boolean,
   error: ?{
     status: number,
     message: string
@@ -39,18 +43,21 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
     annotator_choices: {},
+    isStaff: false,
     error: null 
   }
   getData = { abort: () => null }
   getUsers = request.get(USER_API_URL)
+  getIsStaff = request.get(STAFF_API_URL)
   postAnnotationCampaign = { abort: () => null }
 
   componentDidMount() {
-    this.getData = request.get(API_URL + this.props.match.params.campaign_id);
+    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id.toString()));
     return Promise.all([
       this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token)
-    ]).then(([req_data, req_users]) => {
+      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
+      this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
+    ]).then(([req_data, req_users, req_is_staff]) => {
       // Find existing annotators
       const existingAnnotators = req_data.body.tasks.reduce((acc, curr) => {
         if (acc.findIndex(existing => existing === curr.annotator_id) === -1) {
@@ -66,6 +73,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       this.setState({
         campaign_id: req_data.body.campaign.id,
         annotator_choices: utils.arrayToObject(users, 'id'),
+        isStaff: req_is_staff.body.is_staff,
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
@@ -82,6 +90,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   componentWillUnmount() {
     this.getData.abort();
     this.getUsers.abort();
+    this.getIsStaff.abort();
     this.postAnnotationCampaign.abort();
   }
 
@@ -131,7 +140,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
     };
-    const postUrl = `/api/annotation-campaign/${this.state.campaign_id.toFixed()}/add_annotators/`;
+    const postUrl = POST_ANNOTATION_CAMPAIGN_API_URL.replace('ID', this.state.campaign_id.toString());
     this.postAnnotationCampaign = request.post(postUrl);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token)
       .send(res)
@@ -162,43 +171,53 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   }
 
   render() {
-    return (
-      <div className="col-sm-9 border rounded">
-        <h1 className="text-center">Edit Annotation Campaign</h1>
-        <br/>
-        {this.state.error &&
-          <p className="error-message">{this.state.error.message}</p>
-        }
-        <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label>Choose annotators:</label>
-            <ListChooser choice_type="user" choices_list={this.state.annotator_choices} chosen_list={this.state.new_ac_annotators} onSelectChange={this.handleAddAnnotator} onDelClick={this.handleRemoveAnnotator} />
-          </div>
-
-          <div className="form-group row">
-            <label className="col-sm-5 col-form-label">Wanted number of annotations per file:</label>
-            <div className="col-sm-2">
-              <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
+    if (this.state.isStaff) {
+      return (
+        <div className="col-sm-9 border rounded">
+          <h1 className="text-center">Edit Annotation Campaign</h1>
+          <br/>
+          {this.state.error &&
+            <p className="error-message">{this.state.error.message}</p>
+          }
+          <form onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <label>Choose annotators:</label>
+              <ListChooser choice_type="user" choices_list={this.state.annotator_choices} chosen_list={this.state.new_ac_annotators} onSelectChange={this.handleAddAnnotator} onDelClick={this.handleRemoveAnnotator} />
             </div>
-          </div>
 
-          <div className="form-group row">
-            <label className="col-sm-7 col-form-label">Wanted distribution method for files amongst annotators:</label>
-            <div className="col-sm-3">
-              <select id="cac-annotation-method" value={this.state.new_ac_annotation_method} className="form-control" onChange={this.handleAnnotationMethodChange}>
-                <option value={-1} disabled>Select a method</option>
-                <option value={0}>Random</option>
-                <option value={1}>Sequential</option>
-              </select>
+            <div className="form-group row">
+              <label className="col-sm-5 col-form-label">Wanted number of annotations per file:</label>
+              <div className="col-sm-2">
+                <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
+              </div>
             </div>
-          </div>
 
-          <div className="text-center">
-            <input className="btn btn-primary" type="submit" value="Submit" />
-          </div>
-        </form>
-      </div>
-    );
+            <div className="form-group row">
+              <label className="col-sm-7 col-form-label">Wanted distribution method for files amongst annotators:</label>
+              <div className="col-sm-3">
+                <select id="cac-annotation-method" value={this.state.new_ac_annotation_method} className="form-control" onChange={this.handleAnnotationMethodChange}>
+                  <option value={-1} disabled>Select a method</option>
+                  <option value={0}>Random</option>
+                  <option value={1}>Sequential</option>
+                </select>
+              </div>
+            </div>
+  
+            <div className="text-center">
+              <input className="btn btn-primary" type="submit" value="Submit" />
+            </div>
+          </form>
+        </div>
+      );
+    } else {
+      return (
+        <div className="col-sm-9 border rounded">
+          <h1 className="text-center">Edit Annotation Campaign</h1>
+          <br/>
+          <p className="error-message">You are not allowed to access this page</p>
+        </div>
+      );
+    }
   }
 }
 
