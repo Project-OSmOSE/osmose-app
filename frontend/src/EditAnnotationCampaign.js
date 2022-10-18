@@ -100,11 +100,9 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
     new_ac_annotators[annotator_id] = annotator_choices[annotator_id];
     delete annotator_choices[annotator_id];
-    let annotation_goal = Math.max(1, this.state.new_ac_annotation_goal);
     this.setState({
       new_ac_annotators: new_ac_annotators,
       annotator_choices: annotator_choices,
-      new_ac_annotation_goal: annotation_goal
     });
   }
 
@@ -113,18 +111,14 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
     annotator_choices[annotator_id] = new_ac_annotators[annotator_id];
     delete new_ac_annotators[annotator_id];
-    let annotation_goal = Math.min(Object.keys(new_ac_annotators).length, this.state.new_ac_annotation_goal);
     this.setState({
       new_ac_annotators: new_ac_annotators,
       annotator_choices: annotator_choices,
-      new_ac_annotation_goal: annotation_goal
     });
   }
 
   handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    let new_val = parseInt(event.currentTarget.value, 10);
-    new_val = Math.max(1, new_val);
-    new_val = Math.min(Object.keys(this.state.new_ac_annotators).length, new_val);
+    const new_val = parseInt(event.currentTarget.value, 10);
     this.setState({new_ac_annotation_goal: new_val});
   }
 
@@ -135,11 +129,16 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
     this.setState({error: null});
-    const res = {
+
+    // Build request body
+    const params = {
       annotators: Object.keys(this.state.new_ac_annotators),
-      annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
     };
+    const annotation_goal = this.state.new_ac_annotation_goal === 0 ?
+      undefined : { annotation_goal: this.state.new_ac_annotation_goal};
+    const res = Object.assign({}, params, annotation_goal);
+
     const postUrl = POST_ANNOTATION_CAMPAIGN_API_URL.replace('ID', this.state.campaign_id.toString());
     this.postAnnotationCampaign = request.post(postUrl);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token)
@@ -170,45 +169,59 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       });
   }
 
+  renderForm() {
+    return (
+      <div className="col-sm-9 border rounded">
+        <h1 className="text-center">Edit Annotation Campaign</h1>
+        <br/>
+        {this.state.error &&
+          <p className="error-message">{this.state.error.message}</p>
+        }
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <label>Choose annotators:</label>
+            <ListChooser choice_type="user" choices_list={this.state.annotator_choices} chosen_list={this.state.new_ac_annotators} onSelectChange={this.handleAddAnnotator} onDelClick={this.handleRemoveAnnotator} />
+          </div>
+
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label">Wanted number of files to annotate<br />(0 for all files):</label>
+            <div className="col-sm-2">
+              <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
+            </div>
+          </div>
+
+          <div className="form-group row">
+            <label className="col-sm-7 col-form-label">Wanted distribution method for files amongst annotators:</label>
+            <div className="col-sm-3">
+              <select id="cac-annotation-method" value={this.state.new_ac_annotation_method} className="form-control" onChange={this.handleAnnotationMethodChange}>
+                <option value={-1} disabled>Select a method</option>
+                <option value={0}>Random</option>
+                <option value={1}>Sequential</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <input className="btn btn-primary" type="submit" value="Submit" />
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   render() {
     if (this.state.isStaff) {
-      return (
-        <div className="col-sm-9 border rounded">
-          <h1 className="text-center">Edit Annotation Campaign</h1>
-          <br/>
-          {this.state.error &&
-            <p className="error-message">{this.state.error.message}</p>
-          }
-          <form onSubmit={this.handleSubmit}>
-            <div className="form-group">
-              <label>Choose annotators:</label>
-              <ListChooser choice_type="user" choices_list={this.state.annotator_choices} chosen_list={this.state.new_ac_annotators} onSelectChange={this.handleAddAnnotator} onDelClick={this.handleRemoveAnnotator} />
-            </div>
-
-            <div className="form-group row">
-              <label className="col-sm-5 col-form-label">Wanted number of annotations per file:</label>
-              <div className="col-sm-2">
-                <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
-              </div>
-            </div>
-
-            <div className="form-group row">
-              <label className="col-sm-7 col-form-label">Wanted distribution method for files amongst annotators:</label>
-              <div className="col-sm-3">
-                <select id="cac-annotation-method" value={this.state.new_ac_annotation_method} className="form-control" onChange={this.handleAnnotationMethodChange}>
-                  <option value={-1} disabled>Select a method</option>
-                  <option value={0}>Random</option>
-                  <option value={1}>Sequential</option>
-                </select>
-              </div>
-            </div>
-  
-            <div className="text-center">
-              <input className="btn btn-primary" type="submit" value="Submit" />
-            </div>
-          </form>
-        </div>
-      );
+      if (Object.keys(this.state.annotator_choices).length > 0) {
+        return this.renderForm();
+      } else {
+        return (
+          <div className="col-sm-9 border rounded">
+            <h1 className="text-center">Edit Annotation Campaign</h1>
+            <br/>
+            <p className="info-message">Every possible annotator has been added to this campaign. If you want to create new users, use the administration backend.</p>
+          </div>
+        );
+      }
     } else {
       return (
         <div className="col-sm-9 border rounded">
