@@ -109,6 +109,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "annotator",
                 "start_datetime",
                 "end_datetime",
+                "is_box",
             ]
         ]
         results = AnnotationResult.objects.prefetch_related(
@@ -140,6 +141,10 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         audio_meta.start
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
+                    "1"
+                    if campaign.annotation_scope
+                    == AnnotationCampaign.AnnotationScope.RECTANGLE
+                    else "0",
                 ]
             )
         response = Response(data)
