@@ -1,6 +1,7 @@
 // @flow
 
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import request from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
@@ -211,14 +212,16 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
 
   render() {
     if (this.state.isStaff) {
-      if (Object.keys(this.state.annotator_choices).length > 0) {
+      if (Object.keys(this.state.annotator_choices).length > 0 || Object.keys(this.state.new_ac_annotators).length > 0) {
         return this.renderForm();
       } else {
         return (
           <div className="col-sm-9 border rounded">
             <h1 className="text-center">Edit Annotation Campaign</h1>
             <br/>
-            <p className="info-message">Every possible annotator has been added to this campaign. If you want to create new users, use the administration backend.</p>
+            <p className="alert alert-info">Every possible annotator has been added to this campaign. If you want to create new users, use the administration backend.</p>
+            <br />
+            <p className="text-center"><Link to={'/annotation_campaign/' + this.state.campaign_id}>Go back to annotation campaign details</Link></p>
           </div>
         );
       }

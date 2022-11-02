@@ -9,11 +9,6 @@
   white-space: pre-line;
 }
 
-.info-message {
-  color: blue;
-  white-space: pre-line;
-}
-
 .undisplayed {
   visibility: hidden;
 }
