@@ -1,5 +1,6 @@
 [ignore]
-
+# https://github.com/facebook/flow/issues/8839
+.*/**/malformed_package_json/package.json
 [include]
 
 [libs]
