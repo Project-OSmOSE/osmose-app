@@ -27,9 +27,6 @@ docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d 
 poetry run ./manage.py migrate
 poetry run ./manage.py seed
 
-#Formatting :
-#If you use VSCode, you can add "python.formatting.provider": "black" to your .vscode/settings.json
-
 # Run
 docker start devdb
 poetry run ./manage.py runserver
@@ -79,3 +76,7 @@ poetry add -D "pylint==2.14.5"
 Here `-D` because this is a dev tool, if it's a library to also be used in production you can drop that option.
 
 If you want to changes pylint rules, the configuration options are in the `pyproject.toml` file.
+
+**Formatting :**
+
+If you use VSCode, you can add `"python.formatting.provider": "black"` to your .vscode/settings.json

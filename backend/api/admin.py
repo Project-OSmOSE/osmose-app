@@ -1,4 +1,6 @@
 """Python module for Django admin interface"""
+# Python admin has too many false-positives on the following warnings:
+# pylint: disable=too-many-function-args, R0801
 from collections import OrderedDict
 from django.contrib import admin
 
@@ -58,7 +60,6 @@ class DatasetTypeAdmin(admin.ModelAdmin):
     list_display = ("name", "desc")
 
 
-# pylint: disable=too-many-function-args
 class DatasetAdmin(admin.ModelAdmin):
     """Dataset presentation in DjangoAdmin
 
@@ -139,7 +140,6 @@ class AnnotationSetAdmin(admin.ModelAdmin):
         return get_many_to_many(obj, "tags", "name")
 
 
-# pylint: disable=too-many-function-args
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin
 
