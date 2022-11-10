@@ -68,7 +68,7 @@ class SpectroConfig(models.Model):
         """Generate zoom tile filenames for SpectroConfig"""
         n_zooms = int(log(self.zoom_level, 2)) + 1
         for zoom_power in range(0, n_zooms):
-            zoom_level = 2 ** zoom_power
+            zoom_level = 2**zoom_power
             for zoom_tile in range(0, zoom_level):
                 yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
 

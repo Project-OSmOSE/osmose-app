@@ -17,9 +17,9 @@ drf-spectacular = "^0.18.2"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 coverage = {extras = ["toml"], version = "^6.3"}
-black = "^21.12b0"
-pylint = "^2.12.2"
-pylint-django = "^2.5.0"
+black = "^22.10.0"
+pylint = "2.14.5"
+pylint-django = "^2.5.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -36,6 +36,9 @@ show_missing = true
 [tool.pylint.MASTER]
 load-plugins = "pylint_django"
 django-settings-module = "backend.settings"
+
+[tool.pylint.MAIN]
+ignore-paths= "backend\\api\\migrations|backend/api/migrations"
 
 [tool.pylint.FORMAT]
 max-line-length = 120

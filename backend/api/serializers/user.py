@@ -1,7 +1,7 @@
 """User DRF serializers file"""
 
 # Serializers have too many false-positives on the following warnings:
-# pylint: disable=missing-function-docstring, no-self-use, abstract-method
+# pylint: disable=missing-function-docstring, abstract-method
 
 from rest_framework import serializers
 
