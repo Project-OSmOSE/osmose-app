@@ -29,9 +29,6 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation campaign related actions
     """
 
-    # For ViewSet-derived classes Pylint gives some false-positives
-    # pylint: disable=no-self-use
-
     queryset = AnnotationCampaign.objects.all()
     serializer_class = AnnotationCampaignListSerializer
 
@@ -189,7 +186,8 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
                 "dataset_file__dataset__name", "dataset_file__filename", "status"
             )
         )
-        status = lambda x: AnnotationTask.StatusChoices(x).name
+        def status(status_int):
+            return AnnotationTask.StatusChoices(status_int).name
         # Grouping by len(annotators) (see https://stackoverflow.com/a/3415150/2730032)
         for line in zip(*[iter(tasks)] * len(annotators)):
             # We take dataset name + filename from first cell in line

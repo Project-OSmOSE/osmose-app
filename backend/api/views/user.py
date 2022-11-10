@@ -18,9 +18,6 @@ class UserViewSet(viewsets.ViewSet):
     A simple ViewSet for user-related actions
     """
 
-    # For ViewSet-derived classes Pylint gives some false-positives
-    # pylint: disable=no-self-use
-
     serializer_class = UserSerializer
 
     def list(self, request):
