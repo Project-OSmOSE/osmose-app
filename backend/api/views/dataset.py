@@ -1,6 +1,4 @@
 """Dataset DRF-Viewset file"""
-from ast import Try
-from cmath import log
 import csv
 
 from django.db.models import Count
@@ -46,6 +44,7 @@ class DatasetViewSet(viewsets.ViewSet):
 
     @action(detail=False)
     def list_to_import(self, request):
+        """list dataset in datasets.csv"""
         dataset_names = Dataset.objects.values_list("name", flat=True)
         csv_dataset_names = []
         new_datasets = []
@@ -61,7 +60,6 @@ class DatasetViewSet(viewsets.ViewSet):
                         new_datasets.append(dataset)
         except FileNotFoundError as error:
             capture_exception(error)
-            print(f"Error")
             messages.add_message(request, messages.ERROR, f"File Not Found : {error}")
             return redirect(reverse("dataset-list"))
 
