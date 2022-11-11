@@ -1,5 +1,6 @@
 """Dataset DRF-Viewset test file"""
-
+import json
+from cmath import log
 from django.urls import reverse
 from django.test import override_settings
 from django.conf import settings
@@ -10,7 +11,7 @@ from rest_framework.test import APITestCase
 from backend.api.models import Dataset
 
 
-IMPORT_FIXTURES = settings.FIXTURE_DIRS[0] / "datawork_import"
+IMPORT_FIXTURES = settings.FIXTURE_DIRS[0] / "list_to_import"
 
 
 class DatasetViewSetUnauthenticatedTestCase(APITestCase):
@@ -45,9 +46,9 @@ class DatasetViewSetTestCase(APITestCase):
         url = reverse("dataset-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), Dataset.objects.count())
+        self.assertEqual(len(response.data["result"]), Dataset.objects.count())
         self.assertEqual(
-            list(response.data[0].keys()),
+            list(response.data["result"][0].keys()),
             [
                 "id",
                 "name",
@@ -59,13 +60,27 @@ class DatasetViewSetTestCase(APITestCase):
                 "spectros",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "SPM Aural A 2010")
-        self.assertEqual(len(response.data[0]["spectros"]), 1)
+        self.assertEqual(response.data["result"][0]["name"], "SPM Aural A 2010")
+        self.assertEqual(len(response.data["result"][0]["spectros"]), 1)
+
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_file")
+    def test_list_to_import_for_staff_missing_file(self):
+        """Dataset view 'list_to_import"' returns 'No such file or directory' when missing file"""
+        self.client.login(username="staff", password="osmose29")
+        url = reverse("dataset-list-to-import")
+        response = self.client.get(url, follow=True)
+        self.assertContains(
+            response,
+            "No such file or directory:",
+        )
 
     def test_datawork_import_for_user(self):
         """Dataset view 'datawork_import' is forbidden for non-staff"""
         url = reverse("dataset-datawork-import")
-        response = self.client.get(url)
+        data_send = {"dataset_checked": [{"names": "gliderSPAmsDemo (600_400)"}]}
+        response = self.client.post(
+            url, json.dumps(data_send), content_type="application/json", follow=True
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
@@ -74,13 +89,17 @@ class DatasetViewSetTestCase(APITestCase):
         old_count = Dataset.objects.count()
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        response = self.client.get(url)
+        data_send = {"dataset_checked": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        response = self.client.post(
+            url, json.dumps(data_send), content_type="application/json", follow=True
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         self.assertEqual(Dataset.objects.count(), old_count + 1)
         self.assertEqual(Dataset.objects.last().files.count(), 10)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data["result"]), 1)
         self.assertEqual(
-            list(response.data[0].keys()),
+            list(response.data["result"][0].keys()),
             [
                 "id",
                 "name",
@@ -92,38 +111,40 @@ class DatasetViewSetTestCase(APITestCase):
                 "spectros",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo (600_400)")
-        self.assertEqual(len(response.data[0]["spectros"]), 1)
-
-    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_file")
-    def test_datawork_import_for_staff_missing_file(self):
-        """Dataset view 'datawork_import' returns 'No such file or directory' when missing file"""
-        self.client.login(username="staff", password="osmose29")
-        url = reverse("dataset-datawork-import")
-        response = self.client.get(url)
-        self.assertContains(response, "No such file or directory", status_code=400)
+        self.assertEqual(
+            response.data["result"][0]["name"], "gliderSPAmsDemo (600_400)"
+        )
+        self.assertEqual(len(response.data["result"][0]["spectros"]), 1)
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
     def test_datawork_import_for_staff_missing_permissions(self):
         """Dataset view 'datawork_import' returns 'Permission denied' when there is a permission issue"""
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
+        data_send = {"dataset_checked": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        response = self.client.post(
+            url, json.dumps(data_send), content_type="application/json", follow=True
+        )
         original_permissions = settings.DATASET_IMPORT_FOLDER.stat().st_mode
         settings.DATASET_IMPORT_FOLDER.chmod(0o444)  # removing open-folder permission
         try:
-            response = self.client.get(url)
+            response = response = self.client.post(
+                url, json.dumps(data_send), content_type="application/json", follow=True
+            )
         finally:
             settings.DATASET_IMPORT_FOLDER.chmod(original_permissions)
-        self.assertContains(response, "Permission denied", status_code=400)
+        self.assertContains(response, "Permission denied")
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_csv_columns")
     def test_datawork_import_for_staff_mssing_csv_columns(self):
         """Dataset view 'datawork_import' returns a 'CSV column missing' message when import CSV is malformed"""
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        response = self.client.get(url)
+        data_send = {"dataset_checked": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        response = self.client.post(
+            url, json.dumps(data_send), content_type="application/json", follow=True
+        )
         self.assertContains(
             response,
             "One of the import CSV is missing the following column : 'dataset_type_name'",
-            status_code=400,
         )

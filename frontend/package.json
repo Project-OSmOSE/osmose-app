@@ -1,40 +1,40 @@
 {
-  "name": "ODE-FrontApp",
-  "version": "0.1.0",
-  "private": true,
-  "proxy": "http://localhost:8000",
-  "dependencies": {
-    "eslint": "^5.8.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-router-dom": "^5.0.0",
-    "react-scripts": "1.1.4",
-    "superagent": "^3.8.3"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "mocha --require ./test/utils/loadLibs.js && echo 'Running flow' && flow check",
-    "eject": "react-scripts eject",
-    "flow": "flow",
-    "mocha": "mocha --require ./test/utils/loadLibs.js"
-  },
-  "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.6",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-flow": "^6.23.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-register": "^6.26.0",
-    "enzyme": "^3.3.0",
-    "enzyme-adapter-react-16": "^1.1.1",
-    "eslint-plugin-flowtype": "^2.50.0",
-    "eslint-plugin-react": "^7.10.0",
-    "flow-bin": "^0.105.0",
-    "jsdom": "^11.11.0",
-    "mocha": "^5.2.0",
-    "mocha-eslint": "^4.1.0",
-    "nock": "^9.4.3"
-  }
+    "name": "ODE-FrontApp",
+    "version": "0.1.0",
+    "private": true,
+    "proxy": "http://localhost:8000",
+    "dependencies": {
+        "eslint": "^5.8.0",
+        "react": "^16.9.0",
+        "react-dom": "^16.9.0",
+        "react-router-dom": "^5.0.0",
+        "react-scripts": "1.1.4",
+        "superagent": "^3.8.3"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "mocha --require ./test/utils/loadLibs.js ; echo 'Running flow' && flow check",
+        "eject": "react-scripts eject",
+        "flow": "flow",
+        "mocha": "mocha --require ./test/utils/loadLibs.js"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-eslint": "^8.2.6",
+        "babel-plugin-transform-class-properties": "^6.24.1",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-flow": "^6.23.0",
+        "babel-preset-react": "^6.24.1",
+        "babel-register": "^6.26.0",
+        "enzyme": "^3.3.0",
+        "enzyme-adapter-react-16": "^1.1.1",
+        "eslint-plugin-flowtype": "^2.50.0",
+        "eslint-plugin-react": "^7.10.0",
+        "flow-bin": "^0.105.0",
+        "jsdom": "^11.11.0",
+        "mocha": "^5.2.0",
+        "mocha-eslint": "^4.1.0",
+        "nock": "^9.4.3"
+    }
 }

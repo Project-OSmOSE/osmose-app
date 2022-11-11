@@ -1,5 +1,5 @@
 """Python file for datawork_import function that imports datasets from datawork"""
-
+# pylint: disable=too-many-locals
 import csv
 from datetime import timedelta
 
@@ -17,22 +17,29 @@ from backend.api.models import (
 
 
 @transaction.atomic
-def datawork_import(*, importer):
+def datawork_import(*, dataset_checked, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
     # TODO : break up this process to remove code smell and in order to help with unit testing
-    # pylint: disable=too-many-locals
+
     dataset_names = Dataset.objects.values_list("name", flat=True)
     csv_dataset_names = []
+    new_dataset_checked = []
     new_datasets = []
-
     # Check for new datasets
     with open(
         settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
     ) as csvfile:
+
         for dataset in csv.DictReader(csvfile):
-            csv_dataset_names.append(dataset["name"])
-            if dataset["name"] not in dataset_names:
-                new_datasets.append(dataset)
+            for one_checked_dataset in dataset_checked:
+
+                if dataset["name"] == one_checked_dataset["name"]:
+                    new_dataset_checked.append(dataset)
+
+        for one_data in new_dataset_checked:
+            if one_data["name"] not in dataset_names:
+                csv_dataset_names.append(one_data["name"])
+                new_datasets.append(one_data)
 
     created_datasets = []
     for dataset in new_datasets:
@@ -49,13 +56,13 @@ def datawork_import(*, importer):
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
-        audio_metadatum = AudioMetadatum.objects.create(
-            num_channels=audio_raw["nchannels"],
-            sample_rate_khz=audio_raw["dataset_fs"],
-            sample_bits=audio_raw["sound_sample_size_in_bits"],
-            start=parse_datetime(audio_raw["start_date"]),
-            end=parse_datetime(audio_raw["end_date"]),
-        )
+            audio_metadatum = AudioMetadatum.objects.create(
+                num_channels=audio_raw["nchannels"],
+                sample_rate_khz=audio_raw["dataset_fs"],
+                sample_bits=audio_raw["sound_sample_size_in_bits"],
+                start=parse_datetime(audio_raw["start_date"]),
+                end=parse_datetime(audio_raw["end_date"]),
+            )
         geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
             name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
         )
