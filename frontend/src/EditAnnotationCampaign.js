@@ -187,7 +187,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
           <div className="form-group row">
             <label className="col-sm-5 col-form-label">Wanted number of files to annotate<br />(0 for all files):</label>
             <div className="col-sm-2">
-              <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
+              <input id="cac-annotation-goal" className="form-control" type="number" min={0} value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
             </div>
           </div>
 
