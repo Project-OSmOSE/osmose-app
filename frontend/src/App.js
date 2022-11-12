@@ -6,6 +6,7 @@ import Login from './Login';
 import DatasetList from './DatasetList';
 import AnnotationCampaignList from './AnnotationCampaignList';
 import AnnotationCampaignDetail from './AnnotationCampaignDetail';
+import EditAnnotationCampaign from './EditAnnotationCampaign';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';
 import AnnotationTaskList from './AnnotationTaskList';
 import AudioAnnotator from './AudioAnnotator/AudioAnnotator';
@@ -48,6 +49,7 @@ const OdeApp = (props: OdeAppProps) => (
         <Route path='/annotation-campaigns' render={() => <AnnotationCampaignList app_token={props.app_token} />} />
         <Route path='/create-annotation-campaign' render={route_props => <CreateAnnotationCampaign app_token={props.app_token} {...route_props} />} />
         <Route path='/annotation_tasks/:campaign_id' render={route_props => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
+        <Route path='/annotation_campaign/:campaign_id/edit' render={route_props => <EditAnnotationCampaign app_token={props.app_token} {...route_props} />} />
         <Route path='/annotation_campaign/:campaign_id' render={route_props => <AnnotationCampaignDetail app_token={props.app_token} {...route_props} />} />
       </Switch>
     </div>

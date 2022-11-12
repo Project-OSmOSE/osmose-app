@@ -1,9 +1,11 @@
 // @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import request from 'superagent';
 
-const API_URL = '/api/annotation-campaign/';
+const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';
+const STAFF_API_URL = '/api/user/is_staff';
 const REPORT_API_URL = '/api/annotation-campaign/ID/report/';
 const STATUS_REPORT_API_URL = '/api/annotation-campaign/ID/report_status/';
 
@@ -70,6 +72,7 @@ type ACDState = {
     annotator_name: string,
     progress: string
   }>,
+  isStaff: boolean,
   error: ?{
     status: number,
     message: string
@@ -79,17 +82,20 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
   state = {
     campaign: null,
     tasks: [],
+    isStaff: false,
     error: null
   }
   getData = { abort: () => null }
   getUsers = request.get(USER_API_URL)
+  getIsStaff = request.get(STAFF_API_URL)
 
   componentDidMount() {
-    this.getData = request.get(API_URL + this.props.match.params.campaign_id);
+    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id.toString()));
     return Promise.all([
       this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token)
-    ]).then(([req_data, req_users]) => {
+      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
+      this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
+    ]).then(([req_data, req_users, req_is_staff]) => {
       let users = {};
       req_users.body.forEach(user => {
         users[user.id] = user.email;
@@ -110,7 +116,8 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
       });
       this.setState({
         campaign: req_data.body.campaign,
-        tasks: tasks
+        tasks: tasks,
+        isStaff: req_is_staff.body.is_staff
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
@@ -127,6 +134,17 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
   componentWillUnmount() {
     this.getData.abort();
     this.getUsers.abort();
+    this.getIsStaff.abort();
+  }
+
+  renderAddAnnotatorButton(isStaff: boolean, campaignId: number) {
+    if (isStaff) {
+      return (
+        <p className="text-center">
+          <Link to={'/annotation_campaign/' + campaignId + '/edit'} className="btn btn-primary">Add annotators</Link>
+        </p>
+      );
+    }
   }
 
   render() {
@@ -170,6 +188,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
           {campaign.desc}
         </div>
         <br />
+        {this.renderAddAnnotatorButton(this.state.isStaff, campaign.id)}
         <table className="table table-bordered">
           <thead>
             <tr>

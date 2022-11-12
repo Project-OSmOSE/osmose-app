@@ -2,63 +2,14 @@
 
 import React, { Component } from 'react';
 import request from 'superagent';
+import ListChooser from './ListChooser';
+import type { choices_type } from './ListChooser';
 import * as utils from './utils';
 
 const GET_DATASETS_API_URL = '/api/dataset/';
 const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';
 const GET_USERS_API_URL = '/api/user/';
 const POST_ANNOTATION_CAMPAIGN_API_URL = '/api/annotation-campaign/';
-
-type choices_type = {
-  [?number]: {
-    id: number,
-    name: string
-  }
-};
-
-type ListChooserProps = {
-  choice_type: string,
-  chosen_list: choices_type,
-  choices_list: choices_type,
-  onDelClick: (choice_id: number) => void,
-  onSelectChange: (event: SyntheticEvent<HTMLInputElement>) => void
-};
-
-class ListChooser extends Component<ListChooserProps> {
-  render() {
-    let chosen_list = utils.objectValues(this.props.chosen_list).map(choice => {
-      return(
-        <div className="col-sm-3 text-center border rounded" key={choice.id}>
-          {choice.name} <button className="btn btn-danger" onClick={() => this.props.onDelClick(choice.id)}>x</button>
-        </div>
-      )
-    });
-
-    let select_choice;
-    if (Object.keys(this.props.choices_list).length > 0) {
-      let choices_list = utils.objectValues(this.props.choices_list).map(choice => {
-        return (
-          <option key={choice.id} value={choice.id}>{choice.name}</option>
-        );
-      });
-      select_choice = (
-        <div className="col-sm-3">
-          <select id={'cac-' + this.props.choice_type} value="placeholder" className="form-control" onChange={this.props.onSelectChange}>
-            <option value="placeholder" disabled>Select a {this.props.choice_type}</option>
-            {choices_list}
-          </select>
-        </div>
-      )
-    }
-
-    return (
-      <div className="form-group row">
-        {chosen_list}
-        {select_choice}
-      </div>
-    )
-  }
-}
 
 type annotation_set_type = {
   id: number,
@@ -467,7 +418,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
           <div className="form-group row">
             <label className="col-sm-5 col-form-label">Wanted number of annotations per file:</label>
             <div className="col-sm-2">
-              <input id="cac-annotation-goal" className="form-control" type="number" value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
+              <input id="cac-annotation-goal" className="form-control" type="number" min={0} value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
             </div>
           </div>
 
@@ -491,4 +442,4 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 }
 
 export default CreateAnnotationCampaign;
-export { ListChooser, ShowAnnotationSet};
+export { ShowAnnotationSet};
