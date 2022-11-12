@@ -225,6 +225,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "annotator",
                 "start_datetime",
                 "end_datetime",
+                "is_box",
             ],
         )
         self.assertEqual(
@@ -240,6 +241,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "user2",
                 "2012-10-03T16:01:59.635+00:00",
                 "2012-10-03T16:04:38.488+00:00",
+                "1",
             ],
         )
 
