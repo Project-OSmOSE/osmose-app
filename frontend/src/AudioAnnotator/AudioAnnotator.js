@@ -102,6 +102,7 @@ type AudioAnnotatorState = {
   task: ?AnnotationTask,
   taskStartTime: number,
   annotations: Array<Annotation>,
+  currentDefaultTagAnnotation: string,
 };
 
 class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState> {
@@ -127,6 +128,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       task: undefined,
       taskStartTime: now.getTime(),
       annotations: [],
+      currentDefaultTagAnnotation: '',
     };
   }
 
@@ -367,6 +369,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       this.setState({
         annotations,
         toastMsg: undefined,
+        currentDefaultTagAnnotation: tag,
       });
     }
   }
@@ -570,6 +573,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             onAnnotationPlayed={this.play}
             onSeek={this.seekTo}
             drawingEnabled={isDrawingEnabled}
+            currentDefaultTagAnnotation={this.state.currentDefaultTagAnnotation}
           >
           </Workbench>
 
