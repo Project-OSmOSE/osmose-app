@@ -70,7 +70,6 @@ type WorkbenchState = {
 };
 
 class Workbench extends Component<WorkbenchProps, WorkbenchState> {
-
   /**
    * Ref to canvas wrapper is used to modify its scrollLeft property.
    * @property {any} wrapperRef React reference to the wrapper
@@ -714,6 +713,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
         onRegionMoved={this.props.onAnnotationUpdated}
         onRegionPlayed={this.props.onAnnotationPlayed}
         onRegionClicked={this.props.onAnnotationSelected}
+        onAddAnotherAnnotation={this.onStartNewAnnotation}
        ></Region>
     );
   }

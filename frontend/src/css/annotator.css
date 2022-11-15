@@ -132,6 +132,10 @@ html {
   cursor: crosshair;
 }
 
+.region-body {
+  cursor: crosshair;
+}
+
 .drawable {
   cursor: crosshair;
 }
