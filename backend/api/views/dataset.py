@@ -2,11 +2,8 @@
 import csv
 
 from django.db.models import Count
-from django.http import HttpResponse
-from django.contrib import messages
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.conf import settings
-from django.shortcuts import redirect
-from django.urls import reverse
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -32,21 +29,13 @@ class DatasetViewSet(viewsets.ViewSet):
         )
 
         serializer = self.serializer_class(queryset, many=True)
-        stack_message = messages.get_messages(request)
-        flash_messages = []
-        for message in stack_message:
-            flash_messages.append({"message": message.message, "tags": message.tags})
-        resultat = {
-            "flash_messages": flash_messages,
-            "result": serializer.data,
-        }
-        return Response(resultat)
+
+        return Response(serializer.data)
 
     @action(detail=False)
     def list_to_import(self, request):
         """list dataset in datasets.csv"""
         dataset_names = Dataset.objects.values_list("name", flat=True)
-        csv_dataset_names = []
         new_datasets = []
 
         # Check for new datasets
@@ -55,13 +44,16 @@ class DatasetViewSet(viewsets.ViewSet):
                 settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
             ) as csvfile:
                 for dataset in csv.DictReader(csvfile):
-                    csv_dataset_names.append(dataset["name"])
                     if dataset["name"] not in dataset_names:
                         new_datasets.append(dataset)
         except FileNotFoundError as error:
             capture_exception(error)
-            messages.add_message(request, messages.ERROR, f"File Not Found : {error}")
-            return redirect(reverse("dataset-list"))
+            return HttpResponse(error, status=400)
+
+        if not new_datasets:
+            return HttpResponseBadRequest(
+                "No new data : Add new data in datasets.csv", status=400
+            )
 
         return Response(new_datasets)
 
@@ -73,30 +65,23 @@ class DatasetViewSet(viewsets.ViewSet):
 
         try:
             new_datasets = datawork_import(
-                dataset_checked=request.data["dataset_checked"],
+                wanted_datasets=request.data["wanted_datasets"],
                 importer=request.user,
             )
         except FileNotFoundError as error:
             capture_exception(error)
-            messages.add_message(request, messages.ERROR, f"File Not Found : {error}")
-            return redirect(reverse("dataset-list"))
+            return HttpResponse(error, status=400)
         except PermissionError as error:
             capture_exception(error)
-            messages.add_message(request, messages.ERROR, f"Permission : {error}")
-            return redirect(reverse("dataset-list"))
+            return HttpResponse(error, status=400)
         except KeyError as error:
             capture_exception(error)
-            messages.add_message(
-                request,
-                messages.ERROR,
+            return HttpResponse(
                 f"One of the import CSV is missing the following column : {error}",
+                status=400,
             )
-            return redirect(reverse("dataset-list"))
 
         queryset = new_datasets.annotate(Count("files")).select_related("dataset_type")
         serializer = self.serializer_class(queryset, many=True)
-        resultat = {
-            "flash_messages": [],
-            "result": serializer.data,
-        }
-        return Response(resultat)
+
+        return Response(serializer.data)

@@ -1,5 +1,5 @@
 """Python file for datawork_import function that imports datasets from datawork"""
-# pylint: disable=too-many-locals
+
 import csv
 from datetime import timedelta
 
@@ -17,29 +17,23 @@ from backend.api.models import (
 
 
 @transaction.atomic
-def datawork_import(*, dataset_checked, importer):
+def datawork_import(*, wanted_datasets, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
     # TODO : break up this process to remove code smell and in order to help with unit testing
-
-    dataset_names = Dataset.objects.values_list("name", flat=True)
+    # pylint: disable=too-many-locals
+    current_dataset_names = Dataset.objects.values_list("name", flat=True)
+    wanted_dataset_names = [dataset["name"] for dataset in wanted_datasets]
     csv_dataset_names = []
-    new_dataset_checked = []
     new_datasets = []
     # Check for new datasets
     with open(
         settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
     ) as csvfile:
-
         for dataset in csv.DictReader(csvfile):
-            for one_checked_dataset in dataset_checked:
-
-                if dataset["name"] == one_checked_dataset["name"]:
-                    new_dataset_checked.append(dataset)
-
-        for one_data in new_dataset_checked:
-            if one_data["name"] not in dataset_names:
-                csv_dataset_names.append(one_data["name"])
-                new_datasets.append(one_data)
+            dname = dataset["name"]
+            csv_dataset_names.append(dname)
+            if dname in wanted_dataset_names and dname not in current_dataset_names:
+                new_datasets.append(dataset)
 
     created_datasets = []
     for dataset in new_datasets:
@@ -56,13 +50,14 @@ def datawork_import(*, dataset_checked, importer):
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
-            audio_metadatum = AudioMetadatum.objects.create(
-                num_channels=audio_raw["nchannels"],
-                sample_rate_khz=audio_raw["dataset_fs"],
-                sample_bits=audio_raw["sound_sample_size_in_bits"],
-                start=parse_datetime(audio_raw["start_date"]),
-                end=parse_datetime(audio_raw["end_date"]),
-            )
+
+        audio_metadatum = AudioMetadatum.objects.create(
+            num_channels=audio_raw["nchannels"],
+            sample_rate_khz=audio_raw["dataset_fs"],
+            sample_bits=audio_raw["sound_sample_size_in_bits"],
+            start=parse_datetime(audio_raw["start_date"]),
+            end=parse_datetime(audio_raw["end_date"]),
+        )
         geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
             name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
         )
@@ -104,7 +99,7 @@ def datawork_import(*, dataset_checked, importer):
                     audio_metadatum=audio_metadatum,
                 )
 
-    # Check for new spectro configs
+    # Check for new spectro configs on all datasets present in CSV
     datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
     for dataset in datasets_to_check:
         dataset_spectros = []
