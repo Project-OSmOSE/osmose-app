@@ -5,7 +5,6 @@
 
 [ci-badge]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml/badge.svg
 [ci-link]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml
-
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
 [black-link]: https://github.com/psf/black
 
@@ -20,18 +19,23 @@ This project uses poetry (`pip install poetry`) for Python dev and npm for Javas
 ### Setup
 
 **Backend:**
+
 ```bash
 # Initial setup
 poetry install
 docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis
 poetry run ./manage.py migrate
 poetry run ./manage.py seed
+
 # Run
 docker start devdb
 poetry run ./manage.py runserver
+
+
 ```
 
 **Frontend:**
+
 ```bash
 # Initial setup
 cd frontend
@@ -44,6 +48,7 @@ npm start
 
 ```bash
 # Run backend & frontend tests
+docker start devdb
 poetry run ./manage.py test
 cd frontend; npm test
 
@@ -71,3 +76,7 @@ poetry add -D "pylint==2.14.5"
 Here `-D` because this is a dev tool, if it's a library to also be used in production you can drop that option.
 
 If you want to changes pylint rules, the configuration options are in the `pyproject.toml` file.
+
+**Formatting :**
+
+If you use VSCode, you can add `"python.formatting.provider": "black"` to your .vscode/settings.json
