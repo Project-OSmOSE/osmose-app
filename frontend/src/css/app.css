@@ -19,3 +19,8 @@
   top: 100px;
   left: 200px;
 }
+
+.form-checkbox {
+  display: flex;
+  justify-content: space-around;
+}

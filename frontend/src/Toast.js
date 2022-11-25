@@ -84,7 +84,7 @@ class Toast extends Component<ToastProps, ToastState> {
   }
 
   render() {
-    if (this.state.currentMsg) {
+    if (this.state.currentMsg && this.state.currentMsg.msg !== "") {
       const tst: ToastMsg = this.state.currentMsg;
 
       return (

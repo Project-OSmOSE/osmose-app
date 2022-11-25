@@ -17,21 +17,22 @@ from backend.api.models import (
 
 
 @transaction.atomic
-def datawork_import(*, importer):
+def datawork_import(*, wanted_datasets, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
     # TODO : break up this process to remove code smell and in order to help with unit testing
     # pylint: disable=too-many-locals
-    dataset_names = Dataset.objects.values_list("name", flat=True)
+    current_dataset_names = Dataset.objects.values_list("name", flat=True)
+    wanted_dataset_names = [dataset["name"] for dataset in wanted_datasets]
     csv_dataset_names = []
     new_datasets = []
-
     # Check for new datasets
     with open(
         settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
     ) as csvfile:
         for dataset in csv.DictReader(csvfile):
-            csv_dataset_names.append(dataset["name"])
-            if dataset["name"] not in dataset_names:
+            dname = dataset["name"]
+            csv_dataset_names.append(dname)
+            if dname in wanted_dataset_names and dname not in current_dataset_names:
                 new_datasets.append(dataset)
 
     created_datasets = []
@@ -49,6 +50,7 @@ def datawork_import(*, importer):
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
+
         audio_metadatum = AudioMetadatum.objects.create(
             num_channels=audio_raw["nchannels"],
             sample_rate_khz=audio_raw["dataset_fs"],
@@ -97,7 +99,7 @@ def datawork_import(*, importer):
                     audio_metadatum=audio_metadatum,
                 )
 
-    # Check for new spectro configs
+    # Check for new spectro configs on all datasets present in CSV
     datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
     for dataset in datasets_to_check:
         dataset_spectros = []
