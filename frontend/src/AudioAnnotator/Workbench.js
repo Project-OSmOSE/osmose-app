@@ -55,6 +55,7 @@ type WorkbenchProps = {
   onAnnotationSelected: (Annotation) => void,
   onSeek: any,
   drawingEnabled: boolean,
+  currentDefaultTagAnnotation: string,
 };
 
 type WorkbenchState = {
@@ -425,7 +426,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     const newAnnotation: Annotation = {
       type: TYPE_BOX,
       id: '',
-      annotation: '',
+      annotation: this.props.currentDefaultTagAnnotation,
       startTime: Math.min(currentTime, this.drawStartTime),
       endTime: Math.max(currentTime, this.drawStartTime),
       startFrequency: Math.min(currentFrequency, this.drawStartFrequency),
