@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import request from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
-import * as utils from './utils';
+import * as utils from './components/utils';
 
 const GET_DATASETS_API_URL = '/api/dataset/';
 const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';

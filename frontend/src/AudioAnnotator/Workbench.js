@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import * as utils from '../utils';
+import * as utils from '../components/utils';
 
 import type { Annotation, FileMetadata, SpectroUrlsParams } from './AudioAnnotator';
 import { TYPE_BOX } from './AudioAnnotator';
@@ -651,7 +651,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
           <span>{this.state.currentZoom}x</span>
         </p>
 
-        <p className="workbench-info">
+        <p className="workbench-info workbench-info--intro">
           File : <strong>{this.props.fileMetadata.name}</strong> - Sampling : <strong>{this.props.fileMetadata.audioRate} Hz</strong><br />
           Start date : <strong>{this.props.fileMetadata.date.toUTCString()}</strong>
         </p>

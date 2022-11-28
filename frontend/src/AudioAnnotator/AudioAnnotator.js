@@ -2,15 +2,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
-import * as utils from '../utils';
+import * as utils from '../components/utils';
 
 import AudioPlayer from './AudioPlayer';
 import Workbench from './Workbench';
 
-import type { ToastMsg } from '../Toast';
-import Toast from '../Toast';
+import type { ToastMsg } from '../components/Toast';
+import Toast from '../components/Toast';
+import { confirm } from '../components/Confirmation';
 
-import '../css/font-awesome-4.7.0.min.css';
 import '../css/annotator.css';
 
 // API constants
@@ -103,6 +103,8 @@ type AudioAnnotatorState = {
   taskStartTime: number,
   annotations: Array<Annotation>,
   currentDefaultTagAnnotation: string,
+  inAModal: boolean,
+  alphanumeric_keys: Array<string>,
 };
 
 class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState> {
@@ -129,6 +131,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       taskStartTime: now.getTime(),
       annotations: [],
       currentDefaultTagAnnotation: '',
+      inAModal: false,
+      alphanumeric_keys :[
+        ["&", "é", "\"", "'", "(", "-", "è", "_", "ç"],
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+      ],
     };
   }
 
@@ -188,6 +195,34 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             error: undefined,
             annotations,
           });
+
+          /**Presence/Absence mode */
+          if (!!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE) {
+            let useTags = [];
+            let doYouSearchFirstAnnotationTypeTag = true;
+            annotations.map((annotation) => {
+              if (doYouSearchFirstAnnotationTypeTag && annotation.type === TYPE_TAG) {
+                annotation.active = true;
+                doYouSearchFirstAnnotationTypeTag = false;
+              }
+              !useTags.includes(annotation.annotation) && useTags.push(annotation.annotation);
+              return annotation;
+            })
+
+            useTags.forEach(element => {
+              const tagIndex = this.state.task.annotationTags.indexOf(element);
+              const checkbox_btn = document.querySelector(`#tags_key_checkbox_shortcuts_${tagIndex}`)
+              const btn_tag = document.getElementById(`tags_key_shortcuts_${tagIndex}`);
+
+              checkbox_btn.checked = true;
+              btn_tag.disabled = false;
+            });
+          }
+
+          this.setState({
+            annotations,
+          });
+
         } else {
           this.setState({isLoading: false, error: 'Not enough data to retrieve spectrograms'});
         }
@@ -206,6 +241,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   componentDidMount() {
     const taskId: number = this.props.match.params.annotation_task_id;
     this.retrieveTask(taskId);
+    document.addEventListener("keydown", this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keyup", this.handleKeyPress);
   }
 
   componentDidUpdate(prevProps: AudioAnnotatorProps) {
@@ -215,6 +255,60 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     if (prevTaskId !== taskId) {
       this.retrieveTask(taskId);
     }
+  }
+
+  handleKeyPress = (event: SyntheticEvent<HTMLInputElement>): React.Node => {
+    const active_alphanumeric_keys = this.state.alphanumeric_keys[0].slice(0, this.state.task.annotationTags.length);
+
+    if(this.state.inAModal) return
+
+    if (event.key === "Enter") {
+      this.checkAndSubmitAnnotations();
+      return
+    }
+
+    active_alphanumeric_keys.forEach((value, index) => {
+      const tag = this.state.task.annotationTags[index];
+
+      if (event.key === value || event.key === this.state.alphanumeric_keys[1][index]) {
+        this.setState({ currentDefaultTagAnnotation: this.state.task.annotationTags[index] });
+
+        const checkbox_tag = document.getElementById(`tags_key_checkbox_shortcuts_${index}`);
+        const btn_tag = document.getElementById(`tags_key_shortcuts_${index}`);
+
+        const activeAnn = this.state.annotations
+          .find((ann: Annotation) => ann.active);
+        let annotations = this.state.annotations
+
+        if (this.state.task && this.state.task.annotationScope === SCOPE_RECTANGLE) {
+          this.toggleAnnotationTag(tag);
+          return
+        }
+
+        if (annotations.length === 0) {
+          this.toggleGlobalTag(tag);
+          btn_tag.disabled = false;
+          checkbox_tag.checked = true;
+          btn_tag.classList.add(`pulse__${index}--active`);
+        } else{
+          const matchingAnnotation =  this.state.annotations.find(ann => ann.type === TYPE_TAG && ann.annotation === tag);
+          if (matchingAnnotation) {
+            if (this.getCurrentTag() === tag) {
+              /** Delete annotations and TYPE_TAG */
+              this.toggleGlobalTag(tag);
+              return;
+            }
+            /** Update activeAnn */
+            activeAnn.annotation = this.state.task.annotationTags[index]
+            this.setState({ annotations: annotations });
+          } else {
+            /** New TYPE_TAG */
+            this.toggleGlobalTag(tag);
+          }
+        }
+        return
+      }
+    })
   }
 
   buildErrorMessage = (err: any) => {
@@ -274,7 +368,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   getCurrentTag = () => {
-    const activeTag = this.state.annotations.find((ann: Annotation) => ann.active && ann.type === TYPE_TAG);
+    const activeTag = this.state.annotations.find((ann: Annotation) => ann.active && ann.annotation);
     if (activeTag) {
       return activeTag.annotation;
     }
@@ -288,23 +382,20 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .map(ann => parseInt(ann.id, 10))
       .sort((a, b) => b - a)
       .shift();
-    const newId: string = maxId ? (maxId + 1).toString() : '1';
+
+    const newId: string = maxId ? `${(maxId + 1).toString()}` : `1`;
 
     if (isPresenceMode) {
       if (annotation.type === TYPE_BOX) {
         const newAnnotation: Annotation = Object.assign(
           {}, annotation, {id: newId, annotation: this.getCurrentTag()}
         );
-
-        const annotations: Array<Annotation> = this.state.annotations.concat(newAnnotation);
-
-        this.setState({annotations});
+        this.activateAnnotation(newAnnotation);
       } else {
         // Type: TYPE_TAG
         const newAnnotation: Annotation = Object.assign(
           {}, annotation, {id: newId}
         );
-
         this.activateAnnotation(newAnnotation);
       }
     } else {
@@ -317,7 +408,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           toastMsg: {msg: 'Select a tag to annotate the box.', lvl: 'primary'},
         });
       }
-
       this.activateAnnotation(newAnnotation);
     }
   }
@@ -338,9 +428,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   activateAnnotation = (annotation: Annotation) => {
-    const isBoxMode = !!this.state.task && this.state.task.annotationScope === SCOPE_RECTANGLE;
-
-    if (isBoxMode || annotation.type === TYPE_TAG) {
       const activated: Annotation = Object.assign(
         {}, annotation, { active: true }
       );
@@ -349,8 +436,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         .map(ann => Object.assign({}, ann, { active: false }))
         .concat(activated);
 
-      this.setState({annotations});
-    }
+        this.setState({annotations});
   }
 
   toggleAnnotationTag = (tag: string) => {
@@ -378,22 +464,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const matchingAnnotation: ?Annotation = this.state.annotations
       .find(ann => ann.type === TYPE_TAG && ann.annotation === tag);
 
+    const tagIndex = this.state.task.annotationTags.indexOf(tag);
+    const checkbox_btn = document.querySelector(`#tags_key_checkbox_shortcuts_${tagIndex}`)
+    const btn_tag = document.getElementById(`tags_key_shortcuts_${tagIndex}`);
+
     if (matchingAnnotation) {
-      const isTagCurrent: boolean = this.getCurrentTag() === tag;
-
-      if (isTagCurrent) {
-        // Tag is present and current: unable it (delete all related annotations)
-        const annotations: Array<Annotation> = this.state.annotations
-          .filter(ann => ann.annotation !== tag);
-
-        this.setState({
-          annotations,
-          toastMsg: undefined,
-        });
-      } else {
-        // Tag is present but not active: activate it
-        this.activateAnnotation(matchingAnnotation);
-      }
+      this.deleteAnnotationInPresenceMode(tag, checkbox_btn, btn_tag)
     } else {
       // Tag is not present: create it
       const newAnnotation: Annotation = {
@@ -406,9 +482,35 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endFrequency: -1,
         active: true,
       };
+      checkbox_btn.checked = true;
+      btn_tag.disabled = false;
       this.saveAnnotation(newAnnotation);
     }
   }
+
+  async deleteAnnotationInPresenceMode(tag: string, checkbox_btn: HTMLInputElement, btn_tag: HTMLInputElement) {
+    this.setState({ inAModal: true });
+
+    if (await confirm("Are your sure?")) {
+      const annotations: Array<Annotation> = this.state.annotations
+        .filter(ann => ann.annotation !== tag);
+
+      if (annotations.length > 0) {
+        const annotationToActive = annotations.find((ann: Annotation) => ann.type === TYPE_TAG);
+        annotationToActive.active = true;
+      }
+
+      checkbox_btn.checked = false;
+      btn_tag.disabled = true;
+
+      this.setState({
+        annotations,
+        toastMsg: undefined,
+      });
+    }
+    this.setState({ inAModal: false });
+
+}
 
   checkAndSubmitAnnotations = () => {
     const emptyAnnotations = this.state.annotations
@@ -421,7 +523,21 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
     } else {
       this.submitAnnotations();
+
+      this.clearAnnotationsBtnTag();
     }
+  }
+
+  clearAnnotationsBtnTag = () => {
+    const active_alphanumeric_keys = this.state.alphanumeric_keys[0].slice(0, this.state.task.annotationTags.length);
+
+    active_alphanumeric_keys.forEach((value, index) => {
+        const checkbox_tag = document.getElementById(`tags_key_checkbox_shortcuts_${index}`);
+        const btn_tag = document.getElementById(`tags_key_shortcuts_${index}`);
+        btn_tag.disabled = true;
+        checkbox_tag.checked = false;
+        btn_tag.classList.remove(`pulse__${index}--active`);
+    });
   }
 
   submitAnnotations = () => {
@@ -589,13 +705,22 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               {playbackRateSelect}
             </p>
 
-            <p className="col-sm-3 text-center">
+            <div className="col-sm-3 text-center tooltip-wrap">
               <button
                 className="btn btn-submit"
                 onClick={this.checkAndSubmitAnnotations}
                 type="button"
               >Submit &amp; load next recording</button>
-            </p>
+              <div className="card tooltip-toggle">
+                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
+                <div className="card-body p-1">
+                  <p>
+                    <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
+
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="col-sm-4">
               <Toast toastMsg={this.state.toastMsg}></Toast>
             </div>
@@ -629,131 +754,175 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     return (
       <div className="row">
-        <div className="col-sm-6">
-          {isPresenceMode ? this.renderTagList() : this.renderActiveAnnotation()}
+        <div className="col-sm-6 mt-0 d-flex justify-content-around align-items-start">
+          {this.renderActiveBoxAnnotation()}
+          {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
         <div className="col-sm-6">
-          <table className="table table-hover">
-            <thead>
-              <tr className="text-center table-light">
+          <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
+          <table className="table table-hover rounded">
+            <thead className="">
+              <tr className="text-center bg__black--003">
                 <th colSpan="3">Annotations</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className=''>
               {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
     );
   }
 
-  renderTags = (tagNames: Array<string>, activeTags: Array<string>) => {
+  renderTags = () => {
     if (this.state.task) {
-      const isPresenceMode = this.state.task.annotationScope === SCOPE_WHOLE;
 
-      const tags = tagNames.map((tag, idx) => {
-        const color: string = utils.getTagColor(this.state.tagColors, tag);
+      const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
+      const activeTags = this.state.currentDefaultTagAnnotation;
+      const tags = this.state.task.annotationTags.map((tag, idx) => {
+      const color: string = utils.getTagColor(this.state.tagColors, tag);
 
-        const style = {
-          inactive: {
-            backgroundColor: color,
-            border: 'none',
-            color: '#ffffff',
-          },
-          active: {
-            backgroundColor: 'transparent',
-            border: `1px solid ${color}`,
-            color: color,
-          },
-        };
-        return (
-          <li key={`tag-${idx.toString()}`}>
-            <button
-              className="btn"
-              style={(activeTags.includes(tag)) ? style.active : style.inactive}
-              onClick={() => isPresenceMode ? this.toggleGlobalTag(tag) : this.toggleAnnotationTag(tag)}
-              type="button"
-            >{tag}</button>
-          </li>
-        );
+      const style = {
+        inactive: {
+          backgroundColor: color,
+          border: 'none',
+          color: '#ffffff',
+        },
+        active: {
+          backgroundColor: 'transparent',
+          border: `1px solid ${color}`,
+          color: color,
+        },
+      };
+
+      return (
+        <li key={`tag-${idx.toString()}`}>
+          <button
+            id={`tags_key_shortcuts_${idx.toString()}`}
+            className="btn"
+            style={(activeTags.includes(tag)) ? style.active : style.inactive}
+            onClick={() => this.toggleAnnotationTag(tag)}
+            type="button"
+            disabled={isPresenceMode ? true : false}
+          >{tag}</button>
+        </li>
+      );
       });
 
       return (
-        <React.Fragment>{tags}</React.Fragment>
+        <ul className="card-text annotation-tags">{tags}</ul>
       );
+
     } else {
       return (
         <React.Fragment></React.Fragment>
       );
     }
-
   }
-
-  renderActiveAnnotation = () => {
-    const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
-
-    if (activeAnn && this.state.task) {
-      const ann: Annotation = activeAnn;
-
-      const tags = this.renderTags(this.state.task.annotationTags, [ann.annotation]);
+  presenceAbsentTagCheckbox = () => {
+    if (this.state.task) {
+      // <li> tag checkbox generator
+        const tags = this.state.task.annotationTags.map((tag, idx) => {
+        const color: string = utils.getTagColor(this.state.tagColors, tag);
+          return (
+          <li className="form-check tooltip-wrap" key={`tag-${idx.toString()}`}>
+              <input
+                id={`tags_key_checkbox_shortcuts_${idx.toString()}`}
+                className="form-check-input"
+                type="checkbox"
+                onChange={() => this.toggleGlobalTag(tag)}
+              />
+            <label className="form-check-label" htmlFor={`tags_key_checkbox_shortcuts_${idx.toString()}`} style={{ color }}>
+              {tag}
+            </label>
+              <div className="card tooltip-toggle">
+                <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
+                <div className="card-body p-1">
+                  <p>
+                    <span className="font-italic">{this.state.alphanumeric_keys[1][idx]}</span>
+                    {" or "}
+                    <span className="font-italic">{this.state.alphanumeric_keys[0][idx]}</span>
+                    {" : choose this tag"}<br/>
+                    <span className="font-italic">{`${this.state.alphanumeric_keys[1][idx]} + ${this.state.alphanumeric_keys[1][idx]}`}</span>
+                    {" or "}
+                    <span className="font-italic">{`${this.state.alphanumeric_keys[0][idx]} + ${this.state.alphanumeric_keys[0][idx]}`}</span>
+                    {" : delete all annotations of this tag"}
+                  </p>
+                </div>
+                </div>
+          </li>
+        )
+      });
 
       return (
-        <div className="card">
-          <h6 className="card-header text-center">Selected annotation</h6>
-          <div className="card-body d-flex justify-content-between">
-            <p className="card-text">
-              <i className="fa fa-clock-o"></i>&nbsp;
-              {utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-              {utils.formatTimestamp(ann.endTime)}<br />
-              <i className="fa fa-arrow-up"></i>&nbsp;
-              {ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-              {ann.endFrequency.toFixed(2)} Hz
-            </p>
-            <ul className="card-text annotation-tags">
-              {tags}
-            </ul>
+          <div className="card">
+            <h6 className="card-header text-center">Presence / Absence</h6>
+            <div className="card-body">
+                {tags}
+            </div>
           </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="card">
-          <h6 className="card-header text-center">Selected annotation</h6>
-          <div className="card-body">
-            <p className="card-text text-center">-</p>
+        );
+      } else {
+        return (
+          <div className="card">
+            <h6 className="card-header text-center">Presence / Absence</h6>
+            <div className="card-body">
+              <p className="card-text text-center">-</p>
+            </div>
           </div>
-        </div>
       );
     }
   }
 
-  renderTagList = () => {
-    if (this.state.task) {
-      const allTags: Array<string> = this.state.task.annotationTags;
-      const activeTags: Array<string> = this.state.annotations
-        .filter((ann: Annotation) => ann.type === TYPE_TAG)
-        .map((ann: Annotation) => ann.annotation);
-      const tags = this.renderTags(allTags, activeTags);
+  renderActiveBoxAnnotation = () => {
+    const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
+    const tags = this.renderTags();
+
+    if (activeAnn && this.state.task) {
+      const ann: Annotation = activeAnn;
 
       return (
+        <React.Fragment>
         <div className="card">
-          <h6 className="card-header text-center">Presence / Absence</h6>
-          <div className="card-body">
-            <ul className="card-text annotation-tags">
-              {tags}
-            </ul>
+          <h6 className="card-header text-center">Selected annotation</h6>
+          <div className="card-body d-flex justify-content-between">
+            <p className="card-text">
+              <i className="fa fa-clock-o"></i> :&nbsp;
+                {utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                {utils.formatTimestamp(ann.endTime)}<br />
+              <i className="fa fa-arrow-up"></i> :&nbsp;
+                {ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                {ann.endFrequency.toFixed(2)} Hz<br />
+              <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+            </p>
           </div>
         </div>
+        <div className="card">
+          <h6 className="card-header text-center">Tags list</h6>
+          <div className="card-body d-flex justify-content-between">
+              {tags}
+          </div>
+        </div>
+        </React.Fragment>
       );
     } else {
       return (
-        <div className="card">
-          <h6 className="card-header text-center">Presence / Absence</h6>
-          <div className="card-body">
-            <p className="card-text text-center">-</p>
+        <React.Fragment>
+          <div className="card">
+            <h6 className="card-header text-center">Selected annotation</h6>
+            <div className="card-body">
+              <p className="card-text text-center">-</p>
+            </div>
           </div>
-        </div>
+          <div className="card">
+            <h6 className="card-header text-center">Tags list</h6>
+            <div className="card-body d-flex justify-content-between">
+                {tags}
+            </div>
+          </div>
+        </React.Fragment>
       );
     }
   }
