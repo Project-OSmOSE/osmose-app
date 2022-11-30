@@ -42,6 +42,7 @@ jobs:
     - name: Run coverage
       run: |
         poetry run coverage run ./manage.py test &> /dev/null
+        poetry run coverage html -d ./_site
         poetry run coverage report
     - name: Check for missed migrations (don't forget to run makemigrations)
       run: |
@@ -52,6 +53,8 @@ jobs:
     - name: Check for missed pylint warnings (don't forget to run pylint)
       run: |
         poetry run pylint --disable=fixme backend
+    - name: Upload coverage artifact
+      uses: actions/upload-pages-artifact@v1
   frontend-tests:
     runs-on: ubuntu-latest
     defaults:
