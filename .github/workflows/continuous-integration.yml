@@ -41,7 +41,7 @@ jobs:
         poetry run ./manage.py test
     - name: Run coverage
       run: |
-        poetry run coverage run ./manage.py test &> /dev/nulls
+        poetry run coverage run ./manage.py test &> /dev/null
         poetry run coverage report
     - name: Check for missed migrations (don't forget to run makemigrations)
       run: |

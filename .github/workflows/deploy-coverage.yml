@@ -2,7 +2,7 @@ name: Deploy coverage
 
 on:
   push:
-    #branches: [ master ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
@@ -43,7 +43,13 @@ jobs:
     - name: Run coverage
       run: |
         poetry run coverage run ./manage.py test &> /dev/null
-        poetry run coverage html -d ./_site
+        mkdir -p ./_site/coverage
+        poetry run coverage html -d ./_site/coverage
+    - name: Get badge
+      run: |
+        PCT=`poetry run coverage report | tail -n1 | tr -s ' ' | cut -d ' ' -f 6 | tr -d '%'`
+        COLOR="success"; if (( $PCT < 95)); then COLOR=yellow; fi
+        curl https://img.shields.io/badge/coverage-${PCT}%25-${COLOR} > ./_site/coverage/badge.svg
     - name: Upload coverage artifact
       uses: actions/upload-pages-artifact@v1
       with:
