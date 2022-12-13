@@ -15,6 +15,7 @@ div.people .grid-container {
         grid-template-columns: 1fr 1fr;
     }
 }
+
 @media screen and (min-width: 768px) {
     div.people.grid-container {
         -ms-grid-columns: 1fr 30px 1fr 30px 1fr;

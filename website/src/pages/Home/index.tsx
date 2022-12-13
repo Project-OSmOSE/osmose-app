@@ -34,7 +34,7 @@ export const Home: React.FC = () => {
       // srcSet= 
       />
       <div className="card-img-overlay pb-1 d-flex overlay justify-content-center">
-        <h2 className="card-title text-white align-self-center">Meet</h2>
+        <h2 className="card-title text-white align-self-center">Team</h2>
         <Link to="./project" title="Découvrez OSmOSE." className="stretched-link"></Link>
       </div>
     </div>
@@ -49,7 +49,7 @@ export const Home: React.FC = () => {
       // srcSet= 
       />
       <div className="card-img-overlay pb-1 d-flex overlay justify-content-center">
-        <h2 className="card-title text-white align-self-center">Explore</h2>
+        <h2 className="card-title text-white align-self-center">Science</h2>
         <Link to="./explore" title="Explorer les données." className="stretched-link"></Link>
       </div>
     </div>
