@@ -24,7 +24,7 @@ import paulPortrait from '../../img/people/Paul_200_200.webp'
 import alexPortrait from '../../img/people/alex.jpg'
 
 export const People: React.FC = () => {
-  
+
   return (
 <div className="people">
 
@@ -102,17 +102,28 @@ export const People: React.FC = () => {
       <p className="quote">
       I am a postdoctoral fellow jointly hosted at <a href="https://people.math.carleton.ca/~davecampbell/Dave_Campbell.html">Carleton University</a> and Simon Fraser University. I am working on the development of deep learning models to help identify Southern Resident Killer Whale vocalizations in the Salish Sea. I have a background in image and signal processing and I did my doctoral research project at Sorbonne Université in France. The aim was to deal with the lack of annotated data (weak supervision) for underwater acoustic scene or event detection and classification in a Big Data context. My research interests in the marine environment include (but are not limited to) characterizing a soundscape, and developing detection and classification models for underwater sounds.
       </p>
+        </CardMember>
+        <CardMember
+    name="Paul Nguyen Hong Duc"
+    img={paulPortrait}
+    imgSide="right"
+    imgAlt="Paul’s portrait"
+    // job="Data Scientist"
+    >
+      <p className="quote">
+      I am a postdoctoral fellow jointly hosted at <a href="https://people.math.carleton.ca/~davecampbell/Dave_Campbell.html">Carleton University</a> and Simon Fraser University. I am working on the development of deep learning models to help identify Southern Resident Killer Whale vocalizations in the Salish Sea. I have a background in image and signal processing and I did my doctoral research project at Sorbonne Université in France. The aim was to deal with the lack of annotated data (weak supervision) for underwater acoustic scene or event detection and classification in a Big Data context. My research interests in the marine environment include (but are not limited to) characterizing a soundscape, and developing detection and classification models for underwater sounds.
+      </p>
     </CardMember>
   </section>
 
   <section className="container my-5">
 
-    <h2>OSE</h2> 
+    <h2>OSE</h2>
     <p>
       We (Ocean Sound Explorer) design and use tools, conduct collaborative studies and inform relevant communities.
     </p>
 
-    <CardMember 
+    <CardMember
     name="Julie Béesau"
     img={juliePortrait}
     imgSide="left"
