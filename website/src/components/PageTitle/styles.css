@@ -30,7 +30,8 @@ div.pagetitle div.overlay {
     /* vertical-align: middle; */
 }
 
-div.pagetitle div.overlay h1 {
+div.pagetitle div.overlay h1,
+.parallax div.overlay h1{
     text-align: center;
     letter-spacing: 1rem;
     text-transform: uppercase;

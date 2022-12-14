@@ -20,8 +20,9 @@ import florePortrait from '../../img/people/team_flore_420_420.webp'
 import juliePortrait from '../../img/people/team_Photo_Julie_420_420.webp'
 import maellePortrait from '../../img/people/maelle_portrait.jpg'
 import dorianPortrait from '../../img/people/team_dodo_420_420.webp'
-import paulPortrait from '../../img/people/Paul_200_200.webp'
+import paulPortrait from '../../img/people/paul_200_200.webp'
 import alexPortrait from '../../img/people/alex.jpg'
+import mathieuPortrait from '../../img/people/mathieu_portrait.jpg'
 import anatolePortrait from '../../img/people/anatole_gros-martial.jpg'
 
 export const People: React.FC = () => {
@@ -78,7 +79,7 @@ export const People: React.FC = () => {
 
     <p>We (Artificial Intelligence explorer) develop all the machine intelligence for ocean sound exploration.</p>
 
-    <CardMember 
+    <CardMember
     name="Dorian Cazau"
     img={dorianPortrait}
     imgSide="left"
@@ -94,17 +95,6 @@ export const People: React.FC = () => {
     </CardMember>
 
     <CardMember
-    name="Paul Nguyen Hong Duc"
-    img={paulPortrait}
-    imgSide="right"
-    imgAlt="Paul’s portrait"
-    // job="Data Scientist"
-    >
-      <p className="quote">
-      I am a postdoctoral fellow jointly hosted at <a href="https://people.math.carleton.ca/~davecampbell/Dave_Campbell.html">Carleton University</a> and Simon Fraser University. I am working on the development of deep learning models to help identify Southern Resident Killer Whale vocalizations in the Salish Sea. I have a background in image and signal processing and I did my doctoral research project at Sorbonne Université in France. The aim was to deal with the lack of annotated data (weak supervision) for underwater acoustic scene or event detection and classification in a Big Data context. My research interests in the marine environment include (but are not limited to) characterizing a soundscape, and developing detection and classification models for underwater sounds.
-      </p>
-        </CardMember>
-        <CardMember
     name="Paul Nguyen Hong Duc"
     img={paulPortrait}
     imgSide="right"
@@ -193,6 +183,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
       </p>
     </CardMember>
 
+
     <CardMember
     name="Mathieu Dupont"
     img={mathieuPortrait}
@@ -206,7 +197,24 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
         understand dolphins bycatches and how to prevent it. I take part in developping tools with the OSmOSE team in order
         to exploit data as efficiently as possible.
         </p>
-    </CardMember>
+        </CardMember>
+
+        <CardMember
+          name="Anatole Gros-Martial"
+          img={anatolePortrait}
+          imgSide="left"
+          imgAlt="Anatole’s portrait."
+          job="PhD student"
+          >
+            <p className="quote">
+              After a one year internship in machine learning for bioacoustic tasks and a six months internship in acoustic and ethological monitoring of cetacean populations in Martinique, I started my PhD in underwater acoustics in 2022.
+              This CNRS project financed by the CNES uses acoustic data from biologged southern elephant seals.
+              My PhD consists in developping machine learning algorithms to evaluate weather conditions such as rainfall rate and wind speed from the underwater recordings. 
+              Data on weather conditions in the Southern Ocean are rare but extremely useful as they directly influence the Antarctic Circumpular Current which regulates oceans worldwide. 
+              More biologically centered tasks consist in analyzing southern elephant seals' diving and foraging behavior using additional data from the tags such as temperature, depth and salinity.
+              Furthermore, southern elephant seals can be used as monitoring buoys to detect biological noise from fish and cetaceans.
+            </p>
+        </CardMember>
 
   </section>
 

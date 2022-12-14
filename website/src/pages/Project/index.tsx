@@ -12,7 +12,7 @@ import logothales from '../../img/logo/logo_thales2.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
 export const Project: React.FC = () => {
-  
+
   return (
 <div className="project">
 
@@ -22,7 +22,7 @@ export const Project: React.FC = () => {
   // imgSet=""
   >
     <h1>
-      Meet
+      Open Science meets Ocean Sound Explorers
     </h1>
   </PageTitle>
 

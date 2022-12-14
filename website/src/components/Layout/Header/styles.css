@@ -1,5 +1,8 @@
 nav {
   font-size: larger;
+  position: fixed;
+  width: 100%;
+  z-index: 1030;
 }
 
 nav a.navigation-link {
@@ -32,4 +35,10 @@ text-align: center;
   nav li.pipe{
     display: inline-block !important;
   }
+}
+
+.dropdown-menu{
+  background-color: #f8f9fa !important;
+  padding: 0.5rem 4.5em !important;
+  margin-left: -4em;
 }

@@ -6,8 +6,10 @@ import './App.css';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Project } from './pages/Project';
+import { News } from './pages/News';
 import { Explore } from './pages/Explore';
 import { People } from './pages/People';
+import { Publications } from './pages/Publications';
 // import { Ontology } from './pages/Ontology';
 
 const App: React.FC = () => {
@@ -17,7 +19,7 @@ const App: React.FC = () => {
 
         <Route exact path="/">
           <Layout>
-            <Home />
+            <Project />
           </Layout>
         </Route>
 
@@ -27,15 +29,29 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
+        {/*
         <Route path="/explore">
           <Layout>
             <Explore />
           </Layout>
         </Route>
+  */}
 
         <Route path="/people">
           <Layout>
             <People />
+          </Layout>
+        </Route>
+
+        <Route path="/publications">
+          <Layout>
+            <Publications />
+          </Layout>
+        </Route>
+
+        <Route path="/news">
+          <Layout>
+            <News />
           </Layout>
         </Route>
 
