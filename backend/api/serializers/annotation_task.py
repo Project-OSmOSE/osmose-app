@@ -111,6 +111,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     annotationScope = serializers.IntegerField(
         source="annotation_campaign.annotation_scope"
     )
+    previousTask = serializers.IntegerField(source="")
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):

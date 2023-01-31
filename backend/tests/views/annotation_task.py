@@ -161,7 +161,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
 
     def test_retrieve(self):
         """AnnotationTask view 'retrieve' returns task data"""
-        url = reverse("annotation-task-detail", kwargs={"pk": 1})
+        url = reverse("annotation-task-detail", kwargs={"pk": 2})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -175,6 +175,8 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "spectroUrls",
                 "prevAnnotations",
                 "annotationScope",
+                "previousTask",
+                "nextTask",
             ],
         )
         self.assertEqual(
@@ -185,9 +187,9 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             dict(response.data["boundaries"]),
             {
                 "endFrequency": 16384.0,
-                "endTime": parse_datetime("2012-10-03T10:15:00Z"),
+                "endTime": parse_datetime("2012-10-03T11:15:00Z"),
                 "startFrequency": 0,
-                "startTime": parse_datetime("2012-10-03T10:00:00Z"),
+                "startTime": parse_datetime("2012-10-03T11:00:00Z"),
             },
         )
         self.assertEqual(
@@ -200,6 +202,34 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             ["nfft", "winsize", "overlap", "urls"],
         )
         self.assertEqual(len(response.data["spectroUrls"][0]["urls"]), 15)
+        self.assertEqual(
+            response.data["previousTask"],
+            1,
+        )
+        self.assertEqual(
+            response.data["nextTask"],
+            3,
+        )
+
+    def test_retrieve_first(self):
+        """AnnotationTask view 'retrieve' manages first task"""
+        url = reverse("annotation-task-detail", kwargs={"pk": 1})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["previousTask"],
+            None,
+        )
+
+    def test_retrieve_last(self):
+        """AnnotationTask view 'retrieve' manages last task"""
+        url = reverse("annotation-task-detail", kwargs={"pk": 11})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["nextTask"],
+            None,
+        )
 
     def test_retrieve_unknown(self):
         """AnnotationTask view 'retrieve' returns 404 for unknown task"""

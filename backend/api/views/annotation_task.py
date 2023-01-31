@@ -83,6 +83,17 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         if task.status == 0:
             task.status = 1
             task.save()
+        task_date = task.dataset_file.audio_metadatum.start
+        previous_task = self.queryset.filter(
+            annotator_id=task.annotator_id,
+            annotation_campaign_id=task.annotation_campaign_id,
+            dataset_file__audio_metadatum__start__lt=task_date,
+        ).last()
+        next_task = self.queryset.filter(
+            annotator_id=task.annotator_id,
+            annotation_campaign_id=task.annotation_campaign_id,
+            dataset_file__audio_metadatum__start__gt=task_date,
+        ).first()
         serializer = AnnotationTaskRetrieveSerializer(task)
         return Response(serializer.data)
 
