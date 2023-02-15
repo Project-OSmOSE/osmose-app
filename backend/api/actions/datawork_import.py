@@ -13,6 +13,7 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     SpectroConfig,
+    DatasetFile,
 )
 
 
@@ -38,6 +39,7 @@ def datawork_import(*, wanted_datasets, importer):
     created_datasets = []
     for dataset in new_datasets:
         # Create dataset metadata
+        ## defaults : value to update
         datatype, _ = DatasetType.objects.update_or_create(
             name=dataset["dataset_type_name"],
             defaults={"desc": dataset["dataset_type_desc"]},
@@ -58,6 +60,8 @@ def datawork_import(*, wanted_datasets, importer):
             start=parse_datetime(audio_raw["start_date"]),
             end=parse_datetime(audio_raw["end_date"]),
         )
+
+        ## defaults : value to update
         geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
             name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
         )
@@ -78,6 +82,7 @@ def datawork_import(*, wanted_datasets, importer):
         )
         created_datasets.append(curr_dataset.id)
 
+        dataset_files = []
         # Create dataset_files
         with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
             for timestamp_data in csv.reader(csvfile):
@@ -90,14 +95,19 @@ def datawork_import(*, wanted_datasets, importer):
                         + timedelta(seconds=float(audio_raw["dataset_fileDuration"]))
                     ),
                 )
-                curr_dataset.files.create(
-                    filename=filename,
-                    filepath=settings.DATASET_FILES_FOLDER
-                    / dataset["conf_folder"]
-                    / filename,
-                    size=0,
-                    audio_metadatum=audio_metadatum,
+                dataset_files.append(
+                    DatasetFile(
+                        dataset=curr_dataset,
+                        filename=filename,
+                        filepath=settings.DATASET_FILES_FOLDER
+                        / dataset["conf_folder"]
+                        / filename,
+                        size=0,
+                        audio_metadatum=audio_metadatum,
+                    )
                 )
+
+        curr_dataset.files.bulk_create(dataset_files)
 
     # Check for new spectro configs on all datasets present in CSV
     datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
