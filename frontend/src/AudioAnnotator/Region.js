@@ -18,6 +18,7 @@ type RegionProps = {
   onRegionMoved: (Annotation) => void,
   onRegionPlayed: (Annotation) => void,
   onRegionClicked: (Annotation) => void,
+  onAddAnotherAnnotation: (Annotation) => void,
 };
 
 class Region extends Component<RegionProps> {
@@ -33,6 +34,10 @@ class Region extends Component<RegionProps> {
   selectAnnotation = () => {
     this.props.onRegionClicked(this.props.annotation);
   }
+
+  addAnotherAnnotation = (event: SyntheticPointerEvent<HTMLCanvasElement>) => {
+    this.props.onAddAnotherAnnotation(event);
+  };
 
   render() {
     const isActive: boolean = this.props.annotation.active;
@@ -92,6 +97,7 @@ class Region extends Component<RegionProps> {
         <div
           className="region-body"
           style={styles.body}
+          onPointerDown={this.addAnotherAnnotation}
         ></div>
       </div>
     );
