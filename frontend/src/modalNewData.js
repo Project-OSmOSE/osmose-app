@@ -39,13 +39,13 @@ const NewDataItem = (props: NewDataItem_type) => {
 
 function checkboxSelected() {
   let cases = document.getElementsByName("addDataset");
-  let resultat = [];
+  let result = [];
   for (let i = 0; i < cases.length; i++) {
     if (cases[i].checked) {
-      resultat.push({name: cases[i].value});
+      result.push({name: cases[i].value});
     }
   }
-  return resultat;
+  return result;
 }
 
 function filtre_newData(searchInputFilter, newData) {
@@ -113,8 +113,8 @@ const ModalNewData = (props: modalProp) => {
             </div>
 
             <div className="content modal-body">
-              <div className="card">
-                <ul className="list-group list-group-flush">
+              <div className="card mx-500">
+                <ul className="list-group list-group-flush mx-500">
                   <li className="list-group-item checkbox">
                     <div className="form-check form-check-reverse">
                       <input
@@ -158,7 +158,7 @@ const ModalNewData = (props: modalProp) => {
                             index={index}
                           />
                         );
-                      })}{" "}
+                    })}{" "}
                 </ul>
               </div>
             </div>

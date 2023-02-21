@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 // String constants matching css rules
 const TOAST_STATUSES: any = {
@@ -10,7 +10,7 @@ const TOAST_STATUSES: any = {
 };
 
 export type ToastMsg = {
-  msg: string,
+  msg: string|array,
   lvl: string,
 };
 
@@ -86,10 +86,17 @@ class Toast extends Component<ToastProps, ToastState> {
   render() {
     if (this.state.currentMsg && this.state.currentMsg.msg !== "") {
       const tst: ToastMsg = this.state.currentMsg;
+      let errorMessage
+      if (tst.length > 2) {
+        errorMessage = tst.join("<br/>")
+        errorMessage = <Fragment>{errorMessage}</Fragment>
+      } else {
+        errorMessage = tst.msg
+      }
 
       return (
         <p className={`toasty ${this.state.status} alert alert-${tst.lvl}`}>
-          {tst.msg}
+          {errorMessage}
           <button
             className={`btn-simple fa fa-times`}
             onClick={this.hiding}
