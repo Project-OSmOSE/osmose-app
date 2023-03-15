@@ -150,7 +150,7 @@ export const People: React.FC = () => {
     name="Maëlle Torterotot"
     img={maellePortrait}
     imgSide="left"
-    imgAlt="Maëlle’s portrait."
+    imgAlt="Maëlle’s portrait"
     // job="Data Scientist"
     // url="https://www.google.com"
     // urlDesc="Page personnelle"
@@ -161,6 +161,21 @@ export const People: React.FC = () => {
       {/* <p className="quote">
         Je suis ingénieur de recherche à l’ENSTA Bretagne depuis 2020, où j’ai précédemment effectué ma thèse de doctorat en co-encadrement avec l’Université de Bretagne Occidentale. Je travaille au sein de l’équipe bioacoustique et m’intéresse aux questions de suivi des mammifères marins par acoustique passive, de l’océan Indien aux côtes bretonnes. Je suis utilisatrice des outils développés par l’équipe OSmOSE, notamment de la plateforme d’annotation Aplose, mais aussi des notebooks de calculs de descripteurs acoustiques. J’essaie en parallèle de m’investir dans le développement de ces outils.
       </p> */}
+    </CardMember>
+    
+    <CardMember
+    name="Mathieu Dupont"
+    img={mathieuPortrait}
+    imgSide="right"
+    imgAlt="Mathieu's portrait"
+    >
+        <p className="quote">
+        I joined the bioacoustics team as a research engineer in May 2022.
+        I have a background in general acoustics engineering and signal processing, I did my master at Maine Université in France.
+        I use acoustics to assess marine mammals behaviour. I am particularly focused on the APOCADO project which helps us better
+        understand dolphins bycatches and how to prevent it. I take part in developping tools with the OSmOSE team in order
+        to exploit data as efficiently as possible.
+        </p>
     </CardMember>
 
   </section>
