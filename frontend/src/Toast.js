@@ -87,8 +87,8 @@ class Toast extends Component<ToastProps, ToastState> {
     if (this.state.currentMsg && this.state.currentMsg.msg !== "") {
       const tst: ToastMsg = this.state.currentMsg;
       let errorMessage
-      if (tst.length > 2) {
-        errorMessage = tst.join("<br/>")
+      if (tst.msg.hasOwnProperty('error_lines')) {
+        errorMessage = tst.msg.error_lines.map((item, index) => { return (<span key={index}>{item}<br></br></span>) })
         errorMessage = <Fragment>{errorMessage}</Fragment>
       } else {
         errorMessage = tst.msg

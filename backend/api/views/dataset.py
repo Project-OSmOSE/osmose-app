@@ -97,7 +97,6 @@ class DatasetViewSet(viewsets.ViewSet):
                 f"But an another dataset config spectro ({buggy_dataset[0]}) can't be update :",
                 f"{error}",
                 ]}
-            print(check_error)
             capture_exception(check_error)
             return HttpResponse(json.dumps(check_error), status=400)
 

@@ -107,12 +107,19 @@ const DatasetList = (props: DatasetListProps) => {
   }, [newDatasets]);
 
   useEffect(() => {
-    console.log(error);
-    setToastMsg(
-      !Array.isArray(error)
-        ? {msg: error.response.text, lvl: "danger"}
-        : {msg: ""}
-    );
+    if (!Array.isArray(error)) {
+      let toastMessage;
+
+      try {
+        toastMessage = JSON.parse(error.response.text)
+      } catch (jsonError) {
+        toastMessage = error.response.text
+      }
+      setToastMsg({msg: toastMessage, lvl: "danger"})
+    }else {
+      setToastMsg({ msg: "" })
+    }
+
   }, [error]);
 
   useEffect(() => {
