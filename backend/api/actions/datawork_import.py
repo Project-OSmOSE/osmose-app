@@ -16,6 +16,7 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     DatasetFile,
+    SpectroConfig,
 )
 
 
@@ -84,10 +85,12 @@ def datawork_import(*, wanted_datasets, importer):
         if not os.path.exists(spectro_csv_path):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), spectro_csv_path)
 
+        dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
+        dataset_path =dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
             name=dataset["name"],
-            dataset_path=settings.DATASET_EXPORT_PATH / dataset_folder,
+            dataset_path=dataset_path,
             status=1,
             files_type=dataset["files_type"],
             dataset_type=datatype,
@@ -99,6 +102,27 @@ def datawork_import(*, wanted_datasets, importer):
             owner=importer,
         )
         created_datasets.append(curr_dataset.id)
+
+        #Add Spectro Config
+        dataset_spectros = []
+        dataset_folder = dataset_path.split("/")[-1]
+        conf_folder = curr_dataset.dataset_conf or ""
+        spectro_csv_path = (
+            settings.DATASET_IMPORT_FOLDER
+            / dataset_folder
+            / settings.DATASET_SPECTRO_FOLDER
+            / conf_folder
+            / "spectrograms.csv"
+        )
+        with open(spectro_csv_path, encoding="utf-8") as csvfile:
+            for spectro in csv.DictReader(csvfile):
+                name = spectro.pop("name")
+                dataset_spectros.append(
+                    SpectroConfig.objects.update_or_create(name=name, defaults=spectro)[
+                        0
+                    ]
+                )
+        curr_dataset.spectro_configs.set(dataset_spectros)
 
         dataset_files = []
         # Create dataset_files
@@ -124,5 +148,7 @@ def datawork_import(*, wanted_datasets, importer):
                         audio_metadatum=audio_metadatum,
                     )
                 )
+                
+                
 
     return Dataset.objects.filter(id__in=created_datasets)
