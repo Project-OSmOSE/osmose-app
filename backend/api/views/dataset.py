@@ -1,10 +1,8 @@
 """Dataset DRF-Viewset file"""
 import csv
-import re
-import json
 
 from django.db.models import Count
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.conf import settings
 
 from rest_framework import viewsets
@@ -14,7 +12,9 @@ from rest_framework.decorators import action
 from sentry_sdk import capture_exception
 from backend.api.models import Dataset
 from backend.api.actions import datawork_import
-from backend.api.actions.check_new_spectro_config_validity import check_new_spectro_config_validity
+from backend.api.actions.check_new_spectro_config_errors import (
+    check_new_spectro_config_errors,
+)
 from backend.api.serializers import DatasetSerializer
 
 
@@ -87,17 +87,8 @@ class DatasetViewSet(viewsets.ViewSet):
         queryset = new_datasets.annotate(Count("files")).select_related("dataset_type")
         serializer = self.serializer_class(queryset, many=True)
 
-        try:
-            check_new_spectro_config_validity()
-        except FileNotFoundError as error:
-            regex = "dataset/(.*)/analysis"
-            buggy_dataset = re.findall(regex, str(error))
-            check_error = {"error_lines": [
-                "Successful import. Reload (F5) this page to see it.",
-                f"But an another dataset config spectro ({buggy_dataset[0]}) can't be update :",
-                f"{error}",
-                ]}
-            capture_exception(check_error)
-            return HttpResponse(json.dumps(check_error), status=400)
+        errors = check_new_spectro_config_errors()
+        if errors:
+            return JsonResponse(errors, status=400)
 
         return Response(serializer.data)

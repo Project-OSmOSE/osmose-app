@@ -83,10 +83,12 @@ def datawork_import(*, wanted_datasets, importer):
         )
 
         if not os.path.exists(spectro_csv_path):
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), spectro_csv_path)
+            raise FileNotFoundError(
+                errno.ENOENT, os.strerror(errno.ENOENT), spectro_csv_path
+            )
 
         dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
-        dataset_path =dataset_path.as_posix()
+        dataset_path = dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
             name=dataset["name"],
@@ -103,7 +105,7 @@ def datawork_import(*, wanted_datasets, importer):
         )
         created_datasets.append(curr_dataset.id)
 
-        #Add Spectro Config
+        # Add Spectro Config
         dataset_spectros = []
         dataset_folder = dataset_path.split("/")[-1]
         conf_folder = curr_dataset.dataset_conf or ""
@@ -148,7 +150,6 @@ def datawork_import(*, wanted_datasets, importer):
                         audio_metadatum=audio_metadatum,
                     )
                 )
-                
-                
+        curr_dataset.files.bulk_create(dataset_files)
 
     return Dataset.objects.filter(id__in=created_datasets)
