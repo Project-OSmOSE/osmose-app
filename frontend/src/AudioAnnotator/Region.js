@@ -34,7 +34,7 @@ class Region extends Component<RegionProps, RegionState> {
   }
 
   componentDidMount() {
-    this.setState({spectrogramEnd: parseInt(document.querySelector('.canvas-wrapper').style.width) });
+    this.setState({spectrogramEnd: parseInt(document.querySelector('.canvas-wrapper').style.width, 10) });
   }
 
   playAnnotation = () => {

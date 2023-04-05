@@ -8,11 +8,13 @@ from django.conf import settings
 from backend.api.models import (
     Dataset,
     SpectroConfig,
+    WindowType,
 )
 
 
 def check_new_spectro_config_errors():
     """Check for new spectro configs on all datasets present in CSV"""
+    # pylint: disable=too-many-locals
     try:
         check_error = []
         csv_dataset_names = []
@@ -36,17 +38,29 @@ def check_new_spectro_config_errors():
                 / dataset_folder
                 / settings.DATASET_SPECTRO_FOLDER
                 / conf_folder
-                / "spectrograms.csv"
+                / "metadata.csv"
             )
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
-                    name = spectro.pop("name")
+                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
+
+                    window_type = WindowType.objects.filter(
+                        name=spectro["window_type"]
+                    ).first()
+                    spectro["window_type"] = window_type
+
+                    spectro_needed = {
+                        key: value
+                        for (key, value) in spectro.items()
+                        if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
+                    }
                     dataset_spectros.append(
                         SpectroConfig.objects.update_or_create(
-                            name=name, defaults=spectro
+                            name=name, defaults=spectro_needed
                         )[0]
                     )
             dataset.spectro_configs.set(dataset_spectros)
+
     except FileNotFoundError as error:
         regex = "dataset/(.*)/analysis"
         buggy_dataset = re.findall(regex, str(error))

@@ -105,15 +105,31 @@ DATASET_EXPORT_PATH = Path("datawork/dataset")  # linked to nginx conf
 DATASET_FILES_FOLDER = Path("data/audio")
 DATASET_SPECTRO_FOLDER = Path("processed/spectrogram")
 
-FIELD_SPECTRO_CONFIG_NEEDED = ["nfft", "window_size", "overlap", "zoom_level",
-                               "desc", "spectro_normalization", "data_normalization",
-                               "zscore_duration", "HPfilter_min_freq", "colormap",
-                               "dynamic_min", "dynamic_max", "window_type",
-                               "frequency_resolution", "time_resolution_zoom_0",
-                               "time_resolution_zoom_1", "time_resolution_zoom_2",
-                               "time_resolution_zoom_3", "time_resolution_zoom_4",
-                               "time_resolution_zoom_5", "time_resolution_zoom_6",
-                               "time_resolution_zoom_7", "time_resolution_zoom_8" ]
+FIELD_SPECTRO_CONFIG_NEEDED = [
+    "nfft",
+    "window_size",
+    "overlap",
+    "zoom_level",
+    "desc",
+    "spectro_normalization",
+    "data_normalization",
+    "zscore_duration",
+    "hp_filter_min_freq",
+    "colormap",
+    "dynamic_min",
+    "dynamic_max",
+    "window_type",
+    "frequency_resolution",
+    "time_resolution_zoom_0",
+    "time_resolution_zoom_1",
+    "time_resolution_zoom_2",
+    "time_resolution_zoom_3",
+    "time_resolution_zoom_4",
+    "time_resolution_zoom_5",
+    "time_resolution_zoom_6",
+    "time_resolution_zoom_7",
+    "time_resolution_zoom_8",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
