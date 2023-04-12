@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import * as utils from '../components/utils';
+import * as utils from '../utils';
 
 import type { Annotation, FileMetadata, SpectroUrlsParams } from './AudioAnnotator';
 import { TYPE_BOX } from './AudioAnnotator';

@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from 'react';
-import * as utils from './components/utils';
+import * as utils from './utils';
 
 export type choices_type = {
   [?number]: {

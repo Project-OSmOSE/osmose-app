@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import {Modal, Button} from "react-bootstrap"
 import { confirmable, createConfirmation } from "react-confirm";
 
 const Confirmation = ({
@@ -45,13 +44,11 @@ export function confirm(
   confirmation,
   proceedLabel = "OK",
   cancelLabel = "cancel",
-  options = {}
 ) {
   return createConfirmation(confirmable(Confirmation))({
     confirmation,
     proceedLabel,
     cancelLabel,
-    ...options
   });
 }
 

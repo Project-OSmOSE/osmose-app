@@ -531,9 +531,7 @@ div[class^='pulse-'] {
 .tooltip-wrap .tooltip-toggle {
   display: none;
   position: absolute;
-  bottom: -50px;
-  left: 100px;
-  right: 5%;
+  right: 10%;
   background-color: #fff;
   min-width: 25rem;
 }

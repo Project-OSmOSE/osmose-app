@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import request from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
-import * as utils from './components/utils';
+import * as utils from './utils';
 
 const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';

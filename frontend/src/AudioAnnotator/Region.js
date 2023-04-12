@@ -101,7 +101,6 @@ class Region extends Component<RegionProps, RegionState> {
       <div
         className="region"
         style={styles.wrapper}
-        ref={this.regionRef}
       >
         {headerPositionIsTop ? "" : regionBody}
         <p className = "d-flex region-header"

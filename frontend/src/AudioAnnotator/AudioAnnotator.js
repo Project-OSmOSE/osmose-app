@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
-import * as utils from '../components/utils';
+import * as utils from '../utils';
 
 import AudioPlayer from './AudioPlayer';
 import Workbench from './Workbench';
@@ -104,12 +104,16 @@ type AudioAnnotatorState = {
   annotations: Array<Annotation>,
   currentDefaultTagAnnotation: string,
   inAModal: boolean,
-  alphanumeric_keys: Array<string>,
+  checkbox_isChecked: Array<boolean>,
 };
 
 class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState> {
   audioContext: AudioContext;
   audioPlayer: AudioPlayer;
+  alphanumeric_keys = [
+    ["&", "é", "\"", "'", "(", "-", "è", "_", "ç"],
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+  ];
 
   constructor(props: AudioAnnotatorProps) {
     super(props);
@@ -132,11 +136,26 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       annotations: [],
       currentDefaultTagAnnotation: '',
       inAModal: false,
-      alphanumeric_keys :[
-        ["&", "é", "\"", "'", "(", "-", "è", "_", "ç"],
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-      ],
+      checkbox_isChecked:[],
     };
+  }
+
+  componentDidMount() {
+    const taskId: number = this.props.match.params.annotation_task_id;
+    this.retrieveTask(taskId);
+    document.addEventListener("keydown", this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyPress);
+  }
+
+  componentDidUpdate(prevProps: AudioAnnotatorProps) {
+    const prevTaskId: number = prevProps.match.params.annotation_task_id;
+    const taskId: number = this.props.match.params.annotation_task_id;
+    if (prevTaskId !== taskId) {
+      this.retrieveTask(taskId);
+    }
   }
 
   retrieveTask(taskId: number) {
@@ -145,6 +164,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .then(result => {
         const task: AnnotationTask = result.body;
+        const checkbox_isChecked = {};
+        for (const k of task.annotationTags){
+          checkbox_isChecked[k] = false;
+        }
 
         if (task.annotationTags.length > 0 && task.spectroUrls.length > 0) {
           // Computing duration (in seconds)
@@ -172,6 +195,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 active: false,
               };
             } else {
+              checkbox_isChecked[ann.annotation] = true;
               return {
                 type: TYPE_TAG,
                 id: ann.id,
@@ -194,33 +218,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             isLoading: false,
             error: undefined,
             annotations,
-          });
-
-          /**Presence/Absence mode */
-          if (!!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE) {
-            let useTags = [];
-            let doYouSearchFirstAnnotationTypeTag = true;
-            annotations.map((annotation) => {
-              if (doYouSearchFirstAnnotationTypeTag && annotation.type === TYPE_TAG) {
-                annotation.active = true;
-                doYouSearchFirstAnnotationTypeTag = false;
-              }
-              !useTags.includes(annotation.annotation) && useTags.push(annotation.annotation);
-              return annotation;
-            })
-
-            useTags.forEach(element => {
-              const tagIndex = this.state.task.annotationTags.indexOf(element);
-              const checkbox_btn = document.querySelector(`#tags_key_checkbox_shortcuts_${tagIndex}`)
-              const btn_tag = document.getElementById(`tags_key_shortcuts_${tagIndex}`);
-
-              checkbox_btn.checked = true;
-              btn_tag.disabled = false;
-            });
-          }
-
-          this.setState({
-            annotations,
+            checkbox_isChecked:checkbox_isChecked,
           });
 
         } else {
@@ -238,27 +236,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
   }
 
-  componentDidMount() {
-    const taskId: number = this.props.match.params.annotation_task_id;
-    this.retrieveTask(taskId);
-    document.addEventListener("keydown", this.handleKeyPress);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("keyup", this.handleKeyPress);
-  }
-
-  componentDidUpdate(prevProps: AudioAnnotatorProps) {
-    const prevTaskId: number = prevProps.match.params.annotation_task_id;
-    const taskId: number = this.props.match.params.annotation_task_id;
-
-    if (prevTaskId !== taskId) {
-      this.retrieveTask(taskId);
-    }
-  }
-
   handleKeyPress = (event: SyntheticEvent<HTMLInputElement>): React.Node => {
-    const active_alphanumeric_keys = this.state.alphanumeric_keys[0].slice(0, this.state.task.annotationTags.length);
+    const active_alphanumeric_keys = this.alphanumeric_keys[0].slice(0, this.state.task.annotationTags.length);
 
     if(this.state.inAModal) return
 
@@ -270,39 +249,34 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     active_alphanumeric_keys.forEach((value, index) => {
       const tag = this.state.task.annotationTags[index];
 
-      if (event.key === value || event.key === this.state.alphanumeric_keys[1][index]) {
+      if (event.key === value || event.key === this.alphanumeric_keys[1][index]) {
         this.setState({ currentDefaultTagAnnotation: this.state.task.annotationTags[index] });
-
-        const checkbox_tag = document.getElementById(`tags_key_checkbox_shortcuts_${index}`);
-        const btn_tag = document.getElementById(`tags_key_shortcuts_${index}`);
-
-        const activeAnn = this.state.annotations
-          .find((ann: Annotation) => ann.active);
-        let annotations = this.state.annotations
 
         if (this.state.task && this.state.task.annotationScope === SCOPE_RECTANGLE) {
           this.toggleAnnotationTag(tag);
           return
         }
 
-        if (annotations.length === 0) {
+        if (this.state.annotations.length === 0) {
           this.toggleGlobalTag(tag);
-          btn_tag.disabled = false;
-          checkbox_tag.checked = true;
-          btn_tag.classList.add(`pulse__${index}--active`);
+
+          let newcheckbox_isChecked = this.state.checkbox_isChecked;
+          newcheckbox_isChecked[tag] = true;
+          this.setState({
+            checkbox_isChecked: newcheckbox_isChecked
+          });
+
         } else{
-          const matchingAnnotation =  this.state.annotations.find(ann => ann.type === TYPE_TAG && ann.annotation === tag);
-          if (matchingAnnotation) {
+          if (this.state.checkbox_isChecked[tag]) {
             if (this.getCurrentTag() === tag) {
-              /** Delete annotations and TYPE_TAG */
+              /** Delete all annotations and annotations TYPE_TAG */
               this.toggleGlobalTag(tag);
-              return;
+            } else {
+              //Change tag of this annotation
+              this.toggleAnnotationTag(tag);
             }
-            /** Update activeAnn */
-            activeAnn.annotation = this.state.task.annotationTags[index]
-            this.setState({ annotations: annotations });
           } else {
-            /** New TYPE_TAG */
+            /** Create a new annotation TYPE_TAG */
             this.toggleGlobalTag(tag);
           }
         }
@@ -396,6 +370,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const newAnnotation: Annotation = Object.assign(
           {}, annotation, {id: newId}
         );
+        let newcheckbox_isChecked = this.state.checkbox_isChecked;
+        newcheckbox_isChecked[annotation.annotation] = true;
+        this.setState({
+          checkbox_isChecked: newcheckbox_isChecked
+        });
+
         this.activateAnnotation(newAnnotation);
       }
     } else {
@@ -431,12 +411,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const activated: Annotation = Object.assign(
         {}, annotation, { active: true }
       );
+    
       const annotations: Array<Annotation> = this.state.annotations
         .filter(ann => ann.id !== activated.id)
         .map(ann => Object.assign({}, ann, { active: false }))
         .concat(activated);
 
-        this.setState({annotations});
+        this.setState({annotations: annotations, currentDefaultTagAnnotation:activated.annotation});
   }
 
   toggleAnnotationTag = (tag: string) => {
@@ -461,15 +442,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   toggleGlobalTag = (tag: string) => {
-    const matchingAnnotation: ?Annotation = this.state.annotations
-      .find(ann => ann.type === TYPE_TAG && ann.annotation === tag);
-
-    const tagIndex = this.state.task.annotationTags.indexOf(tag);
-    const checkbox_btn = document.querySelector(`#tags_key_checkbox_shortcuts_${tagIndex}`)
-    const btn_tag = document.getElementById(`tags_key_shortcuts_${tagIndex}`);
-
-    if (matchingAnnotation) {
-      this.deleteAnnotationInPresenceMode(tag, checkbox_btn, btn_tag)
+    if (this.state.checkbox_isChecked[tag]) {
+      this.deleteAnnotationInPresenceMode(tag)
     } else {
       // Tag is not present: create it
       const newAnnotation: Annotation = {
@@ -482,13 +456,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endFrequency: -1,
         active: true,
       };
-      checkbox_btn.checked = true;
-      btn_tag.disabled = false;
       this.saveAnnotation(newAnnotation);
     }
   }
 
-  async deleteAnnotationInPresenceMode(tag: string, checkbox_btn: HTMLInputElement, btn_tag: HTMLInputElement) {
+  async deleteAnnotationInPresenceMode(tag: string) {
     this.setState({ inAModal: true });
 
     if (await confirm("Are your sure?")) {
@@ -499,13 +471,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const annotationToActive = annotations.find((ann: Annotation) => ann.type === TYPE_TAG);
         annotationToActive.active = true;
       }
-
-      checkbox_btn.checked = false;
-      btn_tag.disabled = true;
+      let newcheckbox_isChecked = this.state.checkbox_isChecked;
+      newcheckbox_isChecked[tag] = false;
 
       this.setState({
         annotations,
         toastMsg: undefined,
+        checkbox_isChecked: newcheckbox_isChecked,
       });
     }
     this.setState({ inAModal: false });
@@ -524,20 +496,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     } else {
       this.submitAnnotations();
 
-      this.clearAnnotationsBtnTag();
     }
-  }
-
-  clearAnnotationsBtnTag = () => {
-    const active_alphanumeric_keys = this.state.alphanumeric_keys[0].slice(0, this.state.task.annotationTags.length);
-
-    active_alphanumeric_keys.forEach((value, index) => {
-        const checkbox_tag = document.getElementById(`tags_key_checkbox_shortcuts_${index}`);
-        const btn_tag = document.getElementById(`tags_key_shortcuts_${index}`);
-        btn_tag.disabled = true;
-        checkbox_tag.checked = false;
-        btn_tag.classList.remove(`pulse__${index}--active`);
-    });
   }
 
   submitAnnotations = () => {
@@ -766,7 +725,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 <th colSpan="3">Annotations</th>
               </tr>
             </thead>
-            <tbody className=''>
+            <tbody>
               {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
             </tbody>
           </table>
@@ -801,11 +760,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         <li key={`tag-${idx.toString()}`}>
           <button
             id={`tags_key_shortcuts_${idx.toString()}`}
-            className="btn"
+            className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
             style={(activeTags.includes(tag)) ? style.active : style.inactive}
             onClick={() => this.toggleAnnotationTag(tag)}
             type="button"
-            disabled={isPresenceMode ? true : false}
+            disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
           >{tag}</button>
         </li>
       );
@@ -833,6 +792,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 className="form-check-input"
                 type="checkbox"
                 onChange={() => this.toggleGlobalTag(tag)}
+                checked={this.state.checkbox_isChecked[tag]}
               />
             <label className="form-check-label" htmlFor={`tags_key_checkbox_shortcuts_${idx.toString()}`} style={{ color }}>
               {tag}
@@ -841,13 +801,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
                 <div className="card-body p-1">
                   <p>
-                    <span className="font-italic">{this.state.alphanumeric_keys[1][idx]}</span>
+                    <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
                     {" or "}
-                    <span className="font-italic">{this.state.alphanumeric_keys[0][idx]}</span>
+                    <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
                     {" : choose this tag"}<br/>
-                    <span className="font-italic">{`${this.state.alphanumeric_keys[1][idx]} + ${this.state.alphanumeric_keys[1][idx]}`}</span>
+                    <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
                     {" or "}
-                    <span className="font-italic">{`${this.state.alphanumeric_keys[0][idx]} + ${this.state.alphanumeric_keys[0][idx]}`}</span>
+                    <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
                     {" : delete all annotations of this tag"}
                   </p>
                 </div>
@@ -876,25 +836,36 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  str_pad_left = (string, pad, length) => {
+    return (new Array(length + 1).join(pad) + string).slice(-length);
+  }
+
   renderActiveBoxAnnotation = () => {
     const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
     const tags = this.renderTags();
 
     if (activeAnn && this.state.task) {
       const ann: Annotation = activeAnn;
+      let max_time = "00:00.000";
+      if (ann.endTime === -1) {
+        const timeInSeconds = (Date.parse(this.state.task.boundaries.endTime) - Date.parse(this.state.task.boundaries.startTime) ) / 1000
+        const minutes = Math.floor(timeInSeconds / 60);
+        const seconds = timeInSeconds - minutes * 60;
+        max_time = `${this.str_pad_left(minutes, "0", 2)}:${this.str_pad_left(seconds, "0", 2)}:000`;
+      }
 
       return (
         <React.Fragment>
         <div className="card">
           <h6 className="card-header text-center">Selected annotation</h6>
           <div className="card-body d-flex justify-content-between">
-            <p className="card-text">
+              <p className="card-text">
               <i className="fa fa-clock-o"></i> :&nbsp;
-                {utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-                {utils.formatTimestamp(ann.endTime)}<br />
+                {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
               <i className="fa fa-arrow-up"></i> :&nbsp;
-                {ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-                {ann.endFrequency.toFixed(2)} Hz<br />
+                {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
               <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
             </p>
           </div>
@@ -909,7 +880,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       );
     } else {
       return (
-        <React.Fragment>
+        <React.Fragment>&
           <div className="card">
             <h6 className="card-header text-center">Selected annotation</h6>
             <div className="card-body">
