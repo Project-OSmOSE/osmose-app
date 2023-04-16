@@ -40,3 +40,7 @@ div.pagetitle div.overlay h1,
     align-self: center;
     /* max-height: fit-content; */
 }
+
+.pagetitle  h1 {
+    text-shadow: 2px 2px #1890cc, -2px -2px black;
+}
