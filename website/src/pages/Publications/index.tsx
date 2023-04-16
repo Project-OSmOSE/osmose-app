@@ -11,7 +11,7 @@ export const Publications: React.FC = () => {
         img={imgPublications}
         imgAlt="Publications Banner"
       >
-        <h1>Scientific Publications</h1>
+        <h1 className="text-shadow">Scientific Publications</h1>
       </PageTitle>
     <div className="container">
         <section>

@@ -108,7 +108,6 @@ export const People: React.FC = () => {
   </section>
 
   <section className="container my-5">
-
     <h2>OSE</h2>
     <p>
       We (Ocean Sound Explorer) design and use tools, conduct collaborative studies and inform relevant communities.
@@ -164,12 +163,11 @@ export const People: React.FC = () => {
         Je suis ingénieur de recherche à l’ENSTA Bretagne depuis 2020, où j’ai précédemment effectué ma thèse de doctorat en co-encadrement avec l’Université de Bretagne Occidentale. Je travaille au sein de l’équipe bioacoustique et m’intéresse aux questions de suivi des mammifères marins par acoustique passive, de l’océan Indien aux côtes bretonnes. Je suis utilisatrice des outils développés par l’équipe OSmOSE, notamment de la plateforme d’annotation Aplose, mais aussi des notebooks de calculs de descripteurs acoustiques. J’essaie en parallèle de m’investir dans le développement de ces outils.
       </p> */}
     </CardMember>
-        
-    
-     <CardMember 
+
+    <CardMember
     name="Anatole Gros-Martial"
     img={anatolePortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Anatole’s portrait."
     job="PhD student"
     >
@@ -183,11 +181,10 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
       </p>
     </CardMember>
 
-
     <CardMember
     name="Mathieu Dupont"
     img={mathieuPortrait}
-    imgSide="right"
+    imgSide="left"
     imgAlt="Mathieu's portrait"
     >
         <p className="quote">
@@ -198,24 +195,6 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
         to exploit data as efficiently as possible.
         </p>
         </CardMember>
-
-        <CardMember
-          name="Anatole Gros-Martial"
-          img={anatolePortrait}
-          imgSide="left"
-          imgAlt="Anatole’s portrait."
-          job="PhD student"
-          >
-            <p className="quote">
-              After a one year internship in machine learning for bioacoustic tasks and a six months internship in acoustic and ethological monitoring of cetacean populations in Martinique, I started my PhD in underwater acoustics in 2022.
-              This CNRS project financed by the CNES uses acoustic data from biologged southern elephant seals.
-              My PhD consists in developping machine learning algorithms to evaluate weather conditions such as rainfall rate and wind speed from the underwater recordings. 
-              Data on weather conditions in the Southern Ocean are rare but extremely useful as they directly influence the Antarctic Circumpular Current which regulates oceans worldwide. 
-              More biologically centered tasks consist in analyzing southern elephant seals' diving and foraging behavior using additional data from the tags such as temperature, depth and salinity.
-              Furthermore, southern elephant seals can be used as monitoring buoys to detect biological noise from fish and cetaceans.
-            </p>
-        </CardMember>
-
   </section>
 
   <section className="container my-5">
