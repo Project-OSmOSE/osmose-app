@@ -30,7 +30,8 @@ div.pagetitle div.overlay {
     /* vertical-align: middle; */
 }
 
-div.pagetitle div.overlay h1 {
+div.pagetitle div.overlay h1,
+.parallax div.overlay h1{
     text-align: center;
     letter-spacing: 1rem;
     text-transform: uppercase;
@@ -38,4 +39,8 @@ div.pagetitle div.overlay h1 {
     -ms-flex-item-align: center;
     align-self: center;
     /* max-height: fit-content; */
+}
+
+.pagetitle  h1 {
+    text-shadow: 2px 2px #1890cc, -2px -2px black;
 }

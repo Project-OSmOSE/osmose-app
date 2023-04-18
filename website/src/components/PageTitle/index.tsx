@@ -14,16 +14,14 @@ export const PageTitle: React.FC<PageTitleProps> = ({
   img,
   imgAlt,
   imgSet,
-  children
+  children,
 }) => {
   return (
-    <div className="pagetitle mb-5">
-      <img className="" alt={imgAlt} title={imgAlt} src={img}
-      srcSet={imgSet}
-      // card-img-top
-      // srcset="imagePath_400.webp 400w, imagePath_640.webp 640w"
-      />
-      <div className="overlay d-flex justify-content-center">
+    <div className="pagetitle mb-5 border-0">
+        {img ? <img alt={imgAlt} title={title ? title: imgAlt} src={img}
+          srcSet={imgSet}
+        />: null}
+      <div className="overlay d-flex justify-content-center border-0">
         {children}
       </div>
     </div>

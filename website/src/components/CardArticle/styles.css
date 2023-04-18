@@ -1,0 +1,30 @@
+.cardArticle{
+    margin: 5em 0;
+    box-shadow: 10px 5px 25px 0.5px#1a60af;
+}
+.cardArticle img{
+    max-height: 20vh;
+    align-self: center;
+    margin: 2em 0;
+}
+
+.card-text--card{
+    display: flex;
+    flex-direction: column;
+    margin-top: 3em;
+}
+
+.card-title{
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 0;
+}
+
+@media screen and (min-width: 992px) {
+    .cardArticle img{
+        min-width: 50vh;
+        min-height: 20vh;
+        align-self: center;
+        margin: 2em 0;
+    }
+}

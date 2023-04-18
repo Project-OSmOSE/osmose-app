@@ -20,12 +20,13 @@ import florePortrait from '../../img/people/team_flore_420_420.webp'
 import juliePortrait from '../../img/people/team_Photo_Julie_420_420.webp'
 import maellePortrait from '../../img/people/maelle_portrait.jpg'
 import dorianPortrait from '../../img/people/team_dodo_420_420.webp'
-import paulPortrait from '../../img/people/Paul_200_200.webp'
+import paulPortrait from '../../img/people/paul_200_200.webp'
 import alexPortrait from '../../img/people/alex.jpg'
+import mathieuPortrait from '../../img/people/mathieu_portrait.jpg'
 import anatolePortrait from '../../img/people/anatole_gros-martial.jpg'
 
 export const People: React.FC = () => {
-  
+
   return (
 <div className="people">
 
@@ -78,7 +79,7 @@ export const People: React.FC = () => {
 
     <p>We (Artificial Intelligence explorer) develop all the machine intelligence for ocean sound exploration.</p>
 
-    <CardMember 
+    <CardMember
     name="Dorian Cazau"
     img={dorianPortrait}
     imgSide="left"
@@ -108,12 +109,12 @@ export const People: React.FC = () => {
 
   <section className="container my-5">
 
-    <h2>OSE</h2> 
+    <h2>OSE</h2>
     <p>
       We (Ocean Sound Explorer) design and use tools, conduct collaborative studies and inform relevant communities.
     </p>
 
-    <CardMember 
+    <CardMember
     name="Julie Béesau"
     img={juliePortrait}
     imgSide="left"
@@ -182,6 +183,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
       </p>
     </CardMember>
 
+
     <CardMember
     name="Mathieu Dupont"
     img={mathieuPortrait}
@@ -195,7 +197,24 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
         understand dolphins bycatches and how to prevent it. I take part in developping tools with the OSmOSE team in order
         to exploit data as efficiently as possible.
         </p>
-    </CardMember>
+        </CardMember>
+
+        <CardMember
+          name="Anatole Gros-Martial"
+          img={anatolePortrait}
+          imgSide="left"
+          imgAlt="Anatole’s portrait."
+          job="PhD student"
+          >
+            <p className="quote">
+              After a one year internship in machine learning for bioacoustic tasks and a six months internship in acoustic and ethological monitoring of cetacean populations in Martinique, I started my PhD in underwater acoustics in 2022.
+              This CNRS project financed by the CNES uses acoustic data from biologged southern elephant seals.
+              My PhD consists in developping machine learning algorithms to evaluate weather conditions such as rainfall rate and wind speed from the underwater recordings. 
+              Data on weather conditions in the Southern Ocean are rare but extremely useful as they directly influence the Antarctic Circumpular Current which regulates oceans worldwide. 
+              More biologically centered tasks consist in analyzing southern elephant seals' diving and foraging behavior using additional data from the tags such as temperature, depth and salinity.
+              Furthermore, southern elephant seals can be used as monitoring buoys to detect biological noise from fish and cetaceans.
+            </p>
+        </CardMember>
 
   </section>
 
