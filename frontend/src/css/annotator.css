@@ -19,6 +19,11 @@ html {
   margin-bottom: 10px;
 }
 
+.mx-500{
+  max-height: 500px;
+  overflow-y: auto;
+}
+
 .btn-simple, .btn-simple:enabled {
   background-color: transparent;
   border: 0;

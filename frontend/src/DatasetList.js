@@ -80,7 +80,6 @@ const DatasetList = (props: DatasetListProps) => {
           window.location.reload();
         }
         setError(err);
-        // setToastMsg({msg: error["response"]["text"], lvl: "danger"});
       });
     return () => {
       getNewData.abort();
@@ -100,7 +99,6 @@ const DatasetList = (props: DatasetListProps) => {
           window.location.reload();
         }
         setError(err);
-        //setToastMsg({msg: error.response.text, lvl: "danger"});
       });
 
     return () => {
@@ -109,11 +107,19 @@ const DatasetList = (props: DatasetListProps) => {
   }, [newDatasets]);
 
   useEffect(() => {
-    setToastMsg(
-      !Array.isArray(error)
-        ? {msg: error.response.text, lvl: "danger"}
-        : {msg: ""}
-    );
+    if (!Array.isArray(error)) {
+      let toastMessage;
+
+      try {
+        toastMessage = JSON.parse(error.response.text)
+      } catch (jsonError) {
+        toastMessage = error.response.text
+      }
+      setToastMsg({msg: toastMessage, lvl: "danger"})
+    }else {
+      setToastMsg({ msg: "" })
+    }
+
   }, [error]);
 
   useEffect(() => {

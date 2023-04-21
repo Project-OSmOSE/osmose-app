@@ -1,6 +1,9 @@
 """Python file for datawork_import function that imports datasets from datawork"""
 
 import csv
+import os
+import errno
+
 from datetime import timedelta
 
 from django.utils.dateparse import parse_datetime
@@ -12,8 +15,8 @@ from backend.api.models import (
     DatasetType,
     AudioMetadatum,
     GeoMetadatum,
-    SpectroConfig,
     DatasetFile,
+    SpectroConfig,
 )
 
 
@@ -21,11 +24,12 @@ from backend.api.models import (
 def datawork_import(*, wanted_datasets, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
     # TODO : break up this process to remove code smell and in order to help with unit testing
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals, duplicate-code
     current_dataset_names = Dataset.objects.values_list("name", flat=True)
     wanted_dataset_names = [dataset["name"] for dataset in wanted_datasets]
     csv_dataset_names = []
     new_datasets = []
+
     # Check for new datasets
     with open(
         settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
@@ -44,6 +48,9 @@ def datawork_import(*, wanted_datasets, importer):
             name=dataset["dataset_type_name"],
             defaults={"desc": dataset["dataset_type_desc"]},
         )
+        dataset_folder = dataset["folder_name"]
+
+        # Audio
         audio_folder = (
             settings.DATASET_IMPORT_FOLDER
             / dataset["folder_name"]
@@ -52,7 +59,6 @@ def datawork_import(*, wanted_datasets, importer):
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
-
         audio_metadatum = AudioMetadatum.objects.create(
             num_channels=audio_raw["nchannels"],
             sample_rate_khz=audio_raw["dataset_fs"],
@@ -61,19 +67,36 @@ def datawork_import(*, wanted_datasets, importer):
             end=parse_datetime(audio_raw["end_date"]),
         )
 
-        ## defaults : value to update
+        # Geo Metadata
         geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
             name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
         )
 
+        # Check presence of spectrograms.csv
+        conf_folder = dataset["conf_folder"] or ""
+        spectro_csv_path = (
+            settings.DATASET_IMPORT_FOLDER
+            / dataset_folder
+            / settings.DATASET_SPECTRO_FOLDER
+            / conf_folder
+            / "spectrograms.csv"
+        )
+
+        if not os.path.exists(spectro_csv_path):
+            raise FileNotFoundError(
+                errno.ENOENT, os.strerror(errno.ENOENT), spectro_csv_path
+            )
+
+        dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
+        dataset_path = dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
             name=dataset["name"],
-            dataset_path=settings.DATASET_EXPORT_PATH / dataset["folder_name"],
+            dataset_path=dataset_path,
             status=1,
             files_type=dataset["files_type"],
             dataset_type=datatype,
-            dataset_conf=dataset["conf_folder"],
+            dataset_conf=conf_folder,
             start_date=audio_metadatum.start.date(),
             end_date=audio_metadatum.end.date(),
             audio_metadatum=audio_metadatum,
@@ -81,6 +104,27 @@ def datawork_import(*, wanted_datasets, importer):
             owner=importer,
         )
         created_datasets.append(curr_dataset.id)
+
+        # Add Spectro Config
+        dataset_spectros = []
+        dataset_folder = dataset_path.split("/")[-1]
+        conf_folder = curr_dataset.dataset_conf or ""
+        spectro_csv_path = (
+            settings.DATASET_IMPORT_FOLDER
+            / dataset_folder
+            / settings.DATASET_SPECTRO_FOLDER
+            / conf_folder
+            / "spectrograms.csv"
+        )
+        with open(spectro_csv_path, encoding="utf-8") as csvfile:
+            for spectro in csv.DictReader(csvfile):
+                name = spectro.pop("name")
+                dataset_spectros.append(
+                    SpectroConfig.objects.update_or_create(name=name, defaults=spectro)[
+                        0
+                    ]
+                )
+        curr_dataset.spectro_configs.set(dataset_spectros)
 
         dataset_files = []
         # Create dataset_files
@@ -106,30 +150,6 @@ def datawork_import(*, wanted_datasets, importer):
                         audio_metadatum=audio_metadatum,
                     )
                 )
-
         curr_dataset.files.bulk_create(dataset_files)
-
-    # Check for new spectro configs on all datasets present in CSV
-    datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
-    for dataset in datasets_to_check:
-        dataset_spectros = []
-        dataset_folder = dataset.dataset_path.split("/")[-1]
-        conf_folder = dataset.dataset_conf or ""
-        spectro_csv_path = (
-            settings.DATASET_IMPORT_FOLDER
-            / dataset_folder
-            / settings.DATASET_SPECTRO_FOLDER
-            / conf_folder
-            / "spectrograms.csv"
-        )
-        with open(spectro_csv_path, encoding="utf-8") as csvfile:
-            for spectro in csv.DictReader(csvfile):
-                name = spectro.pop("name")
-                dataset_spectros.append(
-                    SpectroConfig.objects.update_or_create(name=name, defaults=spectro)[
-                        0
-                    ]
-                )
-        dataset.spectro_configs.set(dataset_spectros)
 
     return Dataset.objects.filter(id__in=created_datasets)

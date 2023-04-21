@@ -2,7 +2,7 @@
 import csv
 
 from django.db.models import Count
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.conf import settings
 
 from rest_framework import viewsets
@@ -12,6 +12,9 @@ from rest_framework.decorators import action
 from sentry_sdk import capture_exception
 from backend.api.models import Dataset
 from backend.api.actions import datawork_import
+from backend.api.actions.check_new_spectro_config_errors import (
+    check_new_spectro_config_errors,
+)
 from backend.api.serializers import DatasetSerializer
 
 
@@ -83,5 +86,9 @@ class DatasetViewSet(viewsets.ViewSet):
 
         queryset = new_datasets.annotate(Count("files")).select_related("dataset_type")
         serializer = self.serializer_class(queryset, many=True)
+
+        errors = check_new_spectro_config_errors()
+        if errors:
+            return JsonResponse(errors, status=400)
 
         return Response(serializer.data)
