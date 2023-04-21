@@ -2,7 +2,7 @@ import assert from 'assert';
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Toast from '../src/Toast';
+import Toast from '../src/components/Toast';
 
 describe('testing Toast Component', function() {
   it('mounts properly with correct message', () => {

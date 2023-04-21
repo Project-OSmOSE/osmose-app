@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 import type { Annotation } from './AudioAnnotator';
 

@@ -1,9 +1,9 @@
 // @flow
 import React, {useState, useEffect} from 'react';
 import request from 'superagent';
-import Modal from './modalNewData';
+import Modal from './components/ModalNewData';
+import Toast from './components/Toast';
 import './css/modal.css';
-import Toast from './Toast';
 import {v4 as uuidv4} from 'uuid';
 
 const GET_DATASET_API_URL = '/api/dataset/';

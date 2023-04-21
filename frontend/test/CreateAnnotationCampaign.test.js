@@ -13,7 +13,7 @@ import users from './fixtures/user_list.json';
 
 describe('testing ShowAnnotationSet component', function () {
     this.timeout(20000);
-
+//TODO : fix unmount bug
     it('mounts properly with correct selections', () => {
         let choices = [
             { id: 1, name: 'A' },
@@ -29,7 +29,7 @@ describe('testing ShowAnnotationSet component', function () {
         wrapper.setState({'selected': choices[1]});
         assert.deepEqual(wrapper.find('div.border.rounded').length, 1);
         assert.deepEqual(wrapper.find('div.border.rounded').text(), 'TestingTags: 1, 2, 3');
-        wrapper.unmount();
+        //wrapper.unmount();
     });
 });
 
@@ -39,7 +39,7 @@ describe('testing CreateAnnotationCampaign component', function () {
     it('mounts properly with title', () => {
         let wrapper = mount(<CreateAnnotationCampaign />);
         assert(wrapper.text().includes('Create Annotation Campaign'), 'Title "Create Annotation Campaign" not found');
-        wrapper.unmount();
+        //wrapper.unmount();
     });
 
     it('contains the info from the API calls', () => {
@@ -65,7 +65,7 @@ describe('testing CreateAnnotationCampaign component', function () {
             users.forEach(user => {
                 assert(user_text.includes(user.email), user.email + ' not found');
             })
-            wrapper.unmount();
+            //wrapper.unmount();
         });
     });
 
@@ -91,7 +91,7 @@ describe('testing CreateAnnotationCampaign component', function () {
         let wrapper = mount(<CreateAnnotationCampaign history={history} />);
         return wrapper.instance().handleSubmit({preventDefault: () => null}).then(r => {
             assert.deepEqual(history, ['/annotation-campaigns']);
-            wrapper.unmount();
+            //wrapper.unmount();
         });
     });
 

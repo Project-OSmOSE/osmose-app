@@ -8,5 +8,5 @@
 [lints]
 
 [options]
-
+exact_by_default=true
 [strict]
