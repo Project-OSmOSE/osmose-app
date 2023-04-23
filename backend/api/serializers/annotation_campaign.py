@@ -20,7 +20,12 @@ from backend.api.models import (
 
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
-    """Serializer meant to output list of AnnotationCampaigns augmented data"""
+    """
+    Serializer meant to output list of AnnotationCampaigns augmented data
+
+    This serializer expects to be used on AnnotationCampaigns that have had prefetched data on tasks using the right
+    attr_names
+    """
 
     tasks_count = serializers.SerializerMethodField()
     user_tasks_count = serializers.SerializerMethodField()
@@ -56,15 +61,15 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.IntegerField)
     def get_user_tasks_count(self, campaign):
-        return campaign.tasks.filter(annotator_id=self.user_id).count()
+        return len(campaign.user_tasks)
 
     @extend_schema_field(serializers.IntegerField)
     def get_complete_tasks_count(self, campaign):
-        return campaign.tasks.filter(status=2).count()
+        return len(campaign.complete_tasks)
 
     @extend_schema_field(serializers.IntegerField)
     def get_user_complete_tasks_count(self, campaign):
-        return campaign.tasks.filter(annotator_id=self.user_id, status=2).count()
+        return len(campaign.user_complete_tasks)
 
     @extend_schema_field(serializers.IntegerField)
     def get_datasets_count(self, campaign):
