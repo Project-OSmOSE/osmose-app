@@ -39,3 +39,13 @@ SIMPLE_JWT = {"ACCESS_TOKEN_LIFETIME": timedelta(hours=8)}
 DATASET_IMPORT_FOLDER = BASE_DIR / "volumes/datawork/dataset"
 # Adding volumes folder to staticfiles dirs
 STATICFILES_DIRS = [BASE_DIR / "backend/api/static", BASE_DIR / "volumes"]
+
+# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#configure-internal-ips
+if DEBUG:
+    import socket  # only if you haven't already imported this
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        "10.0.2.2",
+    ]
