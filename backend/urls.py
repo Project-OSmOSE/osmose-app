@@ -23,6 +23,7 @@ Also using DRF routers, see:
 https://www.django-rest-framework.org/api-guide/routers/
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
@@ -40,6 +41,8 @@ backend_urlpatterns = [
     path("schema", SpectacularAPIView.as_view(), name="schema"),
     path("swagger", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
 ]
+if settings.DEBUG:
+    backend_urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
 
 # API urls are meant to be used by our React frontend
 api_router = routers.DefaultRouter()
