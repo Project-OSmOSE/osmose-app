@@ -1,4 +1,6 @@
 """Dataset DRF-Viewset test file"""
+import unittest
+
 from django.urls import reverse
 from django.test import override_settings
 from django.conf import settings
@@ -105,10 +107,11 @@ class DatasetViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data[0]["spectros"]), 1)
 
     # TODO :  : fix
-    """@override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
-    def test_datawork_import_for_staff_missing_permissions(self):"""
-    """Dataset view 'datawork_import' returns 'Permission denied' when there is a permission issue"""
-    """    self.client.login(username="staff", password="osmose29")
+    @unittest.skip("to fix Permission denied")
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
+    def test_datawork_import_for_staff_missing_permissions(self):
+        """Dataset view 'datawork_import' returns 'Permission denied' when there is a permission issue"""
+        self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
         data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
         response = self.client.post(url, data_send, format="json", follow=True)
@@ -120,7 +123,7 @@ class DatasetViewSetTestCase(APITestCase):
             )
         finally:
             settings.DATASET_IMPORT_FOLDER.chmod(original_permissions)
-        self.assertContains(response, "Permission denied", status_code=400)"""
+        self.assertContains(response, "Permission denied", status_code=400)
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_csv_columns")
     def test_datawork_import_for_staff_mssing_csv_columns(self):

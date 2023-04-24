@@ -10,6 +10,7 @@ from backend.api.models.metadata import (
     TabularMetadatum,
     TabularMetadataVariable,
     TabularMetadataShape,
+    WindowType,
 )
 from backend.api.models.annotations import (
     AnnotationTag,

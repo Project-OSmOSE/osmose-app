@@ -18,6 +18,7 @@ from backend.api.models import (
     Dataset,
     AnnotationSet,
     AnnotationCampaign,
+    WindowType,
 )
 
 
@@ -155,19 +156,38 @@ class Command(management.BaseCommand):
             self.campaigns.append(campaign)
 
     def _create_spectro_configs(self):
+        window_type = WindowType.objects.create(name="Hamming")
         spectro_config1 = self.dataset.spectro_configs.create(
-            name="spectro_config1",
+            name="4096_4096_90",
             nfft=4096,
-            window_size=2000,
+            window_size=4096,
             overlap=90,
             zoom_level=8,
+            spectro_normalization=0,
+            data_normalization=0,
+            zscore_duration=0,
+            hp_filter_min_freq=0,
+            colormap="Blues",
+            dynamic_min=0,
+            dynamic_max=0,
+            window_type=window_type,
+            frequency_resolution=0,
         )
         spectro_config2 = self.dataset.spectro_configs.create(
-            name="spectro_config2",
+            name="2048_1000_90",
             nfft=2048,
             window_size=1000,
             overlap=90,
             zoom_level=8,
+            spectro_normalization=0,
+            data_normalization=0,
+            zscore_duration=0,
+            hp_filter_min_freq=0,
+            colormap="Greens",
+            dynamic_min=0,
+            dynamic_max=0,
+            window_type=window_type,
+            frequency_resolution=0,
         )
         self.campaigns[0].spectro_configs.add(spectro_config2)
         for campaign in self.campaigns:

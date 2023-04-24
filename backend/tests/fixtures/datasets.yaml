@@ -283,6 +283,10 @@
     desc: South of Saint-Pierre-et-Miquelon
     location: ''
     region: ''
+- model: api.windowtype
+  pk: 1
+  fields:
+    name: "Hamming"
 - model: api.spectroconfig
   pk: 1
   fields:
@@ -292,6 +296,15 @@
     window_size: 2000
     overlap: 90.0
     zoom_level: 8
+    spectro_normalization: 0
+    data_normalization: 0
+    zscore_duration: 0
+    hp_filter_min_freq: 0
+    colormap: "Blues"
+    dynamic_min: 0
+    dynamic_max: 0
+    window_type: 1
+    frequency_resolution: 0
 - model: api.spectroconfig
   pk: 2
   fields:
@@ -301,3 +314,12 @@
     window_size: 1000
     overlap: 90.0
     zoom_level: 8
+    spectro_normalization: 0
+    data_normalization: 0
+    zscore_duration: 0
+    hp_filter_min_freq: 0
+    colormap: "Reds"
+    dynamic_min: 0
+    dynamic_max: 0
+    window_type: 1
+    frequency_resolution: 0

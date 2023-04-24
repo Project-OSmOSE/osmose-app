@@ -49,6 +49,20 @@ class GeoMetadatum(models.Model):
     region = models.TextField()
 
 
+class WindowType(models.Model):
+    """
+    This table contains window_type which are in spectrogram configuration
+    """
+
+    class Meta:
+        db_table = "window_type"
+
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
+
+
 class SpectroConfig(models.Model):
     """
     Table containing spectrogram configuration used for datasets and annotation campaigns.
@@ -63,6 +77,26 @@ class SpectroConfig(models.Model):
     window_size = models.IntegerField()
     overlap = models.FloatField()
     zoom_level = models.IntegerField()
+    spectro_normalization = models.IntegerField()
+    data_normalization = models.IntegerField()
+    zscore_duration = models.IntegerField()
+    hp_filter_min_freq = models.IntegerField()
+    colormap = models.CharField(max_length=255)
+    dynamic_min = models.IntegerField()
+    dynamic_max = models.IntegerField()
+    window_type = models.ForeignKey(
+        WindowType, on_delete=models.CASCADE, blank=True, null=True
+    )
+    frequency_resolution = models.IntegerField()
+    time_resolution_zoom_0 = models.IntegerField(default=0)
+    time_resolution_zoom_1 = models.IntegerField(default=0)
+    time_resolution_zoom_2 = models.IntegerField(default=0)
+    time_resolution_zoom_3 = models.IntegerField(default=0)
+    time_resolution_zoom_4 = models.IntegerField(default=0)
+    time_resolution_zoom_5 = models.IntegerField(default=0)
+    time_resolution_zoom_6 = models.IntegerField(default=0)
+    time_resolution_zoom_7 = models.IntegerField(default=0)
+    time_resolution_zoom_8 = models.IntegerField(default=0)
 
     def zoom_tiles(self, tile_name):
         """Generate zoom tile filenames for SpectroConfig"""

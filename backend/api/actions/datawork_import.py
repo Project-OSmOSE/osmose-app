@@ -1,8 +1,6 @@
 """Python file for datawork_import function that imports datasets from datawork"""
 
 import csv
-import os
-import errno
 
 from datetime import timedelta
 
@@ -17,6 +15,7 @@ from backend.api.models import (
     GeoMetadatum,
     DatasetFile,
     SpectroConfig,
+    WindowType,
 )
 
 
@@ -72,21 +71,7 @@ def datawork_import(*, wanted_datasets, importer):
             name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
         )
 
-        # Check presence of spectrograms.csv
         conf_folder = dataset["conf_folder"] or ""
-        spectro_csv_path = (
-            settings.DATASET_IMPORT_FOLDER
-            / dataset_folder
-            / settings.DATASET_SPECTRO_FOLDER
-            / conf_folder
-            / "spectrograms.csv"
-        )
-
-        if not os.path.exists(spectro_csv_path):
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), spectro_csv_path
-            )
-
         dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
         dataset_path = dataset_path.as_posix()
         # Create dataset
@@ -108,21 +93,34 @@ def datawork_import(*, wanted_datasets, importer):
         # Add Spectro Config
         dataset_spectros = []
         dataset_folder = dataset_path.split("/")[-1]
-        conf_folder = curr_dataset.dataset_conf or ""
+
         spectro_csv_path = (
             settings.DATASET_IMPORT_FOLDER
             / dataset_folder
             / settings.DATASET_SPECTRO_FOLDER
             / conf_folder
-            / "spectrograms.csv"
+            / "metadata.csv"
         )
+
         with open(spectro_csv_path, encoding="utf-8") as csvfile:
             for spectro in csv.DictReader(csvfile):
-                name = spectro.pop("name")
+                name = (
+                    f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
+                )
+                window_type = WindowType.objects.filter(
+                    name=spectro["window_type"]
+                ).first()
+                spectro["window_type"] = window_type
+
+                spectro_needed = {
+                    key: value
+                    for (key, value) in spectro.items()
+                    if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
+                }
                 dataset_spectros.append(
-                    SpectroConfig.objects.update_or_create(name=name, defaults=spectro)[
-                        0
-                    ]
+                    SpectroConfig.objects.update_or_create(
+                        name=name, defaults=spectro_needed
+                    )[0]
                 )
         curr_dataset.spectro_configs.set(dataset_spectros)
 

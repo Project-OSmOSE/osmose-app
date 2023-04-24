@@ -17,6 +17,7 @@ from backend.api.models import (
     DatasetType,
     AudioMetadatum,
     GeoMetadatum,
+    WindowType,
 )
 
 
@@ -257,6 +258,16 @@ class GeoMetadatumAdmin(admin.ModelAdmin):
     )
 
 
+class WindowTypeAdmin(admin.ModelAdmin):
+    """WindowType presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = ("name",)
+
+
 class SpectroConfigAdmin(admin.ModelAdmin):
     """SpectroConfig presentation in DjangoAdmin
 
@@ -271,6 +282,25 @@ class SpectroConfigAdmin(admin.ModelAdmin):
         "window_size",
         "overlap",
         "zoom_level",
+        "desc",
+        "spectro_normalization",
+        "data_normalization",
+        "zscore_duration",
+        "hp_filter_min_freq",
+        "colormap",
+        "dynamic_min",
+        "dynamic_max",
+        "window_type",
+        "frequency_resolution",
+        "time_resolution_zoom_0",
+        "time_resolution_zoom_1",
+        "time_resolution_zoom_2",
+        "time_resolution_zoom_3",
+        "time_resolution_zoom_4",
+        "time_resolution_zoom_5",
+        "time_resolution_zoom_6",
+        "time_resolution_zoom_7",
+        "time_resolution_zoom_8",
     )
 
 
@@ -332,6 +362,7 @@ admin.site.register(AnnotationSession, AnnotationSessionAdmin)
 admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
 admin.site.register(SpectroConfig, SpectroConfigAdmin)
+admin.site.register(WindowType, WindowTypeAdmin)
 
 
 # admin.site.register(Collection, CollectionAdmin)

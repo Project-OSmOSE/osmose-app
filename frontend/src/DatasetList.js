@@ -17,7 +17,7 @@ type DatasetListProps = {
 const DatasetList = (props: DatasetListProps) => {
   const [launchImport, setLaunchImport] = useState(false)
   const [wanted_datasets, setWanted_datasets] = useState([])
-  const [toastMsg, setToastMsg] = useState({msg: ""});
+  const [toastMsg, setToastMsg] = useState({ msg: ""});
   /*
     toastMsg: {
         msg: string,
