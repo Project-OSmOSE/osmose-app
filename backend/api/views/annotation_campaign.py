@@ -143,6 +143,16 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.sample_rate_khz / 2
             max_time = (audio_meta.end - audio_meta.start).seconds
+            is_box = (
+                campaign.annotation_scope
+                == AnnotationCampaign.AnnotationScope.RECTANGLE
+                or (
+                    result.start_time is not None
+                    and result.end_time is not None
+                    and result.start_frequency is not None
+                    and result.end_frequency is not None
+                )
+            )
             data.append(
                 [
                     result.annotation_task.dataset_file.dataset.name,
@@ -160,10 +170,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         audio_meta.start
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
-                    "1"
-                    if campaign.annotation_scope
-                    == AnnotationCampaign.AnnotationScope.RECTANGLE
-                    else "0",
+                    "1" if is_box else "0",
                 ]
             )
         response = Response(data)
