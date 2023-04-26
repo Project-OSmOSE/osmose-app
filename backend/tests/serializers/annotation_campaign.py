@@ -2,6 +2,7 @@
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from copy import deepcopy
 
@@ -40,16 +41,18 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
     def test_with_valid_data(self):
         """Updates correctly the DB when serializer saves with correct data"""
         old_count = AnnotationCampaign.objects.count()
-        old_tasks_count = AnnotationTask.objects.count()
+        old_tasks_count = AnnotationTask.objects.filter(~Q(status=3)).count()
         create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
         create_serializer.is_valid(raise_exception=True)
         create_serializer.save(owner_id=1)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
-        self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
+        self.assertEqual(
+            AnnotationTask.objects.filter(~Q(status=3)).count(), old_tasks_count + 11
+        )
         new_campaign = AnnotationCampaign.objects.last()
         self.assertEqual(new_campaign.name, self.creation_data["name"])
         self.assertEqual(new_campaign.owner_id, 1)
-        self.assertEqual(new_campaign.tasks.count(), 11)
+        self.assertEqual(new_campaign.tasks.filter(~Q(status=3)).count(), 11)
 
     def test_with_wrong_spectros(self):
         """Fails validation when given a SpectroConfig not used in campaign"""
@@ -88,9 +91,9 @@ class AnnotationCampaignAddAnnotatorsSerializerTestCase(TestCase):
         """Updates correctly the DB when serializer saves with correct data"""
         files_target = self.add_annotators_data["annotation_goal"]
         new_annotator = User.objects.get(id=self.add_annotators_data["annotators"][0])
-        old_user_count = new_annotator.annotation_tasks.count()
+        old_user_count = new_annotator.annotation_tasks.filter(~Q(status=3)).count()
         campaign = AnnotationCampaign.objects.first()
-        old_tasks_count = campaign.tasks.count()
+        old_tasks_count = campaign.tasks.filter(~Q(status=3)).count()
 
         update_serializer = AnnotationCampaignAddAnnotatorsSerializer(
             campaign, data=self.add_annotators_data
@@ -99,9 +102,12 @@ class AnnotationCampaignAddAnnotatorsSerializerTestCase(TestCase):
         update_serializer.save()
         campaign.refresh_from_db()
         self.assertEqual(
-            new_annotator.annotation_tasks.count(), old_user_count + files_target
+            new_annotator.annotation_tasks.filter(~Q(status=3)).count(),
+            old_user_count + files_target,
         )
-        self.assertEqual(campaign.tasks.count(), old_tasks_count + files_target)
+        self.assertEqual(
+            campaign.tasks.filter(~Q(status=3)).count(), old_tasks_count + files_target
+        )
 
     def test_without_annotation_goal(self):
         """Fails validation when given an unknown tag with correct message"""

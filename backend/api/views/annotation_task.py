@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -36,10 +37,12 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     )
     @action(detail=False, url_path="campaign/(?P<campaign_id>[^/.]+)")
     def campaign_list(self, request, campaign_id):
-        """List tasks for given annotation campaign"""
+        """List tasks for given annotation campaign whitout unassigned task"""
         get_object_or_404(AnnotationCampaign, pk=campaign_id)
         queryset = self.queryset.filter(
-            annotator_id=request.user.id, annotation_campaign_id=campaign_id
+            ~Q(status=3),
+            annotator_id=request.user.id,
+            annotation_campaign_id=campaign_id,
         ).prefetch_related("dataset_file", "dataset_file__dataset")
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

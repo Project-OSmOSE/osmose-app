@@ -3,6 +3,7 @@
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -102,7 +103,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "user_tasks_count",
                 "complete_tasks_count",
                 "user_complete_tasks_count",
-                "datasets_count",
+                "files__count",
             ],
         )
         self.assertEqual(response.data[0]["name"], "Test SPM campaign")
@@ -147,12 +148,14 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     def test_create(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
         old_count = AnnotationCampaign.objects.count()
-        old_tasks_count = AnnotationTask.objects.count()
+        old_tasks_count = AnnotationTask.objects.filter(~Q(status=3)).count()
         url = reverse("annotation-campaign-list")
         response = self.client.post(url, self.creation_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
-        self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
+        self.assertEqual(
+            AnnotationTask.objects.filter(~Q(status=3)).count(), old_tasks_count + 11
+        )
         expected_reponse = {
             key: self.creation_data[key]
             for key in [
@@ -175,13 +178,17 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         url = reverse("annotation-campaign-add-annotators", kwargs={"pk": 1})
         files_target = self.add_annotators_data["annotation_goal"]
         new_annotator = User.objects.get(id=self.add_annotators_data["annotators"][0])
-        old_user_count = new_annotator.annotation_tasks.count()
-        old_tasks_count = AnnotationTask.objects.count()
+        old_user_count = new_annotator.annotation_tasks.filter(~Q(status=3)).count()
+        old_tasks_count = AnnotationTask.objects.filter(~Q(status=3)).count()
         response = self.client.post(url, self.add_annotators_data)
         self.assertEqual(
-            new_annotator.annotation_tasks.count(), old_user_count + files_target
+            new_annotator.annotation_tasks.filter(~Q(status=3)).count(),
+            old_user_count + files_target,
         )
-        self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + files_target)
+        self.assertEqual(
+            AnnotationTask.objects.filter(~Q(status=3)).count(),
+            old_tasks_count + files_target,
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_add_annotators_for_staff(self):
