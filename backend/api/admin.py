@@ -232,8 +232,8 @@ class AudioMetadatumAdmin(admin.ModelAdmin):
     list_display = (
         "start",
         "end",
-        "num_channels",
-        "sample_rate_khz",
+        "channel_count",
+        "dataset_sr",
         "total_samples",
         "sample_bits",
         "gain_db",

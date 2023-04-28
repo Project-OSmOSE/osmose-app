@@ -108,11 +108,11 @@ class DatasetFile(models.Model):
     )
 
     @property
-    def sample_rate_khz(self):
+    def dataset_sr(self):
         """Returns data from file audio_metadatum if there, else from dataset audio_metadatum"""
         # Pylint can't follow foreign keys when using string identifiers instead of model
         # pylint: disable=no-member
-        df_sample_rate = self.audio_metadatum.sample_rate_khz
-        ds_sample_rate = self.dataset.audio_metadatum.sample_rate_khz
+        df_sample_rate = self.audio_metadatum.dataset_sr
+        ds_sample_rate = self.dataset.audio_metadatum.dataset_sr
         sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
         return sample_rate

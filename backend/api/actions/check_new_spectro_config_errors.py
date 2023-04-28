@@ -2,6 +2,7 @@
 # pylint: disable=duplicate-code
 import csv
 import re
+import os
 
 from django.conf import settings
 
@@ -33,33 +34,36 @@ def check_new_spectro_config_errors():
             dataset_spectros = []
             dataset_folder = dataset.dataset_path.split("/")[-1]
             conf_folder = dataset.dataset_conf or ""
-            spectro_csv_path = (
+            conf_folder_path = (
                 settings.DATASET_IMPORT_FOLDER
                 / dataset_folder
                 / settings.DATASET_SPECTRO_FOLDER
                 / conf_folder
-                / "metadata.csv"
             )
-            with open(spectro_csv_path, encoding="utf-8") as csvfile:
-                for spectro in csv.DictReader(csvfile):
-                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
+            # Search all sub folder, each sub folder have one metadata.csv
+            for one_spectro_folder in os.scandir(conf_folder_path):
+                if one_spectro_folder.is_dir():
+                    spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
+                    with open(spectro_csv_path, encoding="utf-8") as csvfile:
+                        for spectro in csv.DictReader(csvfile):
+                            name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
 
-                    window_type = WindowType.objects.filter(
-                        name=spectro["window_type"]
-                    ).first()
-                    spectro["window_type"] = window_type
+                            window_type = WindowType.objects.filter(
+                                name=spectro["window_type"]
+                            ).first()
+                            spectro["window_type"] = window_type
 
-                    spectro_needed = {
-                        key: value
-                        for (key, value) in spectro.items()
-                        if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
-                    }
-                    dataset_spectros.append(
-                        SpectroConfig.objects.update_or_create(
-                            name=name, defaults=spectro_needed
-                        )[0]
-                    )
-            dataset.spectro_configs.set(dataset_spectros)
+                            spectro_needed = {
+                                key: value
+                                for (key, value) in spectro.items()
+                                if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
+                            }
+                            dataset_spectros.append(
+                                SpectroConfig.objects.update_or_create(
+                                    name=name, defaults=spectro_needed
+                                )[0]
+                            )
+                    dataset.spectro_configs.set(dataset_spectros)
 
     except FileNotFoundError as error:
         regex = "dataset/(.*)/analysis"
