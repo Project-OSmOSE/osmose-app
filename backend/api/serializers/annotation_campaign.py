@@ -31,7 +31,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     user_tasks_count = serializers.SerializerMethodField()
     complete_tasks_count = serializers.SerializerMethodField()
     user_complete_tasks_count = serializers.SerializerMethodField()
-    datasets_count = serializers.SerializerMethodField()
+    files__count = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         if "user_id" in kwargs:
@@ -52,7 +52,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "user_tasks_count",
             "complete_tasks_count",
             "user_complete_tasks_count",
-            "datasets_count",
+            "files__count",
         ]
 
     @extend_schema_field(serializers.IntegerField)
@@ -72,8 +72,8 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
         return len(campaign.user_complete_tasks)
 
     @extend_schema_field(serializers.IntegerField)
-    def get_datasets_count(self, campaign):
-        return campaign.datasets__count
+    def get_files__count(self, campaign):
+        return campaign.files__count
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):

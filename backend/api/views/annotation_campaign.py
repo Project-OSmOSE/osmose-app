@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -34,11 +34,15 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.annotate(Count("datasets")).prefetch_related(
+        queryset = self.queryset.annotate(
+            files__count=Count("datasets__files")
+        ).prefetch_related(
             "tasks",
             Prefetch(
                 "tasks",
-                queryset=AnnotationTask.objects.filter(annotator_id=request.user.id),
+                queryset=AnnotationTask.objects.filter(~Q(status=3)).filter(
+                    annotator_id=request.user.id
+                ),
                 to_attr="user_tasks",
             ),
             Prefetch(
