@@ -125,8 +125,8 @@
   fields:
     start: null
     end: null
-    num_channels: 1
-    sample_rate_khz: 32768.0
+    channel_count: 1
+    dataset_sr: 32768.0
     total_samples: 88473600
     sample_bits: 16
     gain_db: 22.0
@@ -138,8 +138,8 @@
   fields:
     start: 2012-10-03 10:00:00+00:00
     end: 2012-10-03 10:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -151,8 +151,8 @@
   fields:
     start: 2012-10-03 11:00:00+00:00
     end: 2012-10-03 11:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -164,8 +164,8 @@
   fields:
     start: 2012-10-03 12:00:00+00:00
     end: 2012-10-03 12:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -177,8 +177,8 @@
   fields:
     start: 2012-10-03 13:00:00+00:00
     end: 2012-10-03 13:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -190,8 +190,8 @@
   fields:
     start: 2012-10-03 14:00:00+00:00
     end: 2012-10-03 14:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -203,8 +203,8 @@
   fields:
     start: 2012-10-03 15:00:00+00:00
     end: 2012-10-03 15:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -216,8 +216,8 @@
   fields:
     start: 2012-10-03 16:00:00+00:00
     end: 2012-10-03 16:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -229,8 +229,8 @@
   fields:
     start: 2012-10-03 17:00:00+00:00
     end: 2012-10-03 17:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -242,8 +242,8 @@
   fields:
     start: 2012-10-03 18:00:00+00:00
     end: 2012-10-03 18:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -255,8 +255,8 @@
   fields:
     start: 2012-10-03 19:00:00+00:00
     end: 2012-10-03 19:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -268,8 +268,8 @@
   fields:
     start: 2012-10-03 20:00:00+00:00
     end: 2012-10-03 20:15:00+00:00
-    num_channels: null
-    sample_rate_khz: null
+    channel_count: null
+    dataset_sr: null
     total_samples: null
     sample_bits: null
     gain_db: null

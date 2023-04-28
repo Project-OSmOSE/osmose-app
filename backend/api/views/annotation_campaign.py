@@ -141,7 +141,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         ).filter(annotation_task__annotation_campaign_id=pk)
         for result in results:
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
-            max_frequency = result.annotation_task.dataset_file.sample_rate_khz / 2
+            max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
             max_time = (audio_meta.end - audio_meta.start).seconds
             is_box = (
                 campaign.annotation_scope
