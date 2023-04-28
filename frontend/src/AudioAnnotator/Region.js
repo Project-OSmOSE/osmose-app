@@ -93,6 +93,7 @@ class Region extends Component<RegionProps, RegionState> {
         <div
           className="region-body"
           style={styles.body}
+          onPointerDown={this.addAnotherAnnotation}
         ></div>
       </React.Fragment>
       )
