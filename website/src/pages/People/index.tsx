@@ -169,7 +169,7 @@ export const People: React.FC = () => {
      <CardMember 
     name="Anatole Gros-Martial"
     img={anatolePortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Anatole’s portrait."
     job="PhD student"
     >
@@ -187,7 +187,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
     <CardMember
     name="Mathieu Dupont"
     img={mathieuPortrait}
-    imgSide="right"
+    imgSide="left"
     imgAlt="Mathieu's portrait"
     >
         <p className="quote">
@@ -197,24 +197,8 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
         understand dolphins bycatches and how to prevent it. I take part in developping tools with the OSmOSE team in order
         to exploit data as efficiently as possible.
         </p>
-        </CardMember>
+    </CardMember>
 
-        <CardMember
-          name="Anatole Gros-Martial"
-          img={anatolePortrait}
-          imgSide="left"
-          imgAlt="Anatole’s portrait."
-          job="PhD student"
-          >
-            <p className="quote">
-              After a one year internship in machine learning for bioacoustic tasks and a six months internship in acoustic and ethological monitoring of cetacean populations in Martinique, I started my PhD in underwater acoustics in 2022.
-              This CNRS project financed by the CNES uses acoustic data from biologged southern elephant seals.
-              My PhD consists in developping machine learning algorithms to evaluate weather conditions such as rainfall rate and wind speed from the underwater recordings. 
-              Data on weather conditions in the Southern Ocean are rare but extremely useful as they directly influence the Antarctic Circumpular Current which regulates oceans worldwide. 
-              More biologically centered tasks consist in analyzing southern elephant seals' diving and foraging behavior using additional data from the tags such as temperature, depth and salinity.
-              Furthermore, southern elephant seals can be used as monitoring buoys to detect biological noise from fish and cetaceans.
-            </p>
-        </CardMember>
 
   </section>
 
@@ -227,7 +211,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
     <CardMember
     name="Erwan Keribin"
     img={defautPortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Erwan’s portrait."
     // job="Data Scientist"
     // url="https://www.google.com"
@@ -241,7 +225,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
     <CardMember
     name="Romain Vovard"
     img={defautPortrait}
-    imgSide="right"
+    imgSide="left"
     imgAlt="Romain’s portrait"
     // job="Data Scientist"
     // url="https://www.google.com"
