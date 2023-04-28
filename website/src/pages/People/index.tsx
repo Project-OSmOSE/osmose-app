@@ -14,7 +14,6 @@ import ifremerlogo from '../../img/logo/logo_ifremer.png';
 import ubologo from '../../img/logo/logo2_ubo.png';
 import imtlogo from '../../img/logo/logo_imt.jpg';
 
-import defautPortrait from '../../img/people/default_profil.png'
 // import projectImg from '../../img/logo_project.png';
 import florePortrait from '../../img/people/team_flore_420_420.webp'
 import juliePortrait from '../../img/people/team_Photo_Julie_420_420.webp'
@@ -200,41 +199,6 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
     </CardMember>
 
 
-  </section>
-
-  <section className="container my-5">
-
-    <h2>ODE</h2>
-
-    <p>We (Ocean Data Explorer) develop all the computer technology used to manage and process data.</p>
-
-    <CardMember
-    name="Erwan Keribin"
-    img={defautPortrait}
-    imgSide="right"
-    imgAlt="Erwan’s portrait."
-    // job="Data Scientist"
-    // url="https://www.google.com"
-    // urlDesc="Page personnelle"
-    >
-      <p className="quote">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi minus officia molestias, voluptate sapiente quod eaque sunt obcaecati ipsam consectetur error dolores iusto eius quaerat? Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi minus officia molestias, voluptate
-      </p>
-    </CardMember>
-
-    <CardMember
-    name="Romain Vovard"
-    img={defautPortrait}
-    imgSide="left"
-    imgAlt="Romain’s portrait"
-    // job="Data Scientist"
-    // url="https://www.google.com"
-    // urlDesc="Page personnelle"
-    >
-      <p className="quote">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi minus officia molestias, voluptate sapiente quod eaque sunt obcaecati ipsam consectetur error dolores iusto eius quaerat? Consectetur error dolores iusto eius quaerat?
-      </p>
-    </CardMember>
   </section>
 
   <section className="container my-5">

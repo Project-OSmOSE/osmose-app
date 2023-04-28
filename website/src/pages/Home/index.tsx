@@ -8,7 +8,6 @@ import imgNutshell from '../../img/illust/640px-Petit_Minou_Lighthouse_(50691630
 import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.webp';
 import logoofb from '../../img/logo/logo_ofb.png';
 import logoisblue from '../../img/logo/logo_isblue3.png';
-import logothales from '../../img/logo/logo_thales2.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
 export const Home: React.FC = () => {
@@ -139,7 +138,6 @@ export const Home: React.FC = () => {
   <Banner>
     <img className="" src={logoofb} alt="AFB logo" title="AFB logo" />
     <img className="" src={logoisblue} alt="ISblue logo" title="ISblue logo" />
-    <img className="" src={logothales} alt="Thales Underwater systems logo" title="Thales Underwater systems logo" />
   </Banner>
 
   {/* Section technologie ?  */}
