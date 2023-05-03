@@ -656,7 +656,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <div className="row annotator-controls">
             <p className="col-sm-1 text-right">
               <button
-                className={`btn-simple btn-play fa ${playStatusClass}`}
+                className={`btn-simple btn-play fa-solid ${playStatusClass}`}
                 onClick={this.playPause}
               ></button>
             </p>
@@ -707,6 +707,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     return a.startTime - b.startTime;
   }
 
+  subimtComments = () => {
+    console.log('Submit comments');
+  }
+
   renderAnnotationArea = () => {
     const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
     const sortedAnnotations: Array<Annotation> = this.state.annotations.sort(this.annotationSorter);
@@ -719,17 +723,38 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         </div>
         <div className="col-sm-4">
           <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
-            <table className="table table-hover rounded">
-              <thead className="">
-                <tr className="text-center bg__black--003">
-                  <th colSpan="3">Annotations</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
-              </tbody>
-            </table>
+          <table className="table table-hover rounded">
+            <thead className="">
+              <tr className="text-center bg__black--003">
+                <th colSpan="3">Annotations</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
+            </tbody>
+          </table>
           </div>
+        </div>
+        <div className="col-sm-2">
+            <div className="card">
+              <h6 className="card-header text-center">Comments</h6>
+            <div className="card-body">
+              <div className="row m-2">
+                <textarea className="col-sm-10 comments" maxLength="255" rows="10" cols="10" ></textarea>
+                <div className="input-group-append col-sm-2 p-0">
+                    <div className="btn-group-vertical">
+                    <button className="btn btn-submit" onClick={this.subimtComments()}>
+                        <i className="fa-solid fa-check"></i>
+                    </button>
+                    <button className="btn btn-danger" onClick={()=>{}}>
+                      <i className="fa-solid fa-comment-slash"></i>
+                    </button>
+                    </div>
+                </div>
+              </div>
+
+              </div>
+            </div>
         </div>
       </div>
     );
@@ -856,30 +881,26 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-          <div className="col-sm-3">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body d-flex justify-content-between">
-                  <p className="card-text">
-                  <i className="fa fa-clock-o"></i> :&nbsp;
-                    {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-                    {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
-                  <i className="fa fa-arrow-up"></i> :&nbsp;
-                    {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-                    {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-                  <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
-                </p>
-              </div>
-            </div>
+        <div className="card">
+          <h6 className="card-header text-center">Selected annotation</h6>
+          <div className="card-body d-flex justify-content-between">
+              <p className="card-text">
+              <i className="fa-solid fa-clock-o"></i> :&nbsp;
+                {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
+              <i className="fa-solid fa-arrow-up"></i> :&nbsp;
+                {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
+                <i className="fa-solid fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+            </p>
           </div>
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
-              </div>
-            </div>
+        </div>
+        <div className="card">
+          <h6 className="card-header text-center">Tags list</h6>
+          <div className="card-body d-flex justify-content-between">
+              {tags}
           </div>
+        </div>
         </React.Fragment>
       );
     } else {
@@ -914,17 +935,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           onClick={() => this.activateAnnotation(annotation)}
         >
           <td>
-            <i className="fa fa-clock-o"></i>&nbsp;
+            <i className="fa-solid fa-clock-o"></i>&nbsp;
             {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
             {utils.formatTimestamp(annotation.endTime)}
           </td>
           <td>
-            <i className="fa fa-arrow-up"></i>&nbsp;
+            <i className="fa-solid fa-arrow-up"></i>&nbsp;
             {annotation.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
             {annotation.endFrequency.toFixed(2)} Hz
           </td>
           <td>
-            <i className="fa fa-tag"></i>&nbsp;
+            <i className="fa-solid fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
         </tr>
@@ -937,7 +958,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         >
           <td colSpan="3">
             <strong>
-              <i className="fa fa-tag"></i>&nbsp;
+              <i className="fa-solid fa-tag"></i>&nbsp;
               {annotation.annotation}
             </strong>
           </td>
@@ -953,7 +974,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           href="https://github.com/Project-OSmOSE/osmose-app/blob/master/docs/user_guide_annotator.md"
           rel="noopener noreferrer"
           target="_blank"
-        ><span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>
+        ><span className="fa-solid fa-question-circle"></span>&nbsp;Annotator User Guide</a>
       </span>
     );
   }
@@ -966,7 +987,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             href={this.state.task.instructions_url}
             rel="noopener noreferrer"
             target="_blank"
-          ><span className="fa fa-info-circle"></span>&nbsp;Campaign instructions</a>
+          ><span className="fa-solid fa-info-circle"></span>&nbsp;Campaign instructions</a>
         </span>
       );
     }
