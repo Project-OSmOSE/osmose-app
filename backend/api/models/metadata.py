@@ -87,16 +87,16 @@ class SpectroConfig(models.Model):
     window_type = models.ForeignKey(
         WindowType, on_delete=models.CASCADE, blank=True, null=True
     )
-    frequency_resolution = models.IntegerField()
-    time_resolution_zoom_0 = models.IntegerField(default=0)
-    time_resolution_zoom_1 = models.IntegerField(default=0)
-    time_resolution_zoom_2 = models.IntegerField(default=0)
-    time_resolution_zoom_3 = models.IntegerField(default=0)
-    time_resolution_zoom_4 = models.IntegerField(default=0)
-    time_resolution_zoom_5 = models.IntegerField(default=0)
-    time_resolution_zoom_6 = models.IntegerField(default=0)
-    time_resolution_zoom_7 = models.IntegerField(default=0)
-    time_resolution_zoom_8 = models.IntegerField(default=0)
+    frequency_resolution = models.FloatField()
+    time_resolution_zoom_0 = models.FloatField(default=0)
+    time_resolution_zoom_1 = models.FloatField(default=0)
+    time_resolution_zoom_2 = models.FloatField(default=0)
+    time_resolution_zoom_3 = models.FloatField(default=0)
+    time_resolution_zoom_4 = models.FloatField(default=0)
+    time_resolution_zoom_5 = models.FloatField(default=0)
+    time_resolution_zoom_6 = models.FloatField(default=0)
+    time_resolution_zoom_7 = models.FloatField(default=0)
+    time_resolution_zoom_8 = models.FloatField(default=0)
 
     def zoom_tiles(self, tile_name):
         """Generate zoom tile filenames for SpectroConfig"""
