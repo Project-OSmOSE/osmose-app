@@ -880,7 +880,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       );
     } else {
       return (
-        <React.Fragment>&
+        <React.Fragment>
           <div className="card">
             <h6 className="card-header text-center">Selected annotation</h6>
             <div className="card-body">
