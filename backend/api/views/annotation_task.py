@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q, Prefetch
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -78,6 +79,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             "dataset_file__dataset",
             "dataset_file__dataset__spectro_configs",
             "dataset_file__dataset__audio_metadatum",
+            "task_comments",
         )
         task = get_object_or_404(queryset, pk=pk)
         if task.status == 0:

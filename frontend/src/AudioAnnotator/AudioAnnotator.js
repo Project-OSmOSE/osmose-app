@@ -15,6 +15,7 @@ import '../css/annotator.css';
 
 // API constants
 const API_URL = '/api/annotation-task/';
+const API_COMMENT_URL = '/api/annotation-comment/';
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -60,7 +61,13 @@ export type Annotation = {
 };
 
 type AnnotationTask = {
+  id: string,
   annotationTags: Array<string>,
+  annotation_comments: {
+    annotation_result: number,
+    annotation_task: number,
+    comment: string
+  },
   boundaries: {
     startTime: string,
     endTime: string,
@@ -105,6 +112,7 @@ type AudioAnnotatorState = {
   currentDefaultTagAnnotation: string,
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
+  comment: string,
 };
 
 class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState> {
@@ -136,7 +144,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       annotations: [],
       currentDefaultTagAnnotation: '',
       inAModal: false,
-      checkbox_isChecked:[],
+      checkbox_isChecked: [],
+      comment:{comments: ""},
     };
   }
 
@@ -208,7 +217,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               };
             }
           });
-
+          const newComment = this.getCurrentComment(annotations, task)
+          console.log(newComment);
           // Finally, setting state
           this.setState({
             tagColors: utils.buildTagColors(task.annotationTags),
@@ -218,7 +228,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             isLoading: false,
             error: undefined,
             annotations,
-            checkbox_isChecked:checkbox_isChecked,
+            checkbox_isChecked: checkbox_isChecked,
+            comment: newComment,
           });
 
         } else {
@@ -408,16 +419,22 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   activateAnnotation = (annotation: Annotation) => {
-      const activated: Annotation = Object.assign(
-        {}, annotation, { active: true }
-      );
-    
-      const annotations: Array<Annotation> = this.state.annotations
-        .filter(ann => ann.id !== activated.id)
-        .map(ann => Object.assign({}, ann, { active: false }))
-        .concat(activated);
+    const activated: Annotation = Object.assign(
+      {}, annotation, { active: true }
+    );
 
-        this.setState({annotations: annotations, currentDefaultTagAnnotation:activated.annotation});
+    const annotations: Array<Annotation> = this.state.annotations
+      .filter(ann => ann.id !== activated.id)
+      .map(ann => Object.assign({}, ann, { active: false }))
+      .concat(activated);
+
+    const currentComment = this.getCurrentComment(annotations)
+
+    this.setState({
+      annotations: annotations,
+      currentDefaultTagAnnotation: activated.annotation,
+      comment: currentComment
+    });
   }
 
   toggleAnnotationTag = (tag: string) => {
@@ -433,10 +450,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         .filter(ann => !ann.active)
         .concat(newAnnotation);
 
+      const newComment = this.getCurrentComment(annotations)
       this.setState({
         annotations,
         toastMsg: undefined,
         currentDefaultTagAnnotation: tag,
+        comment: newComment
       });
     }
   }
@@ -707,8 +726,53 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     return a.startTime - b.startTime;
   }
 
-  subimtComments = () => {
-    console.log('Submit comments');
+  submitComments = (clear=false) => {
+    const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
+    const newComment = document.getElementById("commentInput").value
+    console.log(this.state.comment.id);
+    request.post(API_COMMENT_URL)
+      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .send({
+        comments: clear === true ? "" : newComment,
+        annotation_task_id: this.state.task.id,
+        annotation_result_id: activeAnn ? parseInt(activeAnn.id) : null,
+        comment_id: this.state.comment.id ? this.state.comment.id : null,
+      })
+      .then(result => {
+        console.log(result);
+
+      })
+      .catch(err => {
+        if (err.status && err.status === 401) {
+          // Server returned 401 which means token was revoked
+          document.cookie = 'token=;max-age=0;path=/';
+          window.location.reload();
+        } else {
+          this.setState({isLoading: false, error: this.buildErrorMessage(err)});
+        }
+      });
+    console.log('Submit comments : ' + this.state.task.campaignId);
+  }
+
+  getCurrentComment = (annotations, task=this.state.task ) => {
+    const activeAnn: ?Annotation =  annotations.find(ann => ann.active);
+    console.log(activeAnn);
+    let currentComment = {}
+
+    if (activeAnn === undefined) {
+      console.log("activate undefined");
+      currentComment = task.annotation_comments.find((item) => {
+        return item.annotation_result === null
+      })
+    } else {
+      currentComment = task.annotation_comments.find((item) => {
+        console.log(item);
+        return item.annotation_result === activeAnn.id
+      })
+    }
+    console.log(currentComment);
+    currentComment = currentComment === undefined ? { comments: "" } : currentComment;
+    return currentComment
   }
 
   renderAnnotationArea = () => {
@@ -740,13 +804,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <h6 className="card-header text-center">Comments</h6>
             <div className="card-body">
               <div className="row m-2">
-                <textarea className="col-sm-10 comments" maxLength="255" rows="10" cols="10" ></textarea>
+                <textarea className="col-sm-10 comments" maxLength="255" rows="10" cols="10" defaultValue={this.state.comment.comments} id="commentInput"></textarea>
                 <div className="input-group-append col-sm-2 p-0">
                     <div className="btn-group-vertical">
-                    <button className="btn btn-submit" onClick={this.subimtComments()}>
+                    <button className="btn btn-submit" onClick={()=>{this.submitComments()}}>
                         <i className="fa-solid fa-check"></i>
                     </button>
-                    <button className="btn btn-danger" onClick={()=>{}}>
+                    <button className="btn btn-danger" onClick={()=>{this.submitComments()}}>
                       <i className="fa-solid fa-comment-slash"></i>
                     </button>
                     </div>

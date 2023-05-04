@@ -110,12 +110,13 @@ class Region extends Component<RegionProps, RegionState> {
             <button
               className="btn-simple fa fa-play-circle"
               onClick={this.playAnnotation}
-            ></button>
+          ></button>
             <span
               className="flex-fill text-center"
               onClick={this.selectAnnotation}
               style={styles.headerSpan}
-            >{this.props.annotation.annotation}</span>
+          >{this.props.annotation.annotation}</span>
+          <i className="fa-solid fa-comment mr-2"></i>
             <button
               className="btn-simple fa fa-times-circle"
               onClick={this.deleteAnnotation}

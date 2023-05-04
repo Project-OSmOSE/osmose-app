@@ -11,6 +11,7 @@ from backend.api.models import (
     AnnotationTag,
     AnnotationCampaign,
     AnnotationTask,
+    AnnotationComment,
     AnnotationResult,
     AnnotationSession,
     SpectroConfig,
@@ -141,6 +142,21 @@ class AnnotationSetAdmin(admin.ModelAdmin):
         return get_many_to_many(obj, "tags", "name")
 
 
+class AnnotationCommentAdmin(admin.ModelAdmin):
+    """AnnotationSet presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = (
+        "id",
+        "comments",
+        "annotation_task",
+        "annotation_result",
+    )
+
+
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin
 
@@ -198,6 +214,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
     """
 
     list_display = (
+        "id",
         "start_time",
         "end_time",
         "start_frequency",
@@ -356,6 +373,7 @@ admin.site.register(DatasetFile, DatasetFileAdmin)
 admin.site.register(AnnotationTag, AnnotationTagAdmin)
 admin.site.register(AnnotationSet, AnnotationSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
+admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)
 admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)

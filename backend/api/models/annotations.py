@@ -170,22 +170,26 @@ class AnnotationResult(models.Model):
         AnnotationTask, on_delete=models.CASCADE, related_name="results"
     )
 
-class AnnotationComments(models.Model):
+
+class AnnotationComment(models.Model):
     class Meta:
         db_table: "annotation_comments"
 
-    comments= models.CharField(max_length=255)
-    dataset_file = models.ForeignKey(
-        "DatasetFile", on_delete=models.CASCADE, related_name="comments"
+    comments = models.CharField(max_length=255)
+    annotation_result = models.ForeignKey(
+        AnnotationResult,
+        on_delete=models.CASCADE,
+        related_name="result_comments",
+        null=True,
+        blank=True,
+        default=None,
     )
     annotation_task = models.ForeignKey(
-        AnnotationTask, on_delete=models.CASCADE, related_name="annotation_comments", null=True
-    )
-    annotator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        AnnotationTask,
         on_delete=models.CASCADE,
-        related_name="annotation_comments",
+        related_name="task_comments",
     )
+
 
 class AnnotationSession(models.Model):
     """

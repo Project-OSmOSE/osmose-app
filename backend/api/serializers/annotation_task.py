@@ -8,11 +8,18 @@ from datetime import datetime
 from django.utils.http import urlquote
 from django.conf import settings
 
+from django.db.models import Count, Prefetch, Q
 from rest_framework import serializers
 
 from drf_spectacular.utils import extend_schema_field
 
-from backend.api.models import AnnotationTask, AnnotationResult, SpectroConfig
+from backend.api.models import (
+    AnnotationTask,
+    AnnotationResult,
+    SpectroConfig,
+    AnnotationComment,
+)
+from backend.api.serializers import AnnotationCommentSerializer
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -49,6 +56,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
+    result_comments = AnnotationCommentSerializer()
 
     class Meta:
         model = AnnotationResult
@@ -59,6 +67,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "endTime",
             "startFrequency",
             "endFrequency",
+            "result_comments",
         ]
 
 
@@ -101,6 +110,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     # This class uses legacy method names for backward-compatibility
     # pylint: disable=invalid-name
+    id = serializers.IntegerField()
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
     annotationTags = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
@@ -111,6 +121,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     annotationScope = serializers.IntegerField(
         source="annotation_campaign.annotation_scope"
     )
+    annotation_comments = AnnotationCommentSerializer(many=True)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):
@@ -147,7 +158,10 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
     def get_prevAnnotations(self, task):
-        queryset = task.results.prefetch_related("annotation_tag")
+        queryset = task.results.prefetch_related(
+            "annotation_tag",
+            "result_comments",
+        )
         return AnnotationTaskResultSerializer(queryset, many=True).data
 
 
