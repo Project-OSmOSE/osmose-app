@@ -91,7 +91,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
             settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
         )
         return [
-            urlquote(f"{root_url}/{spectro_path}/{sound_name}/{tile}")
+            urlquote(f"{root_url}/{spectro_path}/image/{tile}")
             for tile in spectro_config.zoom_tiles(sound_name)
         ]
 
