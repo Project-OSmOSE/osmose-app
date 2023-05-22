@@ -1,19 +1,18 @@
+"""Annotation comment DRF serializers file"""
 from rest_framework import serializers
 
-from backend.api.models import AnnotationComment
 from django.db import models
 
 from backend.utils.validators import valid_model_ids
-from backend.api.models import (
-    AnnotationResult,
-    AnnotationTask,
-)
+from backend.api.models import AnnotationResult, AnnotationTask, AnnotationComment
 
 
-class AnnotationCommentSerializer(serializers.ModelSerializer):
+class AnnotationCommentRetrieveSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic AnnotationComment data"""
+
     class Meta:
         model = AnnotationComment
-        fields = "__all__"
+        fields = ["id", "comment", "annotation_task", "annotation_result"]
 
 
 class AnnotationCommentCreateSerializer(serializers.ModelSerializer):
@@ -27,9 +26,9 @@ class AnnotationCommentCreateSerializer(serializers.ModelSerializer):
                 name="one_comment_by_annotation",
             )
         ]
-        fields = ["comments", "annotation_task_id", "annotation_result_id"]
+        fields = ["comment", "annotation_task_id", "annotation_result_id"]
 
-    comments = serializers.CharField(allow_blank=True, max_length=255)
+    comment = serializers.CharField(max_length=255)
     annotation_task_id = serializers.IntegerField(
         validators=[valid_model_ids(AnnotationTask)]
     )

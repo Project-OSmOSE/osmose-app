@@ -6,7 +6,7 @@ from backend.api.serializers.dataset import DatasetSerializer, SpectroConfigSeri
 from backend.api.serializers.user import UserSerializer, UserCreateSerializer
 from backend.api.serializers.annotation_set import AnnotationSetSerializer
 from backend.api.serializers.annotation_comment import (
-    AnnotationCommentSerializer,
+    AnnotationCommentRetrieveSerializer,
     AnnotationCommentCreateSerializer,
 )
 from backend.api.serializers.annotation_campaign import (
@@ -24,5 +24,6 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskSpectroSerializer,
     AnnotationTaskRetrieveSerializer,
     AnnotationTaskUpdateSerializer,
+    AnnotationTaskOneResultUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )

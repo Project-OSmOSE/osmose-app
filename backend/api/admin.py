@@ -151,7 +151,7 @@ class AnnotationCommentAdmin(admin.ModelAdmin):
 
     list_display = (
         "id",
-        "comments",
+        "comment",
         "annotation_task",
         "annotation_result",
     )

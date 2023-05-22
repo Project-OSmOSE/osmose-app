@@ -172,10 +172,14 @@ class AnnotationResult(models.Model):
 
 
 class AnnotationComment(models.Model):
-    class Meta:
-        db_table: "annotation_comments"
+    """
+    This table contains comment of annotation result and task.
+    """
 
-    comments = models.CharField(max_length=255)
+    class Meta:
+        db_table: "annotation_comment"
+
+    comment = models.CharField(max_length=255)
     annotation_result = models.ForeignKey(
         AnnotationResult,
         on_delete=models.CASCADE,
