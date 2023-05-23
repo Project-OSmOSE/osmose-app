@@ -14,6 +14,7 @@ type RegionProps = {
   freqPxRatio: number,
   offsetTop: number,
   offsetLeft: number,
+  currentZoom: number,
   onRegionDeleted: (Annotation) => void,
   onRegionMoved: (Annotation) => void,
   onRegionPlayed: (Annotation) => void,
@@ -55,7 +56,7 @@ class Region extends Component<RegionProps, RegionState> {
 
   render() {
     const isActive: boolean = this.props.annotation.active;
-    const distanceToMarginLeft: number = this.state.spectrogramEnd - Math.floor(this.props.offsetLeft);
+    const distanceToMarginLeft: number = (this.state.spectrogramEnd*this.props.currentZoom) - Math.floor(this.props.offsetLeft);
 
     const duration: number = this.props.annotation.endTime - this.props.annotation.startTime;
     const freqRange: number = this.props.annotation.endFrequency - this.props.annotation.startFrequency;
@@ -78,7 +79,7 @@ class Region extends Component<RegionProps, RegionState> {
         marginBottom: (headerPositionIsTop ? HEADER_MARGIN : 0 ),
         backgroundColor: isActive ? this.props.color : `${this.props.color}88`,
         border: isActive ? `2px solid ${this.props.color}` : `2px solid ${this.props.color}88`,
-        marginLeft: distanceToMarginLeft > 50 ? '50%': `-${50-distanceToMarginLeft}px`,
+        marginLeft: distanceToMarginLeft > 150 ? '50%': '-25%',
       },
       headerSpan: {
         height: `${HEADER_HEIGHT}px`,

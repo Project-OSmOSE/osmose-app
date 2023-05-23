@@ -710,6 +710,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
         freqPxRatio={this.state.freqPxRatio}
         offsetTop={offsetTop}
         offsetLeft={offsetLeft}
+        currentZoom={this.state.currentZoom}
         onRegionDeleted={this.props.onAnnotationDeleted}
         onRegionMoved={this.props.onAnnotationUpdated}
         onRegionPlayed={this.props.onAnnotationPlayed}
