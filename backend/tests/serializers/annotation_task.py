@@ -26,6 +26,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
                 "endTime": 50,
                 "startFrequency": 100,
                 "endFrequency": 200,
+                "result_comments": None,
             }
         ],
         "task_start_time": 10,

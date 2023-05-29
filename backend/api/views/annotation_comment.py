@@ -65,7 +65,6 @@ class AnnotationCommentViewSet(viewsets.ViewSet):
         print(request.data["comment"])
         if request.data["comment"] == "":
             comment.delete()
-            print("delete")
             return Response({"delete": str(request.data["comment_id"])})
         create_serializer = AnnotationCommentCreateSerializer(
             comment, data=request.data

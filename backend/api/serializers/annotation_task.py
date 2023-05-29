@@ -16,8 +16,9 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationResult,
     SpectroConfig,
+    AnnotationComment,
 )
-from backend.api.serializers import AnnotationCommentRetrieveSerializer
+from backend.api.serializers.annotation_comment import AnnotationCommentRetrieveSerializer
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -195,7 +196,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 class AnnotationTaskUpdateSerializer(serializers.Serializer):
     """This serializer is responsible for updating a task with new results from the annotator"""
 
-    annotations = AnnotationTaskResultSerializer(many=True)
+    annotations = AnnotationTaskResultWithCommentSerializer(many=True)
     task_start_time = serializers.IntegerField()
     task_end_time = serializers.IntegerField()
 
@@ -229,25 +230,42 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 ),
             )
         )
+
         for annotation in validated_data["annotations"]:
+            comments_data = annotation.pop("result_comments")
             annotation["annotation_tag_id"] = tags[
                 annotation.pop("annotation_tag")["name"]
             ]
-            instance.results.create(**annotation)
+            new_result = instance.results.create(**annotation)
+            if comments_data is not None:
+                for comment_data in comments_data:
+                    comment_data.pop("annotation_result")
+                    comment_data.pop("annotation_task")
+                    comment = AnnotationComment.objects.create(
+                        annotation_result=new_result,
+                        annotation_task=instance,
+                        **comment_data,
+                    )
+                    new_result.result_comments.set([comment])
+
         instance.sessions.create(
             start=datetime.fromtimestamp(validated_data["task_start_time"]),
             end=datetime.fromtimestamp(validated_data["task_end_time"]),
             session_output=validated_data,
         )
+
         instance.status = 2
         instance.save()
+
         return instance
 
 
 class AnnotationTaskOneResultUpdateSerializer(serializers.Serializer):
-    """This serializer is responsible for updating a task with new results from the annotator"""
+    """This serializer is responsible for updating a task with a new result from the annotator
+    The status of this task will stay started.
+    """
 
-    annotations = AnnotationTaskResultSerializer()
+    annotations = AnnotationTaskResultWithCommentSerializer()
 
     def validate_annotations(self, annotations):
         """Validates that annotations correspond to annotation set tags"""
@@ -278,11 +296,26 @@ class AnnotationTaskOneResultUpdateSerializer(serializers.Serializer):
             )
         )
 
+        comments_data = validated_data["annotations"].pop("result_comments")
         annotation = validated_data["annotations"]
-        annotation["annotation_tag_id"] = tags[annotation.pop("annotation_tag")["name"]]
 
-        instance.results.create(**annotation)
+        annotation["annotation_tag_id"] = tags[annotation.pop("annotation_tag")["name"]]
+        new_result = instance.results.create(**annotation)
+        new_result.save()
+
+        if comments_data is not None:
+            for comment_data in comments_data:
+                print(comment_data)
+                comment_data.pop("annotation_task")
+                comment = AnnotationComment.objects.create(
+                    annotation_result=new_result,
+                    annotation_task=instance,
+                    **comment_data,
+                )
+                new_result.result_comments.set([comment])
+
         instance.save()
+
         return instance
 
 

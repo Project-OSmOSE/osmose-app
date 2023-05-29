@@ -11,5 +11,5 @@ class CSVRenderer(BaseRenderer):
 
     media_type = "text/csv"
 
-    def render(self, data):
+    def render(self, data, media_type=None, renderer_context=None):
         return "\n".join([",".join(line) for line in data])

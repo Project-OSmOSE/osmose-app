@@ -174,8 +174,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             )
             result_comments = result.result_comments.all()
             if result_comments:
-                task = result.annotation_task.annotator
-                comment = f"{result_comments[0].comment} |- {task.username} : {task.annotator.email}"
+                task = result.annotation_task
+                comment = f"{result_comments[0].comment} |- {task.annotator.username} : {task.annotator.email}"
             else:
                 comment = ""
 

@@ -197,7 +197,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           const frequencyRange: number = task.boundaries.endFrequency - task.boundaries.startFrequency;
 
           // Load previous annotations
-          const annotations: Array<Annotation> = task.prevAnnotations.map((ann: RawAnnotation) => {
+          let annotations: Array<Annotation> = task.prevAnnotations.map((ann: RawAnnotation) => {
             const isBoxAnnotation = (typeof ann.startTime === 'number') &&
               (typeof ann.endTime === 'number') &&
               (typeof ann.startFrequency === 'number') &&
@@ -229,12 +229,25 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               };
             }
           });
-          let newComment
+          let task_comment
           if (task.task_comment[0] === undefined) {
-            newComment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
+            task_comment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
           } else {
-            newComment = task.task_comment[0]
+            task_comment = task.task_comment[0]
           }
+
+          const annotationsTag = annotations.filter((ann: Annotation) => ann.type === TYPE_TAG)
+            .map(ann => Object.assign({}, ann, { active: true }));
+
+          let newComment
+          if (annotationsTag.length > 0) {
+            annotations = annotations.filter((ann: Annotation) => ann.id !== annotationsTag[0].id)
+              .concat(annotationsTag[0]);
+              newComment = annotationsTag[0].result_comments
+          } else {
+            newComment = task_comment
+          }
+
           // Finally, setting state
           this.setState({
             tagColors: utils.buildTagColors(task.annotationTags),
@@ -246,7 +259,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             annotations,
             checkbox_isChecked: checkbox_isChecked,
             currentComment: newComment,
-            task_comment: newComment,
+            task_comment: task_comment,
           });
 
         } else {
@@ -405,9 +418,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       } else {
         // Type: TYPE_TAG
         const newAnnotation: Annotation = Object.assign(
-          {}, annotation, {id: parseInt(newId, 10), result_comments:{ ...annotation.result_comments, annotation_result: parseInt(newId, 10),}}
+          {},
+          annotation,
+          {
+            id: parseInt(newId, 10),
+            result_comments: Object.assign({}, annotation.result_comments, {
+              annotation_result: parseInt(newId, 10)
+            })
+          }
         );
-        console.log(annotation);
         let newcheckbox_isChecked = this.state.checkbox_isChecked;
         newcheckbox_isChecked[annotation.annotation] = true;
         this.setState({
@@ -554,20 +573,20 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   cleaningAnnotation = (ann) => {
-    console.log(ann);
     const startTime = ann.type === TYPE_BOX ? ann.startTime : null;
     const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
     const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
     const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
-    return {
-      id: ann.id,
-      startTime,
-      endTime,
-      annotation: ann.annotation,
-      startFrequency,
-      endFrequency,
-      result_comments: [ann.result_comments],
-    };
+    const result_comments = ann.result_comments.comment === "" ? null : [ann.result_comments];
+      return {
+        id: ann.id,
+        startTime,
+        endTime,
+        annotation: ann.annotation,
+        startFrequency,
+        endFrequency,
+        result_comments: result_comments,
+      };
   }
 
   submitAnnotations = () => {
@@ -767,7 +786,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     return a.startTime - b.startTime;
   }
 
-  submitOneAnnotation = (ann) => {
+  beforeSubmit_checkPresenceMode = (ann) => {
     if (ann[0].annotation.length === 0) {
       this.setState({
         toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
@@ -775,30 +794,96 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       return
     }
 
-  const cleanAnnotation = this.cleaningAnnotation(ann[0])
-  const taskId: number = this.props.match.params.annotation_task_id;
+    const taskId: number = this.props.match.params.annotation_task_id;
+    const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
 
-  delete cleanAnnotation.result_comments[0].annotation_result
-
-  request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
-    .set('Authorization', 'Bearer ' + this.props.app_token)
-    .send({
-      annotations: cleanAnnotation,
-    })
-    .then(result => {
-      const comment = result.body
-      this.setState({ toastMsg: { msg: "This Annotation is saved", lvl: "success" } });
-      this.submitComment(comment.annotation_result)
-    })
-    .catch(err => {
-      if (err.status && err.status === 401) {
-        // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0;path=/';
-        window.location.reload();
+    // Save new AnnotationTag in PresenceMode
+    if (isPresenceMode) {
+      let annotationTag: Array<Annotation> = this.state.annotations
+        .filter(annotation =>
+            annotation.type === "tag"
+          & annotation.annotation === ann[0].annotation
+          & annotation.result_comments.newAnnotation === true
+      )
+      if (annotationTag.length === 0 || annotationTag.id === ann.id) {
+        this.submitOneAnnotationAndAComment(ann)
       } else {
-        this.setState({isLoading: false, error: this.buildErrorMessage(err)});
+        const cleanAnnotationTag = this.cleaningAnnotation(annotationTag[0])
+
+        request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
+          .set('Authorization', 'Bearer ' + this.props.app_token)
+          .send({
+            annotations: cleanAnnotationTag,
+          })
+          .then(data => {
+            let newAnnotationTag = data.body
+            this.updateAnnotationsWithNewId(cleanAnnotationTag.id, newAnnotationTag.id)
+            this.submitOneAnnotationAndAComment(ann)
+          }
+          )
+        .catch(err => {
+          if (err.status && err.status === 401) {
+            // Server returned 401 which means token was revoked
+            document.cookie = 'token=;max-age=0;path=/';
+            window.location.reload();
+          } else {
+            this.setState({isLoading: false, error: this.buildErrorMessage(err)});
+          }
+        });
       }
-    });
+    } else {
+      this.submitOneAnnotationAndAComment(ann)
+    }
+  }
+
+  updateAnnotationsWithNewId = (oldId, newId) => {
+    const anotherAnnotationsWithSameId: Array<Annotation> = this.state.annotations
+      .filter(ann => ann.id === newId)
+      .map(ann => Object.assign({}, ann, { id: newId + 50 }))
+
+    let annotations: Array<Annotation> = this.state.annotations
+      .filter(ann => ann.id !== newId+ 50)
+      .concat(anotherAnnotationsWithSameId)
+
+    const annotationsWithNewId: Array<Annotation> = annotations
+      .filter(ann => ann.id === oldId)
+      .map(ann => Object.assign({}, ann, { id: newId }))
+
+    annotations = annotations
+      .filter(ann => ann.id !==  oldId)
+      .concat(annotationsWithNewId)
+
+      this.setState({
+        annotations: annotations,
+      })
+
+    return annotationsWithNewId
+  }
+
+  submitOneAnnotationAndAComment = (ann,
+    taskId = this.props.match.params.annotation_task_id
+  ) => {
+    const cleanAnnotation = this.cleaningAnnotation(ann[0])
+
+    request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
+      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .send({
+        annotations: cleanAnnotation,
+      })
+      .then(result => {
+        const annotation_result = result.body
+        this.setState({ toastMsg: { msg: "This Annotation is saved", lvl: "success" } });
+        this.submitComment(annotation_result.id)
+      })
+      .catch(err => {
+        if (err.status && err.status === 401) {
+          // Server returned 401 which means token was revoked
+          document.cookie = 'token=;max-age=0;path=/';
+          window.location.reload();
+        } else {
+          this.setState({isLoading: false, error: this.buildErrorMessage(err)});
+        }
+      });
   }
 
   submitComment = (annotation_result_id= this.state.currentComment.annotation_result) => {
@@ -815,6 +900,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         return
       }
     }
+
     request[method](url)
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .send({
@@ -830,7 +916,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           comment = {
             comment: "",
             annotation_task: this.state.currentComment.annotation_task,
-            annotation_result: this.state.currentComment.annotation_result,
+            annotation_result: annotation_result_id,
             comment_id: null,
           }
         }
@@ -842,13 +928,26 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             task_comment: comment,
           })
         } else {
+          let annotations
+          if( comment.annotation_result !== annotation_result_id) {
 
-          const annotationsWithNewComment: Array<Annotation> = this.state.annotations
-          .filter(ann => ann.id === comment.annotation_result)
+            const anotherAnnotationsWithSameId: Array<Annotation> = this.state.annotations
+            .filter(ann => ann.id === annotation_result_id)
+            .map(ann => Object.assign({}, ann, { id: annotation_result_id + 200 }))
+
+            annotations = this.state.annotations
+            .filter(ann => ann.id !== annotation_result_id + 200)
+            .concat(anotherAnnotationsWithSameId)
+          }else{
+              annotations = this.state.annotations
+          }
+
+          const annotationsWithNewComment: Array<Annotation> = annotations
+          .filter(ann => ann.id === this.state.currentComment.annotation_result)
             .map(ann => Object.assign({}, ann, { result_comments: comment, id: annotation_result_id }))
 
-          const annotations: Array<Annotation> = this.state.annotations
-          .filter(ann => ann.id !== comment.annotation_result)
+          annotations = annotations
+          .filter(ann => ann.id !== this.state.currentComment.annotation_result)
             .concat(annotationsWithNewComment)
 
           this.setState({
@@ -871,7 +970,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   submitCommentAndAnnotation = () => {
     if (this.state.currentComment.newAnnotation) {
       let newAnnotation = this.state.annotations.filter((ann) => ann.id === this.state.currentComment.annotation_result)
-      this.submitOneAnnotation(newAnnotation)
+      this.beforeSubmit_checkPresenceMode(newAnnotation)
     } else {
       this.submitComment()
     }
@@ -890,14 +989,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   switchToTaskComment = () => {
-
     const annotations: Array<Annotation> = this.state.annotations
       .map(ann => Object.assign({}, ann, { active: false }))
     this.setState({ currentComment: this.state.task_comment, annotations: annotations })
   }
 
   handleCommentChange(event) {
-    this.setState({ currentComment: {...this.state.currentComment, comment: event.target.value} });
+    this.setState({ currentComment: Object.assign({}, this.state.currentComment, {comment: event.target.value})});
   }
 
   renderAnnotationArea = () => {
@@ -910,7 +1008,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           {this.renderActiveBoxAnnotation()}
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
-        <div className="col-sm-4">
+        <div className="col-sm-3">
           <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
           <table className="table table-hover rounded">
             <thead className="">
@@ -919,12 +1017,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               </tr>
             </thead>
               <tbody>
-                <tr
+                <tr key="task_comment"
                   className={this.state.currentComment.annotation_result === null ? "isActive" : ""}
                   onClick={() => { this.switchToTaskComment() }}
                 >
                   <td colSpan={3}>Task Comment</td>
-                  <td>
+                  <td className="pl-1">
                     {this.state.task_comment.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
                   </td>
                 </tr>
@@ -933,7 +1031,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </table>
           </div>
         </div>
-        <div className="col-sm-2">
+        <div className="col-sm-3">
             <div className="card">
               <h6 className="card-header text-center">Comments</h6>
             <div className="card-body">
@@ -952,8 +1050,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                     <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
                         <i className="fa-solid fa-check"></i>
                     </button>
-                    <button className="btn btn-danger" onClick={()=>{this.setState({currentComment:  {...this.state.currentComment, comment: ""}})}}>
-                      <i className="fa-solid fa-comment-slash"></i>
+                    <button className="btn btn-danger" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
+                      <i className="fa-solid fa-broom"></i>
                     </button>
                     </div>
                 </div>
@@ -1137,25 +1235,25 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     if (annotation.type === TYPE_BOX) {
       return (
         <tr
-          key={`listann-${annotation.id}`}
-          className={annotation.active ? "isActive" : ""}
+          key={`listann-${annotation.id}${annotation.result_comments.newAnnotation ? "-newann" : ""}`}
+          className={annotation.active ? "isActive p-1" : "p-1"}
           onClick={() => this.activateAnnotation(annotation)}
         >
-          <td>
+          <td className="p-1">
             <i className="fa-solid fa-clock-o"></i>&nbsp;
             {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
             {utils.formatTimestamp(annotation.endTime)}
           </td>
-          <td>
+          <td className="p-1">
             <i className="fa-solid fa-arrow-up"></i>&nbsp;
             {annotation.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
             {annotation.endFrequency.toFixed(2)} Hz
           </td>
-          <td>
+          <td className="p-1">
             <i className="fa-solid fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
-          <td>
+          <td className="p-1">
           {annotation.result_comments.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
           </td>
         </tr>
@@ -1173,7 +1271,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               {annotation.annotation}
             </strong>
           </td>
-          <td>
+          <td className="pl-1">
           {annotation.result_comments.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
           </td>
         </tr>

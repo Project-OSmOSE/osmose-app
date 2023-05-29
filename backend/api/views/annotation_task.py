@@ -17,6 +17,7 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
+    AnnotationResult,
 )
 from backend.api.serializers import (
     AnnotationTaskSerializer,
@@ -24,7 +25,7 @@ from backend.api.serializers import (
     AnnotationTaskUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
     AnnotationTaskOneResultUpdateSerializer,
-    AnnotationCommentRetrieveSerializer,
+    AnnotationTaskResultSerializer,
 )
 
 
@@ -149,6 +150,6 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
 
-        queryset = AnnotationComment.objects.latest("id")
-        serializer = AnnotationCommentRetrieveSerializer(queryset)
+        queryset = AnnotationResult.objects.latest("id")
+        serializer = AnnotationTaskResultSerializer(queryset)
         return Response(serializer.data)
