@@ -23,6 +23,10 @@ import paulPortrait from '../../img/people/paul_200_200.webp'
 import alexPortrait from '../../img/people/alex.jpg'
 import mathieuPortrait from '../../img/people/mathieu_portrait.jpg'
 import anatolePortrait from '../../img/people/anatole_gros-martial.jpg'
+import gabrielPortrait from '../../img/people/gabriel_dubus.jpg'
+import pierreYvesPortrait from '../../img/people/pierre-yves_le_rolland_raumer.png'
+import quentinPortrait from '../../img/people/quentin_hamard.jpg'
+import mathildePortrait from '../../img/people/mathilde_michel.jpg'
 
 export const People: React.FC = () => {
 
@@ -103,6 +107,48 @@ export const People: React.FC = () => {
       <p className="quote">
       I am a postdoctoral fellow jointly hosted at <a href="https://people.math.carleton.ca/~davecampbell/Dave_Campbell.html">Carleton University</a> and Simon Fraser University. I am working on the development of deep learning models to help identify Southern Resident Killer Whale vocalizations in the Salish Sea. I have a background in image and signal processing and I did my doctoral research project at Sorbonne Université in France. The aim was to deal with the lack of annotated data (weak supervision) for underwater acoustic scene or event detection and classification in a Big Data context. My research interests in the marine environment include (but are not limited to) characterizing a soundscape, and developing detection and classification models for underwater sounds.
       </p>
+        </CardMember>
+
+        <CardMember
+    name="Gabriel Dubus"
+    img={gabrielPortrait}
+    imgSide="left"
+    imgAlt="Gabriel Dubus’s portrait"
+    // job="Data Scientist"
+    >
+      <p className="quote">
+      I'm a PhD student working jointly in l'Institut Jean le Rond d'Alembert (Sorbonne University/CNRS, Paris, France) and in Lab-STICC (ENSTA Bretagne, Brest France).
+I have a background in acoustics, signal processing and sound engineering. I'm interested in the use of sound to understand and protect the biodiversity.
+In my PhD, I'm trying to develop methods for the automatic detection and classification of cetaceans from acoustics recordings.
+I use tools developed by the OSmOSE team, I contribute to the development of codes and I organise annotation campaigns of underwater acoustics recordings.</p>
+        </CardMember>
+
+        <CardMember
+    name="Pierre-Yves Le Rolland Raumer"
+    img={pierreYvesPortrait}
+    imgSide="right"
+    imgAlt="Pierre-Yves's portrait"
+    // job="Data Scientist"
+    >
+      <p className="quote">
+      I'm a PhD student jointly working in Geo-Ocean at IUEM and in Lab-STICC at ENSTA Bretagne, in Brest, France. 
+Right before, I studied Computer Sciences at Politecnico di Milano. Thus being a computer scientist, my main interests are in particular linked to machine learning applied on marine data. 
+During this PhD, my main goal is to develop deep learning techniques in order to detect and classify some seismological acoustic events, such as T-waves. 
+These studies will mainly focus on data from OHASISBIO (Indian Ocean) and MAHY (Mayotte) networks.
+Within the OSmOSE team, I should both be an enthusiastic user of the project resources and one of its active developers.</p>
+        </CardMember>
+
+        <CardMember
+    name="Quentin Hamard"
+    img={quentinPortrait}
+    imgSide="left"
+    imgAlt="Quentin's portrait"
+    // job="Data Scientist"
+    >
+      <p className="quote">
+      I am a research engineer at France Énergies Marines and I work with the bioacoustics team on the development of deep learning models for the monitoring of marine mammals.
+My work is part of the OWFSOMM project (Offshore Wind Farm Survey of Marine Megafauna: standardization of tools and methods for monitoring at OWF scales) between several academic research laboratories and industrial partners.
+Thanks to my knowledge in acoustic engineering, bioacoustics and artificial intelligence, I participate in the use and development of the OSmOSE team's tools.</p>
     </CardMember>
   </section>
 
@@ -116,7 +162,7 @@ export const People: React.FC = () => {
     <CardMember
     name="Julie Béesau"
     img={juliePortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Julie’s portrait."
     // job="Data Scientist"
     // url="https://www.google.com"
@@ -133,7 +179,7 @@ export const People: React.FC = () => {
     <CardMember 
     name="Flore Samaran"
     img={florePortrait}
-    imgSide="right"
+    imgSide="left"
     imgAlt="Flore’s portrait."
     // job="Data Scientist"
     // url="https://www.google.com"
@@ -150,7 +196,7 @@ export const People: React.FC = () => {
     <CardMember
     name="Maëlle Torterotot"
     img={maellePortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Maëlle’s portrait"
     // job="Data Scientist"
     // url="https://www.google.com"
@@ -168,7 +214,7 @@ export const People: React.FC = () => {
      <CardMember 
     name="Anatole Gros-Martial"
     img={anatolePortrait}
-    imgSide="right"
+    imgSide="left"
     imgAlt="Anatole’s portrait."
     job="PhD student"
     >
@@ -186,7 +232,7 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
     <CardMember
     name="Mathieu Dupont"
     img={mathieuPortrait}
-    imgSide="left"
+    imgSide="right"
     imgAlt="Mathieu's portrait"
     >
         <p className="quote">
@@ -196,6 +242,25 @@ Furthermore, southern elephant seals can be used as monitoring buoys to detect b
         understand dolphins bycatches and how to prevent it. I take part in developping tools with the OSmOSE team in order
         to exploit data as efficiently as possible.
         </p>
+    </CardMember>
+    
+    <CardMember
+    name="Mathilde Michel"
+    img={mathildePortrait}
+    imgSide="left"
+    imgAlt="Mathilde's portrait."
+    // job="Data Scientist"
+    // url="https://www.google.com"
+    // urlDesc="Page personnelle"
+    >
+      <p className="quote">
+      After a master's degree in Oceanography at the University of Aix-Marseille and a first internship on fish acoustics, I decided to complete my studies by integrating the International Master of Bioacoustics from the Jean Monnet University in Saint Etienne. It was during my second internship that I joined ENSTA Bretagne and the OSmOSE team: I worked on the effects of the duty cycle on marine mammal monitoring data by passive acoustics.
+In October 2022, I started my PhD which aims to optimize these long-term acoustic recordings: from data acquisition to the metrics used to describe them.
+I use some tools developed by the OSmOSE team and I also contribute to the development.
+</p>
+      {/* <p className="quote">
+        Je suis ingénieur d’étude au sein de l’ENSTA Bretagne depuis 2017 et je travaille dans l’équipe de bioacoustique sur le suivi des populations de mammifères marins par acoustique passive. L’acoustique passive est, pour moi, un outil pour l’étude et la conservation des mammifères marins et plus précisément des cétacés le long des côtes françaises. Au sein de l’équipe OSMOSE, je travaille du côté des scientifiques en tant qu’utilisatrice des outils développés par les informaticiens notamment sur la plateforme d’annotation en ligne APLOSE ainsi qu’à l’analyse des résultats obtenus et à leurs valorisations scientifiques.
+      </p> */}
     </CardMember>
 
 

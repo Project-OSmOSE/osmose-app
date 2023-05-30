@@ -942,7 +942,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     return (
       <span>
         <a
-          href="https://github.com/Project-ODE/FrontApp/blob/master/docs/user_guide_annotator.md"
+          href="https://github.com/Project-OSmOSE/FrontApp/blob/master/docs/user_guide_annotator.md"
           rel="noopener noreferrer"
           target="_blank"
         ><span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>

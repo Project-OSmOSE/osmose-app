@@ -23,6 +23,7 @@
 @media screen and (min-width: 992px) {
     .cardArticle img{
         min-width: 50vh;
+        max-width: 60vh;
         min-height: 20vh;
         align-self: center;
         margin: 2em 0;

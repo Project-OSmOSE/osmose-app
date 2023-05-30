@@ -1,4 +1,4 @@
-# FrontApp [![Build Status](https://travis-ci.org/Project-ODE/FrontApp.svg?branch=master)](https://travis-ci.org/Project-ODE/FrontApp)
+# FrontApp [![Build Status](https://travis-ci.org/Project-OSmOSE/FrontApp.svg?branch=master)](https://travis-ci.org/Project-OSmOSE/FrontApp)
 
 Front-end Application sourcing data from FeatureService. It is a React application meant to manage datasets, launch annotation campaigns and annotate dataset files.
 
