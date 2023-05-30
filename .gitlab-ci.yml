@@ -47,7 +47,7 @@ osmose_front:
   only:
     - master
   tags:
-    - docker_image_runner
+    - devops-docker-runner 
   variables:
     APP_NAME: osmose_front
     APP_VERSION: 1.5.2
@@ -63,7 +63,7 @@ osmose_back:
   only:
     - master
   tags:
-    - docker_image_runner
+    - devops-docker-runner 
   variables:
     APP_NAME: osmose_back
     APP_VERSION: 1.5.2
