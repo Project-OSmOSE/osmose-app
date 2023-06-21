@@ -111,8 +111,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   audioContext: AudioContext;
   audioPlayer: AudioPlayer;
   alphanumeric_keys = [
-    ["&", "é", "\"", "'", "(", "-", "è", "_", "ç"],
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    ["&", "é", "\"", "'", "(", "-", "è", "_", "ç", "a", "z", "e", "r", "t", "y", "u", "i", "o"],
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "z", "e", "r", "t", "y", "u", "i", "o"],
   ];
 
   constructor(props: AudioAnnotatorProps) {

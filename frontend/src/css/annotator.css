@@ -13,6 +13,15 @@ html {
   --color__7: #2a2d34;
   --color__8: #6761a8;
   --color__9: #009b72;
+  --color__10: #ff8040;
+  --color__11: #ff5f7f;
+  --color__12: #66a8d9;
+  --color__13: #f6bf3f;
+  --color__14: #b7d679;
+  --color__15: #a1880d;
+  --color__16: #7f8fa3;
+  --color__17: #b212e6;
+  --color__18: #84c8ff;
   --color__black--125: rgba(0,0,0,.125);
   --color__black--003:rgba(0,0,0,.03);
   --color__submit: #26a69a;
@@ -492,6 +501,186 @@ html {
   100% {
     box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
                  5 5 2em 1em var(--color__9);
+  }
+}
+
+.pulse__10--active{
+  animation: pulse__10 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__10 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__10);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__10);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__10);
+  }
+}
+
+.pulse__11--active{
+  animation: pulse__11 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__11 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__11);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__11);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__11);
+  }
+}
+
+.pulse__12--active{
+  animation: pulse__12 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__12 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__12);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__12);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__12);
+  }
+}
+
+.pulse__13--active{
+  animation: pulse__13 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__13 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__13);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__13);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__13);
+  }
+}
+
+.pulse__14--active{
+  animation: pulse__14 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__14 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__14);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__14);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__14);
+  }
+}
+
+.pulse__15--active{
+  animation: pulse__15 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__15 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__15);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__15);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__15);
+  }
+}
+
+.pulse__16--active{
+  animation: pulse__16 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__16 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__16);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__16);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__16);
+  }
+}
+
+.pulse__17--active{
+  animation: pulse__17 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__17 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__17);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__17);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__17);
+  }
+}
+
+.pulse__18--active{
+  animation: pulse__18 1s;
+  box-shadow: 0 0 0 20em transparent;
+}
+
+@keyframes pulse__18 {
+  0% {
+    box-shadow:  0 0 0 0 rgba(255,255,255,1),
+                 0 0 0 0 var(--color__18);
+  }
+  50% {
+    box-shadow:  0 0 1em 0.5em rgba(255,255,255,1),
+                 0 0 0 1em var(--color__18);
+  }
+  100% {
+    box-shadow:  0 0 0 0.1em rgba(255,255,255,1),
+                 5 5 2em 1em var(--color__18);
   }
 }
 

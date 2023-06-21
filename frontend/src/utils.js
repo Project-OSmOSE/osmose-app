@@ -29,7 +29,12 @@ export function formatTimestamp(rawSeconds: number, withMs: ?boolean = true) {
 }
 
 // Tag colors management
-const COLORS = ['#00b1b9', '#a23b72', '#f18f01', '#c73e1d', '#bb7e5d', '#eac435', '#98ce00', '#2a2d34', '#6761a8', '#009b72'];
+const COLORS = [
+  '#00b1b9', '#a23b72', '#f18f01', '#c73e1d', '#bb7e5d',
+  '#eac435', '#98ce00', '#2a2d34', '#6761a8', '#009b72',
+  '#ff8040', '#ff5f7f', '#66a8d9', '#f6bf3f', '#b7d679',
+  '#a1880d', '#7f8fa3', '#b212e6', '#84c8ff',
+];
 
 export function buildTagColors(tags: Array<string>): Map<string, string> {
   const tagColors = tags.map((tag, idx) =>
