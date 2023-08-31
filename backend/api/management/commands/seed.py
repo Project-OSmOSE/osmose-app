@@ -119,8 +119,8 @@ class Command(management.BaseCommand):
             {
                 "name": "Big tag set",
                 "desc": "Test annotation set with lots of tags",
-                "tags": [self.faker.color_name() for _ in range(0,20)],
-            }
+                "tags": [self.faker.color_name() for _ in range(0, 20)],
+            },
         ]
         self.annotation_sets = {}
         for seed_set in sets:
