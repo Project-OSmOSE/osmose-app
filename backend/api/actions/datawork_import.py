@@ -137,7 +137,7 @@ def datawork_import(*, wanted_datasets, importer):
                     start=start,
                     end=(
                         start
-                        + timedelta(seconds=float(audio_raw["dataset_fileDuration"]))
+                        + timedelta(seconds=float(audio_raw["audio_file_dataset_duration"]))
                     ),
                 )
                 dataset_files.append(
