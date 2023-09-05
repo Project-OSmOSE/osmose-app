@@ -106,6 +106,8 @@ def datawork_import(*, wanted_datasets, importer):
         for one_spectro_folder in os.scandir(conf_folder_path):
             if one_spectro_folder.is_dir():
                 spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
+            else:
+                continue
 
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
