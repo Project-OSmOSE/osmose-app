@@ -45,7 +45,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     new_ac_annotation_method: -1,
     annotator_choices: {},
     isStaff: false,
-    error: null
+    error: null 
   }
   getData = { abort: () => null }
   getUsers = request.get(USER_API_URL)

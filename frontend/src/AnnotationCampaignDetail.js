@@ -105,10 +105,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         if (!tmp_tasks[task.annotator_id]) {
           tmp_tasks[task.annotator_id] = {};
         }
-        // Unassigned status is not used to calculate the total task
-        if (task.status !== 3) {
-          tmp_tasks[task.annotator_id][task.status] = task.count;
-        }
+        tmp_tasks[task.annotator_id][task.status] = task.count;
       })
       let tasks = [];
       Object.keys(tmp_tasks).forEach(key => {
@@ -154,8 +151,8 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
     let annotation_tasks = this.state.tasks.map(task => {
       return (
         <tr key={task.annotator_id}>
-          <td className="text-center">{task.annotator_name}</td>
-          <td className="text-center">{task.progress}</td>
+          <td>{task.annotator_name}</td>
+          <td>{task.progress}</td>
         </tr>
       );
     });
@@ -193,7 +190,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <br />
         {this.renderAddAnnotatorButton(this.state.isStaff, campaign.id)}
         <table className="table table-bordered">
-          <thead className="text-center">
+          <thead>
             <tr>
               <th>Annotator</th>
               <th>Progress</th>
