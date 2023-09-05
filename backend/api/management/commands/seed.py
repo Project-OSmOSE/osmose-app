@@ -3,7 +3,7 @@ import os, glob
 from datetime import datetime
 from random import randint, choice
 
-# from faker import Faker
+from faker import Faker
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
@@ -42,6 +42,7 @@ class Command(management.BaseCommand):
         management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
+        self.faker = Faker()
         self.datafile_count = 50
         self._create_users()
         self._create_datasets()
@@ -103,6 +104,7 @@ class Command(management.BaseCommand):
             )
 
     def _create_annotation_sets(self):
+        many_tags = []
         sets = [
             {
                 "name": "Test SPM campaign",
@@ -111,8 +113,13 @@ class Command(management.BaseCommand):
             },
             {
                 "name": "Test DCLDE LF campaign",
-                "desc": "Test annotation campaign DCLDE LF 2015",
+                "desc": "Test annotation set DCLDE LF 2015",
                 "tags": ["Dcall", "40-Hz"],
+            },
+            {
+                "name": "Big tag set",
+                "desc": "Test annotation set with lots of tags",
+                "tags": [self.faker.color_name() for _ in range(0, 20)],
             },
         ]
         self.annotation_sets = {}
@@ -141,6 +148,14 @@ class Command(management.BaseCommand):
                 "start": "2012-06-22",
                 "end": "2012-06-26",
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
+                "annotation_scope": 2,
+            },
+            {
+                "name": "Many tags campaign",
+                "desc": "Test annotation campaign with many tags",
+                "start": "2012-06-22",
+                "end": "2012-06-26",
+                "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
             },
         ]

@@ -77,9 +77,9 @@ poetry run black backend
 
 To update a package to a specific version do not directly edit the pyproject.toml file but rather use the following command:
 ```bash
-poetry add -D "pylint==2.14.5"
+poetry add --group dev "pylint==2.14.5"
 ```
-Here `-D` because this is a dev tool, if it's a library to also be used in production you can drop that option.
+Here `--group dev` because this is a dev tool, if it's a library to also be used in production you can drop that option.
 
 If you want to changes pylint rules, the configuration options are in the `pyproject.toml` file.
 
