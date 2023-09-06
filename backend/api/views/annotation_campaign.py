@@ -34,7 +34,9 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.annotate(files__count=Count("datasets__files")).prefetch_related(
+        queryset = self.queryset.annotate(
+            files__count=Count("datasets__files")
+        ).prefetch_related(
             "tasks",
             Prefetch(
                 "tasks",
@@ -208,24 +210,32 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
             campaign.tasks.select_related(
                 "dataset_file", "dataset_file__dataset", "annotator"
             )
-            .order_by(
+            .order_by("dataset_file__dataset__name", "dataset_file__filename")
+            .values_list(
                 "dataset_file__dataset__name",
                 "dataset_file__filename",
                 "annotator__username",
-            )
-            .values_list(
-                "dataset_file__dataset__name", "dataset_file__filename", "status"
+                "status",
             )
         )
+        tasks_status = {}
+        for dataset_name, filename, annotator, status_int in tasks:
+            if (dataset_name, filename) not in tasks_status:
+                tasks_status[(dataset_name, filename)] = {}
+            tasks_status[(dataset_name, filename)][annotator] = status_int
 
-        def status(status_int):
-            return AnnotationTask.StatusChoices(status_int).name
+        # We list all dataset_name, filename couples and then annotators + status for each
+        for (dataset_name, filename), annotator_status in tasks_status.items():
+            status_per_annotator = []
+            for annotator in annotators:
+                status_string = "UNASSIGNED"  # Default status that will only be kept if no task was given
+                if annotator in annotator_status:
+                    status_string = AnnotationTask.StatusChoices(
+                        annotator_status[annotator]
+                    ).name
+                status_per_annotator.append(status_string)
+            data.append([dataset_name, filename] + status_per_annotator)
 
-        # Grouping by len(annotators) (see https://stackoverflow.com/a/3415150/2730032)
-        for line in zip(*[iter(tasks)] * len(annotators)):
-            # We take dataset name + filename from first cell in line
-            # and then the status from all of the cells
-            data.append(list(line[0][0:2]) + [status(cell[-1]) for cell in line])
         response = Response(data)
         response[
             "Content-Disposition"
