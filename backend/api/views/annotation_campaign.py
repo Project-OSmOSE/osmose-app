@@ -35,7 +35,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     def list(self, request):
         """List annotation campaigns"""
         queryset = self.queryset.annotate(
-            files__count=Count("datasets__files")
+            files_count=Count("datasets__files")
         ).prefetch_related(
             "tasks",
             Prefetch(

@@ -102,7 +102,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "user_tasks_count",
                 "complete_tasks_count",
                 "user_complete_tasks_count",
-                "datasets_count",
+                "files_count",
             ],
         )
         self.assertEqual(response.data[0]["name"], "Test SPM campaign")
@@ -252,8 +252,9 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         url = reverse("annotation-campaign-report-status", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 12)
         self.assertEqual(response.data[0], ["dataset", "filename", "admin", "user2"])
         self.assertEqual(
-            response.data[1], ["SPM Aural A 2010", "sound001.wav", "CREATED", "CREATED"]
+            response.data[1],
+            ["SPM Aural A 2010", "sound001.wav", "CREATED", "UNASSIGNED"],
         )
