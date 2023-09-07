@@ -1,7 +1,5 @@
 """Metadata-related models"""
 
-from math import log
-
 from django.db import models
 
 

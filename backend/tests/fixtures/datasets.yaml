@@ -295,7 +295,7 @@
     nfft: 4096
     window_size: 2000
     overlap: 90.0
-    zoom_level: 8
+    zoom_level: 3
     spectro_normalization: 0
     data_normalization: 0
     zscore_duration: 0
@@ -313,7 +313,7 @@
     nfft: 2048
     window_size: 1000
     overlap: 90.0
-    zoom_level: 8
+    zoom_level: 3
     spectro_normalization: 0
     data_normalization: 0
     zscore_duration: 0

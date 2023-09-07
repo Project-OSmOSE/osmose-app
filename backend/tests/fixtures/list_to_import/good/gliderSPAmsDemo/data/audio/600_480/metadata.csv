@@ -1,3 +1,2 @@
-orig_fs,sample_bits,channel_count,nberWavFiles,start_date,end_date,dutyCycle_percent,orig_fileDuration,orig_fileVolume,orig_totalVolume,orig_totalDurationMins,lat,lon,dataset_sr,dataset_fileDuration
-
-48000,24,1,4574,2019-02-27T23:41:34.000Z,2019-04-05T13:15:56.000Z,,600,86.400044,395.2,45740,46.758156,-56.331207,48000,600
+origin_sr,sample_bits,channel_count,audio_file_count,start_date,end_date,audio_file_origin_duration,audio_file_origin_volume,dataset_origin_volume,dataset_origin_duration,is_built,audio_file_dataset_overlap,lat,lon,depth,dataset_sr,audio_file_dataset_duration
+48000,16,1,9,2022-08-09T13:10:00.000000+0200,2022-08-09T13:25:00.000000+0200,30,2.88048,11.5,120,True,5,2,3,30,24000,13
