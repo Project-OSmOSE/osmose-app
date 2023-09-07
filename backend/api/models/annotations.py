@@ -5,7 +5,6 @@ from random import shuffle
 
 from django.db import models
 from django.conf import settings
-from django.db.models import Q
 
 
 class AnnotationTag(models.Model):
@@ -82,64 +81,45 @@ class AnnotationCampaign(models.Model):
     )
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
-        # pylint: disable=too-many-locals
         """Create a files_target number of annotation tasks assigned to annotator for a given method"""
         if method not in ["sequential", "random"]:
             raise ValueError(f'Given method argument "{method}" is not supported')
-        all_dataset_files = self.datasets.values_list("files__id", flat=True)
-        if files_target > len(all_dataset_files):
+        dataset_files = self.datasets.values_list("files__id", flat=True)
+        if files_target > len(dataset_files):
             raise ValueError(f"Cannot annotate {files_target} files, not enough files")
         if files_target:
             # First let's group dataset_files by annotator_count
             file_groups = defaultdict(list)
-            files_annotator_count = (
-                self.tasks.filter(~Q(status=3))
-                .values_list("dataset_file_id")
-                .annotate(models.Count("annotator_id"))
+            files_annotator_count = self.tasks.values_list("dataset_file_id").annotate(
+                models.Count("annotator_id")
             )
             for file_id, annotator_count in files_annotator_count:
                 file_groups[annotator_count].append(file_id)
-            remaining = set(all_dataset_files)
+            remaining = set(dataset_files)
             for files in file_groups.values():
                 remaining -= set(files)
             file_groups[0] = list(remaining)
             # Second we reset dataset_files and fill it from lower annotator count groups first
             dataset_files = []
             for key in sorted(file_groups.keys()):
-                group_files = sorted(file_groups[key])
+                group_files = file_groups[key]
                 if method == "random":
                     shuffle(group_files)
                 dataset_files += group_files[:files_target]
                 if len(dataset_files) >= files_target:
                     break
                 files_target -= len(dataset_files)
-
-        unassigned_dataset_files = list(
-            set(all_dataset_files).difference(set(dataset_files))
-        )
-        created_annotation_task = []
-        unassigned_annotation_task = []
-        new_task = []
-        for dataset_file_id in dataset_files:
-            created_annotation_task.append(
+        AnnotationTask.objects.bulk_create(
+            [
                 AnnotationTask(
                     status=0,
                     annotator_id=annotator.id,
                     dataset_file_id=dataset_file_id,
                     annotation_campaign_id=self.id,
                 )
-            )
-        for dataset_file_id in unassigned_dataset_files:
-            unassigned_annotation_task.append(
-                AnnotationTask(
-                    status=3,
-                    annotator_id=annotator.id,
-                    dataset_file_id=dataset_file_id,
-                    annotation_campaign_id=self.id,
-                )
-            )
-        new_task = created_annotation_task + unassigned_annotation_task
-        AnnotationTask.objects.bulk_create(new_task)
+                for dataset_file_id in dataset_files
+            ]
+        )
 
 
 class AnnotationTask(models.Model):
@@ -149,7 +129,7 @@ class AnnotationTask(models.Model):
     """
 
     StatusChoices = models.IntegerChoices(
-        "StatusChoices", "CREATED STARTED FINISHED UNASSIGNED", start=0
+        "StatusChoices", "CREATED STARTED FINISHED", start=0
     )
 
     class Meta:

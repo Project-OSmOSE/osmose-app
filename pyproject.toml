@@ -45,3 +45,6 @@ ignore-paths= "backend\\api\\migrations|backend/api/migrations"
 [tool.pylint.FORMAT]
 max-line-length = 120
 good-names = ["pk"]
+
+[tool.pylint.DESIGN]
+max-locals=20
