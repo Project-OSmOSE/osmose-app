@@ -105,10 +105,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         if (!tmp_tasks[task.annotator_id]) {
           tmp_tasks[task.annotator_id] = {};
         }
-        // Unassigned status is not used to calculate the total task
-        if (task.status !== 3) {
-          tmp_tasks[task.annotator_id][task.status] = task.count;
-        }
+        tmp_tasks[task.annotator_id][task.status] = task.count;
       })
       let tasks = [];
       Object.keys(tmp_tasks).forEach(key => {

@@ -25,7 +25,6 @@ def datawork_import(*, wanted_datasets, importer):
     """This function will import Datasets from datawork folder with importer user as owner"""
     # TODO : break up this process to remove code smell and in order to help with unit testing
     # pylint: disable=too-many-locals, duplicate-code
-
     current_dataset_names = Dataset.objects.values_list("name", flat=True)
     wanted_dataset_names = [dataset["name"] for dataset in wanted_datasets]
     csv_dataset_names = []

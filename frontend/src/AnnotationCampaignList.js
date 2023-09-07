@@ -14,7 +14,7 @@ type ACLState = {
     name: string,
     instructions_url: ?string,
     annotation_set_id: number,
-    datasets_count: number,
+    files_count: number,
     start: string,
     end: string,
     tasks_count: number,
@@ -82,7 +82,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
         <tr key={annotation_campaign.id}>
           <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>Set n°{annotation_campaign.annotation_set_id}</td>
-          <td>{annotation_campaign.files__count}</td>
+          <td>{annotation_campaign.files_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>
