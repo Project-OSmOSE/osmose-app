@@ -106,6 +106,8 @@ def datawork_import(*, wanted_datasets, importer):
         for one_spectro_folder in os.scandir(conf_folder_path):
             if one_spectro_folder.is_dir():
                 spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
+            else:
+                continue
 
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
@@ -130,23 +132,24 @@ def datawork_import(*, wanted_datasets, importer):
         dataset_files = []
         # Create dataset_files
         with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
-            for timestamp_data in csv.reader(csvfile):
-                filename, start_timestamp = timestamp_data
-                start = parse_datetime(start_timestamp)
+            for timestamp_data in csv.DictReader(csvfile):
+                start = parse_datetime(timestamp_data["timestamp"])
                 audio_metadatum = AudioMetadatum.objects.create(
                     start=start,
                     end=(
                         start
-                        + timedelta(seconds=float(audio_raw["dataset_fileDuration"]))
+                        + timedelta(
+                            seconds=float(audio_raw["audio_file_dataset_duration"])
+                        )
                     ),
                 )
                 dataset_files.append(
                     DatasetFile(
                         dataset=curr_dataset,
-                        filename=filename,
+                        filename=timestamp_data["filename"],
                         filepath=settings.DATASET_FILES_FOLDER
                         / dataset["conf_folder"]
-                        / filename,
+                        / timestamp_data["filename"],
                         size=0,
                         audio_metadatum=audio_metadatum,
                     )

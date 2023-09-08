@@ -1,7 +1,5 @@
 """Metadata-related models"""
 
-from math import log
-
 from django.db import models
 
 
@@ -100,8 +98,7 @@ class SpectroConfig(models.Model):
 
     def zoom_tiles(self, tile_name):
         """Generate zoom tile filenames for SpectroConfig"""
-        n_zooms = int(log(self.zoom_level, 2)) + 1
-        for zoom_power in range(0, n_zooms):
+        for zoom_power in range(0, self.zoom_level + 1):
             zoom_level = 2**zoom_power
             for zoom_tile in range(0, zoom_level):
                 yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
