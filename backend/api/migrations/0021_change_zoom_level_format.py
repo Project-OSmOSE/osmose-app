@@ -8,9 +8,11 @@ from django.db import migrations
 def change_zoom_level(apps, schema_editor):
     SpectroConfig = apps.get_model("api", "SpectroConfig")
     for spectro in SpectroConfig.objects.all():
-        spectro.zoom_level = int(log(spectro.zoom_level, 2))
+        try:
+            spectro.zoom_level = int(log(spectro.zoom_level, 2))
+        except ValueError:
+            spectro.zoom_level = 0
         spectro.save()
-
 
 class Migration(migrations.Migration):
 

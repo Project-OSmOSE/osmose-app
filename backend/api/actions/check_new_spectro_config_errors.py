@@ -66,12 +66,13 @@ def check_new_spectro_config_errors():
                     dataset.spectro_configs.set(dataset_spectros)
 
     except FileNotFoundError as error:
-        regex = "dataset/(.*)/analysis"
+        regex = "dataset/(.*)/processed"
         buggy_dataset = re.findall(regex, str(error))
+        buggy_dataset = buggy_dataset[0] if buggy_dataset else "FAILED NAME DETECTION"
         check_error = {
             "error_lines": [
                 "Successful import. Reload (F5) this page to see it.",
-                f"But an another dataset config spectro ({buggy_dataset[0]}) can't be update :",
+                f"But an another dataset config spectro ({buggy_dataset}) can't be updated :",
                 f"{error}",
             ]
         }
