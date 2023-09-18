@@ -3,7 +3,15 @@ import os, glob
 from datetime import datetime
 from random import randint, choice
 
-from faker import Faker
+
+# TODO : Faker is a dev tool that shouldn't be needed in production
+# however currently start.sh calls this command indiscriminately so it fails
+# in production if faker is imported at the start. Removing the failure on import
+# is a quickfix however another solution like changing start.sh might be better.
+try:
+    from faker import Faker
+except ImportError:
+    pass
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
