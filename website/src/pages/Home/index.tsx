@@ -13,7 +13,7 @@ import logoFAIR from '../../img/logo/logo_fairlogo.png';
 export const Home: React.FC = () => {
 
   return (
-<div className="project">
+<div id="home">
 
   <PageTitle
   img={imgProject}

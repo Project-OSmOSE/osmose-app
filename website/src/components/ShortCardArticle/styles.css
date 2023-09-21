@@ -1,10 +1,10 @@
-  .card > img{
+  section.shortCardArticle > img.card-img{
     max-height: 20vh;
     align-self: center;
     margin: 2em 0;
   }
   @media screen and (min-width: 992px) {
-    .card > img {
+    section.shortCardArticle > img.card-img {
       min-width: 50vh;
       min-height: 20vh;
       align-self: center;

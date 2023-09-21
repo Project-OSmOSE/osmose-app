@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
       OSmOSE <a href="/humans.txt" title="Full credits"> credits</a>, <br /> GPL-3.0, 2021
     </p>
     <p className="m-3">
-      <a href="https://github.com/Project-ODE">GitHub</a>
+      <a href="https://github.com/Project-OSmOSE">GitHub</a>
     </p>
 </footer>
   );

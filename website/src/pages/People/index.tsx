@@ -27,7 +27,7 @@ import anatolePortrait from '../../img/people/anatole_gros-martial.jpg'
 export const People: React.FC = () => {
 
   return (
-<div className="people">
+<div id="people">
 
   <PageTitle
   img={imgPeople}

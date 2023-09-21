@@ -1,21 +1,19 @@
 footer#main-footer {
   background-color: rgb(224, 237, 241);
-  /*margin: 3rem 0 0 0;*/
   min-height: 25vh;
-  /* font-weight: 400; */
   font-size: smaller;
-  position: relative;
+  /* position: relative;
   top: auto;
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 0; */
 }
 
-footer#main-footer > p{
-  height: max-content !important;
-}
+  footer#main-footer > p{
+    height: max-content !important;
+  }
 
-footer#main-footer img {
-  max-width: 150px;
-  max-height: 120px;
-}
+  footer#main-footer img {
+    max-width: 150px;
+    max-height: 120px;
+  }

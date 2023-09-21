@@ -9,7 +9,6 @@ export interface ShortCardArticleProps {
   img?: string;
   imgAlt?: string;
   stringDate?: string;
-  desc?: string;
   authors?: string;
 }
 
@@ -19,8 +18,8 @@ export const ShortCardArticle: React.FC<ShortCardArticleProps> = ({
   img = "", // banner
   imgAlt = "",
   stringDate = "",
-  desc = "", // short description
-  authors = ""
+  authors = "",
+  children =""
 }) => {
   const regex = /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{2,4})/ig;
   const result_d_m_years = regex.exec(stringDate);
@@ -36,14 +35,13 @@ export const ShortCardArticle: React.FC<ShortCardArticleProps> = ({
   }
 
   return (
-    <section className="card border-0">
-      {img ?  <img className="card-img" src={img} alt={imgAlt} title={imgAlt} /> : null}
+    <section className="card shortCardArticle border-0">
+      {img ? <img className="card-img" src={img} alt={imgAlt} title={imgAlt} /> : null}
       <div className="card-body">
         {title ? <h2 className="card-title">{title}</h2> : null}
         <div className="card-text">
           {date ? <span className="small text-muted">{date.toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> : null}
-          {desc}
-          <br />
+          <p className='my-4'>{children}</p>
           <p className="text-end"><Link to={"/article/"+id}>read more...</Link></p>
         </div>
       </div>

@@ -1,17 +1,13 @@
-/* div.project{
-
-} */
-
-div.project div.banner:nth-child(odd) {
+div#home div.banner:nth-child(odd) {
     background-color: #1890cc;
     /* background-color: #00b6d9; */
 }
 
-div.project div.banner span.spring {
+div#home div.banner span.spring {
     font-size: larger;
     /* font-size: 2rem; */
 }
 
-div.project blockquote.blockquote {
+div#home blockquote.blockquote {
     font-size: 15px !important;
 }

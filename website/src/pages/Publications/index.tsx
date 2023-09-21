@@ -1,12 +1,10 @@
 import {PageTitle} from "../../components/PageTitle";
 
-import "./styles.css";
-
 import imgPublications from '../../img/illust/pexels-element-digital-1370295.jpg';
 
 export const Publications: React.FC = () => {
   return (
-    <div>
+    <div id="publications">
       <PageTitle
         img={imgPublications}
         imgAlt="Publications Banner"

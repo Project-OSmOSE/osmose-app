@@ -37,7 +37,7 @@ export const CardArticle: React.FC<CardArticleProps> = ({
   }
 
   return (
-    <article className="card border-0">
+    <article className="card cardArticle border-0">
       {img ?  <img className="card-img" src={img} alt={imgAlt} title={imgAlt} /> : null}
       <div className="card-body">
         <p className="small"><Link to={"/news"}> {"< return to news"}</Link></p>

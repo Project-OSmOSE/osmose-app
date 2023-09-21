@@ -61,7 +61,7 @@ export const Explore: React.FC = () => {
   // const seenSpecies: Array<string> = getSeenSpecies(ontology);
 
   return (
-<div className="explore">
+<div id="explore">
 
   <PageTitle
     img={imgExplore}

@@ -1,14 +1,4 @@
-div.cardAncient img{
-    border-radius: 50%;
+div.cardMemberTextLess img{
     max-height: 20vh;
     max-width: 20vh;
 }
-
-/* div.cardAncient{
-    margin-left: auto !important;
-    margin-right: auto !important;
-} */
-
-/* div.cardAncient:last-child{
-    margin-left: 0 !important;
-} */

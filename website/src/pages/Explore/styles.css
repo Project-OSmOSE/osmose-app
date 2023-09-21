@@ -1,8 +1,4 @@
-/* div.explore{
-
-} */
-
-div.explore h3 a{
+div#explore h3 a{
     color: #003c80;
 }
 
@@ -12,7 +8,7 @@ div.explore h3 a{
     max-height: 70vh;
 } */
 
-div.explore .grid-container{
+div#explore .grid-container{
     display: grid;
     -ms-grid-columns: auto;
     grid-template-columns: auto;
@@ -22,11 +18,11 @@ div.explore .grid-container{
 }
 
 @media screen and (min-width: 992px) {
-    div.explore .grid-container {
+    div#explore .grid-container {
         -ms-grid-columns: 1fr 10px 1fr;
         grid-template-columns: 1fr 1fr;
     }
 }
 
-/* div.explore .grid-container .half{
+/* div#explore .grid-container .half{
 } */

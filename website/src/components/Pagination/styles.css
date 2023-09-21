@@ -1,0 +1,3 @@
+ul.pagination > li.page-item > a.page-link {
+    box-shadow: unset !important;
+}

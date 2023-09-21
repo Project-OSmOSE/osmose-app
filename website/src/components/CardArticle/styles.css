@@ -1,10 +1,40 @@
-  .card > img{
+/* 
+.cardArticle img{
+  max-height: 40vh;
+  padding: 0.5em;
+  margin: 0;
+}
+
+figure{
+  align-self: center
+}
+
+figcaption{
+  text-align: center;
+}
+
+img{
+  object-fit: contain;
+}
+
+.toggleFlexDirection{
+  flex-direction: column-reverse;
+}
+
+@media screen and (min-width: 992px) {
+  .toggleFlexDirection{
+      flex-direction: row;
+  }
+} */
+
+
+  .cardArticle > img{
     max-height: 20vh;
     align-self: center;
     margin: 2em 0;
   }
   @media screen and (min-width: 992px) {
-    .card > img{
+    .cardArticle > img{
       min-width: 50vh;
       min-height: 20vh;
       align-self: center;
