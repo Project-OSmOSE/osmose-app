@@ -1,6 +1,6 @@
 import React from 'react';
 //- TODO  : fix error 404 on reload
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
 import './App.css';
 
@@ -9,6 +9,7 @@ import { Home } from './pages/Home';
 import { News } from './pages/News';
 import { People } from './pages/People';
 import { Publications } from './pages/Publications';
+import { SingleNews } from './pages/SingleNews';
 // import { Ontology } from './pages/Ontology';
 // import { Explore } from './pages/Explore';
 
@@ -29,7 +30,7 @@ const App: React.FC = () => {
             <Explore />
           </Layout>
         </Route>
-  */}
+        */}
 
         <Route path="/people">
           <Layout>
@@ -43,9 +44,23 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        <Route path="/news">
+        <Route exact path="/news">
+          <Redirect to="/news/1" />
+        </Route>
+
+        <Route path="/news/:page">
           <Layout>
             <News />
+          </Layout>
+        </Route>
+
+        <Route exact path="/article">
+          <Redirect to="/news/1" />
+        </Route>
+
+        <Route path="/article/:id">
+          <Layout>
+            <SingleNews />
           </Layout>
         </Route>
 

@@ -5,7 +5,7 @@ import ifremer from '../../../img/logo/logo_ifremer_blanc_267_250.webp';
 
 export const Footer: React.FC = () => {
   return (
-<footer className="footer d-flex flex-wrap flex-column flex-md-row justify-content-around align-items-center py-5">
+<footer id="main-footer" className="footer d-flex flex-wrap flex-column flex-md-row justify-content-around align-items-center py-5">
     <p className="m-3">
       Powered by <br/>
       <img src={ifremer} alt="Ifremer logo"/>

@@ -1,4 +1,4 @@
-footer.footer {
+footer#main-footer {
   background-color: rgb(224, 237, 241);
   /*margin: 3rem 0 0 0;*/
   min-height: 25vh;
@@ -11,11 +11,11 @@ footer.footer {
   right: 0;
 }
 
-footer.footer > p{
+footer#main-footer > p{
   height: max-content !important;
 }
 
-footer.footer img {
+footer#main-footer img {
   max-width: 150px;
   max-height: 120px;
 }

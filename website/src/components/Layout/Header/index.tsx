@@ -7,7 +7,7 @@ import logo from '../../../img/logo/logo_seul_couleur.png';
 export const Header: React.FC = () => {
   let appUrl = 'https://' + window.location.hostname + '/app/';
   return (
-<header className="Navigation">
+<header id="main-header">
   <nav className="navbar navbar-expand-md navbar-light bg-light py-0" role="navigation">
 
     <Link id="to-home" className="navbar-brand logo d-flex align-items-center navigation-link" to="/">
@@ -26,14 +26,14 @@ export const Header: React.FC = () => {
           <span className="nav-link navigation-link">|</span>
         </li>
         <li className="mx-5 mx-md-4 nav-item dropdown">
-          <p className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <p className="nav-link dropdown-toggle m-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Team
           </p>
-            <ul className="dropdown-menu">
-              <Link to="/people" className="nav-link navigation-link">People</Link>
-              {/*<Link to="/project" className="nav-link navigation-link">Projects</Link>*/}
-               <Link to="/publications" className="nav-link navigation-link">Publications</Link>
-            </ul>
+          <ul className="dropdown-menu">
+            <Link to="/people" className="nav-link navigation-link">People</Link>
+            {/*<Link to="/project" className="nav-link navigation-link">Projects</Link>*/}
+            <Link to="/publications" className="nav-link navigation-link">Publications</Link>
+          </ul>
         </li>
         <li className="mx-5 mx-md-4 nav-item d-none pipe">
           <span className="nav-link navigation-link">|</span>
@@ -56,7 +56,7 @@ export const Header: React.FC = () => {
           <span className="nav-link navigation-link">|</span>
         </li>
         <li className="mx-5 mx-md-4 nav-item">
-          <Link to="/News" className="nav-link navigation-link">News</Link>
+          <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
         <li className="mx-5 mx-md-4 nav-item d-none pipe">
           <span className="nav-link navigation-link">|</span>
