@@ -29,8 +29,8 @@ const articles_data = {
     <figure>
       <img
         src="img/articles/oceanMaps.png"
-        alt="Gabriel exchanged with students"
-        title="Gabriel exchanged with students"
+        alt=""
+        title=""
       />
       <figcaption>
         Figure 2:
@@ -64,13 +64,13 @@ const articles_data = {
           <figure>
             <img
               src="img/articles/Walters Shoal.png"
-              alt="Gabriel exchanged with students"
-              title="Gabriel exchanged with students"
+              alt=""
+              title=""
             />
             <img
               src='img/articles/St. Paul and Amsterdam islands.png'
-              alt="Gabriel exchanged with students"
-              title="Gabriel exchanged with students"
+              alt=""
+              title=""
             />
             <figcaption>
               Figure 3: Timeline showing all detections per label during the
@@ -189,8 +189,8 @@ const articles_data = {
 <figure>
   <img
     src='img/articles/gabrielConference.png'
-    alt='Gabriel exchanged with students'
-    title='Gabriel exchanged with students'
+    alt=''
+    title=''
   >
   <figcaption>
     Photo credit : Fabio Perruchet - Océanopolis
