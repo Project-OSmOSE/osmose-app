@@ -25,7 +25,7 @@ export const CardMember: React.FC<CardMemberProps> = ({
 }) => {
 
   return (
-  <div className="card cardMember my-5 border-0">
+  <div className="card cardMember my-5 border-0 bg-transparent">
     <div className="row no-gutters">
 
       <div className="col-md-8 order-md-1">

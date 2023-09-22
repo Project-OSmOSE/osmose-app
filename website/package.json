@@ -1,7 +1,7 @@
 {
   "name": "osmose-website",
   "description": "Showcase website for the OSmOSE research group.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "proxy": "http://localhost:8000",
   "author": "florent florent.b@gmx.com",

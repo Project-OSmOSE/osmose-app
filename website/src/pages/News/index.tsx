@@ -10,8 +10,8 @@ import articles_data from '../../articles_data.js';
 
 function getContent(articles: Array<any>) {
   const content = articles.map((art) => {
-    art.intro = "";
-    // art.intro = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis iusto inventore nam quibusdam, distinctio velit, autem a omnis sed eveniet corporis tempore magnam facere voluptatibus, ad vitae officia natus nulla?";
+    // art.intro = "";
+    art.intro = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis iusto inventore nam quibusdam, distinctio velit, autem a omnis sed eveniet corporis tempore magnam facere voluptatibus, ad vitae officia natus nulla?";
     return (
       <ShortCardArticle
         title={art.title}

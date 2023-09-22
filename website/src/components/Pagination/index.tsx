@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 
 import './styles.css';
 
-export interface Pagination2Props {
+export interface PaginationProps {
     totalCount: number,
     currentPage: number,
     pageSize: number
 }
 
-export const Pagination: React.FC<Pagination2Props> = ({
+export const Pagination: React.FC<PaginationProps> = ({
     totalCount, // sum of all items
     currentPage,
     pageSize // items per page
@@ -22,7 +22,7 @@ export const Pagination: React.FC<Pagination2Props> = ({
 
     const liElems = pages.map(page => { 
         return(
-            <li key={page} id={page} className={"page-item " + (String(currentPage)===page ? 'active' : '')}>
+            <li key={page} className={"page-item " + (String(currentPage)===page ? 'active' : '')}>
                 <Link className="page-link" to={"/news/"+page}>{page}</Link>
             </li>
         );

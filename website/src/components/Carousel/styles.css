@@ -1,0 +1,8 @@
+div.carousel {
+    background-color: aliceblue;
+}
+
+span.carousel-control-next-icon,
+span.carousel-control-prev-icon {
+    background-color: #1a60af !important;
+}

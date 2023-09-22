@@ -1,6 +1,7 @@
 import { PageTitle } from '../../components/PageTitle';
 import { Card } from '../../components/Card';
 import { Banner } from '../../components/Banner';
+import { Carousel } from '../../components/Carousel';
 
 import './styles.css';
 import imgProject from '../../img/illust/pexels-elianne-dipp-4666753_1280_thin.jpg';
@@ -9,6 +10,7 @@ import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.web
 import logoofb from '../../img/logo/logo_ofb.png';
 import logoisblue from '../../img/logo/logo_isblue3.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
+import articles_data from '../../articles_data.js'; 
 
 export const Home: React.FC = () => {
 
@@ -24,6 +26,12 @@ export const Home: React.FC = () => {
       Open Science meets Ocean Sound Explorers
     </h1>
   </PageTitle>
+
+  <section className="container my-5">
+    <Carousel 
+      articles={articles_data.articles}
+    />
+  </section>
 
   <section className="container my-5">
     <Card
