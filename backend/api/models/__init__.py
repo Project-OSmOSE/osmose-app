@@ -21,4 +21,6 @@ from backend.api.models.annotations import (
     AnnotationTask,
 )
 
+from backend.api.models.news import (News)
+
 User = get_user_model()

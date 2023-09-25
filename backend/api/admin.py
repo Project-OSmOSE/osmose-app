@@ -18,6 +18,7 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     WindowType,
+    News,
 )
 
 
@@ -349,6 +350,16 @@ class TabularMetadataShapeAdmin(admin.ModelAdmin):
         "tabular_metadata_variable",
     )
 
+class NewsAdmin(admin.ModelAdmin):
+    """News presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = (
+        "title","body"
+    )
 
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
@@ -363,6 +374,7 @@ admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
 admin.site.register(SpectroConfig, SpectroConfigAdmin)
 admin.site.register(WindowType, WindowTypeAdmin)
+admin.site.register(News, NewsAdmin)
 
 
 # admin.site.register(Collection, CollectionAdmin)

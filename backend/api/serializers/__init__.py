@@ -22,3 +22,4 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )
+from backend.api.serializers.news import (NewsSerializer, NewsRetrieveSerializer)
