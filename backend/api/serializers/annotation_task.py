@@ -23,6 +23,9 @@ from backend.api.serializers.annotation_comment import (
 )
 
 
+from backend.api.serializers.confidence_set import ConfidenceIndicatorSetSerializer, ConfidenceIndicatorSerializer
+
+
 class AnnotationTaskSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic AnnotationTask data"""
 
@@ -57,6 +60,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
+    confidenceIndicator = serializers.CharField(source="confidence_indicator", allow_null=True)
     result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
 
     class Meta:
@@ -68,6 +72,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "endTime",
             "startFrequency",
             "endFrequency",
+            "confidenceIndicator",
             "result_comments",
         ]
 
@@ -162,6 +167,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     def get_prevAnnotations(self, task):
         queryset = task.results.prefetch_related(
             "annotation_tag",
+            "confidence_indicator",
             "result_comments",
         )
         return AnnotationTaskResultSerializer(queryset, many=True).data
@@ -214,6 +220,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
+
         if isinstance(annotations, list):
             update_tags = set(ann["annotation_tag"]["name"] for ann in annotations)
         else:
@@ -224,6 +231,20 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 f"{unknown_tags} not valid tags from annotation set {set_tags}."
             )
+
+        set_confidence_indicators = set(
+            self.instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                "label", flat=True
+            )
+        )
+
+        update_confidence_indicators = set(ann["confidence_indicator"] for ann in annotations)
+        unknown_confidence_indicators = update_confidence_indicators - set_confidence_indicators
+        if unknown_confidence_indicators:
+            raise serializers.ValidationError(
+                f"{unknown_confidence_indicators} not valid tags from annotation set {set_confidence_indicators}."
+            )
+
         return annotations
 
     def _create_results(self, instance, validated_data):
@@ -238,12 +259,25 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
+        confidence_indicators = dict(
+            map(
+                reversed,
+                instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                    "id", "label"
+                ),
+            )
+        )
+
         for annotation in validated_data["annotations"]:
             comments_data = annotation.pop("result_comments")
             annotation["annotation_tag_id"] = tags[
                 annotation.pop("annotation_tag")["name"]
             ]
+            annotation["annotation_confidence_indicator_id"] = confidence_indicators[
+                annotation.pop("confidence_indicator")["label"]
+            ]
             new_result = instance.results.create(**annotation)
+
             if comments_data is not None:
                 for comment_data in comments_data:
                     comment_data.pop("annotation_result")

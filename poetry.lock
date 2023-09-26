@@ -318,10 +318,6 @@ description = "Sane and flexible OpenAPI 3 schema generation for Django REST fra
 category = "main"
 optional = false
 python-versions = ">=3.6"
-files = [
-    {file = "drf-spectacular-0.26.5.tar.gz", hash = "sha256:aee55330a774ba8a9cbdb125714d1c9ee05a8aafd3ce3be8bfd26527649aeb44"},
-    {file = "drf_spectacular-0.26.5-py3-none-any.whl", hash = "sha256:c0002a820b11771fdbf37853deb371947caf0159d1afeeffe7598e964bc1db94"},
-]
 
 [package.dependencies]
 Django = ">=2.2"

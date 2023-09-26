@@ -80,6 +80,68 @@ class ShowAnnotationSet extends Component<ShowAnnotationSetProps, ShowAnnotation
   }
 }
 
+type confidence_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  confidence: Array<string>,
+  default_confidence: number,
+};
+
+type ShowConfidenceIndicatorSetProps = {
+  confidence_sets: {
+    [?number]: confidence_set_type
+  },
+  onChange: (event: SyntheticEvent<HTMLInputElement>) => void
+};
+
+type ShowConfidenceIndicatorSetState = {
+  selected_id: number,
+  selected: ?confidence_set_type
+};
+class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetProps, ShowConfidenceIndicatorSetState> {
+  state = {
+    selected_id: 0,
+    selected: null
+  }
+
+  handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    let id = parseInt(event.currentTarget.value, 10);
+    this.setState({
+      selected_id: id,
+      selected: this.props.confidence_sets[id]
+    });
+    this.props.onChange(event);
+  }
+
+  render() {
+    let options = utils.objectValues(this.props.confidence_sets).map(confidence_set => {
+      let id = confidence_set.id;
+      return (
+        <option key={id} value={id}>{confidence_set.label}</option>
+      );
+    });
+
+    return (
+      <div className="form-group">
+        <div>
+          <select id="cac-annotation-set" value={this.state.selected_id} className="form-control" onChange={this.handleOnChange}>
+            <option value={0} disabled>Select a confidence indicator set</option>
+            {options}
+          </select>
+        </div>
+        {this.state.selected &&
+          <div className="col-sm-12 border rounded">
+            <p>{this.state.selected.desc}</p>
+            {this.state.selected.confidences.map(confidence => {
+              return (<p key={"confidence" + confidence.level + "_" + confidence.label}><b>{confidence.level}: </b> {confidence.label}</p>)
+            })}
+          </div>
+        }
+      </div>
+    )
+  }
+}
 type CACProps = {
   app_token: string,
   history: {

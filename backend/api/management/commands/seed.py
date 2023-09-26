@@ -13,7 +13,6 @@ except ImportError:
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
-from django.utils import timezone
 
 from django.contrib.auth.models import User
 from backend.api.models import (
@@ -24,11 +23,12 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
+    ConfidenceIndicator,
+    ConfidenceIndicatorSet,
     AnnotationComment,
     AnnotationResult,
     News,
 )
-
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
@@ -47,7 +47,7 @@ class Command(management.BaseCommand):
             return
 
         # Cleanup
-        management.call_command("flush", verbosity=0, interactive=False)
+        #management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         self.faker = Faker()
@@ -159,7 +159,23 @@ class Command(management.BaseCommand):
                 annotation_set.tags.create(name=tag)
             self.annotation_sets[seed_set["name"]] = annotation_set
 
-    def _create_annotation_campaigns(self):
+    def _create_confidence_sets(self):
+
+        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
+            name="Confident/NotConfident",
+            )
+
+        confidence_0 = ConfidenceIndicator.objects.create(label="not confident",
+                                                          level=0,
+                                                          confidence_indicator_set=confidenceIndicatorSet)
+        confidence_1 = ConfidenceIndicator.objects.create(label="confident",
+                                                          level=1,
+                                                          confidence_indicator_set=confidenceIndicatorSet,
+                                                          default_confidence_indicator_set=confidenceIndicatorSet)
+
+        return confidenceIndicatorSet, confidence_0, confidence_1
+
+    def _create_annotation_campaigns(self, confidenceIndicatorSet):
         print(" ###### _create_annotation_campaigns ######")
         campaigns = [
             {
@@ -289,6 +305,7 @@ class Command(management.BaseCommand):
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
+                        confidence_indicator=choice([no_confidence, confidence]),
                     )
                 task.status = 2
                 task.save()

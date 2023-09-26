@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = []
 
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings"
+
 [tool.poetry.dependencies]
 python = "^3.9"
 Django = "^3.2"
