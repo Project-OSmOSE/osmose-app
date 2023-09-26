@@ -602,6 +602,14 @@ div[class^='pulse-'] {
   min-height: 100px !important;
 }
 
+.presence-absence-columns{
+  columns: 2 auto;
+}
+
 .isActive{
-  background-color: rgba(0,0,0,.075);
+  background-color: rgba(0,0,0,.075) !important;
+}
+
+.btn.isActive{
+  color: var(--lt-color-gray-900) !important;
 }

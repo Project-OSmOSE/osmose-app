@@ -18,7 +18,9 @@ from backend.api.models import (
     SpectroConfig,
     AnnotationComment,
 )
-from backend.api.serializers.annotation_comment import AnnotationCommentRetrieveSerializer
+from backend.api.serializers.annotation_comment import (
+    AnnotationCommentSerializer,
+)
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -43,33 +45,6 @@ class AnnotationTaskBoundarySerializer(serializers.Serializer):
     endFrequency = serializers.FloatField()
 
 
-class AnnotationTaskResultWithCommentSerializer(serializers.ModelSerializer):
-    """
-    Serializer meant to output basic AnnotationResult data
-
-    It is used for prevAnnotations field AnnotationTaskRetrieveSerializer
-    """
-
-    annotation = serializers.CharField(source="annotation_tag.name")
-    startTime = serializers.FloatField(source="start_time", allow_null=True)
-    endTime = serializers.FloatField(source="end_time", allow_null=True)
-    startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
-    endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
-    result_comments = AnnotationCommentRetrieveSerializer(many=True, allow_null=True)
-
-    class Meta:
-        model = AnnotationResult
-        fields = [
-            "id",
-            "annotation",
-            "startTime",
-            "endTime",
-            "startFrequency",
-            "endFrequency",
-            "result_comments",
-        ]
-
-
 class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     """
     Serializer meant to output basic AnnotationResult data
@@ -82,6 +57,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
+    result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
 
     class Meta:
         model = AnnotationResult
@@ -92,6 +68,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "endTime",
             "startFrequency",
             "endFrequency",
+            "result_comments",
         ]
 
 
@@ -180,23 +157,23 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             spectros_configs, many=True, dataset_file=task.dataset_file
         ).data
 
-    @extend_schema_field(AnnotationTaskResultWithCommentSerializer(many=True))
+    @extend_schema_field(AnnotationTaskResultSerializer(many=True))
     def get_prevAnnotations(self, task):
         queryset = task.results.prefetch_related(
             "annotation_tag",
             "result_comments",
         )
-        return AnnotationTaskResultWithCommentSerializer(queryset, many=True).data
+        return AnnotationTaskResultSerializer(queryset, many=True).data
 
-    @extend_schema_field(AnnotationCommentRetrieveSerializer(many=True))
+    @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_task_comment(self, task):
-        return AnnotationCommentRetrieveSerializer(task.task_comment, many=True).data
+        return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 
 class AnnotationTaskUpdateSerializer(serializers.Serializer):
     """This serializer is responsible for updating a task with new results from the annotator"""
 
-    annotations = AnnotationTaskResultWithCommentSerializer(many=True)
+    annotations = AnnotationTaskResultSerializer(many=True)
     task_start_time = serializers.IntegerField()
     task_end_time = serializers.IntegerField()
 
@@ -265,7 +242,7 @@ class AnnotationTaskOneResultUpdateSerializer(serializers.Serializer):
     The status of this task will stay started.
     """
 
-    annotations = AnnotationTaskResultWithCommentSerializer()
+    annotations = AnnotationTaskResultSerializer()
 
     def validate_annotations(self, annotations):
         """Validates that annotations correspond to annotation set tags"""
@@ -305,7 +282,6 @@ class AnnotationTaskOneResultUpdateSerializer(serializers.Serializer):
 
         if comments_data is not None:
             for comment_data in comments_data:
-                print(comment_data)
                 comment_data.pop("annotation_task")
                 comment = AnnotationComment.objects.create(
                     annotation_result=new_result,

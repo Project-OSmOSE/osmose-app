@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Q, Prefetch
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -175,7 +175,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             result_comments = result.result_comments.all()
             if result_comments:
                 task = result.annotation_task
-                comment = f"{result_comments[0].comment} |- {task.annotator.username} : {task.annotator.email}"
+                comment = f"{result_comments[0].comment} |- {task.annotator.username}"
             else:
                 comment = ""
 

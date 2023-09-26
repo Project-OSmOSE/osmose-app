@@ -110,7 +110,7 @@ class Region extends Component<RegionProps, RegionState> {
             <button
               className="btn-simple fa fa-play-circle"
               onClick={this.playAnnotation}
-          ></button>
+            ></button>
             <span
               className="flex-fill text-center"
               onClick={this.selectAnnotation}

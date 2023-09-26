@@ -232,12 +232,11 @@ class Command(management.BaseCommand):
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
             for task in tasks:
                 if randint(1, 3) >= 2:
-                    newComment = AnnotationComment.objects.create(
+                    AnnotationComment.objects.create(
                         comment="a comment",
                         annotation_task=task,
                         annotation_result=None,
                     )
-                    newComment.save()
                 for _ in range(randint(1, 5)):
                     start_time = randint(0, 600)
                     start_frequency = randint(0, 10000)
@@ -257,9 +256,8 @@ class Command(management.BaseCommand):
 
         for result in results:
             if randint(1, 3) >= 2:
-                newComment = AnnotationComment.objects.create(
+                AnnotationComment.objects.create(
                     comment=f"a comment : {result.annotation_tag.name}",
                     annotation_task=result.annotation_task,
                     annotation_result=result,
                 )
-                newComment.save()

@@ -394,7 +394,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
 
     const maxId: ?number = this.state.annotations
-      .map(ann => ann.id, 10)
+      .map(ann => parseInt(ann.id, 10))
       .sort((a, b) => b - a)
       .shift();
 
@@ -1003,64 +1003,59 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const sortedAnnotations: Array<Annotation> = this.state.annotations.sort(this.annotationSorter);
 
     return (
-      <div className="row">
-        <div className="col-sm-8 mt-0 d-flex justify-content-around align-items-start">
+      <React.Fragment>
+        <div className="row justify-content-around">
           {this.renderActiveBoxAnnotation()}
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
-        <div className="col-sm-3">
-          <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
-          <table className="table table-hover rounded">
-            <thead className="">
-              <tr className="text-center bg__black--003">
-                <th colSpan="4">Annotations</th>
-              </tr>
-            </thead>
-              <tbody>
-                <tr key="task_comment"
-                  className={this.state.currentComment.annotation_result === null ? "isActive" : ""}
-                  onClick={() => { this.switchToTaskComment() }}
-                >
-                  <td colSpan={3}>Task Comment</td>
-                  <td className="pl-1">
-                    {this.state.task_comment.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
-                  </td>
-                </tr>
-              {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
-            </tbody>
-          </table>
+        <div className="row justify-content-center">
+            <div className='mt-2 table__rounded shadow-double border__black--125'>
+              <table className="table table-hover rounded">
+                <thead className="">
+                  <tr className="text-center bg__black--003">
+                    <th colSpan="4">Annotations</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                  {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
+                </tbody>
+              </table>
           </div>
-        </div>
-        <div className="col-sm-3">
-            <div className="card">
-              <h6 className="card-header text-center">Comments</h6>
-            <div className="card-body">
-              <div className="row m-2">
-                <textarea key="textAreaComments" id="commentInput" className="col-sm-10 comments"
-                  maxLength="255"
-                  rows="10"
-                  cols="10"
-                  value={this.state.currentComment.comment}
-                  onChange={this.handleCommentChange}
-                  onFocus={() => { this.setState({ inAModal: true }) }}
-                  onBlur={() => { this.setState({ inAModal: false }) }}
-                ></textarea>
-                <div className="input-group-append col-sm-2 p-0">
-                    <div className="btn-group-vertical">
-                    <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
-                        <i className="fa-solid fa-check"></i>
-                    </button>
-                    <button className="btn btn-danger" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
-                      <i className="fa-solid fa-broom"></i>
-                    </button>
-                    </div>
+          <div className="col-sm-2">
+              <div className="card">
+                <h6 className="card-header text-center">Comments</h6>
+              <div className="card-body">
+                <div className="row m-2">
+                  <textarea key="textAreaComments" id="commentInput" className="col-sm-10 comments"
+                    maxLength="255"
+                    rows="10"
+                    cols="10"
+                    value={this.state.currentComment.comment}
+                    onChange={this.handleCommentChange}
+                    onFocus={() => { this.setState({ inAModal: true }) }}
+                    onBlur={() => { this.setState({ inAModal: false }) }}
+                  ></textarea>
+                  <div className="input-group-append col-sm-2 p-0">
+                      <div className="btn-group-vertical">
+                      <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
+                          <i className="fa-solid fa-check"></i>
+                      </button>
+                      <button className="btn btn-danger ml-0" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
+                        <i className="fa-solid fa-broom"></i>
+                      </button>
+                      </div>
+                  </div>
                 </div>
               </div>
-
+              <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
+                      onClick={() => { this.switchToTaskComment() }}
+              >
+                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fa-solid fa-comment mx-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
+                </button>
               </div>
-            </div>
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 
@@ -1148,8 +1143,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       return (
           <div className="card">
             <h6 className="card-header text-center">Presence / Absence</h6>
-            <div className="card-body">
+          <div className="card-body">
+            <ul className="presence-absence-columns">
                 {tags}
+            </ul>
             </div>
           </div>
         );
@@ -1185,32 +1182,37 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-        <div className="card">
-          <h6 className="card-header text-center">Selected annotation</h6>
-          <div className="card-body d-flex justify-content-between">
-              <p className="card-text">
-              <i className="fa-solid fa-clock-o"></i> :&nbsp;
-                {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-                {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
-              <i className="fa-solid fa-arrow-up"></i> :&nbsp;
-                {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-                {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-                <i className="fa-solid fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
-            </p>
+          <div className="col-sm-2">
+            <div className="card">
+              <h6 className="card-header text-center">Selected annotation</h6>
+              <div className="card-body d-flex justify-content-between">
+                  <p className="card-text">
+                  <i className="fa-solid fa-clock-o"></i> :&nbsp;
+                    {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                    {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
+                  <i className="fa-solid fa-arrow-up"></i> :&nbsp;
+                    {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                    {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
+                    <i className="fa-solid fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="card">
-          <h6 className="card-header text-center">Tags list</h6>
-          <div className="card-body d-flex justify-content-between">
-              {tags}
+
+          <div className="col-sm-6">
+            <div className="card">
+              <h6 className="card-header text-center">Tags list</h6>
+              <div className="card-body d-flex justify-content-between">
+                  {tags}
+              </div>
+            </div>
           </div>
-        </div>
         </React.Fragment>
       );
     } else {
       return (
         <React.Fragment>
-          <div className="col-sm-3">
+          <div className="col-sm-2">
             <div className="card">
               <h6 className="card-header text-center">Selected annotation</h6>
               <div className="card-body">

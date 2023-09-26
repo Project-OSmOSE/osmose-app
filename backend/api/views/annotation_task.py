@@ -2,7 +2,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, Prefetch
+from django.db.models import Prefetch
 
 from django.db import transaction
 

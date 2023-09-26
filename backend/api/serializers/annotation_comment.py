@@ -7,7 +7,7 @@ from backend.utils.validators import valid_model_ids
 from backend.api.models import AnnotationResult, AnnotationTask, AnnotationComment
 
 
-class AnnotationCommentRetrieveSerializer(serializers.ModelSerializer):
+class AnnotationCommentSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic AnnotationComment data"""
 
     class Meta:
