@@ -6,43 +6,49 @@ import './styles.css';
 export interface ShortCardArticleProps {
   id?: string;
   title?: string;
-  img?: string;
-  imgAlt?: string;
-  stringDate?: string;
-  authors?: string;
+  vignette?: string;
+  intro?: string;
+  date?: string;
 }
 
 export const ShortCardArticle: React.FC<ShortCardArticleProps> = ({
   id = "",
   title = "",
-  img = "", // banner
-  imgAlt = "",
-  stringDate = "",
-  authors = "",
-  children =""
+  vignette = "",
+  intro = "",
+  date = "",
+  children
 }) => {
   const regex = /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{2,4})/ig;
-  const result_d_m_years = regex.exec(stringDate);
-  let date = null;
-
+  const result_d_m_years = regex.exec(date);
+  let dateInWords = null;
   if (result_d_m_years !== null) {
-    date = new Date(
+    dateInWords = new Date(
       parseInt(result_d_m_years[3]),
       parseInt(result_d_m_years[2])-1,
       parseInt(result_d_m_years[1]),
       0, 0, 0
+    ).toLocaleString(
+      'en-GB', 
+      {
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }
     );
   }
 
+  // TODO obligation d'avoir title, id et children sinon affichage vide
   return (
     <section className="card shortCardArticle border-0">
-      {img ? <img className="card-img" src={img} alt={imgAlt} title={imgAlt} /> : null}
+      {vignette ? <img className="card-vignette" src={vignette} alt={"Vignette"} title={"Vignette"} /> : null}
       <div className="card-body">
-        {title ? <h2 className="card-title">{title}</h2> : null}
+        <h2 className="card-title">{title ? title : 'Not found'}</h2>
         <div className="card-text">
-          {date ? <span className="small text-muted">{date.toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> : null}
-          <p className='my-4'>{children}</p>
-          <p className="text-end"><Link to={"/article/"+id}>read more...</Link></p>
+          {dateInWords ? <span className="small text-muted">{dateInWords}</span> : null}
+          <p className='my-4'>{children ? children : ""}</p>
+          {id ? <p className="text-end"><Link to={"/article/"+id}>read more...</Link></p> : null}
         </div>
       </div>
     </section>

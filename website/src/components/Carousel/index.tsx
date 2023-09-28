@@ -9,13 +9,12 @@ export interface CarouselProps {
     articles: Array<any>
 }
 
-
 export const Carousel: React.FC<CarouselProps> = ({
     articles
 }) => {
-    const recentArticles = articles.slice(0, 3);
-    console.log("recentArticles[0].id : ", recentArticles[0].id);
-    const content = recentArticles.map((art, i) => {
+    // const articles = articles.slice(0, 3);
+    // console.log("articles[0].id : ", articles[0].id);
+    const content = articles.map((art, i) => {
         // art.intro = "";
         art.intro = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis iusto inventore nam quibusdam, distinctio velit, autem a omnis sed eveniet corporis tempore magnam facere voluptatibus, ad vitae officia natus nulla?";
 
@@ -41,15 +40,15 @@ export const Carousel: React.FC<CarouselProps> = ({
     });
 
     return (
-        <div id={"carousel-"+recentArticles[0].id} className="carousel slide" data-bs-ride="carousel">
+        <div id={"carousel-"+articles[0].id} className="carousel slide" data-bs-ride="carousel">
             <div className="carousel-inner">
                 {content}
             </div>
-            <button className="carousel-control-prev" type="button" data-bs-target={"#carousel-"+recentArticles[0].id} data-bs-slide="prev">
+            <button className="carousel-control-prev" type="button" data-bs-target={"#carousel-"+articles[0].id} data-bs-slide="prev">
                 <span className="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span className="visually-hidden">Previous</span>
             </button>
-            <button className="carousel-control-next" type="button" data-bs-target={"#carousel-"+recentArticles[0].id} data-bs-slide="next">
+            <button className="carousel-control-next" type="button" data-bs-target={"#carousel-"+articles[0].id} data-bs-slide="next">
                 <span className="carousel-control-next-icon" aria-hidden="true"></span>
                 <span className="visually-hidden">Next</span>
             </button>

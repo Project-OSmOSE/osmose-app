@@ -4,23 +4,24 @@ import { Banner } from '../../components/Banner';
 import { Carousel } from '../../components/Carousel';
 
 import './styles.css';
-import imgProject from '../../img/illust/pexels-elianne-dipp-4666753_1280_thin.jpg';
-import imgNutshell from '../../img/illust/640px-Petit_Minou_Lighthouse_(50691630801)_640_428.webp';
+import imgTitle from '../../img/illust/dolphin_1920_thin.webp';
+import imgGlider from '../../img/illust/glider_640.webp';
 import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.webp';
 import logoofb from '../../img/logo/logo_ofb.png';
 import logoisblue from '../../img/logo/logo_isblue3.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
-import articles_data from '../../articles_data.js'; 
+import articles_data from '../../articles_data2.js'; 
 
 export const Home: React.FC = () => {
+  const recentArticles = articles_data.slice(0, 3);
 
   return (
 <div id="home">
 
   <PageTitle
-  img={imgProject}
-  imgAlt="Meet Banner"
-  // imgSet=""
+    img={imgTitle}
+    imgAlt="Meet Banner"
+    // imgSet=""
   >
     <h1>
       Open Science meets Ocean Sound Explorers
@@ -29,14 +30,14 @@ export const Home: React.FC = () => {
 
   <section className="container my-5">
     <Carousel 
-      articles={articles_data.articles}
+      articles={recentArticles}
     />
   </section>
 
   <section className="container my-5">
     <Card
     title="In a nutshell"
-    img={imgNutshell}
+    img={imgGlider}
     imgSide="right"
     // imgAlt="Groupe de dauphins"
     // subtitle=""

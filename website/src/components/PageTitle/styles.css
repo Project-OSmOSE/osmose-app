@@ -33,9 +33,9 @@ div.pagetitle div.overlay {
 div.pagetitle div.overlay h1{
     text-align: center;
     letter-spacing: 1rem;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     color: white;
-    -ms-flex-item-align: center;
+    /* -ms-flex-item-align: center; */
     align-self: center;
     /* max-height: fit-content; */
 }

@@ -1,0 +1,38 @@
+/* div#singleNews .space{
+    position: relative;
+    height: 25vh;
+    background-color: transparent;
+    z-index: 0;
+}
+
+div#singleNews .blockquote{
+    font-size: 15px !important;
+} */
+
+div#singleNews img{
+    max-height: 40vh;
+    padding: 0.5em;
+    margin: 0;
+}
+
+div#singleNews figure{
+    align-self: center
+}
+
+div#singleNews figcaption{
+    text-align: center;
+}
+
+/* div#singleNews img{
+    object-fit: contain;
+} */
+
+div#singleNews .toggleFlexDirection{
+    flex-direction: column-reverse;
+}
+
+@media screen and (min-width: 992px) {
+    div#singleNews .toggleFlexDirection{
+        flex-direction: row;
+    }
+}

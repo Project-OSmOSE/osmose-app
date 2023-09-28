@@ -1,10 +1,10 @@
-const articles_data = {
-    "articles": [
+const articles_data =
+    [
       {
         "id": 100,
         "title": "Publication of a scientific paper about marine mammal acoustic presence in the Indian Ocean monitored by an underwater glider",
         "date": "30/05/2023",
-        "content": `
+        "body": `
         <div>
         <p>
           In October, a scientific paper written by 3 members of the team (Julie Beesau, Flore Samaran and Maëlle Torterotot) and a former intern (Cécile Perrier de la Bathie) was published in Deep Sea Research II - Topical Studies in Oceanography.
@@ -85,7 +85,7 @@ const articles_data = {
             "id": 1,
             "title": "Back from the European Cetacean Society conference",
             "date": "10/04/2023",
-            "content": `
+            "body": `
 <p>
 	The 34th annual conference of the European Cetacean Society was held from April 16 to 20, 2023 in O Grove, Galicia, in northwestern Spain, on the edge of the Atlantic Ocean. This conference is organized by the Bottlenose Dolphin Research Institute (BDRI) with the theme: "Our oceans, our future. Behavioral ecology of marine mammals & sustainable use of marine resources"
 </p>
@@ -135,7 +135,7 @@ const articles_data = {
           "id": 2,
             "title": "XXIV RNE seminar",
             "date": "13/12/2022",
-            "content": `
+            "body": `
 <p>
   Attendees : Julie Béesau – Maëlle Torterotot – Mathieu Dupont
 </p>
@@ -171,7 +171,7 @@ const articles_data = {
 
             "title": "Nuit des chercheurs 2022",
             "date": "06/12/2022",
-            "content": `
+            "body": `
 <p>
   Attendees : Gabriel Dubus – Mathieu Dupont – Dorian Cazau – Mathilde Michel and Julie Béesau.
 </p>
@@ -238,7 +238,7 @@ const articles_data = {
 
           "title": "Back from the European Cetacean Society conference",
           "date": "10/04/2023",
-          "content": `
+          "body": `
 <p>
 The 34th annual conference of the European Cetacean Society was held from April 16 to 20, 2023 in O Grove, Galicia, in northwestern Spain, on the edge of the Atlantic Ocean. This conference is organized by the Bottlenose Dolphin Research Institute (BDRI) with the theme: "Our oceans, our future. Behavioral ecology of marine mammals & sustainable use of marine resources"
 </p>
@@ -290,7 +290,7 @@ Next year, the 35th conference will take place in Catania, Sicily, and we will b
 
           "title": "XXIV RNE seminar",
           "date": "13/12/2022",
-          "content": `
+          "body": `
 <p>
 Attendees : Julie Béesau – Maëlle Torterotot – Mathieu Dupont
 </p>
@@ -353,7 +353,7 @@ event together!
 
           "title": "Nuit des chercheurs 2022",
           "date": "06/12/2022",
-          "content": `
+          "body": `
 <p>
 Attendees : Gabriel Dubus – Mathieu Dupont – Dorian Cazau – Mathilde
 Michel and Julie Béesau.
@@ -436,7 +436,7 @@ can be quite unpredictable, one cannot control it!
 
         "title": "Back from the European Cetacean Society conference",
         "date": "10/04/2023",
-        "content": `
+        "body": `
 <p>
 The 34th annual conference of the European Cetacean Society was held from April 16 to 20, 2023 in O Grove, Galicia, in northwestern Spain, on the edge of the Atlantic Ocean. This conference is organized by the Bottlenose Dolphin Research Institute (BDRI) with the theme: "Our oceans, our future. Behavioral ecology of marine mammals & sustainable use of marine resources"
 </p>
@@ -488,7 +488,7 @@ Next year, the 35th conference will take place in Catania, Sicily, and we will b
 
         "title": "XXIV RNE seminar",
         "date": "13/12/2022",
-        "content": `
+        "body": `
 <p>
 Attendees : Julie Béesau – Maëlle Torterotot – Mathieu Dupont
 </p>
@@ -551,7 +551,7 @@ event together!
 
         "title": "Nuit des chercheurs 2022",
         "date": "06/12/2022",
-        "content": `
+        "body": `
 <p>
 Attendees : Gabriel Dubus – Mathieu Dupont – Dorian Cazau – Mathilde
 Michel and Julie Béesau.
@@ -634,7 +634,7 @@ can be quite unpredictable, one cannot control it!
 
       "title": "Back from the European Cetacean Society conference",
       "date": "10/04/2023",
-      "content": `
+      "body": `
 <p>
 The 34th annual conference of the European Cetacean Society was held from April 16 to 20, 2023 in O Grove, Galicia, in northwestern Spain, on the edge of the Atlantic Ocean. This conference is organized by the Bottlenose Dolphin Research Institute (BDRI) with the theme: "Our oceans, our future. Behavioral ecology of marine mammals & sustainable use of marine resources"
 </p>
@@ -686,7 +686,7 @@ Next year, the 35th conference will take place in Catania, Sicily, and we will b
 
       "title": "XXIV RNE seminar",
       "date": "13/12/2022",
-      "content": `
+      "body": `
 <p>
 Attendees : Julie Béesau – Maëlle Torterotot – Mathieu Dupont
 </p>
@@ -749,7 +749,7 @@ event together!
 
       "title": "Nuit des chercheurs 2022",
       "date": "06/12/2022",
-      "content": `
+      "body": `
 <p>
 Attendees : Gabriel Dubus – Mathieu Dupont – Dorian Cazau – Mathilde
 Michel and Julie Béesau.
@@ -832,7 +832,7 @@ can be quite unpredictable, one cannot control it!
 
     "title": "Back from the European Cetacean Society conference",
     "date": "10/04/2023",
-    "content": `
+    "body": `
 <p>
 The 34th annual conference of the European Cetacean Society was held from April 16 to 20, 2023 in O Grove, Galicia, in northwestern Spain, on the edge of the Atlantic Ocean. This conference is organized by the Bottlenose Dolphin Research Institute (BDRI) with the theme: "Our oceans, our future. Behavioral ecology of marine mammals & sustainable use of marine resources"
 </p>
@@ -884,7 +884,7 @@ Next year, the 35th conference will take place in Catania, Sicily, and we will b
 
     "title": "XXIV RNE seminar",
     "date": "13/12/2022",
-    "content": `
+    "body": `
 <p>
 Attendees : Julie Béesau – Maëlle Torterotot – Mathieu Dupont
 </p>
@@ -942,7 +942,6 @@ event together!
 </p>
     `
 }
-    ]
-};
+];
 
 export default articles_data;

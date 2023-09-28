@@ -26,7 +26,15 @@ img{
       flex-direction: row;
   }
 } */
-
+.cardArticle h1{
+  /* text-transform: uppercase; */
+  /* letter-spacing: 3px; */
+  /* color: #1a60af !important; */
+  /* font-weight: 400; */
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
 
   .cardArticle > img{
     max-height: 20vh;
