@@ -1,17 +1,15 @@
 import {PageTitle} from "../../components/PageTitle";
 
-import "./styles.css";
-
-import imgPublications from '../../img/illust/pexels-element-digital-1370295.jpg';
+import imgTitle from '../../img/illust/pexels-element-digital-1370295_thin.webp';
 
 export const Publications: React.FC = () => {
   return (
     <div>
       <PageTitle
-        img={imgPublications}
+        img={imgTitle}
         imgAlt="Publications Banner"
       >
-        <h1 className="text-shadow">Scientific Publications</h1>
+        <h1 className="text-shadow">SCIENTIFIC PUBLICATIONS</h1>
       </PageTitle>
     <div className="container">
         <section>
