@@ -11,8 +11,8 @@ COPY pyproject.toml .
 COPY poetry.lock .
 
 ENV POETRY_CACHE_DIR=/opt/.cache/pypoetry
-# verifier que le changement suivant est nécessaire immédiatement ou non
-RUN poetry install --without dev
+
+RUN poetry install
 
 COPY manage.py .
 COPY backend backend

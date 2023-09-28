@@ -34,8 +34,6 @@ poetry run ./manage.py seed
 # Run
 docker start devdb
 poetry run ./manage.py runserver
-
-
 ```
 
 **Frontend:**
@@ -46,6 +44,24 @@ cd frontend
 npm install
 # Run
 npm start
+```
+
+**Website**
+```bash
+# Initial setup
+cd website
+npm install
+# Run
+npm start
+```
+
+**All-in-one**
+```bash
+docker compose up
+```
+Then don't forget to redirect the traffic from the OSMOSE_HOST env variable to you local host using your OS' hosts file (`/etc/hosts` on Linux, `C:\Windows\System32\drivers\etc\hosts` on Windows). For example, you can add the following line :
+```bash
+127.0.0.1   {your-OSMOSE_HOST-value}
 ```
 
 ### Testing

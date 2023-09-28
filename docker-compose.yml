@@ -4,7 +4,7 @@ services:
   osmose_back:
     build:
       context: .
-      dockerfile: dockerfiles/back.dockerfile
+      dockerfile: dockerfiles/back_dev.dockerfile
     image: osmose_back-image
     container_name: osmose_back
     user: "101:101"
@@ -27,7 +27,7 @@ services:
   osmose_front:
     build:
       context: .
-      dockerfile: dockerfiles/front.dockerfile
+      dockerfile: dockerfiles/front_dev.dockerfile
     image: osmose_front-image
     container_name: osmose_front
     user: "101:101"
