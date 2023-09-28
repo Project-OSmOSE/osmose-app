@@ -1,6 +1,6 @@
 import {PageTitle} from "../../components/PageTitle";
 
-import imgPublications from '../../img/illust/pexels-element-digital-1370295.jpg';
+import imgPublications from '../../img/illust/pexels-element-digital-1370295_thin.webp';
 
 export const Publications: React.FC = () => {
   return (
