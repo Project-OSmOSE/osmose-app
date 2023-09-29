@@ -6,8 +6,9 @@ import { CardMemberTextless } from '../../components/CardMemberTextless';
 
 import './styles.css';
 
-import imgPeople from '../../img/illust/pexels-daniel-torobekov-5901263_1280_thin.jpg';
-import teamWorking from '../../img/people/TEAM_OSMOSE_666_500.webp';
+import imgTitle from '../../img/illust/pexels-daniel-torobekov-5901263_1280_thin.jpg';
+
+import teamWorking from '../../img/people/team-on-boat_640.webp';
 
 // logos
 import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
@@ -37,7 +38,7 @@ export const People: React.FC = () => {
 <div id="people">
 
   <PageTitle
-    img={imgPeople}
+    img={imgTitle}
     imgAlt="People Banner"
     // imgSet=""
   >
@@ -238,7 +239,7 @@ export const People: React.FC = () => {
 
   <section className="container my-5">
 
-    <h2>Ancient members</h2>
+    <h2>Former members</h2>
     {/* <p>Acknowledgements.</p> */}
 
     <div className="grid-container">
