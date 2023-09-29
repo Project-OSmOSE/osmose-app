@@ -1,7 +1,6 @@
 import {PageTitle} from "../../components/PageTitle";
 
-// import imgTitle from '../../img/illust/pexels-element-digital-1370295_thin.webp';
-import imgTitle from '../../img/illust/pexels-element-digital-1370295.jpg';
+import imgTitle from '../../img/illust/sperm-whale-tail_1920_thin.webp';
 
 import './styles.css';
 
