@@ -213,7 +213,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
     task_end_time = serializers.IntegerField()
 
     def validate_annotations(self, annotations):
-        """Validates that annotations correspond to annotation set tags"""
+        """Validates that annotations correspond to annotation set tags and set confidence indicator"""
         set_tags = set(
             self.instance.annotation_campaign.annotation_set.tags.values_list(
                 "name", flat=True
@@ -273,8 +273,9 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             annotation["annotation_tag_id"] = tags[
                 annotation.pop("annotation_tag")["name"]
             ]
-            annotation["annotation_confidence_indicator_id"] = confidence_indicators[
-                annotation.pop("confidence_indicator")["label"]
+
+            annotation["confidence_indicator_id"] = confidence_indicators[
+                annotation.pop("confidence_indicator")
             ]
             new_result = instance.results.create(**annotation)
 

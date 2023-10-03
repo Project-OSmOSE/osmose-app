@@ -129,7 +129,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
         # pylint: disable=too-many-locals
-        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        campaign = get_object_or_404(AnnotationCampaign.objects.prefetch_related("confidence_indicator_set__confidence_indicators"), pk=pk)
         data = [
             [
                 "dataset",
@@ -144,11 +144,14 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "end_datetime",
                 "is_box",
                 "comments",
+                "confidence_indicator_label",
+                "confidence_indicator_order",
             ]
         ]
 
         results = AnnotationResult.objects.prefetch_related(
             "annotation_task",
+            "confidence_indicator",
             "annotation_task__annotator",
             "annotation_task__dataset_file",
             "annotation_task__dataset_file__dataset",
@@ -163,6 +166,9 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             Q(annotation_task__annotation_campaign_id=pk)
             & Q(annotation_result__isnull=True)
         )
+
+
+        lvl_max = max(campaign.confidence_indicator_set.confidence_indicators.all(), key=lambda x: x.level).level
 
         for result in results:
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
@@ -203,6 +209,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
+                    result.confidence_indicator.label,
+                    str(result.confidence_indicator.level) + "/" + str(lvl_max),
                     comment,
                 ]
             )

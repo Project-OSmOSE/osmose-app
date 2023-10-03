@@ -104,7 +104,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             task.status = 1
             task.save()
         serializer = AnnotationTaskRetrieveSerializer(task)
-        print(serializer.data)
+
         return Response(serializer.data)
 
     @extend_schema(
