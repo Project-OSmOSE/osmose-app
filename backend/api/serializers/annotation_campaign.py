@@ -17,7 +17,7 @@ from backend.api.models import (
     SpectroConfig,
     ConfidenceIndicatorSet,
 )
-from backend.api.serializers import ConfidenceIndicatorSetSerializer
+from backend.api.serializers import ConfidenceIndicatorSetSerializer, AnnotationSetSerializer
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     """
@@ -31,7 +31,9 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     user_tasks_count = serializers.SerializerMethodField()
     complete_tasks_count = serializers.SerializerMethodField()
     user_complete_tasks_count = serializers.SerializerMethodField()
-    files_count = serializers.SerializerMethodField()
+    files__count = serializers.SerializerMethodField()
+    annotation_set = AnnotationSetSerializer()
+    confidence_indicator_set = ConfidenceIndicatorSetSerializer()
 
     def __init__(self, *args, **kwargs):
         if "user_id" in kwargs:
@@ -47,7 +49,8 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "instructions_url",
             "start",
             "end",
-            "annotation_set_id",
+            "annotation_set",
+            "confidence_indicator_set",
             "tasks_count",
             "user_tasks_count",
             "complete_tasks_count",
@@ -82,9 +85,8 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     Serializer meant to output AnnotationCampaign basic data used in AnnotationCampaignRetrieveSerializer
     """
 
-    annotation_set_id = serializers.IntegerField()
-    confidence_indicator_set_id = serializers.IntegerField()
-
+    annotation_set = AnnotationSetSerializer()
+    confidence_indicator_set = ConfidenceIndicatorSetSerializer()
     class Meta:
         model = AnnotationCampaign
         fields = [
@@ -94,8 +96,8 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "instructions_url",
             "start",
             "end",
-            "annotation_set_id",
-            "confidence_indicator_set_id",
+            "annotation_set",
+            "confidence_indicator_set",
             "datasets",
             "created_at",
         ]

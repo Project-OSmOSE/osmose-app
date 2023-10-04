@@ -47,6 +47,20 @@ class DownloadButton extends Component<DownloadButtonProps> {
     );
   }
 }
+type confidence_indicator_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  confidence_indicators: Array<string>,
+  default_confidence_indicators: number,
+};
+
+type annotation_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  tags: Array<string>
+};
 
 type ACDProps = {
   match: {
@@ -63,8 +77,8 @@ type ACDState = {
     desc: string,
     start: string,
     end: string,
-    annotation_set_id: number,
-    confidence_indicator_set_id: number,
+    annotation_set: annotation_set_type,
+    confidence_indicator_set: confidence_indicator_set_type,
     owner_id: number,
     instructions_url: ?string,
   },
@@ -176,15 +190,18 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
     }
 
     let { campaign } = this.state;
-    console.log(campaign);
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">{campaign.name}</h1>
-        <div className="row">
-          <div className="col-sm-4"><b>Annotation set:</b> #{campaign.annotation_set_id}</div>
-          
-          <div className="col-sm-4"><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
-          <div className="col-sm-4"><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
+        <div className="row justify-content-around">
+          <div>
+            <div><b>Annotation set:</b> {campaign.annotation_set.name}</div>
+            <div><b>Confidence Indicator set:</b> {campaign.confidence_indicator_set.name}</div>
+          </div>
+          <div>
+            <div><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
+            <div ><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
+          </div>
         </div>
         <div className="col-sm-12 border rounder">
           <center><h3>Description</h3></center>

@@ -23,7 +23,7 @@ type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 const Navbar = (props: NavbarProps) => (
-  <div className="col-sm-3 border rounded">
+  <div className="col-sm-2 border rounded">
     <ul>
       <li><a href="/..">Back to main site</a></li>
       <li><Link to="/datasets">Datasets</Link></li>

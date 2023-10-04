@@ -9,6 +9,21 @@ const TASKS_API_URL = '/api/annotation-task/campaign/ID';
 
 const TASK_STATUS_FINISHED = 2;
 
+type confidence_indicator_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  confidence_indicators: Array<string>,
+  default_confidence_indicators: number,
+};
+
+type annotation_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  tags: Array<string>
+};
+
 
 type AnnotationTaskListProps = {
   match: {
@@ -26,7 +41,8 @@ type AnnotationTaskListState = {
     desc: string,
     start: string,
     end: string,
-    annotation_set_id: number,
+    annotation_set_type: annotation_set_type,
+    confidence_indicator_set_type: confidence_indicator_set_type,
     owner_id: number,
     instructions_url: ?string,
   },

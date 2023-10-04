@@ -43,6 +43,8 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             self.queryset.annotate(files_count=Count("datasets__files"))
             .prefetch_related(
                 "tasks",
+                "confidence_indicator_set",
+                "annotation_set",
                 Prefetch(
                     "tasks",
                     queryset=AnnotationTask.objects.filter(
