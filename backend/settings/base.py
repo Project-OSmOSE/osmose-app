@@ -170,4 +170,5 @@ FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
 TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",
     "width": "960px",
+    "plugins": "image",
 }
