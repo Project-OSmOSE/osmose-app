@@ -408,6 +408,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       datasets: this.state.new_ac_dataset.id,
       spectro_configs: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
+      confidence_indicator_set_id: this.state.new_ac_confidence_indicator_set,
       annotation_scope: this.state.new_ac_annotation_mode,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,

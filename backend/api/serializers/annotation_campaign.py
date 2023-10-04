@@ -15,8 +15,9 @@ from backend.api.models import (
     Dataset,
     AnnotationSet,
     SpectroConfig,
+    ConfidenceIndicatorSet,
 )
-
+from backend.api.serializers import ConfidenceIndicatorSetSerializer
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     """
@@ -82,6 +83,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     """
 
     annotation_set_id = serializers.IntegerField()
+    confidence_indicator_set_id = serializers.IntegerField()
 
     class Meta:
         model = AnnotationCampaign
@@ -93,6 +95,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "start",
             "end",
             "annotation_set_id",
+            "confidence_indicator_set_id",
             "datasets",
             "created_at",
         ]
@@ -137,6 +140,9 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
     annotation_set_id = serializers.IntegerField(
         validators=[valid_model_ids(AnnotationSet)]
     )
+    confidence_indicator_set_id = serializers.IntegerField(
+        validators=[valid_model_ids(ConfidenceIndicatorSet)]
+    )
     datasets = serializers.ListField(
         child=serializers.IntegerField(),
         validators=[valid_model_ids(Dataset)],
@@ -163,6 +169,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             "start",
             "end",
             "annotation_set_id",
+            "confidence_indicator_set_id",
             "spectro_configs",
             "datasets",
             "annotators",
@@ -190,6 +197,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             start=validated_data.get("start"),
             end=validated_data.get("end"),
             annotation_set_id=validated_data["annotation_set_id"],
+            confidence_indicator_set_id=validated_data["confidence_indicator_set_id"],
             annotation_scope=validated_data["annotation_scope"],
             owner_id=validated_data["owner_id"],
             instructions_url=validated_data.get("instructions_url"),
