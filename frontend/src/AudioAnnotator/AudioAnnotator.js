@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -247,7 +247,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: -1,
                 startFrequency: -1,
                 endFrequency: -1,
-                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator.label : null,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : null,
                 active: false,
                 result_comments: ann.result_comments[0] === undefined ? { comment: "", annotation_task: task.id, annotation_result:ann.id } : ann.result_comments[0],
               };
@@ -523,8 +523,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     const currentComment = this.getCurrentComment(annotations)
 
-    this.setState({      
-      annotations: annotations,     
+    this.setState({
+      annotations: annotations,
       currentDefaultTagAnnotation:  activated.annotation,
       currentDefaultConfidenceIndicator: activated.confidenceIndicator,
       currentComment: currentComment
@@ -554,30 +554,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
-  toggleAnnotationConfidence = (confidence: string) => {
-    const activeAnn: ?Annotation = this.state.annotations
-      .find(ann => ann.type === TYPE_BOX && ann.active);
-
-    if (activeAnn) {
-      const newConfidence: Confidence = (activeAnn.confidence === confidence) ? '' : confidence;
-      const newAnnotation: Annotation = Object.assign(
-        {}, activeAnn, { confidence: newConfidence,  }
-      );
-      const annotations: Array<Annotation> = this.state.annotations
-        .filter(ann => !ann.active)
-        .concat(newAnnotation);
-
-      this.setState({
-        annotations,
-        toastMsg: undefined,
-        currentDefaultConfidenceIndicator: confidence,
-      });
-    }
-  }
-
   toggleAnnotationConfidence = (confidenceIndicator: string) => {
     const activeAnn: ?Annotation = this.state.annotations
-      .find(ann => ann.type === TYPE_BOX && ann.active);
+      .find(ann => ann.active);
 
     if (activeAnn) {
       const newConfidence: ConfidenceIndicator = (activeAnn.confidenceIndicator === confidenceIndicator) ? '' : confidenceIndicator;
@@ -609,7 +588,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endTime: -1,
         startFrequency: -1,
         endFrequency: -1,
-        confidenceIndicator: null,
+        confidenceIndicator: this.state.currentDefaultConfidenceIndicator,
         active: true,
         result_comments: { comment: "", annotation_task: this.state.task.id, annotation_result: '', newAnnotation: true, },
       };
@@ -645,12 +624,19 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const emptyAnnotations = this.state.annotations
       .filter((ann: Annotation) => ann.annotation.length === 0);
 
-    if (emptyAnnotations.length > 0) {
+      const emptyConfidenceIndicator = this.state.annotations
+      .filter((ann: Annotation) => ann.confidenceIndicator.length === 0);
+
+    if (emptyAnnotations.length > 0 ) {
       this.activateAnnotation(emptyAnnotations.shift());
       this.setState({
         toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
       });
-    } else {
+    } else if (emptyConfidenceIndicator.length > 0) {
+      this.setState({
+      toastMsg: {msg: 'Make sure all your annotations have a confidence indicator.', lvl: 'danger'},
+    });}
+    else {
       this.submitAnnotations();
     }
   }
@@ -660,7 +646,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
     const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
     const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
-        const confidenceIndicator = ann.type === TYPE_BOX ? ann.confidenceIndicator : null;
     const result_comments = ann.result_comments.comment === "" ? null : [ann.result_comments];
       return {
         id: ann.id,
@@ -669,7 +654,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         annotation: ann.annotation,
         startFrequency,
         endFrequency,
-        confidenceIndicator,
+        confidenceIndicator:  ann.confidenceIndicator ,
         result_comments: result_comments,
       };
   }
@@ -763,7 +748,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       // Rendering
       return (
-        <div className="annotator container-fluid">
+        <div className="annotator container-fluid ps-0">
 
           {/* Header */}
           <div className="row">
@@ -908,7 +893,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   beforeSubmit_checkPresenceMode = (ann) => {
     if (ann[0].annotation.length === 0) {
       this.setState({
-        toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
+        toastMsg: {msg: 'Make sure your annotations is tagged.', lvl: 'danger'},
+      });
+      return
+    }
+
+    if (ann[0].confidenceIndicator.length === 0) {
+      this.setState({
+        toastMsg: {msg: 'Make sure your annotations have a confidence indicator.', lvl: 'danger'},
       });
       return
     }
@@ -1137,7 +1129,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     return (
       <React.Fragment>
-        <div className="row justify-content-around">
+        <div className="row justify-content-around m-2">
           {this.renderActiveBoxAnnotation()}
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
@@ -1146,7 +1138,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <table className="table table-hover rounded">
                 <thead className="">
                   <tr className="text-center bg__black--003">
-                    <th colSpan="4">Annotations</th>
+                    <th colSpan="5">Annotations</th>
                   </tr>
                 </thead>
                   <tbody>
@@ -1232,15 +1224,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
         return (
           <OverlayTrigger overlay={tooltip} key={`tag-overlay-${idx.toString()}`} arrowProps={"top"}>
-          <li key={`tag-${idx.toString()}`}>
-            <button
-              id={`tags_key_shortcuts_${idx.toString()}`}
-              className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
-              style={(activeTags.includes(tag)) ? style.active : style.inactive}
-              onClick={() => this.toggleAnnotationTag(tag)}
-              type="button"
-              disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
-            >{tag}</button>
+            <li key={`tag-${idx.toString()}`}>
+              <button
+                id={`tags_key_shortcuts_${idx.toString()}`}
+                className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
+                style={(activeTags.includes(tag)) ? style.active : style.inactive}
+                onClick={() => this.toggleAnnotationTag(tag)}
+                type="button"
+                disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
+              >{tag}</button>
             </li>
           </OverlayTrigger>
       );
@@ -1298,7 +1290,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
 
       return (
-          <div className="card">
+          <div className="card ml-2 flex-grow-1 mini-content">
             <h6 className="card-header text-center">Presence / Absence</h6>
           <div className="card-body">
             <ul className="presence-absence-columns">
@@ -1346,11 +1338,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <div className=" d-flex justify-content-center">
             <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
           </div>
-          <div className="row justify-content-center">
+          <div className={`row justify-content-center p-2 ${this.state.showConfidenceIndicatorSetDescription ? "" : "d-none"}`}>
             {this.state.showConfidenceIndicatorSetDescription ?
               this.state.task.confidenceIndicatorSet.desc
               : ''
-              }
+            }
           </div>
             </React.Fragment>
         );
@@ -1380,7 +1372,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-        <div className="card mr-2">
+        <div className="card mr-2 selected_annotation mini-content">
           <h6 className="card-header text-center">Selected annotation</h6>
           <div className="card-body d-flex justify-content-between">
               <p className="card-text">
@@ -1390,11 +1382,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <i className="fa fa-arrow-up"></i> :&nbsp;
                 {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                 {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-              <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+                <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
+                <i className="fa fa-handshake"></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
             </p>
           </div>
         </div>
-        <div className="flex-shrink-2">
+        <div className="col-5 flex-shrink-2">
           <div className="card">
             <h6 className="card-header text-center">Tags list</h6>
             <div className="card-body d-flex justify-content-between">
@@ -1417,14 +1410,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     } else {
       return (
         <React.Fragment>
-          <div className="card mr-2">
+          <div className="card mr-2  selected_annotation mini-content">
             <h6 className="card-header text-center">Selected annotation</h6>
             <div className="card-body">
               <p className="card-text text-center">-</p>
             </div>
           </div>
 
-          <div className="flex-shrink-2">
+          <div className="col-5 flex-shrink-2">
               <div className="card">
                 <h6 className="card-header text-center">Tags list</h6>
                 <div className="card-body d-flex justify-content-between">
@@ -1469,12 +1462,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             <i className="fas fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
+          <td>
+            <i className="fa fa-handshake"></i>&nbsp;
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
+          </td>
           <td className="p-1">
           {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
-          </td>
-          <td>
-            <i className="fa-solid fa-handshake"></i>&nbsp;
-            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
         </tr>
       );
@@ -1490,6 +1483,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <i className="fas fa-tag"></i>&nbsp;
               {annotation.annotation}
             </strong>
+          </td>
+          <td>
+            <i className="fa fa-handshake"></i>&nbsp;
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
           <td className="pl-1">
           {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}

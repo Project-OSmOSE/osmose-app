@@ -17,7 +17,11 @@ from backend.api.models import (
     SpectroConfig,
     ConfidenceIndicatorSet,
 )
-from backend.api.serializers import ConfidenceIndicatorSetSerializer, AnnotationSetSerializer
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSetSerializer,
+)
+from backend.api.serializers.annotation_set import AnnotationSetSerializer
+
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     """
@@ -31,7 +35,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     user_tasks_count = serializers.SerializerMethodField()
     complete_tasks_count = serializers.SerializerMethodField()
     user_complete_tasks_count = serializers.SerializerMethodField()
-    files__count = serializers.SerializerMethodField()
+    files_count = serializers.SerializerMethodField()
     annotation_set = AnnotationSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
 
@@ -87,6 +91,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
 
     annotation_set = AnnotationSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
+
     class Meta:
         model = AnnotationCampaign
         fields = [
@@ -143,7 +148,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
         validators=[valid_model_ids(AnnotationSet)]
     )
     confidence_indicator_set_id = serializers.IntegerField(
-        validators=[valid_model_ids(ConfidenceIndicatorSet)]
+        validators=[valid_model_ids(ConfidenceIndicatorSet)],
+        required=False,
     )
     datasets = serializers.ListField(
         child=serializers.IntegerField(),

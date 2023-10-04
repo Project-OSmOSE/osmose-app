@@ -200,7 +200,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
           </div>
           <div>
             <div><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
-            <div ><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
+            <div><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
           </div>
         </div>
         <div className="col-sm-12 border rounder">

@@ -7,6 +7,7 @@
     end_frequency: 12864.0
     annotation_tag: 2
     annotation_task: 7
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 2
   fields:
@@ -16,6 +17,7 @@
     end_frequency: 9888.0
     annotation_tag: 4
     annotation_task: 7
+    confidence_indicator: 2
 - model: api.annotationresult
   pk: 3
   fields:
@@ -25,6 +27,7 @@
     end_frequency: 14976.0
     annotation_tag: 5
     annotation_task: 7
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 4
   fields:
@@ -34,6 +37,7 @@
     end_frequency: 13024.0
     annotation_tag: 1
     annotation_task: 8
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 5
   fields:
@@ -43,6 +47,7 @@
     end_frequency: 14912.0
     annotation_tag: 3
     annotation_task: 8
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 6
   fields:
@@ -52,6 +57,7 @@
     end_frequency: 7680.0
     annotation_tag: 1
     annotation_task: 8
+    confidence_indicator: 2
 - model: api.annotationresult
   pk: 7
   fields:
@@ -61,6 +67,7 @@
     end_frequency: 13696.0
     annotation_tag: 2
     annotation_task: 1
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 8
   fields:
@@ -70,6 +77,7 @@
     end_frequency: 13056.0
     annotation_tag: 5
     annotation_task: 1
+    confidence_indicator: 1
 - model: api.annotationresult
   pk: 9
   fields:
@@ -79,6 +87,7 @@
     end_frequency: 10880.0
     annotation_tag: 4
     annotation_task: 1
+    confidence_indicator: 2
 - model: api.annotationsession
   pk: 1
   fields:

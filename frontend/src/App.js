@@ -39,7 +39,7 @@ type OdeAppProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void,
 };
 const OdeApp = (props: OdeAppProps) => (
-  <div className="container">
+  <div className="px-5 mx-5">
     <div className="row text-center">
       <div className="col-sm-12"><h1>APLOSE</h1></div>
     </div>

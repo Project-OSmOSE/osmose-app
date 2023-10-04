@@ -123,7 +123,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
     });
 
     return (
-      <div className="form-group">
+      <div className="form-group ml-2">
         <div>
           <select id="cac-annotation-set" value={this.state.selected_id} className="form-control" onChange={this.handleOnChange}>
             <option value={0} disabled>Select a confidence indicator set</option>

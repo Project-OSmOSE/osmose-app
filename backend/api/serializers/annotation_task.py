@@ -21,9 +21,9 @@ from backend.api.models import (
 from backend.api.serializers.annotation_comment import (
     AnnotationCommentSerializer,
 )
-
-
-from backend.api.serializers.confidence_set import ConfidenceIndicatorSetSerializer, ConfidenceIndicatorSerializer
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSetSerializer,
+)
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -60,7 +60,9 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
-    confidenceIndicator = serializers.CharField(source="confidence_indicator", allow_null=True)
+    confidenceIndicator = serializers.CharField(
+        source="confidence_indicator", allow_null=True
+    )
     result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
 
     class Meta:
@@ -135,6 +137,12 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         return list(
             task.annotation_campaign.annotation_set.tags.values_list("name", flat=True)
         )
+
+    @extend_schema_field(ConfidenceIndicatorSetSerializer)
+    def get_confidenceIndicatorSet(self, task):
+        return ConfidenceIndicatorSetSerializer(
+            task.annotation_campaign.confidence_indicator_set
+        ).data
 
     @extend_schema_field(AnnotationTaskBoundarySerializer)
     def get_boundaries(self, task):
@@ -220,7 +228,6 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
-
         if isinstance(annotations, list):
             update_tags = set(ann["annotation_tag"]["name"] for ann in annotations)
         else:
@@ -238,11 +245,16 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
-        update_confidence_indicators = set(ann["confidence_indicator"] for ann in annotations)
-        unknown_confidence_indicators = update_confidence_indicators - set_confidence_indicators
+        update_confidence_indicators = set(
+            ann["confidence_indicator"] for ann in annotations
+        )
+        unknown_confidence_indicators = (
+            update_confidence_indicators - set_confidence_indicators
+        )
         if unknown_confidence_indicators:
             raise serializers.ValidationError(
-                f"{unknown_confidence_indicators} not valid tags from annotation set {set_confidence_indicators}."
+                f"{unknown_confidence_indicators} not valid confidence indicator"
+                + f"from confidence indicator set {set_confidence_indicators}."
             )
 
         return annotations

@@ -100,7 +100,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           <td>{new Date(annotation_campaign.created_at).toDateString()}</td>
           <td>{annotation_campaign.annotation_set.name}</td>
           <td>{annotation_campaign.confidence_indicator_set.name}</td>
-          <td>{annotation_campaign.files__count}</td>
+          <td>{annotation_campaign.files_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.user_complete_tasks_count} / {annotation_campaign.user_tasks_count}</td>

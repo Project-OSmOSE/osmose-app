@@ -131,7 +131,12 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
         # pylint: disable=too-many-locals
-        campaign = get_object_or_404(AnnotationCampaign.objects.prefetch_related("confidence_indicator_set__confidence_indicators"), pk=pk)
+        campaign = get_object_or_404(
+            AnnotationCampaign.objects.prefetch_related(
+                "confidence_indicator_set__confidence_indicators"
+            ),
+            pk=pk,
+        )
         data = [
             [
                 "dataset",
@@ -145,9 +150,9 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "start_datetime",
                 "end_datetime",
                 "is_box",
-                "comments",
                 "confidence_indicator_label",
-                "confidence_indicator_order",
+                "confidence_indicator_level",
+                "comments",
             ]
         ]
 
@@ -169,10 +174,19 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             & Q(annotation_result__isnull=True)
         )
 
-
-        lvl_max = max(campaign.confidence_indicator_set.confidence_indicators.all(), key=lambda x: x.level).level
-
         for result in results:
+
+            if campaign.confidence_indicator_set is not None:
+                lvl_max = max(
+                    campaign.confidence_indicator_set.confidence_indicators.all(),
+                    key=lambda x: x.level,
+                ).level
+                confidence_indicator_and_lvl_max = (
+                    str(result.confidence_indicator.level) + "/" + str(lvl_max)
+                )
+            else:
+                confidence_indicator_and_lvl_max = ""
+
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
             max_time = (audio_meta.end - audio_meta.start).seconds
@@ -211,8 +225,10 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
-                    result.confidence_indicator.label,
-                    str(result.confidence_indicator.level) + "/" + str(lvl_max),
+                    result.confidence_indicator.label
+                    if result.confidence_indicator is not None
+                    else "",
+                    confidence_indicator_and_lvl_max,
                     comment,
                 ]
             )

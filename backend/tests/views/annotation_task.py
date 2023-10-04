@@ -47,6 +47,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         "users",
         "datasets",
         "annotation_sets",
+        "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
     ]
@@ -171,6 +172,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "id",
                 "campaignId",
                 "annotationTags",
+                "confidenceIndicatorSet",
                 "boundaries",
                 "audioUrl",
                 "audioRate",
@@ -230,6 +232,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                         "startFrequency": 100,
                         "endFrequency": 200,
                         "result_comments": None,
+                        "confidenceIndicator": "confident",
                     }
                 ],
                 "task_start_time": 10,
@@ -237,6 +240,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             },
             format="json",
         )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(dict(response.data), {"next_task": 10, "campaign_id": None})
         task.refresh_from_db()

@@ -7,10 +7,10 @@ from django.db import models
 from django.conf import settings
 
 
-
 class ConfidenceIndicatorSet(models.Model):
     """
-    This table contains collections of confidence_indicator to be used for dataset annotations. An annotation_set is created by a user
+    This table contains collections of confidence_indicator to be used for dataset annotations.
+    An annotation_set is created by a user
     and can be used for multiple annotation campaigns.
     """
 
@@ -23,9 +23,11 @@ class ConfidenceIndicatorSet(models.Model):
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
 
+
 class ConfidenceIndicator(models.Model):
     """
-    This table contains confidenceIndicator to be used for dataset annotations. An ConfidenceIndicatorSet is created by a user
+    This table contains confidenceIndicator to be used for dataset annotations.
+    An ConfidenceIndicatorSet is created by a user
     and can be used for multiple annotation campaigns.
     """
 
@@ -37,14 +39,22 @@ class ConfidenceIndicator(models.Model):
 
     label = models.CharField(max_length=255, unique=True)
     level = models.IntegerField()
-    confidence_indicator_set = models.ForeignKey(ConfidenceIndicatorSet,
-                                        on_delete=models.CASCADE,
-                                        related_name="confidence_indicators")
-    default_confidence_indicator_set = models.ForeignKey(ConfidenceIndicatorSet,
-                                        on_delete=models.CASCADE,
-                                        related_name="default_confidence_indicator",
-                                        null=True,
-                                        blank=True)
+    confidence_indicator_set = models.ForeignKey(
+        ConfidenceIndicatorSet,
+        verbose_name="Included in this set :",
+        on_delete=models.CASCADE,
+        related_name="confidence_indicators",
+    )
+    default_confidence_indicator_set = models.ForeignKey(
+        ConfidenceIndicatorSet,
+        verbose_name="is the default confidence indicator for this set :",
+        on_delete=models.CASCADE,
+        related_name="default_confidence_indicator",
+        null=True,
+        blank=True,
+    )
+
+
 class AnnotationTag(models.Model):
     """
     This table contains tags which are used to constitute annotation_sets and serve to annotate files for annotation
@@ -77,6 +87,7 @@ class AnnotationSet(models.Model):
     tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
 
 
 class AnnotationCampaign(models.Model):
@@ -118,6 +129,9 @@ class AnnotationCampaign(models.Model):
         to=settings.AUTH_USER_MODEL,
         through="AnnotationTask",
         related_name="task_campaigns",
+    )
+    confidence_indicator_set = models.ForeignKey(
+        ConfidenceIndicatorSet, on_delete=models.CASCADE, null=True
     )
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
@@ -209,7 +223,9 @@ class AnnotationResult(models.Model):
     annotation_task = models.ForeignKey(
         AnnotationTask, on_delete=models.CASCADE, related_name="results"
     )
-    confidence_indicator = models.ForeignKey(ConfidenceIndicator, on_delete=models.CASCADE, null=True, blank=True)
+    confidence_indicator = models.ForeignKey(
+        ConfidenceIndicator, on_delete=models.CASCADE, null=True, blank=True
+    )
 
 
 class AnnotationComment(models.Model):

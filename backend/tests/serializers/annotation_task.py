@@ -15,6 +15,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
         "users",
         "datasets",
         "annotation_sets",
+        "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
     ]
@@ -27,6 +28,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
                 "startFrequency": 100,
                 "endFrequency": 200,
                 "result_comments": None,
+                "confidenceIndicator": "confident",
             }
         ],
         "task_start_time": 10,

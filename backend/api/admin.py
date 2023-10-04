@@ -1,7 +1,7 @@
 """Python module for Django admin interface"""
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
-from collections import OrderedDict
+
 from django.contrib import admin
 from django import forms
 
@@ -24,6 +24,7 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     News,
 )
+
 
 def get_many_to_many(obj, field_name, related_field_name="name"):
     """List all related field
@@ -52,7 +53,14 @@ class NewItemsForm(forms.ModelForm):
 class ConfidenceIndicatorAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin"""
 
-    list_display = ("id", "label", "level")
+    list_display = (
+        "id",
+        "label",
+        "level",
+        "confidence_indicator_set",
+        "default_confidence_indicator_set",
+    )
+
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin"""
@@ -62,11 +70,6 @@ class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
                     "desc",
                     "show_confidence_indicators",
                     "default_confidence_indicator")
-
-    def show_confidence_indicators(self, obj):
-        """show_confidences"""
-        return get_many_to_many(obj, "confidence_indicator")
-
 
 
 class CollectionAdmin(admin.ModelAdmin):
@@ -173,6 +176,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "show_annotators",
+        "confidence_indicator_set",
     )
 
     def show_spectro_configs(self, obj):
@@ -210,7 +214,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "annotation_tag",
         "annotation_task",
-        "confidence_indicator"
+        "confidence_indicator",
     )
 
 
