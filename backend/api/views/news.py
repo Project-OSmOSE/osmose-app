@@ -15,6 +15,9 @@ class NewsViewSet(viewsets.ViewSet):
     A simple ViewSet for news related actions
     """
 
+    authentication_classes = []
+    permission_classes = []
+
     queryset = News.objects.all()
     serializer_class = NewsSerializer
 
