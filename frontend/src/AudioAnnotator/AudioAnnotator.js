@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -138,6 +138,7 @@ type AudioAnnotatorState = {
   currentDefaultTagAnnotation: string,
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
+  showConfidenceIndicatorSetDescription: boolean,
   currentComment: string,
   task_comment: {
     annotation_result: number,
@@ -175,7 +176,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       annotations: [],
       currentDefaultTagAnnotation: '',
       inAModal: false,
-      checkbox_isChecked: [],
+      checkbox_isChecked:  [],
+      showConfidenceIndicatorSetDescription: false,
       currentComment: { comment: "" },
     };
   }
@@ -1317,6 +1319,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  toggleShowConfidenceIndicatorSetDescription = () => {
+    this.setState({showConfidenceIndicatorSetDescription: !this.state.showConfidenceIndicatorSetDescription})
+  }
+
   renderConfidenceIndicator = () => {
     if (this.state.task) {
 
@@ -1335,8 +1341,18 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         );
         });
 
-        return (
-          <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+      return (
+        <React.Fragment>
+          <div className=" d-flex justify-content-center">
+            <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+          </div>
+          <div className="row justify-content-center">
+            {this.state.showConfidenceIndicatorSetDescription ?
+              this.state.task.confidenceIndicatorSet.desc
+              : ''
+              }
+          </div>
+            </React.Fragment>
         );
 }
     else {
@@ -1387,10 +1403,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </div>
 
           {/* Confidence Indicator management */}
-            <div className="card">
+            <div className="card"
+              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
+              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
               <h6 className="card-header text-center">Confidence indicator</h6>
-              <div className="card-body d-flex justify-content-center">
-                  {confidenceIndicators}
+              <div className="card-body">
+                {confidenceIndicators}
               </div>
             </div>
           </div>
@@ -1399,20 +1417,29 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     } else {
       return (
         <React.Fragment>
-          <div className="col-sm-2">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body">
-                <p className="card-text text-center">-</p>
-              </div>
+          <div className="card mr-2">
+            <h6 className="card-header text-center">Selected annotation</h6>
+            <div className="card-body">
+              <p className="card-text text-center">-</p>
             </div>
           </div>
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
+
+          <div className="flex-shrink-2">
+              <div className="card">
+                <h6 className="card-header text-center">Tags list</h6>
+                <div className="card-body d-flex justify-content-between">
+                    {tags}
+                </div>
               </div>
+
+            {/* Confidence Indicator management */}
+            <div className="card"
+              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
+              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
+                <h6 className="card-header text-center">Confidence indicator</h6>
+                <div className="card-body">
+                    {this.renderConfidenceIndicator()}
+                </div>
             </div>
           </div>
         </React.Fragment>
