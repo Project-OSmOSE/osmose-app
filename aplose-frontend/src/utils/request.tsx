@@ -3,7 +3,8 @@ export namespace request {
     method: string,
     url: string,
     token?: string,
-    body?: any
+    body?: any,
+    responseType: "JSON" | "TEXT" = "JSON"
   ): Promise<any> => {
     const headers = new Headers();
     headers.set("Accept", "application/json");
@@ -30,21 +31,27 @@ export namespace request {
     }
 
     try {
-      return await response.json();
+      const body = (responseType === "TEXT") ? await response.text() : await response.json();
+      return { body };
     } catch (err) {
-      return "";
+      return { body: '' };
     }
   };
 
-  export const get = async (url: string, token?: string): Promise<any> => {
-    return fetchWrap("GET", url, token);
+  export const get = async (
+    url: string,
+    token?: string,
+    responseType: "JSON" | "TEXT" = "JSON"
+  ): Promise<any> => {
+    return fetchWrap("GET", url, token, undefined, responseType);
   };
 
   export const post = async (
     url: string,
     token?: string,
-    body?: any
+    body?: any,
+    responseType: "JSON" | "TEXT" = "JSON"
   ): Promise<any> => {
-    return fetchWrap("POST", url, token, body);
+    return fetchWrap("POST", url, token, body, responseType);
   };
 }

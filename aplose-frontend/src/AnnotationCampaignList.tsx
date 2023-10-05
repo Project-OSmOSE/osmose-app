@@ -33,14 +33,13 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
     annotation_campaigns: [],
     error: undefined,
   };
-  getData: any;
 
   componentDidMount() {
     return request
       .get(API_URL, this.props.app_token)
       .then((req) => {
         this.setState({
-          annotation_campaigns: req,
+          annotation_campaigns: req.body,
         });
       })
       .catch((err) => {
@@ -56,7 +55,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   }
 
   componentWillUnmount() {
-    // this.getData.abort();
+    // TODO: abort request
   }
 
   render() {

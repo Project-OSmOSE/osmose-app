@@ -3,6 +3,7 @@ import "./App.css";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import AnnotationCampaignList from "./AnnotationCampaignList";
 import Login from "./Login";
+import AnnotationCampaignDetail from "./AnnotationCampaignDetail";
 
 type NavbarProps = {
   logout: (event: any) => void;
@@ -51,6 +52,15 @@ const OdeApp = (props: OdeAppProps) => (
         <Route
           path="/annotation-campaigns"
           render={() => <AnnotationCampaignList app_token={props.app_token} />}
+        />
+        <Route
+          path="/annotation_campaign/:campaign_id"
+          render={(route_props) => (
+            <AnnotationCampaignDetail
+              app_token={props.app_token}
+              {...route_props}
+            />
+          )}
         />
       </Switch>
     </div>

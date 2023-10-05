@@ -46,8 +46,7 @@ class Login extends Component<LoginProps, LoginState> {
     this.sendData = request.post(API_URL, undefined, loginInfo);
     return this.sendData
       .then((res: any) => {
-        console.log("response", res);
-        return this.props.handleToken(res.access);
+        return this.props.handleToken(res.body.access);
       })
       .catch((err: any) => {
         // Checking if this is an HTTP error
