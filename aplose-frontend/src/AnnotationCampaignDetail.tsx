@@ -87,15 +87,18 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
     isStaff: false,
     error: undefined,
   };
+  getData: any;
+  getUsers: any;
+  getIsStaff: any;
 
   componentDidMount() {
+    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id), this.props.app_token),
+    this.getUsers = request.get(USER_API_URL, this.props.app_token);
+    this.getIsStaff = request.get(STAFF_API_URL, this.props.app_token);
     return Promise.all([
-      request.get(
-        API_URL.replace("ID", this.props.match.params.campaign_id),
-        this.props.app_token
-      ),
-      request.get(USER_API_URL, this.props.app_token),
-      request.get(STAFF_API_URL, this.props.app_token),
+      this.getData,
+      this.getUsers,
+      this.getIsStaff,
     ])
       .then(([req_data, req_users, req_is_staff]) => {
         let users: any = {};
@@ -143,7 +146,9 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
   }
 
   componentWillUnmount() {
-    // TODO: abort requests
+    // this.getData.abort();
+    // this.getUsers.abort();
+    // this.getIsStaff.abort();
   }
 
   renderAddAnnotatorButton(isStaff: boolean, campaignId: number) {

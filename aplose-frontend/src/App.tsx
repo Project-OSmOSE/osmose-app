@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import AnnotationCampaignList from "./AnnotationCampaignList";
 import Login from "./Login";
 import AnnotationCampaignDetail from "./AnnotationCampaignDetail";
+import AnnotationTaskList from "./AnnotationTaskList";
 
 type NavbarProps = {
   logout: (event: any) => void;
@@ -44,24 +45,10 @@ const OdeApp = (props: OdeAppProps) => (
     <div className="row text-left h-100 main">
       <Navbar logout={props.logout} />
       <Switch>
-        <Route
-          exact
-          path="/"
-          render={() => <AnnotationCampaignList app_token={props.app_token} />}
-        />
-        <Route
-          path="/annotation-campaigns"
-          render={() => <AnnotationCampaignList app_token={props.app_token} />}
-        />
-        <Route
-          path="/annotation_campaign/:campaign_id"
-          render={(route_props) => (
-            <AnnotationCampaignDetail
-              app_token={props.app_token}
-              {...route_props}
-            />
-          )}
-        />
+        <Route exact path="/" render={() => <AnnotationCampaignList app_token={props.app_token} />} />
+        <Route path="/annotation-campaigns" render={() => <AnnotationCampaignList app_token={props.app_token} />} />
+        <Route path='/annotation_tasks/:campaign_id' render={(route_props) => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
+        <Route path="/annotation_campaign/:campaign_id" render={(route_props) => ( <AnnotationCampaignDetail app_token={props.app_token} {...route_props} /> )} />
       </Switch>
     </div>
   </div>

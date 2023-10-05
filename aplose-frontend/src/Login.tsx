@@ -22,10 +22,10 @@ class Login extends Component<LoginProps, LoginState> {
     password: "",
     error: undefined,
   };
-  sendData?: any;
+  sendData: any;
 
   componentWillUnmount() {
-    // this.sendData?.abort();
+    // this.sendData.abort();
   }
 
   handleLoginChange = (event: SyntheticEvent<HTMLInputElement>) => {
