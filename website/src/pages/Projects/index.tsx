@@ -59,7 +59,7 @@ export const Projects: React.FC = () => {
               className="rounded mx-auto d-block img-fluid img-thumbnail"
             />
             <figcaption className="small fst-italic">
-              Photo credit : Fabio Perruchet - Océanopolis
+              Position of net equipped with acoustic recorders during APOCADO protocol from June 2022 to June 2023
             </figcaption>
           </figure>
         </article>
