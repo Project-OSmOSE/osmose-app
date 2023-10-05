@@ -2,7 +2,7 @@
 
 import { Component } from "react";
 import { Link } from "react-router-dom";
-import request from "superagent";
+import { request } from "./utils/request";
 
 const API_URL = "/api/annotation-campaign/";
 
@@ -33,39 +33,14 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
     annotation_campaigns: [],
     error: undefined,
   };
-  getData = request.get(API_URL);
+  getData: any;
 
   componentDidMount() {
-    /*
-    const headers = new Headers();
-    headers.set("Authorization", `Bearer ${this.props.app_token}`);
-    return fetch(API_URL, {
-      method: "GET",
-      headers,
-    })
-      .then(async (req) => {
-        const response = await req.json();
-        this.setState({
-          annotation_campaigns: response,
-        });
-      })
-      .catch((err) => {
-        if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = "token=;max-age=0;path=/";
-          window.location.reload();
-        }
-        this.setState({
-          error: err,
-        });
-      });
-*/
-    return this.getData
-      .auth(this.props.app_token, { type: "bearer" })
-      .accept("*/*")
+    return request
+      .get(API_URL, this.props.app_token)
       .then((req) => {
         this.setState({
-          annotation_campaigns: req.body,
+          annotation_campaigns: req,
         });
       })
       .catch((err) => {
@@ -81,7 +56,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   }
 
   componentWillUnmount() {
-    this.getData.abort();
+    // this.getData.abort();
   }
 
   render() {

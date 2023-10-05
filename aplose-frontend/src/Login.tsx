@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, FormEvent, SyntheticEvent } from "react";
-import request, { SuperAgentRequest } from "superagent";
+import { request } from "./utils/request";
 
 const API_URL = "/api/token/";
 
@@ -22,10 +22,10 @@ class Login extends Component<LoginProps, LoginState> {
     password: "",
     error: undefined,
   };
-  sendData?: SuperAgentRequest;
+  sendData?: any;
 
   componentWillUnmount() {
-    this.sendData?.abort();
+    // this.sendData?.abort();
   }
 
   handleLoginChange = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -39,19 +39,19 @@ class Login extends Component<LoginProps, LoginState> {
   handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ error: undefined });
-    this.sendData = request.post(API_URL);
-    let loginInfo = {
+    const loginInfo = {
       username: this.state.login,
       password: this.state.password,
     };
+    this.sendData = request.post(API_URL, undefined, loginInfo);
     return this.sendData
-      .send(loginInfo)
-      .then((res) => {
-        return this.props.handleToken(res.body.access);
+      .then((res: any) => {
+        console.log("response", res);
+        return this.props.handleToken(res.access);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         // Checking if this is an HTTP error
-        if (err.status && err.response) {
+        if (err.status) {
           if (err.status === 401) {
             err.message = "Access denied";
           }
