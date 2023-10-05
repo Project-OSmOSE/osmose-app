@@ -19,6 +19,7 @@ export namespace request {
       body: body ? JSON.stringify(body) : undefined,
     });
 
+    // TODO come back here to build the same error format (status, response, response.body)
     const responseStatus = response.status.toFixed();
     if (responseStatus.startsWith("4") || responseStatus.startsWith("5")) {
       const rawError = await response.text();
