@@ -79,3 +79,6 @@ typings/
 
 #VSCode
 /.vscode/settings.json
+
+#Asdf
+.tool-versions

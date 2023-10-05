@@ -49,7 +49,7 @@ html {
 .annotator-nav {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
 }
 .annotator-nav > span, .annotator-nav > li {
   padding: 10px 10px 0 10px;

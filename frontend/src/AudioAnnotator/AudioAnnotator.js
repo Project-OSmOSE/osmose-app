@@ -735,7 +735,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <div className="row annotator-controls">
             <p className="col-sm-1 text-right">
               <button
-                className={`btn-simple btn-play fa-solid ${playStatusClass}`}
+                className={`btn-simple btn-play fas ${playStatusClass}`}
                 onClick={this.playPause}
               ></button>
             </p>
@@ -1038,10 +1038,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                   <div className="input-group-append col-sm-2 p-0">
                       <div className="btn-group-vertical">
                       <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
-                          <i className="fa-solid fa-check"></i>
+                          <i className="fas fa-check"></i>
                       </button>
                       <button className="btn btn-danger ml-0" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
-                        <i className="fa-solid fa-broom"></i>
+                        <i className="fas fa-broom"></i>
                       </button>
                       </div>
                   </div>
@@ -1050,7 +1050,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
                       onClick={() => { this.switchToTaskComment() }}
               >
-                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fa-solid fa-comment mx-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
+                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
                 </button>
               </div>
           </div>
@@ -1187,13 +1187,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <h6 className="card-header text-center">Selected annotation</h6>
               <div className="card-body d-flex justify-content-between">
                   <p className="card-text">
-                  <i className="fa-solid fa-clock-o"></i> :&nbsp;
+                  <i className="fas fa-clock-o"></i> :&nbsp;
                     {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
                     {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
-                  <i className="fa-solid fa-arrow-up"></i> :&nbsp;
+                  <i className="fas fa-arrow-up"></i> :&nbsp;
                     {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                     {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-                    <i className="fa-solid fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+                    <i className="fas fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
                 </p>
               </div>
             </div>
@@ -1242,21 +1242,21 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           onClick={() => this.activateAnnotation(annotation)}
         >
           <td className="p-1">
-            <i className="fa-solid fa-clock-o"></i>&nbsp;
+            <i className="fas fa-clock-o"></i>&nbsp;
             {utils.formatTimestamp(annotation.startTime)}&nbsp;&gt;&nbsp;
             {utils.formatTimestamp(annotation.endTime)}
           </td>
           <td className="p-1">
-            <i className="fa-solid fa-arrow-up"></i>&nbsp;
+            <i className="fas fa-arrow-up"></i>&nbsp;
             {annotation.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
             {annotation.endFrequency.toFixed(2)} Hz
           </td>
           <td className="p-1">
-            <i className="fa-solid fa-tag"></i>&nbsp;
+            <i className="fas fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
           <td className="p-1">
-          {annotation.result_comments.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
+          {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
           </td>
         </tr>
       );
@@ -1269,12 +1269,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         >
           <td colSpan="3">
             <strong>
-              <i className="fa-solid fa-tag"></i>&nbsp;
+              <i className="fas fa-tag"></i>&nbsp;
               {annotation.annotation}
             </strong>
           </td>
           <td className="pl-1">
-          {annotation.result_comments.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
+          {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
           </td>
         </tr>
       );
@@ -1288,7 +1288,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           href="https://github.com/Project-OSmOSE/osmose-app/blob/master/docs/user_guide_annotator.md"
           rel="noopener noreferrer"
           target="_blank"
-        ><span className="fa-solid fa-question-circle"></span>&nbsp;Annotator User Guide</a>
+        ><span className="fas fa-question-circle"></span>&nbsp;Annotator User Guide</a>
       </span>
     );
   }
@@ -1301,7 +1301,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             href={this.state.task.instructions_url}
             rel="noopener noreferrer"
             target="_blank"
-          ><span className="fa-solid fa-info-circle"></span>&nbsp;Campaign instructions</a>
+          ><span className="fas fa-info-circle"></span>&nbsp;Campaign instructions</a>
         </span>
       );
     }

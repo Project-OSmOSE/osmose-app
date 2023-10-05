@@ -116,7 +116,7 @@ class Region extends Component<RegionProps, RegionState> {
               onClick={this.selectAnnotation}
               style={styles.headerSpan}
           >{this.props.annotation.annotation}</span>
-          {this.props.annotation.result_comments.comment !== "" ? <i className="fa-solid fa-comment mr-2"></i> : <i className="fa-regular fa-comment mr-2"></i>}
+          {this.props.annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
             <button
               className="btn-simple fa fa-times-circle"
               onClick={this.deleteAnnotation}
