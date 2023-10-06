@@ -113,6 +113,8 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
 
         queryset = self.queryset.filter(annotator=request.user.id)
         task = get_object_or_404(queryset, pk=pk)
+        print("Update __________________")
+        print(request.data)
         update_serializer = AnnotationTaskUpdateSerializer(task, data=request.data)
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
@@ -144,6 +146,9 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
 
         queryset = self.queryset.filter(annotator=request.user.id)
         task = get_object_or_404(queryset, pk=pk)
+        print(request.data)
+        request.data["annotations"] = [request.data["annotations"]]
+        print(request.data)
         update_serializer = AnnotationTaskOneResultUpdateSerializer(
             task, data=request.data
         )

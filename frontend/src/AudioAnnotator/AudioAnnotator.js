@@ -1,6 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+
 import request from 'superagent';
 import * as utils from '../utils';
 
@@ -676,6 +679,18 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         task.annotationScope === SCOPE_WHOLE && this.getCurrentTag() !== ''
       ));
 
+      const tooltip_submitAndSave = (
+        <div className="card">
+          <h3 className={`card-header tooltip-header`}>Shortcut</h3>
+          <div className="card-body p-1">
+            <p>
+              <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
+
+            </p>
+          </div>
+        </div>
+        )
+
       // Rendering
       return (
         <div className="annotator container-fluid">
@@ -743,21 +758,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               {playbackRateSelect}
             </p>
 
-            <div className="col-sm-3 text-center tooltip-wrap">
-              <button
-                className="btn btn-submit"
-                onClick={this.checkAndSubmitAnnotations}
-                type="button"
-              >Submit &amp; load next recording</button>
-              <div className="card tooltip-toggle">
-                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
-                <div className="card-body p-1">
-                  <p>
-                    <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
-
-                  </p>
-                </div>
-              </div>
+            <div className="col-sm-3 text-center">
+              <OverlayTrigger overlay={tooltip_submitAndSave}>
+                <button
+                  className="btn btn-submit"
+                  onClick={this.checkAndSubmitAnnotations}
+                  type="button"
+                >Submit &amp; load next recording</button>
+              </OverlayTrigger>
             </div>
             <div className="col-sm-4">
               <Toast toastMsg={this.state.toastMsg}></Toast>
@@ -805,15 +813,20 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           & annotation.annotation === ann[0].annotation
           & annotation.result_comments.newAnnotation === true
       )
-      if (annotationTag.length === 0 || annotationTag.id === ann.id) {
-        this.submitOneAnnotationAndAComment(ann)
-      } else {
+
+      if (annotationTag.length === 1) {
+        // this task need the creation of a new annotation[type: tag] before save the annotation and comment
         const cleanAnnotationTag = this.cleaningAnnotation(annotationTag[0])
+        const now: Date = new Date();
+        const taskStartTime: number = Math.floor(this.state.taskStartTime / 1000);
+        const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
         request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
           .set('Authorization', 'Bearer ' + this.props.app_token)
           .send({
             annotations: cleanAnnotationTag,
+            task_start_time: taskStartTime,
+            task_end_time: taskEndTime,
           })
           .then(data => {
             let newAnnotationTag = data.body
@@ -830,6 +843,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             this.setState({isLoading: false, error: this.buildErrorMessage(err)});
           }
         });
+      } else {
+        this.submitOneAnnotationAndAComment(ann)
       }
     } else {
       this.submitOneAnnotationAndAComment(ann)
@@ -837,12 +852,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   updateAnnotationsWithNewId = (oldId, newId) => {
-    const anotherAnnotationsWithSameId: Array<Annotation> = this.state.annotations
+    if (oldId !== newId) {
+      const anotherAnnotationsWithSameId: Array<Annotation> = this.state.annotations
       .filter(ann => ann.id === newId)
-      .map(ann => Object.assign({}, ann, { id: newId + 50 }))
+      .map(ann => Object.assign({}, ann, { id: newId + 1000 }))
 
     let annotations: Array<Annotation> = this.state.annotations
-      .filter(ann => ann.id !== newId+ 50)
+      .filter(ann => ann.id !== newId + 1000)
       .concat(anotherAnnotationsWithSameId)
 
     const annotationsWithNewId: Array<Annotation> = annotations
@@ -858,17 +874,23 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       })
 
     return annotationsWithNewId
+    }
   }
 
   submitOneAnnotationAndAComment = (ann,
     taskId = this.props.match.params.annotation_task_id
   ) => {
     const cleanAnnotation = this.cleaningAnnotation(ann[0])
+    const now: Date = new Date();
+    const taskStartTime: number = Math.floor(this.state.taskStartTime / 1000);
+    const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
     request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .send({
         annotations: cleanAnnotation,
+        task_start_time: taskStartTime,
+        task_end_time: taskEndTime,
       })
       .then(result => {
         const annotation_result = result.body
@@ -1065,7 +1087,24 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const isPresenceMode = !!this.state.task && this.state.task.annotationScope === SCOPE_WHOLE;
       const activeTags = this.state.currentDefaultTagAnnotation;
       const tags = this.state.task.annotationTags.map((tag, idx) => {
-      const color: string = utils.getTagColor(this.state.tagColors, tag);
+        const color: string = utils.getTagColor(this.state.tagColors, tag);
+
+        const tooltip = this.state.checkbox_isChecked[tag] ? (
+          <div className="card" key={`tooltip_${tag[0]}`}>
+            <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
+            <div className="card-body p-1">
+                <p>
+                  <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
+                  {" or "}
+                  <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
+                  {" : choose this tag"}<br/>
+                  <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
+                  {" or "}
+                  <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
+                  {" : delete all annotations of this tag"}
+                </p>
+            </div>
+          </div>) : (<div key={`tooltip_${tag[0]}`}></div>)
 
       const style = {
         inactive: {
@@ -1080,17 +1119,19 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         },
       };
 
-      return (
-        <li key={`tag-${idx.toString()}`}>
-          <button
-            id={`tags_key_shortcuts_${idx.toString()}`}
-            className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
-            style={(activeTags.includes(tag)) ? style.active : style.inactive}
-            onClick={() => this.toggleAnnotationTag(tag)}
-            type="button"
-            disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
-          >{tag}</button>
-        </li>
+        return (
+          <OverlayTrigger overlay={tooltip} key={`tag-overlay-${idx.toString()}`} arrowProps={"top"}>
+          <li key={`tag-${idx.toString()}`}>
+            <button
+              id={`tags_key_shortcuts_${idx.toString()}`}
+              className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
+              style={(activeTags.includes(tag)) ? style.active : style.inactive}
+              onClick={() => this.toggleAnnotationTag(tag)}
+              type="button"
+              disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
+            >{tag}</button>
+            </li>
+          </OverlayTrigger>
       );
       });
 
@@ -1108,22 +1149,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     if (this.state.task) {
       // <li> tag checkbox generator
         const tags = this.state.task.annotationTags.map((tag, idx) => {
-        const color: string = utils.getTagColor(this.state.tagColors, tag);
-          return (
-          <li className="form-check tooltip-wrap" key={`tag-${idx.toString()}`}>
-              <input
-                id={`tags_key_checkbox_shortcuts_${idx.toString()}`}
-                className="form-check-input"
-                type="checkbox"
-                onChange={() => this.toggleGlobalTag(tag)}
-                checked={this.state.checkbox_isChecked[tag]}
-              />
-            <label className="form-check-label" htmlFor={`tags_key_checkbox_shortcuts_${idx.toString()}`} style={{ color }}>
-              {tag}
-            </label>
-              <div className="card tooltip-toggle">
-                <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
-                <div className="card-body p-1">
+          const color: string = utils.getTagColor(this.state.tagColors, tag);
+          const tooltip = (
+            <div className="card">
+              <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
+              <div className="card-body p-1">
                   <p>
                     <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
                     {" or "}
@@ -1134,8 +1164,24 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                     <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
                     {" : delete all annotations of this tag"}
                   </p>
-                </div>
-                </div>
+              </div>
+            </div>
+          )
+          return (
+          <li className="form-check tooltip-wrap" key={`tag-${idx.toString()}`}>
+              <input
+                id={`tags_key_checkbox_shortcuts_${idx.toString()}`}
+                className="form-check-input"
+                type="checkbox"
+                onChange={() => this.toggleGlobalTag(tag)}
+                checked={this.state.checkbox_isChecked[tag]}
+              />
+
+              <OverlayTrigger overlay={tooltip} arrowprops={"top"}>
+                <label className="form-check-label" htmlFor={`tags_key_checkbox_shortcuts_${idx.toString()}`} style={{ color }}>
+                  {tag}
+                </label>
+              </OverlayTrigger>
           </li>
         )
       });

@@ -184,7 +184,12 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 "name", flat=True
             )
         )
-        update_tags = set(ann["annotation_tag"]["name"] for ann in annotations)
+
+        if isinstance(annotations, list):
+            update_tags = set(ann["annotation_tag"]["name"] for ann in annotations)
+        else:
+            update_tags = {annotations["annotation_tag"]["name"]}
+
         unknown_tags = update_tags - set_tags
         if unknown_tags:
             raise serializers.ValidationError(
@@ -192,13 +197,9 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         return annotations
 
-    def update(self, instance, validated_data):
-        """
-        The update of an AnnotationTask will delete previous results and add new ones (new annotations).
+    def _create_results(self, instance, validated_data):
+        """The update of an AnnotationTask will delete previous results and add new ones (new annotations)."""
 
-        It will also change task status to FINISHED.
-        """
-        instance.results.all().delete()
         tags = dict(
             map(
                 reversed,
@@ -231,66 +232,27 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             session_output=validated_data,
         )
 
+        return instance
+
+    def update(self, instance, validated_data):
+        """The update of an AnnotationTask and change status."""
+        instance.results.all().delete()
+        instance = self._create_results(instance, validated_data)
+
         instance.status = 2
         instance.save()
 
         return instance
 
 
-class AnnotationTaskOneResultUpdateSerializer(serializers.Serializer):
+class AnnotationTaskOneResultUpdateSerializer(AnnotationTaskUpdateSerializer):
     """This serializer is responsible for updating a task with a new result from the annotator
     The status of this task will stay started.
     """
 
-    annotations = AnnotationTaskResultSerializer()
-
-    def validate_annotations(self, annotations):
-        """Validates that annotations correspond to annotation set tags"""
-        set_tags = set(
-            self.instance.annotation_campaign.annotation_set.tags.values_list(
-                "name", flat=True
-            )
-        )
-
-        update_tags = {annotations["annotation_tag"]["name"]}
-        unknown_tags = update_tags - set_tags
-        if unknown_tags:
-            raise serializers.ValidationError(
-                f"{unknown_tags} not valid tags from annotation set {set_tags}."
-            )
-        return annotations
-
     def update(self, instance, validated_data):
-        """
-        The update of an AnnotationTask will delete previous results and add new ones (new annotations).
-        """
-        tags = dict(
-            map(
-                reversed,
-                instance.annotation_campaign.annotation_set.tags.values_list(
-                    "id", "name"
-                ),
-            )
-        )
 
-        comments_data = validated_data["annotations"].pop("result_comments")
-        annotation = validated_data["annotations"]
-
-        annotation["annotation_tag_id"] = tags[annotation.pop("annotation_tag")["name"]]
-        new_result = instance.results.create(**annotation)
-        new_result.save()
-
-        if comments_data is not None:
-            for comment_data in comments_data:
-                comment_data.pop("annotation_task")
-                comment = AnnotationComment.objects.create(
-                    annotation_result=new_result,
-                    annotation_task=instance,
-                    **comment_data,
-                )
-                new_result.result_comments.set([comment])
-
-        instance.save()
+        instance = self._create_results(instance, validated_data)
 
         return instance
 
