@@ -2,7 +2,7 @@
 
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
-
+from datetime import datetime
 from django.db.models import Count
 
 from rest_framework import serializers
@@ -53,6 +53,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "complete_tasks_count",
             "user_complete_tasks_count",
             "files_count",
+            "created_at",
         ]
 
     @extend_schema_field(serializers.IntegerField)
@@ -94,6 +95,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "end",
             "annotation_set_id",
             "datasets",
+            "created_at",
         ]
 
 
@@ -192,6 +194,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             annotation_scope=validated_data["annotation_scope"],
             owner_id=validated_data["owner_id"],
             instructions_url=validated_data.get("instructions_url"),
+            created_at=datetime.today(),
         )
         campaign.save()
         campaign.datasets.set(validated_data["datasets"])

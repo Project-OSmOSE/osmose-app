@@ -36,6 +36,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "files_count",
             "type",
             "spectros",
+            "created_at",
         ]
         depth = 1
 

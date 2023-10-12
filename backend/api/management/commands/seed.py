@@ -103,6 +103,7 @@ class Command(management.BaseCommand):
             geo_metadatum=geo_metadatum,
             owner=self.admin,
             dataset_path="seed/dataset_path",
+            created_at=datetime.today(),
         )
         for k in range(self.datafile_count):
             start = parse_datetime("2012-10-03T12:00:00+0200")
@@ -156,6 +157,7 @@ class Command(management.BaseCommand):
                 "instructions_url": "https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon",
                 "annotation_scope": 1,
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
+                "created_at": datetime.today(),
             },
             {
                 "name": "Test DCLDE LF campaign",
@@ -164,6 +166,7 @@ class Command(management.BaseCommand):
                 "end": "2012-06-26",
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
                 "annotation_scope": 2,
+                "created_at": datetime.today(),
             },
             {
                 "name": "Many tags campaign",
@@ -172,6 +175,7 @@ class Command(management.BaseCommand):
                 "end": "2012-06-26",
                 "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
+                "created_at": datetime.today(),
             },
         ]
         self.campaigns = []

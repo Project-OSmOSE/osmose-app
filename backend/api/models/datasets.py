@@ -47,6 +47,7 @@ class Dataset(models.Model):
 
     class Meta:
         db_table = "datasets"
+        ordering = ["name", "created_at"]
 
     def __str__(self):
         return str(self.name)
@@ -64,6 +65,7 @@ class Dataset(models.Model):
     files_type = models.CharField(max_length=255)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True)
 
     audio_metadatum = models.ForeignKey(
         "AudioMetadatum", on_delete=models.CASCADE, null=True, blank=True

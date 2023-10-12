@@ -3,7 +3,7 @@
 import csv
 import os
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
@@ -88,6 +88,7 @@ def datawork_import(*, wanted_datasets, importer):
             audio_metadatum=audio_metadatum,
             geo_metadatum=geo_metadatum,
             owner=importer,
+            created_at=datetime.today(),
         )
         created_datasets.append(curr_dataset.id)
 
