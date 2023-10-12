@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
-    'tinymce',
+    "tinymce",
 ]
 
 MIDDLEWARE = [
@@ -171,4 +171,5 @@ TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",
     "width": "960px",
     "plugins": "image",
+    "toolbar": "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",
 }

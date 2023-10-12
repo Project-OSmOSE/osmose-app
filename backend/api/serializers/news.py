@@ -5,22 +5,20 @@
 
 from rest_framework import serializers
 
-from backend.api.models import (News)
+from backend.api.models import News
+
 
 class NewsSerializer(serializers.ModelSerializer):
     """Serializer meant to output News data"""
 
     class Meta:
         model = News
-        fields = ["title", "body"]
+        fields = ["title", "intro", "body", "date", "vignette"]
+
 
 class NewsRetrieveSerializer(serializers.ModelSerializer):
     """Retrieve a news to the corresponding id"""
 
     class Meta:
         model = News
-        fields = [
-            "id",
-            "title",
-            "body",
-        ]
+        fields = ["id", "title", "intro", "body", "date", "vignette"]

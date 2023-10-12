@@ -10,6 +10,7 @@ from drf_spectacular.utils import extend_schema
 from backend.api.models import News
 from backend.api.serializers import NewsSerializer, NewsRetrieveSerializer
 
+
 class NewsViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for news related actions
