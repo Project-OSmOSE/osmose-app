@@ -81,6 +81,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
       return (
         <tr key={annotation_campaign.id}>
           <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
+          <td>{new Date(annotation_campaign.created_at).toDateString()}</td>
           <td>Set n°{annotation_campaign.annotation_set_id}</td>
           <td>{annotation_campaign.files_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
@@ -107,6 +108,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Created at</th>
               <th>Annotation Set</th>
               <th>Number of files</th>
               <th>Start Date</th>

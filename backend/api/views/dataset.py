@@ -27,8 +27,10 @@ class DatasetViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List available datasets"""
-        queryset = Dataset.objects.annotate(Count("files")).select_related(
-            "dataset_type"
+        queryset = (
+            Dataset.objects.annotate(Count("files"))
+            .select_related("dataset_type")
+            .order_by("name", "created_at")
         )
 
         serializer = self.serializer_class(queryset, many=True)

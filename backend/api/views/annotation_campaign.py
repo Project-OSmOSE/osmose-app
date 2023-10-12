@@ -39,27 +39,31 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.annotate(
-            files_count=Count("datasets__files")
-        ).prefetch_related(
-            "tasks",
-            Prefetch(
+        queryset = (
+            self.queryset.annotate(files_count=Count("datasets__files"))
+            .prefetch_related(
                 "tasks",
-                queryset=AnnotationTask.objects.filter(annotator_id=request.user.id),
-                to_attr="user_tasks",
-            ),
-            Prefetch(
-                "tasks",
-                queryset=AnnotationTask.objects.filter(status=2),
-                to_attr="complete_tasks",
-            ),
-            Prefetch(
-                "tasks",
-                queryset=AnnotationTask.objects.filter(
-                    annotator_id=request.user.id, status=2
+                Prefetch(
+                    "tasks",
+                    queryset=AnnotationTask.objects.filter(
+                        annotator_id=request.user.id
+                    ),
+                    to_attr="user_tasks",
                 ),
-                to_attr="user_complete_tasks",
-            ),
+                Prefetch(
+                    "tasks",
+                    queryset=AnnotationTask.objects.filter(status=2),
+                    to_attr="complete_tasks",
+                ),
+                Prefetch(
+                    "tasks",
+                    queryset=AnnotationTask.objects.filter(
+                        annotator_id=request.user.id, status=2
+                    ),
+                    to_attr="user_complete_tasks",
+                ),
+            )
+            .order_by("name", "created_at")
         )
         serializer = self.serializer_class(queryset, many=True, user_id=request.user.id)
         return Response(serializer.data)

@@ -28,6 +28,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "instructions_url": "https://instructions.org",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
+        "created_at": "2023-11-02",
         "annotation_set_id": 1,
         "datasets": [1],
         "spectros": [1],
@@ -43,10 +44,10 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         old_tasks_count = AnnotationTask.objects.count()
         create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
         create_serializer.is_valid(raise_exception=True)
-        create_serializer.save(owner_id=1)
+        result = create_serializer.save(owner_id=1)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
         self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
-        new_campaign = AnnotationCampaign.objects.last()
+        new_campaign = AnnotationCampaign.objects.latest("id")
         self.assertEqual(new_campaign.name, self.creation_data["name"])
         self.assertEqual(new_campaign.owner_id, 1)
         self.assertEqual(new_campaign.tasks.count(), 11)

@@ -165,6 +165,7 @@ const DatasetList = (props: DatasetListProps) => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Created at</th>
             <th>Type</th>
             <th>File type</th>
             <th>Number of files</th>
@@ -177,6 +178,7 @@ const DatasetList = (props: DatasetListProps) => {
             return (
               <tr key={dataset.id}>
                 <td>{dataset.name}</td>
+                <td>{new Date(dataset.created_at).toDateString()}</td>
                 <td>{dataset.type}</td>
                 <td>{dataset.files_type}</td>
                 <td>{dataset.files_count}</td>

@@ -1,5 +1,5 @@
 """Annotation campaign DRF-Viewset test file"""
-
+from datetime import datetime
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 from django.contrib.auth.models import User
@@ -60,6 +60,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "instructions_url": "string",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
+        "created_at": "2023-11-02T00:00:00Z",
         "annotation_set_id": 1,
         "datasets": [1],
         "spectros": [1],
@@ -103,6 +104,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "complete_tasks_count",
                 "user_complete_tasks_count",
                 "files_count",
+                "created_at",
             ],
         )
         self.assertEqual(response.data[0]["name"], "Test SPM campaign")
@@ -127,8 +129,10 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "end",
                 "annotation_set_id",
                 "datasets",
+                "created_at",
             ],
         )
+
         self.assertEqual(response.data["campaign"]["name"], "Test SPM campaign")
         self.assertEqual(len(response.data["tasks"]), 2)
         self.assertEqual(
@@ -165,7 +169,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "datasets",
             ]
         }
-        expected_reponse["id"] = AnnotationCampaign.objects.last().id
+        expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
+        created_at = response.data.pop("created_at")
         self.assertEqual(dict(response.data), expected_reponse)
 
     # Testing 'add_annotators'

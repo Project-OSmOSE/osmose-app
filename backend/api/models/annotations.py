@@ -54,6 +54,7 @@ class AnnotationCampaign(models.Model):
 
     class Meta:
         db_table = "annotation_campaigns"
+        ordering = ["name", "created_at"]
 
     def __str__(self):
         return str(self.name)
@@ -63,6 +64,7 @@ class AnnotationCampaign(models.Model):
     instructions_url = models.TextField(null=True, blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True)
 
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset")
