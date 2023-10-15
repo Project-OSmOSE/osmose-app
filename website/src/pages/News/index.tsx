@@ -21,7 +21,7 @@ function generateContent(tempNews: Array<any>) {
         vignette={art?.vignette}
         intro={art?.intro}
         date={art?.date}
-        key={String(art?.id ?? art?.title)}
+        key={String(art?.id)}
       >
         {art?.intro}
       </ShortCardArticle>
@@ -53,8 +53,8 @@ export const News: React.FC = () => {
         try {
           const resp = await fetch(NEWS_URL, init);
           console.log("response", resp);
-          // tempNews = await resp.json();
-          tempNews = articles_data;
+          tempNews = await resp.json();
+          // tempNews = articles_data;
         } catch (err) {
           console.error('An error occured during data fetching');
           console.error(err);
@@ -72,7 +72,7 @@ export const News: React.FC = () => {
     content = generateContent(news.slice(articleStart, articleStart+pageSize));
   } else {
     console.log("news is empty");
-    content = "No news found";
+    content = "No news found"; // USE SPINNER
   }
 
   return (

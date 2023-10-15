@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { PageTitle } from '../../components/PageTitle';
 import { Card } from '../../components/Card';
 import { Banner } from '../../components/Banner';
@@ -10,10 +12,47 @@ import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.web
 import logoofb from '../../img/logo/logo_ofb.png';
 import logoisblue from '../../img/logo/logo_isblue3.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
-import articles_data from '../../articles_data2.js'; 
+
+// import articles_data from '../../articles_data2.js'; 
+const NEWS_URL = '/api/news/';
 
 export const Home: React.FC = () => {
-  const recentArticles = articles_data.slice(0, 3);
+  let tempCarouContent: any[] = [];
+  const [carouContent, setCarouContent] = React.useState(tempCarouContent);
+  let recentArticles: any[];
+  React.useEffect(
+    () => {
+      const fetchCarouContent = async () => {
+        const init = {	
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            // 'Referer': 'origin'
+          }
+        };
+        try {
+          const resp = await fetch(NEWS_URL, init);
+          console.log("response", resp);
+          tempCarouContent = await resp.json(); // BUG : ne récupère que la 1ere
+          // tempCarouContent = articles_data;
+        } catch (err) {
+          console.error('An error occured during data fetching');
+          console.error(err);
+        }
+        console.log("tempCarouContent : ", tempCarouContent);
+        setCarouContent(tempCarouContent);
+      };
+      fetchCarouContent();
+    },
+    []
+  );
+  if (carouContent?.length > 0){
+    console.log("carouContent is not empty");
+    recentArticles = carouContent.slice(0, 3);
+  } else {
+    console.log("carouContent is empty");
+    recentArticles = []; // USE SPINNER
+  }
 
   return (
 <div id="home">
@@ -36,17 +75,16 @@ export const Home: React.FC = () => {
 
   <section className="container my-5">
     <Card
-    title="In a nutshell"
+    title="About us"
     img={imgGlider}
     imgSide="right"
-    // imgAlt="Groupe de dauphins"
+    // imgAlt="Glider"
     // subtitle=""
     url="/people"
-    urlDesc="Learn more about our team."
+    // urlDesc="Learn more about our team."
     >
       <p>
-      OSmOSE (Open Science meets Ocean Sound Explorers) is a multi-institutional research consortium addressing underwater passive acoustics methodological questions within projects dedicated to ocean sustainability. <br/>
-      OSmOSE, composed of marine biologists, acousticians, data scientists and computer professionals, was launched in Brest (France) in 2018.
+        Hello, we are OSmOSE ; a consortium of data scientists and ocean researchers developing open source tools and services for underwater passive acoustics. It all started in Brest (French Brittany) in 2018, with the diagnosis that our community was lacking a common ground to compare our methods and highlight our results. To address this situation, our data processing tools aim to standardize and provide easy access to various routine tasks, from manual annotation to related AI workflows for detection and classification of sounds events. This is the cornerstone of most underwater passive acoustic applications.
       </p>
     </Card>
   </section>
