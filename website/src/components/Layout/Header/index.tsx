@@ -7,29 +7,32 @@ import logo from '../../../img/logo/logo_seul_couleur.png';
 export const Header: React.FC = () => {
   let appUrl = 'https://' + window.location.hostname + '/app/';
   return (
-<header id="main-header">
-  <nav className="navbar navbar-expand-md navbar-light bg-light py-0" role="navigation">
+<header id="main-header" className='mb-5'>
+  <nav className="navbar navbar-expand-md navbar-light bg-light py-0 fixed-top fw-normal" role="navigation">
 
-    <Link id="to-home" className="navbar-brand logo d-flex align-items-center navigation-link" to="/">
+    <Link id="to-home" className="logo d-flex align-items-center navigation-link navbar-brand text-secondary" to="/">
       <img src={logo} className="d-inline-block align-top" alt="" />
       <span>OSmOSE</span>
     </Link>
 
-    <button className="navbar-toggler mx-sm-4 mr-md-2" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
-      aria-controls="main-nav" aria-expanded="false">
+    <button className="navbar-toggler mx-sm-4 mr-md-2" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false">
       <span className="navbar-toggler-icon"></span>
     </button>
 
     <div id="main-nav" className="collapse navbar-collapse justify-content-end align-self-stretch">
       <ul className="navbar-nav text-center">
-        <li className="mx-5 mx-md-4 nav-item dropdown">
+        <li className="mx-5 mx-md-4 dropdown">
           <p className="nav-link dropdown-toggle m-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Team
+            Team
           </p>
-          <ul className="dropdown-menu">
-            <Link to="/people" className="nav-link navigation-link">People</Link>
-            {/*<Link to="/project" className="nav-link navigation-link">Projects</Link>*/}
-            <Link to="/publications" className="nav-link navigation-link">Publications</Link>
+          <ul className="dropdown-menu bg-light">
+            <li>
+              <Link to="/people" className="nav-link navigation-link text-center text-secondary">People</Link>
+              {/*<Link to="/project" className="nav-link navigation-link">Projects</Link>*/}
+            </li>
+            <li>
+              <Link to="/publications" className="nav-link navigation-link text-center text-secondary">Publications</Link>
+            </li>
           </ul>
         </li>
         {/*<li className="mx-5 mx-md-4 nav-item dropdown">
@@ -43,10 +46,10 @@ export const Header: React.FC = () => {
                 <a href={appUrl} className="nav-link navigation-link">Annotator</a>
             </ul>
         </li>*/}
-        <li className="mx-5 mx-md-4 nav-item">
+        <li className="mx-5 mx-md-4">
           <a href={appUrl} className="nav-link navigation-link">Annotator</a>
         </li>
-        <li className="mx-5 mx-md-4 nav-item">
+        <li className="mx-5 mx-md-4">
           <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
       </ul>
