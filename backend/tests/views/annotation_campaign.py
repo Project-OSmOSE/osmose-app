@@ -85,6 +85,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     def test_list(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
         url = reverse("annotation-campaign-list")
+        self.client.login(username="admin", password="osmose29")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
