@@ -13,12 +13,4 @@ class NewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = News
-        fields = ["title", "intro", "body", "date", "vignette"]
-
-
-class NewsRetrieveSerializer(serializers.ModelSerializer):
-    """Retrieve a news to the corresponding id"""
-
-    class Meta:
-        model = News
         fields = ["id", "title", "intro", "body", "date", "vignette"]

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 
 from backend.api.models import News
-from backend.api.serializers import NewsSerializer, NewsRetrieveSerializer
+from backend.api.serializers import NewsSerializer
 
 
 class NewsViewSet(viewsets.ViewSet):
@@ -27,9 +27,9 @@ class NewsViewSet(viewsets.ViewSet):
         serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data)
 
-    @extend_schema(responses=NewsRetrieveSerializer)
+
     def retrieve(self, request, pk=None):
         """Show a specific news"""
         one_news = get_object_or_404(self.queryset, pk=pk)
-        serializer = NewsRetrieveSerializer(one_news)
+        serializer = self.serializer_class(one_news)
         return Response(serializer.data)
