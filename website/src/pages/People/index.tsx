@@ -14,9 +14,9 @@ import team from '../../img/people/team-on-boat_640.webp';
 // logos
 import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
 import ifremerlogo from '../../img/logo/logo_ifremer.png';	
-import ubologo from '../../img/logo/ubo.png';	
+import ubologo from '../../img/logo/logo-ubo.png';	
 import labsticlogo from '../../img/logo/logo-lab-sticc.png';	
-import iuemLogo from '../../img/logo/iuem.jpeg';	
+import iuemLogo from '../../img/logo/iuem.jpeg';
 // import imtlogo from '../../img/logo/logo_imt.jpg';
 
 // import projectImg from '../../img/logo_project.png';
