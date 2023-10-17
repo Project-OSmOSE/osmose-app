@@ -97,8 +97,9 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
+        spectro_config_name = spectro_config.name.split("__")[0]
         spectro_path = (
-            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
+            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config_name
         )
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
@@ -151,6 +152,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskSpectroSerializer(many=True))
     def get_spectroUrls(self, task):
+        print(task.dataset_file.dataset.spectro_configs)
         spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(
             task.annotation_campaign.spectro_configs.all()
         )

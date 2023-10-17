@@ -108,10 +108,10 @@ def datawork_import(*, wanted_datasets, importer):
                 spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
             else:
                 continue
-
+            dataset_name = dataset['name'].replace(" ", "_")
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
-                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
+                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}__{dataset_name}"
                     window_type = WindowType.objects.filter(
                         name=spectro["window_type"]
                     ).first()

@@ -142,10 +142,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
         validators=[valid_model_ids(Dataset)],
         allow_empty=False,
     )
-    spectros = serializers.ListField(
-        child=serializers.IntegerField(),
-        validators=[valid_model_ids(SpectroConfig)],
-        allow_empty=False,
+    spectro_configs = serializers.ListField(
+        child=serializers.IntegerField(), validators=[valid_model_ids(SpectroConfig)],
     )
     annotators = serializers.ListField(
         child=serializers.IntegerField(), validators=[valid_model_ids(User)]
@@ -163,25 +161,13 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             "start",
             "end",
             "annotation_set_id",
+            "spectro_configs",
             "datasets",
-            "spectros",
             "annotators",
             "annotation_method",
             "annotation_goal",
             "annotation_scope",
         ]
-
-    def validate(self, attrs):
-        """Validates that chosen spectros correspond to chosen datasets"""
-        db_spectros = Dataset.objects.filter(id__in=attrs["datasets"]).values_list(
-            "spectro_configs", flat=True
-        )
-        bad_vals = set(attrs["spectros"]) - set(db_spectros)
-        if bad_vals:
-            raise serializers.ValidationError(
-                f"{bad_vals} not valid ids for spectro configs of given datasets"
-            )
-        return attrs
 
     def create(self, validated_data):
         campaign = AnnotationCampaign(
@@ -196,7 +182,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
         )
         campaign.save()
         campaign.datasets.set(validated_data["datasets"])
-        campaign.spectro_configs.set(validated_data["spectros"])
+        campaign.spectro_configs.set(validated_data["spectro_configs"])
         file_count = sum(
             campaign.datasets.annotate(Count("files")).values_list(
                 "files__count", flat=True

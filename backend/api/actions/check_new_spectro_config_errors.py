@@ -40,13 +40,15 @@ def check_new_spectro_config_errors():
                 / settings.DATASET_SPECTRO_FOLDER
                 / conf_folder
             )
+
+            dataset_name = dataset.name.replace(" ", "_")
             # Search all sub folder, each sub folder have one metadata.csv
             for one_spectro_folder in os.scandir(conf_folder_path):
                 if one_spectro_folder.is_dir():
                     spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
                     with open(spectro_csv_path, encoding="utf-8") as csvfile:
                         for spectro in csv.DictReader(csvfile):
-                            name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
+                            name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}__{dataset_name}"
 
                             window_type = WindowType.objects.filter(
                                 name=spectro["window_type"]

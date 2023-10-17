@@ -313,7 +313,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
       datasets: dataset_id,
-      spectros: Object.keys(this.state.new_ac_spectros),
+      spectro_configs: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
       annotators: Object.keys(this.state.new_ac_annotators),

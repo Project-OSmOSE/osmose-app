@@ -1,6 +1,6 @@
 import os, glob
 from random import randint, choice, shuffle
-from datetime import datetime, timedelta
+from django.shortcuts import get_object_or_404from datetime import datetime, timedelta
 
 # TODO : Faker is a dev tool that shouldn't be needed in production
 # however currently start.sh calls this command indiscriminately so it fails
@@ -24,6 +24,7 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
+    SpectroConfig,
     AnnotationComment,
     AnnotationResult,
     News,
@@ -56,7 +57,6 @@ class Command(management.BaseCommand):
         self._create_datasets()
         self._create_annotation_sets()
         self._create_annotation_campaigns()
-        self._create_spectro_configs()
         self._create_annotation_results()
         self._create_comments()
         self._create_news()
@@ -159,6 +159,51 @@ class Command(management.BaseCommand):
                 annotation_set.tags.create(name=tag)
             self.annotation_sets[seed_set["name"]] = annotation_set
 
+    def _create_spectro_configs(self, name):
+
+        if WindowType.objects.last() is None:
+            window_type = WindowType.objects.create(name="Hamming")
+        else:
+            window_type = WindowType.objects.last()
+
+        dataset_name = self.dataset.name.replace(" ", "_")
+
+        if name == "4096_4096_90" :
+            spectro_config = SpectroConfig.objects.get_or_create(
+                name=f"{name}__{dataset_name}",
+                nfft=4096,
+                window_size=4096,
+                overlap=90,
+                zoom_level=3,
+                spectro_normalization="density",
+                data_normalization="0",
+                zscore_duration="0",
+                hp_filter_min_freq=0,
+                colormap="Blues",
+                dynamic_min=0,
+                dynamic_max=0,
+                window_type=window_type,
+                frequency_resolution=0,
+            )
+        else:
+            spectro_config = SpectroConfig.objects.get_or_create(
+                name=f"{name}__{dataset_name}",
+                nfft=2048,
+                window_size=1000,
+                overlap=90,
+                zoom_level=3,
+                spectro_normalization="density",
+                data_normalization="0",
+                zscore_duration="0",
+                hp_filter_min_freq=0,
+                colormap="Greens",
+                dynamic_min=0,
+                dynamic_max=0,
+                window_type=window_type,
+                frequency_resolution=0,
+            )
+        return spectro_config[0]
+
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
         campaigns = [
@@ -198,6 +243,7 @@ class Command(management.BaseCommand):
             },
         ]
         self.campaigns = []
+
         for campaign_data in campaigns:
             dataset = campaign_data.pop("dataset")
             campaign = AnnotationCampaign.objects.create(
