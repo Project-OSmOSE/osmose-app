@@ -1,11 +1,9 @@
 """ News DRF-Viewset file"""
-
+# pylint: disable=C0301,line-too-long
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-
-from drf_spectacular.utils import extend_schema
 
 from backend.api.models import News
 from backend.api.serializers import NewsSerializer
@@ -26,7 +24,6 @@ class NewsViewSet(viewsets.ViewSet):
         """List news"""
         serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data)
-
 
     def retrieve(self, request, pk=None):
         """Show a specific news"""
