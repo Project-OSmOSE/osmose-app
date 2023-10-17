@@ -13,6 +13,7 @@ import logoofb from '../../img/logo/logo_ofb.png';
 import logoisblue from '../../img/logo/logo_isblue3.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
+// const articles_data: any[] = [];
 // import articles_data from '../../articles_data2.js'; 
 const NEWS_URL = '/api/news/';
 
@@ -27,31 +28,36 @@ export const Home: React.FC = () => {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            // 'Referer': 'origin'
           }
         };
         try {
           const resp = await fetch(NEWS_URL, init);
-          console.log("response", resp);
-          tempCarouContent = await resp.json(); // BUG : ne récupère que la 1ere
-          // tempCarouContent = articles_data;
+          // console.log("response", resp);
+          // if(true){ //  LINE TO REMOVE
+          if(resp.ok){
+            tempCarouContent = await resp.json();
+            // tempCarouContent = articles_data; //  LINE TO REMOVE
+            // console.log("tempCarouContent : ", tempCarouContent);
+            setCarouContent(tempCarouContent);
+          }
+          else{
+            throw new Error(resp.status + " " + resp.statusText);
+          }
         } catch (err) {
           console.error('An error occured during data fetching');
           console.error(err);
         }
-        console.log("tempCarouContent : ", tempCarouContent);
-        setCarouContent(tempCarouContent);
       };
       fetchCarouContent();
     },
     []
   );
   if (carouContent?.length > 0){
-    console.log("carouContent is not empty");
+    // console.log("carouContent is not empty");
     recentArticles = carouContent.slice(0, 3);
   } else {
-    console.log("carouContent is empty");
-    recentArticles = []; // USE SPINNER
+    // console.log("carouContent is empty");
+    recentArticles = [];
   }
 
   return (

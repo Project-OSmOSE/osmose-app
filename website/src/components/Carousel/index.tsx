@@ -14,8 +14,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     }
     
     const content = articles.map((art, i) => {
-        // art.intro = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis iusto inventore nam quibusdam, distinctio velit, autem a omnis sed eveniet corporis tempore magnam facere voluptatibus, ad vitae officia natus nulla?";
-        // art.vignette = "https://picsum.photos/600/400";
         art.id = art?.id ?? "";
         art.title = art?.title ?? "";
         art.date = art?.date ?? "";
