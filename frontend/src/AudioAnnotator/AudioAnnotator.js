@@ -767,10 +767,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 >Submit &amp; load next recording</button>
               </OverlayTrigger>
             </div>
-            <div className="col-sm-4">
+
+
+            <div className="col-sm-3">
               <Toast toastMsg={this.state.toastMsg}></Toast>
             </div>
-            <p className="col-sm-3 text-right">
+            <p className="col-sm-2 text-right">
               {utils.formatTimestamp(this.state.currentTime)}
               &nbsp;/&nbsp;
               {utils.formatTimestamp(this.state.duration)}
