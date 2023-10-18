@@ -290,6 +290,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       return
     }
 
+    if (event.key === "ArrowLeft" && this.state.task.prevAndNextAnnotation.prev !== "") {
+      this.props.history.push('/audio-annotator/' + this.state.task.prevAndNextAnnotation.prev);
+    }
+
+    if (event.key === "ArrowRight" && this.state.task.prevAndNextAnnotation.next !== "") {
+      this.props.history.push('/audio-annotator/' + this.state.task.prevAndNextAnnotation.next);
+
+    }
+
     active_alphanumeric_keys.forEach((value, index) => {
       const tag = this.state.task.annotationTags[index];
 
@@ -679,18 +688,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         task.annotationScope === SCOPE_WHOLE && this.getCurrentTag() !== ''
       ));
 
-      const tooltip_submitAndSave = (
-        <div className="card">
-          <h3 className={`card-header tooltip-header`}>Shortcut</h3>
-          <div className="card-body p-1">
-            <p>
-              <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
-
-            </p>
-          </div>
-        </div>
-        )
-
       // Rendering
       return (
         <div className="annotator container-fluid">
@@ -758,14 +755,52 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               {playbackRateSelect}
             </p>
 
-            <div className="col-sm-3 text-center">
-              <OverlayTrigger overlay={tooltip_submitAndSave}>
-                <button
-                  className="btn btn-submit"
-                  onClick={this.checkAndSubmitAnnotations}
-                  type="button"
-                >Submit &amp; load next recording</button>
-              </OverlayTrigger>
+            <div className="col-sm-5 text-center">
+            <OverlayTrigger overlay={
+              <div className="card">
+                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
+                <div className="card-body p-1">
+                  <p>
+                    <span className="font-italic"><i className="fa fa-arrow-left"></i></span>{" : load previously recording"}<br/>
+                  </p>
+                </div>
+              </div>
+              }>
+              <Link className="btn btn-submit rounded-left rounded-right-0" disabled={this.state.task.prevAndNextAnnotation.prev === ""} to={this.state.task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ this.state.task.prevAndNextAnnotation.prev}`}>
+                <i className="fa fa-caret-left"></i>
+              </Link>
+            </OverlayTrigger>
+              <OverlayTrigger overlay={
+              <div className="card">
+                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
+                <div className="card-body p-1">
+                  <p>
+                    <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
+                  </p>
+                </div>
+              </div>
+              }>
+              <button
+                className="btn btn-submit border-radius-0"
+                onClick={this.checkAndSubmitAnnotations}
+                type="button"
+              >Submit &amp; load next recording</button>
+            </OverlayTrigger>
+            <OverlayTrigger overlay={
+              <div className="card">
+                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
+                <div className="card-body p-1">
+                  <p>
+                    <span className="font-italic"><i className="fa fa-arrow-right"></i></span>{" : load next recording"}<br/>
+                  </p>
+                </div>
+              </div>
+              }>
+              <Link className="btn btn-submit rounded-right rounded-left-0" disabled={this.state.task.prevAndNextAnnotation.next === ""}
+                to={this.state.task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${this.state.task.prevAndNextAnnotation.next}`}>
+                <i className="fa fa-caret-right"></i>
+              </Link>
+            </OverlayTrigger>
             </div>
 
 

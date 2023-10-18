@@ -163,6 +163,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         """AnnotationTask view 'retrieve' returns task data"""
         url = reverse("annotation-task-detail", kwargs={"pk": 1})
         response = self.client.get(url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             list(response.data.keys()),
@@ -176,6 +177,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "spectroUrls",
                 "prevAnnotations",
                 "annotationScope",
+                "prevAndNextAnnotation",
                 "task_comment",
             ],
         )
