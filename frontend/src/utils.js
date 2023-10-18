@@ -9,6 +9,8 @@ export function arrayToObject(array: Array<any>, key: any) {
   }, {});
 }
 
+export function divmod(x: number, y: number){ return [Math.floor(x / y), x % y]}
+
 // Object.values alternative for flow (cf https://github.com/facebook/flow/issues/2221)
 export function objectValues(obj: any): Array<any> {
   return Object.keys(obj).map(key => obj[key]);

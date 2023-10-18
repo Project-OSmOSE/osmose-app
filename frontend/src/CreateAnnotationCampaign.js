@@ -342,6 +342,30 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     const datasetOptions = utils.objectValues(this.state.dataset_choices).map(dataset => (
       <option key={`dataset-${dataset.id}`} value={dataset.id.toString()}>{dataset.name}</option>
     ));
+    let wanted_annotions_label
+    const total_annotator = Object.keys(this.state.new_ac_annotators).length
+    if (Object.keys(this.state.new_ac_datasets).length !== 0 && total_annotator !== 0) {
+      let file_count = this.state.new_ac_datasets[1].files_count
+      let total_goal = file_count*this.state.new_ac_annotation_goal
+      let annotator_goal, remainder, files_target
+      [annotator_goal, remainder] = utils.divmod(total_goal, total_annotator)
+      let total_files_by_annotator = []
+      let annotator_need_files = total_annotator
+      while(annotator_need_files > 0) {
+        files_target = annotator_goal
+        if (remainder > 0) {
+          files_target +=
+          remainder-=1
+        }
+        total_files_by_annotator[annotator_need_files-1] = files_target
+        annotator_need_files -= 1
+      }
+      const  sum_total_files_by_annotator = total_files_by_annotator.reduce((accumulator, currentValue) => { return accumulator + currentValue; })
+      const files_annotate_in_average = Math.round(sum_total_files_by_annotator / total_annotator)
+      wanted_annotions_label = `Each annotator will annotate at least ${files_annotate_in_average} files in the campaign (${Math.round(files_annotate_in_average/this.state.new_ac_datasets[1].files_count*100)}%), which contains ${this.state.new_ac_datasets[1].files_count} files in total`
+    } else {
+      wanted_annotions_label =""
+    }
 
     return (
       <div className="col-sm-9 border rounded">
@@ -416,10 +440,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
           </div>
 
           <div className="form-group row">
-            <label className="col-sm-5 col-form-label">Wanted number of annotations per file:</label>
+            <label className="col-sm-5 col-form-label">Wanted number of annotators per file:</label>
             <div className="col-sm-2">
               <input id="cac-annotation-goal" className="form-control" type="number" min={0} value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
             </div>
+            <p className="col-sm-5">{wanted_annotions_label}</p>
           </div>
 
           <div className="form-group row">
