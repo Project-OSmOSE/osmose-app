@@ -1026,23 +1026,35 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     return (
       <div className="row">
-        <div className="col-sm-8 mt-0 d-flex justify-content-around align-items-start">
-          <div className="col">
-            <div className="row">
+        <div className="col-sm-2">
+          <div className="row">
+            <div className="col-sm-12">
               {this.renderActiveBoxAnnotation()}
             </div>
-            <div className="row">
+            <div className="col-sm-12">
               {this.renderCommentCard()}
             </div>
           </div>
-          {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
+        <div className={isPresenceMode ? "col-sm-3" : "col-sm-6"}>
+          <div className="card">
+            <h6 className="card-header text-center">Tags list</h6>
+            <div className="card-body d-flex justify-content-between">
+              {this.renderTags()}
+            </div>
+          </div>
+        </div>
+        {isPresenceMode ? (
+          <div className="col-sm-3">
+            {this.presenceAbsentTagCheckbox()}
+          </div>
+        ) : null}
         <div className="col-sm-4">
           <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
             <table className="table table-hover rounded">
               <thead className="">
                 <tr className="text-center bg__black--003">
-                  <th colSpan="3">Annotations</th>
+                  <th colSpan="4">Annotations</th>
                 </tr>
               </thead>
               <tbody>
@@ -1189,7 +1201,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
   renderActiveBoxAnnotation = () => {
     const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
-    const tags = this.renderTags();
 
     if (activeAnn && this.state.task) {
       const ann: Annotation = activeAnn;
@@ -1202,54 +1213,29 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       }
 
       return (
-        <React.Fragment>
-          <div className="col-sm-2">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body d-flex justify-content-between">
-                  <p className="card-text">
-                  <i className="fas fa-clock-o"></i> :&nbsp;
-                    {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-                    {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
-                  <i className="fas fa-arrow-up"></i> :&nbsp;
-                    {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-                    {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-                    <i className="fas fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
-                </p>
-              </div>
-            </div>
+        <div className="card">
+          <h6 className="card-header text-center">Selected annotation</h6>
+          <div className="card-body d-flex justify-content-between">
+              <p className="card-text">
+              <i className="fas fa-clock-o"></i> :&nbsp;
+                {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
+              <i className="fas fa-arrow-up"></i> :&nbsp;
+                {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
+                <i className="fas fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+            </p>
           </div>
-
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
-              </div>
-            </div>
-          </div>
-        </React.Fragment>
+        </div>
       );
     } else {
       return (
-        <React.Fragment>
-          <div className="col-sm-2">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body">
-                <p className="card-text text-center">-</p>
-              </div>
-            </div>
+        <div className="card">
+          <h6 className="card-header text-center">Selected annotation</h6>
+          <div className="card-body">
+            <p className="card-text text-center">-</p>
           </div>
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
-              </div>
-            </div>
-          </div>
-        </React.Fragment>
+        </div>
       );
     }
   }
