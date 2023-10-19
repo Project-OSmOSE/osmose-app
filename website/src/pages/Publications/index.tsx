@@ -22,7 +22,7 @@ export const Publications: React.FC = () => {
               <strong>G. Dubus, M. Torterotot, P. N. H. Duc, J. Beesau, D. Cazau</strong> and O. Adam. Better quantifying inter-annotator variability: A step towards citizen science in underwater passive acoustics. <em>OCEANS 2023 - Limerick</em>, Limerick, Ireland, pp. 1-8.
             </li>
             <li>
-              <strong>Torterotot, M., Beesau</strong>, J., Perrier de la Bathie, C., & <strong>Samaran, F.</strong> (2022). Assessing marine mammal diversity in remote Indian Ocean regions, using an acoustic glider. <em>Deep Sea Research Part II: Topical Studies in Oceanography</em>, 206. <a href="https://doi.org/10.1016/j.dsr2.2022.105204" target="_blank" rel="noreferrer">Link</a>
+              <a href="https://doi.org/10.1016/j.dsr2.2022.105204" target="_blank" rel="noreferrer"><strong>Torterotot, M., Beesau</strong>, J., Perrier de la Bathie, C., & <strong>Samaran, F.</strong> (2022). Assessing marine mammal diversity in remote Indian Ocean regions, using an acoustic glider. <em>Deep Sea Research Part II: Topical Studies in Oceanography</em>, 206.</a>
             </li>
           </ul>
         </section>
@@ -32,10 +32,10 @@ export const Publications: React.FC = () => {
 
           <ul>
             <li>
-              <strong>Michel, M., Béesau, J., Torterotot, M., Samaran, F.</strong> (2023) Less is more? How the choice of a recording duty cycle could affect monitoring results of passive acoustic studies on cetaceans. <em>34th European Cetacean Society annual conference</em>, O’Grove, Spain. <a href="https://www.researchgate.net/publication/370637739_Less_is_more_How_the_choice_of_a_recording_duty_cycle_could_affect_monitoring_results_of_passive_acoustic_studies_on_cetaceans" target="_blank" rel="noreferrer">Link</a>
+              <a href="https://www.researchgate.net/publication/370637739_Less_is_more_How_the_choice_of_a_recording_duty_cycle_could_affect_monitoring_results_of_passive_acoustic_studies_on_cetaceans" target="_blank" rel="noreferrer"><strong>Michel, M., Béesau, J., Torterotot, M., Samaran, F.</strong> (2023) Less is more? How the choice of a recording duty cycle could affect monitoring results of passive acoustic studies on cetaceans. <em>34th European Cetacean Society annual conference</em>, O’Grove, Spain.</a>
             </li>
             <li>
-              <strong>Dupont, M., Béesau, J., Torterotot</strong>, M., Loirat, V., Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins' behaviour around fishing nets in bycatch context. <em>34th European Cetacean Society annual conference</em>, O’Grove, Spain. <a href="https://www.researchgate.net/publication/374088531_Using_passive_acoustic_to_better_understand_dolphins'_behaviour_around_fishing_nets_in_bycatch_context" target="_blank" rel="noreferrer">Link</a>
+              <a href="https://www.researchgate.net/publication/374088531_Using_passive_acoustic_to_better_understand_dolphins'_behaviour_around_fishing_nets_in_bycatch_context" target="_blank" rel="noreferrer"><strong>Dupont, M., Béesau, J., Torterotot</strong>, M., Loirat, V., Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins' behaviour around fishing nets in bycatch context. <em>34th European Cetacean Society annual conference</em>, O’Grove, Spain.</a>
             </li>
             <li>
               <strong>G. Dubus, M. Torterotot, P. N. H. Duc, J. Beesau, D. Cazau</strong> and O. Adam. Better quantifying inter-annotator variability: A step towards citizen science in underwater passive acoustics. <em>IEEE OCEANS</em> 2023. Limerick, Ireland.
