@@ -1,5 +1,6 @@
 import { Component, SyntheticEvent } from "react";
 import "./App.css";
+import './css/font-awesome-4.7.0.min.css';
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import AnnotationCampaignList from "./AnnotationCampaignList";
 import Login from "./Login";
@@ -8,6 +9,7 @@ import AnnotationTaskList from "./AnnotationTaskList";
 import EditAnnotationCampaign from "./EditAnnotationCampaign";
 import CreateAnnotationCampaign from "./CreateAnnotationCampaign";
 import DatasetList from "./DatasetList";
+import AudioAnnotator from "./AudioAnnotator/AudioAnnotator";
 
 type NavbarProps = {
   logout: (event: any) => void;
@@ -105,6 +107,7 @@ class App extends Component<void, AppState> {
       return (
         <Router basename="/app">
           <Switch>
+          <Route path='/audio-annotator/:annotation_task_id' render={route_props => <AudioAnnotator app_token={this.state.app_token} {...route_props} />} />
             <Route
               render={(route_props) => (
                 <OdeApp
