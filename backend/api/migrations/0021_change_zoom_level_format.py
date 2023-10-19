@@ -14,6 +14,7 @@ def change_zoom_level(apps, schema_editor):
             spectro.zoom_level = 0
         spectro.save()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

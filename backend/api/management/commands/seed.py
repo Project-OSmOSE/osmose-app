@@ -106,7 +106,7 @@ class Command(management.BaseCommand):
             )
             self.dataset.files.create(
                 filename=f"sound{k:03d}.wav",
-                filepath="audio/50h_0.wav",
+                filepath="data/audio/50h_0.wav",
                 size=58982478,
                 audio_metadatum=audio_metadatum,
             )
