@@ -1,6 +1,8 @@
 import { Component, SyntheticEvent } from "react";
 import "./App.css";
 import './css/font-awesome-4.7.0.min.css';
+import './css/materialize.min.css';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import AnnotationCampaignList from "./AnnotationCampaignList";
 import Login from "./Login";
