@@ -7,6 +7,7 @@ import AnnotationCampaignDetail from "./AnnotationCampaignDetail";
 import AnnotationTaskList from "./AnnotationTaskList";
 import EditAnnotationCampaign from "./EditAnnotationCampaign";
 import CreateAnnotationCampaign from "./CreateAnnotationCampaign";
+import DatasetList from "./DatasetList";
 
 type NavbarProps = {
   logout: (event: any) => void;
@@ -47,7 +48,8 @@ const OdeApp = (props: OdeAppProps) => (
     <div className="row text-left h-100 main">
       <Navbar logout={props.logout} />
       <Switch>
-        <Route exact path="/" render={() => <AnnotationCampaignList app_token={props.app_token} />} />
+        <Route exact path="/" render={() => <DatasetList app_token={props.app_token} />} />
+        <Route path='/datasets' render={() => <DatasetList app_token={props.app_token} />} />
         <Route path="/annotation-campaigns" render={() => <AnnotationCampaignList app_token={props.app_token} />} />
         <Route path='/create-annotation-campaign' render={route_props => <CreateAnnotationCampaign app_token={props.app_token} {...route_props} />} />
         <Route path='/annotation_tasks/:campaign_id' render={(route_props) => <AnnotationTaskList app_token={props.app_token} {...route_props} />} />
