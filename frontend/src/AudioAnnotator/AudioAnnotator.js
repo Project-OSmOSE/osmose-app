@@ -1025,59 +1025,33 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const sortedAnnotations: Array<Annotation> = this.state.annotations.sort(this.annotationSorter);
 
     return (
-      <React.Fragment>
-        <div className="row justify-content-around">
-          {this.renderActiveBoxAnnotation()}
+      <div className="row">
+        <div className="col-sm-8 mt-0 d-flex justify-content-around align-items-start">
+          <div className="col">
+            <div className="row">
+              {this.renderActiveBoxAnnotation()}
+            </div>
+            <div className="row">
+              {this.renderCommentCard()}
+            </div>
+          </div>
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
-        <div className="row justify-content-center">
-            <div className='mt-2 table__rounded shadow-double border__black--125'>
-              <table className="table table-hover rounded">
-                <thead className="">
-                  <tr className="text-center bg__black--003">
-                    <th colSpan="4">Annotations</th>
-                  </tr>
-                </thead>
-                  <tbody>
-                  {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
-                </tbody>
-              </table>
-          </div>
-          <div className="col-sm-2">
-              <div className="card">
-                <h6 className="card-header text-center">Comments</h6>
-              <div className="card-body">
-                <div className="row m-2">
-                  <textarea key="textAreaComments" id="commentInput" className="col-sm-10 comments"
-                    maxLength="255"
-                    rows="10"
-                    cols="10"
-                    value={this.state.currentComment.comment}
-                    onChange={this.handleCommentChange}
-                    onFocus={() => { this.setState({ inAModal: true }) }}
-                    onBlur={() => { this.setState({ inAModal: false }) }}
-                  ></textarea>
-                  <div className="input-group-append col-sm-2 p-0">
-                      <div className="btn-group-vertical">
-                      <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
-                          <i className="fas fa-check"></i>
-                      </button>
-                      <button className="btn btn-danger ml-0" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
-                        <i className="fas fa-broom"></i>
-                      </button>
-                      </div>
-                  </div>
-                </div>
-              </div>
-              <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
-                      onClick={() => { this.switchToTaskComment() }}
-              >
-                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
-                </button>
-              </div>
+        <div className="col-sm-4">
+          <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
+            <table className="table table-hover rounded">
+              <thead className="">
+                <tr className="text-center bg__black--003">
+                  <th colSpan="3">Annotations</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedAnnotations.map(annotation => this.renderAnnotationListItem(annotation))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -1145,6 +1119,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       );
     }
   }
+
   presenceAbsentTagCheckbox = () => {
     if (this.state.task) {
       // <li> tag checkbox generator
@@ -1325,6 +1300,42 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         </tr>
       );
     }
+  }
+
+  renderCommentCard = () => {
+    return (
+      <div className="card">
+        <h6 className="card-header text-center">Comments</h6>
+        <div className="card-body">
+          <div className="row m-2">
+            <textarea key="textAreaComments" id="commentInput" className="col-sm-10 comments"
+              maxLength="255"
+              rows="10"
+              cols="10"
+              value={this.state.currentComment.comment}
+              onChange={this.handleCommentChange}
+              onFocus={() => { this.setState({ inAModal: true }) }}
+              onBlur={() => { this.setState({ inAModal: false }) }}
+            ></textarea>
+            <div className="input-group-append col-sm-2 p-0">
+                <div className="btn-group-vertical">
+                <button className="btn btn-submit" onClick={()=>{this.submitCommentAndAnnotation()}}>
+                    <i className="fas fa-check"></i>
+                </button>
+                <button className="btn btn-danger ml-0" onClick={()=>{this.setState({currentComment:  Object.assign({}, this.state.currentComment, {comment: ""})})}}>
+                  <i className="fas fa-broom"></i>
+                </button>
+                </div>
+            </div>
+          </div>
+        </div>
+        <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
+                onClick={() => { this.switchToTaskComment() }}
+        >
+            Task Comment {this.state.task_comment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
+          </button>
+      </div>
+    )
   }
 
   renderUserGuideLink = () => {
