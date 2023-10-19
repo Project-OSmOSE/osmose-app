@@ -858,7 +858,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       .map(ann => Object.assign({}, ann, { id: newId + 1000 }))
 
     let annotations: Array<Annotation> = this.state.annotations
-      .filter(ann => ann.id !== newId + 1000)
+      .filter(ann => ann.id !== newId)
       .concat(anotherAnnotationsWithSameId)
 
     const annotationsWithNewId: Array<Annotation> = annotations
