@@ -25,14 +25,19 @@ export const Header: React.FC = () => {
         <li className="mx-5 mx-md-4 nav-item d-none pipe">
           <span className="nav-link navigation-link">|</span>
         </li>
+        <li className="mx-5 mx-md-4 nav-item">
+          <Link to="/people" className="nav-link navigation-link">People</Link>
+        </li>
+        <li className="mx-5 mx-md-4 nav-item d-none pipe">
+          <span className="nav-link navigation-link">|</span>
+        </li>
         <li className="mx-5 mx-md-4 nav-item dropdown">
           <p className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Team
+            Research
           </p>
             <ul className="dropdown-menu">
-              <Link to="/people" className="nav-link navigation-link">People</Link>
-              {/*<Link to="/project" className="nav-link navigation-link">Projects</Link>*/}
-               <Link to="/publications" className="nav-link navigation-link">Publications</Link>
+              <Link to="/projects" className="nav-link navigation-link">Projects</Link>
+              <Link to="/publications" className="nav-link navigation-link">Publications</Link>
             </ul>
         </li>
         <li className="mx-5 mx-md-4 nav-item d-none pipe">
