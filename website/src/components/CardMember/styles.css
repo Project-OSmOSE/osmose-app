@@ -4,8 +4,8 @@
 
 div.cardMember img{
     border-radius: 50%;
-    min-width: 10vh;
-    min-height: 10vh;
-    max-height: 20vh;
-    max-width: 20vh;
+    min-width: 15vh;
+    min-height: 15vh;
+    max-height: 25vh;
+    max-width: 25vh;
 }

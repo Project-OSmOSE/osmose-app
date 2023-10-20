@@ -1,7 +1,7 @@
 import React from 'react';
-// import { Link } from 'react-router-dom';
 
 import './styles.css';
+import defaultPortrait from '../../img/people/default_profil.png';
 
 export interface CardMemberProps {
 img?: string;
@@ -20,9 +20,12 @@ export const CardMember: React.FC<CardMemberProps> = ({
   name,
   job,
   url,
-  urlDesc,
+  urlDesc = 'Personal page',
   children
 }) => {
+  let classSide = 'order-md-0';
+  if (imgSide === 'right')
+    classSide = 'order-md-2';
 
   return (
   <div className="card cardMember my-5 border-0">
@@ -35,19 +38,16 @@ export const CardMember: React.FC<CardMemberProps> = ({
             <small className="text-muted">{job}</small>
           </p> : null}
           <div className="card-text">{children}</div>
-          {url && urlDesc ? <p className="card-text">
-            <a className="card-link" href={url}>{urlDesc}</a>
+          {url ? <p className="card-text">
+            <a className="card-link" href={url} target="_blank" rel="noreferrer">{urlDesc}</a>
           </p> : null}
         </div>
       </div>
 
-      {img && imgSide === 'left' ? <div className="col-md-4 d-flex align-items-center justify-content-center order-md-0">
-        <img className="card-img" src={img} alt={imgAlt} title={imgAlt} />
-      </div> : null}
-
-      {img && imgSide === 'right' ? <div className="col-md-4 d-flex align-items-center justify-content-center order-md-2">
-        <img className="card-img" src={img} alt={imgAlt} title={imgAlt} />
-      </div> : null}
+      {img 
+        ? <div className={"col-md-4 d-flex align-items-center justify-content-center "+classSide}> <img className="card-img" src={img} alt={imgAlt} title={imgAlt} /> </div> 
+        : <div className={"col-md-4 d-flex align-items-center justify-content-center "+classSide}> <img className="card-img" src={defaultPortrait} alt={imgAlt} title={imgAlt} /> </div>
+      }
 
     </div>
   </div>

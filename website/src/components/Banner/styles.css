@@ -1,22 +1,15 @@
 div.banner {
-    min-height: 20vh;
     position: relative;
     overflow: hidden;
     width: 100%;
-    /* background-color: darkcyan; */
     color: #fff;
     font-weight: 500;
     font-size: 1.4rem;
     margin: 2.5rem 0;
     padding: 0.5rem 1rem;
-    /* padding-right: 0; */
-    /* padding-left: 0; */
-    /* margin-right: 0; */
-    /* margin-left: 0; */
 }
 
 div.banner > *{
-    /* min-width: 200px; */
     margin: 2rem 1.5rem;
     text-align: center;
     /* -ms-flex: 1 1 auto !important;
@@ -26,5 +19,5 @@ div.banner > *{
 div.banner img, 
 div.banner picture {
     max-height: 100px;
-    /* width: 150px; */
+    width: 150px;
 }

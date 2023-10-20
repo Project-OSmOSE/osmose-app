@@ -2,8 +2,6 @@ import React from 'react';
 //- TODO  : fix error 404 on reload
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import './App.css';
-
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { News } from './pages/News';
