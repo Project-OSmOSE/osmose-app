@@ -2,6 +2,9 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
+
+from django.db import transaction
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -9,12 +12,20 @@ from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from backend.api.models import User, AnnotationCampaign, AnnotationTask
+from backend.api.models import (
+    User,
+    AnnotationCampaign,
+    AnnotationTask,
+    AnnotationComment,
+    AnnotationResult,
+)
 from backend.api.serializers import (
     AnnotationTaskSerializer,
     AnnotationTaskRetrieveSerializer,
     AnnotationTaskUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
+    AnnotationTaskOneResultUpdateSerializer,
+    AnnotationTaskResultSerializer,
 )
 
 
@@ -78,6 +89,13 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             "dataset_file__dataset",
             "dataset_file__dataset__spectro_configs",
             "dataset_file__dataset__audio_metadatum",
+            Prefetch(
+                "task_comments",
+                queryset=AnnotationComment.objects.filter(
+                    annotation_result=None, annotation_task=pk
+                ),
+                to_attr="task_comment",
+            ),
         )
         task = get_object_or_404(queryset, pk=pk)
         if task.status == 0:
@@ -92,8 +110,10 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     )
     def update(self, request, pk):
         """Update an annotation task with new results"""
+
         queryset = self.queryset.filter(annotator=request.user.id)
         task = get_object_or_404(queryset, pk=pk)
+
         update_serializer = AnnotationTaskUpdateSerializer(task, data=request.data)
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
@@ -113,3 +133,25 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
                 {"next_task": None, "campaign_id": task.annotation_campaign_id}
             )
         return Response({"next_task": next_task.id, "campaign_id": None})
+
+    @transaction.atomic
+    @extend_schema(
+        request=AnnotationTaskOneResultUpdateSerializer,
+        responses=AnnotationTaskUpdateOutputCampaignSerializer,
+    )
+    @action(detail=False, url_path="one-result/(?P<pk>[^/.]+)", methods=["put"])
+    def update_one_result(self, request, pk):
+        """Update an annotation task with new results"""
+
+        queryset = self.queryset.filter(annotator=request.user.id)
+        task = get_object_or_404(queryset, pk=pk)
+        request.data["annotations"] = [request.data["annotations"]]
+        update_serializer = AnnotationTaskOneResultUpdateSerializer(
+            task, data=request.data
+        )
+        update_serializer.is_valid(raise_exception=True)
+        task = update_serializer.save()
+
+        queryset = AnnotationResult.objects.latest("id")
+        serializer = AnnotationTaskResultSerializer(queryset)
+        return Response(serializer.data)

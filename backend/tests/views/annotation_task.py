@@ -167,6 +167,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(
             list(response.data.keys()),
             [
+                "id",
                 "campaignId",
                 "annotationTags",
                 "boundaries",
@@ -175,6 +176,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "spectroUrls",
                 "prevAnnotations",
                 "annotationScope",
+                "task_comment",
             ],
         )
         self.assertEqual(
@@ -225,6 +227,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                         "endTime": 50,
                         "startFrequency": 100,
                         "endFrequency": 200,
+                        "result_comments": None,
                     }
                 ],
                 "task_start_time": 10,

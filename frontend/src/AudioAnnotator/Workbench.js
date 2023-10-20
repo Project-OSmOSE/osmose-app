@@ -703,7 +703,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
     return (
       <Region
-        key={ann.id}
+        key={`${ann.id}${ann.result_comments.newAnnotation ? "-newann" : ""}`}
         annotation={ann}
         color={utils.getTagColor(this.props.tagColors, ann.annotation)}
         timePxRatio={this.state.timePxRatio}

@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Q, Prefetch
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -14,7 +14,12 @@ from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from backend.utils.renderers import CSVRenderer
-from backend.api.models import AnnotationCampaign, AnnotationResult, AnnotationTask
+from backend.api.models import (
+    AnnotationCampaign,
+    AnnotationResult,
+    AnnotationTask,
+    AnnotationComment,
+)
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveSerializer,
@@ -117,6 +122,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     @action(detail=True, renderer_classes=[CSVRenderer])
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
+        # pylint: disable=too-many-locals
         campaign = get_object_or_404(AnnotationCampaign, pk=pk)
         data = [
             [
@@ -131,8 +137,10 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "start_datetime",
                 "end_datetime",
                 "is_box",
+                "comments",
             ]
         ]
+
         results = AnnotationResult.objects.prefetch_related(
             "annotation_task",
             "annotation_task__annotator",
@@ -140,7 +148,16 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             "annotation_task__dataset_file__dataset",
             "annotation_task__dataset_file__audio_metadatum",
             "annotation_tag",
+            "result_comments",
         ).filter(annotation_task__annotation_campaign_id=pk)
+
+        task_comments = AnnotationComment.objects.prefetch_related(
+            "annotation_task"
+        ).filter(
+            Q(annotation_task__annotation_campaign_id=pk)
+            & Q(annotation_result__isnull=True)
+        )
+
         for result in results:
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
@@ -155,6 +172,13 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     and result.end_frequency is not None
                 )
             )
+            result_comments = result.result_comments.all()
+            if result_comments:
+                task = result.annotation_task
+                comment = f"{result_comments[0].comment} |- {task.annotator.username}"
+            else:
+                comment = ""
+
             data.append(
                 [
                     result.annotation_task.dataset_file.dataset.name,
@@ -173,8 +197,31 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
+                    comment,
                 ]
             )
+
+        for task_comment in task_comments:
+            task = task_comment.annotation_task
+            comment = f"{task_comment.comment} |- {task.annotator.username} : {task.annotator.email}"
+
+            data.append(
+                [
+                    task_comment.annotation_task.dataset_file.dataset.name,
+                    task_comment.annotation_task.dataset_file.filename,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    task_comment.annotation_task.annotator.username,
+                    "",
+                    "",
+                    "",
+                    comment,
+                ]
+            )
+
         response = Response(data)
         response[
             "Content-Disposition"

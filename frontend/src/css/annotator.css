@@ -49,7 +49,7 @@ html {
 .annotator-nav {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
 }
 .annotator-nav > span, .annotator-nav > li {
   padding: 10px 10px 0 10px;
@@ -596,4 +596,20 @@ div[class^='pulse-'] {
 .tooltip-wrap:hover .card{
   display: block !important;
   z-index: 1;
+}
+
+.comments{
+  min-height: 100px !important;
+}
+
+.presence-absence-columns{
+  columns: 2 auto;
+}
+
+.isActive{
+  background-color: rgba(0,0,0,.075) !important;
+}
+
+.btn.isActive{
+  color: var(--lt-color-gray-900) !important;
 }

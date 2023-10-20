@@ -27,6 +27,8 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
+    AnnotationComment,
+    AnnotationResult,
 )
 
 
@@ -58,6 +60,7 @@ class Command(management.BaseCommand):
         self._create_annotation_campaigns()
         self._create_spectro_configs()
         self._create_annotation_results()
+        self._create_comments()
 
     def _create_users(self):
         users = ["dc", "ek", "ja", "pnhd", "ad", "rv"]
@@ -72,6 +75,7 @@ class Command(management.BaseCommand):
             )
 
     def _create_datasets(self):
+        print(" ###### _create_datasets ######")
         dataset_type = DatasetType.objects.create(name="Coastal audio recordings")
         audio_metadatum = AudioMetadatum.objects.create(
             channel_count=1,
@@ -112,7 +116,7 @@ class Command(management.BaseCommand):
             )
 
     def _create_annotation_sets(self):
-        many_tags = []
+        print(" ###### _create_annotation_sets ######")
         sets = [
             {
                 "name": "Test SPM campaign",
@@ -140,6 +144,7 @@ class Command(management.BaseCommand):
             self.annotation_sets[seed_set["name"]] = annotation_set
 
     def _create_annotation_campaigns(self):
+        print(" ###### _create_annotation_campaigns ######")
         campaigns = [
             {
                 "name": "Test SPM campaign",
@@ -179,6 +184,7 @@ class Command(management.BaseCommand):
             self.campaigns.append(campaign)
 
     def _create_spectro_configs(self):
+        print(" ###### _create_spectro_configs ######")
         window_type = WindowType.objects.create(name="Hamming")
         spectro_config1 = self.dataset.spectro_configs.create(
             name="4096_4096_90",
@@ -218,12 +224,19 @@ class Command(management.BaseCommand):
             campaign.save()
 
     def _create_annotation_results(self):
+        print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
         tags = list(self.annotation_sets.values())[0].tags.values_list("id", flat=True)
         for user in self.users:
             done_files = randint(5, self.datafile_count - 5)
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
             for task in tasks:
+                if randint(1, 3) >= 2:
+                    AnnotationComment.objects.create(
+                        comment="a comment",
+                        annotation_task=task,
+                        annotation_result=None,
+                    )
                 for _ in range(randint(1, 5)):
                     start_time = randint(0, 600)
                     start_frequency = randint(0, 10000)
@@ -236,3 +249,15 @@ class Command(management.BaseCommand):
                     )
                 task.status = 2
                 task.save()
+
+    def _create_comments(self):
+        print(" ###### _create_comments ######")
+        results = AnnotationResult.objects.all()
+
+        for result in results:
+            if randint(1, 3) >= 2:
+                AnnotationComment.objects.create(
+                    comment=f"a comment : {result.annotation_tag.name}",
+                    annotation_task=result.annotation_task,
+                    annotation_result=result,
+                )

@@ -16,6 +16,7 @@ from backend.api.models.annotations import (
     AnnotationTag,
     AnnotationSet,
     AnnotationCampaign,
+    AnnotationComment,
     AnnotationResult,
     AnnotationSession,
     AnnotationTask,

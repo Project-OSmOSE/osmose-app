@@ -171,6 +171,30 @@ class AnnotationResult(models.Model):
     )
 
 
+class AnnotationComment(models.Model):
+    """
+    This table contains comment of annotation result and task.
+    """
+
+    class Meta:
+        db_table = "annotation_comment"
+
+    comment = models.CharField(max_length=255)
+    annotation_result = models.ForeignKey(
+        AnnotationResult,
+        on_delete=models.CASCADE,
+        related_name="result_comments",
+        null=True,
+        blank=True,
+        default=None,
+    )
+    annotation_task = models.ForeignKey(
+        AnnotationTask,
+        on_delete=models.CASCADE,
+        related_name="task_comments",
+    )
+
+
 class AnnotationSession(models.Model):
     """
     This table contains the AudioAnnotator sessions output linked to the annotation of a specific dataset file. There

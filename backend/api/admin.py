@@ -11,6 +11,7 @@ from backend.api.models import (
     AnnotationTag,
     AnnotationCampaign,
     AnnotationTask,
+    AnnotationComment,
     AnnotationResult,
     AnnotationSession,
     SpectroConfig,
@@ -42,31 +43,19 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
 
 class CollectionAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """Collection presentation in DjangoAdmin"""
 
     list_display = ("name", "desc", "owner")
 
 
 class DatasetTypeAdmin(admin.ModelAdmin):
-    """DatasetType presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """DatasetType presentation in DjangoAdmin"""
 
     list_display = ("name", "desc")
 
 
 class DatasetAdmin(admin.ModelAdmin):
-    """Dataset presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """Dataset presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -96,11 +85,7 @@ class DatasetAdmin(admin.ModelAdmin):
 
 
 class DatasetFileAdmin(admin.ModelAdmin):
-    """DatasetFile presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """DatasetFile presentation in DjangoAdmin"""
 
     list_display = (
         "filename",
@@ -113,21 +98,13 @@ class DatasetFileAdmin(admin.ModelAdmin):
 
 
 class AnnotationTagAdmin(admin.ModelAdmin):
-    """AnnotationTag presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationTag presentation in DjangoAdmin"""
 
     list_display = ["name"]
 
 
 class AnnotationSetAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationSet presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -141,12 +118,19 @@ class AnnotationSetAdmin(admin.ModelAdmin):
         return get_many_to_many(obj, "tags", "name")
 
 
-class AnnotationCampaignAdmin(admin.ModelAdmin):
-    """AnnotationCampaign presentation in DjangoAdmin
+class AnnotationCommentAdmin(admin.ModelAdmin):
+    """AnnotationSet presentation in DjangoAdmin"""
 
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    list_display = (
+        "id",
+        "comment",
+        "annotation_task",
+        "annotation_result",
+    )
+
+
+class AnnotationCampaignAdmin(admin.ModelAdmin):
+    """AnnotationCampaign presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -176,11 +160,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
 
 class AnnotationTaskAdmin(admin.ModelAdmin):
-    """AnnotationTask presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationTask presentation in DjangoAdmin"""
 
     list_display = (
         "status",
@@ -191,13 +171,10 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
 
 
 class AnnotationResultAdmin(admin.ModelAdmin):
-    """AnnotationResult presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationResult presentation in DjangoAdmin"""
 
     list_display = (
+        "id",
         "start_time",
         "end_time",
         "start_frequency",
@@ -208,11 +185,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
 
 
 class AnnotationSessionAdmin(admin.ModelAdmin):
-    """AnnotationSession presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationSession presentation in DjangoAdmin"""
 
     list_display = (
         "start",
@@ -223,11 +196,7 @@ class AnnotationSessionAdmin(admin.ModelAdmin):
 
 
 class AudioMetadatumAdmin(admin.ModelAdmin):
-    """AudioMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AudioMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "start",
@@ -244,11 +213,7 @@ class AudioMetadatumAdmin(admin.ModelAdmin):
 
 
 class GeoMetadatumAdmin(admin.ModelAdmin):
-    """GeoMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """GeoMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -259,21 +224,13 @@ class GeoMetadatumAdmin(admin.ModelAdmin):
 
 
 class WindowTypeAdmin(admin.ModelAdmin):
-    """WindowType presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """WindowType presentation in DjangoAdmin"""
 
     list_display = ("name",)
 
 
 class SpectroConfigAdmin(admin.ModelAdmin):
-    """SpectroConfig presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """SpectroConfig presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -305,11 +262,7 @@ class SpectroConfigAdmin(admin.ModelAdmin):
 
 
 class TabularMetadatumAdmin(admin.ModelAdmin):
-    """TabularMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -320,11 +273,7 @@ class TabularMetadatumAdmin(admin.ModelAdmin):
 
 
 class TabularMetadataVariableAdmin(admin.ModelAdmin):
-    """TabularMetadataVariable presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadataVariable presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -337,11 +286,7 @@ class TabularMetadataVariableAdmin(admin.ModelAdmin):
 
 
 class TabularMetadataShapeAdmin(admin.ModelAdmin):
-    """TabularMetadataShape presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadataShape presentation in DjangoAdmin"""
 
     list_display = (
         "dimension_position",
@@ -356,6 +301,7 @@ admin.site.register(DatasetFile, DatasetFileAdmin)
 admin.site.register(AnnotationTag, AnnotationTagAdmin)
 admin.site.register(AnnotationSet, AnnotationSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
+admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)
 admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)
