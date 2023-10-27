@@ -285,7 +285,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     if(this.state.inAModal) return
 
-    if (event.key === "Enter") {
+    if (event.code === "Space") {
+      event.preventDefault();
       this.checkAndSubmitAnnotations();
       return
     }
@@ -297,6 +298,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     if (event.key === "ArrowRight" && this.state.task.prevAndNextAnnotation.next !== "") {
       this.props.history.push('/audio-annotator/' + this.state.task.prevAndNextAnnotation.next);
 
+    }
+
+    if(event.key == "'") {
+      event.preventDefault();
     }
 
     active_alphanumeric_keys.forEach((value, index) => {
