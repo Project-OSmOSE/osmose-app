@@ -70,10 +70,11 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       const users = req_users.body
         .filter(user => existingAnnotators.findIndex(existing => existing === user.id) === -1)
         .map(user => { return { id: user.id, name: user.email }; });
+
       // Finally, set state
       this.setState({
         campaign_id: req_data.body.campaign.id,
-        annotator_choices: utils.arrayToObject(users, 'id'),
+        annotator_choices: utils.arrayToObject(users),
         isStaff: req_is_staff.body.is_staff,
       });
     }).catch(err => {

@@ -82,7 +82,7 @@ type CACProps = {
 type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
-  new_ac_datasets: choices_type,
+  new_ac_dataset: choices_type,
   new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
@@ -108,7 +108,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   state = {
     new_ac_name: '',
     new_ac_desc: '',
-    new_ac_datasets: {},
+    new_ac_dataset: {},
     new_ac_spectros: {},
     new_ac_start: '',
     new_ac_end: '',
@@ -134,9 +134,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     // This should be fixed in a future rework of API calls
     return Promise.all([
       this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav'});
+        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav' });
+
         this.setState({
-          dataset_choices: utils.arrayToObject(datasets, 'id')
+          dataset_choices: utils.arrayToObject(datasets)
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -149,8 +150,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         });
       }),
       this.getAnnotationSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+        const annotationSet = req.body
+
         this.setState({
-          annotation_set_choices: utils.arrayToObject(req.body, 'id')
+          annotation_set_choices: utils.arrayToObject(annotationSet)
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -164,8 +167,9 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       }),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         let users = req.body.map(user => { return { id: user.id, name: user.email }; });
+
         this.setState({
-          annotator_choices: utils.arrayToObject(users, 'id')
+          annotator_choices: users,
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -197,15 +201,15 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleDatasetChanged = (event: SyntheticInputEvent<HTMLSelectElement>) => {
-    let new_ac_datasets = {};
+    let new_ac_dataset = {};
     let spectro_choices = {};
     if (event.target.value !== '') {
       let dataset_id = parseInt(event.target.value, 10);
-      new_ac_datasets[dataset_id] = this.state.dataset_choices[dataset_id];
-      spectro_choices = utils.arrayToObject(new_ac_datasets[dataset_id].spectros, 'id');
+      new_ac_dataset[dataset_id] = this.state.dataset_choices[dataset_id];
+      spectro_choices = utils.arrayToObject(new_ac_dataset[dataset_id].spectros, 'id');
     }
     this.setState({
-      new_ac_datasets: new_ac_datasets,
+      new_ac_dataset: new_ac_dataset,
       spectro_choices: spectro_choices,
       new_ac_spectros: {},
     });
@@ -236,10 +240,15 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleAddAnnotator = (event: SyntheticEvent<HTMLInputElement>) => {
     let annotator_id = parseInt(event.currentTarget.value, 10);
+
     let annotator_choices = Object.assign({}, this.state.annotator_choices);
     let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-    new_ac_annotators[annotator_id] = annotator_choices[annotator_id];
-    delete annotator_choices[annotator_id];
+
+    let annotator_key= utils.findObjetKey(annotator_choices, annotator_id)
+
+    new_ac_annotators[annotator_key] = annotator_choices[annotator_key];
+    delete annotator_choices[annotator_key];
+
     let annotation_goal = Math.max(1, this.state.new_ac_annotation_goal);
     this.setState({
       new_ac_annotators: new_ac_annotators,
@@ -251,9 +260,13 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleRemoveAnnotator = (annotator_id: number) => {
     let annotator_choices = Object.assign({}, this.state.annotator_choices);
     let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-    annotator_choices[annotator_id] = new_ac_annotators[annotator_id];
-    delete new_ac_annotators[annotator_id];
+    let annotator_key = utils.findObjetKey(new_ac_annotators, annotator_id)
+
+    annotator_choices[annotator_key] = new_ac_annotators[annotator_key];
+    delete new_ac_annotators[annotator_key];
+
     let annotation_goal = Math.min(Object.keys(new_ac_annotators).length, this.state.new_ac_annotation_goal);
+
     this.setState({
       new_ac_annotators: new_ac_annotators,
       annotator_choices: annotator_choices,
@@ -294,11 +307,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
+    const dataset_id = [this.state.new_ac_dataset[Object.keys(this.state.new_ac_dataset)[0]]["id"]];
     this.setState({error: null});
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
-      datasets: Object.keys(this.state.new_ac_datasets),
+      datasets: dataset_id,
       spectros: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
@@ -344,8 +358,8 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     ));
     let wanted_annotators_label = "";
     const annotator_count = Object.keys(this.state.new_ac_annotators).length;
-    if (Object.keys(this.state.new_ac_datasets).length !== 0 && annotator_count !== 0) {
-      const file_count = this.state.new_ac_datasets[1].files_count;
+    if (Object.keys(this.state.new_ac_dataset).length !== 0 && annotator_count !== 0) {
+      const file_count = this.state.new_ac_dataset.files_count;
       let files_per_person = Math.floor(file_count * this.state.new_ac_annotation_goal / annotator_count);
       wanted_annotators_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;
     }

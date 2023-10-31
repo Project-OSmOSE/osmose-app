@@ -21,19 +21,28 @@ type ListChooserProps = {
 class ListChooser extends Component<ListChooserProps> {
   render() {
     let chosen_list = utils.objectValues(this.props.chosen_list).map(choice => {
-      return(
-        <div className="col-sm-3 text-center border rounded" key={choice.id}>
-          {choice.name} <button className="btn btn-danger" onClick={() => this.props.onDelClick(choice.id)}>x</button>
-        </div>
-      )
+      if (choice !== undefined) {
+        return (
+          <div className="col-sm-3 text-center border rounded" key={choice.id}>
+            {choice.name} <button className="btn btn-danger" onClick={() => this.props.onDelClick(choice.id)}>x</button>
+          </div>
+        )
+      } else {
+        return null
+      }
     });
 
     let select_choice;
     if (Object.keys(this.props.choices_list).length > 0) {
       let choices_list = utils.objectValues(this.props.choices_list).map(choice => {
-        return (
+        if (choice !== undefined) {
+          return (
           <option key={choice.id} value={choice.id}>{choice.name}</option>
-        );
+          );
+        } else {
+          return null
+        }
+
       });
       select_choice = (
         <div className="col-sm-3">

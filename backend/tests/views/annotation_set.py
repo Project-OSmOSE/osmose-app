@@ -35,9 +35,9 @@ class AnnotationSetViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), AnnotationSet.objects.count())
-        self.assertEqual(list(response.data[0].keys()), ["id", "name", "desc", "tags"])
-        self.assertEqual(response.data[0]["name"], "Test SPM campaign")
+        self.assertEqual(list(response.data[1].keys()), ["id", "name", "desc", "tags"])
+        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
         self.assertEqual(
-            response.data[0]["tags"],
+            response.data[1]["tags"],
             ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
         )

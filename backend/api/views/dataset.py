@@ -60,6 +60,8 @@ class DatasetViewSet(viewsets.ViewSet):
                 "No new data : Add new data in datasets.csv", status=400
             )
 
+        new_datasets.sort(key=lambda x: x["name"].lower())
+
         return Response(new_datasets)
 
     @action(detail=False, methods=["POST"])

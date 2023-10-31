@@ -300,7 +300,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     }
 
-    if(event.key == "'") {
+    if(event.key === "'") {
       event.preventDefault();
     }
 
