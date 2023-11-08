@@ -1,35 +1,60 @@
-# FrontApp [![Build Status](https://travis-ci.org/Project-ODE/FrontApp.svg?branch=master)](https://travis-ci.org/Project-ODE/FrontApp)
+# aplose-frontend
 
-Front-end Application sourcing data from FeatureService. It is a React application meant to manage datasets, launch annotation campaigns and annotate dataset files.
+See [global README file](../README.md) and [React + Vite-related documentation](../docs/react.md) for more documentation.
 
-For more information about what the application can do or how to use the annotator, see the [user guide](docs/user_guide_annotator.md).
+For more information about what the application can do or how to use the annotator, see the [user guide](../docs/user_guide_annotator.md).
 
-## Installation
+## Getting Started
 
-```sh
-npm install
+Run the development server:
+
+```bash
+npm run dev
 ```
 
-### Create a config env file:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```sh
-echo "REACT_APP_API_URL=http://localhost:7231/data.ode.org/v1" > .env.development.local
+## Libraries
+
+- [boostrap](https://getbootstrap.com/) - v5.3.2
+
+Bootstrap is used to easily improve the application design, and to allow developers who are not comfortable with CSS to easily contribute.
+
+```bash
+npm install bootstrap
 ```
 
-### Setting up development environment:
+Then, it must be imported into the application css:
 
-```sh
-# Let's make sure the DB is running
-docker start testdb
-# We can than start the FeatureService server in test mode (to access the test data)
-NODE_ENV=test node server.js -c config.test.yaml
+```css
+/* globals.css */
+@import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 ```
 
-## Useful commands:
+- [react-boostrap](https://react-bootstrap.netlify.app/) - v2.9.0
 
-```sh
-npm start
-npm test
+```bash
+npm install react-bootstrap
+```
+
+- [react-confirm](https://github.com/haradakunihiko/react-confirm) - v0.3.0
+
+```bash
+npm install react-confirm
+```
+
+- [superagent](https://github.com/ladjs/superagent) - v8.1.2
+
+```bash
+npm install superagent
+npm install --save-dev @types/superagent
+```
+
+- [uuid](https://github.com/uuidjs/uuid) - v9.0.1
+
+```bash
+npm install uuid
+npm install --save-dev @types/uuid
 ```
 
 ## Inspired by CrowdCurio

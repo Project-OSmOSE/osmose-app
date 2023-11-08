@@ -61,7 +61,7 @@ poetry run ./manage.py runserver
 cd frontend
 npm install
 # Run
-npm start
+npm run dev
 ```
 
 ### Testing
