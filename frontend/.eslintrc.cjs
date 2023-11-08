@@ -1,36 +1,18 @@
-{
-  "parser": "babel-eslint",
-  "settings": {
-    "react": {
-      "pragma": "React",
-      "version": "16.4.2",
-      "flowVersion": "0.77"
-    }
-  },
-  "plugins": [
-    "flowtype"
+module.exports = {
+  root: true,
+  env: { browser: true, es2020: true },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react-hooks/recommended',
   ],
-  "rules": {
-    "flowtype/define-flow-type": 1,
-    "flowtype/use-flow-type": 1
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh'],
+  rules: {
+    'react-refresh/only-export-components': [
+      'warn',
+      { allowConstantExport: true },
+    ],
   },
-  "parserOptions": {
-    "ecmaVersion": 7,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "impliedStrict": true,
-      "jsx": true
-    }
-  },
-  "env": {
-    "es6": true,
-    "node": true,
-    "worker": true,
-    "mocha": true,
-    "browser": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ]
 }

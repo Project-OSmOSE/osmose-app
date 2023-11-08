@@ -31,7 +31,7 @@ Then, it must be imported into the application css:
 @import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 ```
 
-- [react-boostrap](https://react-bootstrap.netlify.app/) - v2.9.0
+- [react-boostrap](https://react-bootstrap.netlify.app/) - v2.9.1
 
 ```bash
 npm install react-bootstrap
