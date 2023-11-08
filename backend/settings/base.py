@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
+    "tinymce",
 ]
 
 MIDDLEWARE = [
@@ -163,3 +164,12 @@ SPECTACULAR_SETTINGS = {
 
 # Fixtures location for testing
 FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
+
+# TINYMCE Configuration
+
+TINYMCE_DEFAULT_CONFIG = {
+    "height": "320px",
+    "width": "960px",
+    "plugins": "image",
+    "toolbar": "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",
+}

@@ -57,14 +57,8 @@ export const Header: React.FC = () => {
         <li className="mx-5 mx-md-4 nav-item">
           <a href={appUrl} className="nav-link navigation-link">Annotator</a>
         </li>
-        <li className="mx-5 mx-md-4 nav-item d-none pipe">
-          <span className="nav-link navigation-link">|</span>
-        </li>
-        <li className="mx-5 mx-md-4 nav-item">
-          <Link to="/News" className="nav-link navigation-link">News</Link>
-        </li>
-        <li className="mx-5 mx-md-4 nav-item d-none pipe">
-          <span className="nav-link navigation-link">|</span>
+        <li className="mx-5 mx-md-4">
+          <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
       </ul>
     </div>

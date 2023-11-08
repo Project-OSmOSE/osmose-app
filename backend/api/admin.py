@@ -3,6 +3,7 @@
 # pylint: disable=too-many-function-args, R0801
 from collections import OrderedDict
 from django.contrib import admin
+from django import forms
 
 from backend.api.models import (
     Dataset,
@@ -19,6 +20,7 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     WindowType,
+    News,
 )
 
 
@@ -40,6 +42,12 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
         many_to_many_attributs += f"{name_field}, "
 
     return " ".join(OrderedDict.fromkeys(many_to_many_attributs.split()))
+
+
+class NewItemsForm(forms.ModelForm):
+    """NewItem need a textarea form for intro field for UX"""
+
+    intro = forms.CharField(widget=forms.Textarea)
 
 
 class CollectionAdmin(admin.ModelAdmin):
@@ -295,6 +303,13 @@ class TabularMetadataShapeAdmin(admin.ModelAdmin):
     )
 
 
+class NewsAdmin(admin.ModelAdmin):
+    """News presentation in DjangoAdmin"""
+
+    form = NewItemsForm
+    list_display = ("title", "intro", "body", "date", "vignette")
+
+
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)
@@ -309,6 +324,7 @@ admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
 admin.site.register(SpectroConfig, SpectroConfigAdmin)
 admin.site.register(WindowType, WindowTypeAdmin)
+admin.site.register(News, NewsAdmin)
 
 
 # admin.site.register(Collection, CollectionAdmin)

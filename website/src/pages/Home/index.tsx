@@ -1,13 +1,18 @@
+import React from 'react';
+
 import { PageTitle } from '../../components/PageTitle';
 import { Card } from '../../components/Card';
 import { Banner } from '../../components/Banner';
+import { Carousel } from '../../components/Carousel';
 
+import './styles.css';
 import imgProject from '../../img/illust/pexels-elianne-dipp-4666753_1280_thin.jpg';
 import imgNutshell from '../../img/illust/640px-Petit_Minou_Lighthouse_(50691630801)_640_428.webp';
 import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.webp';
+import logoofb from '../../img/logo/logo_ofb.png';
+import logoisblue from '../../img/logo/logo_isblue3.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
-import logoofb from '../../img/logo/logo_ofb.png';
 import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';	
 import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
 import ubologo from '../../img/logo/logo-ubo.png';	
@@ -15,8 +20,50 @@ import labsticlogo from '../../img/logo/logo-lab-sticc.png';
 import iuemLogo from '../../img/logo/iuem.jpeg';
 import cebcLogo from '../../img/logo/cebc.png';
 
+const NEWS_URL = '/api/news/';
 
 export const Home: React.FC = () => {
+  let tempCarouContent: any[] = [];
+  const [carouContent, setCarouContent] = React.useState(tempCarouContent);
+  let recentArticles: any[];
+  React.useEffect(
+    () => {
+      const fetchCarouContent = async () => {
+        const init = {	
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          }
+        };
+        try {
+          const resp = await fetch(NEWS_URL, init);
+          // console.log("response", resp);
+          // if(true){ //  LINE TO REMOVE
+          if(resp.ok){
+            tempCarouContent = await resp.json();
+            // tempCarouContent = articles_data; //  LINE TO REMOVE
+            // console.log("tempCarouContent : ", tempCarouContent);
+            setCarouContent(tempCarouContent);
+          }
+          else{
+            throw new Error(resp.status + " " + resp.statusText);
+          }
+        } catch (err) {
+          console.error('An error occured during data fetching');
+          console.error(err);
+        }
+      };
+      fetchCarouContent();
+    },
+    []
+  );
+  if (carouContent?.length > 0){
+    // console.log("carouContent is not empty");
+    recentArticles = carouContent.slice(0, 3);
+  } else {
+    // console.log("carouContent is empty");
+    recentArticles = [];
+  }
 
   return (
 <div id="homepage">
@@ -30,6 +77,12 @@ export const Home: React.FC = () => {
       Open Science meets Ocean Sound Explorers
     </h1>
   </PageTitle>
+
+  <section className="container my-5">
+    <Carousel 
+      articles={recentArticles}
+    />
+  </section>
 
   <section className="container my-5">
     <Card
