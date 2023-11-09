@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
   <nav className="navbar navbar-expand-md navbar-light bg-light py-0" role="navigation">
 
     <Link id="to-home" className="navbar-brand logo d-flex align-items-center navigation-link" to="/">
-      <img src={logo} className="d-inline-block align-top" alt="" />
+      <img src={logo} className="d-inline-block align-top" alt="" width="50px" />
       <span>OSmOSE</span>
     </Link>
 

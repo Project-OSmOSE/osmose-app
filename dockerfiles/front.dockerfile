@@ -42,7 +42,10 @@ USER 0
 RUN apk --no-cache add shadow # needed to use usermod and groupmod
 RUN usermod -u $UID -o nginx
 RUN groupmod -g $GID -o nginx
-RUN find / -user 101 -exec chown -h nginx {} \;
-RUN find / -group 101 -exec chgrp -h nginx {} \;
+# We use prune because of the following error (unsure why this happened) :
+# find: /sys/devices/virtual/powercap/intel-rapl-mmio: Permission denied
+# find: /sys/devices/virtual/powercap/intel-rapl: Permission denied
+RUN find / -path "/sys/devices" -prune -user 101 -exec chown -h nginx {} \;
+RUN find / -path "/sys/devices" -prune -group 101 -exec chgrp -h nginx {} \;
 
 USER $UID
