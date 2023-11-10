@@ -3,7 +3,7 @@
 import csv
 import os
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from django.utils.dateparse import parse_datetime
 from django.db import transaction

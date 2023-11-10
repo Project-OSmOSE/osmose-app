@@ -36,6 +36,7 @@ class DatasetType(models.Model):
 
 
 class Dataset(models.Model):
+    # pylint: disable=duplicate-code
     """
     This table contains general metadata of the dataset as well as links to other metadata tables with more specific
     scopes.
