@@ -1,4 +1,5 @@
 """Annotation campaign DRF-Viewset test file"""
+from freezegun import freeze_time
 from datetime import datetime
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
@@ -60,7 +61,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "instructions_url": "string",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
-        "created_at": "2023-11-02T00:00:00Z",
+        "created_at": "2012-01-14T00:00:00Z",
         "annotation_set_id": 1,
         "datasets": [1],
         "spectros": [1],
@@ -185,7 +186,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # Testing 'create'
-
+    @freeze_time("2012-01-14 00:00:00", tz_offset=-4)
     def test_create(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
         old_count = AnnotationCampaign.objects.count()
@@ -205,10 +206,11 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "end",
                 "annotation_set_id",
                 "datasets",
+                "created_at",
             ]
         }
+
         expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        created_at = response.data.pop("created_at")
         self.assertEqual(dict(response.data), expected_reponse)
 
     # Testing 'add_annotators'
