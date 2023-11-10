@@ -68,6 +68,7 @@ class DatasetAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "desc",
+        "created_at",
         "dataset_path",
         "dataset_conf",
         "status",
@@ -143,6 +144,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "desc",
+        "created_at",
         "instructions_url",
         "start",
         "end",

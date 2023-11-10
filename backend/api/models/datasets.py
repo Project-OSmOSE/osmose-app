@@ -52,6 +52,7 @@ class Dataset(models.Model):
     def __str__(self):
         return str(self.name)
 
+    created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     dataset_path = models.CharField(max_length=255)
@@ -65,7 +66,6 @@ class Dataset(models.Model):
     files_type = models.CharField(max_length=255)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(null=True, blank=True)
 
     audio_metadatum = models.ForeignKey(
         "AudioMetadatum", on_delete=models.CASCADE, null=True, blank=True

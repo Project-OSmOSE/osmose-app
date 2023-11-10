@@ -59,12 +59,12 @@ class AnnotationCampaign(models.Model):
     def __str__(self):
         return str(self.name)
 
+    created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     instructions_url = models.TextField(null=True, blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(null=True, blank=True)
 
     annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset")

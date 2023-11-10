@@ -88,7 +88,6 @@ def datawork_import(*, wanted_datasets, importer):
             audio_metadatum=audio_metadatum,
             geo_metadatum=geo_metadatum,
             owner=importer,
-            created_at=datetime.today(),
         )
         created_datasets.append(curr_dataset.id)
 
