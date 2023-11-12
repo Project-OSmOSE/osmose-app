@@ -4,7 +4,6 @@ import {Parser} from "html-to-react";
 
 import {CardArticle} from "../../components/CardArticle";
 
-// import articles_data from '../../articles_data2.js'; 
 const NEWS_API_URL = '/api/news/';
 interface SingleNewsProps {
   id?: string,
@@ -36,14 +35,9 @@ export const SingleNews: React.FC = () => {
           }
         };
         try {
-          // console.log("urlParams : ", urlParams);
           const resp = await fetch(NEWS_API_URL+urlParams.id, init);
-          // console.log("response : ", resp);
-          // if (true){ // LINE TO REMOVE
           if (resp.ok){
             tempArticle = await resp.json();
-            // tempArticle = articles_data[0]; // LINE TO REMOVE
-            // console.log("tempArticle : ", tempArticle);
             setArticle(tempArticle);
           }
           else{

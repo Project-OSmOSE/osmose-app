@@ -51,12 +51,8 @@ export const News: React.FC = () => {
         };
         try {
           const resp = await fetch(NEWS_URL, init);
-          // console.log("response", resp);
-          // if (true){ // LINE TO REMOVE
           if (resp.ok){
             tempNews = await resp.json();
-            // tempNews = articles_data; // LINE TO REMOVE
-            // console.log("tempNews : ", tempNews);
             setNews(tempNews);
           }
           else{
@@ -72,16 +68,14 @@ export const News: React.FC = () => {
     []
   );
   if (news?.length){
-    console.log("news is not empty");
     totalArticleNb = news.length;
     content = generateContent(news.slice(articleStart, articleStart+pageSize));
   } else {
-    console.log("news is empty");
-    content = ""; // USE SPINNER ?
+    content = "";
   }
 
   return (
-    <div id="news">
+    <div id="news-page">
       <PageTitle img={imgTitle} imgAlt="News Banner">
         <h1 className="align-self-center">
           NEWS
