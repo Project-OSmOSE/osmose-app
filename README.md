@@ -4,12 +4,12 @@
 [![Code style: black][black-badge]][black-link]
 [![][coverage-badge]][coverage-link]
 
-[ci-badge]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml/badge.svg
-[ci-link]: https://github.com/Project-ODE/osmose-app/actions/workflows/continuous-integration.yml
+[ci-badge]: https://github.com/Project-OSmOSE/osmose-app/actions/workflows/continuous-integration.yml/badge.svg
+[ci-link]: https://github.com/Project-OSmOSE/osmose-app/actions/workflows/continuous-integration.yml
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
 [black-link]: https://github.com/psf/black
-[coverage-badge]: https://project-ode.github.io/osmose-app/coverage/badge.svg
-[coverage-link]: https://project-ode.github.io/osmose-app/coverage
+[coverage-badge]: https://Project-OSmOSE.github.io/osmose-app/coverage/badge.svg
+[coverage-link]: https://Project-OSmOSE.github.io/osmose-app/coverage
 
 ## Deployment
 

@@ -1,13 +1,17 @@
+import React from 'react';
+
 import { PageTitle } from '../../components/PageTitle';
 import { Card } from '../../components/Card';
 import { Banner } from '../../components/Banner';
+import { Carousel } from '../../components/Carousel';
 
-import imgProject from '../../img/illust/pexels-elianne-dipp-4666753_1280_thin.jpg';
-import imgNutshell from '../../img/illust/640px-Petit_Minou_Lighthouse_(50691630801)_640_428.webp';
+import './styles.css';
+import imgTitle from '../../img/illust/dolphin_1920_thin.webp';
+import imgGlider from '../../img/illust/glider_640.webp';
 import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.webp';
+import logoofb from '../../img/logo/logo_ofb.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
-import logoofb from '../../img/logo/logo_ofb.png';
 import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';	
 import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
 import ubologo from '../../img/logo/logo-ubo.png';	
@@ -15,16 +19,52 @@ import labsticlogo from '../../img/logo/logo-lab-sticc.png';
 import iuemLogo from '../../img/logo/iuem.jpeg';
 import cebcLogo from '../../img/logo/cebc.png';
 
+const NEWS_URL = '/api/news/';
 
 export const Home: React.FC = () => {
+  let tempCarouContent: any[] = [];
+  const [carouContent, setCarouContent] = React.useState(tempCarouContent);
+  let recentArticles: any[];
+  React.useEffect(
+    () => {
+      const fetchCarouContent = async () => {
+        const init = {	
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          }
+        };
+        try {
+          const resp = await fetch(NEWS_URL, init);
+          if(resp.ok){
+            tempCarouContent = await resp.json();
+            setCarouContent(tempCarouContent);
+          }
+          else{
+            throw new Error(resp.status + " " + resp.statusText);
+          }
+        } catch (err) {
+          console.error('An error occured during data fetching');
+          console.error(err);
+        }
+      };
+      fetchCarouContent();
+    },
+    []
+  );
+  if (carouContent?.length > 0){
+    recentArticles = carouContent.slice(0, 3);
+  } else {
+    recentArticles = [];
+  }
 
   return (
 <div id="homepage">
 
   <PageTitle
-  img={imgProject}
-  imgAlt="Meet Banner"
-  // imgSet=""
+    img={imgTitle}
+    imgAlt="Homepage Banner"
+    // imgSet=""
   >
     <h1>
       Open Science meets Ocean Sound Explorers
@@ -32,18 +72,23 @@ export const Home: React.FC = () => {
   </PageTitle>
 
   <section className="container my-5">
+    <Carousel 
+      articles={recentArticles}
+    />
+  </section>
+
+  <section className="container my-5">
     <Card
-    title="In a nutshell"
-    img={imgNutshell}
-    imgSide="right"
-    // imgAlt="Groupe de dauphins"
-    // subtitle=""
-    url="/people"
-    urlDesc="Learn more about our team."
+      title="In a nutshell"
+      img={imgGlider}
+      imgSide="right"
+      imgAlt="Glider"
+      // subtitle=""
+      url="/people"
+      // urlDesc="Learn more about our team."
     >
       <p>
-      OSmOSE (Open Science meets Ocean Sound Explorers) is a multi-institutional research consortium addressing underwater passive acoustics methodological questions within projects dedicated to ocean sustainability. <br/>
-      OSmOSE, composed of marine biologists, acousticians, data scientists and computer professionals, was launched in Brest (France) in 2018.
+        Hello, we are OSmOSE ; a consortium of data scientists and ocean researchers developing open source tools and services for underwater passive acoustics. It all started in Brest (French Brittany) in 2018, with the diagnosis that our community was lacking a common ground to compare our methods and highlight our results. To address this situation, our data processing tools aim to standardize and provide easy access to various routine tasks, from manual annotation to related AI workflows for detection and classification of sounds events. This is the cornerstone of most underwater passive acoustic applications.
       </p>
     </Card>
   </section>
@@ -65,29 +110,28 @@ export const Home: React.FC = () => {
 
   <section className="container my-5">
     <Card
-    title="Our missions"
-    img={imgMissions}
-    imgSide="left"
-    imgAlt="Groupe de dauphins"
-    // subtitle=""
-    // url=""
-    // urlDesc=""
+      title="Our missions"
+      img={imgMissions}
+      imgSide="left"
+      imgAlt="Groupe de dauphins"
+      // subtitle=""
+      // url=""
+      // urlDesc=""
     >
+      <strong>Technology development</strong> 
+      <ul>
+        <li> create open-source standalone analysis tools </li> 
+        <li> integrate our tools in workflows hosted in a sustainable collaborative platform </li>
+      </ul>
 
-        <strong>Technology development</strong> 
-        <ul>
-          <li>create open-source standalone analysis tools </li> 
-          <li> integrate our tools in workflows hosted in a sustainable collaborative platform </li>
-        </ul>
-
-        <strong>Scientific expertise</strong>
-        <ul>
-          <li> build a scientific community and assist the members in the use of data science technologies</li>
-          <li> facilitate collaborative interactions between members</li>
-          <li>build a scientific community and assist  members in the use of our tools</li>
-          <li> perform meta-analysis, disseminated via reviewed reports</li>
-          <li> provide consulting expertise for various conservation organizations </li>
-        </ul>
+      <strong>Scientific expertise</strong>
+      <ul>
+        <li> build a scientific community and assist the members in the use of data science technologies</li>
+        <li> facilitate collaborative interactions between members</li>
+        <li> build a scientific community and assist  members in the use of our tools</li>
+        <li> perform meta-analysis, disseminated via reviewed reports</li>
+        <li> provide consulting expertise for various conservation organizations </li>
+      </ul>
     </Card>
   </section>
 
@@ -112,16 +156,16 @@ export const Home: React.FC = () => {
 
   <section className="container my-5">
     <Card
-    title="Our values"
-    img={logoFAIR}
-    imgSide="right"
-    // imgAlt=""
-    // subtitle=""
-    // url=""
-    // urlDesc=""
+      title="Our values"
+      img={logoFAIR}
+      imgSide="right"
+      // imgAlt=""
+      // subtitle=""
+      // url=""
+      // urlDesc=""
     >
       <p>
-      We work towards applying open science / FAIR principles to underwater passive acoustics.
+        We work towards applying open science / FAIR principles to underwater passive acoustics.
       </p>
 
       <blockquote className="text-center">

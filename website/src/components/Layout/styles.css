@@ -1,8 +1,6 @@
-div.layout {
-  text-align: left;
+div#layout {
   min-height: 100vh;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
 }

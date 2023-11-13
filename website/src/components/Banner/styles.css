@@ -19,5 +19,5 @@ div.banner > *{
 div.banner img, 
 div.banner picture {
     max-height: 100px;
-    width: 150px;
+    max-width: 150px;
 }

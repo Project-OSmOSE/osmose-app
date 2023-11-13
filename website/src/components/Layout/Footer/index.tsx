@@ -5,7 +5,7 @@ import ifremer from '../../../img/logo/logo_ifremer_blanc_267_250.webp';
 
 export const Footer: React.FC = () => {
   return (
-<footer className="footer d-flex flex-wrap flex-column flex-md-row justify-content-around align-items-center py-5">
+<footer id="main-footer" className="footer d-flex flex-wrap flex-column flex-md-row justify-content-around align-items-center py-5">
     <p className="m-3">
       Powered by <br/>
       <img src={ifremer} alt="Ifremer logo"/>
@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
       OSmOSE <a href="/humans.txt" title="Full credits"> credits</a>, <br /> GPL-3.0, 2021
     </p>
     <p className="m-3">
-      <a href="https://github.com/Project-ODE">GitHub</a>
+      <a href="https://github.com/Project-OSmOSE">GitHub</a>
     </p>
 </footer>
   );

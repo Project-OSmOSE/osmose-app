@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+# pylint: disable-next=line-too-long
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -28,6 +30,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
+    "tinymce",
 ]
 
 MIDDLEWARE = [
@@ -163,3 +166,12 @@ SPECTACULAR_SETTINGS = {
 
 # Fixtures location for testing
 FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
+
+# TINYMCE Configuration
+
+TINYMCE_DEFAULT_CONFIG = {
+    "height": "320px",
+    "width": "960px",
+    "plugins": "image",
+    "toolbar": "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",
+}
