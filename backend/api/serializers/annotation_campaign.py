@@ -194,7 +194,6 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             annotation_scope=validated_data["annotation_scope"],
             owner_id=validated_data["owner_id"],
             instructions_url=validated_data.get("instructions_url"),
-            created_at=datetime.today(),
         )
         campaign.save()
         campaign.datasets.set(validated_data["datasets"])
