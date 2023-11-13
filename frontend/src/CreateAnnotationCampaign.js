@@ -342,12 +342,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     const datasetOptions = utils.objectValues(this.state.dataset_choices).map(dataset => (
       <option key={`dataset-${dataset.id}`} value={dataset.id.toString()}>{dataset.name}</option>
     ));
-    let wanted_annotions_label = "";
+    let wanted_annotators_label = "";
     const annotator_count = Object.keys(this.state.new_ac_annotators).length;
     if (Object.keys(this.state.new_ac_datasets).length !== 0 && annotator_count !== 0) {
       const file_count = this.state.new_ac_datasets[1].files_count;
       let files_per_person = Math.floor(file_count * this.state.new_ac_annotation_goal / annotator_count);
-      wanted_annotions_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;
+      wanted_annotators_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;
     }
 
     return (
@@ -427,7 +427,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
             <div className="col-sm-2">
               <input id="cac-annotation-goal" className="form-control" type="number" min={0} value={this.state.new_ac_annotation_goal} onChange={this.handleAnnotationGoalChange} />
             </div>
-            <p className="col-sm-5">{wanted_annotions_label}</p>
+            <p className="col-sm-5">{wanted_annotators_label}</p>
           </div>
 
           <div className="form-group row">
