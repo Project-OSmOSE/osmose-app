@@ -9,9 +9,8 @@ from django.conf import settings
 
 class ConfidenceIndicatorSet(models.Model):
     """
-    This table contains collections of confidence_indicator to be used for dataset annotations.
-    An annotation_set is created by a user
-    and can be used for multiple annotation campaigns.
+    This table contains collections of confidence indicator to be used for annotation campaign.
+    An confidence indicator set is created by a staff user.
     """
 
     class Meta:
@@ -23,12 +22,19 @@ class ConfidenceIndicatorSet(models.Model):
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
 
+    @property
+    def max_level(self):
+        """Give the max level among confidence indicators"""
+        return max(
+            self.confidence_indicators.all(),
+            key=lambda x: x.level,
+        ).level
+
 
 class ConfidenceIndicator(models.Model):
     """
-    This table contains confidenceIndicator to be used for dataset annotations.
-    An ConfidenceIndicatorSet is created by a user
-    and can be used for multiple annotation campaigns.
+    This table contains confidence indicator in which are used to constitute confidence indicator set and serve
+    to annotate files for annotation campaign.
     """
 
     class Meta:
@@ -72,7 +78,8 @@ class AnnotationTag(models.Model):
 
 class AnnotationSet(models.Model):
     """
-    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    This table contains collections of tags to be used for dataset annotations.
+    An annotation_set is created by a staff user
     and can be used for multiple datasets and annotation campaigns.
     """
 

@@ -13,7 +13,7 @@ except ImportError:
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
-
+from django.utils import timezone
 from django.contrib.auth.models import User
 from backend.api.models import (
     DatasetType,
@@ -48,7 +48,7 @@ class Command(management.BaseCommand):
             return
 
         # Cleanup
-        # management.call_command("flush", verbosity=0, interactive=False)
+        management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         self.faker = Faker()
@@ -169,7 +169,7 @@ class Command(management.BaseCommand):
 
         confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
-            desc="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non elit rhoncus augue rhoncus eleifend ut in magna. Phasellus tristique, ante in tempus porttitor, nunc massa euismod ipsum, quis pulvinar libero ante vitae sapien. Vivamus eu elit et urna luctus luctus. Quisque vel erat suscipit, tincidunt lectus ultrices, tempus quam. Suspendisse metus sapien, euismod in felis eget, finibus scelerisque ante.",
+            desc=self.faker.paragraph(nb_sentences=5),
         )
 
         confidence_0 = ConfidenceIndicator.objects.create(
@@ -223,6 +223,15 @@ class Command(management.BaseCommand):
                 "annotation_scope": 2,
                 "dataset": self.dataset_2,
             },
+            {
+                "name": "Test SPM campaign No Confidence",
+                "desc": "Test annotation campaign with many tags",
+                "start": timezone.make_aware(datetime.strptime("2012-06-22", "%Y-%m-%d")),
+                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
+                "annotation_set": self.annotation_sets["Test SPM campaign"],
+                "annotation_scope": 2,
+                "dataset": self.dataset_2,
+            },
         ]
         self.campaigns = []
         for campaign_data in campaigns:
@@ -232,7 +241,8 @@ class Command(management.BaseCommand):
                 owner=self.admin,
                 confidence_indicator_set=confidenceIndicatorSet,
             )
-            campaign.datasets.add(dataset)
+
+            campaign.datasets.add(self.dataset)
             for file in dataset.files.all():
                 for user in self.users:
                     campaign.tasks.create(dataset_file=file, annotator=user, status=0)

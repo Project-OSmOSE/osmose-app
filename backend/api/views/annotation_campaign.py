@@ -176,17 +176,19 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
 
         for result in results:
 
+            confidence_indicator_and_lvl_max = ""
             if campaign.confidence_indicator_set is not None:
-                lvl_max = max(
-                    campaign.confidence_indicator_set.confidence_indicators.all(),
-                    key=lambda x: x.level,
-                ).level
-                confidence_indicator_and_lvl_max = (
-                    str(result.confidence_indicator.level) + "/" + str(lvl_max)
-                )
-            else:
-                confidence_indicator_and_lvl_max = ""
 
+                confidence_indicator_and_lvl_max = (
+                    str(result.confidence_indicator.level)
+                    + "/"
+                    + str(campaign.confidence_indicator_set.max_level)
+                )
+            confidence_indicator_label = (
+                result.confidence_indicator.label
+                if result.confidence_indicator is not None
+                else ""
+            )
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
             max_time = (audio_meta.end - audio_meta.start).seconds
@@ -225,9 +227,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
-                    result.confidence_indicator.label
-                    if result.confidence_indicator is not None
-                    else "",
+                    confidence_indicator_label,
                     confidence_indicator_and_lvl_max,
                     comment,
                 ]

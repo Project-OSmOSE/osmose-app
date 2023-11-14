@@ -138,7 +138,6 @@ type AudioAnnotatorState = {
   currentDefaultTagAnnotation: string,
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
-  showConfidenceIndicatorSetDescription: boolean,
   currentComment: string,
   task_comment: {
     annotation_result: number,
@@ -177,7 +176,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       currentDefaultTagAnnotation: '',
       inAModal: false,
       checkbox_isChecked:  [],
-      showConfidenceIndicatorSetDescription: false,
       currentComment: { comment: "" },
     };
   }
@@ -272,6 +270,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             newComment = task_comment
           }
 
+          const defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.defaultConfidenceIndicator[0] === undefined ? null : task.confidenceIndicatorSet.defaultConfidenceIndicator[0].label;
           // Finally, setting state
           this.setState({
             tagColors: utils.buildTagColors(task.annotationTags),
@@ -282,7 +281,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             error: undefined,
             annotations,
             checkbox_isChecked:  checkbox_isChecked,
-            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.defaultConfidenceIndicator[0].label,
+            currentDefaultConfidenceIndicator: defaultConfidenceIndicatorLabel,
             currentComment: newComment,
             task_comment: task_comment,
           });
@@ -1311,14 +1310,21 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
-  toggleShowConfidenceIndicatorSetDescription = () => {
-    this.setState({showConfidenceIndicatorSetDescription: !this.state.showConfidenceIndicatorSetDescription})
-  }
-
   renderConfidenceIndicator = () => {
-    if (this.state.task) {
+    if (this.state.task && this.state.currentDefaultConfidenceIndicator !== null) {
 
-      const activeConfidenceIndicator= this.state.currentDefaultConfidenceIndicator;
+      const activeConfidenceIndicator = this.state.currentDefaultConfidenceIndicator;
+      const tooltip = (
+        <div className="card w-50">
+          <h3 className={`card-header p-2 tooltip-header`}>Description</h3>
+          <div className="card-body p-1">
+            <p>
+            {this.state.task.confidenceIndicatorSet.desc}
+              </p>
+          </div>
+        </div>
+      )
+
       const confidenceIndicators = this.state.task.confidenceIndicatorSet.confidenceIndicators.map((confidenceIndicator, idx) => {
 
         return (
@@ -1334,17 +1340,16 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         });
 
       return (
-        <React.Fragment>
-          <div className=" d-flex justify-content-center">
-            <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+        <OverlayTrigger overlay={tooltip} arrowprops={"top"}>
+          <div className="card">
+              <h6 className="card-header text-center">Confidence indicator</h6>
+              <div className="card-body">
+                <div className=" d-flex justify-content-center">
+                  <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+                </div>
+            </div>
           </div>
-          <div className={`row justify-content-center p-2 ${this.state.showConfidenceIndicatorSetDescription ? "" : "d-none"}`}>
-            {this.state.showConfidenceIndicatorSetDescription ?
-              this.state.task.confidenceIndicatorSet.desc
-              : ''
-            }
-          </div>
-            </React.Fragment>
+        </OverlayTrigger>
         );
 }
     else {
@@ -1358,7 +1363,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   renderActiveBoxAnnotation = () => {
     const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
     const tags = this.renderTags();
-    const confidenceIndicators = this.renderConfidenceIndicator();
 
     if (activeAnn && this.state.task) {
       const ann: Annotation = activeAnn;
@@ -1396,15 +1400,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </div>
 
           {/* Confidence Indicator management */}
-            <div className="card"
-              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
-              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
-              <h6 className="card-header text-center">Confidence indicator</h6>
-              <div className="card-body">
-                {confidenceIndicators}
-              </div>
-            </div>
-          </div>
+            {this.renderConfidenceIndicator()}
+        </div>
         </React.Fragment>
       );
     } else {
@@ -1426,14 +1423,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               </div>
 
             {/* Confidence Indicator management */}
-            <div className="card"
-              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
-              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
-                <h6 className="card-header text-center">Confidence indicator</h6>
-                <div className="card-body">
-                    {this.renderConfidenceIndicator()}
-                </div>
-            </div>
+            {this.renderConfidenceIndicator()}
+
+
           </div>
         </React.Fragment>
       );

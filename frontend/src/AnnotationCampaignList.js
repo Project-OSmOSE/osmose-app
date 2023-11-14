@@ -10,7 +10,7 @@ type confidence_indicator_set_type = {
   name: string,
   desc: string,
   confidence_indicators: Array<string>,
-  default_confidence_indicators: number,
+  default_confidence_indicator: number,
 };
 
 type annotation_set_type = {
@@ -99,7 +99,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
           <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>{new Date(annotation_campaign.created_at).toDateString()}</td>
           <td>{annotation_campaign.annotation_set.name}</td>
-          <td>{annotation_campaign.confidence_indicator_set.name}</td>
+          <td>{annotation_campaign.confidence_indicator_set ? annotation_campaign.confidence_indicator_set.name : "-"}</td>
           <td>{annotation_campaign.files_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>

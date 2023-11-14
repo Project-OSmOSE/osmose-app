@@ -85,7 +85,7 @@ type confidence_indicator_set_type = {
   name: string,
   desc: string,
   confidence_indicators: Array<string>,
-  default_confidence_indicators: number,
+  default_confidence_indicator: number,
 };
 
 type ShowConfidenceIndicatorSetProps = {
@@ -186,7 +186,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_start: '',
     new_ac_end: '',
     new_ac_annotation_set: 0,
-    new_ac_confidence_indicator_set: 0,
+    new_ac_confidence_indicator_set: null,
     new_ac_annotators: {},
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
@@ -408,12 +408,15 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       datasets: this.state.new_ac_dataset.id,
       spectro_configs: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
-      confidence_indicator_set_id: this.state.new_ac_confidence_indicator_set,
       annotation_scope: this.state.new_ac_annotation_mode,
       annotators: Object.keys(this.state.new_ac_annotators),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
+    }
+
+    if (this.state.new_ac_confidence_indicator_set !== null) {
+      res["confidence_indicator_set_id"] = this.state.new_ac_confidence_indicator_set
     }
     const start: ?string = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
     const end: ?string = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;

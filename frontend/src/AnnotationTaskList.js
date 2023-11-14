@@ -14,7 +14,7 @@ type confidence_indicator_set_type = {
   name: string,
   desc: string,
   confidence_indicators: Array<string>,
-  default_confidence_indicators: number,
+  default_confidence_indicator: number,
 };
 
 type annotation_set_type = {

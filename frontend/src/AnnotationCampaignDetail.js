@@ -52,7 +52,7 @@ type confidence_indicator_set_type = {
   name: string,
   desc: string,
   confidence_indicators: Array<string>,
-  default_confidence_indicators: number,
+  default_confidence_indicator: number,
 };
 
 type annotation_set_type = {
@@ -196,7 +196,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <div className="row justify-content-around">
           <div>
             <div><b>Annotation set:</b> {campaign.annotation_set.name}</div>
-            <div><b>Confidence Indicator set:</b> {campaign.confidence_indicator_set.name}</div>
+            <div><b>Confidence Indicator set:</b> {campaign.confidence_indicator_set ? campaign.confidence_indicator_set.name : "-"}</div>
           </div>
           <div>
             <div><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
