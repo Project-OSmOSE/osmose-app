@@ -3,6 +3,7 @@
 from django.db import models
 from backend.api.models.datasets import Dataset
 
+
 class AudioMetadatum(models.Model):
     """
     This table contains the metadata to audio recordings like hydrophone readings for example.
@@ -105,6 +106,21 @@ class SpectroConfig(models.Model):
             zoom_level = 2**zoom_power
             for zoom_tile in range(0, zoom_level):
                 yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
+
+
+class SaveDatasetSpectroConfig(models.Model):
+    """Temporary model to preserve dataset and Spectro relationships during ManyToMany to ForeignKey migration"""
+
+    dataset_save = models.ForeignKey(
+        Dataset,
+        on_delete=models.CASCADE,
+        related_name="save_spectro_configs",
+        null=True,
+    )
+    spectro_configs_save = models.ManyToManyField(
+        SpectroConfig,
+        related_name="save_datasets",
+    )
 
 
 class TabularMetadatum(models.Model):

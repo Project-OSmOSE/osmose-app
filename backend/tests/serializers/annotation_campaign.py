@@ -8,9 +8,33 @@ from copy import deepcopy
 from backend.api.serializers import (
     AnnotationCampaignCreateSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    SpectroConfigSerializer,
 )
 from backend.api.models import AnnotationCampaign, AnnotationTask
 
+def add_spectroConfig_to_creation_data(name):
+    create_serializer = SpectroConfigSerializer(data={
+        "name": name,
+        "desc": None,
+        "nfft": 4096,
+        "window_size": 2000,
+        "overlap": 90.0,
+        "zoom_level": 3,
+        "spectro_normalization": 0,
+        "data_normalization": 0,
+        "zscore_duration": 0,
+        "hp_filter_min_freq": 0,
+        "colormap": "Blues",
+        "dynamic_min": 0,
+        "dynamic_max": 0,
+        "window_type": 1,
+        "frequency_resolution": 0,
+        })
+    create_serializer.is_valid(raise_exception=True)
+    spectro_config = create_serializer.save()
+    self.creation_data["spectro_config"] = spectro_config
+
+    return spectro_config
 
 class AnnotationCampaignCreateSerializerTestCase(TestCase):
     """Test AnnotationCampaignCreateSerializer which creates a new campaign"""
@@ -30,7 +54,6 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
         "datasets": [1],
-        "spectros": [1],
         "annotators": [1, 2],
         "annotation_method": 1,
         "annotation_goal": 1,
@@ -41,6 +64,9 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         """Updates correctly the DB when serializer saves with correct data"""
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
+
+        add_spectroConfig_to_creation_data(name="4096_2000_90_campaign_name")
+
         create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
         create_serializer.is_valid(raise_exception=True)
         create_serializer.save(owner_id=1)

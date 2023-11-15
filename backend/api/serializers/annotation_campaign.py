@@ -143,7 +143,8 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
         allow_empty=False,
     )
     spectro_configs = serializers.ListField(
-        child=serializers.IntegerField(), validators=[valid_model_ids(SpectroConfig)],
+        child=serializers.IntegerField(),
+        validators=[valid_model_ids(SpectroConfig)],
     )
     annotators = serializers.ListField(
         child=serializers.IntegerField(), validators=[valid_model_ids(User)]

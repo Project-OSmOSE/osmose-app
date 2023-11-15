@@ -43,7 +43,6 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
     return " ".join(OrderedDict.fromkeys(many_to_many_attributs.split()))
 
-
 class NewItemsForm(forms.ModelForm):
     """NewItem need a textarea form for intro field for UX"""
 
@@ -80,13 +79,8 @@ class DatasetAdmin(admin.ModelAdmin):
         "geo_metadatum",
         "owner",
         "tabular_metadatum",
-        "show_collections",
         "show_spectro_configs",
     )
-
-    def show_collections(self, obj):
-        """show_collections"""
-        return get_many_to_many(obj, "collections")
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""

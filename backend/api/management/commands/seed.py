@@ -1,6 +1,7 @@
 import os, glob
 from random import randint, choice, shuffle
-from django.shortcuts import get_object_or_404from datetime import datetime, timedelta
+from django.shortcuts import get_object_or_404
+from datetime import datetime, timedelta
 
 # TODO : Faker is a dev tool that shouldn't be needed in production
 # however currently start.sh calls this command indiscriminately so it fails
@@ -168,7 +169,7 @@ class Command(management.BaseCommand):
 
         dataset_name = self.dataset.name.replace(" ", "_")
 
-        if name == "4096_4096_90" :
+        if name == "4096_4096_90":
             spectro_config = SpectroConfig.objects.get_or_create(
                 name=f"{name}__{dataset_name}",
                 nfft=4096,

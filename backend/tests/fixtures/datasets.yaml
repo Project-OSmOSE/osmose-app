@@ -306,21 +306,3 @@
     dynamic_max: 0
     window_type: 1
     frequency_resolution: 0
-- model: api.spectroconfig
-  pk: 2
-  fields:
-    name: spectro_config2
-    desc: null
-    nfft: 2048
-    window_size: 1000
-    overlap: 90.0
-    zoom_level: 3
-    spectro_normalization: 0
-    data_normalization: 0
-    zscore_duration: 0
-    hp_filter_min_freq: 0
-    colormap: "Reds"
-    dynamic_min: 0
-    dynamic_max: 0
-    window_type: 1
-    frequency_resolution: 0
