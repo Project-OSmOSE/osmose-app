@@ -181,7 +181,7 @@ class Command(management.BaseCommand):
             label="confident",
             level=1,
             confidence_indicator_set=confidenceIndicatorSet,
-            default_confidence_indicator_set=confidenceIndicatorSet,
+            is_default=True,
         )
 
         return confidenceIndicatorSet, confidence_0, confidence_1

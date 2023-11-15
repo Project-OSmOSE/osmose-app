@@ -10,12 +10,15 @@ from backend.api.models import ConfidenceIndicatorSet, ConfidenceIndicator
 class ConfidenceIndicatorSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic ConfidenceIndicatorSet data"""
 
+    isDefault = serializers.BooleanField(source="is_default")
+
     class Meta:
         model = ConfidenceIndicator
         fields = [
             "id",
             "label",
             "level",
+            "isDefault",
         ]
 
 
@@ -25,9 +28,6 @@ class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
     confidenceIndicators = ConfidenceIndicatorSerializer(
         many=True, source="confidence_indicators"
     )
-    defaultConfidenceIndicator = ConfidenceIndicatorSerializer(
-        many=True, source="default_confidence_indicator"
-    )
 
     class Meta:
         model = ConfidenceIndicatorSet
@@ -36,5 +36,4 @@ class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
             "name",
             "desc",
             "confidenceIndicators",
-            "defaultConfidenceIndicator",
         ]

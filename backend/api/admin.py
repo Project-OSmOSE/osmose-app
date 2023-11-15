@@ -45,10 +45,12 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
     return many_to_many_attributs[:-2]
 
+
 class NewItemsForm(forms.ModelForm):
     """NewItem need a textarea form for intro field for UX"""
 
     intro = forms.CharField(widget=forms.Textarea)
+
 
 class ConfidenceIndicatorAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin"""
@@ -58,18 +60,18 @@ class ConfidenceIndicatorAdmin(admin.ModelAdmin):
         "label",
         "level",
         "confidence_indicator_set",
-        "default_confidence_indicator_set",
+        "is_default",
     )
 
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin"""
 
-    list_display = ("id",
-                    "name",
-                    "desc",
-                    "show_confidence_indicators",
-                    "default_confidence_indicator")
+    list_display = (
+        "id",
+        "name",
+        "desc",
+    )
 
 
 class CollectionAdmin(admin.ModelAdmin):

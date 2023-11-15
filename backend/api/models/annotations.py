@@ -25,10 +25,7 @@ class ConfidenceIndicatorSet(models.Model):
     @property
     def max_level(self):
         """Give the max level among confidence indicators"""
-        return max(
-            self.confidence_indicators.all(),
-            key=lambda x: x.level,
-        ).level
+        return max([i.level for i in self.confidence_indicators.all()])
 
 
 class ConfidenceIndicator(models.Model):
@@ -51,14 +48,7 @@ class ConfidenceIndicator(models.Model):
         on_delete=models.CASCADE,
         related_name="confidence_indicators",
     )
-    default_confidence_indicator_set = models.ForeignKey(
-        ConfidenceIndicatorSet,
-        verbose_name="is the default confidence indicator for this set :",
-        on_delete=models.CASCADE,
-        related_name="default_confidence_indicator",
-        null=True,
-        blank=True,
-    )
+    is_default = models.BooleanField(default=False)
 
 
 class AnnotationTag(models.Model):

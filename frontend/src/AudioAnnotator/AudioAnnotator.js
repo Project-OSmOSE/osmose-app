@@ -270,7 +270,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             newComment = task_comment
           }
 
-          const defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.defaultConfidenceIndicator[0] === undefined ? null : task.confidenceIndicatorSet.defaultConfidenceIndicator[0].label;
+          const defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.confidenceIndicators.find((confidenceIndicator) =>  confidenceIndicator.isDefault === true).label
+
           // Finally, setting state
           this.setState({
             tagColors: utils.buildTagColors(task.annotationTags),
