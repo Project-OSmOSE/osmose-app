@@ -130,7 +130,10 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         source="annotation_campaign.annotation_scope"
     )
     prevAndNextAnnotation = serializers.SerializerMethodField()
-    task_comment = serializers.SerializerMethodField()
+    taskComment = serializers.SerializerMethodField()
+    confidenceIndicatorSet = ConfidenceIndicatorSetSerializer(
+        source="annotation_campaign.confidence_indicator_set"
+    )
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):
@@ -209,7 +212,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         return {"prev": id__lt, "next": id__gt}
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
-    def get_task_comment(self, task):
+    def get_taskComment(self, task):
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 

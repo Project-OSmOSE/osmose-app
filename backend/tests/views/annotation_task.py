@@ -172,7 +172,6 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "id",
                 "campaignId",
                 "annotationTags",
-                "confidenceIndicatorSet",
                 "boundaries",
                 "audioUrl",
                 "audioRate",
@@ -180,7 +179,8 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "prevAnnotations",
                 "annotationScope",
                 "prevAndNextAnnotation",
-                "task_comment",
+                "taskComment",
+                "confidenceIndicatorSet",
             ],
         )
         self.assertEqual(

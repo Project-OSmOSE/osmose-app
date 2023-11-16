@@ -25,7 +25,7 @@ class ConfidenceIndicatorSet(models.Model):
     @property
     def max_level(self):
         """Give the max level among confidence indicators"""
-        return max([i.level for i in self.confidence_indicators.all()])
+        return max(i.level for i in self.confidence_indicators.all())
 
 
 class ConfidenceIndicator(models.Model):
@@ -84,7 +84,6 @@ class AnnotationSet(models.Model):
     tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
 
 
 class AnnotationCampaign(models.Model):

@@ -89,7 +89,7 @@ type AnnotationTask = {
       order: number
     },
   },
-  task_comment: {
+  taskComment: {
     annotation_result: number,
     annotation_task: number,
     comment: string
@@ -139,7 +139,7 @@ type AudioAnnotatorState = {
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
   currentComment: string,
-  task_comment: {
+  taskComment: {
     annotation_result: number,
     annotation_task: number,
     comment: string
@@ -251,11 +251,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               };
             }
           });
-          let task_comment
-          if (task.task_comment[0] === undefined) {
-            task_comment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
+          let taskComment
+          if (task.taskComment[0] === undefined) {
+            taskComment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
           } else {
-            task_comment = task.task_comment[0]
+            taskComment = task.taskComment[0]
           }
 
           const annotationsTag = annotations.filter((ann: Annotation) => ann.type === TYPE_TAG)
@@ -267,10 +267,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               .concat(annotationsTag[0]);
               newComment = annotationsTag[0].result_comments
           } else {
-            newComment = task_comment
+            newComment = taskComment
           }
 
-          const defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.confidenceIndicators.find((confidenceIndicator) =>  confidenceIndicator.isDefault === true).label
+          let defaultConfidenceIndicatorLabel = null
+          if (task.confidenceIndicatorSet !== undefined) {
+            defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.confidenceIndicators.find((confidenceIndicator) =>  confidenceIndicator.isDefault === true).label
+          }
 
           // Finally, setting state
           this.setState({
@@ -284,7 +287,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             checkbox_isChecked:  checkbox_isChecked,
             currentDefaultConfidenceIndicator: defaultConfidenceIndicatorLabel,
             currentComment: newComment,
-            task_comment: task_comment,
+            taskComment: taskComment,
           });
 
         } else {
@@ -1050,7 +1053,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         {
           this.setState({
             currentComment: comment,
-            task_comment: comment,
+            taskComment: comment,
           })
         } else {
           let annotations
@@ -1106,7 +1109,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     let currentComment = {}
 
     if (activeAnn === undefined) {
-      currentComment = task.task_comment === undefined ? { comment: "", annotation_task: task.id, annotation_result: parseInt(activeAnn.id, 10), id:null } : task.task_comment;
+      currentComment = task.taskComment === undefined ? { comment: "", annotation_task: task.id, annotation_result: parseInt(activeAnn.id, 10), id:null } : task.taskComment;
     } else {
       currentComment = activeAnn.result_comments === undefined ? { comment: "", annotation_task: task.id, annotation_result: null, id:null} : activeAnn.result_comments;
     }
@@ -1116,7 +1119,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   switchToTaskComment = () => {
     const annotations: Array<Annotation> = this.state.annotations
       .map(ann => Object.assign({}, ann, { active: false }))
-    this.setState({ currentComment: this.state.task_comment, annotations: annotations })
+    this.setState({ currentComment: this.state.taskComment, annotations: annotations })
   }
 
   handleCommentChange(event) {
@@ -1175,7 +1178,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
                       onClick={() => { this.switchToTaskComment() }}
               >
-                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
+                  Task Comment {this.state.taskComment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
                 </button>
               </div>
           </div>
@@ -1388,7 +1391,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                 {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
                 <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
-                <i className="fa fa-handshake"></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
+                <i className={ this.state.task.confidenceIndicatorSet === undefined ? "isInvisible " : "" + "fa fa-handshake"}></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
             </p>
           </div>
         </div>

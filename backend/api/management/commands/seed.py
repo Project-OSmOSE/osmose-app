@@ -56,12 +56,8 @@ class Command(management.BaseCommand):
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
-        (
-            confidence_indicator_set,
-            no_confidence,
-            confidence,
-        ) = self._create_confidence_sets()
-        self._create_annotation_campaigns(confidence_indicator_set)
+        self._create_confidence_sets()
+        self._create_annotation_campaigns()
         self._create_spectro_configs()
         self._create_annotation_results()
         self._create_comments()
@@ -183,10 +179,10 @@ class Command(management.BaseCommand):
             confidence_indicator_set=confidenceIndicatorSet,
             is_default=True,
         )
+        self.confidences_indicators = [confidence_0, confidence_1]
+        self.confidenceIndicatorSet = confidenceIndicatorSet
 
-        return confidenceIndicatorSet, confidence_0, confidence_1
-
-    def _create_annotation_campaigns(self, confidenceIndicatorSet):
+    def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
         campaigns = [
             {
@@ -239,7 +235,7 @@ class Command(management.BaseCommand):
             campaign = AnnotationCampaign.objects.create(
                 **campaign_data,
                 owner=self.admin,
-                confidence_indicator_set=confidenceIndicatorSet,
+                confidence_indicator_set=self.confidenceIndicatorSet,
             )
 
             campaign.datasets.add(self.dataset)
@@ -328,7 +324,7 @@ class Command(management.BaseCommand):
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
-                        confidence_indicator=choice([no_confidence, confidence]),
+                        confidence_indicator=choice(self.confidences_indicators),
                     )
                 task.status = 2
                 task.save()

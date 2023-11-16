@@ -661,3 +661,7 @@ div[class^='pulse-'] {
 .mini-content{
   height: min-content;
 }
+
+.isInvisible{
+  color: white;
+}
