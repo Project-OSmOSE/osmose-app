@@ -82,12 +82,13 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
 
     # Testing 'list'
 
-    def test_list(self):
+    def test_list_user_is_staff(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
         url = reverse("annotation-campaign-list")
+        self.client.login(username="admin", password="osmose29")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 3)
         self.assertEqual(
             list(response.data[0].keys()),
             [
@@ -105,8 +106,45 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "files_count",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[0]["tasks_count"], 11)
+        self.assertEqual(response.data[0]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[2]["tasks_count"], 11)
+
+    def test_list_user_no_campaign(self):
+        """AnnotationCampaign view 'list' returns list of campaigns"""
+        url = reverse("annotation-campaign-list")
+        self.client.login(username="user1", password="osmose29")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_list_user_two_campaign(self):
+        """AnnotationCampaign view 'list' returns list of campaigns"""
+        url = reverse("annotation-campaign-list")
+        self.client.login(username="user2", password="osmose29")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(
+            list(response.data[0].keys()),
+            [
+                "id",
+                "name",
+                "desc",
+                "instructions_url",
+                "start",
+                "end",
+                "annotation_set_id",
+                "tasks_count",
+                "user_tasks_count",
+                "complete_tasks_count",
+                "user_complete_tasks_count",
+                "files_count",
+            ],
+        )
+        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[0]["user_tasks_count"], 1)
 
     # Testing 'retrieve'
 

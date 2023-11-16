@@ -61,6 +61,8 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                 to_attr="user_complete_tasks",
             ),
         )
+        if not request.user.is_staff:
+            queryset = queryset.filter(annotators=request.user.id)
         serializer = self.serializer_class(queryset, many=True, user_id=request.user.id)
         return Response(serializer.data)
 
