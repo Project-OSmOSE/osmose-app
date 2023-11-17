@@ -1,8 +1,6 @@
 import os, glob
-
-from datetime import datetime
 from random import randint, choice, shuffle
-
+from datetime import datetime, timedelta
 
 # TODO : Faker is a dev tool that shouldn't be needed in production
 # however currently start.sh calls this command indiscriminately so it fails
@@ -15,7 +13,6 @@ except ImportError:
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
-from datetime import timedelta
 from django.utils import timezone
 
 from django.contrib.auth.models import User
@@ -94,8 +91,8 @@ class Command(management.BaseCommand):
         )
         self.dataset = Dataset.objects.create(
             name="SPM Aural A 2010",
-            start_date="2010-08-19",
-            end_date="2010-11-02",
+            start_date=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
+            end_date=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
             files_type=".wav",
             status=1,
             dataset_type=dataset_type,
@@ -151,8 +148,10 @@ class Command(management.BaseCommand):
             {
                 "name": "Test SPM campaign",
                 "desc": "Test annotation campaign",
-                "start": "2010-08-19",
-                "end": "2010-11-02",
+                "start": timezone.make_aware(
+                    datetime.strptime("2010-08-19", "%Y-%m-%d")
+                ),
+                "end": timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
                 "instructions_url": "https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon",
                 "annotation_scope": 1,
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
@@ -160,16 +159,20 @@ class Command(management.BaseCommand):
             {
                 "name": "Test DCLDE LF campaign",
                 "desc": "Test annotation campaign DCLDE LF 2015",
-                "start": "2012-06-22",
-                "end": "2012-06-26",
+                "start": timezone.make_aware(
+                    datetime.strptime("2012-06-22", "%Y-%m-%d")
+                ),
+                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
                 "annotation_scope": 2,
             },
             {
                 "name": "Many tags campaign",
                 "desc": "Test annotation campaign with many tags",
-                "start": "2012-06-22",
-                "end": "2012-06-26",
+                "start": timezone.make_aware(
+                    datetime.strptime("2012-06-22", "%Y-%m-%d")
+                ),
+                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
                 "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
             },

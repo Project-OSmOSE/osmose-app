@@ -2,12 +2,13 @@
 
 import datetime
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("api", "0022_annotationcomment"),
+        ("api", "0023_news"),
     ]
 
     operations = [
@@ -23,16 +24,14 @@ class Migration(migrations.Migration):
             model_name="annotationcampaign",
             name="created_at",
             field=models.DateTimeField(
-                auto_now_add=True, default=datetime.datetime.now()
+                default=django.utils.timezone.now, editable=False
             ),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="dataset",
             name="created_at",
             field=models.DateTimeField(
-                auto_now_add=True, default=datetime.datetime.now()
+                default=django.utils.timezone.now, editable=False
             ),
-            preserve_default=False,
         ),
     ]

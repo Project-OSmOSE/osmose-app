@@ -2,7 +2,6 @@
 
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
-from datetime import datetime
 from django.db.models import Count
 
 from rest_framework import serializers

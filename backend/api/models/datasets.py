@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class Collection(models.Model):
@@ -53,7 +54,7 @@ class Dataset(models.Model):
     def __str__(self):
         return str(self.name)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     dataset_path = models.CharField(max_length=255)
