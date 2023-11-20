@@ -82,7 +82,7 @@ type CACProps = {
 type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
-  new_ac_datasets: choices_type,
+  new_ac_dataset: choices_type,
   new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
@@ -108,7 +108,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   state = {
     new_ac_name: '',
     new_ac_desc: '',
-    new_ac_datasets: {},
+    new_ac_dataset: {},
     new_ac_spectros: {},
     new_ac_start: '',
     new_ac_end: '',
@@ -197,15 +197,15 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleDatasetChanged = (event: SyntheticInputEvent<HTMLSelectElement>) => {
-    let new_ac_datasets = {};
+    let new_ac_dataset = {};
     let spectro_choices = {};
     if (event.target.value !== '') {
       let dataset_id = parseInt(event.target.value, 10);
-      new_ac_datasets[dataset_id] = this.state.dataset_choices[dataset_id];
-      spectro_choices = utils.arrayToObject(new_ac_datasets[dataset_id].spectros, 'id');
+      new_ac_dataset = this.state.dataset_choices[dataset_id];
+      spectro_choices = utils.arrayToObject(new_ac_dataset.spectros, 'id');
     }
     this.setState({
-      new_ac_datasets: new_ac_datasets,
+      new_ac_dataset: new_ac_dataset,
       spectro_choices: spectro_choices,
       new_ac_spectros: {},
     });
@@ -298,7 +298,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
-      datasets: Object.keys(this.state.new_ac_datasets),
+      datasets: [this.state.new_ac_dataset.id],
       spectros: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
@@ -344,8 +344,8 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     ));
     let wanted_annotators_label = "";
     const annotator_count = Object.keys(this.state.new_ac_annotators).length;
-    if (Object.keys(this.state.new_ac_datasets).length !== 0 && annotator_count !== 0) {
-      const file_count = this.state.new_ac_datasets[1].files_count;
+    if (Object.keys(this.state.new_ac_dataset).length !== 0 && annotator_count !== 0) {
+      const file_count = this.state.new_ac_dataset.files_count;
       let files_per_person = Math.floor(file_count * this.state.new_ac_annotation_goal / annotator_count);
       wanted_annotators_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;
     }
