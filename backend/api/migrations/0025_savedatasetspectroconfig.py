@@ -3,13 +3,11 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
-from backend.api.models import SaveDatasetSpectroConfig, Dataset
-
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("api", "0023_news"),
+        ("api", "0024_add_created_at_fields"),
     ]
 
     operations = [
@@ -19,9 +17,11 @@ class Migration(migrations.Migration):
             new_name="old_spectro_configs",
         ),
         migrations.AlterField(
-            model_name='dataset',
-            name='old_spectro_configs',
-            field=models.ManyToManyField(related_name='old_datasets', to='api.SpectroConfig'),
+            model_name="dataset",
+            name="old_spectro_configs",
+            field=models.ManyToManyField(
+                related_name="old_datasets", to="api.SpectroConfig"
+            ),
         ),
         migrations.AddField(
             model_name="spectroconfig",

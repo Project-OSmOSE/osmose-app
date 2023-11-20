@@ -11,6 +11,8 @@
     owner: 3
     datasets:
     - 1
+    spectro_configs:
+    - 1
 - model: api.annotationtask
   pk: 1
   fields:

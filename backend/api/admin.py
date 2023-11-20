@@ -43,6 +43,7 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
     return " ".join(OrderedDict.fromkeys(many_to_many_attributs.split()))
 
+
 class NewItemsForm(forms.ModelForm):
     """NewItem need a textarea form for intro field for UX"""
 

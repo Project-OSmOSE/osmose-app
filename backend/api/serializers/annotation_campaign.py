@@ -170,6 +170,18 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             "annotation_scope",
         ]
 
+    def validate(self, attrs):
+        """Validates that chosen spectros correspond to chosen datasets"""
+        db_spectros = Dataset.objects.filter(id__in=attrs["datasets"]).values_list(
+            "spectro_configs", flat=True
+        )
+        bad_vals = set(attrs["spectro_configs"]) - set(db_spectros)
+        if bad_vals:
+            raise serializers.ValidationError(
+                f"{bad_vals} not valid ids for spectro configs of given datasets"
+            )
+        return attrs
+
     def create(self, validated_data):
         campaign = AnnotationCampaign(
             name=validated_data["name"],

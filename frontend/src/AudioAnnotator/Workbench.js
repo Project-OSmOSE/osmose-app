@@ -304,7 +304,6 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
   }
 
   getSpectrosForCurrentDetails(): Array<SpectroDetails> {
-    console.log(this.state.spectrograms);
     return this.state.spectrograms.filter((details: SpectroDetails) =>
       (this.state.currentParams.nfft === details.nfft) &&
         (this.state.currentParams.winsize === details.winsize) &&
@@ -579,7 +578,6 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     if (spectrograms) {
       spectrograms.images.forEach(spectro => {
         if (spectro.image && spectro.image.complete) {
-          console.log(spectro);
           const image = spectro.image;
           const x = spectro.start * this.state.timePxRatio;
           const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);

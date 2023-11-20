@@ -152,7 +152,6 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskSpectroSerializer(many=True))
     def get_spectroUrls(self, task):
-        print(task.dataset_file.dataset.spectro_configs)
         spectros_configs = set(task.dataset_file.dataset.spectro_configs.all()) & set(
             task.annotation_campaign.spectro_configs.all()
         )

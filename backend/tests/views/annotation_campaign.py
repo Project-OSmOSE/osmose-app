@@ -66,7 +66,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
         "datasets": [1],
-        "spectros": [1],
+        "spectro_configs": [1],
         "annotators": [1, 2],
         "annotation_method": 1,
         "annotation_goal": 1,

@@ -12,29 +12,6 @@ from backend.api.serializers import (
 )
 from backend.api.models import AnnotationCampaign, AnnotationTask
 
-def add_spectroConfig_to_creation_data(name):
-    create_serializer = SpectroConfigSerializer(data={
-        "name": name,
-        "desc": None,
-        "nfft": 4096,
-        "window_size": 2000,
-        "overlap": 90.0,
-        "zoom_level": 3,
-        "spectro_normalization": 0,
-        "data_normalization": 0,
-        "zscore_duration": 0,
-        "hp_filter_min_freq": 0,
-        "colormap": "Blues",
-        "dynamic_min": 0,
-        "dynamic_max": 0,
-        "window_type": 1,
-        "frequency_resolution": 0,
-        })
-    create_serializer.is_valid(raise_exception=True)
-    spectro_config = create_serializer.save()
-    self.creation_data["spectro_config"] = spectro_config
-
-    return spectro_config
 
 class AnnotationCampaignCreateSerializerTestCase(TestCase):
     """Test AnnotationCampaignCreateSerializer which creates a new campaign"""
@@ -58,14 +35,13 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "annotation_method": 1,
         "annotation_goal": 1,
         "annotation_scope": 1,
+        "spectro_configs": [1],
     }
 
     def test_with_valid_data(self):
         """Updates correctly the DB when serializer saves with correct data"""
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
-
-        add_spectroConfig_to_creation_data(name="4096_2000_90_campaign_name")
 
         create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
         create_serializer.is_valid(raise_exception=True)
@@ -81,7 +57,8 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         """Fails validation when given a SpectroConfig not used in campaign"""
         campaign = AnnotationCampaign.objects.first()
         update_data = deepcopy(self.creation_data)
-        update_data["spectros"] = [2]
+        update_data["spectro_configs"] = [2]
+
         create_serializer = AnnotationCampaignCreateSerializer(
             campaign, data=update_data
         )
