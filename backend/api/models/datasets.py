@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class Collection(models.Model):
@@ -36,6 +37,7 @@ class DatasetType(models.Model):
 
 
 class Dataset(models.Model):
+    # pylint: disable=duplicate-code
     """
     This table contains general metadata of the dataset as well as links to other metadata tables with more specific
     scopes.
@@ -47,10 +49,12 @@ class Dataset(models.Model):
 
     class Meta:
         db_table = "datasets"
+        ordering = ["name", "created_at"]
 
     def __str__(self):
         return str(self.name)
 
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     dataset_path = models.CharField(max_length=255)

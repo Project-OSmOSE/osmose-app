@@ -58,6 +58,7 @@ class DatasetViewSetTestCase(APITestCase):
                 "files_count",
                 "type",
                 "spectros",
+                "created_at",
             ],
         )
         self.assertEqual(response.data[0]["name"], "SPM Aural A 2010")
@@ -88,7 +89,7 @@ class DatasetViewSetTestCase(APITestCase):
         response = self.client.post(url, data_send, format="json", follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Dataset.objects.count(), old_count + 1)
-        self.assertEqual(Dataset.objects.last().files.count(), 10)
+        self.assertEqual(Dataset.objects.latest("id").files.count(), 10)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
             list(response.data[0].keys()),
@@ -101,6 +102,7 @@ class DatasetViewSetTestCase(APITestCase):
                 "files_count",
                 "type",
                 "spectros",
+                "created_at",
             ],
         )
         self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo (600_400)")

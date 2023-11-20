@@ -1,8 +1,11 @@
 """Annotation campaign DRF-Viewset test file"""
-
+from freezegun import freeze_time
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 from django.contrib.auth.models import User
+
+from datetime import datetime
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -44,6 +47,7 @@ class AnnotationCampaignViewSetUnauthenticatedTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
 class AnnotationCampaignViewSetTestCase(APITestCase):
     """Test AnnotationCampaignViewSet when request is authenticated"""
 
@@ -67,7 +71,9 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "annotation_method": 1,
         "annotation_goal": 1,
         "annotation_scope": 1,
+        "created_at": "2012-01-14T00:00:00Z",
     }
+
     add_annotators_data = {
         "annotators": [3],
         "annotation_method": 1,
@@ -104,10 +110,12 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "complete_tasks_count",
                 "user_complete_tasks_count",
                 "files_count",
+                "created_at",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "Test RTF campaign")
-        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
+
+        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["name"], "Test RTF campaign")
         self.assertEqual(response.data[2]["tasks_count"], 11)
 
     def test_list_user_no_campaign(self):
@@ -140,6 +148,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "complete_tasks_count",
                 "user_complete_tasks_count",
                 "files_count",
+                "created_at",
             ],
         )
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
@@ -165,8 +174,10 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "end",
                 "annotation_set_id",
                 "datasets",
+                "created_at",
             ],
         )
+
         self.assertEqual(response.data["campaign"]["name"], "Test SPM campaign")
         self.assertEqual(len(response.data["tasks"]), 2)
         self.assertEqual(
@@ -181,7 +192,6 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # Testing 'create'
-
     def test_create(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
         old_count = AnnotationCampaign.objects.count()
@@ -201,9 +211,11 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "end",
                 "annotation_set_id",
                 "datasets",
+                "created_at",
             ]
         }
-        expected_reponse["id"] = AnnotationCampaign.objects.last().id
+
+        expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
         self.assertEqual(dict(response.data), expected_reponse)
 
     # Testing 'add_annotators'

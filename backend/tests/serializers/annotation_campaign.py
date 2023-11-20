@@ -46,7 +46,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         create_serializer.save(owner_id=1)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
         self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
-        new_campaign = AnnotationCampaign.objects.last()
+        new_campaign = AnnotationCampaign.objects.latest("id")
         self.assertEqual(new_campaign.name, self.creation_data["name"])
         self.assertEqual(new_campaign.owner_id, 1)
         self.assertEqual(new_campaign.tasks.count(), 11)

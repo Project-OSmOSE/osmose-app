@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 from random import shuffle
-
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 
@@ -54,10 +54,12 @@ class AnnotationCampaign(models.Model):
 
     class Meta:
         db_table = "annotation_campaigns"
+        ordering = ["name", "created_at"]
 
     def __str__(self):
         return str(self.name)
 
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     instructions_url = models.TextField(null=True, blank=True)
