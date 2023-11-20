@@ -32,7 +32,7 @@ def check_new_spectro_config_errors():
 
         for dataset in datasets_to_check:
             dataset_spectros = []
-            dataset_folder = dataset.dataset_path.split("/")[-1]
+            dataset_folder = dataset.dataset_path.split("datawork/dataset/")[1]
             conf_folder = dataset.dataset_conf or ""
             conf_folder_path = (
                 settings.DATASET_IMPORT_FOLDER

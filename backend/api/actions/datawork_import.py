@@ -92,7 +92,7 @@ def datawork_import(*, wanted_datasets, importer):
         created_datasets.append(curr_dataset.id)
 
         # Add Spectro Config
-        dataset_folder = dataset_path.split("/")[-1]
+        dataset_folder = dataset_path.split("datawork/dataset/")[1]
 
         conf_folder_path = (
             settings.DATASET_IMPORT_FOLDER
