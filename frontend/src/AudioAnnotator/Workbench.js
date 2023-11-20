@@ -69,6 +69,8 @@ type WorkbenchState = {
   spectrograms: Array<SpectroDetails>,
   newAnnotation: ?Annotation,
   loadingZoomLvl: number,
+  pointerFrequency: number;
+  pointerTime: number;
 };
 
 class Workbench extends Component<WorkbenchProps, WorkbenchState> {
@@ -116,6 +118,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       spectrograms: [],
       newAnnotation: undefined,
       loadingZoomLvl: 1,
+      pointerFrequency: undefined,
+      pointerTime: undefined,
     };
 
     this.wrapperRef = React.createRef();
@@ -606,6 +610,20 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }
   }
 
+  onPointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
+    this.setState({
+      pointerFrequency: this.getFrequencyFromClientY(event.clientY),
+      pointerTime: this.getTimeFromClientX(event.clientX)
+    });
+  }
+
+  onPointerLeave = () => {
+    this.setState({
+      pointerFrequency: undefined,
+      pointerTime: undefined
+    });
+  }
+
   render() {
     const style = {
       workbench: {
@@ -653,6 +671,10 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
           <span>{this.state.currentZoom}x</span>
         </p>
 
+        { this.state.pointerFrequency && this.state.pointerTime && <p className="workbench-pointer">
+          {this.state.pointerFrequency}Hz / {utils.formatTimestamp(this.state.pointerTime, false)}
+        </p>}
+
         <p className="workbench-info workbench-info--intro">
           File : <strong>{this.props.fileMetadata.name}</strong> - Sampling : <strong>{this.props.fileMetadata.audioRate} Hz</strong><br />
           Start date : <strong>{this.props.fileMetadata.date.toUTCString()}</strong>
@@ -679,6 +701,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
             onClick={this.seekTo}
             onPointerDown={this.onStartNewAnnotation}
             onWheel={this.onWheelZoom}
+            onPointerMove={this.onPointerMove}
+            onPointerLeave={this.onPointerLeave}
           ></canvas>
 
           <canvas
