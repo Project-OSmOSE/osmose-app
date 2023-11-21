@@ -446,6 +446,20 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       const newAnnotation: Annotation = this.computeNewAnnotation(e);
       this.setState({newAnnotation}, this.renderCanvas);
     }
+    // Show pointer frequency/time data
+    const bounds = this.canvasRef.current.getBoundingClientRect();
+    if (e.clientX < bounds.x || e.clientX > (bounds.x + bounds.width)
+        || e.clientY < bounds.y || e.clientY > (bounds.y + bounds.height)) {
+        this.setState({
+            pointerTime: undefined,
+            pointerFrequency: undefined
+        })
+    } else {
+      this.setState({
+        pointerFrequency: this.getFrequencyFromClientY(e.clientY),
+        pointerTime: this.getTimeFromClientX(e.clientX)
+      });
+    }
   }
 
   onEndNewAnnotation = (e: PointerEvent) => {
@@ -610,20 +624,6 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }
   }
 
-  onPointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
-    this.setState({
-      pointerFrequency: this.getFrequencyFromClientY(event.clientY),
-      pointerTime: this.getTimeFromClientX(event.clientX)
-    });
-  }
-
-  onPointerLeave = () => {
-    this.setState({
-      pointerFrequency: undefined,
-      pointerTime: undefined
-    });
-  }
-
   render() {
     const style = {
       workbench: {
@@ -701,8 +701,6 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
             onClick={this.seekTo}
             onPointerDown={this.onStartNewAnnotation}
             onWheel={this.onWheelZoom}
-            onPointerMove={this.onPointerMove}
-            onPointerLeave={this.onPointerLeave}
           ></canvas>
 
           <canvas
