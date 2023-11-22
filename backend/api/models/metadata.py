@@ -68,7 +68,7 @@ class SpectroConfig(models.Model):
     """
 
     def __str__(self):
-        return str(self.name)
+        return f"{self.name} - {self.dataset}"
 
     name = models.CharField(max_length=255)
     desc = models.TextField(null=True, blank=True)
