@@ -286,8 +286,8 @@ class Command(management.BaseCommand):
         print(" ###### _create_news ######")
         for _ in range(randint(3, 8)):
             News.objects.create(
-                title=self.faker.sentence(nb_words=10),
-                intro=self.faker.paragraph(nb_sentences=5),
+                title=self.faker.sentence(nb_words=10)[:255],
+                intro=self.faker.paragraph(nb_sentences=5)[:255],
                 body=self._generate_news_body(),
                 date=self.faker.date_time_between(start_date="-1y", end_date="now"),
                 vignette=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.faker.word()}",
