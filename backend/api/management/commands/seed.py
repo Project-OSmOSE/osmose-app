@@ -51,7 +51,7 @@ class Command(management.BaseCommand):
 
         # Creation
         self.faker = Faker()
-        self.datafile_count = 50
+        self.main_datafile_count = 50
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
@@ -89,7 +89,7 @@ class Command(management.BaseCommand):
         geo_metadatum = GeoMetadatum.objects.create(
             name="Saint-Pierre-et-Miquelon", desc="South of Saint-Pierre-et-Miquelon"
         )
-        self.dataset = Dataset.objects.create(
+        self.dataset_1 = Dataset.objects.create(
             name="SPM Aural A 2010",
             start_date=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
             end_date=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
@@ -101,18 +101,35 @@ class Command(management.BaseCommand):
             owner=self.admin,
             dataset_path="seed/dataset_path",
         )
-        for k in range(self.datafile_count):
-            start = parse_datetime("2012-10-03T12:00:00+0200")
-            end = start + timedelta(minutes=15)
-            audio_metadatum = AudioMetadatum.objects.create(
-                start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k))
-            )
-            self.dataset.files.create(
-                filename=f"sound{k:03d}.wav",
-                filepath="data/audio/50h_0.wav",
-                size=58982478,
-                audio_metadatum=audio_metadatum,
-            )
+        self.dataset_2 = Dataset.objects.create(
+            name="New Test Dataset",
+            start_date=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
+            end_date=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
+            files_type=".wav",
+            status=1,
+            dataset_type=dataset_type,
+            audio_metadatum=audio_metadatum,
+            geo_metadatum=geo_metadatum,
+            owner=self.admin,
+            dataset_path="seed/dataset_path",
+        )
+
+        for dataset, datafile_count in [
+            (self.dataset_1, self.main_datafile_count),
+            (self.dataset_2, 30),
+        ]:
+            for k in range(datafile_count):
+                start = parse_datetime("2012-10-03T12:00:00+0200")
+                end = start + timedelta(minutes=15)
+                audio_metadatum = AudioMetadatum.objects.create(
+                    start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k))
+                )
+                dataset.files.create(
+                    filename=f"sound{k:03d}.wav",
+                    filepath="data/audio/50h_0.wav",
+                    size=58982478,
+                    audio_metadatum=audio_metadatum,
+                )
 
     def _create_annotation_sets(self):
         print(" ###### _create_annotation_sets ######")
@@ -155,6 +172,7 @@ class Command(management.BaseCommand):
                 "instructions_url": "https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon",
                 "annotation_scope": 1,
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
+                "dataset": self.dataset_1,
             },
             {
                 "name": "Test DCLDE LF campaign",
@@ -165,6 +183,7 @@ class Command(management.BaseCommand):
                 "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
                 "annotation_scope": 2,
+                "dataset": self.dataset_1,
             },
             {
                 "name": "Many tags campaign",
@@ -175,15 +194,17 @@ class Command(management.BaseCommand):
                 "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
                 "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
+                "dataset": self.dataset_2,
             },
         ]
         self.campaigns = []
         for campaign_data in campaigns:
+            dataset = campaign_data.pop("dataset")
             campaign = AnnotationCampaign.objects.create(
                 **campaign_data, owner=self.admin
             )
-            campaign.datasets.add(self.dataset)
-            for file in self.dataset.files.all():
+            campaign.datasets.add(dataset)
+            for file in dataset.files.all():
                 for user in self.users:
                     campaign.tasks.create(dataset_file=file, annotator=user, status=0)
             self.campaigns.append(campaign)
@@ -191,7 +212,7 @@ class Command(management.BaseCommand):
     def _create_spectro_configs(self):
         print(" ###### _create_spectro_configs ######")
         window_type = WindowType.objects.create(name="Hamming")
-        spectro_config1 = self.dataset.spectro_configs.create(
+        spectro_config1 = self.dataset_1.spectro_configs.create(
             name="4096_4096_90",
             nfft=4096,
             window_size=4096,
@@ -207,7 +228,8 @@ class Command(management.BaseCommand):
             window_type=window_type,
             frequency_resolution=0,
         )
-        spectro_config2 = self.dataset.spectro_configs.create(
+        self.dataset_2.spectro_configs.add(spectro_config1)
+        spectro_config2 = self.dataset_1.spectro_configs.create(
             name="2048_1000_90",
             nfft=2048,
             window_size=1000,
@@ -233,7 +255,7 @@ class Command(management.BaseCommand):
         campaign = self.campaigns[0]
         tags = list(self.annotation_sets.values())[0].tags.values_list("id", flat=True)
         for user in self.users:
-            done_files = randint(5, self.datafile_count - 5)
+            done_files = randint(5, self.main_datafile_count - 5)
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
             for task in tasks:
                 if randint(1, 3) >= 2:
@@ -286,8 +308,8 @@ class Command(management.BaseCommand):
         print(" ###### _create_news ######")
         for _ in range(randint(3, 8)):
             News.objects.create(
-                title=self.faker.sentence(nb_words=10),
-                intro=self.faker.paragraph(nb_sentences=5),
+                title=self.faker.sentence(nb_words=10)[:255],
+                intro=self.faker.paragraph(nb_sentences=5)[:255],
                 body=self._generate_news_body(),
                 date=self.faker.date_time_between(start_date="-1y", end_date="now"),
                 vignette=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.faker.word()}",
