@@ -57,7 +57,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         """Fails validation when given a SpectroConfig not used in campaign"""
         campaign = AnnotationCampaign.objects.first()
         update_data = deepcopy(self.creation_data)
-        update_data["spectro_configs"] = [2]
+        update_data["spectro_configs"] = [3]
 
         create_serializer = AnnotationCampaignCreateSerializer(
             campaign, data=update_data
@@ -67,7 +67,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         self.assertEquals(len(create_serializer.errors["non_field_errors"]), 1)
         self.assertEquals(
             str(create_serializer.errors["non_field_errors"][0]),
-            "{2} not valid ids for spectro configs of given datasets",
+            "{3} not valid ids for spectro configs of given datasets",
         )
 
 

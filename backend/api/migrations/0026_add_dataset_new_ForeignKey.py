@@ -3,8 +3,9 @@
 from django.db import migrations
 from copy import deepcopy
 
+
 def add_dataset_new_ForeignKey(apps, schema_editor):
-    SpectroConfig = apps.get_model('api', 'SpectroConfig')
+    SpectroConfig = apps.get_model("api", "SpectroConfig")
 
     for spectro_config in SpectroConfig.objects.all():
         datasets = spectro_config.datasets.all()
@@ -18,10 +19,11 @@ def add_dataset_new_ForeignKey(apps, schema_editor):
                 new_spectro_config.dataset_id = dataset.id
                 new_spectro_config.save()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0025_add_spectroconfig'),
+        ("api", "0025_add_spectroconfig"),
     ]
 
     operations = [

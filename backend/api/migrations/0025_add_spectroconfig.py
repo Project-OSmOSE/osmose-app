@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name='spectroconfig',
-            name='name',
+            model_name="spectroconfig",
+            name="name",
             field=models.CharField(max_length=255),
         ),
     ]

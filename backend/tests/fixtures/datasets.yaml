@@ -20,6 +20,23 @@
     geo_metadatum: 1
     owner: 1
     tabular_metadatum: null
+- model: api.dataset
+  pk: 2
+  fields:
+    name: Another Dataset
+    desc: null
+    dataset_path: seed/dataset_path
+    dataset_conf: null
+    status: 1
+    files_type: .wav
+    start_date: 2013-08-19
+    end_date: 2013-11-02
+    created_at: 2023-10-02
+    audio_metadatum: 1
+    dataset_type: 1
+    geo_metadatum: 1
+    owner: 1
+    tabular_metadatum: null
 - model: api.datasetfile
   pk: 1
   fields:
@@ -323,3 +340,23 @@
     dynamic_max: 0
     window_type: 1
     frequency_resolution: 0
+    dataset: 1
+- model: api.spectroconfig
+  pk: 3
+  fields:
+    name: spectro_config2
+    desc: null
+    nfft: 2048
+    window_size: 1000
+    overlap: 90.0
+    zoom_level: 3
+    spectro_normalization: 0
+    data_normalization: 0
+    zscore_duration: 0
+    hp_filter_min_freq: 0
+    colormap: "Reds"
+    dynamic_min: 0
+    dynamic_max: 0
+    window_type: 1
+    frequency_resolution: 0
+    dataset: 2

@@ -255,7 +255,6 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Testing 'report'
-
     def test_report(self):
         """AnnotationCampaign view 'report' returns CSV report"""
         url = reverse("annotation-campaign-report", kwargs={"pk": 1})

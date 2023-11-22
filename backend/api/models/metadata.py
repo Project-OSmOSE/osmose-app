@@ -107,6 +107,7 @@ class SpectroConfig(models.Model):
             for zoom_tile in range(0, zoom_level):
                 yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
 
+
 class TabularMetadatum(models.Model):
     """
     This table contains metadata of matrix-like data, for example NetCDF and CSV files. It is used in conjunction with

@@ -92,7 +92,6 @@ def datawork_import(*, wanted_datasets, importer):
         created_datasets.append(curr_dataset.id)
 
         # Add Spectro Config
-        dataset_spectros = []
         dataset_folder = dataset_path.split("/")[-1]
 
         conf_folder_path = (
@@ -108,10 +107,10 @@ def datawork_import(*, wanted_datasets, importer):
                 spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
             else:
                 continue
-            dataset_name = dataset["name"].replace(" ", "_")
+
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
-                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}__{dataset_name}"
+                    name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
                     window_type = WindowType.objects.filter(
                         name=spectro["window_type"]
                     ).first()
@@ -122,12 +121,11 @@ def datawork_import(*, wanted_datasets, importer):
                         for (key, value) in spectro.items()
                         if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
                     }
-                    dataset_spectros.append(
-                        SpectroConfig.objects.update_or_create(
-                            name=name, defaults=spectro_needed
-                        )[0]
-                    )
-            curr_dataset.spectro_configs.set(dataset_spectros)
+
+                    new_spectro = SpectroConfig.objects.update_or_create(
+                        name=name, defaults=spectro_needed, dataset=curr_dataset
+                    )[0]
+                    new_spectro.save()
 
         dataset_files = []
         # Create dataset_files
