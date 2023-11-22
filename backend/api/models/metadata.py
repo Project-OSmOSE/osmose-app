@@ -70,7 +70,7 @@ class SpectroConfig(models.Model):
     def __str__(self):
         return str(self.name)
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     desc = models.TextField(null=True, blank=True)
     nfft = models.IntegerField()
     window_size = models.IntegerField()
@@ -88,7 +88,7 @@ class SpectroConfig(models.Model):
     )
     frequency_resolution = models.FloatField()
     dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, null=True, related_name="spectro_configs"
+        Dataset, on_delete=models.CASCADE, related_name="spectro_configs"
     )
     time_resolution_zoom_0 = models.FloatField(default=0)
     time_resolution_zoom_1 = models.FloatField(default=0)
@@ -106,22 +106,6 @@ class SpectroConfig(models.Model):
             zoom_level = 2**zoom_power
             for zoom_tile in range(0, zoom_level):
                 yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
-
-
-class SaveDatasetSpectroConfig(models.Model):
-    """Temporary model to preserve dataset and Spectro relationships during ManyToMany to ForeignKey migration"""
-
-    dataset_save = models.ForeignKey(
-        Dataset,
-        on_delete=models.CASCADE,
-        related_name="save_spectro_configs",
-        null=True,
-    )
-    spectro_configs_save = models.ManyToManyField(
-        SpectroConfig,
-        related_name="save_datasets",
-    )
-
 
 class TabularMetadatum(models.Model):
     """

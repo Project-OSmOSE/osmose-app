@@ -239,6 +239,7 @@ class SpectroConfigAdmin(admin.ModelAdmin):
 
     list_display = (
         "name",
+        "dataset",
         "desc",
         "nfft",
         "window_size",

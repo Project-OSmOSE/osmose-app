@@ -80,9 +80,6 @@ class Dataset(models.Model):
         "TabularMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     collections = models.ManyToManyField(Collection, related_name="datasets")
-    old_spectro_configs = models.ManyToManyField(
-        "SpectroConfig", related_name="old_datasets"
-    )
 
 
 class DatasetFile(models.Model):

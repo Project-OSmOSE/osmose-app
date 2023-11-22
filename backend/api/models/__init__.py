@@ -11,7 +11,6 @@ from backend.api.models.metadata import (
     TabularMetadataVariable,
     TabularMetadataShape,
     WindowType,
-    SaveDatasetSpectroConfig,
 )
 from backend.api.models.annotations import (
     AnnotationTag,
