@@ -22,7 +22,7 @@ class UserViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List users"""
-        queryset = User.objects.all().order_by("id")
+        queryset = User.objects.all().order_by("email")
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

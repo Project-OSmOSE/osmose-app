@@ -16,6 +16,6 @@ class AnnotationSetViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List users"""
-        queryset = AnnotationSet.objects.all()
+        queryset = AnnotationSet.objects.all().order_by("name")
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

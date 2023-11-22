@@ -2,9 +2,14 @@
 
 // Utils functions
 
-export function arrayToObject(array: Array<any>, key: any) {
-  return array.reduce((obj, item) => {
-    obj[item[key]] = item
+export function arrayToObject(array: Array<any>, key: ?any = false) {
+  return array.reduce((obj, item, index) => {
+    if (key) {
+      obj[item[key]] = item
+    } else {
+      obj[index] = item
+    }
+
     return obj
   }, {});
 }
@@ -42,4 +47,12 @@ export function buildTagColors(tags: Array<string>): Map<string, string> {
 export function getTagColor(tags: Map<string, string>, tag: string): string {
   const color: ?string = tags.get(tag);
   return color ? color : '#bbbbbb';
+}
+
+export function findObjetKey(objects, searchValue) {
+  for (const key in objects) {
+    if (objects[key].id == searchValue) {
+      return key
+    }
+  }
 }

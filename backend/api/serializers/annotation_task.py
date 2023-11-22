@@ -122,6 +122,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     annotationScope = serializers.IntegerField(
         source="annotation_campaign.annotation_scope"
     )
+    prevAndNextAnnotation = serializers.SerializerMethodField()
     task_comment = serializers.SerializerMethodField()
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
@@ -164,6 +165,34 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             "result_comments",
         )
         return AnnotationTaskResultSerializer(queryset, many=True).data
+
+    def get_prevAndNextAnnotation(self, task):
+        id__lt = (
+            AnnotationTask.objects.filter(
+                annotation_campaign=task.annotation_campaign.id,
+                annotator=task.annotator.id,
+                id__lt=task.id,
+            )
+            .order_by("id")
+            .reverse()
+            .first()
+        )
+        id__gt = AnnotationTask.objects.filter(
+            annotation_campaign=task.annotation_campaign.id,
+            annotator=task.annotator.id,
+            id__gt=task.id,
+        ).first()
+
+        if id__lt is None:
+            id__lt = ""
+        else:
+            id__lt = id__lt.id
+        if id__gt is None:
+            id__gt = ""
+        else:
+            id__gt = id__gt.id
+
+        return {"prev": id__lt, "next": id__gt}
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_task_comment(self, task):
