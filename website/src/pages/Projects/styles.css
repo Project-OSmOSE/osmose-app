@@ -1,3 +1,6 @@
 div#projects-page img {
     max-height: 80vh;
 }
+div#projects-page figure > img.logo {
+    max-width: 200px;
+}
