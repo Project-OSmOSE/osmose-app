@@ -17,6 +17,7 @@ import * as utils from './utils';
 const GET_DATASETS_API_URL = '/api/dataset/';
 const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';
 const GET_USERS_API_URL = '/api/user/';
+const GET_CONFIDENCE_INDICATORS_API_URL = '/api/confidence-indicator/';
 const POST_ANNOTATION_CAMPAIGN_API_URL = '/api/annotation-campaign/';
 
 type annotation_set_type = {
@@ -106,11 +107,18 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
   }
 
   handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    let id = parseInt(event.currentTarget.value, 10);
-    this.setState({
-      selected_id: id,
-      selected: this.props.confidence_indicator_sets[id]
-    });
+    if (event.currentTarget.value == "no-confidence-indicator-set") {
+      this.setState({
+        selected_id: 0,
+        selected: null
+      });
+    } else {
+      let id = parseInt(event.currentTarget.value, 10);
+      this.setState({
+        selected_id: id,
+        selected: this.props.confidence_indicator_sets[id]
+      });
+    }
     this.props.onChange(event);
   }
 
@@ -123,10 +131,11 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
     });
 
     return (
-      <div className="form-group ml-2">
-        <div>
-          <select id="cac-annotation-set" value={this.state.selected_id} className="form-control" onChange={this.handleOnChange}>
+      <div className="form-group">
+        <div className="col-sm-4 offset-sm-4">
+          <select id="cac-confidence-indicator-set" value={this.state.selected_id} className="form-control" onChange={this.handleOnChange}>
             <option value={0} disabled>Select a confidence indicator set</option>
+            <option key="null-confidence-indicators" value="no-confidence-indicator-set">No Confidence Indicator Set</option>
             {options}
           </select>
         </div>
@@ -163,6 +172,7 @@ type CACState = {
   new_ac_annotators: choices_type,
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
+  new_ac_confidence_indicator_set: number,
   dataset_choices: choices_type,
   spectro_choices: choices_type,
   confidence_indicator_set_choices: choices_type,
@@ -202,6 +212,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   getDatasets = request.get(GET_DATASETS_API_URL)
   getAnnotationSets = request.get(GET_ANNOTATION_SETS_API_URL)
   getUsers = request.get(GET_USERS_API_URL)
+  getConfidenceSets = request.get(GET_CONFIDENCE_INDICATORS_API_URL)
   postAnnotationCampaign = { abort: () => null }
 
   componentDidMount() {
@@ -380,9 +391,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleConfidenceSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({new_ac_confidence_indicator_set: parseInt(event.currentTarget.value, 10)});
-  }
+    let newValue = null
+    if (event.currentTarget.value !== "no-confidence-indicator-set")
+      newValue = parseInt(event.currentTarget.value, 10)
 
+    this.setState({ new_ac_confidence_indicator_set: newValue });
+  }
 
   handleAnnotationModeChange =(event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({new_ac_annotation_mode: parseInt(event.currentTarget.value, 10)});
