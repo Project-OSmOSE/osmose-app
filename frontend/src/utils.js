@@ -56,3 +56,11 @@ export function findObjetKey(objects, searchValue) {
     }
   }
 }
+
+export function findObjetById(objects, searchValue) {
+  for (const key in objects) {
+    if (objects[key].id === searchValue) {
+      return objects[key]
+    }
+  }
+}

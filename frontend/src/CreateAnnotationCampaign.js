@@ -1,5 +1,13 @@
 // @flow
 
+/* TODO some refactoring
+Originally this component used a lot arrayToObject with key == id to have an easy dict-like structure where we have IDs
+as keys with database objects as values. However since Javascript objects don't keep key order when created this means
+we lose the ordering given by the backend. So in and after PR#126 utils functions where changed and new ones introduced
+to deal with this. However there is probably a better way, possibly using new Javascript objects like Maps
+(see https://stackoverflow.com/a/41133779/2730032)
+*/
+
 import React, { Component } from 'react';
 import request from 'superagent';
 import ListChooser from './ListChooser';
@@ -82,7 +90,7 @@ type CACProps = {
 type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
-  new_ac_dataset: choices_type,
+  //new_ac_dataset: DATASET {id: number, ...},
   new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
@@ -204,9 +212,9 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     let new_ac_dataset = {};
     let spectro_choices = {};
     if (event.target.value !== '') {
-      let dataset_id = parseInt(event.target.value, 10);
-      new_ac_dataset[dataset_id] = this.state.dataset_choices[dataset_id];
-      spectro_choices = utils.arrayToObject(new_ac_dataset[dataset_id].spectros, 'id');
+      let dataset_id = parseInt(event.target.value, 10)
+      let new_ac_dataset = utils.findObjetById(this.state.dataset_choices, dataset_id);
+      spectro_choices = utils.arrayToObject(new_ac_dataset.spectros, 'id');
     }
     this.setState({
       new_ac_dataset: new_ac_dataset,
@@ -307,12 +315,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
-    const dataset_id = [this.state.new_ac_dataset[Object.keys(this.state.new_ac_dataset)[0]]["id"]];
     this.setState({error: null});
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
-      datasets: dataset_id,
+      datasets: this.state.new_ac_dataset.id,
       spectro_configs: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
@@ -358,7 +365,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     ));
     let wanted_annotators_label = "";
     const annotator_count = Object.keys(this.state.new_ac_annotators).length;
-    if (Object.keys(this.state.new_ac_dataset).length !== 0 && annotator_count !== 0) {
+    if (this.state.new_ac_dataset.id !== undefined && annotator_count !== 0) {
       const file_count = this.state.new_ac_dataset.files_count;
       let files_per_person = Math.floor(file_count * this.state.new_ac_annotation_goal / annotator_count);
       wanted_annotators_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;
