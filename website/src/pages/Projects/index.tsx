@@ -14,6 +14,7 @@ import shortMooringImg from '../../img/projects/short-mooring.jpg';
 import mooringLineImg from '../../img/projects/mooring-line.png';
 import logoofb from "../../img/logo/logo_ofb.png";
 import logoPnmIroise from "../../img/logo/logo_pnm_iroise.png";
+import logoCNES from "../../img/logo/logo_cnes.jpg";
 import React from "react";
 
 
@@ -28,7 +29,7 @@ export const Projects: React.FC = () => {
       </PageTitle>
 
       <div className="container">
-        <article className="my-5">
+        <article>
 
           <h2>APOCADO - Studying the interactions between common dolphins and fishing nets with passive acoustic monitoring</h2>
           <small className="text-muted">2021-2023</small>
@@ -39,7 +40,6 @@ export const Projects: React.FC = () => {
                 className="logo rounded mx-auto d-block img-fluid"
             />
           </figure>
-
           {/* <p>
             Le phénomène de captures accidentelles de delphinidés par les engins de pêche est connu des professionnels mais peu de données sont disponibles. Cette méconnaissance rend la mise en place des solutions techniques efficaces et adaptées au comportement du dauphin très difficile. L’objectif du projet APOCADO est d’acquérir de la connaissance sur cette interaction en utilisant l’acoustique passive. Il s’agit de placer des enregistreurs sur les filets des pêcheurs et d’enregistrer en continu les interactions delphinidé/filet en mer d’Iroise. Certains critères seront analysés tels que le type de filet utilisé, la saison et la zone de pêche par exemple. Les odontocètes produisent plusieurs sortes de cris, parmi eux figurent les sifflements qui sont généralement assimilés à des comportements sociaux ou encore les clics et buzzs qui correspondent typiquement à des comportements de chasse.  Nous espérons qu’étudier tous ces critères nous aidera à mieux comprendre les circonstances des captures accidentelles afin de mieux éviter ce phénomène. 
           </p> */}
@@ -75,7 +75,7 @@ export const Projects: React.FC = () => {
           </figure>
         </article>
 
-        <article className="my-5">
+        <article>
           <h2>CETIROISE - A one-year passive acoustic observatory in the Iroise natural marine Park to study marine mammal occurrence</h2>
           <small className="text-muted">2021-2023</small>
 
@@ -151,7 +151,7 @@ export const Projects: React.FC = () => {
           </figure>
         </article>
 
-        <article className="my-5">
+        <article>
           <h2>Optimisation du Suivie des Cétacés par Acoustique Passive (OSCAP)</h2>
           {/* <h2>Optimisation du Suivie des Cétacés par Acoustique Passive (OSCAP)</h2> */}
           {/* <p>
@@ -170,6 +170,14 @@ export const Projects: React.FC = () => {
             PhD Mathilde MICHEL
           </p>
           <small className="text-muted">2022-2025</small>
+          <figure>
+            <img
+                src={logoCNES}
+                alt="AFB logo"
+                className="logo rounded mx-auto d-block img-fluid"
+            />
+          </figure>
+
           <p>
             ENSTA Bretagne conducts passive acoustic monitoring of cetacean populations through various projects (national and international) and uses the OSmOSE platform - Open Science meets Ocean Sound Explorers - to process and analyze passive acoustic data. These studies are essential to improve the knowledge of species, especially species that are difficult to observe by conventional visual monitoring methods or whose densities are currently low (e.g. the blue whale).
           </p>
