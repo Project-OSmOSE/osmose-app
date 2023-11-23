@@ -1,5 +1,7 @@
 """Annotation set DRF-Viewset file"""
 
+from django.db.models.functions import Lower
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -16,6 +18,6 @@ class AnnotationSetViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List users"""
-        queryset = AnnotationSet.objects.all().order_by("name")
+        queryset = AnnotationSet.objects.all().order_by(Lower("name"))
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
