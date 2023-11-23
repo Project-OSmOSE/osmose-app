@@ -2,9 +2,7 @@
 from freezegun import freeze_time
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
-from django.utils import timezone
 from django.contrib.auth.models import User
-from datetime import datetime
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -12,12 +10,6 @@ from rest_framework.test import APITestCase
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationTask,
-    AnnotationSet,
-    ConfidenceIndicatorSet,
-)
-from backend.api.serializers import (
-    AnnotationSetSerializer,
-    ConfidenceIndicatorSetSerializer,
 )
 
 
@@ -207,7 +199,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     # Testing 'create'
     def test_create(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
-        self.maxDiff = None
+        self.maxDiff = None  # this is to avoid diff truncation in test error log
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
         url = reverse("annotation-campaign-list")
@@ -224,31 +216,27 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_id",
                 "datasets",
-                "confidence_indicator_set_id",
                 "created_at",
             ]
         }
-        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.get(
-            pk=self.creation_data["confidence_indicator_set_id"]
-        )
-        annotationSet = AnnotationSet.objects.get(
-            pk=self.creation_data["annotation_set_id"]
-        )
-
 
         expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        expected_reponse["confidence_indicator_set"] = dict(
-            ConfidenceIndicatorSetSerializer(confidenceIndicatorSet).data
-        )
-        expected_reponse["annotation_set"] = dict(
-            AnnotationSetSerializer(annotationSet).data
-        )
-        expected_reponse.pop("confidence_indicator_set_id")
-        expected_reponse.pop("annotation_set_id")
+        reponse_data = dict(response.data)
 
-        self.assertEqual(dict(response.data), expected_reponse)
+        confidence_indicator_set = reponse_data.pop("confidence_indicator_set")
+        self.assertEqual(confidence_indicator_set["name"], "Confidence/NoConfidence")
+        self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
+        self.assertEqual(len(confidence_indicator_set["confidenceIndicators"]), 2)
+
+        annotation_set = reponse_data.pop("annotation_set")
+        self.assertEqual(annotation_set["name"], "Test SPM campaign")
+        self.assertEqual(
+            annotation_set["desc"], "Annotation set made for Test SPM campaign"
+        )
+        self.assertEqual(len(annotation_set["tags"]), 5)
+
+        self.assertEqual(reponse_data, expected_reponse)
 
     # Testing 'add_annotators'
 

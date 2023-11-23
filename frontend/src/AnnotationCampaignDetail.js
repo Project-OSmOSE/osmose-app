@@ -129,6 +129,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         let progress = (val[2] || 0).toString() + '/' + total.toString();
         tasks.push({ annotator_id: parseInt(key, 10), annotator_name: users[key], progress: progress });
       });
+
       this.setState({
         campaign: req_data.body.campaign,
         tasks: tasks,

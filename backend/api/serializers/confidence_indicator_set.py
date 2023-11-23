@@ -1,4 +1,4 @@
-"""Annotation set DRF serializers file"""
+"""ConfidenceIndicatorSet and ConfidenceIndicator set DRF serializers file"""
 
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
@@ -8,7 +8,7 @@ from backend.api.models import ConfidenceIndicatorSet, ConfidenceIndicator
 
 
 class ConfidenceIndicatorSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic ConfidenceIndicatorSet data"""
+    """Serializer meant to output basic ConfidenceIndicator data"""
 
     isDefault = serializers.BooleanField(source="is_default")
 

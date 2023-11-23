@@ -5,7 +5,33 @@
         "desc": "Campaign description",
         "start": "2018-06-01T00:00:00.000Z",
         "end": "2018-12-30T00:00:00.000Z",
-        "annotation_set_id": 1,
+        "annotation_set_id":{
+            "id":1,
+            "name":"SPM annotation set",
+            "desc":"Annotation set made for the SPM collection",
+            "tags":[
+                "Mysticète",
+                "Humpback Whale",
+                "Minke Whale",
+                "Odontocète",
+                "Killer Whale",
+                "Beluga",
+                "Sperm Whale",
+                "Common Dolphin",
+                "Striped Dolphin",
+                "Pilot Whale",
+                "Rain",
+                "Vessel",
+                "Chain"
+            ]
+        },
+        "confidence_indicator_set":   {
+            "id": 1,
+            "name": "Confident/NotConfident",
+            "desc": "a desc",
+            "confidence_indicators": [1,2],
+            "default_confidence_indicator": 1
+        },
         "owner_id": 5
     },
     "tasks": [

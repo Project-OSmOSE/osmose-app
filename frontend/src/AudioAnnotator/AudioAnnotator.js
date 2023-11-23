@@ -1391,7 +1391,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                 {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
                 <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
-                <i className={ this.state.task.confidenceIndicatorSet === undefined ? "isInvisible " : "" + "fa fa-handshake"}></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
+                <i className={`${this.state.task.confidenceIndicatorSet === undefined ? 'isInvisible' : '' } fa fa-handshake`}></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
             </p>
           </div>
         </div>

@@ -196,6 +196,7 @@ class Command(management.BaseCommand):
                 "annotation_scope": 1,
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
                 "dataset": self.dataset_1,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
             },
             {
                 "name": "Test DCLDE LF campaign",
@@ -207,6 +208,7 @@ class Command(management.BaseCommand):
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
                 "annotation_scope": 2,
                 "dataset": self.dataset_1,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
             },
             {
                 "name": "Many tags campaign",
@@ -218,15 +220,19 @@ class Command(management.BaseCommand):
                 "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
                 "dataset": self.dataset_2,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
             },
             {
                 "name": "Test SPM campaign No Confidence",
                 "desc": "Test annotation campaign with many tags",
-                "start": timezone.make_aware(datetime.strptime("2012-06-22", "%Y-%m-%d")),
+                "start": timezone.make_aware(
+                    datetime.strptime("2012-06-22", "%Y-%m-%d")
+                ),
                 "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
                 "annotation_scope": 2,
                 "dataset": self.dataset_2,
+                "confidence_indicator_set": None,
             },
         ]
         self.campaigns = []
@@ -235,10 +241,9 @@ class Command(management.BaseCommand):
             campaign = AnnotationCampaign.objects.create(
                 **campaign_data,
                 owner=self.admin,
-                confidence_indicator_set=self.confidenceIndicatorSet,
             )
 
-            campaign.datasets.add(self.dataset)
+            campaign.datasets.add(dataset)
             for file in dataset.files.all():
                 for user in self.users:
                     campaign.tasks.create(dataset_file=file, annotator=user, status=0)

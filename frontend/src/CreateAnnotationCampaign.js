@@ -107,7 +107,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
   }
 
   handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    if (event.currentTarget.value == "no-confidence-indicator-set") {
+    if (event.currentTarget.value === "no-confidence-indicator-set") {
       this.setState({
         selected_id: 0,
         selected: null
