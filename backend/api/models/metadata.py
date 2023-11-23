@@ -1,6 +1,7 @@
 """Metadata-related models"""
 
 from django.db import models
+from backend.api.models.datasets import Dataset
 
 
 class AudioMetadatum(models.Model):
@@ -67,9 +68,9 @@ class SpectroConfig(models.Model):
     """
 
     def __str__(self):
-        return str(self.name)
+        return f"{self.name} - {self.dataset}"
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     desc = models.TextField(null=True, blank=True)
     nfft = models.IntegerField()
     window_size = models.IntegerField()
@@ -86,6 +87,9 @@ class SpectroConfig(models.Model):
         WindowType, on_delete=models.CASCADE, blank=True, null=True
     )
     frequency_resolution = models.FloatField()
+    dataset = models.ForeignKey(
+        Dataset, on_delete=models.CASCADE, related_name="spectro_configs"
+    )
     time_resolution_zoom_0 = models.FloatField(default=0)
     time_resolution_zoom_1 = models.FloatField(default=0)
     time_resolution_zoom_2 = models.FloatField(default=0)

@@ -8,6 +8,7 @@ from copy import deepcopy
 from backend.api.serializers import (
     AnnotationCampaignCreateSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    SpectroConfigSerializer,
 )
 from backend.api.models import AnnotationCampaign, AnnotationTask
 
@@ -30,17 +31,18 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
         "datasets": [1],
-        "spectros": [1],
         "annotators": [1, 2],
         "annotation_method": 1,
         "annotation_goal": 1,
         "annotation_scope": 1,
+        "spectro_configs": [1],
     }
 
     def test_with_valid_data(self):
         """Updates correctly the DB when serializer saves with correct data"""
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
+
         create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
         create_serializer.is_valid(raise_exception=True)
         create_serializer.save(owner_id=1)
@@ -55,7 +57,8 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         """Fails validation when given a SpectroConfig not used in campaign"""
         campaign = AnnotationCampaign.objects.first()
         update_data = deepcopy(self.creation_data)
-        update_data["spectros"] = [2]
+        update_data["spectro_configs"] = [3]
+
         create_serializer = AnnotationCampaignCreateSerializer(
             campaign, data=update_data
         )
@@ -64,7 +67,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         self.assertEquals(len(create_serializer.errors["non_field_errors"]), 1)
         self.assertEquals(
             str(create_serializer.errors["non_field_errors"][0]),
-            "{2} not valid ids for spectro configs of given datasets",
+            "{3} not valid ids for spectro configs of given datasets",
         )
 
 

@@ -40,6 +40,7 @@ def check_new_spectro_config_errors():
                 / settings.DATASET_SPECTRO_FOLDER
                 / conf_folder
             )
+
             # Search all sub folder, each sub folder have one metadata.csv
             for one_spectro_folder in os.scandir(conf_folder_path):
                 if one_spectro_folder.is_dir():
@@ -60,10 +61,9 @@ def check_new_spectro_config_errors():
                             }
                             dataset_spectros.append(
                                 SpectroConfig.objects.update_or_create(
-                                    name=name, defaults=spectro_needed
+                                    name=name, defaults=spectro_needed, dataset=dataset
                                 )[0]
                             )
-                    dataset.spectro_configs.set(dataset_spectros)
 
     except FileNotFoundError as error:
         regex = "dataset/(.*)/processed"

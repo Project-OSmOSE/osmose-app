@@ -80,17 +80,17 @@ class DatasetAdmin(admin.ModelAdmin):
         "geo_metadatum",
         "owner",
         "tabular_metadatum",
-        "show_collections",
         "show_spectro_configs",
+        "show_collections",
     )
-
-    def show_collections(self, obj):
-        """show_collections"""
-        return get_many_to_many(obj, "collections")
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
         return get_many_to_many(obj, "spectro_configs")
+
+    def show_collections(self, obj):
+        """show_collections"""
+        return get_many_to_many(obj, "collections")
 
 
 class DatasetFileAdmin(admin.ModelAdmin):
@@ -244,6 +244,7 @@ class SpectroConfigAdmin(admin.ModelAdmin):
 
     list_display = (
         "name",
+        "dataset",
         "desc",
         "nfft",
         "window_size",

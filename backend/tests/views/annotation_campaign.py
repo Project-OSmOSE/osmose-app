@@ -66,7 +66,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
         "datasets": [1],
-        "spectros": [1],
+        "spectro_configs": [1],
         "annotators": [1, 2],
         "annotation_method": 1,
         "annotation_goal": 1,
@@ -255,7 +255,6 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Testing 'report'
-
     def test_report(self):
         """AnnotationCampaign view 'report' returns CSV report"""
         url = reverse("annotation-campaign-report", kwargs={"pk": 1})

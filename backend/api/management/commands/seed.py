@@ -212,7 +212,7 @@ class Command(management.BaseCommand):
     def _create_spectro_configs(self):
         print(" ###### _create_spectro_configs ######")
         window_type = WindowType.objects.create(name="Hamming")
-        spectro_config1 = self.dataset_1.spectro_configs.create(
+        spectro_config_1 = self.dataset_1.spectro_configs.create(
             name="4096_4096_90",
             nfft=4096,
             window_size=4096,
@@ -228,8 +228,23 @@ class Command(management.BaseCommand):
             window_type=window_type,
             frequency_resolution=0,
         )
-        self.dataset_2.spectro_configs.add(spectro_config1)
-        spectro_config2 = self.dataset_1.spectro_configs.create(
+        spectro_config_2 = self.dataset_2.spectro_configs.create(
+            name="4096_4096_90",
+            nfft=4096,
+            window_size=4096,
+            overlap=90,
+            zoom_level=3,
+            spectro_normalization="density",
+            data_normalization="0",
+            zscore_duration="0",
+            hp_filter_min_freq=0,
+            colormap="Blues",
+            dynamic_min=0,
+            dynamic_max=0,
+            window_type=window_type,
+            frequency_resolution=0,
+        )
+        spectro_config_3 = self.dataset_1.spectro_configs.create(
             name="2048_1000_90",
             nfft=2048,
             window_size=1000,
@@ -245,10 +260,11 @@ class Command(management.BaseCommand):
             window_type=window_type,
             frequency_resolution=0,
         )
-        self.campaigns[0].spectro_configs.add(spectro_config2)
-        for campaign in self.campaigns:
-            campaign.spectro_configs.add(spectro_config1)
-            campaign.save()
+
+        self.campaigns[0].spectro_configs.add(spectro_config_1)
+        self.campaigns[0].spectro_configs.add(spectro_config_3)
+        self.campaigns[1].spectro_configs.add(spectro_config_1)
+        self.campaigns[2].spectro_configs.add(spectro_config_2)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")

@@ -61,7 +61,7 @@ class DatasetViewSetTestCase(APITestCase):
                 "created_at",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "SPM Aural A 2010")
+        self.assertEqual(response.data[0]["name"], "Another Dataset")
         self.assertEqual(len(response.data[0]["spectros"]), 1)
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_file")

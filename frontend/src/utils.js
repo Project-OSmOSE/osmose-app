@@ -51,8 +51,16 @@ export function getTagColor(tags: Map<string, string>, tag: string): string {
 
 export function findObjetKey(objects, searchValue) {
   for (const key in objects) {
-    if (objects[key].id == searchValue) {
+    if (objects[key].id === searchValue) {
       return key
+    }
+  }
+}
+
+export function findObjetById(objects, searchValue) {
+  for (const key in objects) {
+    if (objects[key].id === searchValue) {
+      return objects[key]
     }
   }
 }
