@@ -5,6 +5,7 @@ from random import shuffle
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
 
 
 class ConfidenceIndicatorSet(models.Model):
@@ -36,6 +37,13 @@ class ConfidenceIndicator(models.Model):
 
     class Meta:
         db_table = "confidence_indicator"
+        constraints = [
+            models.UniqueConstraint(
+                name="one_default_by_confidence_indicator_set",
+                fields=["is_default", "confidence_indicator_set"],
+                condition=Q(is_default=True),
+            ),
+        ]
 
     def __str__(self):
         return str(self.label)

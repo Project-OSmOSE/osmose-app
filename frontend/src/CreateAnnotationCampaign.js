@@ -55,10 +55,10 @@ class ShowAnnotationSet extends Component<ShowAnnotationSetProps, ShowAnnotation
   }
 
   render() {
-    let options = utils.objectValues(this.props.annotation_sets).map(annotation_set => {
+    let options = utils.objectValues(this.props.annotation_sets).map((annotation_set, index) => {
       let id = annotation_set.id;
       return (
-        <option key={id} value={id}>{annotation_set.name}</option>
+        <option key={id} value={index}>{annotation_set.name}</option>
       );
     });
 
@@ -123,10 +123,10 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
   }
 
   render() {
-    let options = utils.objectValues(this.props.confidence_indicator_sets).map(confidence_indicator_set => {
+    let options = utils.objectValues(this.props.confidence_indicator_sets).map((confidence_indicator_set, index) => {
       let id = confidence_indicator_set.id;
       return (
-        <option key={id} value={id}>{confidence_indicator_set.name}</option>
+        <option key={id} value={index}>{confidence_indicator_set.name}</option>
       );
     });
 
@@ -253,7 +253,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       }),
       this.getConfidenceSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         this.setState({
-          confidence_indicator_set_choices: utils.arrayToObject(req.body, 'id')
+          confidence_indicator_set_choices: utils.arrayToObject(req.body)
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -269,7 +269,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         let users = req.body.map(user => { return { id: user.id, name: user.email }; });
 
         this.setState({
-          annotator_choices: users,
+          annotator_choices: utils.arrayToObject(users),
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -305,7 +305,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     let spectro_choices = {};
     if (event.target.value !== '') {
       let dataset_id = parseInt(event.target.value, 10)
-      let new_ac_dataset = utils.findObjetById(this.state.dataset_choices, dataset_id);
+      new_ac_dataset = utils.findObjetById(this.state.dataset_choices, dataset_id);
       spectro_choices = utils.arrayToObject(new_ac_dataset.spectros, 'id');
     }
     this.setState({
@@ -387,13 +387,13 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleAnnotationSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
+    this.setState({ new_ac_annotation_set: this.state.annotation_set_choices[parseInt(event.currentTarget.value, 10)].id });
   }
 
   handleConfidenceSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let newValue = null
     if (event.currentTarget.value !== "no-confidence-indicator-set")
-      newValue = parseInt(event.currentTarget.value, 10)
+      newValue = this.state.confidence_indicator_set_choices[parseInt(event.currentTarget.value, 10)].id
 
     this.setState({ new_ac_confidence_indicator_set: newValue });
   }
@@ -415,15 +415,20 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
-    this.setState({error: null});
+    this.setState({ error: null });
+    let annotators_id = []
+    for (let key in this.state.new_ac_annotators) {
+        annotators_id.push(this.state.new_ac_annotators[key].id)
+    }
+
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
-      datasets: this.state.new_ac_dataset.id,
+      datasets: [this.state.new_ac_dataset.id],
       spectro_configs: Object.keys(this.state.new_ac_spectros),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
-      annotators: Object.keys(this.state.new_ac_annotators),
+      annotators: annotators_id,
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),

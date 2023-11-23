@@ -1458,7 +1458,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             <i className="fas fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
-          <td>
+          <td className="p-1">
             <i className="fa fa-handshake"></i>&nbsp;
             {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>

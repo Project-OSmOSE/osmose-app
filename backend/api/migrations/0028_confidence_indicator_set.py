@@ -78,4 +78,12 @@ class Migration(migrations.Migration):
                 to="api.confidenceindicator",
             ),
         ),
+        migrations.AddConstraint(
+            model_name="confidenceindicator",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("is_default", True)),
+                fields=("is_default", "confidence_indicator_set"),
+                name="one_default_by_confidence_indicator_set",
+            ),
+        ),
     ]
