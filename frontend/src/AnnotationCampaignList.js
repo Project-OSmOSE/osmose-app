@@ -5,6 +5,21 @@ import request from 'superagent';
 
 const API_URL = '/api/annotation-campaign/';
 
+type confidence_indicator_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  confidence_indicators: Array<string>,
+  default_confidence_indicator: number,
+};
+
+type annotation_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  tags: Array<string>
+};
+
 type ACLProps = {
   app_token: string
 };
@@ -13,8 +28,9 @@ type ACLState = {
     id: number,
     name: string,
     instructions_url: ?string,
-    annotation_set_id: number,
-    files_count: number,
+    annotation_set_type: annotation_set_type,
+    confidence_indicator_set_type: confidence_indicator_set_type,
+    datasets_count: number,
     start: string,
     end: string,
     tasks_count: number,
@@ -58,7 +74,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   render() {
     if (this.state.error) {
       return (
-        <div className="col-sm-9 border rounded">
+        <div className="col-sm-10 border rounded">
           <h1>Annotation Campaigns</h1>
           <p className="error-message">{this.state.error.message}</p>
         </div>
@@ -82,7 +98,8 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
         <tr key={annotation_campaign.id}>
           <td><Link to={'/annotation_campaign/' + annotation_campaign.id}>{annotation_campaign.name}</Link></td>
           <td>{new Date(annotation_campaign.created_at).toDateString()}</td>
-          <td>Set n°{annotation_campaign.annotation_set_id}</td>
+          <td>{annotation_campaign.annotation_set.name}</td>
+          <td>{annotation_campaign.confidence_indicator_set ? annotation_campaign.confidence_indicator_set.name : "-"}</td>
           <td>{annotation_campaign.files_count}</td>
           <td>{annotation_campaign.start ? new Date(annotation_campaign.start).toDateString() : 'N/A'}</td>
           <td>{annotation_campaign.end ? new Date(annotation_campaign.end).toDateString() : 'N/A'}</td>
@@ -94,7 +111,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
     });
 
     return (
-      <div className="col-sm-9 border rounded">
+      <div className="col-sm-10 border rounded">
         <h1 className="text-center">Annotation Campaigns</h1>
         <p className="text-center">
           <a
@@ -104,24 +121,27 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
             target="_blank"
           ><span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>
         </p>
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Created at</th>
-              <th>Annotation Set</th>
-              <th>Number of files</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Progress</th>
-              <th>Campaign instructions</th>
-              <th>Annotation Link</th>
-            </tr>
-          </thead>
-          <tbody>
-          {annotation_campaigns}
-          </tbody>
-        </table>
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Created at</th>
+                <th>Annotation Set</th>
+                <th>Confidence indicator Set</th>
+                <th>Number of files</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Progress</th>
+                <th>Campaign instructions</th>
+                <th>Annotation Link</th>
+              </tr>
+            </thead>
+            <tbody>
+            {annotation_campaigns}
+            </tbody>
+            </table>
+          </div>
         <p className="text-center"><Link to="/create-annotation-campaign" className="btn btn-primary">New annotation campaign</Link></p>
       </div>
     )

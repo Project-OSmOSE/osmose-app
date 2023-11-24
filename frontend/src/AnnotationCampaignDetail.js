@@ -47,6 +47,20 @@ class DownloadButton extends Component<DownloadButtonProps> {
     );
   }
 }
+type confidence_indicator_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  confidence_indicators: Array<string>,
+  default_confidence_indicator: number,
+};
+
+type annotation_set_type = {
+  id: number,
+  name: string,
+  desc: string,
+  tags: Array<string>
+};
 
 type ACDProps = {
   match: {
@@ -63,7 +77,8 @@ type ACDState = {
     desc: string,
     start: string,
     end: string,
-    annotation_set_id: number,
+    annotation_set: annotation_set_type,
+    confidence_indicator_set: confidence_indicator_set_type,
     owner_id: number,
     instructions_url: ?string,
   },
@@ -114,6 +129,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         let progress = (val[2] || 0).toString() + '/' + total.toString();
         tasks.push({ annotator_id: parseInt(key, 10), annotator_name: users[key], progress: progress });
       });
+
       this.setState({
         campaign: req_data.body.campaign,
         tasks: tasks,
@@ -180,10 +196,10 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <h1 className="text-center">{campaign.name}</h1>
         <div className="row justify-content-around">
           <div>
-            <div><b>Annotation set:</b> #{campaign.annotation_set_id}</div>
+            <div><b>Annotation set:</b> {campaign.annotation_set.name}</div>
+            <div><b>Confidence Indicator set:</b> {campaign.confidence_indicator_set ? campaign.confidence_indicator_set.name : "-"}</div>
           </div>
           <div>
-            <div><b>Created at:</b> {campaign.created_at ? new Date(campaign.created_at).toLocaleDateString() : 'N/A'}</div>
             <div><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
             <div><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
           </div>

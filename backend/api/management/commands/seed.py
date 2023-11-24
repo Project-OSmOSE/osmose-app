@@ -14,7 +14,6 @@ except ImportError:
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
-
 from django.contrib.auth.models import User
 from backend.api.models import (
     DatasetType,
@@ -24,6 +23,8 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
+    ConfidenceIndicator,
+    ConfidenceIndicatorSet,
     AnnotationComment,
     AnnotationResult,
     News,
@@ -55,6 +56,7 @@ class Command(management.BaseCommand):
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
+        self._create_confidence_sets()
         self._create_annotation_campaigns()
         self._create_spectro_configs()
         self._create_annotation_results()
@@ -159,6 +161,27 @@ class Command(management.BaseCommand):
                 annotation_set.tags.create(name=tag)
             self.annotation_sets[seed_set["name"]] = annotation_set
 
+    def _create_confidence_sets(self):
+
+        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
+            name="Confident/NotConfident",
+            desc=self.faker.paragraph(nb_sentences=5),
+        )
+
+        confidence_0 = ConfidenceIndicator.objects.create(
+            label="not confident",
+            level=0,
+            confidence_indicator_set=confidenceIndicatorSet,
+        )
+        confidence_1 = ConfidenceIndicator.objects.create(
+            label="confident",
+            level=1,
+            confidence_indicator_set=confidenceIndicatorSet,
+            is_default=True,
+        )
+        self.confidences_indicators = [confidence_0, confidence_1]
+        self.confidenceIndicatorSet = confidenceIndicatorSet
+
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
         campaigns = [
@@ -173,6 +196,7 @@ class Command(management.BaseCommand):
                 "annotation_scope": 1,
                 "annotation_set": self.annotation_sets["Test SPM campaign"],
                 "dataset": self.dataset_1,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
             },
             {
                 "name": "Test DCLDE LF campaign",
@@ -184,6 +208,7 @@ class Command(management.BaseCommand):
                 "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
                 "annotation_scope": 2,
                 "dataset": self.dataset_1,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
             },
             {
                 "name": "Many tags campaign",
@@ -195,14 +220,29 @@ class Command(management.BaseCommand):
                 "annotation_set": self.annotation_sets["Big tag set"],
                 "annotation_scope": 2,
                 "dataset": self.dataset_2,
+                "confidence_indicator_set": self.confidenceIndicatorSet,
+            },
+            {
+                "name": "Test SPM campaign No Confidence",
+                "desc": "Test annotation campaign with many tags",
+                "start": timezone.make_aware(
+                    datetime.strptime("2012-06-22", "%Y-%m-%d")
+                ),
+                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
+                "annotation_set": self.annotation_sets["Test SPM campaign"],
+                "annotation_scope": 2,
+                "dataset": self.dataset_2,
+                "confidence_indicator_set": None,
             },
         ]
         self.campaigns = []
         for campaign_data in campaigns:
             dataset = campaign_data.pop("dataset")
             campaign = AnnotationCampaign.objects.create(
-                **campaign_data, owner=self.admin
+                **campaign_data,
+                owner=self.admin,
             )
+
             campaign.datasets.add(dataset)
             for file in dataset.files.all():
                 for user in self.users:
@@ -289,6 +329,7 @@ class Command(management.BaseCommand):
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
+                        confidence_indicator=choice(self.confidences_indicators),
                     )
                 task.status = 2
                 task.save()

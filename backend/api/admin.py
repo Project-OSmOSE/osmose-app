@@ -1,7 +1,7 @@
 """Python module for Django admin interface"""
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
-from collections import OrderedDict
+
 from django.contrib import admin
 from django import forms
 
@@ -20,6 +20,8 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     WindowType,
+    ConfidenceIndicator,
+    ConfidenceIndicatorSet,
     News,
 )
 
@@ -41,13 +43,35 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
         name_field = getattr(one_name_attr, related_field_name)
         many_to_many_attributs += f"{name_field}, "
 
-    return " ".join(OrderedDict.fromkeys(many_to_many_attributs.split()))
+    return many_to_many_attributs[:-2]
 
 
 class NewItemsForm(forms.ModelForm):
     """NewItem need a textarea form for intro field for UX"""
 
     intro = forms.CharField(widget=forms.Textarea)
+
+
+class ConfidenceIndicatorAdmin(admin.ModelAdmin):
+    """Collection presentation in DjangoAdmin"""
+
+    list_display = (
+        "id",
+        "label",
+        "level",
+        "confidence_indicator_set",
+        "is_default",
+    )
+
+
+class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
+    """Collection presentation in DjangoAdmin"""
+
+    list_display = (
+        "id",
+        "name",
+        "desc",
+    )
 
 
 class CollectionAdmin(admin.ModelAdmin):
@@ -154,6 +178,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "show_annotators",
+        "confidence_indicator_set",
     )
 
     def show_spectro_configs(self, obj):
@@ -191,6 +216,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "annotation_tag",
         "annotation_task",
+        "confidence_indicator",
     )
 
 
@@ -313,6 +339,8 @@ class NewsAdmin(admin.ModelAdmin):
     list_display = ("title", "intro", "body", "date", "vignette")
 
 
+admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
+admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)

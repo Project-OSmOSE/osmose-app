@@ -56,6 +56,7 @@ type WorkbenchProps = {
   onSeek: any,
   drawingEnabled: boolean,
   currentDefaultTagAnnotation: string,
+  currentDefaultConfidenceIndicator: string,
 };
 
 type WorkbenchState = {
@@ -426,6 +427,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       type: TYPE_BOX,
       id: '',
       annotation: this.props.currentDefaultTagAnnotation,
+      confidenceIndicator: this.props.currentDefaultConfidenceIndicator,
       startTime: Math.min(currentTime, this.drawStartTime),
       endTime: Math.max(currentTime, this.drawStartTime),
       startFrequency: Math.min(currentFrequency, this.drawStartFrequency),

@@ -2,15 +2,15 @@
 from freezegun import freeze_time
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
-from django.utils import timezone
 from django.contrib.auth.models import User
-
-from datetime import datetime
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.models import AnnotationCampaign, AnnotationTask
+from backend.api.models import (
+    AnnotationCampaign,
+    AnnotationTask,
+)
 
 
 class AnnotationCampaignViewSetUnauthenticatedTestCase(APITestCase):
@@ -55,6 +55,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "users",
         "datasets",
         "annotation_sets",
+        "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
     ]
@@ -65,6 +66,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
+        "confidence_indicator_set_id": 1,
         "datasets": [1],
         "spectro_configs": [1],
         "annotators": [1, 2],
@@ -104,7 +106,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_id",
+                "annotation_set",
+                "confidence_indicator_set",
                 "tasks_count",
                 "user_tasks_count",
                 "complete_tasks_count",
@@ -142,7 +145,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_id",
+                "annotation_set",
+                "confidence_indicator_set",
                 "tasks_count",
                 "user_tasks_count",
                 "complete_tasks_count",
@@ -172,7 +176,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_id",
+                "annotation_set",
+                "confidence_indicator_set",
                 "datasets",
                 "created_at",
             ],
@@ -194,10 +199,12 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     # Testing 'create'
     def test_create(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
+        self.maxDiff = None  # this is to avoid diff truncation in test error log
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
         url = reverse("annotation-campaign-list")
         response = self.client.post(url, self.creation_data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
         self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
@@ -209,14 +216,27 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_id",
                 "datasets",
                 "created_at",
             ]
         }
 
         expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        self.assertEqual(dict(response.data), expected_reponse)
+        reponse_data = dict(response.data)
+
+        confidence_indicator_set = reponse_data.pop("confidence_indicator_set")
+        self.assertEqual(confidence_indicator_set["name"], "Confidence/NoConfidence")
+        self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
+        self.assertEqual(len(confidence_indicator_set["confidenceIndicators"]), 2)
+
+        annotation_set = reponse_data.pop("annotation_set")
+        self.assertEqual(annotation_set["name"], "Test SPM campaign")
+        self.assertEqual(
+            annotation_set["desc"], "Annotation set made for Test SPM campaign"
+        )
+        self.assertEqual(len(annotation_set["tags"]), 5)
+
+        self.assertEqual(reponse_data, expected_reponse)
 
     # Testing 'add_annotators'
 
@@ -275,6 +295,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "start_datetime",
                 "end_datetime",
                 "is_box",
+                "confidence_indicator_label",
+                "confidence_indicator_level",
                 "comments",
             ],
         )
@@ -292,6 +314,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "2012-10-03T16:01:59.635+00:00",
                 "2012-10-03T16:04:38.488+00:00",
                 "1",
+                "confident",
+                "0/1",
                 "",
             ],
         )

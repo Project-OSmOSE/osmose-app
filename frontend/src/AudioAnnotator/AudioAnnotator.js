@@ -53,6 +53,12 @@ export type RawAnnotation = {
 export const TYPE_TAG: string = 'tag';
 export const TYPE_BOX: string = 'box';
 
+export type ConfidenceIndicator = {
+  id: number,
+  name: string,
+  order: number
+}
+
 export type Annotation = {
   type: string,
   id: string,
@@ -62,17 +68,28 @@ export type Annotation = {
   startFrequency: number,
   endFrequency: number,
   active: boolean,
-  result_comments: {
-    annotation_result: number,
-    annotation_task: number,
-    comment: string
-  },
+  confidence: string
 };
 
 type AnnotationTask = {
   id: string,
   annotationTags: Array<string>,
-  task_comment: {
+  confidenceIndicatorSet: {
+    id: number,
+    name: string,
+    desc: string,
+    confidenceIndicators: {
+      id: number,
+      name: string,
+      order: number
+    },
+    default_confidenceIndicator:{
+      id: number,
+      name: string,
+      order: number
+    },
+  },
+  taskComment: {
     annotation_result: number,
     annotation_task: number,
     comment: string
@@ -122,7 +139,7 @@ type AudioAnnotatorState = {
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
   currentComment: string,
-  task_comment: {
+  taskComment: {
     annotation_result: number,
     annotation_task: number,
     comment: string
@@ -158,7 +175,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       annotations: [],
       currentDefaultTagAnnotation: '',
       inAModal: false,
-      checkbox_isChecked: [],
+      checkbox_isChecked:  [],
       currentComment: { comment: "" },
     };
   }
@@ -214,6 +231,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: ann.endTime ? ann.endTime : 0,
                 startFrequency: ann.startFrequency ? ann.startFrequency : 0,
                 endFrequency: ann.endFrequency ? ann.endFrequency : 0,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : null,
                 active: false,
                 result_comments: ann.result_comments[0] === undefined ? { comment: "", annotation_task: task.id, annotation_result:ann.id } : ann.result_comments[0],
               };
@@ -227,16 +245,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: -1,
                 startFrequency: -1,
                 endFrequency: -1,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : null,
                 active: false,
                 result_comments: ann.result_comments[0] === undefined ? { comment: "", annotation_task: task.id, annotation_result:ann.id } : ann.result_comments[0],
               };
             }
           });
-          let task_comment
-          if (task.task_comment[0] === undefined) {
-            task_comment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
+          let taskComment
+          if (task.taskComment[0] === undefined) {
+            taskComment = { comment: "", annotation_task: task.id, annotation_result: null, id: null }
           } else {
-            task_comment = task.task_comment[0]
+            taskComment = task.taskComment[0]
           }
 
           const annotationsTag = annotations.filter((ann: Annotation) => ann.type === TYPE_TAG)
@@ -248,7 +267,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               .concat(annotationsTag[0]);
               newComment = annotationsTag[0].result_comments
           } else {
-            newComment = task_comment
+            newComment = taskComment
+          }
+
+          let defaultConfidenceIndicatorLabel = null
+          if (task.confidenceIndicatorSet !== undefined) {
+            defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.confidenceIndicators.find((confidenceIndicator) =>  confidenceIndicator.isDefault === true).label
           }
 
           // Finally, setting state
@@ -260,9 +284,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             isLoading: false,
             error: undefined,
             annotations,
-            checkbox_isChecked: checkbox_isChecked,
+            checkbox_isChecked:  checkbox_isChecked,
+            currentDefaultConfidenceIndicator: defaultConfidenceIndicatorLabel,
             currentComment: newComment,
-            task_comment: task_comment,
+            taskComment: taskComment,
           });
 
         } else {
@@ -503,7 +528,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     this.setState({
       annotations: annotations,
-      currentDefaultTagAnnotation: activated.annotation,
+      currentDefaultTagAnnotation:  activated.annotation,
+      currentDefaultConfidenceIndicator: activated.confidenceIndicator,
       currentComment: currentComment
     });
   }
@@ -531,6 +557,27 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  toggleAnnotationConfidence = (confidenceIndicator: string) => {
+    const activeAnn: ?Annotation = this.state.annotations
+      .find(ann => ann.active);
+
+    if (activeAnn) {
+      const newConfidence: ConfidenceIndicator = (activeAnn.confidenceIndicator === confidenceIndicator) ? '' : confidenceIndicator;
+      const newAnnotation: Annotation = Object.assign(
+        {}, activeAnn, { confidenceIndicator: newConfidence,  }
+      );
+      const annotations: Array<Annotation> = this.state.annotations
+        .filter(ann => !ann.active)
+        .concat(newAnnotation);
+
+      this.setState({
+        annotations,
+        toastMsg: undefined,
+        currentDefaultConfidenceIndicator: confidenceIndicator,
+      });
+    }
+  }
+
   toggleGlobalTag = (tag: string) => {
     if (this.state.checkbox_isChecked[tag]) {
       this.deleteAnnotationInPresenceMode(tag)
@@ -544,6 +591,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endTime: -1,
         startFrequency: -1,
         endFrequency: -1,
+        confidenceIndicator: this.state.currentDefaultConfidenceIndicator,
         active: true,
         result_comments: { comment: "", annotation_task: this.state.task.id, annotation_result: '', newAnnotation: true, },
       };
@@ -579,12 +627,19 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const emptyAnnotations = this.state.annotations
       .filter((ann: Annotation) => ann.annotation.length === 0);
 
-    if (emptyAnnotations.length > 0) {
+      const emptyConfidenceIndicator = this.state.annotations
+      .filter((ann: Annotation) => ann.confidenceIndicator.length === 0);
+
+    if (emptyAnnotations.length > 0 ) {
       this.activateAnnotation(emptyAnnotations.shift());
       this.setState({
         toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
       });
-    } else {
+    } else if (emptyConfidenceIndicator.length > 0) {
+      this.setState({
+      toastMsg: {msg: 'Make sure all your annotations have a confidence indicator.', lvl: 'danger'},
+    });}
+    else {
       this.submitAnnotations();
     }
   }
@@ -602,6 +657,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         annotation: ann.annotation,
         startFrequency,
         endFrequency,
+        confidenceIndicator:  ann.confidenceIndicator ,
         result_comments: result_comments,
       };
   }
@@ -695,7 +751,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       // Rendering
       return (
-        <div className="annotator container-fluid">
+        <div className="annotator container-fluid ps-0">
 
           {/* Header */}
           <div className="row">
@@ -745,6 +801,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             onSeek={this.seekTo}
             drawingEnabled={isDrawingEnabled}
             currentDefaultTagAnnotation={this.state.currentDefaultTagAnnotation}
+            currentDefaultConfidenceIndicator={this.state.currentDefaultConfidenceIndicator}
           >
           </Workbench>
 
@@ -839,7 +896,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   beforeSubmit_checkPresenceMode = (ann) => {
     if (ann[0].annotation.length === 0) {
       this.setState({
-        toastMsg: {msg: 'Make sure all your annotations are tagged.', lvl: 'danger'},
+        toastMsg: {msg: 'Make sure your annotations is tagged.', lvl: 'danger'},
+      });
+      return
+    }
+
+    if (ann[0].confidenceIndicator.length === 0) {
+      this.setState({
+        toastMsg: {msg: 'Make sure your annotations have a confidence indicator.', lvl: 'danger'},
       });
       return
     }
@@ -989,7 +1053,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         {
           this.setState({
             currentComment: comment,
-            task_comment: comment,
+            taskComment: comment,
           })
         } else {
           let annotations
@@ -1045,7 +1109,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     let currentComment = {}
 
     if (activeAnn === undefined) {
-      currentComment = task.task_comment === undefined ? { comment: "", annotation_task: task.id, annotation_result: parseInt(activeAnn.id, 10), id:null } : task.task_comment;
+      currentComment = task.taskComment === undefined ? { comment: "", annotation_task: task.id, annotation_result: parseInt(activeAnn.id, 10), id:null } : task.taskComment;
     } else {
       currentComment = activeAnn.result_comments === undefined ? { comment: "", annotation_task: task.id, annotation_result: null, id:null} : activeAnn.result_comments;
     }
@@ -1055,7 +1119,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   switchToTaskComment = () => {
     const annotations: Array<Annotation> = this.state.annotations
       .map(ann => Object.assign({}, ann, { active: false }))
-    this.setState({ currentComment: this.state.task_comment, annotations: annotations })
+    this.setState({ currentComment: this.state.taskComment, annotations: annotations })
   }
 
   handleCommentChange(event) {
@@ -1068,7 +1132,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     return (
       <React.Fragment>
-        <div className="row justify-content-around">
+        <div className="row justify-content-around m-2">
           {this.renderActiveBoxAnnotation()}
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
@@ -1077,7 +1141,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <table className="table table-hover rounded">
                 <thead className="">
                   <tr className="text-center bg__black--003">
-                    <th colSpan="4">Annotations</th>
+                    <th colSpan="5">Annotations</th>
                   </tr>
                 </thead>
                   <tbody>
@@ -1114,7 +1178,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <button className={`btn w-100 ${this.state.currentComment.annotation_result === null ? "isActive" : ""}`}
                       onClick={() => { this.switchToTaskComment() }}
               >
-                  Task Comment {this.state.task_comment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
+                  Task Comment {this.state.taskComment.comment !== "" ? <i className="fas fa-comment mx-2"></i> : <i className="far fa-comment mr-2"></i>}
                 </button>
               </div>
           </div>
@@ -1163,15 +1227,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
         return (
           <OverlayTrigger overlay={tooltip} key={`tag-overlay-${idx.toString()}`} arrowProps={"top"}>
-          <li key={`tag-${idx.toString()}`}>
-            <button
-              id={`tags_key_shortcuts_${idx.toString()}`}
-              className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
-              style={(activeTags.includes(tag)) ? style.active : style.inactive}
-              onClick={() => this.toggleAnnotationTag(tag)}
-              type="button"
-              disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
-            >{tag}</button>
+            <li key={`tag-${idx.toString()}`}>
+              <button
+                id={`tags_key_shortcuts_${idx.toString()}`}
+                className={this.state.checkbox_isChecked[tag]  ? `btn pulse__${idx.toString()}--active` : 'btn'}
+                style={(activeTags.includes(tag)) ? style.active : style.inactive}
+                onClick={() => this.toggleAnnotationTag(tag)}
+                type="button"
+                disabled={isPresenceMode ? !this.state.checkbox_isChecked[tag] : false }
+              >{tag}</button>
             </li>
           </OverlayTrigger>
       );
@@ -1229,7 +1293,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
 
       return (
-          <div className="card">
+          <div className="card ml-2 flex-grow-1 mini-content">
             <h6 className="card-header text-center">Presence / Absence</h6>
           <div className="card-body">
             <ul className="presence-absence-columns">
@@ -1250,6 +1314,52 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  renderConfidenceIndicator = () => {
+    if (this.state.task && this.state.currentDefaultConfidenceIndicator !== null) {
+
+      const activeConfidenceIndicator = this.state.currentDefaultConfidenceIndicator;
+      const tooltip = (
+        <div className="card w-50">
+          <h3 className={`card-header p-2 tooltip-header`}>Description</h3>
+          <div className="card-body p-1">
+            <p>
+            {this.state.task.confidenceIndicatorSet.desc}
+              </p>
+          </div>
+        </div>
+      )
+
+      const confidenceIndicators = this.state.task.confidenceIndicatorSet.confidenceIndicators.map((confidenceIndicator, idx) => {
+
+        return (
+          <li key={`tag-${idx.toString()}`}>
+            <button
+              id={`tags_key_shortcuts_${idx.toString()}`}
+              className= {activeConfidenceIndicator === confidenceIndicator.label ? "btn btn--active" : "btn"}
+              onClick={() => this.toggleAnnotationConfidence(confidenceIndicator.label)}
+              type="button"
+            >{confidenceIndicator.label}</button>
+          </li>
+        );
+        });
+
+      return (
+        <OverlayTrigger overlay={tooltip} arrowprops={"top"}>
+          <div className="card">
+              <h6 className="card-header text-center">Confidence indicator</h6>
+              <div className="card-body">
+                <div className=" d-flex justify-content-center">
+                  <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+                </div>
+            </div>
+          </div>
+        </OverlayTrigger>
+        );
+}
+    else {
+      return (<React.Fragment></React.Fragment>);
+    }
+  }
   str_pad_left = (string, pad, length) => {
     return (new Array(length + 1).join(pad) + string).slice(-length);
   }
@@ -1270,51 +1380,56 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-          <div className="col-sm-2">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body d-flex justify-content-between">
-                  <p className="card-text">
-                  <i className="fas fa-clock-o"></i> :&nbsp;
-                    {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
-                    {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
-                  <i className="fas fa-arrow-up"></i> :&nbsp;
-                    {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
-                    {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-                    <i className="fas fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
-                </p>
-              </div>
+        <div className="card mr-2 selected_annotation mini-content">
+          <h6 className="card-header text-center">Selected annotation</h6>
+          <div className="card-body d-flex justify-content-between">
+              <p className="card-text">
+              <i className="fa fa-clock-o"></i> :&nbsp;
+                {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
+                {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
+              <i className="fa fa-arrow-up"></i> :&nbsp;
+                {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
+                {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
+                <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
+                <i className={`${this.state.task.confidenceIndicatorSet === undefined ? 'isInvisible' : '' } fa fa-handshake`}></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
+            </p>
+          </div>
+        </div>
+        <div className="col-5 flex-shrink-2">
+          <div className="card">
+            <h6 className="card-header text-center">Tags list</h6>
+            <div className="card-body d-flex justify-content-between">
+                {tags}
             </div>
           </div>
 
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
-              </div>
-            </div>
-          </div>
+          {/* Confidence Indicator management */}
+            {this.renderConfidenceIndicator()}
+        </div>
         </React.Fragment>
       );
     } else {
       return (
         <React.Fragment>
-          <div className="col-sm-2">
-            <div className="card">
-              <h6 className="card-header text-center">Selected annotation</h6>
-              <div className="card-body">
-                <p className="card-text text-center">-</p>
-              </div>
+          <div className="card mr-2  selected_annotation mini-content">
+            <h6 className="card-header text-center">Selected annotation</h6>
+            <div className="card-body">
+              <p className="card-text text-center">-</p>
             </div>
           </div>
-          <div className="col-sm-6">
-            <div className="card">
-              <h6 className="card-header text-center">Tags list</h6>
-              <div className="card-body d-flex justify-content-between">
-                  {tags}
+
+          <div className="col-5 flex-shrink-2">
+              <div className="card">
+                <h6 className="card-header text-center">Tags list</h6>
+                <div className="card-body d-flex justify-content-between">
+                    {tags}
+                </div>
               </div>
-            </div>
+
+            {/* Confidence Indicator management */}
+            {this.renderConfidenceIndicator()}
+
+
           </div>
         </React.Fragment>
       );
@@ -1344,6 +1459,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
           </td>
           <td className="p-1">
+            <i className="fa fa-handshake"></i>&nbsp;
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
+          </td>
+          <td className="p-1">
           {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
           </td>
         </tr>
@@ -1360,6 +1479,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <i className="fas fa-tag"></i>&nbsp;
               {annotation.annotation}
             </strong>
+          </td>
+          <td>
+            <i className="fa fa-handshake"></i>&nbsp;
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
           <td className="pl-1">
           {annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}

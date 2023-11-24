@@ -5,6 +5,58 @@ from random import shuffle
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
+
+
+class ConfidenceIndicatorSet(models.Model):
+    """
+    This table contains collections of confidence indicator to be used for annotation campaign.
+    An confidence indicator set is created by a staff user.
+    """
+
+    class Meta:
+        db_table = "confidence_sets"
+
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
+    desc = models.TextField(null=True, blank=True)
+
+    @property
+    def max_level(self):
+        """Give the max level among confidence indicators"""
+        return max(i.level for i in self.confidence_indicators.all())
+
+
+class ConfidenceIndicator(models.Model):
+    """
+    This table contains confidence indicator in which are used to constitute confidence indicator set and serve
+    to annotate files for annotation campaign.
+    """
+
+    class Meta:
+        db_table = "confidence_indicator"
+        constraints = [
+            models.UniqueConstraint(
+                name="one_default_by_confidence_indicator_set",
+                fields=["is_default", "confidence_indicator_set"],
+                condition=Q(is_default=True),
+            ),
+        ]
+
+    def __str__(self):
+        return str(self.label)
+
+    label = models.CharField(max_length=255, unique=True)
+    level = models.IntegerField()
+    confidence_indicator_set = models.ForeignKey(
+        ConfidenceIndicatorSet,
+        verbose_name="Included in this set :",
+        on_delete=models.CASCADE,
+        related_name="confidence_indicators",
+    )
+    is_default = models.BooleanField(default=False)
 
 
 class AnnotationTag(models.Model):
@@ -24,7 +76,8 @@ class AnnotationTag(models.Model):
 
 class AnnotationSet(models.Model):
     """
-    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    This table contains collections of tags to be used for dataset annotations.
+    An annotation_set is created by a staff user
     and can be used for multiple datasets and annotation campaigns.
     """
 
@@ -80,6 +133,9 @@ class AnnotationCampaign(models.Model):
         to=settings.AUTH_USER_MODEL,
         through="AnnotationTask",
         related_name="task_campaigns",
+    )
+    confidence_indicator_set = models.ForeignKey(
+        ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True
     )
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
@@ -170,6 +226,9 @@ class AnnotationResult(models.Model):
     annotation_tag = models.ForeignKey(AnnotationTag, on_delete=models.CASCADE)
     annotation_task = models.ForeignKey(
         AnnotationTask, on_delete=models.CASCADE, related_name="results"
+    )
+    confidence_indicator = models.ForeignKey(
+        ConfidenceIndicator, on_delete=models.SET_NULL, null=True, blank=True
     )
 
 

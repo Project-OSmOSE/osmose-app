@@ -21,6 +21,9 @@ from backend.api.models import (
 from backend.api.serializers.annotation_comment import (
     AnnotationCommentSerializer,
 )
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSetSerializer,
+)
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -57,6 +60,9 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
+    confidenceIndicator = serializers.CharField(
+        source="confidence_indicator", allow_null=True
+    )
     result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
 
     class Meta:
@@ -68,6 +74,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "endTime",
             "startFrequency",
             "endFrequency",
+            "confidenceIndicator",
             "result_comments",
         ]
 
@@ -123,13 +130,22 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         source="annotation_campaign.annotation_scope"
     )
     prevAndNextAnnotation = serializers.SerializerMethodField()
-    task_comment = serializers.SerializerMethodField()
+    taskComment = serializers.SerializerMethodField()
+    confidenceIndicatorSet = ConfidenceIndicatorSetSerializer(
+        source="annotation_campaign.confidence_indicator_set"
+    )
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):
         return list(
             task.annotation_campaign.annotation_set.tags.values_list("name", flat=True)
         )
+
+    @extend_schema_field(ConfidenceIndicatorSetSerializer)
+    def get_confidenceIndicatorSet(self, task):
+        return ConfidenceIndicatorSetSerializer(
+            task.annotation_campaign.confidence_indicator_set
+        ).data
 
     @extend_schema_field(AnnotationTaskBoundarySerializer)
     def get_boundaries(self, task):
@@ -162,6 +178,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     def get_prevAnnotations(self, task):
         queryset = task.results.prefetch_related(
             "annotation_tag",
+            "confidence_indicator",
             "result_comments",
         )
         return AnnotationTaskResultSerializer(queryset, many=True).data
@@ -195,7 +212,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         return {"prev": id__lt, "next": id__gt}
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
-    def get_task_comment(self, task):
+    def get_taskComment(self, task):
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 
@@ -207,7 +224,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
     task_end_time = serializers.IntegerField()
 
     def validate_annotations(self, annotations):
-        """Validates that annotations correspond to annotation set tags"""
+        """Validates that annotations correspond to annotation set tags and set confidence indicator"""
         set_tags = set(
             self.instance.annotation_campaign.annotation_set.tags.values_list(
                 "name", flat=True
@@ -224,6 +241,25 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 f"{unknown_tags} not valid tags from annotation set {set_tags}."
             )
+
+        set_confidence_indicators = set(
+            self.instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                "label", flat=True
+            )
+        )
+
+        update_confidence_indicators = set(
+            ann["confidence_indicator"] for ann in annotations
+        )
+        unknown_confidence_indicators = (
+            update_confidence_indicators - set_confidence_indicators
+        )
+        if unknown_confidence_indicators:
+            raise serializers.ValidationError(
+                f"{unknown_confidence_indicators} not valid confidence indicator"
+                + f"from confidence indicator set {set_confidence_indicators}."
+            )
+
         return annotations
 
     def _create_results(self, instance, validated_data):
@@ -238,12 +274,26 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
+        confidence_indicators = dict(
+            map(
+                reversed,
+                instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                    "id", "label"
+                ),
+            )
+        )
+
         for annotation in validated_data["annotations"]:
             comments_data = annotation.pop("result_comments")
             annotation["annotation_tag_id"] = tags[
                 annotation.pop("annotation_tag")["name"]
             ]
+
+            annotation["confidence_indicator_id"] = confidence_indicators[
+                annotation.pop("confidence_indicator")
+            ]
             new_result = instance.results.create(**annotation)
+
             if comments_data is not None:
                 for comment_data in comments_data:
                     comment_data.pop("annotation_result")

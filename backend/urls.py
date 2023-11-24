@@ -39,6 +39,7 @@ from backend.api.views import (
     AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
     NewsViewSet,
+    ConfidenceIndicatorSetViewSet,
 )
 
 # Backend urls are for admin & api documentation
@@ -66,6 +67,11 @@ api_router.register(
     r"annotation-task", AnnotationTaskViewSet, basename="annotation-task"
 )
 api_router.register(r"news", NewsViewSet, basename="news")
+api_router.register(
+    r"confidence-indicator",
+    ConfidenceIndicatorSetViewSet,
+    basename="confidence-indicator",
+)
 api_urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

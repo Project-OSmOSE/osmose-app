@@ -15,7 +15,12 @@ from backend.api.models import (
     Dataset,
     AnnotationSet,
     SpectroConfig,
+    ConfidenceIndicatorSet,
 )
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSetSerializer,
+)
+from backend.api.serializers.annotation_set import AnnotationSetSerializer
 
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
@@ -31,6 +36,8 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     complete_tasks_count = serializers.SerializerMethodField()
     user_complete_tasks_count = serializers.SerializerMethodField()
     files_count = serializers.SerializerMethodField()
+    annotation_set = AnnotationSetSerializer()
+    confidence_indicator_set = ConfidenceIndicatorSetSerializer()
 
     def __init__(self, *args, **kwargs):
         if "user_id" in kwargs:
@@ -46,7 +53,8 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "instructions_url",
             "start",
             "end",
-            "annotation_set_id",
+            "annotation_set",
+            "confidence_indicator_set",
             "tasks_count",
             "user_tasks_count",
             "complete_tasks_count",
@@ -81,7 +89,8 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     Serializer meant to output AnnotationCampaign basic data used in AnnotationCampaignRetrieveSerializer
     """
 
-    annotation_set_id = serializers.IntegerField()
+    annotation_set = AnnotationSetSerializer()
+    confidence_indicator_set = ConfidenceIndicatorSetSerializer()
 
     class Meta:
         model = AnnotationCampaign
@@ -92,7 +101,8 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "instructions_url",
             "start",
             "end",
-            "annotation_set_id",
+            "annotation_set",
+            "confidence_indicator_set",
             "datasets",
             "created_at",
         ]
@@ -137,6 +147,10 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
     annotation_set_id = serializers.IntegerField(
         validators=[valid_model_ids(AnnotationSet)]
     )
+    confidence_indicator_set_id = serializers.IntegerField(
+        validators=[valid_model_ids(ConfidenceIndicatorSet)],
+        required=False,
+    )
     datasets = serializers.ListField(
         child=serializers.IntegerField(),
         validators=[valid_model_ids(Dataset)],
@@ -163,6 +177,7 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             "start",
             "end",
             "annotation_set_id",
+            "confidence_indicator_set_id",
             "spectro_configs",
             "datasets",
             "annotators",
@@ -190,10 +205,14 @@ class AnnotationCampaignCreateSerializer(serializers.ModelSerializer):
             start=validated_data.get("start"),
             end=validated_data.get("end"),
             annotation_set_id=validated_data["annotation_set_id"],
+            confidence_indicator_set_id=validated_data.get(
+                "confidence_indicator_set_id"
+            ),
             annotation_scope=validated_data["annotation_scope"],
             owner_id=validated_data["owner_id"],
             instructions_url=validated_data.get("instructions_url"),
         )
+
         campaign.save()
         campaign.datasets.set(validated_data["datasets"])
         campaign.spectro_configs.set(validated_data["spectro_configs"])

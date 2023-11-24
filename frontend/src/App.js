@@ -23,7 +23,7 @@ type NavbarProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 const Navbar = (props: NavbarProps) => (
-  <div className="col-sm-3 border rounded">
+  <div className="col-sm-2 border rounded">
     <ul>
       <li><a href="/..">Back to main site</a></li>
       <li><Link to="/datasets">Datasets</Link></li>
@@ -39,7 +39,7 @@ type OdeAppProps = {
   logout: (event: SyntheticEvent<HTMLInputElement>) => void,
 };
 const OdeApp = (props: OdeAppProps) => (
-  <div className="container">
+  <div className="px-5 mx-5">
     <div className="row text-center">
       <div className="col-sm-12"><h1>APLOSE</h1></div>
     </div>

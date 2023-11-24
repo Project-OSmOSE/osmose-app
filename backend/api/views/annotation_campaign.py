@@ -43,6 +43,8 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             self.queryset.annotate(files_count=Count("datasets__files"))
             .prefetch_related(
                 "tasks",
+                "confidence_indicator_set",
+                "annotation_set",
                 Prefetch(
                     "tasks",
                     queryset=AnnotationTask.objects.filter(
@@ -129,7 +131,12 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
         # pylint: disable=too-many-locals
-        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        campaign = get_object_or_404(
+            AnnotationCampaign.objects.prefetch_related(
+                "confidence_indicator_set__confidence_indicators"
+            ),
+            pk=pk,
+        )
         data = [
             [
                 "dataset",
@@ -143,12 +150,15 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "start_datetime",
                 "end_datetime",
                 "is_box",
+                "confidence_indicator_label",
+                "confidence_indicator_level",
                 "comments",
             ]
         ]
 
         results = AnnotationResult.objects.prefetch_related(
             "annotation_task",
+            "confidence_indicator",
             "annotation_task__annotator",
             "annotation_task__dataset_file",
             "annotation_task__dataset_file__dataset",
@@ -165,6 +175,16 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         )
 
         for result in results:
+            confidence_indicator_and_lvl_max = ""
+            max_level = campaign.confidence_indicator_set.max_level
+            if campaign.confidence_indicator_set is not None:
+                confidence_indicator_and_lvl_max = (
+                    f"{result.confidence_indicator.level}/{max_level}"
+                )
+            confidence_indicator_label = ""
+            if result.confidence_indicator is not None:
+                confidence_indicator_label = result.confidence_indicator.label
+
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
             max_time = (audio_meta.end - audio_meta.start).seconds
@@ -203,6 +223,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
+                    confidence_indicator_label,
+                    confidence_indicator_and_lvl_max,
                     comment,
                 ]
             )
