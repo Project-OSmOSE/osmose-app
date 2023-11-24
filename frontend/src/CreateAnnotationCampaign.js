@@ -1,13 +1,5 @@
 // @flow
 
-/* TODO some refactoring
-Originally this component used a lot arrayToObject with key == id to have an easy dict-like structure where we have IDs
-as keys with database objects as values. However since Javascript objects don't keep key order when created this means
-we lose the ordering given by the backend. So in and after PR#126 utils functions where changed and new ones introduced
-to deal with this. However there is probably a better way, possibly using new Javascript objects like Maps
-(see https://stackoverflow.com/a/41133779/2730032)
-*/
-
 import React, { Component } from 'react';
 import request from 'superagent';
 import ListChooser from './ListChooser';
@@ -49,16 +41,16 @@ class ShowAnnotationSet extends Component<ShowAnnotationSetProps, ShowAnnotation
     let id = parseInt(event.currentTarget.value, 10);
     this.setState({
       selected_id: id,
-      selected: this.props.annotation_sets[id]
+      selected: this.props.annotation_sets.get(id)
     });
     this.props.onChange(event);
   }
 
   render() {
-    let options = utils.objectValues(this.props.annotation_sets).map((annotation_set, index) => {
+    let options = Array.from(this.props.annotation_sets.values()).map(annotation_set => {
       let id = annotation_set.id;
       return (
-        <option key={id} value={index}>{annotation_set.name}</option>
+        <option key={id} value={id}>{annotation_set.name}</option>
       );
     });
 
@@ -116,17 +108,16 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
       let id = parseInt(event.currentTarget.value, 10);
       this.setState({
         selected_id: id,
-        selected: this.props.confidence_indicator_sets[id]
+        selected: this.props.confidence_indicator_sets.get(id)
       });
     }
     this.props.onChange(event);
   }
 
   render() {
-    let options = utils.objectValues(this.props.confidence_indicator_sets).map((confidence_indicator_set, index) => {
-      let id = confidence_indicator_set.id;
+    let options = Array.from(this.props.confidence_indicator_sets.values()).map(confidence_indicator_set => {
       return (
-        <option key={id} value={index}>{confidence_indicator_set.name}</option>
+        <option key={confidence_indicator_set.id} value={confidence_indicator_set.id}>{confidence_indicator_set.name}</option>
       );
     });
 
@@ -153,6 +144,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
     )
   }
 }
+
 type CACProps = {
   app_token: string,
   history: {
@@ -192,20 +184,20 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_name: '',
     new_ac_desc: '',
     new_ac_dataset: {},
-    new_ac_spectros: {},
+    new_ac_spectros: new Map(),
     new_ac_start: '',
     new_ac_end: '',
     new_ac_annotation_set: 0,
     new_ac_confidence_indicator_set: null,
-    new_ac_annotators: {},
+    new_ac_annotators: new Map(),
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
     new_ac_annotation_mode: 1,
-    dataset_choices: {},
-    spectro_choices: {},
-    confidence_indicator_set_choices: {},
-    annotation_set_choices: {},
-    annotator_choices: {},
+    dataset_choices: new Map(),
+    spectro_choices: new Map(),
+    confidence_indicator_set_choices: new Map(),
+    annotation_set_choices: new Map(),
+    annotator_choices: new Map(),
     new_ac_instructions_url: '',
     error: null
   }
@@ -220,10 +212,9 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     // This should be fixed in a future rework of API calls
     return Promise.all([
       this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav' });
-
+        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav'});
         this.setState({
-          dataset_choices: utils.arrayToObject(datasets)
+          dataset_choices: utils.arrayToMap(datasets, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -236,10 +227,8 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         });
       }),
       this.getAnnotationSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        const annotationSet = req.body
-
         this.setState({
-          annotation_set_choices: utils.arrayToObject(annotationSet)
+          annotation_set_choices: utils.arrayToMap(req.body, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -253,7 +242,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       }),
       this.getConfidenceSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         this.setState({
-          confidence_indicator_set_choices: utils.arrayToObject(req.body)
+          confidence_indicator_set_choices: utils.arrayToMap(req.body, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -267,9 +256,8 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       }),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         let users = req.body.map(user => { return { id: user.id, name: user.email }; });
-
         this.setState({
-          annotator_choices: utils.arrayToObject(users),
+          annotator_choices: utils.arrayToMap(users, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
@@ -304,23 +292,23 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     let new_ac_dataset = {};
     let spectro_choices = {};
     if (event.target.value !== '') {
-      let dataset_id = parseInt(event.target.value, 10)
-      new_ac_dataset = utils.findObjetById(this.state.dataset_choices, dataset_id);
-      spectro_choices = utils.arrayToObject(new_ac_dataset.spectros, 'id');
+      let dataset_id = parseInt(event.target.value, 10);
+      new_ac_dataset = this.state.dataset_choices.get(dataset_id);
+      spectro_choices = utils.arrayToMap(new_ac_dataset.spectros, 'id');
     }
     this.setState({
       new_ac_dataset: new_ac_dataset,
       spectro_choices: spectro_choices,
-      new_ac_spectros: {},
+      new_ac_spectros: new Map(),
     });
   }
 
   handleAddSpectro = (event: SyntheticEvent<HTMLInputElement>) => {
     let spectro_id = parseInt(event.currentTarget.value, 10);
-    let spectro_choices = Object.assign({}, this.state.spectro_choices);
-    let new_ac_spectros = Object.assign({}, this.state.new_ac_spectros);
-    new_ac_spectros[spectro_id] = spectro_choices[spectro_id];
-    delete spectro_choices[spectro_id];
+    let spectro_choices = new Map(this.state.spectro_choices);
+    let new_ac_spectros = new Map(this.state.new_ac_spectros);
+    new_ac_spectros.set(spectro_id, spectro_choices.get(spectro_id));
+    spectro_choices.delete(spectro_id);
     this.setState({
       new_ac_spectros: new_ac_spectros,
       spectro_choices: spectro_choices,
@@ -328,10 +316,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleRemoveSpectro = (spectro_id: number) => {
-    let spectro_choices = Object.assign({}, this.state.spectro_choices);
-    let new_ac_spectros = Object.assign({}, this.state.new_ac_spectros);
-    spectro_choices[spectro_id] = new_ac_spectros[spectro_id];
-    delete new_ac_spectros[spectro_id];
+    let spectro_choices = new Map(this.state.spectro_choices);
+    let new_ac_spectros = new Map(this.state.new_ac_spectros);
+    spectro_choices.set(spectro_id, new_ac_spectros.get(spectro_id));
+    new_ac_spectros.delete(spectro_id);
     this.setState({
       new_ac_spectros: new_ac_spectros,
       spectro_choices: spectro_choices,
@@ -340,15 +328,10 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleAddAnnotator = (event: SyntheticEvent<HTMLInputElement>) => {
     let annotator_id = parseInt(event.currentTarget.value, 10);
-
-    let annotator_choices = Object.assign({}, this.state.annotator_choices);
-    let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-
-    let annotator_key= utils.findObjetKey(annotator_choices, annotator_id)
-
-    new_ac_annotators[annotator_key] = annotator_choices[annotator_key];
-    delete annotator_choices[annotator_key];
-
+    let annotator_choices = new Map(this.state.annotator_choices);
+    let new_ac_annotators = new Map(this.state.new_ac_annotators);
+    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id));
+    annotator_choices.delete(annotator_id);
     let annotation_goal = Math.max(1, this.state.new_ac_annotation_goal);
     this.setState({
       new_ac_annotators: new_ac_annotators,
@@ -358,15 +341,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleRemoveAnnotator = (annotator_id: number) => {
-    let annotator_choices = Object.assign({}, this.state.annotator_choices);
-    let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-    let annotator_key = utils.findObjetKey(new_ac_annotators, annotator_id)
-
-    annotator_choices[annotator_key] = new_ac_annotators[annotator_key];
-    delete new_ac_annotators[annotator_key];
-
-    let annotation_goal = Math.min(Object.keys(new_ac_annotators).length, this.state.new_ac_annotation_goal);
-
+    let annotator_choices = new Map(this.state.annotator_choices);
+    let new_ac_annotators = new Map(this.state.new_ac_annotators);
+    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id));
+    new_ac_annotators.delete(annotator_id);
+    let annotation_goal = Math.min(new_ac_annotators.size, this.state.new_ac_annotation_goal);
     this.setState({
       new_ac_annotators: new_ac_annotators,
       annotator_choices: annotator_choices,
@@ -387,13 +366,14 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleAnnotationSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ new_ac_annotation_set: this.state.annotation_set_choices[parseInt(event.currentTarget.value, 10)].id });
+    this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
   }
 
   handleConfidenceSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let newValue = null
-    if (event.currentTarget.value !== "no-confidence-indicator-set")
-      newValue = this.state.confidence_indicator_set_choices[parseInt(event.currentTarget.value, 10)].id
+    if (event.currentTarget.value !== "no-confidence-indicator-set") {
+      parseInt(event.currentTarget.value, 10)
+    }
 
     this.setState({ new_ac_confidence_indicator_set: newValue });
   }
@@ -405,7 +385,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let new_val = parseInt(event.currentTarget.value, 10);
     new_val = Math.max(1, new_val);
-    new_val = Math.min(Object.keys(this.state.new_ac_annotators).length, new_val);
+    new_val = Math.min(this.state.new_ac_annotators.size, new_val);
     this.setState({new_ac_annotation_goal: new_val});
   }
 
@@ -415,28 +395,23 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
-    this.setState({ error: null });
-    let annotators_id = []
-    for (let key in this.state.new_ac_annotators) {
-        annotators_id.push(this.state.new_ac_annotators[key].id)
-    }
-
+    this.setState({error: null});
     let res = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
       datasets: [this.state.new_ac_dataset.id],
-      spectro_configs: Object.keys(this.state.new_ac_spectros),
+      spectro_configs: Array.from(this.state.new_ac_spectros.keys()),
       annotation_set_id: this.state.new_ac_annotation_set,
       annotation_scope: this.state.new_ac_annotation_mode,
-      annotators: annotators_id,
+      annotators: Array.from(this.state.new_ac_annotators.keys()),
       annotation_goal: this.state.new_ac_annotation_goal,
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
     }
-
     if (this.state.new_ac_confidence_indicator_set !== null) {
       res["confidence_indicator_set_id"] = this.state.new_ac_confidence_indicator_set
     }
+
     const start: ?string = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
     const end: ?string = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
     res = Object.assign({}, res, {start, end});
@@ -469,12 +444,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   render() {
-    const datasetOptions = utils.objectValues(this.state.dataset_choices).map(dataset => (
+    const datasetOptions = Array.from(this.state.dataset_choices.values()).map(dataset => (
       <option key={`dataset-${dataset.id}`} value={dataset.id.toString()}>{dataset.name}</option>
     ));
     let wanted_annotators_label = "";
-    const annotator_count = Object.keys(this.state.new_ac_annotators).length;
-    if (this.state.new_ac_dataset.id !== undefined && annotator_count !== 0) {
+    const annotator_count = this.state.new_ac_annotators.size;
+    if (this.state.new_ac_dataset.id !== undefined && this.state.new_ac_annotators.size !== 0) {
       const file_count = this.state.new_ac_dataset.files_count;
       let files_per_person = Math.floor(file_count * this.state.new_ac_annotation_goal / annotator_count);
       wanted_annotators_label = `Each annotator will annotate at least ${files_per_person} files in the campaign (${Math.round(files_per_person/file_count*100)}%), which contains ${file_count} files in total`;

@@ -2,21 +2,12 @@
 
 // Utils functions
 
-export function arrayToObject(array: Array<any>, key: ?any = false) {
-  return array.reduce((obj, item, index) => {
-    if (key) {
-      obj[item[key]] = item
-    } else {
-      obj[index] = item
-    }
-
-    return obj
-  }, {});
-}
-
-// Object.values alternative for flow (cf https://github.com/facebook/flow/issues/2221)
-export function objectValues(obj: any): Array<any> {
-  return Object.keys(obj).map(key => obj[key]);
+export function arrayToMap(array: Array<any>, key: any) {
+  let res = new Map();
+  array.forEach((item) => {
+    res.set(item[key], item);
+  });
+  return res;
 }
 
 export function formatTimestamp(rawSeconds: number, withMs: ?boolean = true) {
@@ -47,20 +38,4 @@ export function buildTagColors(tags: Array<string>): Map<string, string> {
 export function getTagColor(tags: Map<string, string>, tag: string): string {
   const color: ?string = tags.get(tag);
   return color ? color : '#bbbbbb';
-}
-
-export function findObjetKey(objects, searchValue) {
-  for (const key in objects) {
-    if (objects[key].id === searchValue) {
-      return key
-    }
-  }
-}
-
-export function findObjetById(objects, searchValue) {
-  for (const key in objects) {
-    if (objects[key].id === searchValue) {
-      return objects[key]
-    }
-  }
 }
