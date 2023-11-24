@@ -7,12 +7,14 @@ class TeamMember(models.Model):
     biography = models.TextField()
     picture = models.URLField()
 
-    mailAddress = models.EmailField()
+    mailAddress = models.EmailField("Mail address")
 
-    researchGateURL = models.URLField(blank=True, null=True)
-    personalWebsiteURL = models.URLField(blank=True, null=True)
-    githubURL = models.URLField(blank=True, null=True)
-    linkedinURL = models.URLField(blank=True, null=True)
+    researchGateURL = models.URLField("Research Gate URL", blank=True, null=True)
+    personalWebsiteURL = models.URLField("Personal website URL", blank=True, null=True)
+    githubURL = models.URLField("Github URL", blank=True, null=True)
+    linkedinURL = models.URLField("LinkedIn URL", blank=True, null=True)
+
+    isFormerMember = models.BooleanField("Is former member", default=False)
 
     def __str__(self):
         return self.name
