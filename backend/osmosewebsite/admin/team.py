@@ -1,4 +1,9 @@
-from django.contrib.admin import ModelAdmin
+from django.contrib.admin import ModelAdmin, action
+
+
+@action(description="Mark selected members as former members")
+def make_former(modelAdmin, request, queryset):
+    queryset.update(isFormerMember=True)
 
 
 class TeamMemberAdmin(ModelAdmin):
@@ -7,12 +12,14 @@ class TeamMemberAdmin(ModelAdmin):
     list_display = [
         'name',
         'position',
-        'mailAddress'
+        'mailAddress',
+        'isFormerMember'
     ]
     search_fields = ['name']
     fieldsets = [
-        (None, {"fields": ["name", "position", "mailAddress", "picture", "biography"]}),
+        (None, {"fields": ["name", "position", "mailAddress", "picture", "biography", "isFormerMember"]}),
         ("Links", {
             "fields": ["researchGateURL", "personalWebsiteURL", "githubURL", "linkedinURL"]
         })
     ]
+    actions = [make_former]
