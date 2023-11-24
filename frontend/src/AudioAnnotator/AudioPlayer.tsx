@@ -1,16 +1,15 @@
-// @flow
-import * as React from 'react';
+import { Component } from 'react';
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
 type AudioPlayerProps = {
   autoPlay: boolean,
-  children: React.Node,
+  children: Node,
   className: string,
   controls: boolean,
   controlsList: string,
-  crossOrigin: ?string,
+  crossOrigin?: string,
   id: string,
   listenInterval: number,
   loop: boolean,
@@ -34,10 +33,10 @@ type AudioPlayerProps = {
   volume: number,
 };
 
-class AudioPlayer extends React.Component<AudioPlayerProps> {
+class AudioPlayer extends Component<AudioPlayerProps> {
 
   // audioContext: AudioContext;
-  audioElement: HTMLAudioElement;
+  audioElement!: HTMLAudioElement;
   listenTracker: any;
 
   static defaultProps = {
@@ -73,12 +72,7 @@ class AudioPlayer extends React.Component<AudioPlayerProps> {
     this.updateVolume(this.props.volume);
     this.updatePlaybackRate(this.props.playbackRate);
 
-    // Do not preserve pitch when changing playback rate (experimental, so prevent flow errors)
-    // $FlowFixMe
-    if (this.audioElement.mozPreservesPitch !== undefined) {
-      // $FlowFixMe
-      this.audioElement.mozPreservesPitch = false;
-    }
+    // Do not preserve pitch when changing playback rate
     if (this.audioElement.preservesPitch !== undefined) {
       this.audioElement.preservesPitch = false;
     }
@@ -93,25 +87,25 @@ class AudioPlayer extends React.Component<AudioPlayerProps> {
     }
   }
 
-  onAbort = (e: SyntheticEvent<HTMLAudioElement>) => {
+  onAbort = (e: any) => {
     // When unloading the audio player (switching to another src)
     this.clearListenTrack();
     this.props.onAbort(e);
   }
 
-  onPause = (e: SyntheticEvent<HTMLAudioElement>) => {
+  onPause = (e: any) => {
     // When the user pauses playback
     this.clearListenTrack();
     this.props.onPause(e);
   }
 
-  onPlay = (e: SyntheticEvent<HTMLAudioElement>) => {
+  onPlay = (e: any) => {
     // When audio play starts
     this.setListenTrack();
     this.props.onPlay(e);
   }
 
-  onEnded = (e: SyntheticEvent<HTMLAudioElement>) => {
+  onEnded = (e: any) => {
     // When the file has finished playing to the end
     this.clearListenTrack();
     this.props.onEnded(e);
@@ -171,7 +165,7 @@ class AudioPlayer extends React.Component<AudioPlayerProps> {
     const title = this.props.title ? this.props.title : this.props.src;
 
     // Some props should only be added if specified
-    const conditionalProps = {};
+    const conditionalProps: any = {};
     if (this.props.controlsList) {
       conditionalProps.controlsList = this.props.controlsList;
     }

@@ -1,5 +1,4 @@
-// @flow
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
 
@@ -27,26 +26,27 @@ type ACLState = {
   annotation_campaigns: Array<{
     id: number,
     name: string,
-    instructions_url: ?string,
-    annotation_set_type: annotation_set_type,
-    confidence_indicator_set_type: confidence_indicator_set_type,
-    datasets_count: number,
+    instructions_url?: string,
+    annotation_set: annotation_set_type,
+    confidence_indicator_set: confidence_indicator_set_type,
+    files_count: number,
     start: string,
     end: string,
     tasks_count: number,
     complete_tasks_count: number,
     user_tasks_count: number,
     user_complete_tasks_count: number,
+    created_at: string,
   }>,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 };
 class AnnotationCampaignList extends Component<ACLProps, ACLState> {
-  state = {
+  state: ACLState = {
     annotation_campaigns: [],
-    error: null
+    error: undefined
   }
   getData = request.get(API_URL)
 

@@ -1,5 +1,3 @@
-// @flow
-
 // Utils functions
 
 export function arrayToMap(array: Array<any>, key: any) {
@@ -10,7 +8,7 @@ export function arrayToMap(array: Array<any>, key: any) {
   return res;
 }
 
-export function formatTimestamp(rawSeconds: number, withMs: ?boolean = true) {
+export function formatTimestamp(rawSeconds: number, withMs: boolean = true) {
   const hours: number = Math.floor(rawSeconds / 3600);
   const minutes: number = Math.floor(rawSeconds / 60) % 60;
   const seconds: number = Math.floor(rawSeconds) % 60;
@@ -28,7 +26,7 @@ export function formatTimestamp(rawSeconds: number, withMs: ?boolean = true) {
 const COLORS = ['#00b1b9', '#a23b72', '#f18f01', '#c73e1d', '#bb7e5d', '#eac435', '#98ce00', '#2a2d34', '#6761a8', '#009b72'];
 
 export function buildTagColors(tags: Array<string>): Map<string, string> {
-  const tagColors = tags.map((tag, idx) =>
+  const tagColors = tags.map((tag, idx): [string, string] =>
     [tag, COLORS[idx % COLORS.length]]
   );
 
@@ -36,6 +34,6 @@ export function buildTagColors(tags: Array<string>): Map<string, string> {
 }
 
 export function getTagColor(tags: Map<string, string>, tag: string): string {
-  const color: ?string = tags.get(tag);
+  const color: string | undefined = tags.get(tag);
   return color ? color : '#bbbbbb';
 }

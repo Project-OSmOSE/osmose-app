@@ -1,8 +1,7 @@
-// @flow
 import React, {useState, useEffect} from 'react';
 import request from 'superagent';
 import Modal from './components/ModalNewData';
-import Toast from './components/Toast';
+import Toast, { ToastMsg } from './components/Toast';
 import './css/modal.css';
 import {v4 as uuidv4} from 'uuid';
 
@@ -13,51 +12,38 @@ const IMPORT_DATASET_API_URL = '/api/dataset/datawork_import/';
 type DatasetListProps = {
   app_token: string
 };
+type Dataset = {
+  id: number,
+  name: string,
+  type: string,
+  files_type: string,
+  files_count: number,
+  start_date: string,
+  end_date: string,
+  created_at: string,
+};
+export type NewDataset = {
+  id: string,
+  name: string,
+  folder_name: string,
+  conf_folder: string,
+  dataset_type_name: string,
+  dataset_type_desc: string,
+  files_type: string,
+  location_name: string,
+  location_desc: string,
+  location_lat: string,
+  location_lon: string,
+};
 
-const DatasetList = (props: DatasetListProps) => {
+const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
   const [launchImport, setLaunchImport] = useState(false)
-  const [wanted_datasets, setWanted_datasets] = useState([])
-  const [toastMsg, setToastMsg] = useState({ msg: ""});
-  /*
-    toastMsg: {
-        msg: string,
-        lvl: string
-    }
-    */
-  const [datasets, setDatasets] = useState([]);
-  /*
-    datasets: Array < {
-        id: number,
-        name: string,
-        type: string,
-        files_type: string,
-        files_count: number,
-        start_date: string,
-        end_date: string
-    } >
-    */
-  const [newDatasets, setNewDatasets] = useState([]);
-  /**
-    newDatasets: Array < {
-        name: string,
-        folder_name: string,
-        conf_folder: string,
-        dataset_type_name: string,
-        dataset_type_desc: string,
-        files_type: string,
-        location_name: string,
-        location_desc: string,
-        location_lat: string,
-        location_lon: string
-    } >
-     */
-  const [error, setError] = useState([]);
-  /**    error: ? {
-        status: number,
-        message: string
-    } */
+  const [wanted_datasets, setWanted_datasets] = useState<NewDataset[]>([])
+  const [toastMsg, setToastMsg] = useState<ToastMsg | undefined>(undefined);
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [newDatasets, setNewDatasets] = useState<NewDataset[]>([]);
+  const [error, setError] = useState<any>(undefined);
   const [openModal, setOpenModal] = useState(false);
-  /**openModal: boolean */
 
   let getData = request.get(GET_DATASET_API_URL);
   let getNewData = request.get(GET_NEW_DATASET_API_URL);
@@ -68,7 +54,7 @@ const DatasetList = (props: DatasetListProps) => {
       .set("Authorization", "Bearer " + props.app_token)
       .then((req) => {
         let newData = JSON.parse(req.text);
-        newData.forEach(function (element) {
+        newData.forEach(function (element: NewDataset) {
           element.id = uuidv4();
         });
         setNewDatasets(newData);
@@ -116,8 +102,8 @@ const DatasetList = (props: DatasetListProps) => {
         toastMessage = error.response.text
       }
       setToastMsg({msg: toastMessage, lvl: "danger"})
-    }else {
-      setToastMsg({ msg: "" })
+    } else {
+      setToastMsg(undefined)
     }
 
   }, [error]);
@@ -131,12 +117,12 @@ const DatasetList = (props: DatasetListProps) => {
       .then((req) => {
         const remainingDatasets = newDatasets.filter((newDataset) =>
           req.body.some(
-            (importedDataset) => importedDataset.name !== newDataset.name
+            (importedDataset: Dataset) => importedDataset.name !== newDataset.name
           )
         );
         setNewDatasets(remainingDatasets);
         setError([]);
-        setToastMsg([]);
+        setToastMsg(undefined);
         setOpenModal(false);
         setLaunchImport(false)
       })
@@ -205,7 +191,7 @@ const DatasetList = (props: DatasetListProps) => {
           newData={newDatasets}
           setLaunchImportAvailable={() => {setLaunchImport(true)}}
           onClose={() => {setOpenModal(false);}}
-          setWanted_datasets={(data) => {
+          setWanted_datasets={(data: NewDataset[]) => {
             setWanted_datasets(data)
           }}
         />

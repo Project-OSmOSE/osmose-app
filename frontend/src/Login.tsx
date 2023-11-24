@@ -1,6 +1,5 @@
-// @flow
-import React, { Component } from 'react';
-import request from 'superagent';
+import { ChangeEvent, Component, FormEvent } from 'react';
+import request, { SuperAgentRequest } from 'superagent';
 
 const API_URL = '/api/token/';
 
@@ -10,34 +9,34 @@ type LoginProps = {
 type LoginState = {
   login: string,
   password: string,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 };
 class Login extends Component<LoginProps, LoginState> {
-  state = {
+  state: LoginState = {
     login: '',
     password: '',
-    error: null
+    error: undefined
   }
-  sendData = { abort: () => null }
+  sendData!: SuperAgentRequest;
 
   componentWillUnmount() {
     this.sendData.abort();
   }
 
-  handleLoginChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleLoginChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({login: event.currentTarget.value.trim()});
   }
 
-  handlePasswordChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({password: event.currentTarget.value.trim()});
   }
 
-  handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.setState({error: null});
+    this.setState({error: undefined});
     this.sendData = request.post(API_URL);
     let loginInfo = {username: this.state.login, password: this.state.password};
     return this.sendData.send(loginInfo).then(res => {

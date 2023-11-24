@@ -1,8 +1,6 @@
-// @flow
-
-import React, { Component } from 'react';
+import { ChangeEvent, Component, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
 import * as utils from './utils';
@@ -15,7 +13,7 @@ const POST_ANNOTATION_CAMPAIGN_API_URL = '/api/annotation-campaign/ID/add_annota
 type EACProps = {
   match: {
     params: {
-      campaign_id: number
+      campaign_id: string
     }
   },
   app_token: string,
@@ -31,45 +29,46 @@ type EACState = {
   new_ac_annotation_method: number,
   annotator_choices: choices_type,
   isStaff: boolean,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 }
 
 class EditAnnotationCampaign extends Component<EACProps, EACState> {
-  state = {
+  state: EACState = {
     campaign_id: 0,
     new_ac_annotators: new Map(),
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
     annotator_choices: new Map(),
     isStaff: false,
-    error: null
+    error: undefined
   }
-  getData = { abort: () => null }
+  getData!: SuperAgentRequest;
   getUsers = request.get(USER_API_URL)
   getIsStaff = request.get(STAFF_API_URL)
-  postAnnotationCampaign = { abort: () => null }
+  postAnnotationCampaign!: SuperAgentRequest;
 
   componentDidMount() {
-    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id.toString()));
+    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id));
     return Promise.all([
       this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
       this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
     ]).then(([req_data, req_users, req_is_staff]) => {
       // Find existing annotators
-      const existingAnnotators = req_data.body.tasks.reduce((acc, curr) => {
-        if (acc.findIndex(existing => existing === curr.annotator_id) === -1) {
+      const existingAnnotators = req_data.body.tasks.reduce((acc: any, curr: any) => {
+        if (acc.findIndex((existing: any) => existing === curr.annotator_id) === -1) {
           acc.push(curr.annotator_id);
         }
         return acc;
       }, []);
       // Filter existing annotators from all users
       const users = req_users.body
-        .filter(user => existingAnnotators.findIndex(existing => existing === user.id) === -1)
-        .map(user => { return { id: user.id, name: user.email }; });
+        .filter((user: any) => existingAnnotators.findIndex((existing: any) => existing === user.id) === -1)
+        .map((user: any) => { return { id: user.id, name: user.email }; });
+
       // Finally, set state
       this.setState({
         campaign_id: req_data.body.campaign.id,
@@ -95,11 +94,11 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     this.postAnnotationCampaign.abort();
   }
 
-  handleAddAnnotator = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAddAnnotator = (event: ChangeEvent<HTMLSelectElement>) => {
     let annotator_id = parseInt(event.currentTarget.value, 10);
     let annotator_choices = new Map(this.state.annotator_choices);
     let new_ac_annotators = new Map(this.state.new_ac_annotators);
-    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id));
+    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id)!);
     annotator_choices.delete(annotator_id);
     this.setState({
       new_ac_annotators: new_ac_annotators,
@@ -110,7 +109,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   handleRemoveAnnotator = (annotator_id: number) => {
     let annotator_choices = new Map(this.state.annotator_choices);
     let new_ac_annotators = new Map(this.state.new_ac_annotators);
-    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id));
+    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id)!);
     new_ac_annotators.delete(annotator_id);
     this.setState({
       new_ac_annotators: new_ac_annotators,
@@ -118,18 +117,18 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     });
   }
 
-  handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationGoalChange = (event: ChangeEvent<HTMLInputElement>) => {
     const new_val = parseInt(event.currentTarget.value, 10);
     this.setState({new_ac_annotation_goal: new_val});
   }
 
-  handleAnnotationMethodChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationMethodChange = (event: ChangeEvent<HTMLSelectElement>) => {
     this.setState({new_ac_annotation_method: parseInt(event.currentTarget.value, 10)});
   }
 
-  handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.setState({error: null});
+    this.setState({error: undefined});
 
     // Build request body
     const params = {
@@ -140,7 +139,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       undefined : { annotation_goal: this.state.new_ac_annotation_goal};
     const res = Object.assign({}, params, annotation_goal);
 
-    const postUrl = POST_ANNOTATION_CAMPAIGN_API_URL.replace('ID', this.state.campaign_id.toString());
+    const postUrl = POST_ANNOTATION_CAMPAIGN_API_URL.replace('ID', this.state.campaign_id.toFixed());
     this.postAnnotationCampaign = request.post(postUrl);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token)
       .send(res)
@@ -221,7 +220,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
             <br/>
             <p className="alert alert-info">Every possible annotator has been added to this campaign. If you want to create new users, use the administration backend.</p>
             <br />
-            <p className="text-center"><Link to={'/annotation_campaign/' + this.state.campaign_id}>Go back to annotation campaign details</Link></p>
+            <p className="text-center"><Link to={'/annotation_campaign/' + this.state.campaign_id.toFixed()}>Go back to annotation campaign details</Link></p>
           </div>
         );
       }
