@@ -17,8 +17,6 @@ class Command(BaseCommand):
     random = Random()
 
     def handle(self, *args, **options):
-        # Cleanup
-        self._clear_team_members()
 
         # Creation
         self._create_current_team_members()
@@ -60,7 +58,3 @@ class Command(BaseCommand):
                 linkedin_url=websites[3] if len(websites) > 3 else None,
                 is_former_member=True,
             )
-
-    def _clear_team_members(self):
-        print(" ###### _clear_team_members ######")
-        TeamMember.objects.all().delete()

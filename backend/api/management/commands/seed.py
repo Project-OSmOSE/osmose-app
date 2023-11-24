@@ -23,6 +23,8 @@ from backend.api.models import (
 )
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
+from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
+
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
