@@ -16,6 +16,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Libraries
 
+- [react-router-dom](https://v5.reactrouter.com/) - v5.3.4
+
+For now (in november 2023, when migrating project from `create-react-app` to `ViteJS`), `react-router-dom` has been kept on "classic" version (5.x). Latest version (6.x) contains several breaking changes that needs some work.
+
+```bash
+npm install react-router-dom@^5
+npm install --save-dev @types/react-router-dom@^5
+```
+
 - [boostrap](https://getbootstrap.com/) - v5.3.2
 
 Bootstrap is used to easily improve the application design, and to allow developers who are not comfortable with CSS to easily contribute.
