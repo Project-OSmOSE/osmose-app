@@ -16,12 +16,14 @@
     "react-bootstrap": "^2.9.1",
     "react-confirm": "^0.3.0-7",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^5.3.4",
     "superagent": "^8.1.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/react-router-dom": "^5.3.3",
     "@types/superagent": "^4.1.21",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
