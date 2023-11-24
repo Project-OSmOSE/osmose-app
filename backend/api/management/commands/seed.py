@@ -22,6 +22,8 @@ from backend.api.models import (
     News,
 )
 
+from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
+
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
@@ -42,6 +44,7 @@ class Command(management.BaseCommand):
         self._create_annotation_results()
         self._create_comments()
         self._create_news()
+        WebsiteCommand().handle(*args, **options)
 
     def _create_users(self):
         users = ["dc", "ek", "ja", "pnhd", "ad", "rv"]

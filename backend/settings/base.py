@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
+    "backend.osmosewebsite.apps.OsmoseWebsiteConfig",
     "tinymce",
 ]
 
