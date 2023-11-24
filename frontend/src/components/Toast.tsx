@@ -1,5 +1,4 @@
-// @flow
-import React, { Component, Fragment } from 'react';
+import { Component, Fragment } from 'react';
 
 // String constants matching css rules
 const TOAST_STATUSES: any = {
@@ -9,19 +8,23 @@ const TOAST_STATUSES: any = {
   HIDING: 'toasty-hiding',
 };
 
+// TODO backend error messages must be more consistent
+// There is only one case when a sub "error_lines" property is returned
+// Perhaps always return an array of string as messages?
+// Ot just an error code and additional metadata as json
 export type ToastMsg = {
-  msg: string|array,
+  msg: any, // TODO: string | { error_lines: string[] },
   lvl: string,
 };
 
 type ToastProps = {
-  toastMsg: ?ToastMsg,
+  toastMsg?: ToastMsg,
 };
 
 type ToastState = {
   status: string,
-  currentMsg: ?ToastMsg,
-  nextMsg: ?ToastMsg,
+  currentMsg?: ToastMsg,
+  nextMsg?: ToastMsg,
 };
 
 class Toast extends Component<ToastProps, ToastState> {
@@ -88,7 +91,7 @@ class Toast extends Component<ToastProps, ToastState> {
       const tst: ToastMsg = this.state.currentMsg;
       let errorMessage
       if (tst.msg.hasOwnProperty('error_lines')) {
-        errorMessage = tst.msg.error_lines.map((item, index) => { return (<span key={index}>{item}<br></br></span>) })
+        errorMessage = tst.msg.error_lines.map((item: string, index: number) => { return (<span key={index.toFixed()}>{item}<br></br></span>) })
         errorMessage = <Fragment>{errorMessage}</Fragment>
       } else {
         errorMessage = tst.msg

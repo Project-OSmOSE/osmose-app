@@ -1,7 +1,6 @@
-// @flow
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Link } from 'react-router-dom';
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 
 const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';
@@ -65,13 +64,13 @@ type annotation_set_type = {
 type ACDProps = {
   match: {
     params: {
-      campaign_id: number
+      campaign_id: string
     }
   },
   app_token: string
 };
 type ACDState = {
-  campaign: ?{
+  campaign?: {
     id: number,
     name: string,
     desc: string,
@@ -80,7 +79,8 @@ type ACDState = {
     annotation_set: annotation_set_type,
     confidence_indicator_set: confidence_indicator_set_type,
     owner_id: number,
-    instructions_url: ?string,
+    instructions_url?: string,
+    created_at: string,
   },
   tasks: Array<{
     annotator_id: number,
@@ -88,44 +88,44 @@ type ACDState = {
     progress: string
   }>,
   isStaff: boolean,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 };
 class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
-  state = {
-    campaign: null,
+  state: ACDState = {
+    campaign: undefined,
     tasks: [],
     isStaff: false,
-    error: null
+    error: undefined
   }
-  getData = { abort: () => null }
+  getData!: SuperAgentRequest;
   getUsers = request.get(USER_API_URL)
   getIsStaff = request.get(STAFF_API_URL)
 
   componentDidMount() {
-    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id.toString()));
+    this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id));
     return Promise.all([
       this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
       this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
     ]).then(([req_data, req_users, req_is_staff]) => {
-      let users = {};
-      req_users.body.forEach(user => {
+      let users: any = {};
+      req_users.body.forEach((user: any) => {
         users[user.id] = user.email;
       })
-      let tmp_tasks = {};
-      req_data.body.tasks.forEach(task => {
+      let tmp_tasks: any = {};
+      req_data.body.tasks.forEach((task: any) => {
         if (!tmp_tasks[task.annotator_id]) {
           tmp_tasks[task.annotator_id] = {};
         }
         tmp_tasks[task.annotator_id][task.status] = task.count;
       })
-      let tasks = [];
+      let tasks: any[] = [];
       Object.keys(tmp_tasks).forEach(key => {
         let val = tmp_tasks[key];
-        let total = Object.values(val).map(v => { return parseInt(v, 10); }).reduce((a, b) => a + b, 0);
+        let total = Object.values(val).map((v: any) => { return parseInt(v, 10); }).reduce((a, b) => a + b, 0);
         let progress = (val[2] || 0).toString() + '/' + total.toString();
         tasks.push({ annotator_id: parseInt(key, 10), annotator_name: users[key], progress: progress });
       });
@@ -224,14 +224,14 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         <p className="text-center">
           <DownloadButton
             app_token={this.props.app_token}
-            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id.toString())}
+            url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
             value={"Download CSV results"}
             filename={campaign.name.replace(' ', '_') + '_results.csv'}
           />
           &nbsp;&nbsp;&nbsp;&nbsp;
           <DownloadButton
             app_token={this.props.app_token}
-            url={STATUS_REPORT_API_URL.replace('ID', this.props.match.params.campaign_id.toString())}
+            url={STATUS_REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
             value={"Download CSV task status"}
             filename={campaign.name.replace(' ', '_') + '_task_status.csv'}
           />

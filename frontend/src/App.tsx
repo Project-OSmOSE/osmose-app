@@ -1,5 +1,4 @@
-// @flow
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
 import Login from './Login';
@@ -20,7 +19,7 @@ import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
 
 type NavbarProps = {
-  logout: (event: SyntheticEvent<HTMLInputElement>) => void
+  logout: (event: any) => void
 };
 const Navbar = (props: NavbarProps) => (
   <div className="col-sm-2 border rounded">
@@ -36,7 +35,7 @@ const Navbar = (props: NavbarProps) => (
 
 type OdeAppProps = {
   app_token: string,
-  logout: (event: SyntheticEvent<HTMLInputElement>) => void,
+  logout: (event: any) => void,
 };
 const OdeApp = (props: OdeAppProps) => (
   <div className="px-5 mx-5">
@@ -73,7 +72,7 @@ class App extends Component<void, AppState> {
       let tokenItem = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
       if (tokenItem) {
         this.setState({
-          app_token: tokenItem.split('=').pop()
+          app_token: tokenItem.split('=').pop() ?? ''
         })
       }
     }
@@ -88,7 +87,7 @@ class App extends Component<void, AppState> {
   }
 
   // The history parameter should be the react-router history
-  logout = (history: Array<string>) => {
+  logout = (history: any) => {
     document.cookie = 'token=;max-age=0;path=/';
     this.setState({
       app_token: ''

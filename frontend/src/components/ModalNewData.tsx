@@ -1,17 +1,18 @@
 import React, {useState, useEffect} from "react";
 import ReactDOM from "react-dom";
+import { NewDataset } from "../DatasetList";
 
-type modalProp = {
-  openModal: Boolean,
-  onClose: object,
-  newData: Array,
-  setLaunchImportAvailable: Boolean,
-  setWanted_datasets: object,
+type ModalProps = {
+  openModal: boolean, // TODO: not used
+  onClose: any,
+  newData: NewDataset[],
+  setLaunchImportAvailable: any,
+  setWanted_datasets: any,
 };
 
 type NewDataItem_type = {
-  data: object,
-  index: integer,
+  data: NewDataset,
+  index: number,
 };
 
 const NewDataItem = (props: NewDataItem_type) => {
@@ -38,7 +39,8 @@ const NewDataItem = (props: NewDataItem_type) => {
 };
 
 function checkboxSelected() {
-  let cases = document.getElementsByName("addDataset");
+  // TODO: do not use document.getElementsByName
+  let cases: any = document.getElementsByName("addDataset");
   let result = [];
   for (let i = 0; i < cases.length; i++) {
     if (cases[i].checked) {
@@ -48,18 +50,18 @@ function checkboxSelected() {
   return result;
 }
 
-function filtre_newData(searchInputFilter, newData) {
+function filtre_newData(searchInputFilter: string, newData: NewDataset[]) {
   const regex = new RegExp(searchInputFilter, "i");
-  let data_filter = newData.filter((oneData) => {
+  let data_filter = newData.filter((oneData: NewDataset) => {
     return regex.test(oneData.name);
   });
 
   return data_filter;
 }
 
-const ModalNewData = (props: modalProp) => {
-  const [searchInputFilter, setSearchInputFilter] = useState("");
-  const [filteredResults, setFilteredResults] = useState([]);
+const ModalNewData = (props: ModalProps) => {
+  const [searchInputFilter, setSearchInputFilter] = useState<string>("");
+  const [filteredResults, setFilteredResults] = useState<NewDataset[]>([]);
 
   useEffect(() => {
     if (searchInputFilter !== "") {
@@ -76,7 +78,7 @@ const ModalNewData = (props: modalProp) => {
         onClick={props.onClose}
         className="overlay fade show"
         id="exampleModal"
-        tabIndex="-1"
+        tabIndex={-1}
         role="dialog"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
@@ -124,9 +126,10 @@ const ModalNewData = (props: modalProp) => {
                         value="all"
                         id="allCheckbox"
                         onChange={(event) => {
+                          // TODO: do not use document.getElementsByName
                           let allCheckbox =
                             document.getElementsByName("addDataset");
-                          allCheckbox.forEach((element) => {
+                          allCheckbox.forEach((element: any) => {
                             if (event.currentTarget.checked) {
                               element.checked = true;
                             } else {
@@ -189,14 +192,15 @@ const ModalNewData = (props: modalProp) => {
   );
 };
 
-const Modal = (props: modalProp) =>
+const Modal = (props: ModalProps) =>
   props.openModal
     ? ReactDOM.createPortal(
         <ModalNewData
+        openModal={true}
         onClose={props.onClose}
         newData={props.newData}
         setLaunchImportAvailable={() => { props.setLaunchImportAvailable() }}
-        setWanted_datasets={(data) => {
+        setWanted_datasets={(data: any) => {
           props.setWanted_datasets(data)
         }}
         />,

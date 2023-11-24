@@ -1,5 +1,4 @@
-// @flow
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
 
@@ -28,14 +27,14 @@ type annotation_set_type = {
 type AnnotationTaskListProps = {
   match: {
     params: {
-      campaign_id: number
+      campaign_id: string
     }
   },
   app_token: string
 };
 
 type AnnotationTaskListState = {
-  campaign: ?{
+  campaign?: {
     id: number,
     name: string,
     desc: string,
@@ -44,7 +43,7 @@ type AnnotationTaskListState = {
     annotation_set_type: annotation_set_type,
     confidence_indicator_set_type: confidence_indicator_set_type,
     owner_id: number,
-    instructions_url: ?string,
+    instructions_url?: string,
   },
   annotation_tasks: Array<{
     id: number,
@@ -54,23 +53,23 @@ type AnnotationTaskListState = {
     start: string,
     end: string,
   }>,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 };
 
 class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTaskListState> {
-  state = {
-    campaign: null,
+  state: AnnotationTaskListState = {
+    campaign: undefined,
     annotation_tasks: [],
-    error: null
+    error: undefined
   }
   getCampaign = request.get(CAMPAIGN_API_URL);
   getTasks = request.get(TASKS_API_URL);
 
   componentDidMount() {
-    let campaignID = this.props.match.params.campaign_id.toString();
+    let campaignID = this.props.match.params.campaign_id;
     this.getCampaign = request.get(CAMPAIGN_API_URL + campaignID);
     this.getTasks = request.get(TASKS_API_URL.replace('ID', campaignID));
 
@@ -113,7 +112,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
 
     const annotation_tasks = this.state.annotation_tasks.map(annotation_task => {
       let start_date = new Date(annotation_task.start);
-      let diff_time = new Date(new Date(annotation_task.end) - start_date);
+      let diff_time = new Date(new Date(annotation_task.end).getTime() - start_date.getTime());
       let status_names = ['Created', 'Started', 'Finished'];
       return (
         <tr

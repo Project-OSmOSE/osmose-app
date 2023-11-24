@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react'
 
 import type { Annotation } from './AudioAnnotator';
@@ -15,11 +14,11 @@ type RegionProps = {
   offsetTop: number,
   offsetLeft: number,
   currentZoom: number,
-  onRegionDeleted: (Annotation) => void,
-  onRegionMoved: (Annotation) => void,
-  onRegionPlayed: (Annotation) => void,
-  onRegionClicked: (Annotation) => void,
-  onAddAnotherAnnotation: (Annotation) => void,
+  onRegionDeleted: (a: Annotation) => void,
+  onRegionMoved: (a: Annotation) => void,
+  onRegionPlayed: (a: Annotation) => void,
+  onRegionClicked: (a: Annotation) => void,
+  onAddAnotherAnnotation: (a: Annotation) => void,
 };
 
 type RegionState = {spectrogramEnd: number};
@@ -35,7 +34,9 @@ class Region extends Component<RegionProps, RegionState> {
   }
 
   componentDidMount() {
-    this.setState({spectrogramEnd: parseInt(document.querySelector('.canvas-wrapper').style.width, 10) });
+    // TODO: do not use document.querySelector
+    const canvasElement: any = document.querySelector('.canvas-wrapper');
+    this.setState({spectrogramEnd: parseInt(canvasElement.style.width, 10) });
   }
 
   playAnnotation = () => {
@@ -50,7 +51,7 @@ class Region extends Component<RegionProps, RegionState> {
     this.props.onRegionClicked(this.props.annotation);
   }
 
-  addAnotherAnnotation = (event: SyntheticPointerEvent<HTMLCanvasElement>) => {
+  addAnotherAnnotation = (event: any) => {
     this.props.onAddAnotherAnnotation(event);
   };
 

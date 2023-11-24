@@ -1,21 +1,13 @@
-// @flow
+import { ChangeEvent, Component } from 'react';
 
-import React, { Component } from 'react';
+export type choices_type = Map<number, {id: number, name: string}>;
 
-export type choices_type = {
-  // Map<number, {id: number, name: string}>
-  [?number]: {
-    id: number,
-    name: string
-  }
-};
-  
 type ListChooserProps = {
   choice_type: string,
   chosen_list: choices_type,
   choices_list: choices_type,
   onDelClick: (choice_id: number) => void,
-  onSelectChange: (event: SyntheticEvent<HTMLInputElement>) => void
+  onSelectChange: (event: ChangeEvent<HTMLSelectElement>) => void
 };
 
 class ListChooser extends Component<ListChooserProps> {
