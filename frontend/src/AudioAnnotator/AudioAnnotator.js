@@ -402,7 +402,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     this.audioPlayer.audioElement.play();
 
     this.setState({
-      isPlaying: true,
       stopTime: annotation ? annotation.endTime : undefined,
     });
   }
@@ -411,7 +410,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     this.audioPlayer.audioElement.pause();
 
     this.setState({
-      isPlaying: false,
       stopTime: undefined,
     });
   }
@@ -784,6 +782,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             ref={(element) => { if (element) this.audioPlayer = element; } }
             playbackRate={this.state.playbackRate}
             src={task.audioUrl}
+            onPause={() => this.setState({isPlaying: false})}
+            onPlay={() => this.setState({isPlaying: true})}
           ></AudioPlayer>
 
           {/* Workbench (spectrogram viz, box drawing) */}
