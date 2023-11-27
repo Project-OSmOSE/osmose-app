@@ -14,7 +14,7 @@ li.treelistitem::after{
     position: absolute;
     left: -38px;
     top: 1.2rem;
-    border-top: solid 3px #1a60af;
+    border-top: solid 3px var(--color-primary);
 }
 
 li.treelistitem > a{

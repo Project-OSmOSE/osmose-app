@@ -6,6 +6,7 @@ import {ShortCardArticle} from "../../components/ShortCardArticle";
 import {Pagination} from "../../components/Pagination";
 
 import imgTitle from '../../img/illust/pexels-berend-de-kort-1452701_1920_thin.webp';
+import {API_FETCH_INIT} from "../../utils";
 // import articles_data from '../../articles_data2.js'; 
 
 const NEWS_URL = '/api/news/';
@@ -43,14 +44,8 @@ export const News: React.FC = () => {
   React.useEffect(
     () => {
       const fetchNews = async () => {
-        const init = {	
-          method: 'GET',
-          headers: { 
-              'Accept': 'application/json',
-          }
-        };
         try {
-          const resp = await fetch(NEWS_URL, init);
+          const resp = await fetch(NEWS_URL, API_FETCH_INIT);
           if (resp.ok){
             tempNews = await resp.json();
             setNews(tempNews);

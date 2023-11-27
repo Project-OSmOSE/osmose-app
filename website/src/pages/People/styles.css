@@ -1,21 +1,23 @@
-div#people-page .grid-container {
+#people-page section {
+    margin: 3rem;
     display: grid;
-    -ms-grid-columns: auto;
-    grid-template-columns: auto;
-    grid-gap: 30px;
-    padding: 0;
-    margin: 0;
-}
-@media screen and (min-width: 576px) {
-    div#people-page .grid-container {
-        -ms-grid-columns: 1fr 30px 1fr;
-        grid-template-columns: 1fr 1fr;
-    }
+    justify-items: center;
 }
 
-@media screen and (min-width: 768px) {
-    div#people-page .grid-container {
-        -ms-grid-columns: 1fr 30px 1fr 30px 1fr;
-        grid-template-columns: 1fr 1fr 1fr;
+#people-page section h2 {
+    margin-top: 5rem;
+}
+
+#people-page section .members-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+    #people-page section {
+        margin: 3rem 1rem;
     }
 }

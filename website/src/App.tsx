@@ -9,6 +9,7 @@ import { People } from './pages/People';
 import { Projects } from './pages/Projects';
 import { Publications } from './pages/Publications';
 import { SingleNews } from './pages/SingleNews';
+import {Member} from "./pages/Member";
 // import { Ontology } from './pages/Ontology';
 // import { Explore } from './pages/Explore';
 
@@ -34,6 +35,12 @@ const App: React.FC = () => {
         <Route exact path="/people">
           <Layout>
             <People />
+          </Layout>
+        </Route>
+
+        <Route path="/people/:id">
+          <Layout>
+            <Member />
           </Layout>
         </Route>
 

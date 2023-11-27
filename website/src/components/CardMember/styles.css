@@ -1,11 +1,21 @@
-/* div.cardMember {
-
-} */
-
-div.cardMember img{
-    border-radius: 50%;
-    min-width: 15vh;
-    min-height: 15vh;
-    max-height: 25vh;
-    max-width: 25vh;
+a.card-member {
+    display: grid;
+    justify-items: center;
+    text-decoration: none !important;
+    color: initial;
+    width: 10rem;
+    text-align: center;
+}
+a.card-member > * {
+    margin: 0;
+    text-decoration: none !important;
+}
+a.card-member h5 {
+    color: var(--color-primary);
+}
+.card-member > img {
+    height: 8rem;
+    width: 8rem;
+    object-fit: cover;
+    border-radius: 4rem;
 }
