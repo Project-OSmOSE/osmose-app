@@ -13,11 +13,12 @@ class TeamMemberAdmin(ModelAdmin):
         'name',
         'position',
         'mailAddress',
-        'isFormerMember'
+        'isFormerMember',
+        'level'
     ]
     search_fields = ['name']
     fieldsets = [
-        (None, {"fields": ["name", "position", "mailAddress", "picture", "biography", "isFormerMember"]}),
+        (None, {"fields": ["name", "position", "mailAddress", "picture", "biography", "isFormerMember", "level"]}),
         ("Links", {
             "fields": ["researchGateURL", "personalWebsiteURL", "githubURL", "linkedinURL"]
         })

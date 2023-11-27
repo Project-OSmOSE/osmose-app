@@ -42,6 +42,8 @@ from backend.api.views import (
     ConfidenceIndicatorSetViewSet,
 )
 
+from backend.osmosewebsite.urls import website_router
+
 # Backend urls are for admin & api documentation
 backend_urlpatterns = [
     path("admin/", admin.site.urls),
@@ -76,6 +78,7 @@ api_urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("", include(api_router.urls)),
+    path("", include(website_router.urls)),
 ]
 
 # All paths are prefixed with backend or api for easier proxy use

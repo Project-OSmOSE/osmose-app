@@ -1,7 +1,10 @@
 from django.db import models
+from django.contrib import admin
 
 
 class TeamMember(models.Model):
+    level = models.IntegerField("Sorting level", blank=True, null=True)
+
     name = models.CharField(max_length=100)
     position = models.CharField(max_length=255)
     biography = models.TextField()
@@ -15,6 +18,9 @@ class TeamMember(models.Model):
     linkedinURL = models.URLField("LinkedIn URL", blank=True, null=True)
 
     isFormerMember = models.BooleanField("Is former member", default=False)
+
+    class Meta:
+        ordering=['level']
 
     def __str__(self):
         return self.name

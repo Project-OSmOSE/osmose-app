@@ -1,3 +1,3 @@
 """All Django models available"""
 
-from .team import TeamMember
+from .team_member import TeamMember
