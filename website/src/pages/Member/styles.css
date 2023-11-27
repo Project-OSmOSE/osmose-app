@@ -42,7 +42,7 @@
 #member-page .links,
 #member-page .links .socials {
     display: grid;
-    gap: 1rem;
+    gap: 1rem 2rem;
     justify-items: center;
 }
 
@@ -59,4 +59,29 @@
 }
 
 @media screen and (max-width: 768px) {
+    #member-page {
+        margin: 2rem 1rem;
+        position: relative;
+        display: grid;
+        gap: 1rem;
+        justify-items: center;
+    }
+
+    #member-page .back {
+        position: initial;
+        justify-self: left;
+    }
+
+    #member-page img {
+        width: 12rem;
+        height: 12rem;
+        border-radius: 6rem;
+    }
+
+    #member-page .links,
+    #member-page .links .socials {
+        display: grid;
+        gap: 0.5rem 1rem;
+        justify-items: center;
+    }
 }
