@@ -3,7 +3,11 @@
 import React, { Component } from 'react';
 
 export type choices_type = {
-  Map<number, {id: number, name: string}>
+  // Map<number, {id: number, name: string}>
+  [?number]: {
+    id: number,
+    name: string
+  }
 };
   
 type ListChooserProps = {
