@@ -37,6 +37,10 @@ omit = ["backend/asgi.py", "backend/wsgi.py", "backend/settings/*", "backend/api
 [tool.coverage.report]
 show_missing = true
 
+[tool.pylint.'MESSAGES CONTROL']
+disable="R0901"
+
+
 [tool.pylint.MASTER]
 load-plugins = "pylint_django"
 django-settings-module = "backend.settings"
