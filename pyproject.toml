@@ -37,8 +37,8 @@ omit = ["backend/asgi.py", "backend/wsgi.py", "backend/settings/*", "backend/api
 [tool.coverage.report]
 show_missing = true
 
-[tool.pylint.'MESSAGES CONTROL']
-disable="R0901"
+[tool.pylint.messages_control]
+disable=["too-many-ancestors",]
 
 
 [tool.pylint.MASTER]
