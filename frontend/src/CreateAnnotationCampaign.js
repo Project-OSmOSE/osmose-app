@@ -20,9 +20,7 @@ type annotation_set_type = {
 };
 
 type ShowAnnotationSetProps = {
-  annotation_sets: {
-    [?number]: annotation_set_type
-  },
+  annotation_sets: Map<number, annotation_set_type>,
   onChange: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 
@@ -82,9 +80,7 @@ type confidence_indicator_set_type = {
 };
 
 type ShowConfidenceIndicatorSetProps = {
-  confidence_indicator_sets: {
-    [?number]: confidence_indicator_set_type
-  },
+  confidence_indicator_sets: Map<number, confidence_indicator_set_type>,
   onChange: (event: SyntheticEvent<HTMLInputElement>) => void
 };
 
