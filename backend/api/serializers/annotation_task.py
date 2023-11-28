@@ -242,23 +242,24 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 f"{unknown_tags} not valid tags from annotation set {set_tags}."
             )
 
-        set_confidence_indicators = set(
-            self.instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
-                "label", flat=True
+        if self.instance.annotation_campaign.confidence_indicator_set:
+            set_confidence_indicators = set(
+                self.instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                    "label", flat=True
+                )
             )
-        )
 
-        update_confidence_indicators = set(
-            ann["confidence_indicator"] for ann in annotations
-        )
-        unknown_confidence_indicators = (
-            update_confidence_indicators - set_confidence_indicators
-        )
-        if unknown_confidence_indicators:
-            raise serializers.ValidationError(
-                f"{unknown_confidence_indicators} not valid confidence indicator"
-                + f"from confidence indicator set {set_confidence_indicators}."
+            update_confidence_indicators = set(
+                ann["confidence_indicator"] for ann in annotations
             )
+            unknown_confidence_indicators = (
+                update_confidence_indicators - set_confidence_indicators
+            )
+            if unknown_confidence_indicators:
+                raise serializers.ValidationError(
+                    f"{unknown_confidence_indicators} not valid confidence indicator"
+                    + f"from confidence indicator set {set_confidence_indicators}."
+                )
 
         return annotations
 
@@ -274,14 +275,16 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
-        confidence_indicators = dict(
-            map(
-                reversed,
-                instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
-                    "id", "label"
-                ),
+        confidence_indicators = {}
+        if instance.annotation_campaign.confidence_indicator_set:
+            confidence_indicators = dict(
+                map(
+                    reversed,
+                    instance.annotation_campaign.confidence_indicator_set.confidence_indicators.values_list(
+                        "id", "label"
+                    ),
+                )
             )
-        )
 
         for annotation in validated_data["annotations"]:
             comments_data = annotation.pop("result_comments")
@@ -289,9 +292,10 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 annotation.pop("annotation_tag")["name"]
             ]
 
-            annotation["confidence_indicator_id"] = confidence_indicators[
+            # We don't necessarily have confidence indicators so here let's just use "get"
+            annotation["confidence_indicator_id"] = confidence_indicators.get(
                 annotation.pop("confidence_indicator")
-            ]
+            )
             new_result = instance.results.create(**annotation)
 
             if comments_data is not None:

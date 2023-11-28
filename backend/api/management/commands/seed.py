@@ -303,8 +303,9 @@ class Command(management.BaseCommand):
 
         self.campaigns[0].spectro_configs.add(spectro_config_1)
         self.campaigns[0].spectro_configs.add(spectro_config_3)
-        self.campaigns[1].spectro_configs.add(spectro_config_1)
-        self.campaigns[2].spectro_configs.add(spectro_config_2)
+        for campaign in self.campaigns[1:]:
+            spectro = campaign.datasets.first().spectro_configs.first()
+            campaign.spectro_configs.add(spectro)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")

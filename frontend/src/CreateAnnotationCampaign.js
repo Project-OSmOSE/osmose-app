@@ -368,7 +368,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleConfidenceSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
     let newValue = null
     if (event.currentTarget.value !== "no-confidence-indicator-set") {
-      parseInt(event.currentTarget.value, 10)
+      newValue = parseInt(event.currentTarget.value, 10)
     }
 
     this.setState({ new_ac_confidence_indicator_set: newValue });

@@ -74,7 +74,7 @@ export type Annotation = {
 type AnnotationTask = {
   id: string,
   annotationTags: Array<string>,
-  confidenceIndicatorSet: {
+  confidenceIndicatorSet: ?{
     id: number,
     name: string,
     desc: string,
@@ -271,7 +271,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           }
 
           let defaultConfidenceIndicatorLabel = null
-          if (task.confidenceIndicatorSet !== undefined) {
+          if (task.confidenceIndicatorSet !== undefined && task.confidenceIndicatorSet !== null) {
             defaultConfidenceIndicatorLabel = task.confidenceIndicatorSet.confidenceIndicators.find((confidenceIndicator) =>  confidenceIndicator.isDefault === true).label
           }
 
@@ -627,8 +627,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const emptyAnnotations = this.state.annotations
       .filter((ann: Annotation) => ann.annotation.length === 0);
 
-      const emptyConfidenceIndicator = this.state.annotations
-      .filter((ann: Annotation) => ann.confidenceIndicator.length === 0);
+    let emptyConfidenceIndicator = 0;
+    if (this.state.task.confidenceIndicatorSet != undefined && this.state.task.confidenceIndicatorSet != null) {
+      emptyConfidenceIndicator = this.state.annotations
+        .filter((ann: Annotation) => ann.confidenceIndicator.length === 0);
+    }
 
     if (emptyAnnotations.length > 0 ) {
       this.activateAnnotation(emptyAnnotations.shift());
@@ -1318,7 +1321,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   renderConfidenceIndicator = () => {
-    if (this.state.task && this.state.currentDefaultConfidenceIndicator !== null) {
+    if (this.state.task && this.state.task.confidenceIndicatorSet !== null && this.state.currentDefaultConfidenceIndicator !== null) {
 
       const activeConfidenceIndicator = this.state.currentDefaultConfidenceIndicator;
       const tooltip = (
@@ -1387,14 +1390,16 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <h6 className="card-header text-center">Selected annotation</h6>
           <div className="card-body d-flex justify-content-between">
               <p className="card-text">
-              <i className="fa fa-clock-o"></i> :&nbsp;
+              <i className="fa fa-clock"></i> :&nbsp;
                 {ann.startTime === -1 ? "00:00.000" : utils.formatTimestamp(ann.startTime)}&nbsp;&gt;&nbsp;
                 {ann.endTime === -1 ? max_time: utils.formatTimestamp(ann.endTime)}<br />
               <i className="fa fa-arrow-up"></i> :&nbsp;
                 {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                 {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
                 <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
-                <i className={`${this.state.task.confidenceIndicatorSet === undefined ? 'isInvisible' : '' } fa fa-handshake`}></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
+                {this.state.task.confidenceIndicatorSet != undefined && this.state.task.confidenceIndicatorSet != null &&
+                  <span><i className="fa fa-handshake"></i> :&nbsp; {ann.confidenceIndicator ? ann.confidenceIndicator : "None"} <br /></span>
+                }
             </p>
           </div>
         </div>
