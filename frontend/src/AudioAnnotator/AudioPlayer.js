@@ -79,6 +79,9 @@ class AudioPlayer extends React.Component<AudioPlayerProps> {
       // $FlowFixMe
       this.audioElement.mozPreservesPitch = false;
     }
+    if (this.audioElement.preservesPitch !== undefined) {
+      this.audioElement.preservesPitch = false;
+    }
   }
 
   componentDidUpdate(prevProps: AudioPlayerProps) {

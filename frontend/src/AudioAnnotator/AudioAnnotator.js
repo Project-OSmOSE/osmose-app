@@ -722,16 +722,19 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const playbackRateOptions = AVAILABLE_RATES.map(rate => (
         <option key={`rate-${rate}`} value={rate.toString()}>{rate.toString()}x</option>
       ));
-      let playbackRateSelect = undefined;
+      let playbackRateSelect;
       // $FlowFixMe
-      if (this.audioPlayer && this.audioPlayer.audioElement.mozPreservesPitch !== undefined) {
-        playbackRateSelect = (
-          <select
-            className="form-control select-rate"
-            defaultValue={this.state.playbackRate}
-            onChange={this.changePlaybackRate}
-          >{playbackRateOptions}</select>
-        );
+      if (this.audioPlayer) {
+        const el = this.audioPlayer.audioElement;
+        if (el.mozPreservesPitch !== undefined || el.preservesPitch !== undefined) {
+          playbackRateSelect = (
+              <select className="form-control select-rate"
+                      defaultValue={this.state.playbackRate}
+                      onChange={this.changePlaybackRate}>
+                { playbackRateOptions }
+              </select>
+          );
+        }
       }
 
       // File data
