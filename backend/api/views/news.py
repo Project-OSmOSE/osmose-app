@@ -1,10 +1,5 @@
 """ News DRF-Viewset file"""
-# pylint: disable=C0301,line-too-long
-from datetime import datetime
-from django.shortcuts import get_object_or_404
-
 from rest_framework import viewsets
-from rest_framework.response import Response
 
 from backend.api.models import News
 from backend.api.serializers import NewsSerializer
