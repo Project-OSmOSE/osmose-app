@@ -12,7 +12,7 @@ import team from '../../img/people/team-on-boat_640.webp';
 // import team from '../../img/people/team_640.webp';
 
 // logos
-import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
+import enstalogo from '../../img/logo/logo-ensta-bretagne.jpg';
 import ifremerlogo from '../../img/logo/logo_ifremer.png';	
 import ubologo from '../../img/logo/logo-ubo.png';	
 import labsticlogo from '../../img/logo/logo-lab-sticc.png';	

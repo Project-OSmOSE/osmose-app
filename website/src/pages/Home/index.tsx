@@ -13,7 +13,7 @@ import logoofb from '../../img/logo/logo_ofb.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
 import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';	
-import enstalogo from '../../img/logo/logo-ensta-bretagne.png';	
+import enstalogo from '../../img/logo/logo-ensta-bretagne.jpg';
 import ubologo from '../../img/logo/logo-ubo.png';	
 import labsticlogo from '../../img/logo/logo-lab-sticc.png';	
 import iuemLogo from '../../img/logo/iuem.jpeg';
