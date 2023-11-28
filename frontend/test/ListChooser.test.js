@@ -8,15 +8,15 @@ describe('testing ListChooser component', function () {
     this.timeout(20000);
 
     it('mounts properly with correct selections', () => {
-        let choices_list = [
-            { id: 2, name: 'B' },
-            { id: 3, name: 'C' },
-            { id: 4, name: 'D' }
-        ];
-        let chosen_list = [
-            { id: 1, name: 'A' },
-            { id: 5, name: 'E' }
-        ];
+        let choices_list = new Map([
+            [2, { id: 2, name: 'B' }],
+            [3, { id: 3, name: 'C' }],
+            [4, { id: 4, name: 'D' }]
+        ]);
+        let chosen_list = new Map([
+            [1, { id: 1, name: 'A' }],
+            [5, { id: 5, name: 'E' }]
+        ]);
         let onSelectChange = () => null;
         let onDelClick = () => null;
         let wrapper = mount(

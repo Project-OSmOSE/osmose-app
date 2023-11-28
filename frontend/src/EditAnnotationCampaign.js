@@ -40,10 +40,10 @@ type EACState = {
 class EditAnnotationCampaign extends Component<EACProps, EACState> {
   state = {
     campaign_id: 0,
-    new_ac_annotators: {},
+    new_ac_annotators: new Map(),
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
-    annotator_choices: {},
+    annotator_choices: new Map(),
     isStaff: false,
     error: null
   }
@@ -70,11 +70,10 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       const users = req_users.body
         .filter(user => existingAnnotators.findIndex(existing => existing === user.id) === -1)
         .map(user => { return { id: user.id, name: user.email }; });
-
       // Finally, set state
       this.setState({
         campaign_id: req_data.body.campaign.id,
-        annotator_choices: utils.arrayToObject(users),
+        annotator_choices: utils.arrayToMap(users, 'id'),
         isStaff: req_is_staff.body.is_staff,
       });
     }).catch(err => {
@@ -98,24 +97,24 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
 
   handleAddAnnotator = (event: SyntheticEvent<HTMLInputElement>) => {
     let annotator_id = parseInt(event.currentTarget.value, 10);
-    let annotator_choices = Object.assign({}, this.state.annotator_choices);
-    let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-    new_ac_annotators[annotator_id] = annotator_choices[annotator_id];
-    delete annotator_choices[annotator_id];
+    let annotator_choices = new Map(this.state.annotator_choices);
+    let new_ac_annotators = new Map(this.state.new_ac_annotators);
+    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id));
+    annotator_choices.delete(annotator_id);
     this.setState({
       new_ac_annotators: new_ac_annotators,
-      annotator_choices: annotator_choices,
+      annotator_choices: annotator_choices
     });
   }
 
   handleRemoveAnnotator = (annotator_id: number) => {
-    let annotator_choices = Object.assign({}, this.state.annotator_choices);
-    let new_ac_annotators = Object.assign({}, this.state.new_ac_annotators);
-    annotator_choices[annotator_id] = new_ac_annotators[annotator_id];
-    delete new_ac_annotators[annotator_id];
+    let annotator_choices = new Map(this.state.annotator_choices);
+    let new_ac_annotators = new Map(this.state.new_ac_annotators);
+    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id));
+    new_ac_annotators.delete(annotator_id);
     this.setState({
       new_ac_annotators: new_ac_annotators,
-      annotator_choices: annotator_choices,
+      annotator_choices: annotator_choices
     });
   }
 
@@ -134,7 +133,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
 
     // Build request body
     const params = {
-      annotators: Object.keys(this.state.new_ac_annotators),
+      annotators: Array.from(this.state.new_ac_annotators.keys()),
       annotation_method: this.state.new_ac_annotation_method,
     };
     const annotation_goal = this.state.new_ac_annotation_goal === 0 ?
@@ -213,7 +212,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
 
   render() {
     if (this.state.isStaff) {
-      if (Object.keys(this.state.annotator_choices).length > 0 || Object.keys(this.state.new_ac_annotators).length > 0) {
+      if (this.state.annotator_choices.size > 0 || this.state.new_ac_annotators.size > 0) {
         return this.renderForm();
       } else {
         return (

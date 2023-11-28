@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Count, Q, Prefetch
+from django.db.models.functions import Lower
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -65,7 +66,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                     to_attr="user_complete_tasks",
                 ),
             )
-            .order_by("name", "created_at")
+            .order_by(Lower("name"), "created_at")
         )
         if not request.user.is_staff:
             queryset = queryset.filter(annotators=request.user.id)
@@ -277,7 +278,7 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
         header = ["dataset", "filename"]
         annotators = (
             campaign.annotators.distinct()
-            .order_by("username")
+            .order_by(Lower("username"))
             .values_list("username", flat=True)
         )
         data = [header + list(annotators)]
@@ -285,7 +286,9 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
             campaign.tasks.select_related(
                 "dataset_file", "dataset_file__dataset", "annotator"
             )
-            .order_by("dataset_file__dataset__name", "dataset_file__filename")
+            .order_by(
+                Lower("dataset_file__dataset__name"), Lower("dataset_file__filename")
+            )
             .values_list(
                 "dataset_file__dataset__name",
                 "dataset_file__filename",

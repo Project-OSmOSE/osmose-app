@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse
 from django.db import IntegrityError
+from django.db.models.functions import Lower
 
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List users"""
-        queryset = User.objects.all().order_by("email")
+        queryset = User.objects.all().order_by(Lower("email"))
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

@@ -1,9 +1,9 @@
 // @flow
 
 import React, { Component } from 'react';
-import * as utils from './utils';
 
 export type choices_type = {
+  // Map<number, {id: number, name: string}>
   [?number]: {
     id: number,
     name: string
@@ -20,7 +20,7 @@ type ListChooserProps = {
 
 class ListChooser extends Component<ListChooserProps> {
   render() {
-    let chosen_list = utils.objectValues(this.props.chosen_list).map(choice => {
+    let chosen_list = Array.from(this.props.chosen_list.values()).map(choice => {
       if (choice !== undefined) {
         return (
           <div className="col-sm-3 text-center border rounded" key={choice.id}>
@@ -33,8 +33,8 @@ class ListChooser extends Component<ListChooserProps> {
     });
 
     let select_choice;
-    if (Object.keys(this.props.choices_list).length > 0) {
-      let choices_list = utils.objectValues(this.props.choices_list).map(choice => {
+    if (this.props.choices_list.size > 0) {
+      let choices_list = Array.from(this.props.choices_list.values()).map(choice => {
         if (choice !== undefined) {
           return (
           <option key={choice.id} value={choice.id}>{choice.name}</option>

@@ -2,6 +2,7 @@
 import csv
 
 from django.db.models import Count
+from django.db.models.functions import Lower
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.conf import settings
 
@@ -30,7 +31,7 @@ class DatasetViewSet(viewsets.ViewSet):
         queryset = (
             Dataset.objects.annotate(Count("files"))
             .select_related("dataset_type")
-            .order_by("name", "created_at")
+            .order_by(Lower("name"), "created_at")
         )
 
         serializer = self.serializer_class(queryset, many=True)
