@@ -86,7 +86,7 @@ html {
 }
 
 .toasty {
-  min-width: 0px;
+  min-width: 0;
   z-index: 1;
   left: 0;
   font-size: 17px;
@@ -170,6 +170,17 @@ html {
 }
 .workbench-controls > button, .workbench-controls > span {
   font-size: 20px;
+  padding: 5px;
+}
+
+.workbench-pointer {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  border-radius: 5px;
+  transition: 100ms;
   padding: 5px;
 }
 
@@ -485,7 +496,7 @@ html {
   }
   100% {
     box-shadow:  0 0 0 0 rgba(255,255,255,1),
-                 0 0 0 0em var(--color__8);
+                 0 0 0 0 var(--color__8);
   }
 }
 

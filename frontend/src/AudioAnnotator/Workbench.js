@@ -69,6 +69,8 @@ type WorkbenchState = {
   spectrograms: Array<SpectroDetails>,
   newAnnotation: ?Annotation,
   loadingZoomLvl: number,
+  pointerFrequency: number;
+  pointerTime: number;
 };
 
 class Workbench extends Component<WorkbenchProps, WorkbenchState> {
@@ -116,6 +118,8 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       spectrograms: [],
       newAnnotation: undefined,
       loadingZoomLvl: 1,
+      pointerFrequency: undefined,
+      pointerTime: undefined,
     };
 
     this.wrapperRef = React.createRef();
@@ -442,6 +446,20 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       const newAnnotation: Annotation = this.computeNewAnnotation(e);
       this.setState({newAnnotation}, this.renderCanvas);
     }
+    // Show pointer frequency/time data
+    const bounds = this.canvasRef.current.getBoundingClientRect();
+    if (e.clientX < bounds.x || e.clientX > (bounds.x + bounds.width)
+        || e.clientY < bounds.y || e.clientY > (bounds.y + bounds.height)) {
+        this.setState({
+            pointerTime: undefined,
+            pointerFrequency: undefined
+        })
+    } else {
+      this.setState({
+        pointerFrequency: this.getFrequencyFromClientY(e.clientY),
+        pointerTime: this.getTimeFromClientX(e.clientX)
+      });
+    }
   }
 
   onEndNewAnnotation = (e: PointerEvent) => {
@@ -652,6 +670,10 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
           <button className="btn-simple fa fa-search-minus" onClick={() => this.zoom(-1)}></button>
           <span>{this.state.currentZoom}x</span>
         </p>
+
+        { this.state.pointerFrequency && this.state.pointerTime && <p className="workbench-pointer">
+          {this.state.pointerFrequency}Hz / {utils.formatTimestamp(this.state.pointerTime, false)}
+        </p>}
 
         <p className="workbench-info workbench-info--intro">
           File : <strong>{this.props.fileMetadata.name}</strong> - Sampling : <strong>{this.props.fileMetadata.audioRate} Hz</strong><br />
