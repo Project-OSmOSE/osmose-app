@@ -12,6 +12,7 @@ class News(models.Model):
     class Meta:
         db_table = "news"
         verbose_name_plural = "news"
+        ordering = ["-date"]
 
     title = models.CharField(max_length=255, unique=True)
     intro = models.CharField(max_length=255)

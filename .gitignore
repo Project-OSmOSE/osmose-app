@@ -80,5 +80,8 @@ typings/
 #VSCode
 /.vscode/settings.json
 
+#Jetbrains
+.idea
+
 #Asdf
 .tool-versions
