@@ -783,6 +783,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             playbackRate={this.state.playbackRate}
             src={task.audioUrl}
             onPause={() => this.setState({isPlaying: false})}
+            onAbort={() => this.setState({isPlaying: false})}
             onPlay={() => this.setState({isPlaying: true})}
           ></AudioPlayer>
 
