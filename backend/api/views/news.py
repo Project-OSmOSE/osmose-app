@@ -25,7 +25,11 @@ class NewsViewSet(viewsets.ViewSet):
     def list(self, request):
         """List news"""
         serializer = self.serializer_class(self.queryset, many=True)
-        response = sorted(serializer.data, key=lambda item: datetime.strptime(item["date"], "%Y-%m-%d"), reverse=True)
+        response = sorted(
+            serializer.data,
+            key=lambda item: datetime.strptime(item["date"], "%Y-%m-%d"),
+            reverse=True,
+        )
         return Response(response)
 
     def retrieve(self, request, pk=None):
