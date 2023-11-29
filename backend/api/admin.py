@@ -4,6 +4,8 @@
 
 from django.contrib import admin
 from django import forms
+from django.db import IntegrityError, transaction
+from django.contrib import messages
 
 from backend.api.models import (
     Dataset,
@@ -39,7 +41,7 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
     """
     field_name_attr = getattr(obj, field_name)
     many_to_many_attributs = ""
-    for one_name_attr in field_name_attr.all():
+    for one_name_attr in field_name_attr.all().distinct():
         name_field = getattr(one_name_attr, related_field_name)
         many_to_many_attributs += f"{name_field}, "
 
@@ -62,6 +64,14 @@ class ConfidenceIndicatorAdmin(admin.ModelAdmin):
         "confidence_indicator_set",
         "is_default",
     )
+
+    def save_model(self, request, obj, form, change):
+        try:
+            with transaction.atomic():
+                super().save_model(request, obj, form, change)
+        except IntegrityError as error:
+            messages.set_level(request, messages.ERROR)
+            messages.error(request, error)
 
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):

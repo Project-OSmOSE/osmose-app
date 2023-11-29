@@ -36,13 +36,8 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     complete_tasks_count = serializers.SerializerMethodField()
     user_complete_tasks_count = serializers.SerializerMethodField()
     files_count = serializers.SerializerMethodField()
-    annotation_set = AnnotationSetSerializer()
-    confidence_indicator_set = ConfidenceIndicatorSetSerializer()
-
-    def __init__(self, *args, **kwargs):
-        if "user_id" in kwargs:
-            self.user_id = kwargs.pop("user_id")
-        super().__init__(*args, **kwargs)
+    annotation_set = AnnotationSetSerializer(with_tags=False)
+    confidence_indicator_set = ConfidenceIndicatorSetSerializer(with_indicators=False)
 
     class Meta:
         model = AnnotationCampaign

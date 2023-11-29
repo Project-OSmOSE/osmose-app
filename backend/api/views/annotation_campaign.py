@@ -42,10 +42,12 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         """List annotation campaigns"""
         queryset = (
             self.queryset.annotate(files_count=Count("datasets__files"))
-            .prefetch_related(
-                "tasks",
+            .select_related(
                 "confidence_indicator_set",
                 "annotation_set",
+            )
+            .prefetch_related(
+                "tasks",
                 Prefetch(
                     "tasks",
                     queryset=AnnotationTask.objects.filter(
@@ -70,7 +72,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         )
         if not request.user.is_staff:
             queryset = queryset.filter(annotators=request.user.id)
-        serializer = self.serializer_class(queryset, many=True, user_id=request.user.id)
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
