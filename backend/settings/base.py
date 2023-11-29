@@ -174,5 +174,5 @@ TINYMCE_DEFAULT_CONFIG = {
     "width": "960px",
     "plugins": "image, link",
     "toolbar": "undo redo | formatselect blockquote | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image | link unlink",
-    "default_link_target": '_blank',
+    "default_link_target": "_blank",
 }
