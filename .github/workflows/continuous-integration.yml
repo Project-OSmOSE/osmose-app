@@ -46,6 +46,10 @@ jobs:
     - name: Check for missed migrations (don't forget to run makemigrations)
       run: |
         if [ "$(poetry run ./manage.py makemigrations --dry-run)" != "No changes detected" ]; then exit 1; fi
+    - name: Check whether seeding still works
+      run: |
+        poetry run ./manage.py migrate
+        poetry run ./manage.py seed
     - name: Check for missed black (don't forget to run black)
       run: |
         poetry run black --check backend

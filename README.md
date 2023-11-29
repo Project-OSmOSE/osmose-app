@@ -13,7 +13,7 @@
 
 ## Deployment
 
-For Ifremer infrastructure follow the comments in the .gitlab-ci.yml file, otherwise use the docker-compose.yml file (you should create a .env file with the required variables).
+For Ifremer infrastructure follow the comments in the .gitlab-ci.yml file, otherwise use the docker-compose.yml file (you should create a .env file with the required variables, see [possible variables](#possible-env-variable)).
 
 ## Development
 
@@ -86,3 +86,16 @@ If you want to changes pylint rules, the configuration options are in the `pypro
 **Formatting :**
 
 If you use VSCode, you can add `"python.formatting.provider": "black"` to your .vscode/settings.json
+
+### Possible .env variable
+
+```
+ENV=                # either "development" or "production", used for backend.api.settings
+STAGING=            # "true" if we are in staging, used in backend/start.sh to install dev libraries
+SECRET_KEY=         # see https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key
+OSMOSE_HOST=        # "osmose.ifremer.fr" for production, use what you want for staging and localhost
+OSMOSE_DB_USER=     # database username
+OSMOSE_DB_PWD=      # database password
+HTTPS_PORTAL_STAGE= # see https://github.com/SteveLTN/https-portal, use "local" to test on your machine
+OSMOSE_SENTRY_URL=  # if you use https://sentry.io (more for staging and production)
+```

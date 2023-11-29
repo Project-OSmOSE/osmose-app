@@ -1,15 +1,7 @@
 import os, glob
 from random import randint, choice, shuffle
 from datetime import datetime, timedelta
-
-# TODO : Faker is a dev tool that shouldn't be needed in production
-# however currently start.sh calls this command indiscriminately so it fails
-# in production if faker is imported at the start. Removing the failure on import
-# is a quickfix however another solution like changing start.sh might be better.
-try:
-    from faker import Faker
-except ImportError:
-    pass
+from faker import Faker
 
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
@@ -34,19 +26,7 @@ from backend.api.models import (
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--init-only",
-            action="store_true",
-            default=False,
-            help="Only run the first time",
-        )
-
     def handle(self, *args, **options):
-        # If init_only we run only if there is no seeded data yet
-        if options["init_only"] and User.objects.count() > 0:
-            return
-
         # Cleanup
         management.call_command("flush", verbosity=0, interactive=False)
 
