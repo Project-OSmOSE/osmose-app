@@ -67,6 +67,14 @@ class SpectroConfig(models.Model):
     Table containing spectrogram configuration used for datasets and annotation campaigns.
     """
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="api_spectroconfig_name_dataset_unicity_constraint",
+                fields=["name", "dataset_id"],
+            ),
+        ]
+
     def __str__(self):
         return f"{self.name} - {self.dataset}"
 
