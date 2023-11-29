@@ -37,3 +37,9 @@ class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
             "desc",
             "confidenceIndicators",
         ]
+
+    def __init__(self, *args, **kwargs):
+        with_indicators = kwargs.pop("with_indicators", True)
+        super().__init__(*args, **kwargs)
+        if not with_indicators:
+            self.fields.pop("confidenceIndicators")

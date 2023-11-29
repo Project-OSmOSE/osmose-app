@@ -41,7 +41,7 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
     """
     field_name_attr = getattr(obj, field_name)
     many_to_many_attributs = ""
-    for one_name_attr in field_name_attr.all():
+    for one_name_attr in field_name_attr.all().distinct():
         name_field = getattr(one_name_attr, related_field_name)
         many_to_many_attributs += f"{name_field}, "
 

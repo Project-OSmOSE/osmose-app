@@ -31,6 +31,7 @@ class DatasetViewSet(viewsets.ViewSet):
         queryset = (
             Dataset.objects.annotate(Count("files"))
             .select_related("dataset_type")
+            .prefetch_related("spectro_configs")
             .order_by(Lower("name"), "created_at")
         )
 
