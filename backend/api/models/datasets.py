@@ -118,3 +118,29 @@ class DatasetFile(models.Model):
         ds_sample_rate = self.dataset.audio_metadatum.dataset_sr
         sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
         return sample_rate
+
+
+class DatasetFilePrecalculatedAnnotation(models.Model):
+    """
+    This model contains information about precalculated annotations for each dataset file
+    """
+
+    class Meta:
+        db_table = "dataset_file_precalculated_annotation"
+
+    file = models.ForeignKey(
+        DatasetFile, on_delete=models.CASCADE, related_name="precalculated_annotations"
+    )
+
+    start_time = models.FloatField(null=True, blank=True)
+    end_time = models.FloatField(null=True, blank=True)
+    start_frequency = models.FloatField(null=True, blank=True)
+    end_frequency = models.FloatField(null=True, blank=True)
+
+    annotation_tag = models.ForeignKey(
+        "AnnotationTag", on_delete=models.SET_NULL, null=True
+    )
+    annotation_label = models.CharField(max_length=255, null=True, blank=True)
+    algorithm = models.CharField(max_length=255)
+    is_box = models.BooleanField(default=True)
+    confidence_level = models.FloatField(null=True, blank=True)

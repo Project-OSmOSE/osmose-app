@@ -2,7 +2,13 @@
 
 from django.contrib.auth import get_user_model
 
-from backend.api.models.datasets import Collection, DatasetType, Dataset, DatasetFile
+from backend.api.models.datasets import (
+    Collection,
+    DatasetType,
+    Dataset,
+    DatasetFile,
+    DatasetFilePrecalculatedAnnotation,
+)
 from backend.api.models.metadata import (
     AudioMetadatum,
     GeoMetadatum,
