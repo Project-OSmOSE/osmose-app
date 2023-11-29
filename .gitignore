@@ -83,5 +83,8 @@ typings/
 #Jetbrains
 .idea
 
+#Idea
+/.idea
+
 #Asdf
 .tool-versions

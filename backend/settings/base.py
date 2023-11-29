@@ -172,6 +172,7 @@ FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
 TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",
     "width": "960px",
-    "plugins": "image",
-    "toolbar": "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",
+    "plugins": "image, link",
+    "toolbar": "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image | link unlink",
+    "default_link_target": '_blank',
 }
