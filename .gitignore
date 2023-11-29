@@ -80,9 +80,6 @@ typings/
 #VSCode
 /.vscode/settings.json
 
-#Jetbrains
-.idea
-
 #Idea
 /.idea
 
