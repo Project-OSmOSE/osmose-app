@@ -10,6 +10,7 @@ services:
     user: "101:101"
     environment:
       ENV: production
+      STAGING: "${STAGING:-false}"
       SECRET_KEY: "${SECRET_KEY}"
       OSMOSE_HOST: "${OSMOSE_HOST}"
       OSMOSE_DB_HOST: db
