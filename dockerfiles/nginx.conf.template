@@ -10,10 +10,14 @@ server {
 
   location /app {
     root /usr/share/nginx/;
+    proxy_intercept_errors on;
+    error_page 404 = /app/index.html;
   }
 
   location / {
     root /usr/share/nginx/website/;
+    proxy_intercept_errors on;
+    error_page 404 = /index.html;
   }
 
   location /static {
