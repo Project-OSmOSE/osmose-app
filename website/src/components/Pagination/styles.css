@@ -1,3 +1,15 @@
-ul.pagination > li.page-item > a.page-link {
-    box-shadow: unset !important;
+#pagination {
+  width: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem;
+}
+
+#pagination ion-button {
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  --padding-top: 0.5rem;
+  --padding-bottom: 0.5rem;
 }

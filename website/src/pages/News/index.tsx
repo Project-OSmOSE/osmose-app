@@ -25,10 +25,10 @@ export const NewsPage: React.FC = () => {
             // TODO: make pagination a server side behavior
             const fetchNews = async () => {
                 const response = await fetch(NEWS_URL, API_FETCH_INIT);
-                if (!response.ok) throw new Error(`[${response.status}] ${response.statusText}`);
+                if (!response.ok) throw new Error(`[${ response.status }] ${ response.statusText }`);
                 setNews(await response.json());
             };
-            fetchNews().catch(error => console.error(`Cannot fetch news, got error: ${error}`));
+            fetchNews().catch(error => console.error(`Cannot fetch news, got error: ${ error }`));
         },
         []
     );
@@ -55,19 +55,19 @@ export const NewsPage: React.FC = () => {
 
                         <IonCardHeader>
                             <IonCardTitle>{ data.title }</IonCardTitle>
-                            { data.date && <IonCardSubtitle>{ getFormattedDate(new Date(data.date)) }</IonCardSubtitle> }
+                            { data.date &&
+                                <IonCardSubtitle>{ getFormattedDate(new Date(data.date)) }</IonCardSubtitle> }
                         </IonCardHeader>
 
                         <IonCardContent>{ data.intro }</IonCardContent>
                     </IonCard>
                 )) }
-
-                <Pagination
-                    totalCount={ totalArticleNb }
-                    currentPage={ currentPage }
-                    pageSize={ pageSize }
-                />
             </div>
+
+            <Pagination totalCount={ totalArticleNb }
+                        currentPage={ currentPage }
+                        pageSize={ pageSize }
+                        path="/news"/>
         </div>
     );
 };
