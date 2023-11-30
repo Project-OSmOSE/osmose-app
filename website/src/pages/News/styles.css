@@ -1,7 +1,7 @@
 #news-page .content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  margin: 4rem 8rem;
+  margin: var(--content-margin);
   gap: 4rem;
 }
 

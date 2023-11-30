@@ -63,14 +63,8 @@ export const Explore: React.FC = () => {
   return (
 <div id="explore">
 
-  <PageTitle
-    img={imgExplore}
-    imgAlt="Explore Banner"
-    // imgSet=""
-  >
-    <h1 className="align-self-center">
+  <PageTitle img={imgExplore} imgAlt="Explore Banner">
       Explore
-    </h1>
   </PageTitle>
 
   <div className="container my-5">

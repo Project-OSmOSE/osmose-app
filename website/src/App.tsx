@@ -13,7 +13,9 @@ import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
 import { setupIonicReact } from "@ionic/react";
 import '@ionic/react/css/core.css';
 
-setupIonicReact()
+setupIonicReact({
+  mode: 'md'
+})
 
 const App: React.FC = () => {
   return (

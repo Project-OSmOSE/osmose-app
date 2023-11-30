@@ -6,11 +6,8 @@ export const Publications: React.FC = () => {
 
   return (
     <div id="publications-page">
-      <PageTitle
-        img={imgTitle}
-        imgAlt="Publications Banner"
-      >
-        <h1 className="text-shadow">SCIENTIFIC PUBLICATIONS</h1>
+      <PageTitle img={imgTitle} imgAlt="Publications Banner">
+        SCIENTIFIC PUBLICATIONS
       </PageTitle>
 
       <div className="container">

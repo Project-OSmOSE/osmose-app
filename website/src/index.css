@@ -7,6 +7,13 @@
   --ion-color-primary-shade: #17549a;
   --ion-color-primary-tint: #3170b7;
 
+  --ion-color-secondary: #001531;
+  --ion-color-secondary-rgb: 0,21,49;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #00122b;
+  --ion-color-secondary-tint: #1a2c46;
+
   --ion-background-color: #ffffff;
   --ion-background-color-rgb: 255, 255, 255;
 
@@ -33,6 +40,20 @@
   --ion-color-step-850: #424649;
   --ion-color-step-900: #373b3e;
   --ion-color-step-950: #2c3034;
+
+  --content-margin: 4rem 8rem;
+}
+
+@media screen and (max-width: 1200px) {
+  :root {
+    --content-margin: 2rem;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  :root {
+    --content-margin: 1rem;
+  }
 }
 
 /* Ionic components customisation */

@@ -10,8 +10,8 @@ header#main-header nav {
   header#main-header nav a.navigation-link:active,
   header#main-header nav a.navigation-link:focus {
     text-decoration: none;
-    color: #001531 !important;
-    border-bottom: 2px solid #001531 !important;
+    color: var(--ion-color-secondary) !important;
+    border-bottom: 2px solid var(--ion-color-secondary) !important;
     transition: color 0.4s ease, border-bottom 0.4s ease;
   }
 

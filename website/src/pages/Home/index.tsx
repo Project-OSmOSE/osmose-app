@@ -12,10 +12,10 @@ import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.web
 import logoofb from '../../img/logo/logo_ofb.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
 
-import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';	
+import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';
 import enstalogo from '../../img/logo/logo-ensta-bretagne.jpg';
-import ubologo from '../../img/logo/logo-ubo.png';	
-import labsticlogo from '../../img/logo/logo-lab-sticc.png';	
+import ubologo from '../../img/logo/logo-ubo.png';
+import labsticlogo from '../../img/logo/logo-lab-sticc.png';
 import iuemLogo from '../../img/logo/iuem.jpeg';
 import cebcLogo from '../../img/logo/cebc.png';
 import {API_FETCH_INIT} from "../../utils";
@@ -23,8 +23,7 @@ import {API_FETCH_INIT} from "../../utils";
 const NEWS_URL = '/api/news/';
 
 export const Home: React.FC = () => {
-  let tempCarouContent: any[] = [];
-  const [carouContent, setCarouContent] = React.useState(tempCarouContent);
+  const [carouContent, setCarouContent] = React.useState([]);
   let recentArticles: any[];
   React.useEffect(
     () => {
@@ -32,8 +31,7 @@ export const Home: React.FC = () => {
         try {
           const resp = await fetch(NEWS_URL, API_FETCH_INIT);
           if(resp.ok){
-            tempCarouContent = await resp.json();
-            setCarouContent(tempCarouContent);
+            setCarouContent(await resp.json());
           }
           else{
             throw new Error(resp.status + " " + resp.statusText);
@@ -56,18 +54,12 @@ export const Home: React.FC = () => {
   return (
 <div id="homepage">
 
-  <PageTitle
-    img={imgTitle}
-    imgAlt="Homepage Banner"
-    // imgSet=""
-  >
-    <h1>
+  <PageTitle img={imgTitle} imgAlt="Homepage Banner">
       Open Science meets Ocean Sound Explorers
-    </h1>
   </PageTitle>
 
   <section className="container my-5">
-    <Carousel 
+    <Carousel
       articles={recentArticles}
     />
   </section>
@@ -113,9 +105,9 @@ export const Home: React.FC = () => {
       // url=""
       // urlDesc=""
     >
-      <strong>Technology development</strong> 
+      <strong>Technology development</strong>
       <ul>
-        <li> create open-source standalone analysis tools </li> 
+        <li> create open-source standalone analysis tools </li>
         <li> integrate our tools in workflows hosted in a sustainable collaborative platform </li>
       </ul>
 
@@ -184,8 +176,8 @@ export const Home: React.FC = () => {
     {/* <img className="" src={ifremerlogo} alt="IFREMER logo" title="IFREMER logo" /> */}
     <img className="" src={labsticlogo} alt="Lab-Stic logo" title="Lab-Stic logo" />
     <img className="" src={ubologo} alt="UBO logo" title="UBO logo" />
-    <img className="" src={iuemLogo} alt="IUEM logo" title="IUEM logo" />	
-    <img className="" src={sorbonneLogo} alt="Sorbonne Université logo" title="Sorbonne Université logo" />	
+    <img className="" src={iuemLogo} alt="IUEM logo" title="IUEM logo" />
+    <img className="" src={sorbonneLogo} alt="Sorbonne Université logo" title="Sorbonne Université logo" />
     <img className="" src={cebcLogo} alt="CEBC logo" title="CEBC logo" />
     <img className="" src={logoofb} alt="AFB logo" title="AFB logo" />
   </Banner>
