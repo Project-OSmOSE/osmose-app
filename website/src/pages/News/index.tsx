@@ -43,9 +43,7 @@ export const NewsPage: React.FC = () => {
     return (
         <div id="news-page">
             <PageTitle img={ imgTitle } imgAlt="News Banner">
-                <h1 className="align-self-center">
-                    NEWS
-                </h1>
+                NEWS
             </PageTitle>
 
             <div className="content">
