@@ -24,7 +24,6 @@ from backend.api.models import (
     WindowType,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
-    News,
 )
 
 
@@ -343,13 +342,6 @@ class TabularMetadataShapeAdmin(admin.ModelAdmin):
     )
 
 
-class NewsAdmin(admin.ModelAdmin):
-    """News presentation in DjangoAdmin"""
-
-    form = NewItemsForm
-    list_display = ("title", "intro", "body", "date", "vignette")
-
-
 admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
 admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
@@ -366,7 +358,6 @@ admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
 admin.site.register(SpectroConfig, SpectroConfigAdmin)
 admin.site.register(WindowType, WindowTypeAdmin)
-admin.site.register(News, NewsAdmin)
 
 
 # admin.site.register(Collection, CollectionAdmin)

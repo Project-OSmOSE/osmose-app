@@ -19,7 +19,6 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     AnnotationComment,
     AnnotationResult,
-    News,
 )
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
@@ -46,7 +45,6 @@ class Command(management.BaseCommand):
         self._create_spectro_configs()
         self._create_annotation_results()
         self._create_comments()
-        self._create_news()
         WebsiteCommand().handle(*args, **options)
 
     def _create_users(self):
@@ -332,29 +330,3 @@ class Command(management.BaseCommand):
                     annotation_task=result.annotation_task,
                     annotation_result=result,
                 )
-
-    def _generate_news_body(self):
-        body = ""
-        for _ in range(randint(1, 5)):
-            body += f"<h2>{self.faker.sentence(nb_words=10)}</h2>"
-            paragraphs = [
-                f"<p>{para}</p>" for para in self.faker.paragraphs(nb=randint(1, 5))
-            ]
-            for _ in range(0, randint(0, 2)):
-                paragraphs.append(
-                    f"<img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.faker.word()}' width='{100 + 50 * randint(0, 3)}px'>"
-                )
-            shuffle(paragraphs)
-            body += "".join(paragraphs)
-        return body
-
-    def _create_news(self):
-        print(" ###### _create_news ######")
-        for _ in range(randint(3, 8)):
-            News.objects.create(
-                title=self.faker.sentence(nb_words=10)[:255],
-                intro=self.faker.paragraph(nb_sentences=5)[:255],
-                body=self._generate_news_body(),
-                date=self.faker.date_time_between(start_date="-1y", end_date="now"),
-                vignette=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.faker.word()}",
-            )

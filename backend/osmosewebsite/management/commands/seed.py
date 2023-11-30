@@ -8,7 +8,7 @@ from faker import Faker
 
 from django.core.management.base import BaseCommand
 
-from backend.osmosewebsite.models import TeamMember
+from backend.osmosewebsite.models import TeamMember, News
 
 
 class Command(BaseCommand):
@@ -20,6 +20,7 @@ class Command(BaseCommand):
 
         # Creation
         self._create_team_members()
+        self._create_news()
 
     def _create_team_members(self):
         print(" ###### _create_team_members ######")
@@ -38,6 +39,9 @@ class Command(BaseCommand):
                 github_url=websites[2] if len(websites) > 2 else None,
                 linkedin_url=websites[3] if len(websites) > 3 else None,
             )
+
+    def _create_former_team_members(self):
+        print(" ###### _create_former_team_members ######")
         for _ in range(0, self.random.randrange(start=1, stop=15)):
             profile = self.fake.profile()
             websites = profile["website"]
@@ -53,4 +57,31 @@ class Command(BaseCommand):
                 github_url=websites[2] if len(websites) > 2 else None,
                 linkedin_url=websites[3] if len(websites) > 3 else None,
                 is_former_member=True,
+            )
+
+    def _generate_news_body(self):
+        body = ""
+        for _ in range(self.random.randrange(1, 5)):
+            body += f"<h2>{self.fake.sentence(nb_words=10)}</h2>"
+            paragraphs = [
+                f"<p>{para}</p>"
+                for para in self.fake.paragraphs(nb=self.random.randrange(1, 5))
+            ]
+            for _ in range(0, self.random.randrange(0, 2)):
+                paragraphs.append(
+                    f"<img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}' width='{100 + 50 * self.random.randint(0, 3)}px'>"
+                )
+            self.random.shuffle(paragraphs)
+            body += "".join(paragraphs)
+        return body
+
+    def _create_news(self):
+        print(" ###### _create_news ######")
+        for _ in range(self.random.randrange(start=5, stop=15)):
+            News.objects.create(
+                title=self.fake.sentence(nb_words=10)[:255],
+                intro=self.fake.paragraph(nb_sentences=5)[:255],
+                body=self._generate_news_body(),
+                date=self.fake.date_time_between(start_date="-1y", end_date="now"),
+                vignette=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}",
             )

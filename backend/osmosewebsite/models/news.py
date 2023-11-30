@@ -10,7 +10,6 @@ class News(models.Model):
     """
 
     class Meta:
-        db_table = "news"
         verbose_name_plural = "news"
         ordering = ["-date"]
 

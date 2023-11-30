@@ -38,7 +38,6 @@ from backend.api.views import (
     AnnotationTaskViewSet,
     AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
-    NewsViewSet,
     ConfidenceIndicatorSetViewSet,
 )
 
@@ -68,7 +67,6 @@ api_router.register(
 api_router.register(
     r"annotation-task", AnnotationTaskViewSet, basename="annotation-task"
 )
-api_router.register(r"news", NewsViewSet, basename="news")
 api_router.register(
     r"confidence-indicator",
     ConfidenceIndicatorSetViewSet,
