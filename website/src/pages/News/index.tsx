@@ -11,28 +11,27 @@ import { News } from "../../models/news";
 
 import './styles.css';
 
-const NEWS_URL = '/api/news/';
+const NEWS_URL = '/api/news';
 
 
 export const NewsPage: React.FC = () => {
-    const pageSize = 5;
+    const pageSize = 6;
     const urlParams: any = useParams();
     const currentPage = Number(urlParams.page);
-    let totalArticleNb: number = 0;
+
+    const [newsTotal, setNewsTotal] = useState<number>(0);
     const [news, setNews] = useState<Array<News>>([]);
-    useEffect(
-        () => {
-            // TODO: make pagination a server side behavior
-            const fetchNews = async () => {
-                const response = await fetch(NEWS_URL, API_FETCH_INIT);
-                if (!response.ok) throw new Error(`[${ response.status }] ${ response.statusText }`);
-                setNews(await response.json());
-            };
-            fetchNews().catch(error => console.error(`Cannot fetch news, got error: ${ error }`));
-        },
-        []
-    );
-    if (news?.length) totalArticleNb = news.length;
+    useEffect(() => {
+        const fetchNews = async () => {
+            const response = await fetch(`${ NEWS_URL }?page=${ currentPage }&page_size=${ pageSize }`, API_FETCH_INIT);
+            if (!response.ok) throw new Error(`[${ response.status }] ${ response.statusText }`);
+            const data = await response.json();
+            setNewsTotal(data.count);
+            console.debug(data)
+            setNews(data.results);
+        };
+        fetchNews().catch(error => console.error(`Cannot fetch news, got error: ${ error }`));
+    }, [currentPage]);
 
     const getFormattedDate = (date: Date) => {
         return Intl.DateTimeFormat('en-US', {
@@ -62,7 +61,7 @@ export const NewsPage: React.FC = () => {
                 )) }
             </div>
 
-            <Pagination totalCount={ totalArticleNb }
+            <Pagination totalCount={ newsTotal }
                         currentPage={ currentPage }
                         pageSize={ pageSize }
                         path="/news"/>
