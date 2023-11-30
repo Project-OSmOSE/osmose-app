@@ -1,7 +1,9 @@
 """News-related models"""
 
 from django.db import models
+from django.contrib.postgres import fields
 from tinymce.models import HTMLField
+from .team_member import TeamMember
 
 
 class News(models.Model):
@@ -18,3 +20,6 @@ class News(models.Model):
     body = HTMLField()
     date = models.DateField(null=True, blank=True)
     vignette = models.URLField(default="")
+
+    osmose_member_authors = models.ManyToManyField(TeamMember, null=True, blank=True)
+    other_authors = fields.ArrayField(models.CharField(max_length=255, blank=True), null=True, blank=True)
