@@ -61,8 +61,8 @@ class Command(BaseCommand):
 
     def _generate_news_body(self):
         body = ""
-        for _ in range(self.random.randrange(1, 5)):
-            body += f"<h2>{self.fake.sentence(nb_words=10)}</h2>"
+        for _ in range(self.random.randint(1, 5)):
+            body += f"<blockquote><p>{self.fake.sentence(nb_words=10)}</p></blockquote>"
             paragraphs = [
                 f"<p>{para}</p>"
                 for para in self.fake.paragraphs(nb=self.random.randrange(1, 5))
