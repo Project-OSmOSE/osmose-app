@@ -82,6 +82,7 @@ typings/
 
 #Idea
 /.idea
+/.run
 
 #Asdf
 .tool-versions

@@ -103,10 +103,10 @@ def import_precalculated_annotations(
             + "_"
             + spectro_conf["overlap"]
         )
-        with open(
-            spectro_folder / spectro_conf_folder / "precalculated_annotations2.csv",
-            encoding="utf-8",
-        ) as csvfile:
+        path = spectro_folder / spectro_conf_folder / "precalculated_annotations.csv"
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding="utf-8") as csvfile:
             files_for_current_dataset = DatasetFile.objects.filter(
                 dataset=current_dataset
             )
