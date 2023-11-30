@@ -1,69 +1,21 @@
-/* .space{
-    position: relative;
-    height: 25vh;
-    background-color: transparent;
-    z-index: 0;
+#news-page .content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 4rem 8rem;
+  gap: 4rem;
 }
 
-.parallax::after {
-    content: " ";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-image: url('../../img/illust/pexels-berend-de-kort-1452701_1920_1077.webp');
-    z-index: -1;
-    height: 110vh;
+@media screen and (max-width: 1200px) {
+  #news-page .content {
+    grid-template-columns: repeat(2, 1fr);
+    margin: 2rem;
+    gap: 1rem;
+  }
 }
-
-.wrapper {
-    min-height: 50vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    perspective: 2px;
+@media screen and (max-width: 800px) {
+  #news-page .content {
+    grid-template-columns: none;
+    margin: 1rem;
+    gap: 1rem;
+  }
 }
-
-.blockquote{
-    font-size: 15px !important;
-}
-
-.end_space{
-    height: 50px;
-    width: 100%;
-}
-
-.cardArticle img{
-    max-height: 40vh;
-    padding: 0.5em;
-    margin: 0;
-}
-
-.font-weight-bold{
-    font-weight: 700 !important;
-}
-
-figure{
-    align-self: center
-}
-
-figcaption{
-    text-align: center;
-}
-img{
-    object-fit: contain;
-}
-
-.toggleFlexDirection{
-    flex-direction: column-reverse;
-}
-
-@media screen and (min-width: 992px) {
-    .toggleFlexDirection{
-        flex-direction: row;
-    }
-} */

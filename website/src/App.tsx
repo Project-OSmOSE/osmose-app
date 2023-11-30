@@ -3,12 +3,17 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
-import { News } from './pages/News';
+import { NewsPage } from './pages/News';
 import { People } from './pages/People/People';
 import { Projects } from './pages/Projects';
 import { Publications } from './pages/Publications';
 import { SingleNews } from './pages/SingleNews';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
+
+import { setupIonicReact } from "@ionic/react";
+import '@ionic/react/css/core.css';
+
+setupIonicReact()
 
 const App: React.FC = () => {
   return (
@@ -59,7 +64,7 @@ const App: React.FC = () => {
 
         <Route path="/news/:page">
           <Layout>
-            <News/>
+            <NewsPage/>
           </Layout>
         </Route>
 
