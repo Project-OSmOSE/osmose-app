@@ -6,18 +6,33 @@ from copy import deepcopy
 
 def add_dataset_new_ForeignKey(apps, schema_editor):
     SpectroConfig = apps.get_model("api", "SpectroConfig")
+    Dataset = apps.get_model("api", "Dataset")
+    DatasetType = apps.get_model("api", "DatasetType")
+    User = apps.get_model("auth", "User")
 
-    for spectro_config in SpectroConfig.objects.all():
-        datasets = spectro_config.datasets.all()
-        spectro_config.dataset_id = datasets[0].id
-        spectro_config.save()
+    if SpectroConfig.objects.count() != 0:
+        holder = Dataset.objects.create(
+            name="PhonySpectroHolderDataset",
+            status=0,
+            dataset_type=DatasetType.objects.first(),
+            owner=User.objects.first(),
+        )
+        for spectro_config in SpectroConfig.objects.all():
+            datasets = spectro_config.datasets.all()
 
-        if len(datasets) > 1:
-            for dataset in datasets[1:]:
-                new_spectro_config = deepcopy(spectro_config)
-                new_spectro_config.pk = None
-                new_spectro_config.dataset_id = dataset.id
-                new_spectro_config.save()
+            if len(datasets) > 0:
+                spectro_config.dataset_id = datasets[0].id
+                spectro_config.save()
+            else:
+                spectro_config.dataset_id = holder.id
+                spectro_config.save()
+
+            if len(datasets) > 1:
+                for dataset in datasets[1:]:
+                    new_spectro_config = deepcopy(spectro_config)
+                    new_spectro_config.pk = None
+                    new_spectro_config.dataset_id = dataset.id
+                    new_spectro_config.save()
 
 
 class Migration(migrations.Migration):

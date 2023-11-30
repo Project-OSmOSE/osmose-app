@@ -8,6 +8,8 @@ from .base import *
 
 if os.environ.get("ENV") == "production":
     from .production import *
+elif os.environ.get("ENV") == "build":
+    SECRET_KEY = "tmp"
 else:
     from .development import *
 

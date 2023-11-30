@@ -16,6 +16,9 @@ RUN poetry install --only main
 COPY manage.py .
 COPY backend backend
 
+ENV ENV=build
+RUN poetry run python manage.py collectstatic --noinput
+
 RUN chmod -R o+rw .
 
 EXPOSE 8000
