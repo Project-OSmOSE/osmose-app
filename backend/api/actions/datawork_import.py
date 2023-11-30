@@ -23,6 +23,7 @@ from backend.api.models import (
 
 
 def get_new_datasets(wanted_datasets):
+    """Get new datasets available"""
     current_dataset_names = Dataset.objects.values_list("name", flat=True)
     wanted_dataset_names = [dataset["name"] for dataset in wanted_datasets]
     csv_dataset_names = []
@@ -42,6 +43,7 @@ def get_new_datasets(wanted_datasets):
 
 
 def get_audio_metadatum(audio_raw):
+    """Get audio metadatum for a current dataset"""
     return AudioMetadatum.objects.create(
         channel_count=audio_raw["channel_count"],
         dataset_sr=audio_raw["dataset_sr"],
@@ -52,6 +54,7 @@ def get_audio_metadatum(audio_raw):
 
 
 def get_geo_metadatum(dataset):
+    """Get geo metadatum for a current dataset"""
     data, _ = GeoMetadatum.objects.update_or_create(
         name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
     )
@@ -59,7 +62,8 @@ def get_geo_metadatum(dataset):
 
 
 def get_needed_spectrograms(spectro_folder):
-    # Search all sub folder, each sub folder have one metadata.csv
+    """Get spectrograms for current dataset
+    Search all sub folder, each sub folder have one metadata.csv"""
     needed_spectrograms = []
     for one_spectro_folder in os.scandir(spectro_folder):
         if one_spectro_folder.is_dir():
@@ -94,6 +98,7 @@ def get_needed_spectrograms(spectro_folder):
 def import_precalculated_annotations(
     current_dataset, spectro_folder, needed_spectro_conf
 ):
+    """Import precalculated annotations if exists for given dataset"""
     for spectro_conf in needed_spectro_conf:
         spectro_conf = spectro_conf["value"]
         spectro_conf_folder = (
@@ -110,13 +115,10 @@ def import_precalculated_annotations(
             files_for_current_dataset = DatasetFile.objects.filter(
                 dataset=current_dataset
             )
-            print("files_for_current_dataset", files_for_current_dataset)
             for data in csv.DictReader(csvfile):
-                print("data", data)
                 dataset_file = files_for_current_dataset.filter(
                     filename=data["filename"]
                 ).first()
-                print("dataset_file", dataset_file)
                 if dataset_file is None:
                     continue
                 annotation = DatasetFilePrecalculatedAnnotation.objects.create(
@@ -137,6 +139,7 @@ def import_precalculated_annotations(
 
 
 def get_dataset_files(current_dataset, audio_folder, conf_folder, duration):
+    """Get dataset files for current dataset"""
     dataset_files = []
     with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
         for timestamp_data in csv.DictReader(csvfile):
@@ -156,7 +159,7 @@ def get_dataset_files(current_dataset, audio_folder, conf_folder, duration):
                 size=0,
                 audio_metadatum=audio_metadatum,
             )
-        dataset_files.append(file)
+            dataset_files.append(file)
     return dataset_files
 
 
@@ -228,7 +231,6 @@ def datawork_import(*, wanted_datasets, importer):
             duration=audio_raw["audio_file_dataset_duration"],
         )
         curr_dataset.files.bulk_create(dataset_files)
-        print("dataset_files", dataset_files)
 
         import_precalculated_annotations(
             current_dataset=curr_dataset,
