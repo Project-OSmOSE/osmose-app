@@ -1,5 +1,5 @@
 #people-page section {
-    margin: 3rem;
+    margin: var(--content-margin);
     display: grid;
     justify-items: center;
 }
@@ -14,10 +14,4 @@
     justify-content: center;
     align-items: baseline;
     gap: 2rem;
-}
-
-@media screen and (max-width: 768px) {
-    #people-page section {
-        margin: 3rem 1rem;
-    }
 }

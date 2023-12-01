@@ -1,66 +1,53 @@
-import React from 'react';
-import { useParams } from "react-router-dom";
-import {Parser} from "html-to-react";
+import React, { useEffect } from 'react';
+import { Link, useParams } from "react-router-dom";
 
-import {CardArticle} from "../../components/CardArticle";
-import {API_FETCH_INIT} from "../../utils";
+import { API_FETCH_INIT, getFormattedDate, parseHTML } from "../../utils";
+import { News } from "../../models/news";
+import { IonIcon } from "@ionic/react";
+import { chevronBackOutline } from "ionicons/icons";
+import { ContactList } from "../../components/ContactList/ContactList";
+import './styles.css'
 
-const NEWS_API_URL = '/api/news/';
-interface SingleNewsProps {
-  id?: string,
-  title?: string,
-  vignette?: string,
-  intro?: string,
-  date?: string,
-  body?: string
-};
+const NEWS_API_URL = '/api/news';
+
 
 export const SingleNews: React.FC = () => {
-  const urlParams: any = useParams();
-  let tempArticle: SingleNewsProps = { 
-    id: "",
-    title: "",
-    vignette: "",
-    intro: "",
-    date: "",
-    body: ""
-  };
-  let [article, setArticle] = React.useState(tempArticle);
-  React.useEffect(
-    () => {
-      const fetchArticle = async () => {
-        try {
-          const resp = await fetch(NEWS_API_URL+urlParams.id, API_FETCH_INIT);
-          if (resp.ok){
-            tempArticle = await resp.json();
-            setArticle(tempArticle);
-          }
-          else{
-            throw new Error(resp.status + " " + resp.statusText);
-          }
-        } catch (err) {
-          console.error('An error occured during data fetching');
-          console.error(err);
-        }
-      };
-      fetchArticle();
-    },
-    []
-  );
+    const urlParams: any = useParams();
 
-  return (
-    <div id="singleNews">
-      <div className="container">
-        <CardArticle
-          id={String(article?.id)}
-          title={article?.title}
-          vignette={article?.vignette}
-          intro={article?.intro}
-          date={article?.date}
-        >
-          {Parser().parse(article?.body ?? "")}
-        </CardArticle>
-      </div>
-    </div>
-  );
+    let [article, setArticle] = React.useState<News>();
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            const response = await fetch(`${ NEWS_API_URL }/${ urlParams.id }`, API_FETCH_INIT);
+            if (!response.ok) throw new Error(`[${ response.status }] ${ response.statusText }`);
+            setArticle(await response.json());
+        };
+        fetchArticle().catch(error => console.error(`Cannot fetch article, got error: ${ error }`));
+
+    }, [urlParams.id]);
+
+    return (
+        <div id="single-news">
+            <Link to="/people" className="back">
+                <IonIcon icon={ chevronBackOutline }></IonIcon>
+                Back to People
+            </Link>
+
+            { article && (
+                <div id="article">
+                    <div className="article-head">
+                        <h1>{ article.title }</h1>
+                        { article.date && <p className="text-muted">{ getFormattedDate(article.date) }</p> }
+                    </div>
+
+                    { parseHTML(article.body) }
+
+                    <ContactList label="Authors"
+                                 teamMembers={ article.osmose_member_authors ?? [] }
+                                 namedMembers={ article.other_authors ?? [] }></ContactList>
+                </div>
+            ) }
+        </div>
+    )
+        ;
 };

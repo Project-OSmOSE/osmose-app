@@ -5,7 +5,7 @@ import { PageTitle } from "../../components/PageTitle";
 import { Pagination } from "../../components/Pagination";
 
 import imgTitle from '../../img/illust/pexels-berend-de-kort-1452701_1920_thin.webp';
-import { API_FETCH_INIT } from "../../utils";
+import { API_FETCH_INIT, getFormattedDate } from "../../utils";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { News } from "../../models/news";
 
@@ -33,12 +33,6 @@ export const NewsPage: React.FC = () => {
         fetchNews().catch(error => console.error(`Cannot fetch news, got error: ${ error }`));
     }, [currentPage]);
 
-    const getFormattedDate = (date: Date) => {
-        return Intl.DateTimeFormat('en-US', {
-            dateStyle: 'long'
-        }).format(date).replaceAll('/', '-');
-    }
-
     return (
         <div id="news-page">
             <PageTitle img={ imgTitle } imgAlt="News Banner">
@@ -53,7 +47,7 @@ export const NewsPage: React.FC = () => {
                         <IonCardHeader>
                             <IonCardTitle>{ data.title }</IonCardTitle>
                             { data.date &&
-                                <IonCardSubtitle>{ getFormattedDate(new Date(data.date)) }</IonCardSubtitle> }
+                                <IonCardSubtitle>{ getFormattedDate(data.date) }</IonCardSubtitle> }
                         </IonCardHeader>
 
                         <IonCardContent>{ data.intro }</IonCardContent>
