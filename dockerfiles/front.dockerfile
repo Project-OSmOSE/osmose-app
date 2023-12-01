@@ -32,7 +32,7 @@ FROM nginxinc/nginx-unprivileged:1.20-alpine
 ARG UID=101
 ARG GID=101
 
-COPY ./dockerfiles/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY ./dockerfiles/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build-app /opt/build /usr/share/nginx/app
 COPY --from=build-website /opt/build /usr/share/nginx/website
