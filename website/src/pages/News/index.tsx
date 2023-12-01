@@ -5,13 +5,13 @@ import { PageTitle } from "../../components/PageTitle";
 import { Pagination } from "../../components/Pagination";
 
 import imgTitle from '../../img/illust/pexels-berend-de-kort-1452701_1920_thin.webp';
-import { API_FETCH_INIT } from "../../utils";
+import { API_FETCH_INIT, getFormattedDate } from "../../utils";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { News } from "../../models/news";
 
 import './styles.css';
 
-const NEWS_URL = '/api/news/';
+const NEWS_URL = '/api/news';
 
 
 export const NewsPage: React.FC = () => {
@@ -33,12 +33,6 @@ export const NewsPage: React.FC = () => {
         []
     );
     if (news?.length) totalArticleNb = news.length;
-
-    const getFormattedDate = (date: Date) => {
-        return Intl.DateTimeFormat('en-US', {
-            dateStyle: 'long'
-        }).format(date).replaceAll('/', '-');
-    }
 
     return (
         <div id="news-page">
