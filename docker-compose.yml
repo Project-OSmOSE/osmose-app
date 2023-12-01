@@ -24,7 +24,6 @@ services:
     volumes:
       - static:/opt/staticfiles:ro
       - ./volumes/datawork:/opt/datawork:ro
-      - ./volumes/tmp/osmose_back:/tmp
     restart: always
 
   osmose_front:
@@ -36,11 +35,9 @@ services:
     user: "101:101"
     environment:
       OSMOSE_BACK_HOST: osmose_back
-    read_only: true
     volumes:
       - static:/opt/staticfiles:ro
       - ./volumes/datawork:/opt/datawork:ro
-      - ./volumes/tmp/osmose_front:/tmp
     restart: always
 
   db:

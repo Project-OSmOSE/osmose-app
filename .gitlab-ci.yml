@@ -50,7 +50,7 @@ osmose_front:
     - devops-docker-runner 
   variables:
     APP_NAME: osmose_front
-    APP_VERSION: 1.6.2
+    APP_VERSION: 1.6.3
     CI_REGISTRY: gitlab-registry.ifremer.fr
     CI_PROJECT_PATH: dev-ops/shared_docker_image_factory/imt_osmose
 
@@ -66,6 +66,6 @@ osmose_back:
     - devops-docker-runner 
   variables:
     APP_NAME: osmose_back
-    APP_VERSION: 1.6.2
+    APP_VERSION: 1.6.3
     CI_REGISTRY: gitlab-registry.ifremer.fr
     CI_PROJECT_PATH: dev-ops/shared_docker_image_factory/imt_osmose

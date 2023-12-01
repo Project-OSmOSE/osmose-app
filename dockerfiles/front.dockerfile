@@ -32,7 +32,7 @@ FROM nginxinc/nginx-unprivileged:1.20-alpine
 ARG UID=101
 ARG GID=101
 
-COPY ./dockerfiles/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./dockerfiles/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 COPY --from=build-app /opt/build /usr/share/nginx/app
 COPY --from=build-website /opt/build /usr/share/nginx/website
@@ -42,10 +42,7 @@ USER 0
 RUN apk --no-cache add shadow # needed to use usermod and groupmod
 RUN usermod -u $UID -o nginx
 RUN groupmod -g $GID -o nginx
-# We use prune because of the following error (unsure why this happened) :
-# find: /sys/devices/virtual/powercap/intel-rapl-mmio: Permission denied
-# find: /sys/devices/virtual/powercap/intel-rapl: Permission denied
-RUN find / -path "/sys/devices" -prune -user 101 -exec chown -h nginx {} \;
-RUN find / -path "/sys/devices" -prune -group 101 -exec chgrp -h nginx {} \;
+RUN find / -user 101 -exec chown -h nginx {} \;
+RUN find / -group 101 -exec chgrp -h nginx {} \;
 
 USER $UID
