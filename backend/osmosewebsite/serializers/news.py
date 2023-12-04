@@ -13,4 +13,13 @@ class NewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = News
-        fields = ["id", "title", "intro", "body", "date", "vignette", "osmose_member_authors", "other_authors"]
+        fields = [
+            "id",
+            "title",
+            "intro",
+            "body",
+            "date",
+            "vignette",
+            "osmose_member_authors",
+            "other_authors",
+        ]

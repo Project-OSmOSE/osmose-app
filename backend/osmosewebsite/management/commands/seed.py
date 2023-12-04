@@ -88,5 +88,5 @@ class Command(BaseCommand):
             other_authors = []
             for i in range(self.random.randint(2, 5)):
                 other_authors.append(self.fake.name())
-            news.other_authors = '{' + ','.join(other_authors) + '}'
+            news.other_authors = "{" + ",".join(other_authors) + "}"
             news.save()

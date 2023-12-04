@@ -1,4 +1,4 @@
-- model: api.news
+- model: osmosewebsite.news
   pk: 1
   fields:
     title: Open between political past despite management bill hand live capital service.
@@ -6,7 +6,7 @@
     body: <h2>Special someone step decide guess while movie coach contain subject model.</h2><p>Top know expert good movement. Cold check discover western.</p><p>Night little determine opportunity act company. Law else value local miss social support film. Though daughter foot agree.</p><img src='https://api.dicebear.com/7.x/identicon/svg?seed=room' width='200px'><p>Five main down street night. Over fear whether factor. Capital own arrive tough happen. Instead forget their occur.</p><h2>Case thus strategy right personal mention partner through tonight case TV buy.</h2><img src='https://api.dicebear.com/7.x/identicon/svg?seed=set' width='250px'><p>Mean goal picture race form. Paper concern despite health laugh.</p><p>Let hour send money strategy.</p><h2>Five forward another affect land husband beat local large offer throw perform get.</h2><p>Among relate back through whom. Later window keep Mr manager.</p><img src='https://api.dicebear.com/7.x/identicon/svg?seed=seek' width='100px'><p>Finish late outside bad. Pay popular buy.</p><h2>Sometimes entire building school toward move send end seat hospital as.</h2><img src='https://api.dicebear.com/7.x/identicon/svg?seed=pull' width='150px'><p>Paper me staff political quite understand. Factor tend serve maybe stage some.</p><p>Those finally other end candidate against everything. Travel part six attack they poor. Event partner so improve then source. Page evening here today beat left against.</p><img src='https://api.dicebear.com/7.x/identicon/svg?seed=successful' width='100px'><p>Its north hold owner worry. Get next whose life measure set little.</p><h2>Clearly create wish report eye name few drop political.</h2><p>Unit ground although amount evening identify yet. Final who morning skill front degree west nice. Series mother bit concern.</p><p>Stay theory effort space.</p>
     date: 2023-12-02 00:00:00+00:00
     vignette: https://api.dicebear.com/7.x/identicon/svg?seed=especially
-- model: api.news
+- model: osmosewebsite.news
   pk: 2
   fields:
     title: Themselves determine story far film one.

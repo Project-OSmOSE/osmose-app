@@ -39,6 +39,8 @@ class NewsViewSetTestCase(APITestCase):
                 "body",
                 "date",
                 "vignette",
+                "osmose_member_authors",
+                "other_authors",
             ],
         )
         self.assertEqual(
@@ -55,7 +57,17 @@ class NewsViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            list(response.data), ["id", "title", "intro", "body", "date", "vignette"]
+            list(response.data),
+            [
+                "id",
+                "title",
+                "intro",
+                "body",
+                "date",
+                "vignette",
+                "osmose_member_authors",
+                "other_authors",
+            ],
         )
 
         self.assertEqual(

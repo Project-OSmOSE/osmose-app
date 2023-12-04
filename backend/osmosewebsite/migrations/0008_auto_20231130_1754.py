@@ -7,18 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0007_news'),
+        ("osmosewebsite", "0007_news"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='news',
-            name='osmose_member_authors',
-            field=models.ManyToManyField(blank=True, null=True, to='osmosewebsite.TeamMember'),
+            model_name="news",
+            name="osmose_member_authors",
+            field=models.ManyToManyField(
+                blank=True, null=True, to="osmosewebsite.TeamMember"
+            ),
         ),
         migrations.AddField(
-            model_name='news',
-            name='other_authors',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, null=True, size=None),
+            model_name="news",
+            name="other_authors",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(blank=True, max_length=255),
+                blank=True,
+                null=True,
+                size=None,
+            ),
         ),
     ]

@@ -1,3 +1,4 @@
+"""OSmOSE Website - News"""
 from django.contrib.admin import ModelAdmin
 
 
