@@ -9,18 +9,33 @@ def make_former(modelAdmin, request, queryset):
 class TeamMemberAdmin(ModelAdmin):
     """TeamMember presentation in DjangoAdmin"""
 
-    list_display = [
-        'name',
-        'position',
-        'mailAddress',
-        'isFormerMember',
-        'level'
-    ]
-    search_fields = ['name']
+    list_display = ["name", "position", "mailAddress", "isFormerMember", "level"]
+    search_fields = ["name"]
     fieldsets = [
-        (None, {"fields": ["name", "position", "mailAddress", "picture", "biography", "isFormerMember", "level"]}),
-        ("Links", {
-            "fields": ["researchGateURL", "personalWebsiteURL", "githubURL", "linkedinURL"]
-        })
+        (
+            None,
+            {
+                "fields": [
+                    "name",
+                    "position",
+                    "mailAddress",
+                    "picture",
+                    "biography",
+                    "isFormerMember",
+                    "level",
+                ]
+            },
+        ),
+        (
+            "Links",
+            {
+                "fields": [
+                    "researchGateURL",
+                    "personalWebsiteURL",
+                    "githubURL",
+                    "linkedinURL",
+                ]
+            },
+        ),
     ]
     actions = [make_former]

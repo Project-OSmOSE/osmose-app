@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0001_initial'),
+        ("osmosewebsite", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='teammember',
-            name='githubURL',
+            model_name="teammember",
+            name="githubURL",
             field=models.URLField(null=True),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='linkedinURL',
+            model_name="teammember",
+            name="linkedinURL",
             field=models.URLField(null=True),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='personalWebsiteURL',
+            model_name="teammember",
+            name="personalWebsiteURL",
             field=models.URLField(null=True),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='researchGateURL',
+            model_name="teammember",
+            name="researchGateURL",
             field=models.URLField(null=True),
         ),
     ]

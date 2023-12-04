@@ -6,38 +6,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0003_auto_20231124_1037'),
+        ("osmosewebsite", "0003_auto_20231124_1037"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='teammember',
-            name='isFormerMember',
+            model_name="teammember",
+            name="isFormerMember",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='githubURL',
-            field=models.URLField(blank=True, null=True, verbose_name='Github URL'),
+            model_name="teammember",
+            name="githubURL",
+            field=models.URLField(blank=True, null=True, verbose_name="Github URL"),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='linkedinURL',
-            field=models.URLField(blank=True, null=True, verbose_name='LinkedIn URL'),
+            model_name="teammember",
+            name="linkedinURL",
+            field=models.URLField(blank=True, null=True, verbose_name="LinkedIn URL"),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='mailAddress',
-            field=models.EmailField(max_length=254, verbose_name='Mail address'),
+            model_name="teammember",
+            name="mailAddress",
+            field=models.EmailField(max_length=254, verbose_name="Mail address"),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='personalWebsiteURL',
-            field=models.URLField(blank=True, null=True, verbose_name='Personal website URL'),
+            model_name="teammember",
+            name="personalWebsiteURL",
+            field=models.URLField(
+                blank=True, null=True, verbose_name="Personal website URL"
+            ),
         ),
         migrations.AlterField(
-            model_name='teammember',
-            name='researchGateURL',
-            field=models.URLField(blank=True, null=True, verbose_name='Research Gate URL'),
+            model_name="teammember",
+            name="researchGateURL",
+            field=models.URLField(
+                blank=True, null=True, verbose_name="Research Gate URL"
+            ),
         ),
     ]

@@ -169,6 +169,7 @@ SPECTACULAR_SETTINGS = {
 FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
 
 # TINYMCE Configuration
+# https://www.tiny.cloud/docs/advanced/available-menu-items/
 
 TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",

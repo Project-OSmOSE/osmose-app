@@ -9,18 +9,14 @@ class TeamMemberSerializer(serializers.ModelSerializer):
         model = TeamMember
         fields = [
             "id",
-
             "name",
             "position",
             "biography",
             "picture",
-
             "mailAddress",
-
             "researchGateURL",
             "personalWebsiteURL",
             "githubURL",
             "linkedinURL",
-
             "isFormerMember",
         ]

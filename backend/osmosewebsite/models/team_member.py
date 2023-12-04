@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib import admin
 
 
 class TeamMember(models.Model):
@@ -20,7 +19,7 @@ class TeamMember(models.Model):
     isFormerMember = models.BooleanField("Is former member", default=False)
 
     class Meta:
-        ordering=['level']
+        ordering = ["level"]
 
     def __str__(self):
         return self.name

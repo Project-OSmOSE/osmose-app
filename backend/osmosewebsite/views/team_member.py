@@ -7,6 +7,7 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
     """
     `list`, `create`, `retrieve`, `update` and `destroy` team members.
     """
+
     queryset = TeamMember.objects.all()
     serializer_class = TeamMemberSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
