@@ -5,8 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.models import News
-
 
 class NewsViewSetTestCase(APITestCase):
     """Test NewsViewSetTestCase when list or detail news are request"""

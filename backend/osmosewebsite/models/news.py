@@ -21,5 +21,7 @@ class News(models.Model):
     date = models.DateField(null=True, blank=True)
     vignette = models.URLField(default="")
 
-    osmose_member_authors = models.ManyToManyField(TeamMember, null=True, blank=True)
-    other_authors = fields.ArrayField(models.CharField(max_length=255, blank=True), null=True, blank=True)
+    osmose_member_authors = models.ManyToManyField(TeamMember, blank=True)
+    other_authors = fields.ArrayField(
+        models.CharField(max_length=255, blank=True), null=True, blank=True
+    )
