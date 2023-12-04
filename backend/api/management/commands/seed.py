@@ -1,12 +1,12 @@
-import os, glob
-from random import randint, choice, shuffle
 from datetime import datetime, timedelta
+from random import randint, choice, shuffle
+
+from django.contrib.auth.models import User
+from django.core import management
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from faker import Faker
 
-from django.core import management, files
-from django.utils.dateparse import parse_datetime
-from django.utils import timezone
-from django.contrib.auth.models import User
 from backend.api.models import (
     DatasetType,
     GeoMetadatum,
@@ -21,7 +21,6 @@ from backend.api.models import (
     AnnotationResult,
     News,
 )
-
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
@@ -30,9 +29,11 @@ class Command(management.BaseCommand):
 
     def handle(self, *args, **options):
         # Cleanup
-        management.call_command("flush", verbosity=0, interactive=False)
+        print("# Cleanup")
+        # management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
+        print("# Creation")
         self.faker = Faker()
         self.main_datafile_count = 50
         self._create_users()

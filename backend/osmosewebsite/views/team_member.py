@@ -1,3 +1,4 @@
+"""OSmOSE Website Views - Team Member"""
 from rest_framework import viewsets, permissions
 from backend.osmosewebsite.models.team_member import TeamMember
 from backend.osmosewebsite.serializers.team_member import TeamMemberSerializer

@@ -1,8 +1,11 @@
+"""OSmOSE Website - Team Member"""
 from django.contrib.admin import ModelAdmin, action
 
 
 @action(description="Mark selected members as former members")
-def make_former(modelAdmin, request, queryset):
+# pylint: disable-next=unused-argument
+def make_former(model_admin, request, queryset):
+    """TeamMember admin action to make it a former member"""
     queryset.update(isFormerMember=True)
 
 

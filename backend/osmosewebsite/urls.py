@@ -1,3 +1,4 @@
+"""OSmOSE Website API Routing"""
 from rest_framework import routers
 from backend.osmosewebsite.views import TeamMemberViewSet
 

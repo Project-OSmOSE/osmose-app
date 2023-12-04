@@ -1,3 +1,4 @@
+"""OSmOSE Website API Serializers - TeamMembers"""
 from rest_framework import serializers
 from backend.osmosewebsite.models.team_member import TeamMember
 

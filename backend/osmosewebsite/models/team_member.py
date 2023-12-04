@@ -1,7 +1,10 @@
+"""OSmOSE Website API Models - TeamMembers"""
 from django.db import models
 
 
 class TeamMember(models.Model):
+    """TeamMember model"""
+
     level = models.IntegerField("Sorting level", blank=True, null=True)
 
     name = models.CharField(max_length=100)
