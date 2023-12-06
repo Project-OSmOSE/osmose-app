@@ -52,5 +52,5 @@ class Command(BaseCommand):
                 personal_website_url=websites[1] if len(websites) > 1 else None,
                 github_url=websites[2] if len(websites) > 2 else None,
                 linkedin_url=websites[3] if len(websites) > 3 else None,
-                isFormerMember=True,
+                is_former_member=True,
             )

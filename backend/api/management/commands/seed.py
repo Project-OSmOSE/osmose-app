@@ -254,22 +254,22 @@ class Command(management.BaseCommand):
             window_type=window_type,
             frequency_resolution=0,
         )
-        spectro_config_2 = self.dataset_2.spectro_configs.create(
-            name="4096_4096_90",
-            nfft=4096,
-            window_size=4096,
-            overlap=90,
-            zoom_level=3,
-            spectro_normalization="density",
-            data_normalization="0",
-            zscore_duration="0",
-            hp_filter_min_freq=0,
-            colormap="Blues",
-            dynamic_min=0,
-            dynamic_max=0,
-            window_type=window_type,
-            frequency_resolution=0,
-        )
+        # spectro_config_2 = self.dataset_2.spectro_configs.create(
+        #     name="4096_4096_90",
+        #     nfft=4096,
+        #     window_size=4096,
+        #     overlap=90,
+        #     zoom_level=3,
+        #     spectro_normalization="density",
+        #     data_normalization="0",
+        #     zscore_duration="0",
+        #     hp_filter_min_freq=0,
+        #     colormap="Blues",
+        #     dynamic_min=0,
+        #     dynamic_max=0,
+        #     window_type=window_type,
+        #     frequency_resolution=0,
+        # )
         spectro_config_3 = self.dataset_1.spectro_configs.create(
             name="2048_1000_90",
             nfft=2048,
