@@ -1,10 +1,21 @@
-div#projects-page img {
-    max-height: 80vh;
-}
-div#projects-page .container {
+#projects-page .content {
     display: grid;
-    gap: 8rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin: var(--content-margin);
+    gap: 4rem;
 }
-div#projects-page figure > img.logo {
-    max-width: 200px;
+
+@media screen and (max-width: 1200px) {
+    #projects-page .content {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 2rem;
+        gap: 1rem;
+    }
+}
+@media screen and (max-width: 800px) {
+    #projects-page .content {
+        grid-template-columns: none;
+        margin: 1rem;
+        gap: 1rem;
+    }
 }

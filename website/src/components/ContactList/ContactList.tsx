@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 interface ContactListProps {
     label: string;
-    teamMembers: Array<TeamMember>;
-    namedMembers: Array<string>;
+    teamMembers?: Array<TeamMember>;
+    namedMembers?: Array<string>;
 }
 
 export const ContactList: React.FC<ContactListProps> = ({
@@ -19,17 +19,17 @@ export const ContactList: React.FC<ContactListProps> = ({
         <p id="contact-list" className="text-muted">
             <span>{ label }: </span>
 
-            { teamMembers.map((member, k) => (
+            { teamMembers && teamMembers.map((member, k) => (
                 <span key={ member.id }>
                     <Link to={ `/people/${ member.id }` }>
                         { member.firstname } { member.lastname }
                     </Link>
-                    { (k < teamMembers.length - 1 || namedMembers.length > 0) && ', ' }
+                    { (k < teamMembers.length - 1 || (namedMembers && namedMembers.length > 0)) && ', ' }
                 </span>
             )) }
 
 
-            { namedMembers.map((member, k) => (
+            { namedMembers && namedMembers.map((member, k) => (
                 <span key={ member }>
                     { member }
                     { k < namedMembers.length - 1 && ', ' }

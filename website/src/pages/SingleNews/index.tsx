@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from "react-router-dom";
 
-import { API_FETCH_INIT, getFormattedDate, parseHTML } from "../../utils";
+import { API_FETCH_INIT, getFormattedDate } from "../../utils";
 import { News } from "../../models/news";
 import { IonIcon } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
 import { ContactList } from "../../components/ContactList/ContactList";
 import './styles.css'
+import { HTMLContent } from "../../components/HTMLContent/HTMLContent";
 
 const NEWS_API_URL = '/api/news';
 
@@ -40,7 +41,7 @@ export const SingleNews: React.FC = () => {
                         { article.date && <p className="text-muted">{ getFormattedDate(article.date) }</p> }
                     </div>
 
-                    { parseHTML(article.body) }
+                    <HTMLContent content={ article.body }></HTMLContent>
 
                     <ContactList label="Authors"
                                  teamMembers={ article.osmose_member_authors ?? [] }

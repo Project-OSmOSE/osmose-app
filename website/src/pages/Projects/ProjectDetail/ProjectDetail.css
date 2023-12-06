@@ -1,0 +1,55 @@
+#project-detail {
+  margin: var(--content-margin);
+  position: relative;
+  display: grid;
+  gap: 3rem;
+  justify-items: center;
+}
+
+#project-detail .back {
+  justify-self: start;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+#project-detail #project {
+  max-width: min(58rem, 100%);
+  min-width: 0; /* CSS fix to get max-width: 100% to be respected */
+  display: grid;
+  gap: 2rem;
+}
+
+#project-detail #project > * {
+  max-width: 100%;
+  min-width: 0; /* CSS fix to get max-width: 100% to be respected */
+}
+
+#project-detail #project .project-head {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+#project-detail #article p {
+  margin: 0;
+}
+
+#project-detail #contact-list {
+  text-align: center;
+}
+
+@media screen and (max-width: 1200px) {
+  #project-detail {
+    gap: 1rem;
+  }
+}
+
+
+@media screen and (max-width: 800px) {
+  #project-detail #project .project-head {
+    justify-items: start;
+    text-align: justify;
+  }
+}

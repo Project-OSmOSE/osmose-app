@@ -17,10 +17,30 @@ export const useCatch404 = (): (e: any, fallback: string) => void => {
     }
 }
 
+export const fetchPage = async (url: string, pageOptions?: { currentPage: number, pageSize: number }): Promise<any | {count: number; results: Array<any>}> => {
+    let composedURL = url;
+    if (pageOptions) composedURL = `${ url }?page=${ pageOptions.currentPage }&page_size=${ pageOptions.pageSize }`
+    try {
+        const response = await fetch(composedURL, API_FETCH_INIT);
+        if (!response.ok)
+            return console.error(`Cannot fetch ${ composedURL }, got error: [${ response.status }] ${ response.statusText }`);
+        return await response.json();
+    } catch (error) {
+        console.error(`Cannot fetch ${ composedURL }, got error: ${ error }`)
+    }
+}
+
 export const getFormattedDate = (date: string) => {
     return Intl.DateTimeFormat('en-US', {
         dateStyle: 'long'
     }).format(new Date(date)).replaceAll('/', '-');
+}
+
+export const getYear = (date?: string) => {
+    if (!date) return;
+    return Intl.DateTimeFormat('en-US', {
+        year: 'numeric'
+    }).format(new Date(date));
 }
 
 export const parseHTML = (body: string) => {
