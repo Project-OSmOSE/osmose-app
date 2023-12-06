@@ -8,7 +8,7 @@ from faker import Faker
 
 from django.core.management.base import BaseCommand
 
-from backend.osmosewebsite.models import TeamMember, News
+from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project
 
 
 class Command(BaseCommand):
@@ -21,6 +21,8 @@ class Command(BaseCommand):
         # Creation
         self._create_team_members()
         self._create_news()
+        self._create_collaborators()
+        self._create_projects()
 
     def _create_team_members(self):
         print(" ###### _create_team_members ######")
@@ -56,17 +58,21 @@ class Command(BaseCommand):
                 is_former_member=True,
             )
 
-    def _generate_news_body(self):
+    def _generate_html_body(self):
         body = ""
         for _ in range(self.random.randint(1, 5)):
             body += f"<blockquote><p>{self.fake.sentence(nb_words=10)}</p></blockquote>"
-            paragraphs = [
-                f"<p>{para}</p>"
-                for para in self.fake.paragraphs(nb=self.random.randint(1, 5))
-            ]
+            paragraphs = []
+            for k in (0, self.random.randint(2, 5)):
+                text = ""
+                for paragraph in self.fake.paragraph(
+                    nb_sentences=self.random.randint(8, 15)
+                ):
+                    text += paragraph
+                paragraphs.append(f"<p>{text}</p>")
             for _ in range(0, self.random.randint(0, 2)):
                 paragraphs.append(
-                    f"<p><img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}' width='{100 + 50 * self.random.randint(0, 3)}px'/></p>"
+                    f"<p><img src='{self.fake.image_url()}' alt='{self.fake.sentence()}'/></p>"
                 )
             self.random.shuffle(paragraphs)
             body += "".join(paragraphs)
@@ -74,11 +80,11 @@ class Command(BaseCommand):
 
     def _create_news(self):
         print(" ###### _create_news ######")
-        for _ in range(self.random.randint(5, 15)):
+        for _ in range(0, self.random.randint(5, 15)):
             news = News.objects.create(
                 title=self.fake.sentence(nb_words=10)[:255],
                 intro=self.fake.paragraph(nb_sentences=5)[:255],
-                body=self._generate_news_body(),
+                body=self._generate_html_body(),
                 date=self.fake.date_time_between(start_date="-1y", end_date="now"),
                 thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}",
             )
@@ -86,7 +92,50 @@ class Command(BaseCommand):
                 news.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())
                 news.save()
             other_authors = []
-            for i in range(self.random.randint(2, 5)):
+            for i in range(1, self.random.randint(2, 5)):
                 other_authors.append(self.fake.name())
             news.other_authors = "{" + ",".join(other_authors) + "}"
             news.save()
+
+    def _create_collaborators(self):
+        print(" ###### _create_collaborators ######")
+        for i in range(0, self.random.randint(5, 15)):
+            news = Collaborator.objects.create(
+                name=self.fake.name(),
+                level=i,
+                thumbnail=self.fake.image_url(),
+                url=self.fake.uri(),
+                show_on_home_page=True,
+            )
+        for i in range(0, self.random.randint(5, 15)):
+            news = Collaborator.objects.create(
+                name=self.fake.name(),
+                level=i,
+                thumbnail=self.fake.image_url(),
+                url=self.fake.uri(),
+                show_on_home_page=False,
+            )
+
+    def _create_projects(self):
+        print(" ###### _create_projects ######")
+        for _ in range(0, self.random.randint(5, 15)):
+            project = Project.objects.create(
+                title=self.fake.sentence(nb_words=10)[:255],
+                intro=self.fake.paragraph(nb_sentences=5)[:255],
+                body=self._generate_html_body(),
+                start=self.fake.date_time_between(
+                    start_date="-" + str(self.random.randint(3, 8)) + "y",
+                    end_date="-3y",
+                ),
+                end=self.fake.date_time_between(
+                    start_date="-" + str(self.random.randint(1, 3)) + "y",
+                    end_date="now",
+                ),
+                thumbnail=self.fake.image_url(),
+            )
+            for i in range(1, self.random.randint(2, 3)):
+                project.contact.add(TeamMember.objects.filter(id=i).first())
+                project.save()
+            for i in range(1, self.random.randint(2, 7)):
+                project.collaborators.add(Collaborator.objects.filter(id=i).first())
+                project.save()
