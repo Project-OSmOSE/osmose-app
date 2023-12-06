@@ -12,14 +12,14 @@ class TeamMember(models.Model):
     biography = models.TextField()
     picture = models.URLField()
 
-    mailAddress = models.EmailField("Mail address")
-
-    researchGateURL = models.URLField("Research Gate URL", blank=True, null=True)
-    personalWebsiteURL = models.URLField("Personal website URL", blank=True, null=True)
-    githubURL = models.URLField("Github URL", blank=True, null=True)
-    linkedinURL = models.URLField("LinkedIn URL", blank=True, null=True)
-
-    isFormerMember = models.BooleanField("Is former member", default=False)
+    mail_address = models.EmailField("Mail address")
+    research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
+    personal_website_url = models.URLField(
+        "Personal website URL", blank=True, null=True
+    )
+    github_url = models.URLField("Github URL", blank=True, null=True)
+    linkedin_url = models.URLField("LinkedIn URL", blank=True, null=True)
+    is_former_member = models.BooleanField("Is former member", default=False)
 
     class Meta:
         ordering = ["level"]

@@ -166,7 +166,10 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Fixtures location for testing
-FIXTURE_DIRS = (BASE_DIR / "backend/tests/fixtures",)
+FIXTURE_DIRS = (
+    BASE_DIR / "backend/tests/fixtures",
+    BASE_DIR / "backend/osmosewebsite/tests/fixtures",
+)
 
 # TINYMCE Configuration
 # https://www.tiny.cloud/docs/advanced/available-menu-items/

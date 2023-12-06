@@ -30,7 +30,7 @@ class Command(management.BaseCommand):
     def handle(self, *args, **options):
         # Cleanup
         print("# Cleanup")
-        # management.call_command("flush", verbosity=0, interactive=False)
+        management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         print("# Creation")
@@ -147,7 +147,7 @@ class Command(management.BaseCommand):
 
     def _create_confidence_sets(self):
 
-        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
+        confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
             desc=self.faker.paragraph(nb_sentences=5),
         )
@@ -155,16 +155,16 @@ class Command(management.BaseCommand):
         confidence_0 = ConfidenceIndicator.objects.create(
             label="not confident",
             level=0,
-            confidence_indicator_set=confidenceIndicatorSet,
+            confidence_indicator_set=confidence_indicator_set,
         )
         confidence_1 = ConfidenceIndicator.objects.create(
             label="confident",
             level=1,
-            confidence_indicator_set=confidenceIndicatorSet,
+            confidence_indicator_set=confidence_indicator_set,
             is_default=True,
         )
         self.confidences_indicators = [confidence_0, confidence_1]
-        self.confidenceIndicatorSet = confidenceIndicatorSet
+        self.confidenceIndicatorSet = confidence_indicator_set
 
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
@@ -252,22 +252,22 @@ class Command(management.BaseCommand):
             window_type=window_type,
             frequency_resolution=0,
         )
-        spectro_config_2 = self.dataset_2.spectro_configs.create(
-            name="4096_4096_90",
-            nfft=4096,
-            window_size=4096,
-            overlap=90,
-            zoom_level=3,
-            spectro_normalization="density",
-            data_normalization="0",
-            zscore_duration="0",
-            hp_filter_min_freq=0,
-            colormap="Blues",
-            dynamic_min=0,
-            dynamic_max=0,
-            window_type=window_type,
-            frequency_resolution=0,
-        )
+        # spectro_config_2 = self.dataset_2.spectro_configs.create(
+        #     name="4096_4096_90",
+        #     nfft=4096,
+        #     window_size=4096,
+        #     overlap=90,
+        #     zoom_level=3,
+        #     spectro_normalization="density",
+        #     data_normalization="0",
+        #     zscore_duration="0",
+        #     hp_filter_min_freq=0,
+        #     colormap="Blues",
+        #     dynamic_min=0,
+        #     dynamic_max=0,
+        #     window_type=window_type,
+        #     frequency_resolution=0,
+        # )
         spectro_config_3 = self.dataset_1.spectro_configs.create(
             name="2048_1000_90",
             nfft=2048,

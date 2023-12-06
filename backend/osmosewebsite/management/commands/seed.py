@@ -34,11 +34,11 @@ class Command(BaseCommand):
                 position=profile["job"],
                 biography="\n".join(self.fake.paragraphs(5)),
                 picture="https://osmose.ifremer.fr/static/media/team_dodo_420_420.38e7fc104498740d44ca.webp",
-                mailAddress=profile["mail"],
-                researchGateURL=websites[0] if len(websites) > 0 else None,
-                personalWebsiteURL=websites[1] if len(websites) > 1 else None,
-                githubURL=websites[2] if len(websites) > 2 else None,
-                linkedinURL=websites[3] if len(websites) > 3 else None,
+                mail_address=profile["mail"],
+                research_gate_url=websites[0] if len(websites) > 0 else None,
+                personal_website_url=websites[1] if len(websites) > 1 else None,
+                github_url=websites[2] if len(websites) > 2 else None,
+                linkedin_url=websites[3] if len(websites) > 3 else None,
             )
 
     def _create_former_team_members(self):
@@ -51,12 +51,12 @@ class Command(BaseCommand):
                 position=profile["job"],
                 biography="\n".join(self.fake.paragraphs(5)),
                 picture="https://osmose.ifremer.fr/static/media/team_dodo_420_420.38e7fc104498740d44ca.webp",
-                mailAddress=profile["mail"],
-                researchGateURL=websites[0] if len(websites) > 0 else None,
-                personalWebsiteURL=websites[1] if len(websites) > 1 else None,
-                githubURL=websites[2] if len(websites) > 2 else None,
-                linkedinURL=websites[3] if len(websites) > 3 else None,
-                isFormerMember=True,
+                mail_address=profile["mail"],
+                research_gate_url=websites[0] if len(websites) > 0 else None,
+                personal_website_url=websites[1] if len(websites) > 1 else None,
+                github_url=websites[2] if len(websites) > 2 else None,
+                linkedin_url=websites[3] if len(websites) > 3 else None,
+                is_former_member=True,
             )
 
     def _clear_team_members(self):

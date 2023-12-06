@@ -1,6 +1,5 @@
 div#layout {
   min-height: 100vh;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }

@@ -1,4 +1,4 @@
-a.card-member {
+#card-member {
     display: grid;
     justify-items: center;
     text-decoration: none !important;
@@ -6,14 +6,14 @@ a.card-member {
     width: 10rem;
     text-align: center;
 }
-a.card-member > * {
+#card-member > * {
     margin: 0;
     text-decoration: none !important;
 }
-a.card-member h5 {
+#card-member h5 {
     color: var(--color-primary);
 }
-.card-member > img {
+#card-member > img {
     height: 8rem;
     width: 8rem;
     object-fit: cover;

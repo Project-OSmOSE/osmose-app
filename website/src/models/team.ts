@@ -6,12 +6,12 @@ export interface TeamMember {
     biography: string;
     picture: string;
 
-    mailAddress: string;
+    mail_address: string;
 
-    researchGateURL?: string;
-    personalWebsiteURL?: string;
-    githubURL?: string;
-    linkedinURL?: string;
+    research_gate_url?: string;
+    personal_website_url?: string;
+    github_url?: string;
+    linkedin_url?: string;
 
-    isFormerMember?: boolean;
+    is_former_member?: boolean;
 }

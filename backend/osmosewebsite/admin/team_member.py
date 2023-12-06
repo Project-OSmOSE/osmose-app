@@ -6,13 +6,13 @@ from django.contrib.admin import ModelAdmin, action
 # pylint: disable-next=unused-argument
 def make_former(model_admin, request, queryset):
     """TeamMember admin action to make it a former member"""
-    queryset.update(isFormerMember=True)
+    queryset.update(is_former_member=True)
 
 
 class TeamMemberAdmin(ModelAdmin):
     """TeamMember presentation in DjangoAdmin"""
 
-    list_display = ["name", "position", "mailAddress", "isFormerMember", "level"]
+    list_display = ["name", "position", "mail_address", "is_former_member", "level"]
     search_fields = ["name"]
     fieldsets = [
         (
@@ -21,10 +21,10 @@ class TeamMemberAdmin(ModelAdmin):
                 "fields": [
                     "name",
                     "position",
-                    "mailAddress",
+                    "mail_address",
                     "picture",
                     "biography",
-                    "isFormerMember",
+                    "is_former_member",
                     "level",
                 ]
             },
@@ -33,10 +33,10 @@ class TeamMemberAdmin(ModelAdmin):
             "Links",
             {
                 "fields": [
-                    "researchGateURL",
-                    "personalWebsiteURL",
-                    "githubURL",
-                    "linkedinURL",
+                    "research_gate_url",
+                    "personal_website_url",
+                    "github_url",
+                    "linkedin_url",
                 ]
             },
         ),

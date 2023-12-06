@@ -1,0 +1,16 @@
+#back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+@media screen and (max-width: 800px) {
+  #back {
+    position: initial;
+    justify-self: left;
+  }
+}

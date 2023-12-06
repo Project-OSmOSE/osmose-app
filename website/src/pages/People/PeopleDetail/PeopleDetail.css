@@ -6,13 +6,7 @@
     justify-items: center;
 }
 
-#member-page .back {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-#member-page > *:not(.back) {
+#member-page > * {
     max-width: 32rem;
 }
 
@@ -50,7 +44,6 @@
     grid-auto-flow: column;
 }
 
-#member-page .back,
 #member-page .links .socials > * {
     display: grid;
     grid-template-columns: auto auto;
@@ -65,11 +58,6 @@
         display: grid;
         gap: 1rem;
         justify-items: center;
-    }
-
-    #member-page .back {
-        position: initial;
-        justify-self: left;
     }
 
     #member-page img {
