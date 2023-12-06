@@ -9,6 +9,7 @@ class Collaborator(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     thumbnail = models.URLField()
+    url = models.URLField(null=True, blank=True)
     show_on_home_page = models.BooleanField(default=False)
 
     class Meta:

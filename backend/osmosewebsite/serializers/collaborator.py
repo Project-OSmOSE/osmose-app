@@ -12,6 +12,6 @@ class CollaboratorSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "thumbnail",
+            "url",
             "show_on_home_page",
-            "level",
         ]

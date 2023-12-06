@@ -25,6 +25,7 @@ class CollaboratorAdmin(ModelAdmin):
         "name",
         "thumbnail",
         "level",
+        "url",
         "show_on_home_page",
     ]
     actions = [show_on_home_page, hide_on_home_page]
