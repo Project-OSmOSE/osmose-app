@@ -24,7 +24,7 @@ export const getFormattedDate = (date: string) => {
 }
 
 export const parseHTML = (body: string) => {
-    const pImgContainer: Array<string> | null = body.match(/<p([\s\w="]+?)>(<img([\w\W]+?)\/>)+<\/p>/g);
+    const pImgContainer: Array<string> | null = body.match(/<p([\s\w="]*?)>(<img([\w\W]+?)\/>)+<\/p>/g);
     if (!pImgContainer) return Parser().parse(body ?? "");
     for (const pContainer of pImgContainer) {
         const div = document.createElement('div');

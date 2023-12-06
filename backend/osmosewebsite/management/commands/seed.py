@@ -66,7 +66,7 @@ class Command(BaseCommand):
             ]
             for _ in range(0, self.random.randint(0, 2)):
                 paragraphs.append(
-                    f"<img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}' width='{100 + 50 * self.random.randint(0, 3)}px'>"
+                    f"<p><img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}' width='{100 + 50 * self.random.randint(0, 3)}px'/></p>"
                 )
             self.random.shuffle(paragraphs)
             body += "".join(paragraphs)
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 intro=self.fake.paragraph(nb_sentences=5)[:255],
                 body=self._generate_news_body(),
                 date=self.fake.date_time_between(start_date="-1y", end_date="now"),
-                vignette=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}",
+                thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}",
             )
             for i in range(1, self.random.randint(2, 5)):
                 news.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())

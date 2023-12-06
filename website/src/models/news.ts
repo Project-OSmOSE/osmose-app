@@ -6,7 +6,7 @@ export interface News {
     intro: string;
     body: string;
     date?: string;
-    vignette?: string;
+    thumbnail?: string;
     osmose_member_authors?: Array<TeamMember>;
     other_authors?: Array<string>;
 }

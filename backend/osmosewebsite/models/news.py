@@ -19,7 +19,7 @@ class News(models.Model):
     intro = models.CharField(max_length=255)
     body = HTMLField()
     date = models.DateField(null=True, blank=True)
-    vignette = models.URLField(default="")
+    thumbnail = models.URLField(default="")
 
     osmose_member_authors = models.ManyToManyField(TeamMember, blank=True)
     other_authors = fields.ArrayField(
