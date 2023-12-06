@@ -3,3 +3,7 @@
   background-color: transparent;
   justify-content: center;
 }
+
+#home-page #collaborators-banner-component {
+  margin: var(--content-margin);
+}
