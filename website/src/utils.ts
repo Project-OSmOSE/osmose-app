@@ -30,7 +30,8 @@ export const fetchPage = async (url: string, pageOptions?: { currentPage: number
     }
 }
 
-export const getFormattedDate = (date: string) => {
+export const getFormattedDate = (date?: string) => {
+    if (!date) return;
     return Intl.DateTimeFormat('en-US', {
         dateStyle: 'long'
     }).format(new Date(date)).replaceAll('/', '-');

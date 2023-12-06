@@ -5,7 +5,7 @@ import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home/HomePage';
 import { NewsPage } from './pages/News/NewsPage';
 import { People } from './pages/People/People';
-import { Projects } from './pages/Projects';
+import { Projects } from './pages/Projects/Projects';
 import { Publications } from './pages/Publications';
 import { NewsDetailPage } from './pages/News/NewsDetail/NewsDetailPage';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";

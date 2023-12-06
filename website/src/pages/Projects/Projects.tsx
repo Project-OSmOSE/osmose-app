@@ -2,14 +2,14 @@ import { PageTitle } from "../../components/PageTitle";
 
 import imgTitle from '../../img/illust/sperm-whale-tail_1920_thin.webp';
 
-import './styles.css';
+import './Projects.css';
 
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchPage, getYear } from "../../utils";
 import { Project } from "../../models/project";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
-import { Pagination } from "../../components/Pagination";
+import { Pagination } from "../../components/Pagination/Pagination";
 
 const PROJECTS_URL = '/api/projects';
 

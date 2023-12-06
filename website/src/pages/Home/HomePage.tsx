@@ -19,7 +19,6 @@ import labsticlogo from '../../img/logo/logo-lab-sticc.png';
 import iuemLogo from '../../img/logo/iuem.jpeg';
 import cebcLogo from '../../img/logo/cebc.png';
 
-const NEWS_URL = '/api/news/';
 
 export const HomePage: React.FC = () => (
   <div id="home-page">
@@ -33,15 +32,11 @@ export const HomePage: React.FC = () => (
     </section>
 
     <section className="container my-5">
-      <Card
-        title="In a nutshell"
-        img={ imgGlider }
-        imgSide="right"
-        imgAlt="Glider"
-        // subtitle=""
-        url="/people"
-        // urlDesc="Learn more about our team."
-      >
+      <Card title="In a nutshell"
+            img={ imgGlider }
+            imgSide="right"
+            imgAlt="Glider"
+            url="/people">
         <p>
           Hello, we are OSmOSE ; a consortium of data scientists and ocean researchers developing open source tools
           and services for underwater passive acoustics. It all started in Brest (French Brittany) in 2018, with the
@@ -53,31 +48,11 @@ export const HomePage: React.FC = () => (
       </Card>
     </section>
 
-    {/* <Banner>
-    <p>
-      <span className="spring">4</span> <br/>
-      partners
-    </p>
-    <p>
-      <span className="spring">7</span> <br/>
-      members
-    </p>
-    <p>
-      <span className="spring">3</span> <br/>
-      collaborative studies <br/>
-    </p>
-  </Banner> */ }
-
     <section className="container my-5">
-      <Card
-        title="Our missions"
-        img={ imgMissions }
-        imgSide="left"
-        imgAlt="Groupe de dauphins"
-        // subtitle=""
-        // url=""
-        // urlDesc=""
-      >
+      <Card title="Our missions"
+            img={ imgMissions }
+            imgSide="left"
+            imgAlt="Groupe de dauphins">
         <strong>Technology development</strong>
         <ul>
           <li> create open-source standalone analysis tools</li>
@@ -95,35 +70,10 @@ export const HomePage: React.FC = () => (
       </Card>
     </section>
 
-    {/* <Banner>
-    <p>
-      <span className="spring">13</span> <br/>
-      datasets
-    </p>
-    <p>
-      <span className="spring">13 TB</span> <br/>
-      raw data
-    </p>
-    <p>
-      <span className="spring">4</span> <br/>
-      annotation campaigns <br/>
-    </p>
-    <p>
-      <span className="spring">10</span> <br/>
-      annotation classes <br/>
-    </p>
-  </Banner> */ }
-
     <section className="container my-5">
-      <Card
-        title="Our values"
-        img={ logoFAIR }
-        imgSide="right"
-        // imgAlt=""
-        // subtitle=""
-        // url=""
-        // urlDesc=""
-      >
+      <Card title="Our values"
+            img={ logoFAIR }
+            imgSide="right">
         <p>
           We work towards applying open science / FAIR principles to underwater passive acoustics.
         </p>
@@ -138,10 +88,6 @@ export const HomePage: React.FC = () => (
             href="https://www.ouvrirlascience.fr/second-national-plan-for-open-science/"> ouvrirlascience.fr</a>
           </footer>
         </blockquote>
-
-        {/* Nous nous attachons à développer des solutions facilement réutilisables en suivant les <a href="https://www.go-fair.org/fair-principles/">principes FAIR</a>. <br/>
-        Dans cette optique nous mettons à disposition en open source toute notre technologie afin de permettre à tous d'en profiter. */ }
-
       </Card>
     </section>
 
@@ -150,7 +96,6 @@ export const HomePage: React.FC = () => (
     </div>
     <Banner>
       <img className="" src={ enstalogo } alt="Ensta Bretagne logo" title="Ensta Bretagne logo"/>
-      {/* <img className="" src={ifremerlogo} alt="IFREMER logo" title="IFREMER logo" /> */ }
       <img className="" src={ labsticlogo } alt="Lab-Stic logo" title="Lab-Stic logo"/>
       <img className="" src={ ubologo } alt="UBO logo" title="UBO logo"/>
       <img className="" src={ iuemLogo } alt="IUEM logo" title="IUEM logo"/>
