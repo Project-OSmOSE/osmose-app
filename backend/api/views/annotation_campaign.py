@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Count, Q, Prefetch
+from django.db.models import Q
 from django.db.models.functions import Lower
 
 from rest_framework import viewsets
@@ -40,38 +40,48 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = (
-            self.queryset.annotate(files_count=Count("datasets__files"))
-            .select_related(
-                "confidence_indicator_set",
-                "annotation_set",
+        queryset = AnnotationCampaign.objects.raw(
+            """
+                SELECT id,
+                       name,
+                       "desc",
+                       instructions_url,
+                       start,
+                       "end",
+                       tasks.count               as tasks_count,
+                       tasks.complete_count      as complete_tasks_count,
+                       tasks.user_count          as user_tasks_count,
+                       tasks.user_complete_count as user_complete_tasks_count,
+                       files.count               as files_count,
+                       created_at
+                FROM annotation_campaigns campaign
+                         {joint}
+                     (SELECT annotation_campaign_id,
+                             count(*),
+                             sum(case when status = 2 then 1 else 0 end) as complete_count,
+                             sum(case when annotator_id = {user_id} then 1 else 0 end) as user_count,
+                             sum(case when annotator_id = {user_id} and status = 2 then 1 else 0 end)
+                              as user_complete_count
+                      FROM annotation_tasks
+                      WHERE {is_staff} or annotator_id = {user_id}
+                      group by annotation_campaign_id) tasks
+                     on tasks.annotation_campaign_id = campaign.id
+                         LEFT OUTER JOIN
+                     (SELECT dataset_id, annotationcampaign_id
+                      FROM annotation_campaigns_datasets) campaigns_dataset
+                     on campaigns_dataset.annotationcampaign_id = campaign.id
+                         LEFT OUTER JOIN
+                     (SELECT dataset_id, count(*)
+                      FROM dataset_files
+                      group by dataset_id) files
+                     on files.dataset_id = campaigns_dataset.dataset_id
+                ORDER BY lower(name), created_at
+        """.format(
+                joint="LEFT OUTER JOIN" if request.user.is_staff else "INNER JOIN",
+                user_id=request.user.id,
+                is_staff=request.user.is_staff,
             )
-            .prefetch_related(
-                "tasks",
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(
-                        annotator_id=request.user.id
-                    ),
-                    to_attr="user_tasks",
-                ),
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(status=2),
-                    to_attr="complete_tasks",
-                ),
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(
-                        annotator_id=request.user.id, status=2
-                    ),
-                    to_attr="user_complete_tasks",
-                ),
-            )
-            .order_by(Lower("name"), "created_at")
         )
-        if not request.user.is_staff:
-            queryset = queryset.filter(annotators=request.user.id)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

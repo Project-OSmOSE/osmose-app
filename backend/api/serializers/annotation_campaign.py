@@ -60,23 +60,31 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.IntegerField)
     def get_tasks_count(self, campaign):
-        return campaign.tasks.count()
+        return campaign.tasks_count if campaign.tasks_count is not None else 0
 
     @extend_schema_field(serializers.IntegerField)
     def get_user_tasks_count(self, campaign):
-        return len(campaign.user_tasks)
+        return campaign.user_tasks_count if campaign.user_tasks_count is not None else 0
 
     @extend_schema_field(serializers.IntegerField)
     def get_complete_tasks_count(self, campaign):
-        return len(campaign.complete_tasks)
+        return (
+            campaign.complete_tasks_count
+            if campaign.complete_tasks_count is not None
+            else 0
+        )
 
     @extend_schema_field(serializers.IntegerField)
     def get_user_complete_tasks_count(self, campaign):
-        return len(campaign.user_complete_tasks)
+        return (
+            campaign.user_complete_tasks_count
+            if campaign.user_complete_tasks_count is not None
+            else 0
+        )
 
     @extend_schema_field(serializers.IntegerField)
     def get_files_count(self, campaign):
-        return campaign.files_count
+        return campaign.files_count if campaign.files_count is not None else 0
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):
