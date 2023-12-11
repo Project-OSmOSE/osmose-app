@@ -2,10 +2,11 @@
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django import forms
 from django.db import IntegrityError, transaction
-from django.contrib import messages
+from django.utils.html import format_html
+
 
 from backend.api.models import (
     Dataset,
@@ -108,13 +109,28 @@ class DatasetAdmin(admin.ModelAdmin):
         "files_type",
         "start_date",
         "end_date",
-        "audio_metadatum",
+        "show_audio_metadatum_url",
         "dataset_type",
         "geo_metadatum",
         "owner",
         "tabular_metadatum",
         "show_spectro_configs",
         "show_collections",
+    )
+    fields = (
+        "name",
+        "desc",
+        "dataset_path",
+        "dataset_conf",
+        "status",
+        "files_type",
+        "start_date",
+        "end_date",
+        "dataset_type",
+        "geo_metadatum",
+        "owner",
+        "tabular_metadatum",
+        "collections",
     )
 
     def show_spectro_configs(self, obj):
@@ -124,6 +140,14 @@ class DatasetAdmin(admin.ModelAdmin):
     def show_collections(self, obj):
         """show_collections"""
         return get_many_to_many(obj, "collections")
+
+    def show_audio_metadatum_url(self, obj):
+        """show_audio_metadatum_url"""
+        return format_html(
+            "<a href='/backend/admin/api/audiometadatum/{id}/change/'>{metadatum}</a>",
+            id=obj.audio_metadatum.id,
+            metadatum=obj.audio_metadatum,
+        )
 
 
 class DatasetFileAdmin(admin.ModelAdmin):
