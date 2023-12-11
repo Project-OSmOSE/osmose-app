@@ -79,7 +79,9 @@ class Dataset(models.Model):
     tabular_metadatum = models.ForeignKey(
         "TabularMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
-    collections = models.ManyToManyField(Collection, related_name="datasets")
+    collections = models.ManyToManyField(
+        Collection, related_name="datasets", blank=True
+    )
 
 
 class DatasetFile(models.Model):

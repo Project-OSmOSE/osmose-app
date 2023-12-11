@@ -135,7 +135,7 @@ class AnnotationCampaign(models.Model):
         related_name="task_campaigns",
     )
     confidence_indicator_set = models.ForeignKey(
-        ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True
+        ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
