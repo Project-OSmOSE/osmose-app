@@ -1,5 +1,4 @@
-// @flow
-import React, { Component } from 'react';
+import React, { ChangeEvent, Component, MouseEvent, PointerEvent, WheelEvent } from 'react';
 import * as utils from '../utils';
 
 import type { Annotation, FileMetadata, SpectroUrlsParams } from './AudioAnnotator';
@@ -18,7 +17,7 @@ type Spectrogram = {
   start: number,
   end: number,
   src: string,
-  image: ?Image,
+  image?: HTMLImageElement,
 };
 
 type SpectroParams = {
@@ -48,11 +47,11 @@ type WorkbenchProps = {
   frequencyRange: number,
   spectroUrlsParams: Array<SpectroUrlsParams>,
   annotations: Array<Annotation>,
-  onAnnotationCreated: (Annotation) => void,
-  onAnnotationUpdated: (Annotation) => void,
-  onAnnotationDeleted: (Annotation) => void,
-  onAnnotationPlayed: (Annotation) => void,
-  onAnnotationSelected: (Annotation) => void,
+  onAnnotationCreated: (a: Annotation) => void,
+  onAnnotationUpdated: (a: Annotation) => void,
+  onAnnotationDeleted: (a: Annotation) => void,
+  onAnnotationPlayed: (a: Annotation) => void,
+  onAnnotationSelected: (a: Annotation) => void,
   onSeek: any,
   drawingEnabled: boolean,
   currentDefaultTagAnnotation: string,
@@ -67,10 +66,10 @@ type WorkbenchState = {
   currentParams: SpectroParams,
   currentZoom: number,
   spectrograms: Array<SpectroDetails>,
-  newAnnotation: ?Annotation,
+  newAnnotation?: Annotation,
   loadingZoomLvl: number,
-  pointerFrequency: number;
-  pointerTime: number;
+  pointerFrequency?: number;
+  pointerTime?: number;
 };
 
 class Workbench extends Component<WorkbenchProps, WorkbenchState> {
@@ -172,7 +171,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     this.renderCanvas();
 
     // Retrieve current loading zoom with current details
-    const details: ?SpectroDetails = this.getSpectrosForCurrentDetails()
+    const details: SpectroDetails | undefined = this.getSpectrosForCurrentDetails()
       .find(details => details.zoom === this.state.loadingZoomLvl);
 
     if (details) {
@@ -197,7 +196,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
   }
 
   loadNextZoomLevel() {
-    const currentDetails: ?SpectroDetails = this.getSpectrosForCurrentDetails()
+    const currentDetails: SpectroDetails | undefined = this.getSpectrosForCurrentDetails()
       .find(details => details.zoom === this.state.loadingZoomLvl);
 
     if (currentDetails) {
@@ -291,11 +290,11 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     return this.props.startFrequency + offset / this.state.freqPxRatio;
   }
 
-  seekTo = (event: SyntheticPointerEvent<HTMLCanvasElement>) => {
+  seekTo = (event: MouseEvent<HTMLCanvasElement>) => {
     this.props.onSeek(this.getTimeFromClientX(event.clientX));
   }
 
-  onWheelZoom = (event: SyntheticWheelEvent<HTMLCanvasElement>) => {
+  onWheelZoom = (event: WheelEvent<HTMLCanvasElement>) => {
     // Prevent page scrolling
     event.preventDefault();
 
@@ -331,7 +330,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     );
   }
 
-  changeCurrentParams = (event: SyntheticInputEvent<HTMLSelectElement>) => {
+  changeCurrentParams = (event: ChangeEvent<HTMLSelectElement>) => {
     const fullParams = this.props.spectroUrlsParams[parseInt(event.target.value, 10)];
     const newParams = {
       nfft: fullParams.nfft,
@@ -345,7 +344,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }, this.loadNextZoomLevel);
   }
 
-  zoom = (direction: number, xFrom: ?number) => {
+  zoom = (direction: number, xFrom?: number) => {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
     const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
 
@@ -398,7 +397,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }
   }
 
-  onStartNewAnnotation = (event: SyntheticPointerEvent<HTMLCanvasElement>) => {
+  onStartNewAnnotation = (event: PointerEvent<HTMLElement>) => {
     if (this.props.drawingEnabled) {
       const newTime: number = this.getTimeFromClientX(event.clientX);
       const newFrequency: number = this.getFrequencyFromClientY(event.clientY);
@@ -410,13 +409,15 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
       const newAnnotation: Annotation = {
         type: TYPE_BOX,
-        id: '',
+        id: undefined,
         annotation: '',
+        confidenceIndicator: this.props.currentDefaultConfidenceIndicator,
         startTime: newTime,
         endTime: newTime,
         startFrequency: newFrequency,
         endFrequency: newFrequency,
         active: false,
+        result_comments: [],
       };
 
       this.setState({newAnnotation});
@@ -429,7 +430,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
     const newAnnotation: Annotation = {
       type: TYPE_BOX,
-      id: '',
+      id: undefined,
       annotation: this.props.currentDefaultTagAnnotation,
       confidenceIndicator: this.props.currentDefaultConfidenceIndicator,
       startTime: Math.min(currentTime, this.drawStartTime),
@@ -437,11 +438,12 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       startFrequency: Math.min(currentFrequency, this.drawStartFrequency),
       endFrequency: Math.max(currentFrequency, this.drawStartFrequency),
       active: false,
+      result_comments: [],
     };
     return newAnnotation;
   }
 
-  onUpdateNewAnnotation = (e: PointerEvent) => {
+  onUpdateNewAnnotation = (e: any) => {
     if (this.isDrawing && ++this.drawPxMove > 2) {
       const newAnnotation: Annotation = this.computeNewAnnotation(e);
       this.setState({newAnnotation}, this.renderCanvas);
@@ -462,7 +464,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     }
   }
 
-  onEndNewAnnotation = (e: PointerEvent) => {
+  onEndNewAnnotation = (e: any) => {
     if (this.isDrawing && this.drawPxMove > 2) {
       this.props.onAnnotationCreated(this.computeNewAnnotation(e));
 
@@ -475,57 +477,60 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   renderTimeAxis = () => {
     const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
-    const context: CanvasRenderingContext2D = timeAxis.getContext('2d');
-    context.clearRect(0, 0, timeAxis.width, timeAxis.height);
+    const context: CanvasRenderingContext2D | null = timeAxis.getContext('2d');
 
-    let step: number = 1; // step of scale (in seconds)
-    let bigStep: number = 5;
+    if (context) {
+      context.clearRect(0, 0, timeAxis.width, timeAxis.height);
 
-    const durationOnScreen: number = this.state.wrapperWidth / this.state.timePxRatio;
-    if (durationOnScreen <= 60) {
-      step = 1;
-      bigStep = 5;
-    } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
-      step = 2;
-      bigStep = 5;
-    } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
-      step = 4;
-      bigStep = 5;
-    } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
-      step = 10;
-      bigStep = 60;
-    } else {
-      step = 30;
-      bigStep = 120;
-    }
+      let step: number = 1; // step of scale (in seconds)
+      let bigStep: number = 5;
 
-    const bounds: ClientRect = timeAxis.getBoundingClientRect();
-    const startTime: number = Math.ceil(this.getTimeFromClientX(bounds.left));
-    const endTime: number = Math.floor(this.getTimeFromClientX(bounds.right));
+      const durationOnScreen: number = this.state.wrapperWidth / this.state.timePxRatio;
+      if (durationOnScreen <= 60) {
+        step = 1;
+        bigStep = 5;
+      } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
+        step = 2;
+        bigStep = 5;
+      } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
+        step = 4;
+        bigStep = 5;
+      } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
+        step = 10;
+        bigStep = 60;
+      } else {
+        step = 30;
+        bigStep = 120;
+      }
 
-    context.fillStyle = 'rgba(0, 0, 0)';
-    context.font = '10px Arial';
+      const bounds: DOMRect = timeAxis.getBoundingClientRect();
+      const startTime: number = Math.ceil(this.getTimeFromClientX(bounds.left));
+      const endTime: number = Math.floor(this.getTimeFromClientX(bounds.right));
 
-    let i: number = 0;
-    for (i = startTime ; i <= endTime; i++) {
-      if (i % step === 0) {
-        const x: number = (i - startTime) * this.state.timePxRatio;
+      context.fillStyle = 'rgba(0, 0, 0)';
+      context.font = '10px Arial';
 
-        if (i % bigStep === 0) {
-          // Bar
-          context.fillRect(x, 0, 2, 15);
+      let i: number = 0;
+      for (i = startTime ; i <= endTime; i++) {
+        if (i % step === 0) {
+          const x: number = (i - startTime) * this.state.timePxRatio;
 
-          // Text
-          const timeText: string = utils.formatTimestamp(i, false);
-          let xTxt: number = x;
-          if (xTxt > 0) {
-            // "Right align" all labels but first
-            xTxt -= Math.round(timeText.length * 5);
+          if (i % bigStep === 0) {
+            // Bar
+            context.fillRect(x, 0, 2, 15);
+
+            // Text
+            const timeText: string = utils.formatTimestamp(i, false);
+            let xTxt: number = x;
+            if (xTxt > 0) {
+              // "Right align" all labels but first
+              xTxt -= Math.round(timeText.length * 5);
+            }
+            context.fillText(timeText, xTxt, 25);
+          } else {
+            // Bar only
+            context.fillRect(x, 0, 1, 10);
           }
-          context.fillText(timeText, xTxt, 25);
-        } else {
-          // Bar only
-          context.fillRect(x, 0, 1, 10);
         }
       }
     }
@@ -533,55 +538,58 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   renderFreqAxis = () => {
     const freqAxis: HTMLCanvasElement = this.freqAxisRef.current;
-    const context: CanvasRenderingContext2D = freqAxis.getContext('2d');
-    context.clearRect(0, 0, freqAxis.width, freqAxis.height);
+    const context: CanvasRenderingContext2D | null = freqAxis.getContext('2d');
 
-    let step: number = 500; // step of scale (in hz)
-    let bigStep: number = 2000;
+    if (context) {
+      context.clearRect(0, 0, freqAxis.width, freqAxis.height);
 
-    if (this.props.frequencyRange <= 200) {
-      step = 5;
-      bigStep = 20;
-    } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
-      step = 10;
-      bigStep = 100;
-    } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
-      step = 20;
-      bigStep = 100;
-    } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
-      step = 500;
-      bigStep = 2000;
-    } else {
-      step = 2000;
-      bigStep = 10000;
-    }
+      let step: number = 500; // step of scale (in hz)
+      let bigStep: number = 2000;
 
-    const bounds: ClientRect = freqAxis.getBoundingClientRect();
-    const startFreq: number = Math.ceil(this.props.startFrequency);
-    const endFreq: number = Math.floor(this.props.startFrequency + this.props.frequencyRange);
+      if (this.props.frequencyRange <= 200) {
+        step = 5;
+        bigStep = 20;
+      } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
+        step = 10;
+        bigStep = 100;
+      } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
+        step = 20;
+        bigStep = 100;
+      } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
+        step = 500;
+        bigStep = 2000;
+      } else {
+        step = 2000;
+        bigStep = 10000;
+      }
 
-    context.fillStyle = 'rgba(0, 0, 0)';
-    context.font = '10px Arial';
+      const bounds: DOMRect = freqAxis.getBoundingClientRect();
+      const startFreq: number = Math.ceil(this.props.startFrequency);
+      const endFreq: number = Math.floor(this.props.startFrequency + this.props.frequencyRange);
 
-    let i: number = 0;
-    for (i = startFreq ; i <= endFreq ; i += 5) {
-      if (i % step === 0) {
-        const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
+      context.fillStyle = 'rgba(0, 0, 0)';
+      context.font = '10px Arial';
 
-        if (i % bigStep === 0) {
-          // Bar
-          context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+      let i: number = 0;
+      for (i = startFreq ; i <= endFreq ; i += 5) {
+        if (i % step === 0) {
+          const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
 
-          // Text
-          let yTxt: number = y;
-          if (yTxt < (bounds.height - 5)) {
-            // "Top align" all labels but first
-            yTxt += 12;
+          if (i % bigStep === 0) {
+            // Bar
+            context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+
+            // Text
+            let yTxt: number = y;
+            if (yTxt < (bounds.height - 5)) {
+              // "Top align" all labels but first
+              yTxt += 12;
+            }
+            context.fillText(i.toString(), 0, yTxt);
+          } else {
+            // Bar only
+            context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
           }
-          context.fillText(i.toString(), 0, yTxt);
-        } else {
-          // Bar only
-          context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
         }
       }
     }
@@ -589,38 +597,41 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   renderCanvas = () => {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const context: CanvasRenderingContext2D = canvas.getContext('2d', { alpha: false });
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    const context: CanvasRenderingContext2D | null = canvas.getContext('2d', { alpha: false });
 
-    // Draw spectro images
-    const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
+    if (context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (spectrograms) {
-      spectrograms.images.forEach(spectro => {
-        if (spectro.image && spectro.image.complete) {
-          const image = spectro.image;
-          const x = spectro.start * this.state.timePxRatio;
-          const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
-          context.drawImage(image, x, 0, width, canvas.height);
-        }
-      });
-    }
+      // Draw spectro images
+      const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
 
-    // Progress bar
-    const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
-    context.fillStyle = 'rgba(0, 0, 0)';
-    context.fillRect(newX, 0, 1, canvas.height);
+      if (spectrograms) {
+        spectrograms.images.forEach(spectro => {
+          if (spectro.image && spectro.image.complete) {
+            const image = spectro.image;
+            const x = spectro.start * this.state.timePxRatio;
+            const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
+            context.drawImage(image, x, 0, width, canvas.height);
+          }
+        });
+      }
 
-    // Render new annotation
-    if (this.state.newAnnotation) {
-      const ann: Annotation = this.state.newAnnotation;
-      const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
-      const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
-      const y: number = Math.floor(canvas.height - freqOffset);
-      const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
-      const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
-      context.strokeStyle = 'blue';
-      context.strokeRect(x, y, width, height);
+      // Progress bar
+      const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
+      context.fillStyle = 'rgba(0, 0, 0)';
+      context.fillRect(newX, 0, 1, canvas.height);
+
+      // Render new annotation
+      if (this.state.newAnnotation) {
+        const ann: Annotation = this.state.newAnnotation;
+        const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
+        const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
+        const y: number = Math.floor(canvas.height - freqOffset);
+        const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
+        const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
+        context.strokeStyle = 'blue';
+        context.strokeRect(x, y, width, height);
+      }
     }
   }
 
@@ -651,13 +662,18 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
     const drawableStatusClass = this.props.drawingEnabled ? "drawable" : "";
 
+    const currentSpectroIdx: number = this.props.spectroUrlsParams.findIndex((params) => (
+      params.nfft === this.state.currentParams.nfft &&
+      params.overlap === this.state.currentParams.overlap &&
+      params.winsize === this.state.currentParams.winsize));
+
     return (
       <div
         className="workbench rounded"
         style={style.workbench}
       >
         <p className="workbench-controls">
-          <select defaultValue={this.state.currentParams} onChange={this.changeCurrentParams}>
+          <select defaultValue={currentSpectroIdx !== 1 ? currentSpectroIdx : 0} onChange={this.changeCurrentParams}>
             {this.props.spectroUrlsParams.map((params, idx) => {
               return (
                 <option key={`params-${idx}`} value={idx}>
@@ -711,13 +727,13 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
             style={style.timeAxis}
           ></canvas>
 
-          {this.props.annotations.map(annotation => this.renderRegion(annotation))}
+          {this.props.annotations.map((annotation: Annotation, idx: number) => this.renderRegion(annotation, idx))}
         </div>
       </div>
     );
   }
 
-  renderRegion = (ann: Annotation) => {
+  renderRegion = (ann: Annotation, idx: number) => {
     // Top offset
     const freqOffset: number = (ann.endFrequency - this.props.startFrequency) * this.state.freqPxRatio;
     const offsetTop: number = CANVAS_HEIGHT - freqOffset;
@@ -727,7 +743,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
     return (
       <Region
-        key={`${ann.id}${ann.result_comments.newAnnotation ? "-newann" : ""}`}
+        key={`region-${idx.toFixed()}`}
         annotation={ann}
         color={utils.getTagColor(this.props.tagColors, ann.annotation)}
         timePxRatio={this.state.timePxRatio}

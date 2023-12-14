@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, PointerEvent } from 'react'
 
 import type { Annotation } from './AudioAnnotator';
 
@@ -18,7 +18,7 @@ type RegionProps = {
   onRegionMoved: (a: Annotation) => void,
   onRegionPlayed: (a: Annotation) => void,
   onRegionClicked: (a: Annotation) => void,
-  onAddAnotherAnnotation: (a: Annotation) => void,
+  onAddAnotherAnnotation: (e: PointerEvent<HTMLElement>) => void,
 };
 
 type RegionState = {spectrogramEnd: number};
@@ -51,7 +51,7 @@ class Region extends Component<RegionProps, RegionState> {
     this.props.onRegionClicked(this.props.annotation);
   }
 
-  addAnotherAnnotation = (event: any) => {
+  addAnotherAnnotation = (event: PointerEvent<HTMLElement>) => {
     this.props.onAddAnotherAnnotation(event);
   };
 
@@ -117,7 +117,7 @@ class Region extends Component<RegionProps, RegionState> {
               onClick={this.selectAnnotation}
               style={styles.headerSpan}
           >{this.props.annotation.annotation}</span>
-          {this.props.annotation.result_comments.comment !== "" ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
+          {this.props.annotation.result_comments.length > 0 ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
             <button
               className="btn-simple fa fa-times-circle"
               onClick={this.deleteAnnotation}
