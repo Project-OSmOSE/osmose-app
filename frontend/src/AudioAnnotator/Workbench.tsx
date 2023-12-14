@@ -55,7 +55,7 @@ type WorkbenchProps = {
   onSeek: any,
   drawingEnabled: boolean,
   currentDefaultTagAnnotation: string,
-  currentDefaultConfidenceIndicator: string,
+  currentDefaultConfidenceIndicator?: string,
 };
 
 type WorkbenchState = {
@@ -262,7 +262,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   getTimeFromClientX = (clientX: number) => {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const bounds: ClientRect = canvas.getBoundingClientRect();
+    const bounds: DOMRect = canvas.getBoundingClientRect();
 
     // Offset: nb of pixels from the axis (left)
     let offset: number = clientX - bounds.left;
@@ -277,7 +277,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
   getFrequencyFromClientY = (clientY: number) => {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const bounds: ClientRect = canvas.getBoundingClientRect();
+    const bounds: DOMRect = canvas.getBoundingClientRect();
 
     // Offset: nb of pixels from the axis (bottom)
     let offset: number = bounds.bottom - clientY;
@@ -376,7 +376,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       let newCenter: number = 0;
       if (xFrom) {
         // x-coordinate has been given, center on it
-        const bounds: ClientRect = canvas.getBoundingClientRect();
+        const bounds: DOMRect = canvas.getBoundingClientRect();
         newCenter = (xFrom - bounds.left) * zoomRatio;
       } else {
         // If no x-coordinate: center on currentTime
@@ -417,6 +417,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
         startFrequency: newFrequency,
         endFrequency: newFrequency,
         active: false,
+        new: true,
         result_comments: [],
       };
 
@@ -438,6 +439,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       startFrequency: Math.min(currentFrequency, this.drawStartFrequency),
       endFrequency: Math.max(currentFrequency, this.drawStartFrequency),
       active: false,
+      new: true,
       result_comments: [],
     };
     return newAnnotation;
