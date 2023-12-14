@@ -1,7 +1,5 @@
-// @flow
-
-import React, { Component } from 'react';
-import request from 'superagent';
+import { ChangeEvent, Component, FormEvent } from 'react';
+import request, { SuperAgentRequest } from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
 import * as utils from './utils';
@@ -21,21 +19,21 @@ type annotation_set_type = {
 
 type ShowAnnotationSetProps = {
   annotation_sets: Map<number, annotation_set_type>,
-  onChange: (event: SyntheticEvent<HTMLInputElement>) => void
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void
 };
 
 type ShowAnnotationSetState = {
   selected_id: number,
-  selected: ?annotation_set_type
+  selected?: annotation_set_type
 };
 
 class ShowAnnotationSet extends Component<ShowAnnotationSetProps, ShowAnnotationSetState> {
-  state = {
+  state: ShowAnnotationSetState = {
     selected_id: 0,
-    selected: null
+    selected: undefined
   }
 
-  handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     let id = parseInt(event.currentTarget.value, 10);
     this.setState({
       selected_id: id,
@@ -81,24 +79,24 @@ type confidence_indicator_set_type = {
 
 type ShowConfidenceIndicatorSetProps = {
   confidence_indicator_sets: Map<number, confidence_indicator_set_type>,
-  onChange: (event: SyntheticEvent<HTMLInputElement>) => void
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void
 };
 
 type ShowConfidenceIndicatorSetState = {
   selected_id: number,
-  selected: ?confidence_indicator_set_type
+  selected?: confidence_indicator_set_type
 };
 class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetProps, ShowConfidenceIndicatorSetState> {
-  state = {
+  state: ShowConfidenceIndicatorSetState = {
     selected_id: 0,
-    selected: null
+    selected: undefined
   }
 
-  handleOnChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.currentTarget.value === "no-confidence-indicator-set") {
       this.setState({
         selected_id: 0,
-        selected: null
+        selected: undefined
       });
     } else {
       let id = parseInt(event.currentTarget.value, 10);
@@ -129,7 +127,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
         {this.state.selected &&
           <div className="col-sm-12 border rounded">
             <p>{this.state.selected.desc}</p>
-            {this.state.selected.confidenceIndicators.map(confidence_indicator => {
+            {this.state.selected.confidence_indicators.map((confidence_indicator: any) => { console.log("confidence_indicator", confidence_indicator); // TODO HERE
               return (
                 <p key={"confidence" + confidence_indicator.level + "_" + confidence_indicator.label}><b>{confidence_indicator.level}: </b> {confidence_indicator.label}</p>
               )
@@ -151,7 +149,7 @@ type CACProps = {
 type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
-  //new_ac_dataset: DATASET {id: number, ...},
+  new_ac_dataset: any, // TODO HERE
   new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
@@ -160,31 +158,29 @@ type CACState = {
   new_ac_annotators: choices_type,
   new_ac_annotation_goal: number,
   new_ac_annotation_method: number,
-  new_ac_confidence_indicator_set: number,
+  new_ac_confidence_indicator_set?: number,
   dataset_choices: choices_type,
   spectro_choices: choices_type,
-  confidence_indicator_set_choices: choices_type,
-  annotation_set_choices: {
-    [?number]: annotation_set_type
-  },
+  confidence_indicator_set_choices: Map<number, confidence_indicator_set_type>,
+  annotation_set_choices: Map<number, annotation_set_type>,
   annotator_choices: choices_type,
   new_ac_instructions_url: string,
-  error: ?{
+  error?: {
     status: number,
     message: string
   }
 };
 
 class CreateAnnotationCampaign extends Component<CACProps, CACState> {
-  state = {
+  state: CACState = {
     new_ac_name: '',
     new_ac_desc: '',
-    new_ac_dataset: {},
+    new_ac_dataset: {}, // TODO HERE
     new_ac_spectros: new Map(),
     new_ac_start: '',
     new_ac_end: '',
     new_ac_annotation_set: 0,
-    new_ac_confidence_indicator_set: null,
+    new_ac_confidence_indicator_set: undefined,
     new_ac_annotators: new Map(),
     new_ac_annotation_goal: 0,
     new_ac_annotation_method: -1,
@@ -195,20 +191,20 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     annotation_set_choices: new Map(),
     annotator_choices: new Map(),
     new_ac_instructions_url: '',
-    error: null
+    error: undefined
   }
   getDatasets = request.get(GET_DATASETS_API_URL)
   getAnnotationSets = request.get(GET_ANNOTATION_SETS_API_URL)
   getUsers = request.get(GET_USERS_API_URL)
   getConfidenceSets = request.get(GET_CONFIDENCE_INDICATORS_API_URL)
-  postAnnotationCampaign = { abort: () => null }
+  postAnnotationCampaign!: SuperAgentRequest;
 
   componentDidMount() {
     // TODO the following error handling is very messy
     // This should be fixed in a future rework of API calls
     return Promise.all([
       this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        let datasets = req.body.filter(dataset => { return dataset.files_type === '.wav'});
+        let datasets = req.body.filter((dataset: any) => { return dataset.files_type === '.wav'});
         this.setState({
           dataset_choices: utils.arrayToMap(datasets, 'id')
         });
@@ -251,7 +247,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         });
       }),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
-        let users = req.body.map(user => { return { id: user.id, name: user.email }; });
+        let users = req.body.map((user: any) => { return { id: user.id, name: user.email }; });
         this.setState({
           annotator_choices: utils.arrayToMap(users, 'id')
         });
@@ -276,21 +272,21 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.postAnnotationCampaign.abort();
   }
 
-  handleNameChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({new_ac_name: event.currentTarget.value});
   }
 
-  handleDescChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleDescChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     this.setState({new_ac_desc: event.currentTarget.value});
   }
 
-  handleDatasetChanged = (event: SyntheticInputEvent<HTMLSelectElement>) => {
-    let new_ac_dataset = {};
-    let spectro_choices = {};
+  handleDatasetChanged = (event: ChangeEvent<HTMLSelectElement>) => {
+    let new_ac_dataset: any; // TODO HERE
+    let spectro_choices: choices_type = new Map();
     if (event.target.value !== '') {
       let dataset_id = parseInt(event.target.value, 10);
-      new_ac_dataset = this.state.dataset_choices.get(dataset_id);
-      spectro_choices = utils.arrayToMap(new_ac_dataset.spectros, 'id');
+      new_ac_dataset = this.state.dataset_choices.get(dataset_id)!;
+      spectro_choices = utils.arrayToMap(new_ac_dataset.spectros, 'id'); // TODO HERE
     }
     this.setState({
       new_ac_dataset: new_ac_dataset,
@@ -299,11 +295,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     });
   }
 
-  handleAddSpectro = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAddSpectro = (event: ChangeEvent<HTMLSelectElement>) => {
     let spectro_id = parseInt(event.currentTarget.value, 10);
     let spectro_choices = new Map(this.state.spectro_choices);
     let new_ac_spectros = new Map(this.state.new_ac_spectros);
-    new_ac_spectros.set(spectro_id, spectro_choices.get(spectro_id));
+    new_ac_spectros.set(spectro_id, spectro_choices.get(spectro_id)!);
     spectro_choices.delete(spectro_id);
     this.setState({
       new_ac_spectros: new_ac_spectros,
@@ -314,7 +310,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleRemoveSpectro = (spectro_id: number) => {
     let spectro_choices = new Map(this.state.spectro_choices);
     let new_ac_spectros = new Map(this.state.new_ac_spectros);
-    spectro_choices.set(spectro_id, new_ac_spectros.get(spectro_id));
+    spectro_choices.set(spectro_id, new_ac_spectros.get(spectro_id)!);
     new_ac_spectros.delete(spectro_id);
     this.setState({
       new_ac_spectros: new_ac_spectros,
@@ -322,11 +318,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     });
   }
 
-  handleAddAnnotator = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAddAnnotator = (event: ChangeEvent<HTMLSelectElement>) => {
     let annotator_id = parseInt(event.currentTarget.value, 10);
     let annotator_choices = new Map(this.state.annotator_choices);
     let new_ac_annotators = new Map(this.state.new_ac_annotators);
-    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id));
+    new_ac_annotators.set(annotator_id, annotator_choices.get(annotator_id)!);
     annotator_choices.delete(annotator_id);
     let annotation_goal = Math.max(1, this.state.new_ac_annotation_goal);
     this.setState({
@@ -339,7 +335,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   handleRemoveAnnotator = (annotator_id: number) => {
     let annotator_choices = new Map(this.state.annotator_choices);
     let new_ac_annotators = new Map(this.state.new_ac_annotators);
-    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id));
+    annotator_choices.set(annotator_id, new_ac_annotators.get(annotator_id)!);
     new_ac_annotators.delete(annotator_id);
     let annotation_goal = Math.min(new_ac_annotators.size, this.state.new_ac_annotation_goal);
     this.setState({
@@ -349,24 +345,24 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     });
   }
 
-  handleStartChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleStartChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({new_ac_start: event.currentTarget.value});
   }
 
-  handleEndChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleEndChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({new_ac_end: event.currentTarget.value});
   }
 
-  handleInstructionsChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleInstructionsChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({new_ac_instructions_url: event.currentTarget.value});
   }
 
-  handleAnnotationSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationSetChange = (event: ChangeEvent<HTMLSelectElement>) => {
     this.setState({new_ac_annotation_set: parseInt(event.currentTarget.value, 10)});
   }
 
-  handleConfidenceSetChange = (event: SyntheticEvent<HTMLInputElement>) => {
-    let newValue = null
+  handleConfidenceSetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    let newValue = undefined;
     if (event.currentTarget.value !== "no-confidence-indicator-set") {
       newValue = parseInt(event.currentTarget.value, 10)
     }
@@ -374,25 +370,25 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     this.setState({ new_ac_confidence_indicator_set: newValue });
   }
 
-  handleAnnotationModeChange =(event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationModeChange =(event: ChangeEvent<HTMLSelectElement>) => {
     this.setState({new_ac_annotation_mode: parseInt(event.currentTarget.value, 10)});
   }
 
-  handleAnnotationGoalChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationGoalChange = (event: ChangeEvent<HTMLInputElement>) => {
     let new_val = parseInt(event.currentTarget.value, 10);
     new_val = Math.max(1, new_val);
     new_val = Math.min(this.state.new_ac_annotators.size, new_val);
     this.setState({new_ac_annotation_goal: new_val});
   }
 
-  handleAnnotationMethodChange = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleAnnotationMethodChange = (event: ChangeEvent<HTMLSelectElement>) => {
     this.setState({new_ac_annotation_method: parseInt(event.currentTarget.value, 10)});
   }
 
-  handleSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.setState({error: null});
-    let res = {
+    this.setState({error: undefined});
+    let res: any = {
       name: this.state.new_ac_name.trim() || 'Unnamed Campaign',
       desc: this.state.new_ac_desc.trim(),
       datasets: [this.state.new_ac_dataset.id],
@@ -408,8 +404,8 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       res["confidence_indicator_set_id"] = this.state.new_ac_confidence_indicator_set
     }
 
-    const start: ?string = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
-    const end: ?string = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
+    const start: string | undefined = this.state.new_ac_start ? this.state.new_ac_start.trim() + 'T00:00' : undefined;
+    const end: string | undefined = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
     res = Object.assign({}, res, {start, end});
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
     return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)

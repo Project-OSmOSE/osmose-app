@@ -61,7 +61,7 @@ type AppState = {
   app_token: string,
   error: string
 };
-class App extends Component<void, AppState> {
+class App extends Component<any, AppState> {
   state = {
     app_token: '',
     error: ''
