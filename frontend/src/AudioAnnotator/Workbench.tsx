@@ -55,7 +55,7 @@ type WorkbenchProps = {
   onSeek: any,
   drawingEnabled: boolean,
   currentDefaultTagAnnotation: string,
-  currentDefaultConfidenceIndicator: string,
+  currentDefaultConfidenceIndicator?: string,
 };
 
 type WorkbenchState = {
