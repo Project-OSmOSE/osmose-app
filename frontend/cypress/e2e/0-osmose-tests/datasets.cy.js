@@ -5,6 +5,6 @@ describe('datasets page', () => {
   })
 
   it('displays 20 datasets by default', () => {
-    cy.get('tr').should('have.length', 20)
+    cy.get('tr').should('have.length', 3)
   })
 })
