@@ -1,0 +1,64 @@
+name: Cypress Tests
+
+on: push
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "postgres"
+          POSTGRES_DB: "postgres"
+        ports:
+          - 5432:5432
+    steps:
+      # Setup code
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Setup Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Set up poetry cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+      - name: Setup DB
+        run: |
+          poetry run ./manage.py migrate
+          poetry run ./manage.py seed
+      # Install NPM dependencies
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          working-directory: frontend
+          node-version: 16.x
+      - name: Set up npm cache
+        uses: actions/cache@v2
+        with:
+          working-directory: frontend
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+      # Cypress RUN
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: frontend
+          start: |
+            poetry run python ../manage.py runserver
+            npm start
+          wait-on: 'http://localhost:3000, http://localhost:8000/backend/admin'
