@@ -6,9 +6,6 @@ __pycache__/
 # Docker volumes folder
 volumes
 
-# Added for the initial dev phase and is to be removed when first entering production
-package-lock.json
-
 # Logs
 logs
 *.log
