@@ -41,12 +41,10 @@ jobs:
       - name: Setup Node.js 16
         uses: actions/setup-node@v2
         with:
-          working-directory: frontend
           node-version: 16.x
       - name: Set up npm cache
         uses: actions/cache@v2
         with:
-          working-directory: frontend
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
