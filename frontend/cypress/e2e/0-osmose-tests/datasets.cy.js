@@ -4,7 +4,7 @@ describe('datasets page', () => {
     cy.visit('http://localhost:3000/')
   })
 
-  it('displays 20 datasets by default', () => {
+  it('displays 2 datasets by default', () => {
     cy.get('tr').should('have.length', 3)
   })
 })
