@@ -31,11 +31,11 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     attr_names
     """
 
-    tasks_count = serializers.SerializerMethodField()
-    user_tasks_count = serializers.SerializerMethodField()
-    complete_tasks_count = serializers.SerializerMethodField()
-    user_complete_tasks_count = serializers.SerializerMethodField()
-    files_count = serializers.SerializerMethodField()
+    tasks_count = serializers.IntegerField()
+    user_tasks_count = serializers.IntegerField()
+    complete_tasks_count = serializers.IntegerField()
+    user_complete_tasks_count = serializers.IntegerField()
+    files_count = serializers.IntegerField()
     annotation_set = AnnotationSetSerializer(with_tags=False)
     confidence_indicator_set = ConfidenceIndicatorSetSerializer(with_indicators=False)
 
@@ -57,34 +57,6 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "files_count",
             "created_at",
         ]
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_tasks_count(self, campaign):
-        return campaign.tasks_count if campaign.tasks_count is not None else 0
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_user_tasks_count(self, campaign):
-        return campaign.user_tasks_count if campaign.user_tasks_count is not None else 0
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_complete_tasks_count(self, campaign):
-        return (
-            campaign.complete_tasks_count
-            if campaign.complete_tasks_count is not None
-            else 0
-        )
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_user_complete_tasks_count(self, campaign):
-        return (
-            campaign.user_complete_tasks_count
-            if campaign.user_complete_tasks_count is not None
-            else 0
-        )
-
-    @extend_schema_field(serializers.IntegerField)
-    def get_files_count(self, campaign):
-        return campaign.files_count if campaign.files_count is not None else 0
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):

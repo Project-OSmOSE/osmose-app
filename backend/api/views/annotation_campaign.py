@@ -2,19 +2,16 @@
 
 from datetime import timedelta
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
-
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
-
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiExample
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from backend.utils.renderers import CSVRenderer
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationResult,
@@ -28,6 +25,7 @@ from backend.api.serializers import (
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
 )
+from backend.utils.renderers import CSVRenderer
 
 
 class AnnotationCampaignViewSet(viewsets.ViewSet):
@@ -40,7 +38,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = AnnotationCampaign.objects.raw(
+        queryset = self.queryset.raw(
             """
                 SELECT id,
                        name,
@@ -55,32 +53,31 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                        files.count               as files_count,
                        created_at
                 FROM annotation_campaigns campaign
-                         {joint}
+                        LEFT OUTER JOIN
                      (SELECT annotation_campaign_id,
                              count(*),
-                             sum(case when status = 2 then 1 else 0 end) as complete_count,
-                             sum(case when annotator_id = {user_id} then 1 else 0 end) as user_count,
-                             sum(case when annotator_id = {user_id} and status = 2 then 1 else 0 end)
-                              as user_complete_count
+                             count(*) filter(where status = 2) as complete_count,
+                             count(*) filter(where annotator_id = %s) as user_count,
+                             count(*) filter(where annotator_id = %s and status = 2) as user_complete_count
                       FROM annotation_tasks
-                      WHERE {is_staff} or annotator_id = {user_id}
+                      WHERE %s or annotator_id = %s
                       group by annotation_campaign_id) tasks
                      on tasks.annotation_campaign_id = campaign.id
                          LEFT OUTER JOIN
-                     (SELECT dataset_id, annotationcampaign_id
-                      FROM annotation_campaigns_datasets) campaigns_dataset
-                     on campaigns_dataset.annotationcampaign_id = campaign.id
-                         LEFT OUTER JOIN
-                     (SELECT dataset_id, count(*)
-                      FROM dataset_files
-                      group by dataset_id) files
-                     on files.dataset_id = campaigns_dataset.dataset_id
-                ORDER BY lower(name), created_at
-        """.format(
-                joint="LEFT OUTER JOIN" if request.user.is_staff else "INNER JOIN",
-                user_id=request.user.id,
-                is_staff=request.user.is_staff,
-            )
+                     (SELECT annotationcampaign_id, count(*)
+                      FROM dataset_files LEFT OUTER JOIN annotation_campaigns_datasets
+                          on dataset_files.dataset_id = annotation_campaigns_datasets.dataset_id
+                      group by annotationcampaign_id) files
+                     on files.annotationcampaign_id = campaign.id
+                WHERE tasks.user_count is not null or %s
+                ORDER BY lower(name), created_at""",
+            (
+                request.user.id,
+                request.user.id,
+                request.user.is_staff,
+                request.user.id,
+                request.user.is_staff,
+            ),
         )
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
