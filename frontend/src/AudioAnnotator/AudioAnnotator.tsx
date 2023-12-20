@@ -1,7 +1,7 @@
 import React, { ChangeEvent, Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 import request, { SuperAgentRequest } from 'superagent';
 import * as utils from '../utils';
@@ -825,54 +825,49 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             </p>
 
             <div className="col-sm-5 text-center">
-            <OverlayTrigger overlay={
-              <div className="card">
-                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
-                <div className="card-body p-1">
-                  <p>
-                    <span className="font-italic"><i className="fa fa-arrow-left"></i></span>{" : load previously recording"}<br/>
-                  </p>
-                </div>
-              </div>
-              }>
-              <Link className={`btn btn-submit rounded-left rounded-right-0 ${this.state.task.prevAndNextAnnotation.prev === "" ? 'disabled' : ''}`}
-                to={this.state.task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ this.state.task.prevAndNextAnnotation.prev}`}>
-                <i className="fa fa-caret-left"></i>
-              </Link>
-            </OverlayTrigger>
               <OverlayTrigger overlay={
-              <div className="card">
-                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
-                <div className="card-body p-1">
-                  <p>
-                    <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
-                  </p>
-                </div>
-              </div>
+                <Popover>
+                  <Popover.Header as='h3' className='tooltip-header'>Shortcut</Popover.Header>
+                  <Popover.Body as='p'>
+                    <span className="font-italic"><i className="fa fa-arrow-left"></i></span>{" : load previously recording"}<br/>
+                  </Popover.Body>
+                </Popover>
               }>
-              <button
-                className="btn btn-submit border-radius-0"
-                onClick={this.checkAndSubmitAnnotations}
-                type="button"
-              >Submit &amp; load next recording</button>
-            </OverlayTrigger>
-            <OverlayTrigger overlay={
-              <div className="card">
-                <h3 className={`card-header tooltip-header`}>Shortcut</h3>
-                <div className="card-body p-1">
-                  <p>
-                    <span className="font-italic"><i className="fa fa-arrow-right"></i></span>{" : load next recording"}<br/>
-                  </p>
-                </div>
-              </div>
-              }>
-              <Link className={`btn btn-submit rounded-right rounded-left-0 ${this.state.task.prevAndNextAnnotation.next === "" ? 'disabled' : ''}`}
-                to={this.state.task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${this.state.task.prevAndNextAnnotation.next}`}>
-                <i className="fa fa-caret-right"></i>
-              </Link>
-            </OverlayTrigger>
-            </div>
+                <Link className={`btn btn-submit rounded-left rounded-right-0 ${this.state.task.prevAndNextAnnotation.prev === "" ? 'disabled' : ''}`}
+                  to={this.state.task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ this.state.task.prevAndNextAnnotation.prev}`}>
+                  <i className="fa fa-caret-left"></i>
+                </Link>
+              </OverlayTrigger>
 
+              <OverlayTrigger overlay={
+                <Popover>
+                  <Popover.Header as='h3' className='tooltip-header'>Shortcut</Popover.Header>
+                  <Popover.Body as='p'>
+                    <span className="font-italic">Enter</span>{" : Submit & load next recording"}<br/>
+                  </Popover.Body>
+                </Popover>
+              }>
+                <button
+                  className="btn btn-submit border-radius-0"
+                  onClick={this.checkAndSubmitAnnotations}
+                  type="button"
+                >Submit &amp; load next recording</button>
+              </OverlayTrigger>
+
+              <OverlayTrigger overlay={
+                <Popover>
+                  <Popover.Header as='h3' className='tooltip-header'>Shortcut</Popover.Header>
+                  <Popover.Body as='p'>
+                    <span className="font-italic"><i className="fa fa-arrow-right"></i></span>{" : load next recording"}<br/>
+                  </Popover.Body>
+                </Popover>
+              }>
+                <Link className={`btn btn-submit rounded-right rounded-left-0 ${this.state.task.prevAndNextAnnotation.next === "" ? 'disabled' : ''}`}
+                  to={this.state.task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${this.state.task.prevAndNextAnnotation.next}`}>
+                  <i className="fa fa-caret-right"></i>
+                </Link>
+              </OverlayTrigger>
+            </div>
 
             <div className="col-sm-3">
               <Toast toastMsg={this.state.toastMsg}></Toast>
@@ -1200,34 +1195,32 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const color: string = utils.getTagColor(this.state.tagColors, tag);
 
         const tooltip = this.state.checkbox_isChecked[tag] ? (
-          <div className="card" key={`tooltip_${tag[0]}`}>
-            <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
-            <div className="card-body p-1">
-                <p>
-                  <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
-                  {" or "}
-                  <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
-                  {" : choose this tag"}<br/>
-                  <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
-                  {" or "}
-                  <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
-                  {" : delete all annotations of this tag"}
-                </p>
-            </div>
-          </div>) : (<div key={`tooltip_${tag[0]}`}></div>)
+          <Popover key={`tooltip_${tag[0]}`}>
+            <Popover.Header as='h3' className={`tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</Popover.Header>
+            <Popover.Body as='p'>
+              <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
+              {" or "}
+              <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
+              {" : choose this tag"}<br/>
+              <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
+              {" or "}
+              <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
+              {" : delete all annotations of this tag"}
+            </Popover.Body>
+          </Popover>) : (<Popover key={`tooltip_${tag[0]}`}></Popover>)
 
-      const style = {
-        inactive: {
-          backgroundColor: color,
-          border: 'none',
-          color: '#ffffff',
-        },
-        active: {
-          backgroundColor: 'transparent',
-          border: `1px solid ${color}`,
-          color: color,
-        },
-      };
+        const style = {
+          inactive: {
+            backgroundColor: color,
+            border: 'none',
+            color: '#ffffff',
+          },
+          active: {
+            backgroundColor: 'transparent',
+            border: `1px solid ${color}`,
+            color: color,
+          },
+        };
 
         return (
           <OverlayTrigger overlay={tooltip} key={`tag-overlay-${idx.toString()}`} placement="top">
@@ -1242,7 +1235,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               >{tag}</button>
             </li>
           </OverlayTrigger>
-      );
+        );
       });
 
       return (
@@ -1261,24 +1254,22 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const tags = this.state.task.annotationTags.map((tag, idx) => {
           const color: string = utils.getTagColor(this.state.tagColors, tag);
           const tooltip = (
-            <div className="card">
-              <h3 className={`card-header p-2 tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</h3>
-              <div className="card-body p-1">
-                  <p>
-                    <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
-                    {" or "}
-                    <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
-                    {" : choose this tag"}<br/>
-                    <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
-                    {" or "}
-                    <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
-                    {" : delete all annotations of this tag"}
-                  </p>
-              </div>
-            </div>
+            <Popover>
+              <Popover.Header as='h3' className={`tooltip-header tooltip-header__${idx.toString()}`}>Shortcut</Popover.Header>
+              <Popover.Body as='p'>
+                <span className="font-italic">{this.alphanumeric_keys[1][idx]}</span>
+                {" or "}
+                <span className="font-italic">{this.alphanumeric_keys[0][idx]}</span>
+                {" : choose this tag"}<br/>
+                <span className="font-italic">{`${this.alphanumeric_keys[1][idx]} + ${this.alphanumeric_keys[1][idx]}`}</span>
+                {" or "}
+                <span className="font-italic">{`${this.alphanumeric_keys[0][idx]} + ${this.alphanumeric_keys[0][idx]}`}</span>
+                {" : delete all annotations of this tag"}
+              </Popover.Body>
+            </Popover>
           )
           return (
-          <li className="form-check tooltip-wrap" key={`tag-${idx.toString()}`}>
+            <li className="form-check tooltip-wrap" key={`tag-${idx.toString()}`}>
               <input
                 id={`tags_key_checkbox_shortcuts_${idx.toString()}`}
                 className="form-check-input"
@@ -1292,17 +1283,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                   {tag}
                 </label>
               </OverlayTrigger>
-          </li>
-        )
-      });
+            </li>
+          );
+        });
 
-      return (
+        return (
           <div className="card ml-2 flex-grow-1 mini-content">
             <h6 className="card-header text-center">Presence / Absence</h6>
-          <div className="card-body">
-            <ul className="presence-absence-columns">
+            <div className="card-body">
+              <ul className="presence-absence-columns">
                 {tags}
-            </ul>
+              </ul>
             </div>
           </div>
         );
@@ -1323,15 +1314,13 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       const activeConfidenceIndicator = this.state.currentDefaultConfidenceIndicator;
       const tooltip = (
-        <div className="card w-50">
-          <h3 className={`card-header p-2 tooltip-header`}>Description</h3>
-          <div className="card-body p-1">
-            <p>
+        <Popover>
+          <Popover.Header as='h3' className={`tooltip-header`}>Description</Popover.Header>
+          <Popover.Body>
             {this.state.task.confidenceIndicatorSet.desc}
-              </p>
-          </div>
-        </div>
-      )
+          </Popover.Body>
+        </Popover>
+      );
 
       const confidenceIndicators = this.state.task.confidenceIndicatorSet.confidenceIndicators.map((confidenceIndicator, idx) => {
 
@@ -1359,8 +1348,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </div>
         </OverlayTrigger>
         );
-}
-    else {
+    } else {
       return (<React.Fragment></React.Fragment>);
     }
   }
