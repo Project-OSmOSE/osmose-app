@@ -2,19 +2,16 @@
 
 from datetime import timedelta
 
+from django.db import transaction
+from django.db.models import Q
+from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db import transaction
-from django.db.models import Count, Q, Prefetch
-from django.db.models.functions import Lower
-
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
-
 from drf_spectacular.utils import extend_schema, OpenApiExample
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from backend.utils.renderers import CSVRenderer
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationResult,
@@ -28,6 +25,7 @@ from backend.api.serializers import (
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
 )
+from backend.utils.renderers import CSVRenderer
 
 
 class AnnotationCampaignViewSet(viewsets.ViewSet):
@@ -40,38 +38,47 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List annotation campaigns"""
-        queryset = (
-            self.queryset.annotate(files_count=Count("datasets__files"))
-            .select_related(
-                "confidence_indicator_set",
-                "annotation_set",
-            )
-            .prefetch_related(
-                "tasks",
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(
-                        annotator_id=request.user.id
-                    ),
-                    to_attr="user_tasks",
-                ),
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(status=2),
-                    to_attr="complete_tasks",
-                ),
-                Prefetch(
-                    "tasks",
-                    queryset=AnnotationTask.objects.filter(
-                        annotator_id=request.user.id, status=2
-                    ),
-                    to_attr="user_complete_tasks",
-                ),
-            )
-            .order_by(Lower("name"), "created_at")
+        queryset = self.queryset.raw(
+            """
+                SELECT id,
+                       name,
+                       "desc",
+                       instructions_url,
+                       start,
+                       "end",
+                       tasks.count               as tasks_count,
+                       tasks.complete_count      as complete_tasks_count,
+                       tasks.user_count          as user_tasks_count,
+                       tasks.user_complete_count as user_complete_tasks_count,
+                       files.count               as files_count,
+                       created_at
+                FROM annotation_campaigns campaign
+                        LEFT OUTER JOIN
+                     (SELECT annotation_campaign_id,
+                             count(*),
+                             count(*) filter(where status = 2) as complete_count,
+                             count(*) filter(where annotator_id = %s) as user_count,
+                             count(*) filter(where annotator_id = %s and status = 2) as user_complete_count
+                      FROM annotation_tasks
+                      WHERE %s or annotator_id = %s
+                      group by annotation_campaign_id) tasks
+                     on tasks.annotation_campaign_id = campaign.id
+                         LEFT OUTER JOIN
+                     (SELECT annotationcampaign_id, count(*)
+                      FROM dataset_files LEFT OUTER JOIN annotation_campaigns_datasets
+                          on dataset_files.dataset_id = annotation_campaigns_datasets.dataset_id
+                      group by annotationcampaign_id) files
+                     on files.annotationcampaign_id = campaign.id
+                WHERE tasks.user_count is not null or %s
+                ORDER BY lower(name), created_at""",
+            (
+                request.user.id,
+                request.user.id,
+                request.user.is_staff,
+                request.user.id,
+                request.user.is_staff,
+            ),
         )
-        if not request.user.is_staff:
-            queryset = queryset.filter(annotators=request.user.id)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

@@ -213,6 +213,7 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
         "dataset_file",
         "annotator_id",
     )
+    list_filter = ("status", "annotation_campaign", "annotator_id")
 
 
 class AnnotationResultAdmin(admin.ModelAdmin):
