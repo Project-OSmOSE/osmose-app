@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 
 const API_URL = '/api/annotation-campaign/';
 
@@ -48,12 +48,14 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
     annotation_campaigns: [],
     error: undefined
   }
-  getData = request.get(API_URL)
+  getData?: SuperAgentRequest;
 
   componentDidMount() {
-    return this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+    this.getData = request.get(API_URL);
+    this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
       this.setState({
-        annotation_campaigns: req.body
+        annotation_campaigns: req.body,
+        error: undefined,
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
@@ -68,7 +70,9 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   }
 
   componentWillUnmount() {
-    this.getData.abort();
+    if (this.getData) {
+      this.getData.abort();
+    }
   }
 
   render() {

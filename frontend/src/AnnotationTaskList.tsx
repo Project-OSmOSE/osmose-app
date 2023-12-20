@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 
 // API constants
 const CAMPAIGN_API_URL = '/api/annotation-campaign/';
@@ -65,8 +65,8 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
     annotation_tasks: [],
     error: undefined
   }
-  getCampaign = request.get(CAMPAIGN_API_URL);
-  getTasks = request.get(TASKS_API_URL);
+  getCampaign?: SuperAgentRequest;
+  getTasks?: SuperAgentRequest;
 
   componentDidMount() {
     let campaignID = this.props.match.params.campaign_id;
@@ -80,6 +80,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
       this.setState({
         campaign: req_campaign.body.campaign,
         annotation_tasks: req_tasks.body,
+        error: undefined,
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
@@ -96,8 +97,12 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
   }
 
   componentWillUnmount() {
-    this.getCampaign.abort();
-    this.getTasks.abort();
+    if (this.getCampaign) {
+      this.getCampaign.abort();
+    }
+    if (this.getTasks) {
+      this.getTasks.abort();
+    }
   }
 
   render() {

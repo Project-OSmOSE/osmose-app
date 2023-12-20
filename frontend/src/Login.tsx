@@ -20,10 +20,12 @@ class Login extends Component<LoginProps, LoginState> {
     password: '',
     error: undefined
   }
-  sendData!: SuperAgentRequest;
+  sendData?: SuperAgentRequest;
 
   componentWillUnmount() {
-    this.sendData.abort();
+    if (this.sendData) {
+      this.sendData.abort();
+    }
   }
 
   handleLoginChange = (event: ChangeEvent<HTMLInputElement>) => {

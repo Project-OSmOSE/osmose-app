@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 import Modal from './components/ModalNewData';
 import Toast, { ToastMsg } from './components/Toast';
 import './css/modal.css';
@@ -45,11 +45,12 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
   const [error, setError] = useState<any>(undefined);
   const [openModal, setOpenModal] = useState(false);
 
-  let getData = request.get(GET_DATASET_API_URL);
-  let getNewData = request.get(GET_NEW_DATASET_API_URL);
-  let startImport = request.post(IMPORT_DATASET_API_URL);
+  let getData: SuperAgentRequest | undefined;
+  let getNewData: SuperAgentRequest | undefined;
+  let startImport: SuperAgentRequest | undefined;
 
   useEffect(() => {
+    getNewData = request.get(GET_NEW_DATASET_API_URL);
     getNewData
       .set("Authorization", "Bearer " + props.app_token)
       .then((req) => {
@@ -58,6 +59,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
           element.id = uuidv4();
         });
         setNewDatasets(newData);
+        setError(undefined);
       })
       .catch((err) => {
         if (err.status && err.status === 401) {
@@ -68,15 +70,19 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
         setError(err);
       });
     return () => {
-      getNewData.abort();
+      if (getNewData) {
+        getNewData.abort();
+      }
     };
   }, []);
 
   useEffect(() => {
+    getData = request.get(GET_DATASET_API_URL);
     getData
       .set("Authorization", "Bearer " + props.app_token)
       .then((req) => {
         setDatasets(req.body);
+        setError(undefined);
       })
       .catch((err) => {
         if (err.status && err.status === 401) {
@@ -88,18 +94,24 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
       });
 
     return () => {
-      getData.abort();
+      if (getData) {
+        getData.abort();
+      }
     };
   }, [newDatasets]);
 
   useEffect(() => {
-    if (!Array.isArray(error)) {
+    if (error && !Array.isArray(error)) {
       let toastMessage;
 
-      try {
-        toastMessage = JSON.parse(error.response.text)
-      } catch (jsonError) {
-        toastMessage = error.response.text
+      if (error.response) {
+        try {
+          toastMessage = JSON.parse(error.response.text)
+        } catch (jsonError) {
+          toastMessage = error.response.text
+        }
+      } else {
+        toastMessage = error.message;
       }
       setToastMsg({msg: toastMessage, lvl: "danger"})
     } else {
@@ -110,6 +122,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
 
   useEffect(() => {
     if (launchImport) {
+      startImport = request.post(IMPORT_DATASET_API_URL);
       startImport
       .set("Authorization", "Bearer " + props.app_token)
         .send({ 'wanted_datasets': wanted_datasets })
@@ -121,7 +134,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
           )
         );
         setNewDatasets(remainingDatasets);
-        setError([]);
+        setError(undefined);
         setToastMsg(undefined);
         setOpenModal(false);
         setLaunchImport(false)
@@ -139,7 +152,9 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
     }
 
     return () => {
-      startImport.abort();
+      if (startImport) {
+        startImport.abort();
+      }
     };
   }, [launchImport])
 

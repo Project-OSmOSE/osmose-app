@@ -3,6 +3,7 @@ import request, { SuperAgentRequest } from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
 import * as utils from './utils';
+import { ConfidenceIndicator, ConfidenceIndicatorSet } from './AudioAnnotator/AudioAnnotator';
 
 const GET_DATASETS_API_URL = '/api/dataset/';
 const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';
@@ -69,42 +70,27 @@ class ShowAnnotationSet extends Component<ShowAnnotationSetProps, ShowAnnotation
   }
 }
 
-type confidence_indicator_set_type = {
-  id: number,
-  name: string,
-  desc: string,
-  confidence_indicators: Array<string>,
-  default_confidence_indicator: number,
-};
-
 type ShowConfidenceIndicatorSetProps = {
-  confidence_indicator_sets: Map<number, confidence_indicator_set_type>,
+  confidence_indicator_sets: Map<number, ConfidenceIndicatorSet>,
   onChange: (event: ChangeEvent<HTMLSelectElement>) => void
 };
 
 type ShowConfidenceIndicatorSetState = {
   selected_id: number,
-  selected?: confidence_indicator_set_type
+  selected?: ConfidenceIndicatorSet
 };
 class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetProps, ShowConfidenceIndicatorSetState> {
   state: ShowConfidenceIndicatorSetState = {
-    selected_id: 0,
+    selected_id: -1,
     selected: undefined
   }
 
   handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    if (event.currentTarget.value === "no-confidence-indicator-set") {
-      this.setState({
-        selected_id: 0,
-        selected: undefined
-      });
-    } else {
-      let id = parseInt(event.currentTarget.value, 10);
-      this.setState({
-        selected_id: id,
-        selected: this.props.confidence_indicator_sets.get(id)
-      });
-    }
+    let id = parseInt(event.currentTarget.value, 10);
+    this.setState({
+      selected_id: id,
+      selected: this.props.confidence_indicator_sets.get(id)
+    });
     this.props.onChange(event);
   }
 
@@ -119,19 +105,18 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
       <div className="form-group">
         <div className="col-sm-4 offset-sm-4">
           <select id="cac-confidence-indicator-set" value={this.state.selected_id} className="form-control" onChange={this.handleOnChange}>
-            <option value={0} disabled>Select a confidence indicator set</option>
-            <option key="null-confidence-indicators" value="no-confidence-indicator-set">No Confidence Indicator Set</option>
+            <option value={-1} disabled>Select a confidence indicator set</option>
+            <option key="null-confidence-indicators" value={0}>No Confidence Indicator Set</option>
             {options}
           </select>
         </div>
         {this.state.selected &&
           <div className="col-sm-12 border rounded">
             <p>{this.state.selected.desc}</p>
-            {this.state.selected.confidence_indicators.map((confidence_indicator: any) => { console.log("confidence_indicator", confidence_indicator); // TODO HERE
-              return (
+            {this.state.selected.confidenceIndicators.map((confidence_indicator: ConfidenceIndicator) => (
                 <p key={"confidence" + confidence_indicator.level + "_" + confidence_indicator.label}><b>{confidence_indicator.level}: </b> {confidence_indicator.label}</p>
               )
-            })}
+            )}
           </div>
         }
       </div>
@@ -161,7 +146,7 @@ type CACState = {
   new_ac_confidence_indicator_set?: number,
   dataset_choices: choices_type,
   spectro_choices: choices_type,
-  confidence_indicator_set_choices: Map<number, confidence_indicator_set_type>,
+  confidence_indicator_set_choices: Map<number, ConfidenceIndicatorSet>,
   annotation_set_choices: Map<number, annotation_set_type>,
   annotator_choices: choices_type,
   new_ac_instructions_url: string,
@@ -193,57 +178,35 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     new_ac_instructions_url: '',
     error: undefined
   }
-  getDatasets = request.get(GET_DATASETS_API_URL)
-  getAnnotationSets = request.get(GET_ANNOTATION_SETS_API_URL)
-  getUsers = request.get(GET_USERS_API_URL)
-  getConfidenceSets = request.get(GET_CONFIDENCE_INDICATORS_API_URL)
-  postAnnotationCampaign!: SuperAgentRequest;
+  getDatasets?: SuperAgentRequest;
+  getAnnotationSets?: SuperAgentRequest;
+  getUsers?: SuperAgentRequest;
+  getConfidenceSets?: SuperAgentRequest;
+  postAnnotationCampaign?: SuperAgentRequest;
 
   componentDidMount() {
     // TODO the following error handling is very messy
     // This should be fixed in a future rework of API calls
+    this.getDatasets = request.get(GET_DATASETS_API_URL);
+    this.getAnnotationSets = request.get(GET_ANNOTATION_SETS_API_URL);
+    this.getUsers = request.get(GET_USERS_API_URL);
+    this.getConfidenceSets = request.get(GET_CONFIDENCE_INDICATORS_API_URL);
+
     return Promise.all([
       this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         let datasets = req.body.filter((dataset: any) => { return dataset.files_type === '.wav'});
         this.setState({
           dataset_choices: utils.arrayToMap(datasets, 'id')
         });
-      }).catch(err => {
-        if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
-        }
-        this.setState({
-          error: err
-        });
       }),
       this.getAnnotationSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         this.setState({
           annotation_set_choices: utils.arrayToMap(req.body, 'id')
         });
-      }).catch(err => {
-        if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
-        }
-        this.setState({
-          error: err
-        });
       }),
       this.getConfidenceSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
         this.setState({
           confidence_indicator_set_choices: utils.arrayToMap(req.body, 'id')
-        });
-      }).catch(err => {
-        if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
-        }
-        this.setState({
-          error: err
         });
       }),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
@@ -251,25 +214,37 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
         this.setState({
           annotator_choices: utils.arrayToMap(users, 'id')
         });
-      }).catch(err => {
-        if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
-        }
-        this.setState({
-          error: err
-        });
-      })
-    ]);
-
+      }),
+    ])
+    .then(() => this.setState({ error: undefined }))
+    .catch(err => {
+      if (err.status && err.status === 401) {
+        // Server returned 401 which means token was revoked
+        document.cookie = 'token=;max-age=0;path=/';
+        window.location.reload();
+      }
+      this.setState({
+        error: err
+      });
+    });
   }
 
   componentWillUnmount() {
-    this.getDatasets.abort();
-    this.getAnnotationSets.abort();
-    this.getUsers.abort();
-    this.postAnnotationCampaign.abort();
+    if (this.getDatasets) {
+      this.getDatasets.abort();
+    }
+    if (this.getAnnotationSets) {
+      this.getAnnotationSets.abort();
+    }
+    if (this.getUsers) {
+      this.getUsers.abort();
+    }
+    if (this.getConfidenceSets) {
+      this.getConfidenceSets.abort();
+    }
+    if (this.postAnnotationCampaign) {
+      this.postAnnotationCampaign.abort();
+    }
   }
 
   handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -363,7 +338,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
 
   handleConfidenceSetChange = (event: ChangeEvent<HTMLSelectElement>) => {
     let newValue = undefined;
-    if (event.currentTarget.value !== "no-confidence-indicator-set") {
+    if (event.currentTarget.value !== "0") {
       newValue = parseInt(event.currentTarget.value, 10)
     }
 
@@ -400,7 +375,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
       annotation_method: this.state.new_ac_annotation_method,
       instructions_url: this.state.new_ac_instructions_url.trim(),
     }
-    if (this.state.new_ac_confidence_indicator_set !== null) {
+    if (this.state.new_ac_confidence_indicator_set !== undefined) {
       res["confidence_indicator_set_id"] = this.state.new_ac_confidence_indicator_set
     }
 

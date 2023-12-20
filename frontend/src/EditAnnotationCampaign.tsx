@@ -45,13 +45,16 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
     isStaff: false,
     error: undefined
   }
-  getData!: SuperAgentRequest;
-  getUsers = request.get(USER_API_URL)
-  getIsStaff = request.get(STAFF_API_URL)
-  postAnnotationCampaign!: SuperAgentRequest;
+  getData?: SuperAgentRequest;
+  getUsers?: SuperAgentRequest;
+  getIsStaff?: SuperAgentRequest;
+  postAnnotationCampaign?: SuperAgentRequest;
 
   componentDidMount() {
     this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id));
+    this.getUsers = request.get(USER_API_URL);
+    this.getIsStaff = request.get(STAFF_API_URL);
+
     return Promise.all([
       this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
       this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
@@ -74,6 +77,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
         campaign_id: req_data.body.campaign.id,
         annotator_choices: utils.arrayToMap(users, 'id'),
         isStaff: req_is_staff.body.is_staff,
+        error: undefined,
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
@@ -88,10 +92,18 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   }
 
   componentWillUnmount() {
-    this.getData.abort();
-    this.getUsers.abort();
-    this.getIsStaff.abort();
-    this.postAnnotationCampaign.abort();
+    if (this.getData) {
+      this.getData.abort();
+    }
+    if (this.getUsers) {
+      this.getUsers.abort();
+    }
+    if (this.getIsStaff) {
+      this.getIsStaff.abort();
+    }
+    if (this.postAnnotationCampaign) {
+      this.postAnnotationCampaign.abort();
+    }
   }
 
   handleAddAnnotator = (event: ChangeEvent<HTMLSelectElement>) => {
