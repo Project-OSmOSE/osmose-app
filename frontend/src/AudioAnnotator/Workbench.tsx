@@ -418,7 +418,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
         endFrequency: newFrequency,
         active: false,
         new: true,
-        result_comments: [],
+        comment: '',
       };
 
       this.setState({newAnnotation});
@@ -440,7 +440,7 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       endFrequency: Math.max(currentFrequency, this.drawStartFrequency),
       active: false,
       new: true,
-      result_comments: [],
+      comment: '',
     };
     return newAnnotation;
   }

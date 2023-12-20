@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
-import request from 'superagent';
+import request, { SuperAgentRequest } from 'superagent';
 import * as utils from '../utils';
 
 import AudioPlayer from './AudioPlayer';
@@ -43,10 +43,10 @@ export type FileMetadata = {
 export type AnnotationDto = {
   id: number,
   annotation: string,
-  startTime?: number,
-  endTime?: number,
-  startFrequency?: number,
-  endFrequency?: number,
+  startTime: number | null,
+  endTime: number | null,
+  startFrequency: number | null,
+  endFrequency: number | null,
   confidenceIndicator: string | null,
   result_comments: Array<Comment>,
 };
@@ -86,7 +86,7 @@ export type Annotation = {
   active: boolean,
   new: boolean,
   confidenceIndicator?: string,
-  result_comments: Array<Comment>,
+  comment: string,
 };
 
 type AnnotationTask = {
@@ -155,6 +155,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
   ];
 
+  getTask?: SuperAgentRequest;
+
   constructor(props: AudioAnnotatorProps) {
     super(props);
 
@@ -189,6 +191,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   componentWillUnmount() {
+    if (this.getTask) {
+      this.getTask.abort();
+    }
     document.removeEventListener("keydown", this.handleKeyPress);
   }
 
@@ -202,7 +207,9 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
   retrieveTask(taskId: number) {
     // Retrieve current task
-    request.get(API_URL + taskId.toString())
+    this.getTask = request.get(API_URL + taskId.toString());
+
+    this.getTask
       .set('Authorization', 'Bearer ' + this.props.app_token)
       .then(result => {
         const task: AnnotationTask = result.body;
@@ -236,7 +243,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : undefined,
                 active: false,
                 new: false,
-                result_comments: ann.result_comments[0] === undefined ? [{ comment: "", annotation_task: task.id, annotation_result:ann.id }] : ann.result_comments,
+                comment: ann.result_comments.at(0)?.comment ?? '',
               };
             } else {
               checkbox_isChecked[ann.annotation] = true;
@@ -251,7 +258,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : undefined,
                 active: false,
                 new: false,
-                result_comments: ann.result_comments[0] === undefined ? [{ comment: "", annotation_task: task.id, annotation_result:ann.id }] : ann.result_comments,
+                comment: ann.result_comments.at(0)?.comment ?? '',
               };
             }
           });
@@ -269,7 +276,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             firstTagAnnotation.active = true;
             annotations = annotations.filter((ann: Annotation) => ann.id !== firstTagAnnotation.id)
               .concat(firstTagAnnotation);
-            currentComment = firstTagAnnotation.result_comments[0];
+            currentComment = {
+              comment: firstTagAnnotation.comment,
+              annotation_task: task.id,
+              annotation_result: firstTagAnnotation.id!,
+            };
           } else {
             currentComment = taskComment;
           }
@@ -450,12 +461,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           {}, annotation, {
             id: parseInt(newId, 10),
             annotation: this.getCurrentTag(),
-            result_comments: [{
-              comment: "",
-              annotation_result: parseInt(newId, 10),
-              annotation_task: this.state.task!.id,
-              newAnnotation: true,
-            }]
           }
         );
         this.activateAnnotation(newAnnotation);
@@ -464,10 +469,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const newAnnotation: Annotation = Object.assign(
           {},
           annotation,
-          {
-            id: parseInt(newId, 10),
-            result_comments: annotation.result_comments.map((comment) => Object.assign({}, comment, { annotation_result: parseInt(newId, 10) })),
-          }
+          { id: parseInt(newId, 10) }
         );
         let newcheckbox_isChecked = this.state.checkbox_isChecked;
         newcheckbox_isChecked[annotation.annotation] = true;
@@ -479,15 +481,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       }
     } else {
       const newAnnotation: Annotation = Object.assign(
-        {}, annotation, {
-          id: parseInt(newId, 10),
-          result_comments: [{
-            comment: "",
-            annotation_result: parseInt(newId, 10),
-            annotation_task: this.state.task!.id,
-            newAnnotation: true,
-          }],
-        }
+        {}, annotation, { id: parseInt(newId, 10) }
       );
 
       if (this.state.annotations.length === 0) {
@@ -594,7 +588,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         confidenceIndicator: this.state.currentDefaultConfidenceIndicator,
         active: true,
         new: true,
-        result_comments: [],
+        comment: '',
       };
       this.saveAnnotation(newAnnotation);
     }
@@ -651,11 +645,15 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   cleanAnnotation(ann: Annotation): AnnotationDto {
-    const startTime = ann.type === TYPE_BOX ? ann.startTime : undefined;
-    const endTime = ann.type === TYPE_BOX ? ann.endTime : undefined;
-    const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : undefined;
-    const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : undefined;
-    const result_comments = ann.result_comments[0].comment === "" ? [] : ann.result_comments;
+    const startTime = ann.type === TYPE_BOX ? ann.startTime : null;
+    const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
+    const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
+    const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
+    const result_comments: Comment[] = ann.comment === "" ? [] : [{
+      comment: ann.comment,
+      annotation_result: ann.id!,
+      annotation_task: this.state.task!.id,
+    }];
       return {
         id: ann.id!,
         startTime,
@@ -664,7 +662,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         startFrequency,
         endFrequency,
         confidenceIndicator: ann.confidenceIndicator ?? null,
-        result_comments: result_comments,
+        result_comments,
       };
   }
 
@@ -837,7 +835,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 </div>
               </div>
               }>
-              <Link className="btn btn-submit rounded-left rounded-right-0" // disabled={this.state.task.prevAndNextAnnotation.prev === ""}
+              <Link className={`btn btn-submit rounded-left rounded-right-0 ${this.state.task.prevAndNextAnnotation.prev === "" ? 'disabled' : ''}`}
                 to={this.state.task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ this.state.task.prevAndNextAnnotation.prev}`}>
                 <i className="fa fa-caret-left"></i>
               </Link>
@@ -868,7 +866,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 </div>
               </div>
               }>
-              <Link className="btn btn-submit rounded-right rounded-left-0" // disabled={this.state.task.prevAndNextAnnotation.next === ""}
+              <Link className={`btn btn-submit rounded-right rounded-left-0 ${this.state.task.prevAndNextAnnotation.next === "" ? 'disabled' : ''}`}
                 to={this.state.task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${this.state.task.prevAndNextAnnotation.next}`}>
                 <i className="fa fa-caret-right"></i>
               </Link>
@@ -1063,22 +1061,22 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           })
         } else {
           let annotations
-          if( comment.annotation_result !== annotation_result_id) {
+          if (comment.annotation_result !== annotation_result_id) {
 
             const anotherAnnotationsWithSameId: Array<Annotation> = this.state.annotations
-            .filter(ann => ann.id === annotation_result_id)
-            .map(ann => Object.assign({}, ann, { id: annotation_result_id + 200 }))
+              .filter(ann => ann.id === annotation_result_id)
+              .map(ann => Object.assign({}, ann, { id: annotation_result_id + 200 }));
 
             annotations = this.state.annotations
-            .filter(ann => ann.id !== annotation_result_id + 200)
-            .concat(anotherAnnotationsWithSameId)
-          }else{
+              .filter(ann => ann.id !== annotation_result_id + 200)
+              .concat(anotherAnnotationsWithSameId);
+          } else {
               annotations = this.state.annotations
           }
 
           const annotationsWithNewComment: Array<Annotation> = annotations
-          .filter(ann => ann.id === this.state.currentComment.annotation_result)
-            .map(ann => Object.assign({}, ann, { result_comments: comment, id: annotation_result_id }))
+            .filter(ann => ann.id === this.state.currentComment.annotation_result)
+            .map(ann => Object.assign({}, ann, { comment: comment.comment, id: annotation_result_id }))
 
           annotations = annotations
           .filter(ann => ann.id !== this.state.currentComment.annotation_result)
@@ -1117,7 +1115,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     if (activeAnn === undefined) {
       currentComment = this.state.taskComment;
     } else {
-      currentComment = activeAnn.result_comments.length > 0 ? activeAnn.result_comments[0] : { comment: '', annotation_task: this.state.task!.id, annotation_result: activeAnn.id ?? 0 };
+      currentComment = { comment: activeAnn.comment, annotation_task: this.state.task!.id, annotation_result: activeAnn.id ?? 0 };
     }
     return currentComment
   }
@@ -1468,7 +1466,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
           <td className="p-1">
-          {annotation.result_comments.length > 0 ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
+          {annotation.comment !== '' ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
           </td>
         </tr>
       );
@@ -1490,7 +1488,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
           <td className="pl-1">
-          {annotation.result_comments.length > 0 ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
+          {annotation.comment !== '' ? <i className="fas fa-comment mr-2"></i> : <i className="far fa-comment mr-2"></i>}
           </td>
         </tr>
       );
