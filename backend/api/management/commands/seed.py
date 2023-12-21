@@ -2,10 +2,12 @@ from datetime import datetime, timedelta
 from random import randint, choice, shuffle
 
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.core import management
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from faker import Faker
+from faker.providers.person.en import Provider
 
 from backend.api.models import (
     DatasetType,
@@ -19,48 +21,81 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     AnnotationComment,
     AnnotationResult,
+    News,
+    DatasetFile,
+    AnnotationTask,
+    SpectroConfig,
 )
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
+    fake = Faker()
+
+    data_nb = 5
+    files_nb = 100
+    users = []
+    datasets = []
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--data-nb",
+            # action="store_true",
+            type=int,
+            default=5,
+            help="Give the amount of dataset/campaigns to create, useful to test request optimisations",
+        )
+        parser.add_argument(
+            "--files-nb",
+            # action="store_true",
+            type=int,
+            default=100,
+            help="Give the amount of files in dataset to create, useful to test request optimisations",
+        )
 
     def handle(self, *args, **options):
+        self.data_nb = options["data_nb"] or self.data_nb
+        self.files_nb = options["files_nb"] or self.files_nb
+
         # Cleanup
         print("# Cleanup")
         management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         print("# Creation")
-        self.faker = Faker()
-        self.main_datafile_count = 50
         self._create_users()
+        self._create_metadata()
         self._create_datasets()
         self._create_annotation_sets()
         self._create_confidence_sets()
         self._create_annotation_campaigns()
-        self._create_spectro_configs()
         self._create_annotation_results()
         self._create_comments()
         WebsiteCommand().handle(*args, **options)
 
     def _create_users(self):
-        users = ["dc", "ek", "ja", "pnhd", "ad", "rv"]
+        print(" ###### _create_users ######")
         password = "osmose29"
         self.admin = User.objects.create_user(
             "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
         )
-        self.users = [self.admin]
-        for user in users:
-            self.users.append(
-                User.objects.create_user(user, f"{user}@osmose.xyz", password)
+        users = []
+        for name in list(set(Provider.first_names))[0:40]:
+            users.append(
+                User(
+                    username=name,
+                    email=f"{name}@osmose.xyz",
+                    password=make_password(password),
+                )
             )
+        User.objects.bulk_create(users)
+        self.users = list(User.objects.all())
 
-    def _create_datasets(self):
-        print(" ###### _create_datasets ######")
-        dataset_type = DatasetType.objects.create(name="Coastal audio recordings")
-        audio_metadatum = AudioMetadatum.objects.create(
+    def _create_metadata(self):
+        print(" ###### _create_metadata ######")
+        self.dataset_type = DatasetType.objects.create(name="Coastal audio recordings")
+        self.audio_metadatum = AudioMetadatum.objects.create(
             channel_count=1,
             dataset_sr=32768,
             total_samples=88473600,
@@ -70,50 +105,74 @@ class Command(management.BaseCommand):
             dutycycle_rdm=45,
             dutycycle_rim=60,
         )
-        geo_metadatum = GeoMetadatum.objects.create(
+        self.geo_metadatum = GeoMetadatum.objects.create(
             name="Saint-Pierre-et-Miquelon", desc="South of Saint-Pierre-et-Miquelon"
         )
-        self.dataset_1 = Dataset.objects.create(
-            name="SPM Aural A 2010",
-            start_date=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
-            end_date=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
-            files_type=".wav",
-            status=1,
-            dataset_type=dataset_type,
-            audio_metadatum=audio_metadatum,
-            geo_metadatum=geo_metadatum,
-            owner=self.admin,
-            dataset_path="seed/dataset_path",
-        )
-        self.dataset_2 = Dataset.objects.create(
-            name="New Test Dataset",
-            start_date=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
-            end_date=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
-            files_type=".wav",
-            status=1,
-            dataset_type=dataset_type,
-            audio_metadatum=audio_metadatum,
-            geo_metadatum=geo_metadatum,
-            owner=self.admin,
-            dataset_path="seed/dataset_path",
-        )
+        self.window_type = WindowType.objects.create(name="Hamming")
 
-        for dataset, datafile_count in [
-            (self.dataset_1, self.main_datafile_count),
-            (self.dataset_2, 30),
-        ]:
-            for k in range(datafile_count):
+    def _create_datasets(self):
+        print(" ###### _create_datasets ######")
+        audio_metadata = []
+        files = []
+        configs = []
+        for name in list(set(Provider.first_names))[0 : self.data_nb]:
+            dataset = Dataset(
+                name=name,
+                start_date=timezone.make_aware(
+                    datetime.strptime("2010-08-19", "%Y-%m-%d")
+                ),
+                end_date=timezone.make_aware(
+                    datetime.strptime("2010-11-02", "%Y-%m-%d")
+                ),
+                files_type=".wav",
+                status=1,
+                dataset_type=self.dataset_type,
+                audio_metadatum=self.audio_metadatum,
+                geo_metadatum=self.geo_metadatum,
+                owner=self.admin,
+                dataset_path="seed/dataset_path",
+            )
+            self.datasets.append(dataset)
+
+            for k in range(1, self.files_nb):
                 start = parse_datetime("2012-10-03T12:00:00+0200")
                 end = start + timedelta(minutes=15)
-                audio_metadatum = AudioMetadatum.objects.create(
+                audio_metadatum = AudioMetadatum(
                     start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k))
                 )
-                dataset.files.create(
-                    filename=f"sound{k:03d}.wav",
-                    filepath="data/audio/50h_0.wav",
-                    size=58982478,
-                    audio_metadatum=audio_metadatum,
+                audio_metadata.append(audio_metadatum)
+                files.append(
+                    DatasetFile(
+                        filename=f"sound{k:03d}.wav",
+                        filepath="data/audio/50h_0.wav",
+                        size=58982478,
+                        audio_metadatum=audio_metadatum,
+                        dataset=dataset,
+                    )
                 )
+            configs.append(
+                SpectroConfig(
+                    name="4096_4096_90",
+                    nfft=4096,
+                    window_size=4096,
+                    overlap=90,
+                    zoom_level=3,
+                    spectro_normalization="density",
+                    data_normalization="0",
+                    zscore_duration="0",
+                    hp_filter_min_freq=0,
+                    colormap="Blues",
+                    dynamic_min=0,
+                    dynamic_max=0,
+                    window_type=self.window_type,
+                    frequency_resolution=0,
+                    dataset=dataset,
+                )
+            )
+        Dataset.objects.bulk_create(self.datasets)
+        AudioMetadatum.objects.bulk_create(audio_metadata)
+        DatasetFile.objects.bulk_create(files)
+        SpectroConfig.objects.bulk_create(configs)
 
     def _create_annotation_sets(self):
         print(" ###### _create_annotation_sets ######")
@@ -131,170 +190,76 @@ class Command(management.BaseCommand):
             {
                 "name": "Big tag set",
                 "desc": "Test annotation set with lots of tags",
-                "tags": set([self.faker.color_name() for _ in range(0, 20)]),
+                "tags": set([self.fake.color_name() for _ in range(0, 20)]),
             },
         ]
-        self.annotation_sets = {}
+        self.annotation_sets = []
         for seed_set in sets:
             annotation_set = AnnotationSet.objects.create(
                 name=seed_set["name"], desc=seed_set["desc"], owner=self.admin
             )
             for tag in seed_set["tags"]:
                 annotation_set.tags.create(name=tag)
-            self.annotation_sets[seed_set["name"]] = annotation_set
+            self.annotation_sets.append(annotation_set)
 
     def _create_confidence_sets(self):
-
-        confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
+        self.confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
-            desc=self.faker.paragraph(nb_sentences=5),
+            desc=self.fake.paragraph(nb_sentences=5),
         )
 
         confidence_0 = ConfidenceIndicator.objects.create(
             label="not confident",
             level=0,
-            confidence_indicator_set=confidence_indicator_set,
+            confidence_indicator_set=self.confidence_indicator_set,
         )
         confidence_1 = ConfidenceIndicator.objects.create(
             label="confident",
             level=1,
-            confidence_indicator_set=confidence_indicator_set,
+            confidence_indicator_set=self.confidence_indicator_set,
             is_default=True,
         )
         self.confidences_indicators = [confidence_0, confidence_1]
-        self.confidenceIndicatorSet = confidence_indicator_set
 
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
-        campaigns = [
-            {
-                "name": "Test SPM campaign",
-                "desc": "Test annotation campaign",
-                "start": timezone.make_aware(
-                    datetime.strptime("2010-08-19", "%Y-%m-%d")
-                ),
-                "end": timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
-                "instructions_url": "https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon",
-                "annotation_scope": 1,
-                "annotation_set": self.annotation_sets["Test SPM campaign"],
-                "dataset": self.dataset_1,
-                "confidence_indicator_set": self.confidenceIndicatorSet,
-            },
-            {
-                "name": "Test DCLDE LF campaign",
-                "desc": "Test annotation campaign DCLDE LF 2015",
-                "start": timezone.make_aware(
-                    datetime.strptime("2012-06-22", "%Y-%m-%d")
-                ),
-                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
-                "annotation_set": self.annotation_sets["Test DCLDE LF campaign"],
-                "annotation_scope": 2,
-                "dataset": self.dataset_1,
-                "confidence_indicator_set": self.confidenceIndicatorSet,
-            },
-            {
-                "name": "Many tags campaign",
-                "desc": "Test annotation campaign with many tags",
-                "start": timezone.make_aware(
-                    datetime.strptime("2012-06-22", "%Y-%m-%d")
-                ),
-                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
-                "annotation_set": self.annotation_sets["Big tag set"],
-                "annotation_scope": 2,
-                "dataset": self.dataset_2,
-                "confidence_indicator_set": self.confidenceIndicatorSet,
-            },
-            {
-                "name": "Test SPM campaign No Confidence",
-                "desc": "Test annotation campaign with many tags",
-                "start": timezone.make_aware(
-                    datetime.strptime("2012-06-22", "%Y-%m-%d")
-                ),
-                "end": timezone.make_aware(datetime.strptime("2012-06-26", "%Y-%m-%d")),
-                "annotation_set": self.annotation_sets["Test SPM campaign"],
-                "annotation_scope": 2,
-                "dataset": self.dataset_2,
-                "confidence_indicator_set": None,
-            },
-        ]
         self.campaigns = []
-        for campaign_data in campaigns:
-            dataset = campaign_data.pop("dataset")
+        names = list(set(Provider.first_names))[: self.data_nb]
+        for i in range(0, self.data_nb):
+            dataset = self.datasets[i]
             campaign = AnnotationCampaign.objects.create(
-                **campaign_data,
+                name=names[i],
+                desc=self.fake.sentence(),
+                start=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
+                end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
+                instructions_url=self.fake.uri(),
+                annotation_scope=1,
+                annotation_set=AnnotationSet.objects.first(),
+                confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,
             )
-
+            self.campaigns.append(campaign)
+            # dataset = self.datasets[i - 1]
             campaign.datasets.add(dataset)
+            campaign.spectro_configs.add(dataset.spectro_configs.first())
+            tasks = []
             for file in dataset.files.all():
                 for user in self.users:
-                    campaign.tasks.create(dataset_file=file, annotator=user, status=0)
-            self.campaigns.append(campaign)
-
-    def _create_spectro_configs(self):
-        print(" ###### _create_spectro_configs ######")
-        window_type = WindowType.objects.create(name="Hamming")
-        spectro_config_1 = self.dataset_1.spectro_configs.create(
-            name="4096_4096_90",
-            nfft=4096,
-            window_size=4096,
-            overlap=90,
-            zoom_level=3,
-            spectro_normalization="density",
-            data_normalization="0",
-            zscore_duration="0",
-            hp_filter_min_freq=0,
-            colormap="Blues",
-            dynamic_min=0,
-            dynamic_max=0,
-            window_type=window_type,
-            frequency_resolution=0,
-        )
-        spectro_config_2 = self.dataset_2.spectro_configs.create(
-            name="4096_4096_90",
-            nfft=4096,
-            window_size=4096,
-            overlap=90,
-            zoom_level=3,
-            spectro_normalization="density",
-            data_normalization="0",
-            zscore_duration="0",
-            hp_filter_min_freq=0,
-            colormap="Blues",
-            dynamic_min=0,
-            dynamic_max=0,
-            window_type=window_type,
-            frequency_resolution=0,
-        )
-        spectro_config_3 = self.dataset_1.spectro_configs.create(
-            name="2048_1000_90",
-            nfft=2048,
-            window_size=1000,
-            overlap=90,
-            zoom_level=3,
-            spectro_normalization="density",
-            data_normalization="0",
-            zscore_duration="0",
-            hp_filter_min_freq=0,
-            colormap="Greens",
-            dynamic_min=0,
-            dynamic_max=0,
-            window_type=window_type,
-            frequency_resolution=0,
-        )
-
-        self.campaigns[0].spectro_configs.add(spectro_config_1)
-        self.campaigns[0].spectro_configs.add(spectro_config_3)
-        for campaign in self.campaigns[1:]:
-            spectro = campaign.datasets.first().spectro_configs.first()
-            campaign.spectro_configs.add(spectro)
+                    task = AnnotationTask(
+                        dataset_file=file,
+                        annotator=user,
+                        status=0,
+                        annotation_campaign=campaign,
+                    )
+                    tasks.append(task)
+            AnnotationTask.objects.bulk_create(tasks)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
-        tags = list(self.annotation_sets.values())[0].tags.values_list("id", flat=True)
+        tags = self.annotation_sets[0].tags.values_list("id", flat=True)
         for user in self.users:
-            done_files = randint(5, self.main_datafile_count - 5)
+            done_files = randint(5, max(self.files_nb - 5, 5))
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
             for task in tasks:
                 if randint(1, 3) >= 2:
@@ -321,10 +286,14 @@ class Command(management.BaseCommand):
         print(" ###### _create_comments ######")
         results = AnnotationResult.objects.all()
 
+        comments = []
         for result in results:
             if randint(1, 3) >= 2:
-                AnnotationComment.objects.create(
-                    comment=f"a comment : {result.annotation_tag.name}",
-                    annotation_task=result.annotation_task,
-                    annotation_result=result,
+                comments.append(
+                    AnnotationComment(
+                        comment=f"a comment : {result.annotation_tag.name}",
+                        annotation_task=result.annotation_task,
+                        annotation_result=result,
+                    )
                 )
+        AnnotationComment.objects.bulk_create(comments)
