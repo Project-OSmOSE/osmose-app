@@ -1,4 +1,3 @@
-# See https://tonny.medium.com/how-to-use-nginx-to-service-multiple-react-apps-641501e92581
 map $http_referer $webroot {
     "~/app" "/usr/share/nginx/app";
     "~/"    "/usr/share/nginx/website";

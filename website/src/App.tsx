@@ -31,19 +31,19 @@ const App: React.FC = () => {
         </Route>
         */}
 
-        <Route path="/people">
+        <Route exact path="/people">
           <Layout>
             <People />
           </Layout>
         </Route>
 
-        <Route path="/projects">
+        <Route exact path="/projects">
           <Layout>
             <Projects />
           </Layout>
         </Route>
 
-        <Route path="/publications">
+        <Route exact path="/publications">
           <Layout>
             <Publications />
           </Layout>
@@ -74,6 +74,10 @@ const App: React.FC = () => {
             <Ontology />
           </Layout>
         </Route> */}
+
+        <Route path="*">
+          <Redirect to="/"></Redirect>
+        </Route>
 
       </Switch>
     </Router>
