@@ -34,8 +34,6 @@ poetry run ./manage.py seed
 # Run
 docker start devdb
 poetry run ./manage.py runserver
-
-
 ```
 
 **Frontend:**
@@ -60,6 +58,16 @@ cd frontend; npm test
 coverage run ./manage.py test && coverage report
 # You can also get an html report in the htmlcov folder
 coverage html
+```
+
+#### Cypress testing
+
+We use [Cypress](https://docs.cypress.io) for end to end testing. Examples of cypress tests are kept in `frontend/cypress/examples`, they should be deleted once we have a solid E2E test base.
+
+```bash
+cd frontend
+# Run Cypress test runner
+./node_modules/.bin/cypress open
 ```
 
 ### Before pushing to github
