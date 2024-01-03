@@ -4,14 +4,13 @@ import Modal from './components/ModalNewData';
 import Toast, { ToastMsg } from './components/Toast';
 import './css/modal.css';
 import {v4 as uuidv4} from 'uuid';
+import { AuthService } from "./services/AuthService.tsx";
 
 const GET_DATASET_API_URL = '/api/dataset/';
 const GET_NEW_DATASET_API_URL = '/api/dataset/list_to_import';
 const IMPORT_DATASET_API_URL = '/api/dataset/datawork_import/';
 
-type DatasetListProps = {
-  app_token: string
-};
+
 type Dataset = {
   id: number,
   name: string,
@@ -36,7 +35,7 @@ export type NewDataset = {
   location_lon: string,
 };
 
-const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
+const DatasetList: React.FC = () => {
   const [launchImport, setLaunchImport] = useState(false)
   const [wanted_datasets, setWanted_datasets] = useState<NewDataset[]>([])
   const [toastMsg, setToastMsg] = useState<ToastMsg | undefined>(undefined);
@@ -51,7 +50,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
 
   useEffect(() => {
     getNewData
-      .set("Authorization", "Bearer " + props.app_token)
+      .set("Authorization", AuthService.shared.bearer)
       .then((req) => {
         let newData = JSON.parse(req.text);
         newData.forEach(function (element: NewDataset) {
@@ -61,9 +60,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
       })
       .catch((err) => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = "token=;max-age=0;path=/";
-          window.location.reload();
+          AuthService.shared.logout();
         }
         setError(err);
       });
@@ -74,15 +71,13 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
 
   useEffect(() => {
     getData
-      .set("Authorization", "Bearer " + props.app_token)
+      .set("Authorization", AuthService.shared.bearer)
       .then((req) => {
         setDatasets(req.body);
       })
       .catch((err) => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = "token=;max-age=0;path=/";
-          window.location.reload();
+          AuthService.shared.logout();
         }
         setError(err);
       });
@@ -111,7 +106,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
   useEffect(() => {
     if (launchImport) {
       startImport
-      .set("Authorization", "Bearer " + props.app_token)
+        .set("Authorization", AuthService.shared.bearer)
         .send({ 'wanted_datasets': wanted_datasets })
       .set("Accept", "application/json")
       .then((req) => {
@@ -128,9 +123,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
       })
       .catch((err) => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = "token=;max-age=0;path=/";
-          window.location.reload();
+          AuthService.shared.logout();
         }
         setError(err);
         setOpenModal(false);

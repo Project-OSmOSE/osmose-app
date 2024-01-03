@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
+import { AuthService } from "./services/AuthService.tsx";
 
 // API constants
 const CAMPAIGN_API_URL = '/api/annotation-campaign/';
@@ -30,7 +31,6 @@ type AnnotationTaskListProps = {
       campaign_id: string
     }
   },
-  app_token: string
 };
 
 type AnnotationTaskListState = {
@@ -74,8 +74,8 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
     this.getTasks = request.get(TASKS_API_URL.replace('ID', campaignID));
 
     return Promise.all([
-      this.getCampaign.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getTasks.set('Authorization', 'Bearer ' + this.props.app_token),
+      this.getCampaign.set('Authorization', AuthService.shared.bearer),
+      this.getTasks.set('Authorization', AuthService.shared.bearer),
     ]).then(([req_campaign, req_tasks]) => {
       this.setState({
         campaign: req_campaign.body.campaign,
@@ -83,9 +83,7 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
-        // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0;path=/';
-        window.location.reload();
+        AuthService.shared.logout();
       } else if (err.status && err.status === 404 && err.response) {
         err.message = err.response.body.detail;
       }

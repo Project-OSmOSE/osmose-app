@@ -14,6 +14,7 @@ import Toast from '../components/Toast';
 import { confirm } from '../components/Confirmation';
 
 import '../css/annotator.css';
+import { AuthService } from "../services/AuthService.tsx";
 
 // API constants
 const API_URL = '/api/annotation-task/';
@@ -118,7 +119,6 @@ type AudioAnnotatorProps = {
       annotation_task_id: string
     },
   },
-  app_token: string,
   history: {
     push: (url: string) => void
   },
@@ -202,7 +202,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   retrieveTask(taskId: number) {
     // Retrieve current task
     request.get(API_URL + taskId.toString())
-      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .set('Authorization', AuthService.shared.bearer)
       .then(result => {
         const task: AnnotationTask = result.body;
         const checkbox_isChecked: {[tag: string]: boolean} = {};
@@ -285,9 +285,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       })
       .catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
         }
@@ -667,7 +665,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
     request.put(API_URL + taskId.toString() + '/')
-      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .set('Authorization', AuthService.shared.bearer)
       .send({
         annotations: cleanAnnotations,
         task_start_time: taskStartTime,
@@ -682,9 +680,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       })
       .catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
         }
@@ -923,7 +919,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
         request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
-          .set('Authorization', 'Bearer ' + this.props.app_token)
+          .set('Authorization', AuthService.shared.bearer)
           .send({
             annotations: cleanAnnotationTag,
             task_start_time: taskStartTime,
@@ -937,9 +933,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           )
         .catch(err => {
           if (err.status && err.status === 401) {
-            // Server returned 401 which means token was revoked
-            document.cookie = 'token=;max-age=0;path=/';
-            window.location.reload();
+            AuthService.shared.logout();
           } else {
             this.setState({isLoading: false, error: this.buildErrorMessage(err)});
           }
@@ -986,7 +980,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     const taskEndTime: number = Math.floor(now.getTime() / 1000);
 
     request.put(API_URL_ONE_RESULT + taskId.toString() + '/')
-      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .set('Authorization', AuthService.shared.bearer)
       .send({
         annotations: cleanAnnotation,
         task_start_time: taskStartTime,
@@ -999,9 +993,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       })
       .catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         } else {
           this.setState({isLoading: false, error: this.buildErrorMessage(err)});
         }
@@ -1024,7 +1016,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
 
     request[method](url)
-      .set('Authorization', 'Bearer ' + this.props.app_token)
+      .set('Authorization', AuthService.shared.bearer)
       .send({
         comment: newComment,
         annotation_task_id: this.state.currentComment.annotation_task,
@@ -1080,9 +1072,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       })
       .catch((err: any) => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         } else {
           this.setState({ toastMsg: { msg: this.buildErrorMessage(err), lvl: "danger"} });
         }

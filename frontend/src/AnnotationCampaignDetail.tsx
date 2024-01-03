@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request, { SuperAgentRequest } from 'superagent';
+import { AuthService } from "./services/AuthService.tsx";
 
 const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';
@@ -10,7 +11,6 @@ const STATUS_REPORT_API_URL = '/api/annotation-campaign/ID/report_status/';
 
 type DownloadButtonProps = {
   url: string,
-  app_token: string,
   filename: string,
   value: string
 };
@@ -25,7 +25,7 @@ class DownloadButton extends Component<DownloadButtonProps> {
 
   onClick = () => {
     return this.getDownload
-    .set('Authorization', 'Bearer ' + this.props.app_token)
+    .set('Authorization', AuthService.shared.bearer)
     .then(res => {
       this.url = URL.createObjectURL(new File([res.text], this.props.filename, {type : res.header['content-type']}));
       // Using <a>-linking trick https://stackoverflow.com/a/19328891/2730032
@@ -67,7 +67,6 @@ type ACDProps = {
       campaign_id: string
     }
   },
-  app_token: string
 };
 type ACDState = {
   campaign?: {
@@ -107,9 +106,9 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
   componentDidMount() {
     this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id));
     return Promise.all([
-      this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
+      this.getData.set('Authorization', AuthService.shared.bearer),
+      this.getUsers.set('Authorization', AuthService.shared.bearer),
+      this.getIsStaff.set('Authorization', AuthService.shared.bearer)
     ]).then(([req_data, req_users, req_is_staff]) => {
       let users: any = {};
       req_users.body.forEach((user: any) => {
@@ -137,9 +136,7 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
-        // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0;path=/';
-        window.location.reload();
+        AuthService.shared.logout();
       }
       this.setState({
         error: err
@@ -223,14 +220,12 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
         </table>
         <p className="text-center">
           <DownloadButton
-            app_token={this.props.app_token}
             url={REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
             value={"Download CSV results"}
             filename={campaign.name.replace(' ', '_') + '_results.csv'}
           />
           &nbsp;&nbsp;&nbsp;&nbsp;
           <DownloadButton
-            app_token={this.props.app_token}
             url={STATUS_REPORT_API_URL.replace('ID', this.props.match.params.campaign_id)}
             value={"Download CSV task status"}
             filename={campaign.name.replace(' ', '_') + '_task_status.csv'}

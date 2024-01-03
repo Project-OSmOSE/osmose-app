@@ -3,6 +3,7 @@ import request, { SuperAgentRequest } from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
 import * as utils from './utils';
+import { AuthService } from "./services/AuthService.tsx";
 
 const GET_DATASETS_API_URL = '/api/dataset/';
 const GET_ANNOTATION_SETS_API_URL = '/api/annotation-set/';
@@ -140,7 +141,6 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
 }
 
 type CACProps = {
-  app_token: string,
   history: {
     push: (url: string) => void
   }
@@ -203,59 +203,51 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     // TODO the following error handling is very messy
     // This should be fixed in a future rework of API calls
     return Promise.all([
-      this.getDatasets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+      this.getDatasets.set('Authorization', AuthService.shared.bearer).then(req => {
         let datasets = req.body.filter((dataset: any) => { return dataset.files_type === '.wav'});
         this.setState({
           dataset_choices: utils.arrayToMap(datasets, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         }
         this.setState({
           error: err
         });
       }),
-      this.getAnnotationSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+      this.getAnnotationSets.set('Authorization', AuthService.shared.bearer).then(req => {
         this.setState({
           annotation_set_choices: utils.arrayToMap(req.body, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         }
         this.setState({
           error: err
         });
       }),
-      this.getConfidenceSets.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+      this.getConfidenceSets.set('Authorization', AuthService.shared.bearer).then(req => {
         this.setState({
           confidence_indicator_set_choices: utils.arrayToMap(req.body, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         }
         this.setState({
           error: err
         });
       }),
-      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+      this.getUsers.set('Authorization', AuthService.shared.bearer).then(req => {
         let users = req.body.map((user: any) => { return { id: user.id, name: user.email }; });
         this.setState({
           annotator_choices: utils.arrayToMap(users, 'id')
         });
       }).catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         }
         this.setState({
           error: err
@@ -408,14 +400,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
     const end: string | undefined = this.state.new_ac_end ? this.state.new_ac_end.trim() + 'T00:00' : undefined;
     res = Object.assign({}, res, {start, end});
     this.postAnnotationCampaign = request.post(POST_ANNOTATION_CAMPAIGN_API_URL);
-    return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token).send(res)
+    return this.postAnnotationCampaign.set('Authorization', AuthService.shared.bearer).send(res)
     .then(() => {
       this.props.history.push('/annotation-campaigns');
     }).catch(err => {
       if (err.status && err.status === 401) {
-        // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0;path=/';
-        window.location.reload();
+        AuthService.shared.logout();
       }
       else if (err.status && err.response) {
         // Build an error message

@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
+import { AuthService } from "./services/AuthService.tsx";
 
 const API_URL = '/api/annotation-campaign/';
 
@@ -19,9 +20,6 @@ type annotation_set_type = {
   tags: Array<string>
 };
 
-type ACLProps = {
-  app_token: string
-};
 type ACLState = {
   annotation_campaigns: Array<{
     id: number,
@@ -43,7 +41,7 @@ type ACLState = {
     message: string
   }
 };
-class AnnotationCampaignList extends Component<ACLProps, ACLState> {
+class AnnotationCampaignList extends Component<any, ACLState> {
   state: ACLState = {
     annotation_campaigns: [],
     error: undefined
@@ -51,7 +49,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   getData = request.get(API_URL)
 
   componentDidMount() {
-    return this.getData.set('Authorization', 'Bearer ' + this.props.app_token).then(req => {
+    return this.getData.set('Authorization', AuthService.shared.bearer).then(req => {
       this.setState({
         annotation_campaigns: req.body
       });

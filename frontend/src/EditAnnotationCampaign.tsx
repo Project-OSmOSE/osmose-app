@@ -4,6 +4,7 @@ import request, { SuperAgentRequest } from 'superagent';
 import ListChooser from './ListChooser';
 import type { choices_type } from './ListChooser';
 import * as utils from './utils';
+import { AuthService } from "./services/AuthService.tsx";
 
 const API_URL = '/api/annotation-campaign/ID';
 const USER_API_URL = '/api/user/';
@@ -16,7 +17,6 @@ type EACProps = {
       campaign_id: string
     }
   },
-  app_token: string,
   history: {
     push: (url: string) => void
   }
@@ -53,9 +53,9 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   componentDidMount() {
     this.getData = request.get(API_URL.replace('ID', this.props.match.params.campaign_id));
     return Promise.all([
-      this.getData.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getUsers.set('Authorization', 'Bearer ' + this.props.app_token),
-      this.getIsStaff.set('Authorization', 'Bearer ' + this.props.app_token)
+      this.getData.set('Authorization', AuthService.shared.bearer),
+      this.getUsers.set('Authorization', AuthService.shared.bearer),
+      this.getIsStaff.set('Authorization', AuthService.shared.bearer)
     ]).then(([req_data, req_users, req_is_staff]) => {
       // Find existing annotators
       const existingAnnotators = req_data.body.tasks.reduce((acc: any, curr: any) => {
@@ -77,9 +77,7 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
       });
     }).catch(err => {
       if (err.status && err.status === 401) {
-        // Server returned 401 which means token was revoked
-        document.cookie = 'token=;max-age=0;path=/';
-        window.location.reload();
+        AuthService.shared.logout();
       }
       this.setState({
         error: err
@@ -141,15 +139,13 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
 
     const postUrl = POST_ANNOTATION_CAMPAIGN_API_URL.replace('ID', this.state.campaign_id.toFixed());
     this.postAnnotationCampaign = request.post(postUrl);
-    return this.postAnnotationCampaign.set('Authorization', 'Bearer ' + this.props.app_token)
+    return this.postAnnotationCampaign.set('Authorization', AuthService.shared.bearer)
       .send(res)
       .then(() => {
         this.props.history.push(`/annotation_campaign/${this.state.campaign_id.toFixed()}`);
       }).catch(err => {
         if (err.status && err.status === 401) {
-          // Server returned 401 which means token was revoked
-          document.cookie = 'token=;max-age=0;path=/';
-          window.location.reload();
+          AuthService.shared.logout();
         }
         else if (err.status && err.response) {
           // Build an error message
