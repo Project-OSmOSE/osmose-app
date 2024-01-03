@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link, useHistory } from 'react-
 
 import { Login } from './pages/Login.tsx';
 import DatasetList from './pages/DatasetList.tsx';
-import AnnotationCampaignList from './AnnotationCampaignList';
+import AnnotationCampaignList from './pages/AnnotationCampaignList.tsx';
 import AnnotationCampaignDetail from './AnnotationCampaignDetail';
 import EditAnnotationCampaign from './EditAnnotationCampaign';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';

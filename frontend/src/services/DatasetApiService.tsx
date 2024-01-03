@@ -5,11 +5,11 @@ import { v4 as uuidV4 } from "uuid";
 
 export class DatasetApiService {
   public static shared: DatasetApiService = new DatasetApiService();
-  private URI = '/api';
+  private URI = '/api/dataset';
 
-  private getDatasetsRequest: SuperAgentRequest = get(`${ this.URI }/dataset/`);
-  private getNotImportedDatasetsRequest: SuperAgentRequest = get(`${ this.URI }/dataset/list_to_import`);
-  private postImportDatasetRequest: SuperAgentRequest = post(`${ this.URI }/dataset/datawork_import/`);
+  private getDatasetsRequest: SuperAgentRequest = get(this.URI);
+  private getNotImportedDatasetsRequest: SuperAgentRequest = get(`${ this.URI }/list_to_import`);
+  private postImportDatasetRequest: SuperAgentRequest = post(`${ this.URI }/datawork_import`);
 
   public async getDatasets(): Promise<Array<Dataset>> { // TODO: check type
     try {

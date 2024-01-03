@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 //import nock from 'nock';
 import { mount } from 'enzyme';
 
-import AnnotationCampaignList from '../src/AnnotationCampaignList';
+import AnnotationCampaignList from '../src/pages/AnnotationCampaignList.js';
 //import annotation_campaigns from './fixtures/annotation_campaign_list.json';
 
 describe('testing AnnotationCampaignList component', function () {

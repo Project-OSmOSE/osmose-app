@@ -7,7 +7,7 @@ import nock from 'nock';
 import App from '../src/App';
 import Navbar from '../src/App';
 import DatasetList from '../src/pages/DatasetList.js';
-import AnnotationCampaignList from '../src/AnnotationCampaignList';
+import AnnotationCampaignList from '../src/pages/AnnotationCampaignList.js';
 
 describe('testing App component', function () {
     this.timeout(20000);
