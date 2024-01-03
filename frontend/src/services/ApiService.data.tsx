@@ -52,8 +52,23 @@ export type User = {
   email: string,
 }
 
-export type AnnotationTask = {
+export type AnnotationTaskStatus = {
   annotator_id: number;
   status: number;
   count: number;
+}
+
+export type AnnotationTask = {
+  id: number;
+  status: TaskStatus;
+  filename: string;
+  dataset_name: string;
+  start: string, //TODO: rename start_date
+  end: string, //TODO: rename end_date
+}
+
+export enum TaskStatus {
+  created = 'Created',
+  started = 'Started',
+  finished = 'finished'
 }

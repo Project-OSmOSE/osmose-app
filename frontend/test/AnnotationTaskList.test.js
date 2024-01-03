@@ -3,7 +3,7 @@ import React from 'react';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
-import AnnotationTaskList from '../src/AnnotationTaskList';
+import AnnotationTaskList from '../src/pages/AnnotationTaskList.js';
 import details from './fixtures/annotation_campaign_detail.json';
 import annotation_tasks from './fixtures/annotation_task_list.json';
 

@@ -1,5 +1,5 @@
 import { SuperAgentRequest, get } from "superagent";
-import { AnnotationCampaign, AnnotationTask } from "./ApiService.data.tsx";
+import { AnnotationCampaign, AnnotationTaskStatus } from "./ApiService.data.tsx";
 import { ApiServiceParent } from "./ApiService.parent.tsx";
 
 export class AnnotationCampaignsApiService extends ApiServiceParent {
@@ -16,7 +16,7 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
     return response.body
   }
 
-  public async retrieve(id: string): Promise<{ campaign: AnnotationCampaign, tasks: Array<AnnotationTask> }> {
+  public async retrieve(id: string): Promise<{ campaign: AnnotationCampaign, tasks: Array<AnnotationTaskStatus> }> {
     this.retrieveRequest?.abort();
     this.retrieveRequest = get(`${ this.URI }/${id}`)
     const response = await this.doRequest(this.listRequest);

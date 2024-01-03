@@ -7,7 +7,7 @@ import AnnotationCampaignList from './pages/AnnotationCampaignList.tsx';
 import AnnotationCampaignDetail from './pages/AnnotationCampaignDetail.tsx';
 import EditAnnotationCampaign from './EditAnnotationCampaign';
 import CreateAnnotationCampaign from './CreateAnnotationCampaign';
-import AnnotationTaskList from './AnnotationTaskList';
+import AnnotationTaskList from './pages/AnnotationTaskList.tsx';
 import AudioAnnotator from './AudioAnnotator/AudioAnnotator';
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
