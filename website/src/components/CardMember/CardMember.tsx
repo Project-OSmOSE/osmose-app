@@ -8,19 +8,16 @@ import './CardMember.css';
 
 export const CardMember: React.FC<{ member: TeamMember }> = ({ member }) => {
 
-  if (member.is_former_member) return (
-    <div id="card-member">
-      <img src={ member.picture } alt={ `${ member.name }'s Portrait` } title={ `${ member.name }'s Portrait` }/>
-      <h5>{ member.name }</h5>
-      <p><small className="text-muted">{ member.position }</small></p>
-    </div>
-  )
+  const content = (<React.Fragment>
+    <img src={ member.picture }
+         alt={ `${ member.firstname } ${ member.lastname }'s Portrait` }
+         title={ `${ member.firstname } ${ member.lastname }'s Portrait` }/>
+    <h5>{ member.firstname } { member.lastname }</h5>
+    <p><small className="text-muted">{ member.position }</small></p>
+  </React.Fragment>)
 
-  return (
-    <Link to={ `/people/${ member.id }` } id="card-member">
-      <img src={ member.picture } alt={ `${ member.name }'s Portrait` } title={ `${ member.name }'s Portrait` }/>
-      <h5>{ member.name }</h5>
-      <p><small className="text-muted">{ member.position }</small></p>
-    </Link>
+  if (member.is_former_member) return (<div id="card-member">{ content }</div>)
+
+  return (<Link to={ `/people/${ member.id }` } id="card-member">{ content }</Link>
   )
 };

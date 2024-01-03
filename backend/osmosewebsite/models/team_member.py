@@ -7,7 +7,8 @@ class TeamMember(models.Model):
 
     level = models.IntegerField("Sorting level", blank=True, null=True)
 
-    name = models.CharField(max_length=100)
+    firstname = models.CharField(max_length=100)
+    lastname = models.CharField(max_length=100, blank=True, null=True)
     position = models.CharField(max_length=255)
     biography = models.TextField()
     picture = models.URLField()
@@ -25,4 +26,4 @@ class TeamMember(models.Model):
         ordering = ["level"]
 
     def __str__(self):
-        return self.name
+        return self.firstname + " " + self.lastname

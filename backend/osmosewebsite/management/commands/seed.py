@@ -30,7 +30,8 @@ class Command(BaseCommand):
             profile = self.fake.profile()
             websites = profile["website"]
             TeamMember.objects.create(
-                name=profile["name"],
+                firstname=self.fake.first_name(),
+                lastname=self.fake.last_name(),
                 position=profile["job"],
                 biography="\n".join(self.fake.paragraphs(5)),
                 picture="https://osmose.ifremer.fr/static/media/team_dodo_420_420.38e7fc104498740d44ca.webp",
@@ -47,7 +48,8 @@ class Command(BaseCommand):
             profile = self.fake.profile()
             websites = profile["website"]
             TeamMember.objects.create(
-                name=profile["name"],
+                firstname=self.fake.first_name(),
+                lastname=self.fake.last_name(),
                 position=profile["job"],
                 biography="\n".join(self.fake.paragraphs(5)),
                 picture="https://osmose.ifremer.fr/static/media/team_dodo_420_420.38e7fc104498740d44ca.webp",

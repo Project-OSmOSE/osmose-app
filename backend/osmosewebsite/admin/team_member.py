@@ -12,14 +12,22 @@ def make_former(model_admin, request, queryset):
 class TeamMemberAdmin(ModelAdmin):
     """TeamMember presentation in DjangoAdmin"""
 
-    list_display = ["name", "position", "mail_address", "is_former_member", "level"]
-    search_fields = ["name"]
+    list_display = [
+        "lastname",
+        "firstname",
+        "position",
+        "mail_address",
+        "is_former_member",
+        "level",
+    ]
+    search_fields = ["lastname", "firstname"]
     fieldsets = [
         (
             None,
             {
                 "fields": [
-                    "name",
+                    "lastname",
+                    "firstname",
                     "position",
                     "mail_address",
                     "picture",

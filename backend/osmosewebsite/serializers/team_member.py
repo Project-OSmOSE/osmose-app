@@ -4,7 +4,8 @@ from backend.osmosewebsite.models.team_member import TeamMember
 
 TeamMemberFields = [
     "id",
-    "name",
+    "lastname",
+    "firstname",
     "position",
     "biography",
     "picture",

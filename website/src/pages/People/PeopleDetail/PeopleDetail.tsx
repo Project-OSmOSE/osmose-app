@@ -14,8 +14,6 @@ export const PeopleDetail: React.FC = () => {
   const memberID = Number(useParams<{ id: string; }>().id);
   const [member, setMember] = useState<TeamMember>();
 
-  console.debug(memberID)
-
   useEffect(() => {
     const fetchMember = async () => {
       try {
@@ -32,21 +30,17 @@ export const PeopleDetail: React.FC = () => {
     fetchMember();
   }, []);
 
-  useEffect(() => {
-    console.debug(member)
-  }, [member]);
-
 
   return (
     <div id="member-page">
       <Back path="/people" pageName="People"></Back>
 
       <div className="title">
-        <h2>{ member?.name }</h2>
+        <h2>{ member?.firstname } { member?.lastname }</h2>
         <h5 className="text-muted">{ member?.position }</h5>
       </div>
 
-      <img src={ member?.picture } alt={ member?.name }/>
+      <img src={ member?.picture } alt={ `${ member?.firstname } ${ member?.lastname }'s Portrait` }/>
 
       <blockquote>❝ { member?.biography } ❞</blockquote>
 
