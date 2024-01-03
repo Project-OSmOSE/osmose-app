@@ -21,6 +21,7 @@ export type AnnotationCampaign = {
   id: string,
   name: string,
   created_at: string,
+  desc: string,
   instructions_url: string,
   annotation_set: AnnotationSet,
   confidence_indicator_set: ConfidenceIndicatorSet,
@@ -44,4 +45,15 @@ export type ConfidenceIndicatorSet = {
   desc: string,
   confidence_indicators: Array<string>,
   default_confidence_indicator: number,
+}
+
+export type User = {
+  id: string,
+  email: string,
+}
+
+export type AnnotationTask = {
+  annotator_id: number;
+  status: number;
+  count: number;
 }

@@ -1,66 +1,39 @@
 import { SuperAgentRequest, get, post } from "superagent";
 import { Dataset } from "./ApiService.data.tsx";
-import { AuthService } from "./AuthService.tsx";
 import { v4 as uuidV4 } from "uuid";
+import { ApiServiceParent } from "./ApiService.parent.tsx";
 
-export class DatasetApiService {
+export class DatasetApiService extends ApiServiceParent {
   public static shared: DatasetApiService = new DatasetApiService();
   private URI = '/api/dataset';
 
-  private getDatasetsRequest: SuperAgentRequest = get(this.URI);
-  private getNotImportedDatasetsRequest: SuperAgentRequest = get(`${ this.URI }/list_to_import`);
-  private postImportDatasetRequest: SuperAgentRequest = post(`${ this.URI }/datawork_import`);
+  private listRequest: SuperAgentRequest = get(this.URI);
+  private listNotImportedRequest: SuperAgentRequest = get(`${ this.URI }/list_to_import`);
+  private importRequest: SuperAgentRequest = post(`${ this.URI }/datawork_import`);
 
-  public async getDatasets(): Promise<Array<Dataset>> { // TODO: check type
-    try {
-      const response = await this.getDatasetsRequest.set("Authorization", AuthService.shared.bearer);
-      return response.body;
-    } catch (e) {
-      this.handleError(e);
-      throw e;
-    }
-  }
-
-  public abortGetDatasets(): void {
-    this.getDatasetsRequest.abort();
+  public async list(): Promise<Array<Dataset>> { // TODO: check type
+    const response = await this.doRequest(this.listRequest)
+    return response.body;
   }
 
   public async getNotImportedDatasets(): Promise<Array<Dataset>> { // TODO: check type
-    try {
-      const response = await this.getNotImportedDatasetsRequest
-        .set("Authorization", AuthService.shared.bearer);
-      return JSON.parse(response.text).map((data: Dataset) => ({
-        ...data,
-        id: uuidV4()
-      }));
-    } catch (e) {
-      this.handleError(e);
-      throw e;
-    }
-  }
-
-  public abortGetNotImportedGetDatasets(): void {
-    this.getNotImportedDatasetsRequest.abort();
+    const response = await this.doRequest(this.listRequest)
+    return JSON.parse(response.text).map((data: Dataset) => ({
+      ...data,
+      id: uuidV4()
+    }));
   }
 
   public async postImportDatasets(datasets: Array<Dataset>): Promise<any> { // TODO: check type
-    try {
-      const response = await this.postImportDatasetRequest
-        .set("Authorization", AuthService.shared.bearer)
-        .send({ 'wanted_datasets': datasets })
-        .set("Accept", "application/json");
-      return response.body
-    } catch (e) {
-      this.handleError(e);
-      throw e;
-    }
+    const response = await this.doRequest(this.listRequest
+      .set("Accept", "application/json")
+      .send({ 'wanted_datasets': datasets }))
+    return response.body;
   }
 
-  public abortPostImportDatasets(): void {
-    this.postImportDatasetRequest.abort();
-  }
-
-  private handleError(error: any) {
-    if (error?.status === 401) AuthService.shared.logout();
+  public abortRequests(): void {
+    this.listRequest.abort();
+    this.listNotImportedRequest.abort();
+    this.importRequest.abort();
   }
 }

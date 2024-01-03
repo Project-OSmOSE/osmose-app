@@ -4,8 +4,8 @@ import React from 'react';
 //import nock from 'nock';
 import { mount } from 'enzyme';
 
-import { DownloadButton } from '../src/AnnotationCampaignDetail';
-import AnnotationCampaignDetail from '../src/AnnotationCampaignDetail';
+import { DownloadButton } from '../src/pages/AnnotationCampaignDetail.js';
+import AnnotationCampaignDetail from '../src/pages/AnnotationCampaignDetail.js';
 
 /* import users from './fixtures/user_list.json';
 import details from './fixtures/annotation_campaign_detail.json'; */

@@ -19,14 +19,12 @@ const DatasetList: React.FC = () => {
       .then(setNewDatasets)
       .catch(setError);
     return () => {
-      DatasetApiService.shared.abortGetNotImportedGetDatasets();
-      DatasetApiService.shared.abortGetDatasets();
-      DatasetApiService.shared.abortPostImportDatasets();
+      DatasetApiService.shared.abortRequests();
     };
   }, []);
 
   useEffect(() => {
-    DatasetApiService.shared.getDatasets()
+    DatasetApiService.shared.list()
       .then(setDatasets)
       .catch(setError);
   }, [newDatasets]);

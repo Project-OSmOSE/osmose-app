@@ -15,7 +15,7 @@ const AnnotationCampaignList: React.FC = () => {
       .catch(setError);
 
     return () => {
-      AnnotationCampaignsApiService.shared.abortList();
+      AnnotationCampaignsApiService.shared.abortRequests();
     }
   }, [])
 

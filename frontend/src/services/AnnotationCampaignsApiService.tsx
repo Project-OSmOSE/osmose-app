@@ -1,28 +1,47 @@
 import { SuperAgentRequest, get } from "superagent";
-import { AnnotationCampaign } from "./ApiService.data.tsx";
-import { AuthService } from "./AuthService.tsx";
+import { AnnotationCampaign, AnnotationTask } from "./ApiService.data.tsx";
+import { ApiServiceParent } from "./ApiService.parent.tsx";
 
-export class AnnotationCampaignsApiService {
+export class AnnotationCampaignsApiService extends ApiServiceParent {
   public static shared: AnnotationCampaignsApiService = new AnnotationCampaignsApiService();
   private URI = '/api/annotation-campaign';
 
   private listRequest: SuperAgentRequest = get(this.URI);
+  private retrieveRequest?: SuperAgentRequest;
+  private downloadReportRequest?: SuperAgentRequest;
+  private downloadReportStatusRequest?: SuperAgentRequest;
 
   public async list(): Promise<Array<AnnotationCampaign>> { // TODO: check type
-    try {
-      const response = await this.listRequest.set("Authorization", AuthService.shared.bearer);
-      return response.body;
-    } catch (e) {
-      this.handleError(e);
-      throw e;
-    }
+    const response = await this.doRequest(this.listRequest);
+    return response.body
   }
 
-  public abortList(): void {
-    this.listRequest.abort();
+  public async retrieve(id: string): Promise<{ campaign: AnnotationCampaign, tasks: Array<AnnotationTask> }> {
+    this.retrieveRequest?.abort();
+    this.retrieveRequest = get(`${ this.URI }/${id}`)
+    const response = await this.doRequest(this.listRequest);
+    return response.body;
   }
 
-  private handleError(error: any) {
-    if (error?.status === 401) AuthService.shared.logout();
+  public async downloadResult(campaign: AnnotationCampaign): Promise<any> {
+    this.downloadReportRequest?.abort();
+    const filename = campaign.name.replace(' ', '_') + '_results.csv';
+    this.downloadReportRequest = get(`${ this.URI }/${campaign.id}/report`)
+    await this.downloadRequest(this.downloadReportRequest, filename);
+  }
+
+  public async downloadResultStatus(campaign: AnnotationCampaign): Promise<any> {
+    this.downloadReportStatusRequest?.abort();
+    const filename = campaign.name.replace(' ', '_') + '_task_status.csv';
+    this.downloadReportStatusRequest = get(`${ this.URI }/${campaign.id}/report_status`)
+    await this.downloadRequest(this.downloadReportStatusRequest, filename);
+  }
+
+  public abortRequests(): void {
+    this.listRequest.abort()
+    this.retrieveRequest?.abort();
+    this.downloadReportRequest?.abort();
+    this.downloadReportStatusRequest?.abort();
+    if (this.currentRequestedUrl) URL.revokeObjectURL(this.currentRequestedUrl);
   }
 }
