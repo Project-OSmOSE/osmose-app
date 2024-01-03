@@ -1,8 +1,8 @@
 import { FC, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link, useHistory } from 'react-router-dom';
 
-import { Login } from './Login';
-import DatasetList from './DatasetList';
+import { Login } from './pages/Login.tsx';
+import DatasetList from './pages/DatasetList.tsx';
 import AnnotationCampaignList from './AnnotationCampaignList';
 import AnnotationCampaignDetail from './AnnotationCampaignDetail';
 import EditAnnotationCampaign from './EditAnnotationCampaign';

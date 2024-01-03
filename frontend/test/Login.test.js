@@ -3,7 +3,7 @@ import React from 'react';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
-import Login from '../src/Login';
+import Login from '../src/pages/Login.js';
 
 describe('testing Login component', function () {
     this.timeout(20000);
