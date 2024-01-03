@@ -9,6 +9,7 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
   private listRequest: SuperAgentRequest = get(this.URI);
   private retrieveRequest?: SuperAgentRequest;
   private createRequest: SuperAgentRequest = post(this.URI);
+  private addAnnotatorsRequest?: SuperAgentRequest;
   private downloadReportRequest?: SuperAgentRequest;
   private downloadReportStatusRequest?: SuperAgentRequest;
 
@@ -28,6 +29,12 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
     await this.doRequest(this.createRequest.send(data));
   }
 
+  public async addAnnotators(campaignId: string, data: any): Promise<void> {
+    this.addAnnotatorsRequest?.abort();
+    this.addAnnotatorsRequest = post(`${this.URI}/${campaignId}/add_annotators`);
+    await this.doRequest(this.addAnnotatorsRequest.send(data));
+  }
+
   public async downloadResult(campaign: AnnotationCampaign): Promise<any> {
     this.downloadReportRequest?.abort();
     const filename = campaign.name.replace(' ', '_') + '_results.csv';
@@ -45,6 +52,7 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
   public abortRequests(): void {
     this.listRequest.abort()
     this.retrieveRequest?.abort();
+    this.addAnnotatorsRequest?.abort();
     this.createRequest.abort();
     this.downloadReportRequest?.abort();
     this.downloadReportStatusRequest?.abort();

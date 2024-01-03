@@ -5,7 +5,7 @@ import { Login } from './pages/Login.tsx';
 import DatasetList from './pages/DatasetList.tsx';
 import AnnotationCampaignList from './pages/AnnotationCampaignList.tsx';
 import AnnotationCampaignDetail from './pages/AnnotationCampaignDetail.tsx';
-import EditAnnotationCampaign from './EditAnnotationCampaign';
+import EditAnnotationCampaign from './pages/EditAnnotationCampaign.tsx';
 import CreateAnnotationCampaign from './pages/CreateAnnotationCampaign.tsx';
 import AnnotationTaskList from './pages/AnnotationTaskList.tsx';
 import AudioAnnotator from './AudioAnnotator/AudioAnnotator';
