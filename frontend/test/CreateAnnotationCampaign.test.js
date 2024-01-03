@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
-import { ShowAnnotationSet } from '../src/CreateAnnotationCampaign';
-import CreateAnnotationCampaign from '../src/CreateAnnotationCampaign';
+import { ShowAnnotationSet } from '../src/pages/CreateAnnotationCampaign.js';
+import CreateAnnotationCampaign from '../src/pages/CreateAnnotationCampaign.js';
 
 import datasets from './fixtures/dataset_list.json';
 import annotation_sets from './fixtures/annotation_set_list.json';

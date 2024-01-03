@@ -1,4 +1,4 @@
-import { SuperAgentRequest, get } from "superagent";
+import { SuperAgentRequest, get, post } from "superagent";
 import { AnnotationCampaign, AnnotationTaskStatus } from "./ApiService.data.tsx";
 import { ApiServiceParent } from "./ApiService.parent.tsx";
 
@@ -8,6 +8,7 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
 
   private listRequest: SuperAgentRequest = get(this.URI);
   private retrieveRequest?: SuperAgentRequest;
+  private createRequest: SuperAgentRequest = post(this.URI);
   private downloadReportRequest?: SuperAgentRequest;
   private downloadReportStatusRequest?: SuperAgentRequest;
 
@@ -21,6 +22,10 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
     this.retrieveRequest = get(`${ this.URI }/${id}`)
     const response = await this.doRequest(this.listRequest);
     return response.body;
+  }
+
+  public async create(data: any): Promise<void> {
+    await this.doRequest(this.createRequest.send(data));
   }
 
   public async downloadResult(campaign: AnnotationCampaign): Promise<any> {
@@ -40,6 +45,7 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
   public abortRequests(): void {
     this.listRequest.abort()
     this.retrieveRequest?.abort();
+    this.createRequest.abort();
     this.downloadReportRequest?.abort();
     this.downloadReportStatusRequest?.abort();
     if (this.currentRequestedUrl) URL.revokeObjectURL(this.currentRequestedUrl);

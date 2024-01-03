@@ -1,3 +1,7 @@
+export interface Item {
+  id: number,
+  name: string
+}
 export type Dataset = {
   id: string,
   name: string,
@@ -15,21 +19,26 @@ export type Dataset = {
   start_date: string,
   end_date: string,
   created_at: string,
+  spectros: Array<SpectrogramConfiguration>
 };
+
+export interface SpectrogramConfiguration extends Item {}
 
 export type AnnotationCampaign = {
   id: string,
   name: string,
   created_at: string,
-  desc: string,
-  instructions_url: string,
+  desc?: string,
+  instructions_url?: string,
   annotation_set: AnnotationSet,
   confidence_indicator_set: ConfidenceIndicatorSet,
   files_count: number,
   user_tasks_count: number,
   user_complete_tasks_count: number,
   start: string, //TODO: rename start_date
-  end: string, //TODO: rename end_date
+  end: string, //TODO: rename end_date,
+  datasets: Array<Dataset>,
+  spectro_configs: Array<SpectrogramConfiguration>
 }
 
 export type AnnotationSet = {
@@ -47,9 +56,8 @@ export type ConfidenceIndicatorSet = {
   default_confidence_indicator: number,
 }
 
-export type User = {
-  id: string,
-  email: string,
+export interface User extends Item {
+  email: string;
 }
 
 export type AnnotationTaskStatus = {
@@ -71,4 +79,13 @@ export enum TaskStatus {
   created = 'Created',
   started = 'Started',
   finished = 'finished'
+}
+export enum AnnotationMode {
+  boxes = 1,
+  wholeFile = 2
+}
+export enum AnnotationMethod {
+  notSelected = -1,
+  random = 0,
+  sequential = 1
 }
