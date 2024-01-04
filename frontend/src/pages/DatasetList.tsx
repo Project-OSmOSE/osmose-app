@@ -36,7 +36,8 @@ const DatasetList: React.FC = () => {
       try {
         toastMessage = JSON.parse(error?.response.text)
       } catch (jsonError) {
-        toastMessage = error?.response.text
+        console.debug(error)
+        toastMessage = error?.response?.text ?? error.message
       }
       setToastMsg({ msg: toastMessage, lvl: "danger" })
     } else {
