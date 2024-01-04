@@ -1,5 +1,5 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
-import { AuthService } from '../services/AuthService.tsx';
+import { AuthService } from '../services/API/AuthService.tsx';
 
 
 export const Login: FC = () => {

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import ListChooser from '../ListChooser.tsx';
-import { DatasetApiService } from "../services/DatasetApiService.tsx";
+import ListChooser from '../components/ListChooser.tsx';
+import { DatasetApiService } from "../services/API/DatasetApiService.tsx";
 import {
   AnnotationMethod,
   AnnotationMode,
@@ -9,11 +9,11 @@ import {
   Dataset,
   SpectrogramConfiguration,
   User
-} from "../services/ApiService.data.tsx";
-import { AnnotationSetApiService } from "../services/AnnotationSetApiService.tsx";
-import { UserApiService } from "../services/UserApiService.tsx";
-import { ConfidenceSetApiService } from "../services/ConfidenceSetApiService.tsx";
-import { AnnotationCampaignsApiService } from "../services/AnnotationCampaignsApiService.tsx";
+} from "../services/API/ApiService.data.tsx";
+import { AnnotationSetApiService } from "../services/API/AnnotationSetApiService.tsx";
+import { UserApiService } from "../services/API/UserApiService.tsx";
+import { ConfidenceSetApiService } from "../services/API/ConfidenceSetApiService.tsx";
+import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
 import { useHistory } from "react-router-dom";
 
 

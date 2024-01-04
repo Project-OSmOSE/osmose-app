@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnnotationCampaign, User } from "../services/ApiService.data.tsx";
-import { UserApiService } from "../services/UserApiService.tsx";
-import { AnnotationCampaignsApiService } from "../services/AnnotationCampaignsApiService.tsx";
+import { AnnotationCampaign, User } from "../services/API/ApiService.data.tsx";
+import { UserApiService } from "../services/API/UserApiService.tsx";
+import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
 
 type ACDProps = {
   match: {

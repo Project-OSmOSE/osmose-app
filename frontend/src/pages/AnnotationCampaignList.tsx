@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnnotationCampaign } from "../services/ApiService.data.tsx";
-import { AnnotationCampaignsApiService } from "../services/AnnotationCampaignsApiService.tsx";
+import { AnnotationCampaign } from "../services/API/ApiService.data.tsx";
+import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
 
 
 const AnnotationCampaignList: React.FC = () => {

@@ -17,7 +17,7 @@ import './css/materialize.min.css';
 import './css/bootstrap-4.1.3.min.css';
 
 import './css/app.css';
-import { AuthService } from "./services/AuthService.tsx";
+import { AuthService } from "./services/API/AuthService.tsx";
 
 const Navbar = () => (
   <div className="col-sm-2 border rounded">

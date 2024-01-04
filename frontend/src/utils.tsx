@@ -1,5 +1,10 @@
 // Utils functions
 
+export const alphanumeric_keys = [
+  ["&", "é", "\"", "'", "(", "-", "è", "_", "ç"],
+  ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+];
+
 export function arrayToMap(array: Array<any>, key: any) {
   let res = new Map();
   array.forEach((item) => {
@@ -34,6 +39,18 @@ export function buildTagColors(tags: Array<string>): Map<string, string> {
 }
 
 export function getTagColor(tags: Map<string, string>, tag: string): string {
-  const color: string | undefined = tags.get(tag);
-  return color ? color : '#bbbbbb';
+  return tags.get(tag) ?? '#bbbbbb';
+}
+
+export function buildErrorMessage (err: any): string {
+  if (err !== null && typeof err === 'object' && err.status && err.message) {
+    return 'Status: ' + err.status.toString() +
+      ' - Reason: ' + err.message +
+      (err.response.body.title ? ` - ${err.response.body.title}` : '') +
+      (err.response.body.detail ? ` - ${err.response.body.detail}` : '');
+  } else if (typeof err === 'string') {
+    return err;
+  } else {
+    return err?.toString();
+  }
 }

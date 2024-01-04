@@ -2,7 +2,7 @@ import assert from 'assert';
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ListChooser from '../src/ListChooser';
+import ListChooser from '../src/components/ListChooser.js';
 
 describe('testing ListChooser component', function () {
     this.timeout(20000);

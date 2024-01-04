@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Component, MouseEvent, PointerEvent, WheelEvent } from 'react';
+import React, { ChangeEvent, MouseEvent, PointerEvent, useEffect, useRef, useState, WheelEvent } from 'react';
 import * as utils from '../utils';
 
 import type { Annotation, FileMetadata, SpectroUrlsParams } from './AudioAnnotator';
@@ -6,8 +6,8 @@ import { TYPE_BOX } from './AudioAnnotator';
 import Region from './Region';
 
 // Component dimensions constants
-const CANVAS_HEIGHT: number = 512;
-const CANVAS_WIDTH: number = 1813;
+export const SPECTRO_CANVAS_HEIGHT: number = 512;
+const SPECTRO_CANVAS_WIDTH: number = 1813;
 const CONTROLS_AREA_SIZE: number = 80;
 const TIME_AXIS_SIZE: number = 30;
 const FREQ_AXIS_SIZE: number = 35;
@@ -45,7 +45,7 @@ type WorkbenchProps = {
   fileMetadata: FileMetadata,
   startFrequency: number,
   frequencyRange: number,
-  spectroUrlsParams: Array<SpectroUrlsParams>,
+  availableSpectroConfigs: Array<SpectroUrlsParams>,
   annotations: Array<Annotation>,
   onAnnotationCreated: (a: Annotation) => void,
   onAnnotationUpdated: (a: Annotation) => void,
@@ -58,81 +58,131 @@ type WorkbenchProps = {
   currentDefaultConfidenceIndicator?: string,
 };
 
-type WorkbenchState = {
-  wrapperWidth: number,
-  wrapperHeight: number,
-  timePxRatio: number,
-  freqPxRatio: number,
-  currentParams: SpectroParams,
-  currentZoom: number,
-  spectrograms: Array<SpectroDetails>,
-  newAnnotation?: Annotation,
-  loadingZoomLvl: number,
-  pointerFrequency?: number;
-  pointerTime?: number;
-};
-
-class Workbench extends Component<WorkbenchProps, WorkbenchState> {
+const Workbench: React.FC<WorkbenchProps> = ({
+                                               availableSpectroConfigs,
+                                               annotations,
+                                               startFrequency,
+                                               tagColors,
+                                               onAnnotationDeleted,
+                                               onAnnotationUpdated,
+                                               onAnnotationPlayed,
+                                               onAnnotationSelected,
+                                               duration,
+                                               frequencyRange,
+                                               drawingEnabled,
+                                               currentDefaultConfidenceIndicator,
+                                               currentDefaultTagAnnotation,
+                                               currentTime,
+                                               onSeek,
+                                               fileMetadata,
+                                               onAnnotationCreated
+                                             }) => {
   /**
    * Ref to canvas wrapper is used to modify its scrollLeft property.
-   * @property {any} wrapperRef React reference to the wrapper
+   * @property { RefObject<HTMLDivElement>} wrapperRef React reference to the wrapper
    */
-  wrapperRef: any;
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   /**
    * Ref to canvases are used to get their context.
-   * @property {any} canvasRef React reference to the canvas
+   * @property { RefObject<HTMLCanvasElement>} canvasRef React reference to the canvas
    */
-  canvasRef: any;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const timeAxisRef = useRef<HTMLCanvasElement>(null);
+  const freqAxisRef = useRef<HTMLCanvasElement>(null);
 
-  timeAxisRef: any;
-  freqAxisRef: any;
+  const [timePxRatio, setTimePxRatio] = useState<number>(0);
+  const [freqPxRatio, setFreqPxRatio] = useState<number>(0);
+  const [currentZoom, setCurrentZoom] = useState<number>(1);
 
-  isDrawing: boolean;
-  drawPxMove: number;
-  drawStartTime: number;
-  drawStartFrequency: number;
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [drawPxMove, setDrawPxMove] = useState<number>(1);
+  const [drawStartTime, setDrawStartTime] = useState<number>(1);
+  const [pointerFrequency, setPointerFrequency] = useState<number | undefined>(undefined);
+  const [pointerTime, setPointerTime] = useState<number | undefined>(undefined);
+  const [drawStartFrequency, setDrawStartFrequency] = useState<number>(1);
 
-  constructor(props: WorkbenchProps) {
-    super(props);
+  const [newAnnotation, setNewAnnotation] = useState<Annotation | undefined>();
 
-    let currentParams: SpectroParams = {nfft: 0, winsize: 0, overlap: 0, zoom: 0};
-    if (props.spectroUrlsParams.length > 0) {
-      const params = props.spectroUrlsParams[0];
-      currentParams = {
-        nfft: params.nfft,
-        winsize: params.winsize,
-        overlap: params.overlap,
-        zoom: 1,
-      };
+  const [currentParams, setCurrentParams] = useState<SpectroParams>({
+    nfft: 0,
+    winsize: 0,
+    overlap: 0,
+    zoom: 0
+  });
+
+  const [spectrograms, setSpectrograms] = useState<Array<SpectroDetails>>([]);
+  const [loadingZoomLvl, setLoadingZoomLvl] = useState<number>(1);
+
+  const availableSpectroConfigsRef = useRef<Array<SpectroUrlsParams>>([])
+  const currentTimeRef = useRef<number>(0)
+
+  useEffect(() => {
+    setTimePxRatio(SPECTRO_CANVAS_WIDTH / duration);
+    setFreqPxRatio(SPECTRO_CANVAS_HEIGHT / frequencyRange);
+    setSpectrograms(buildSpectrogramsDetails(availableSpectroConfigs));
+    if (availableSpectroConfigs.length > 0) setCurrentParams({ ...availableSpectroConfigs[0], zoom: 1 })
+
+
+    // Add event listeners at the document level
+    // (the user is able to release the click on any zone)
+    document.addEventListener('pointermove', onUpdateNewAnnotation);
+    document.addEventListener('pointerup', onEndNewAnnotation);
+    return () => {
+      document.removeEventListener('pointermove', onUpdateNewAnnotation);
+      document.removeEventListener('pointerup', onEndNewAnnotation);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Check if task has changed (new spectrogram URLS)
+    const prevSpectroUrls = availableSpectroConfigsRef.current;
+    const newSpectroUrls = availableSpectroConfigs;
+
+    if (newSpectroUrls.length > 0 && prevSpectroUrls.length > 0 && newSpectroUrls[0] !== prevSpectroUrls[0]) {
+      setSpectrograms(buildSpectrogramsDetails(newSpectroUrls))
+      setLoadingZoomLvl(1);
     }
 
-    this.state = {
-      wrapperWidth: CANVAS_WIDTH,
-      wrapperHeight: CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED,
-      timePxRatio: CANVAS_WIDTH / props.duration,
-      freqPxRatio: CANVAS_HEIGHT / props.frequencyRange,
-      currentParams,
-      currentZoom: 1,
-      spectrograms: [],
-      newAnnotation: undefined,
-      loadingZoomLvl: 1,
-      pointerFrequency: undefined,
-      pointerTime: undefined,
-    };
+    // Re-render
+    renderCanvas();
+    renderTimeAxis();
+    renderFreqAxis();
+    availableSpectroConfigsRef.current = availableSpectroConfigs;
+  }, [availableSpectroConfigs]);
 
-    this.wrapperRef = React.createRef();
-    this.canvasRef = React.createRef();
-    this.timeAxisRef = React.createRef();
-    this.freqAxisRef = React.createRef();
+  useEffect(() => {
+    // Scroll if progress bar reach the right edge of the screen
+    const wrapper = wrapperRef.current;
+    const canvas = canvasRef.current;
+    if (!wrapper || !canvas) return;
+    const oldX: number = Math.floor(canvas.width * currentTimeRef.current / duration);
+    const newX: number = Math.floor(canvas.width * currentTime / duration);
 
-    this.isDrawing = false;
-    this.drawPxMove = 0;
-    this.drawStartTime = 0;
-    this.drawStartFrequency = 0;
-  }
+    if ((oldX - wrapper.scrollLeft) < SPECTRO_CANVAS_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_CANVAS_WIDTH) {
+      wrapper.scrollLeft += SPECTRO_CANVAS_WIDTH;
+    }
 
-  buildSpectrogramsDetails(params: Array<SpectroUrlsParams>): Array<SpectroDetails> {
+    // Re-render
+    renderCanvas();
+    renderTimeAxis();
+    renderFreqAxis();
+  }, [currentTime]);
+
+  useEffect(() => {
+    renderCanvas();
+  }, [newAnnotation]);
+
+  useEffect(() => {
+    loadNextZoomLevel();
+  }, [loadingZoomLvl]);
+
+  useEffect(() => {
+    loadNextZoomLevel();
+  }, [currentParams]);
+
+
+  const buildSpectrogramsDetails = (params: Array<SpectroUrlsParams>): Array<SpectroDetails> => {
     return params.flatMap(conf => {
       // URL
       const baseUrlRegexp = /(.*\/)(.*)_[\d]*_[\d]*(\..*)/;
@@ -152,27 +202,27 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       const zoomLevels: Array<number> = [...Array(nbZooms)].map((_, i) => Math.pow(2, i));
 
       return zoomLevels.map(zoom => {
-        const step: number = this.props.duration / zoom;
+        const step: number = duration / zoom;
 
         const images = [...Array(zoom)].map((_, i) => {
           const start: number = i * step;
           const end: number = (i + 1) * step;
-          const src: string = `${base.urlPrefix}${base.urlFileName}_${zoom.toString()}_${i}${base.urlFileExtension}`;
-          return {start, end, src, image: undefined};
+          const src: string = `${ base.urlPrefix }${ base.urlFileName }_${ zoom.toString() }_${ i }${ base.urlFileExtension }`;
+          return { start, end, src, image: undefined };
         });
 
-        return Object.assign({}, base, {zoom, images});
+        return Object.assign({}, base, { zoom, images });
       });
     });
   }
 
-  onSpectroImageComplete = () => {
+  const onSpectroImageComplete = () => {
     // Re-render canvas with new image
-    this.renderCanvas();
+    renderCanvas();
 
     // Retrieve current loading zoom with current details
-    const details: SpectroDetails | undefined = this.getSpectrosForCurrentDetails()
-      .find(details => details.zoom === this.state.loadingZoomLvl);
+    const details: SpectroDetails | undefined = getSpectrosForCurrentDetails()
+      .find(details => details.zoom === loadingZoomLvl);
 
     if (details) {
       // Check if zoom lvl is loaded
@@ -181,88 +231,40 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
 
       if (isZoomLvlLoaded) {
         // Go on with next level if exists
-        const zoomLevels = this.getSpectrosForCurrentDetails()
+        const zoomLevels = getSpectrosForCurrentDetails()
           .map(details => details.zoom)
           .sort((a, b) => a - b);
-        const zoomIdx: number = zoomLevels.findIndex(factor => factor === this.state.loadingZoomLvl);
+        const zoomIdx: number = zoomLevels.findIndex(factor => factor === loadingZoomLvl);
 
         if (zoomIdx < zoomLevels.length - 1) {
-          this.setState({
-            loadingZoomLvl: zoomLevels[zoomIdx + 1],
-          }, this.loadNextZoomLevel);
+          setLoadingZoomLvl(zoomLevels[zoomIdx + 1])
         }
       }
     }
   }
 
-  loadNextZoomLevel() {
-    const currentDetails: SpectroDetails | undefined = this.getSpectrosForCurrentDetails()
-      .find(details => details.zoom === this.state.loadingZoomLvl);
+  const loadNextZoomLevel = () => {
+    const currentDetails: SpectroDetails | undefined = getSpectrosForCurrentDetails()
+      .find(details => details.zoom === loadingZoomLvl);
 
     if (currentDetails) {
       const newImages: Array<Spectrogram> = currentDetails.images.map(spectro => {
         const image = new Image();
         image.src = spectro.src;
-        image.onload = this.onSpectroImageComplete;
+        image.onload = onSpectroImageComplete;
         return Object.assign({}, spectro, { image: image });
       });
 
-      const filteredDetails: Array<SpectroDetails> = this.getAllSpectrosButCurrentForZoom(this.state.loadingZoomLvl);
+      const filteredDetails: Array<SpectroDetails> = getAllSpectrosButCurrentForZoom(loadingZoomLvl);
 
-      this.setState({
-        spectrograms: filteredDetails.concat(Object.assign({}, currentDetails, { images: newImages })),
-      });
+      setSpectrograms(filteredDetails.concat(Object.assign({}, currentDetails, { images: newImages })))
     }
   }
 
-  componentDidMount() {
-    // Handling spectrogram images
-    const spectrograms: Array<SpectroDetails> = this.buildSpectrogramsDetails(this.props.spectroUrlsParams);
-    this.setState({spectrograms}, this.loadNextZoomLevel);
-
-    // Add event listeners at the document level
-    // (the user is able to release the click on any zone)
-    document.addEventListener('pointermove', this.onUpdateNewAnnotation);
-    document.addEventListener('pointerup', this.onEndNewAnnotation);
-  }
-
-  componentDidUpdate(prevProps: WorkbenchProps) {
-    // Check if task has changed (new spectrogram URLS)
-    const prevSpectroUrls: Array<SpectroUrlsParams> = prevProps.spectroUrlsParams;
-    const newSpectroUrls: Array<SpectroUrlsParams> = this.props.spectroUrlsParams;
-
-    if (newSpectroUrls.length > 0 && prevSpectroUrls.length > 0 && newSpectroUrls[0] !== prevSpectroUrls[0]) {
-      const spectrograms: Array<SpectroDetails> = this.buildSpectrogramsDetails(newSpectroUrls);
-      this.setState({
-        spectrograms,
-        loadingZoomLvl: 1,
-      }, this.loadNextZoomLevel);
-    }
-
-    // Scroll if progress bar reach the right edge of the screen
-    const wrapper: HTMLElement = this.wrapperRef.current;
-    const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const oldX: number = Math.floor(canvas.width * prevProps.currentTime / this.props.duration);
-    const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
-
-    if ((oldX - wrapper.scrollLeft) < CANVAS_WIDTH && (newX - wrapper.scrollLeft) >= CANVAS_WIDTH) {
-      wrapper.scrollLeft += CANVAS_WIDTH;
-    }
-
-    // Re-render
-    this.renderCanvas();
-    this.renderTimeAxis();
-    this.renderFreqAxis();
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('pointermove', this.onUpdateNewAnnotation);
-    document.removeEventListener('pointerup', this.onEndNewAnnotation);
-  }
-
-  getTimeFromClientX = (clientX: number) => {
-    const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const bounds: ClientRect = canvas.getBoundingClientRect();
+  const getTimeFromClientX = (clientX: number): number => {
+    const canvas = canvasRef.current;
+    if (!canvas) return 0;
+    const bounds = canvas.getBoundingClientRect();
 
     // Offset: nb of pixels from the axis (left)
     let offset: number = clientX - bounds.left;
@@ -272,12 +274,13 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       offset = canvas.width;
     }
 
-    return offset / this.state.timePxRatio;
+    return offset / timePxRatio;
   }
 
-  getFrequencyFromClientY = (clientY: number) => {
-    const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const bounds: ClientRect = canvas.getBoundingClientRect();
+  const getFrequencyFromClientY = (clientY: number): number => {
+    const canvas = canvasRef.current;
+    if (!canvas) return 0;
+    const bounds = canvas.getBoundingClientRect();
 
     // Offset: nb of pixels from the axis (bottom)
     let offset: number = bounds.bottom - clientY;
@@ -287,478 +290,439 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
       offset = 0;
     }
 
-    return this.props.startFrequency + offset / this.state.freqPxRatio;
+    return startFrequency + offset / freqPxRatio;
   }
 
-  seekTo = (event: MouseEvent<HTMLCanvasElement>) => {
-    this.props.onSeek(this.getTimeFromClientX(event.clientX));
+  const seekTo = (event: MouseEvent<HTMLCanvasElement>) => {
+    onSeek(getTimeFromClientX(event.clientX));
   }
 
-  onWheelZoom = (event: WheelEvent<HTMLCanvasElement>) => {
+  const onWheelZoom = (event: WheelEvent<HTMLCanvasElement>) => {
     // Prevent page scrolling
     event.preventDefault();
 
     if (event.deltaY < 0) {
       // Zoom in
-      this.zoom(1, event.clientX);
+      zoom(1, event.clientX);
     } else if (event.deltaY > 0) {
       // Zoom out
-      this.zoom(-1, event.clientX);
+      zoom(-1, event.clientX);
     }
   }
 
-  getSpectrosForCurrentDetails(): Array<SpectroDetails> {
-    return this.state.spectrograms.filter((details: SpectroDetails) =>
-      (this.state.currentParams.nfft === details.nfft) &&
-        (this.state.currentParams.winsize === details.winsize) &&
-        (this.state.currentParams.overlap === details.overlap)
+  const getSpectrosForCurrentDetails = (): Array<SpectroDetails> => {
+    return spectrograms.filter((details: SpectroDetails) =>
+      (currentParams.nfft === details.nfft) &&
+      (currentParams.winsize === details.winsize) &&
+      (currentParams.overlap === details.overlap)
     );
   }
 
-  getAllSpectrosButCurrentForZoom(zoomIdx: number): Array<SpectroDetails> {
-    return this.state.spectrograms.filter((details: SpectroDetails) =>
-      (
-        (this.state.currentParams.nfft === details.nfft) &&
-        (this.state.currentParams.winsize === details.winsize) &&
-        (this.state.currentParams.overlap === details.overlap) &&
-        (zoomIdx !== details.zoom)
-      ) || (
-        (this.state.currentParams.nfft !== details.nfft) ||
-        (this.state.currentParams.winsize !== details.winsize) ||
-        (this.state.currentParams.overlap !== details.overlap)
-      )
+  const getAllSpectrosButCurrentForZoom = (zoomIdx: number): Array<SpectroDetails> => {
+    return spectrograms.filter((details: SpectroDetails) =>
+        (
+          (currentParams.nfft === details.nfft) &&
+          (currentParams.winsize === details.winsize) &&
+          (currentParams.overlap === details.overlap) &&
+          (zoomIdx !== details.zoom)
+        ) || (
+          (currentParams.nfft !== details.nfft) ||
+          (currentParams.winsize !== details.winsize) ||
+          (currentParams.overlap !== details.overlap)
+        )
     );
   }
 
-  changeCurrentParams = (event: ChangeEvent<HTMLSelectElement>) => {
-    const fullParams = this.props.spectroUrlsParams[parseInt(event.target.value, 10)];
-    const newParams = {
+  const changeCurrentParams = (event: ChangeEvent<HTMLSelectElement>) => {
+    const fullParams = availableSpectroConfigs[+event.target.value];
+    setCurrentParams({
       nfft: fullParams.nfft,
       winsize: fullParams.winsize,
       overlap: fullParams.overlap,
       zoom: 1,
-    };
-    this.setState({
-      currentParams: newParams,
-      loadingZoomLvl: 1,
-    }, this.loadNextZoomLevel);
+    });
   }
 
-  zoom = (direction: number, xFrom?: number) => {
-    const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
+  const zoom = (direction: number, xFrom?: number) => {
+    const canvas = canvasRef.current;
+    const timeAxis = timeAxisRef.current;
+    const wrapper = wrapperRef.current;
+    if (!canvas || !timeAxis || !wrapper) return;
 
-    const zoomLevels = this.getSpectrosForCurrentDetails()
+    const zoomLevels = getSpectrosForCurrentDetails()
       .map(details => details.zoom)
       .sort((a, b) => a - b);
 
-    const oldZoomIdx: number = zoomLevels.findIndex(factor => factor === this.state.currentZoom);
-    let newZoom: number = this.state.currentZoom;
+    const oldZoomIdx: number = zoomLevels.findIndex(factor => factor === currentZoom);
+    let newZoom: number = currentZoom;
 
     // When zoom will be free: if (direction > 0 && oldZoomIdx < zoomLevels.length - 1)
     if (direction > 0 && oldZoomIdx < 4 && oldZoomIdx < zoomLevels.length - 1) {
       // Zoom in
-      newZoom = zoomLevels[oldZoomIdx+1];
+      newZoom = zoomLevels[oldZoomIdx + 1];
     } else if (direction < 0 && oldZoomIdx > 0) {
       // Zoom out
-      newZoom = zoomLevels[oldZoomIdx-1];
+      newZoom = zoomLevels[oldZoomIdx - 1];
     }
 
     // If zoom factor has changed
-    if (newZoom !== this.state.currentZoom) {
-      // New timePxRatio
-      const timePxRatio: number = this.state.wrapperWidth * newZoom / this.props.duration;
+    if (newZoom === currentZoom) return;
+    // New timePxRatio
+    const newTimePxRatio: number = SPECTRO_CANVAS_WIDTH * newZoom / duration;
 
-      // Compute new center (before resizing)
-      const wrapper: HTMLElement = this.wrapperRef.current;
-      const zoomRatio = newZoom / this.state.currentZoom;
+    // Resize canvases and scroll
+    canvas.width = SPECTRO_CANVAS_WIDTH * newZoom;
+    timeAxis.width = SPECTRO_CANVAS_WIDTH * newZoom;
 
-      let newCenter: number = 0;
-      if (xFrom) {
-        // x-coordinate has been given, center on it
-        const bounds: ClientRect = canvas.getBoundingClientRect();
-        newCenter = (xFrom - bounds.left) * zoomRatio;
-      } else {
-        // If no x-coordinate: center on currentTime
-        newCenter = this.props.currentTime * timePxRatio;
-      }
-      const scroll = Math.floor(newCenter - CANVAS_WIDTH / 2);
-
-      // Resize canvases and scroll
-      canvas.width = this.state.wrapperWidth * newZoom;
-      timeAxis.width = this.state.wrapperWidth * newZoom;
-
-      wrapper.scrollLeft = scroll;
-
-      this.setState({
-        currentZoom: newZoom,
-        timePxRatio,
-      });
+    // Compute new center (before resizing)
+    let newCenter: number;
+    if (xFrom) {
+      // x-coordinate has been given, center on it
+      const bounds = canvas.getBoundingClientRect();
+      newCenter = (xFrom - bounds.left) * newZoom / currentZoom;
+    } else {
+      // If no x-coordinate: center on currentTime
+      newCenter = currentTime * newTimePxRatio;
     }
+    wrapper.scrollLeft = Math.floor(newCenter - SPECTRO_CANVAS_WIDTH / 2);
+
+    setCurrentZoom(newZoom);
+    setTimePxRatio(newTimePxRatio);
   }
 
-  onStartNewAnnotation = (event: PointerEvent<HTMLElement>) => {
-    if (this.props.drawingEnabled) {
-      const newTime: number = this.getTimeFromClientX(event.clientX);
-      const newFrequency: number = this.getFrequencyFromClientY(event.clientY);
+  const onStartNewAnnotation = (event: PointerEvent<HTMLElement>) => {
+    if (!drawingEnabled) return;
 
-      this.isDrawing = true;
-      this.drawPxMove = 0;
-      this.drawStartTime = newTime;
-      this.drawStartFrequency = newFrequency;
+    const newTime: number = getTimeFromClientX(event.clientX);
+    const newFrequency: number = getFrequencyFromClientY(event.clientY);
 
-      const newAnnotation: Annotation = {
-        type: TYPE_BOX,
-        id: undefined,
-        annotation: '',
-        confidenceIndicator: this.props.currentDefaultConfidenceIndicator,
-        startTime: newTime,
-        endTime: newTime,
-        startFrequency: newFrequency,
-        endFrequency: newFrequency,
-        active: false,
-        result_comments: [],
-      };
+    setIsDrawing(true);
+    setDrawPxMove(0);
+    setDrawStartTime(newTime);
+    setDrawStartFrequency(newFrequency);
 
-      this.setState({newAnnotation});
-    }
-  }
-
-  computeNewAnnotation = (e: PointerEvent) => {
-    const currentTime: number = this.getTimeFromClientX(e.clientX);
-    const currentFrequency: number = this.getFrequencyFromClientY(e.clientY);
-
-    const newAnnotation: Annotation = {
+    setNewAnnotation({
       type: TYPE_BOX,
       id: undefined,
-      annotation: this.props.currentDefaultTagAnnotation,
-      confidenceIndicator: this.props.currentDefaultConfidenceIndicator,
-      startTime: Math.min(currentTime, this.drawStartTime),
-      endTime: Math.max(currentTime, this.drawStartTime),
-      startFrequency: Math.min(currentFrequency, this.drawStartFrequency),
-      endFrequency: Math.max(currentFrequency, this.drawStartFrequency),
+      annotation: '',
+      confidenceIndicator: currentDefaultConfidenceIndicator,
+      startTime: newTime,
+      endTime: newTime,
+      startFrequency: newFrequency,
+      endFrequency: newFrequency,
+      active: false,
+      result_comments: [],
+    })
+  }
+
+  const computeNewAnnotation = (e: PointerEvent) => {
+    const currentTime: number = getTimeFromClientX(e.clientX);
+    const currentFrequency: number = getFrequencyFromClientY(e.clientY);
+
+    return {
+      type: TYPE_BOX,
+      id: undefined,
+      annotation: currentDefaultTagAnnotation,
+      confidenceIndicator: currentDefaultConfidenceIndicator,
+      startTime: Math.min(currentTime, drawStartTime),
+      endTime: Math.max(currentTime, drawStartTime),
+      startFrequency: Math.min(currentFrequency, drawStartFrequency),
+      endFrequency: Math.max(currentFrequency, drawStartFrequency),
       active: false,
       result_comments: [],
     };
-    return newAnnotation;
   }
 
-  onUpdateNewAnnotation = (e: any) => {
-    if (this.isDrawing && ++this.drawPxMove > 2) {
-      const newAnnotation: Annotation = this.computeNewAnnotation(e);
-      this.setState({newAnnotation}, this.renderCanvas);
+  const onUpdateNewAnnotation = (e: any) => {
+    if (isDrawing && drawPxMove + 1 > 2) {
+      setNewAnnotation(computeNewAnnotation(e));
     }
+    setDrawPxMove(drawPxMove + 1); // TODO: confirm the behavior, before it was ++drawPxMove in the upper if statement
     // Show pointer frequency/time data
-    const bounds = this.canvasRef.current.getBoundingClientRect();
+    const bounds = canvasRef.current?.getBoundingClientRect();
+    if (!bounds) return;
     if (e.clientX < bounds.x || e.clientX > (bounds.x + bounds.width)
-        || e.clientY < bounds.y || e.clientY > (bounds.y + bounds.height)) {
-        this.setState({
-            pointerTime: undefined,
-            pointerFrequency: undefined
-        })
+      || e.clientY < bounds.y || e.clientY > (bounds.y + bounds.height)) {
+      setPointerFrequency(undefined);
+      setPointerTime(undefined);
     } else {
-      this.setState({
-        pointerFrequency: this.getFrequencyFromClientY(e.clientY),
-        pointerTime: this.getTimeFromClientX(e.clientX)
+      setPointerFrequency(getFrequencyFromClientY(e.clientY));
+      setPointerTime(getTimeFromClientX(e.clientX));
+    }
+  }
+
+  const onEndNewAnnotation = (e: any) => {
+    if (isDrawing && drawPxMove > 2) {
+      onAnnotationCreated(computeNewAnnotation(e));
+      setNewAnnotation(undefined);
+    }
+
+    setIsDrawing(false);
+    setDrawPxMove(0)
+  }
+
+  const renderTimeAxis = () => {
+    const timeAxis = timeAxisRef.current;
+    const context = timeAxis?.getContext('2d');
+    if (!timeAxis || !context) return;
+
+    context.clearRect(0, 0, timeAxis.width, timeAxis.height);
+
+    let step: number = 1; // step of scale (in seconds)
+    let bigStep: number = 5;
+
+    const durationOnScreen: number = SPECTRO_CANVAS_WIDTH / timePxRatio;
+    if (durationOnScreen <= 60) {
+      step = 1;
+      bigStep = 5;
+    } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
+      step = 2;
+      bigStep = 5;
+    } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
+      step = 4;
+      bigStep = 5;
+    } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
+      step = 10;
+      bigStep = 60;
+    } else {
+      step = 30;
+      bigStep = 120;
+    }
+
+    const bounds: DOMRect = timeAxis.getBoundingClientRect();
+    const startTime: number = Math.ceil(getTimeFromClientX(bounds.left));
+    const endTime: number = Math.floor(getTimeFromClientX(bounds.right));
+
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.font = '10px Arial';
+
+    let i: number = 0;
+    for (i = startTime; i <= endTime; i++) {
+      if (i % step === 0) {
+        const x: number = (i - startTime) * timePxRatio;
+
+        if (i % bigStep === 0) {
+          // Bar
+          context.fillRect(x, 0, 2, 15);
+
+          // Text
+          const timeText: string = utils.formatTimestamp(i, false);
+          let xTxt: number = x;
+          if (xTxt > 0) {
+            // "Right align" all labels but first
+            xTxt -= Math.round(timeText.length * 5);
+          }
+          context.fillText(timeText, xTxt, 25);
+        } else {
+          // Bar only
+          context.fillRect(x, 0, 1, 10);
+        }
+      }
+    }
+  }
+
+  const renderFreqAxis = () => {
+    const freqAxis = freqAxisRef.current;
+    const context = freqAxis?.getContext('2d');
+    if (!freqAxis || !context) return;
+
+    context.clearRect(0, 0, freqAxis.width, freqAxis.height);
+
+    let step: number = 500; // step of scale (in hz)
+    let bigStep: number = 2000;
+
+    if (frequencyRange <= 200) {
+      step = 5;
+      bigStep = 20;
+    } else if (frequencyRange > 200 && frequencyRange <= 500) {
+      step = 10;
+      bigStep = 100;
+    } else if (frequencyRange > 500 && frequencyRange <= 2000) {
+      step = 20;
+      bigStep = 100;
+    } else if (frequencyRange > 2000 && frequencyRange <= 20000) {
+      step = 500;
+      bigStep = 2000;
+    } else {
+      step = 2000;
+      bigStep = 10000;
+    }
+
+    const bounds: DOMRect = freqAxis.getBoundingClientRect();
+    const startFreq: number = Math.ceil(startFrequency);
+    const endFreq: number = Math.floor(startFrequency + frequencyRange);
+
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.font = '10px Arial';
+
+    let i: number = 0;
+    for (i = startFreq; i <= endFreq; i += 5) {
+      if (i % step === 0) {
+        const y: number = SPECTRO_CANVAS_HEIGHT - (i - startFreq) * freqPxRatio - 2;
+
+        if (i % bigStep === 0) {
+          // Bar
+          context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+
+          // Text
+          let yTxt: number = y;
+          if (yTxt < (bounds.height - 5)) {
+            // "Top align" all labels but first
+            yTxt += 12;
+          }
+          context.fillText(i.toString(), 0, yTxt);
+        } else {
+          // Bar only
+          context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
+        }
+      }
+    }
+  }
+
+  const renderCanvas = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d', { alpha: false });
+    if (!canvas || !context) return;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw spectro images
+    const spectrograms = getSpectrosForCurrentDetails().find(details => details.zoom === currentZoom);
+
+    if (spectrograms) {
+      spectrograms.images.forEach(spectro => {
+        if (spectro.image && spectro.image.complete) {
+          const image = spectro.image;
+          const x = spectro.start * timePxRatio;
+          const width = Math.floor((spectro.end - spectro.start) * timePxRatio);
+          context.drawImage(image, x, 0, width, canvas.height);
+        }
       });
     }
-  }
 
-  onEndNewAnnotation = (e: any) => {
-    if (this.isDrawing && this.drawPxMove > 2) {
-      this.props.onAnnotationCreated(this.computeNewAnnotation(e));
+    // Progress bar
+    const newX: number = Math.floor(canvas.width * currentTime / duration);
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.fillRect(newX, 0, 1, canvas.height);
 
-      this.setState({newAnnotation: undefined}, this.renderCanvas);
-    }
-
-    this.isDrawing = false;
-    this.drawPxMove = 0;
-  }
-
-  renderTimeAxis = () => {
-    const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
-    const context: CanvasRenderingContext2D | null = timeAxis.getContext('2d');
-
-    if (context) {
-      context.clearRect(0, 0, timeAxis.width, timeAxis.height);
-
-      let step: number = 1; // step of scale (in seconds)
-      let bigStep: number = 5;
-
-      const durationOnScreen: number = this.state.wrapperWidth / this.state.timePxRatio;
-      if (durationOnScreen <= 60) {
-        step = 1;
-        bigStep = 5;
-      } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
-        step = 2;
-        bigStep = 5;
-      } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
-        step = 4;
-        bigStep = 5;
-      } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
-        step = 10;
-        bigStep = 60;
-      } else {
-        step = 30;
-        bigStep = 120;
-      }
-
-      const bounds: DOMRect = timeAxis.getBoundingClientRect();
-      const startTime: number = Math.ceil(this.getTimeFromClientX(bounds.left));
-      const endTime: number = Math.floor(this.getTimeFromClientX(bounds.right));
-
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.font = '10px Arial';
-
-      let i: number = 0;
-      for (i = startTime ; i <= endTime; i++) {
-        if (i % step === 0) {
-          const x: number = (i - startTime) * this.state.timePxRatio;
-
-          if (i % bigStep === 0) {
-            // Bar
-            context.fillRect(x, 0, 2, 15);
-
-            // Text
-            const timeText: string = utils.formatTimestamp(i, false);
-            let xTxt: number = x;
-            if (xTxt > 0) {
-              // "Right align" all labels but first
-              xTxt -= Math.round(timeText.length * 5);
-            }
-            context.fillText(timeText, xTxt, 25);
-          } else {
-            // Bar only
-            context.fillRect(x, 0, 1, 10);
-          }
-        }
-      }
+    // Render new annotation
+    if (newAnnotation) {
+      const ann: Annotation = newAnnotation;
+      const x: number = Math.floor(ann.startTime * timePxRatio);
+      const freqOffset: number = (ann.startFrequency - startFrequency) * freqPxRatio;
+      const y: number = Math.floor(canvas.height - freqOffset);
+      const width: number = Math.floor((ann.endTime - ann.startTime) * timePxRatio);
+      const height: number = -Math.floor((ann.endFrequency - ann.startFrequency) * freqPxRatio);
+      context.strokeStyle = 'blue';
+      context.strokeRect(x, y, width, height);
     }
   }
 
-  renderFreqAxis = () => {
-    const freqAxis: HTMLCanvasElement = this.freqAxisRef.current;
-    const context: CanvasRenderingContext2D | null = freqAxis.getContext('2d');
 
-    if (context) {
-      context.clearRect(0, 0, freqAxis.width, freqAxis.height);
+  const style = {
+    workbench: {
+      height: `${ CONTROLS_AREA_SIZE + SPECTRO_CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED }px`,
+      width: `${ FREQ_AXIS_SIZE + SPECTRO_CANVAS_WIDTH }px`,
+    },
+    wrapper: {
+      top: `${ CONTROLS_AREA_SIZE }px`,
+      height: `${ SPECTRO_CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED }px`,
+      width: `${ SPECTRO_CANVAS_WIDTH }px`,
+    },
+    canvas: {
+      top: 0,
+      left: 0,
+    },
+    timeAxis: {
+      top: `${ SPECTRO_CANVAS_HEIGHT }px`,
+      left: 0,
+    },
+    freqAxis: {
+      top: `${ CONTROLS_AREA_SIZE }px`,
+      left: 0,
+    },
+  };
 
-      let step: number = 500; // step of scale (in hz)
-      let bigStep: number = 2000;
+  const drawableStatusClass = drawingEnabled ? "drawable" : "";
 
-      if (this.props.frequencyRange <= 200) {
-        step = 5;
-        bigStep = 20;
-      } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
-        step = 10;
-        bigStep = 100;
-      } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
-        step = 20;
-        bigStep = 100;
-      } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
-        step = 500;
-        bigStep = 2000;
-      } else {
-        step = 2000;
-        bigStep = 10000;
-      }
+  const currentSpectroIdx: number = availableSpectroConfigs.findIndex((params) => (
+    params.nfft === currentParams.nfft &&
+    params.overlap === currentParams.overlap &&
+    params.winsize === currentParams.winsize));
 
-      const bounds: DOMRect = freqAxis.getBoundingClientRect();
-      const startFreq: number = Math.ceil(this.props.startFrequency);
-      const endFreq: number = Math.floor(this.props.startFrequency + this.props.frequencyRange);
+  return (
+    <div className="workbench rounded"
+         style={ style.workbench }>
+      <p className="workbench-controls">
+        <select defaultValue={ currentSpectroIdx !== 1 ? currentSpectroIdx : 0 }
+                onChange={ changeCurrentParams }>
+          { availableSpectroConfigs.map((params, idx) => {
+            return (
+              <option key={ `params-${ idx }` } value={ idx }>
+                { `nfft: ${ params.nfft } / winsize: ${ params.winsize } / overlap: ${ params.overlap }` }
+              </option>
+            );
+          }) }
+        </select>
+        <button className="btn-simple fa fa-search-plus" onClick={ () => zoom(1) }></button>
+        <button className="btn-simple fa fa-search-minus" onClick={ () => zoom(-1) }></button>
+        <span>{ currentZoom }x</span>
+      </p>
 
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.font = '10px Arial';
+      { pointerFrequency && pointerTime && <p className="workbench-pointer">
+        { pointerFrequency }Hz / { utils.formatTimestamp(pointerTime, false) }
+      </p> }
 
-      let i: number = 0;
-      for (i = startFreq ; i <= endFreq ; i += 5) {
-        if (i % step === 0) {
-          const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
+      <p className="workbench-info workbench-info--intro">
+        File : <strong>{ fileMetadata.name }</strong> - Sampling
+        : <strong>{ fileMetadata.audioRate } Hz</strong><br/>
+        Start date : <strong>{ fileMetadata.date.toUTCString() }</strong>
+      </p>
 
-          if (i % bigStep === 0) {
-            // Bar
-            context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+      <canvas className="freq-axis"
+              ref={ freqAxisRef }
+              height={ SPECTRO_CANVAS_HEIGHT }
+              width={ FREQ_AXIS_SIZE }
+              style={ style.freqAxis }></canvas>
 
-            // Text
-            let yTxt: number = y;
-            if (yTxt < (bounds.height - 5)) {
-              // "Top align" all labels but first
-              yTxt += 12;
-            }
-            context.fillText(i.toString(), 0, yTxt);
-          } else {
-            // Bar only
-            context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
-          }
-        }
-      }
-    }
-  }
+      <div className="canvas-wrapper"
+           ref={ wrapperRef }
+           style={ style.wrapper }>
+        <canvas className={ `canvas ${ drawableStatusClass }` }
+                ref={ canvasRef }
+                height={ SPECTRO_CANVAS_HEIGHT }
+                width={ SPECTRO_CANVAS_WIDTH }
+                style={ style.canvas }
+                onClick={ seekTo }
+                onPointerDown={ onStartNewAnnotation }
+                onWheel={ onWheelZoom }></canvas>
 
-  renderCanvas = () => {
-    const canvas: HTMLCanvasElement = this.canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext('2d', { alpha: false });
+        <canvas className="time-axis"
+                ref={ timeAxisRef }
+                height={ TIME_AXIS_SIZE }
+                width={ SPECTRO_CANVAS_WIDTH }
+                style={ style.timeAxis }></canvas>
 
-    if (context) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw spectro images
-      const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
-
-      if (spectrograms) {
-        spectrograms.images.forEach(spectro => {
-          if (spectro.image && spectro.image.complete) {
-            const image = spectro.image;
-            const x = spectro.start * this.state.timePxRatio;
-            const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
-            context.drawImage(image, x, 0, width, canvas.height);
-          }
-        });
-      }
-
-      // Progress bar
-      const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.fillRect(newX, 0, 1, canvas.height);
-
-      // Render new annotation
-      if (this.state.newAnnotation) {
-        const ann: Annotation = this.state.newAnnotation;
-        const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
-        const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
-        const y: number = Math.floor(canvas.height - freqOffset);
-        const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
-        const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
-        context.strokeStyle = 'blue';
-        context.strokeRect(x, y, width, height);
-      }
-    }
-  }
-
-  render() {
-    const style = {
-      workbench: {
-        height: `${CONTROLS_AREA_SIZE + CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED}px`,
-        width: `${FREQ_AXIS_SIZE + CANVAS_WIDTH}px`,
-      },
-      wrapper: {
-        top: `${CONTROLS_AREA_SIZE}px`,
-        height: `${this.state.wrapperHeight}px`,
-        width: `${this.state.wrapperWidth}px`,
-      },
-      canvas: {
-        top: 0,
-        left: 0,
-      },
-      timeAxis: {
-        top: `${CANVAS_HEIGHT}px`,
-        left: 0,
-      },
-      freqAxis: {
-        top: `${CONTROLS_AREA_SIZE}px`,
-        left: 0,
-      },
-    };
-
-    const drawableStatusClass = this.props.drawingEnabled ? "drawable" : "";
-
-    const currentSpectroIdx: number = this.props.spectroUrlsParams.findIndex((params) => (
-      params.nfft === this.state.currentParams.nfft &&
-      params.overlap === this.state.currentParams.overlap &&
-      params.winsize === this.state.currentParams.winsize));
-
-    return (
-      <div
-        className="workbench rounded"
-        style={style.workbench}
-      >
-        <p className="workbench-controls">
-          <select defaultValue={currentSpectroIdx !== 1 ? currentSpectroIdx : 0} onChange={this.changeCurrentParams}>
-            {this.props.spectroUrlsParams.map((params, idx) => {
-              return (
-                <option key={`params-${idx}`} value={idx}>
-                  {`nfft: ${params.nfft} / winsize: ${params.winsize} / overlap: ${params.overlap}`}
-                </option>
-              );
-            })}
-          </select>
-          <button className="btn-simple fa fa-search-plus" onClick={() => this.zoom(1)}></button>
-          <button className="btn-simple fa fa-search-minus" onClick={() => this.zoom(-1)}></button>
-          <span>{this.state.currentZoom}x</span>
-        </p>
-
-        { this.state.pointerFrequency && this.state.pointerTime && <p className="workbench-pointer">
-          {this.state.pointerFrequency}Hz / {utils.formatTimestamp(this.state.pointerTime, false)}
-        </p>}
-
-        <p className="workbench-info workbench-info--intro">
-          File : <strong>{this.props.fileMetadata.name}</strong> - Sampling : <strong>{this.props.fileMetadata.audioRate} Hz</strong><br />
-          Start date : <strong>{this.props.fileMetadata.date.toUTCString()}</strong>
-        </p>
-
-        <canvas
-          className="freq-axis"
-          ref={this.freqAxisRef}
-          height={CANVAS_HEIGHT}
-          width={FREQ_AXIS_SIZE}
-          style={style.freqAxis}
-        ></canvas>
-        <div
-          className="canvas-wrapper"
-          ref={this.wrapperRef}
-          style={style.wrapper}
-        >
-          <canvas
-            className={`canvas ${drawableStatusClass}`}
-            ref={this.canvasRef}
-            height={CANVAS_HEIGHT}
-            width={CANVAS_WIDTH}
-            style={style.canvas}
-            onClick={this.seekTo}
-            onPointerDown={this.onStartNewAnnotation}
-            onWheel={this.onWheelZoom}
-          ></canvas>
-
-          <canvas
-            className="time-axis"
-            ref={this.timeAxisRef}
-            height={TIME_AXIS_SIZE}
-            width={CANVAS_WIDTH}
-            style={style.timeAxis}
-          ></canvas>
-
-          {this.props.annotations.map((annotation: Annotation, idx: number) => this.renderRegion(annotation, idx))}
-        </div>
+        { annotations.map((annotation: Annotation, idx: number) => (
+          <Region key={ `region-${ idx.toFixed() }` }
+                  canvasWrapperRef={ wrapperRef }
+                  annotation={ annotation }
+                  spectroStartFrequency={ startFrequency }
+                  color={ utils.getTagColor(tagColors, annotation.annotation) }
+                  timePxRatio={ timePxRatio }
+                  freqPxRatio={ freqPxRatio }
+                  currentZoom={ currentZoom }
+                  onRegionDeleted={ onAnnotationDeleted }
+                  onRegionMoved={ onAnnotationUpdated }
+                  onRegionPlayed={ onAnnotationPlayed }
+                  onRegionClicked={ onAnnotationSelected }
+                  onAddAnotherAnnotation={ onStartNewAnnotation }
+          ></Region>
+        )) }
       </div>
-    );
-  }
-
-  renderRegion = (ann: Annotation, idx: number) => {
-    // Top offset
-    const freqOffset: number = (ann.endFrequency - this.props.startFrequency) * this.state.freqPxRatio;
-    const offsetTop: number = CANVAS_HEIGHT - freqOffset;
-
-    // Left offset
-    const offsetLeft: number = ann.startTime * this.state.timePxRatio;
-
-    return (
-      <Region
-        key={`region-${idx.toFixed()}`}
-        annotation={ann}
-        color={utils.getTagColor(this.props.tagColors, ann.annotation)}
-        timePxRatio={this.state.timePxRatio}
-        freqPxRatio={this.state.freqPxRatio}
-        offsetTop={offsetTop}
-        offsetLeft={offsetLeft}
-        currentZoom={this.state.currentZoom}
-        onRegionDeleted={this.props.onAnnotationDeleted}
-        onRegionMoved={this.props.onAnnotationUpdated}
-        onRegionPlayed={this.props.onAnnotationPlayed}
-        onRegionClicked={this.props.onAnnotationSelected}
-        onAddAnotherAnnotation={this.onStartNewAnnotation}
-       ></Region>
-    );
-  }
+    </div>
+  );
 }
 
 export default Workbench;

@@ -1,9 +1,9 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import ListChooser from '../ListChooser.tsx';
-import { AnnotationCampaignsApiService } from "../services/AnnotationCampaignsApiService.tsx";
-import { AnnotationCampaign, AnnotationMethod, User } from "../services/ApiService.data.tsx";
-import { UserApiService } from "../services/UserApiService.tsx";
+import ListChooser from '../components/ListChooser.tsx';
+import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
+import { AnnotationCampaign, AnnotationMethod, User } from "../services/API/ApiService.data.tsx";
+import { UserApiService } from "../services/API/UserApiService.tsx";
 
 type EACProps = {
   match: {

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Item } from "./services/ApiService.data.tsx";
-
-export type choices_type = Map<number, { id: number, name: string }>;
+import { Item } from "../services/API/ApiService.data.tsx";
 
 type ListChooserProps = {
   choice_type: string,

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnnotationCampaignsApiService } from "../services/AnnotationCampaignsApiService.tsx";
-import { AnnotationTasksApiService } from "../services/AnnotationTasksApiService.tsx";
-import { AnnotationCampaign, AnnotationTask, TaskStatus } from "../services/ApiService.data.tsx";
+import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
+import { AnnotationTasksApiService } from "../services/API/AnnotationTasksApiService.tsx";
+import { AnnotationCampaign, AnnotationTask, TaskStatus } from "../services/API/ApiService.data.tsx";
 
 
 type AnnotationTaskListProps = {
@@ -21,7 +21,7 @@ const AnnotationTaskList: React.FC<AnnotationTaskListProps> = ({ match }) => {
 
   useEffect(() => {
     const campaignID = match.params.campaign_id;
-    AnnotationTasksApiService.shared.list(campaignID).then(setTasks).catch(setError);
+    AnnotationTasksApiService.shared.listForCampaign(campaignID).then(setTasks).catch(setError);
     AnnotationCampaignsApiService.shared.retrieve(campaignID).then(data => setCampaign(data.campaign)).catch(setError);
 
     return () => {

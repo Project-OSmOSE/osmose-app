@@ -73,6 +73,9 @@ export type AnnotationTask = {
   dataset_name: string;
   start: string, //TODO: rename start_date
   end: string, //TODO: rename end_date
+  campaignId: string;
+  instructions_url: string;
+  audioUrl: string;
 }
 
 export enum TaskStatus {

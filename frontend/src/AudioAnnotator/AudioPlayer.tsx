@@ -1,205 +1,133 @@
-import { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
 type AudioPlayerProps = {
-  autoPlay: boolean,
-  children: Node,
-  className: string,
-  controls: boolean,
-  controlsList: string,
-  crossOrigin?: string,
-  id: string,
-  listenInterval: number,
-  loop: boolean,
-  muted: boolean,
-  onAbort: any,
-  onCanPlay: any,
-  onCanPlayThrough: any,
-  onEnded: any,
-  onError: any,
-  onListen: any,
-  onPause: any,
-  onPlay: any,
-  onSeeked: any,
-  onVolumeChanged: any,
-  onLoadedMetadata: any,
-  playbackRate: number,
-  preload: string,
-  src: string,
-  style: any,
-  title: any,
-  volume: number,
+  onAbort: () => void;
+  onEnded: () => void;
+  onError?: (error: any) => void;
+  onListen: (seconds: number) => void;
+  onPause: () => void;
+  onPlay: () => void;
+  onLoadedMetadata: () => void;
+  playbackRate: number;
+  src: string;
 };
 
-class AudioPlayer extends Component<AudioPlayerProps> {
+const AudioPlayer: React.ForwardRefRenderFunction<HTMLAudioElement, AudioPlayerProps> = ({
+                                                   onAbort,
+                                                   onEnded,
+                                                   onError,
+                                                   onListen,
+                                                   onPause,
+                                                   onPlay,
+                                                   onLoadedMetadata,
+                                                   src,
+                                                   playbackRate,
+                                                 }, ref) => {
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>();
+  const [timeUpdateInterval, setTimeUpdateInterval] = useState<any>();
 
-  // audioContext: AudioContext;
-  audioElement!: HTMLAudioElement;
-  listenTracker: any;
+  // static defaultProps = {
+  //   playbackRate: 1.0,
+  // };
 
-  static defaultProps = {
-    autoPlay: false,
-    children: null,
-    className: '',
-    controls: false,
-    controlsList: '',
-    crossOrigin: null,
-    id: '',
-    listenInterval: 10000,
-    loop: false,
-    muted: false,
-    onAbort: () => {},
-    onCanPlay: () => {},
-    onCanPlayThrough: () => {},
-    onEnded: () => {},
-    onError: () => {},
-    onListen: () => {},
-    onPause: () => {},
-    onPlay: () => {},
-    onSeeked: () => {},
-    onVolumeChanged: () => {},
-    onLoadedMetadata: () => {},
-    playbackRate: 1.0,
-    preload: 'metadata',
-    style: {},
-    title: '',
-    volume: 1.0,
-  };
-
-  componentDidMount() {
-    this.updateVolume(this.props.volume);
-    this.updatePlaybackRate(this.props.playbackRate);
-
-    // Do not preserve pitch when changing playback rate
-    if (this.audioElement.preservesPitch !== undefined) {
-      this.audioElement.preservesPitch = false;
+  useEffect(() => {
+    if (audioElement) {
+      audioElement.volume = 1.0;
+      // Do not preserve pitch when changing playback rate
+      audioElement.preservesPitch = false;
+      _updatePlaybackRate(playbackRate ?? 1.0);
     }
-  }
 
-  componentDidUpdate(prevProps: AudioPlayerProps) {
-    if (this.props.volume !== prevProps.volume) {
-      this.updateVolume(this.props.volume);
+    return () => {
+      _clearListenTrack();
     }
-    if (this.props.playbackRate !== prevProps.playbackRate) {
-      this.updatePlaybackRate(this.props.playbackRate);
-    }
-  }
+  }, [])
 
-  onAbort = (e: any) => {
+  useEffect(() => {
+    if (!audioElement) return;
+    _updatePlaybackRate(playbackRate ?? 1.0);
+  }, [playbackRate,])
+
+  const _onAbort = () => {
     // When unloading the audio player (switching to another src)
-    this.clearListenTrack();
-    this.props.onAbort(e);
+    _clearListenTrack();
+    onAbort();
   }
 
-  onPause = (e: any) => {
+  const _onPause = () => {
     // When the user pauses playback
-    this.clearListenTrack();
-    this.props.onPause(e);
+    _clearListenTrack();
+    onPause();
   }
 
-  onPlay = (e: any) => {
+  const _onPlay = () => {
     // When audio play starts
-    this.setListenTrack();
-    this.props.onPlay(e);
+    _setListenTrack();
+    onPlay();
   }
 
-  onEnded = (e: any) => {
+  const _onEnded = () => {
     // When the file has finished playing to the end
-    this.clearListenTrack();
-    this.props.onEnded(e);
-  }
-
-  componentWillUnmount() {
-    this.clearListenTrack();
+    _clearListenTrack();
+    onEnded();
   }
 
   /**
-   * Set an interval to call props.onListen every props.listenInterval time period
+   * Set an interval to call props.onListen every listenInterval time period
    */
-  setListenTrack() {
-    if (!this.listenTracker) {
-      const listenInterval = this.props.listenInterval;
-      this.listenTracker = setInterval(() => {
-        this.props.onListen(this.audioElement.currentTime);
-      }, listenInterval);
-    }
+  const _setListenTrack = () => {
+    if (timeUpdateInterval) return;
+    const listenInterval = 10;
+    setTimeUpdateInterval(setInterval(() => {
+      onListen(audioElement?.currentTime ?? 0);
+    }, listenInterval));
   }
 
   /**
    * Clear the onListen interval
    */
-  clearListenTrack() {
-    if (this.listenTracker) {
-      clearInterval(this.listenTracker);
-      this.listenTracker = null;
-    }
+  const _clearListenTrack = () => {
+    if (!timeUpdateInterval) return;
+    clearInterval(timeUpdateInterval);
+    setTimeUpdateInterval(null);
   }
 
-  /**
-   * Set the volume on the audio element from props
-   * @param {Number} volume 
-   */
-  updateVolume(volume: number) {
-    if (typeof volume === 'number' && volume !== this.audioElement.volume) {
-      this.audioElement.volume = volume;
-    }
+  const _updatePlaybackRate = (rate: number) => {
+    if (!audioElement || rate === audioElement.playbackRate) return;
+    audioElement.playbackRate = rate;
   }
 
-  updatePlaybackRate(rate: number) {
-    if (typeof rate === 'number' && rate !== this.audioElement.playbackRate) {
-      this.audioElement.playbackRate = rate;
-    }
-  }
 
-  render() {
-    const incompatibilyMessage = this.props.children || (
+  // title property used to set lockscreen / process audio title on devices
+  return (
+    <audio autoPlay={ false }
+           className="audio-player"
+           controls={ false }
+           loop={ false }
+           muted={ false }
+           onAbort={ _onAbort }
+           onEnded={ _onEnded }
+           onError={ onError }
+           onLoadedMetadata={ onLoadedMetadata }
+           onPause={ _onPause }
+           onPlay={ _onPlay }
+           preload="auto"
+           ref={ e => {
+             setAudioElement(e);
+             if (typeof ref === 'function') {
+               ref(e);
+             } else if (ref) {
+               ref.current = e;
+             }
+           } }
+           src={ src }
+           title={ src }>
       <p>Your browser does not support the <code>audio</code> element.</p>
-    );
-
-    // Set controls to be true by default unless explicitly stated otherwise
-    const controls = !(this.props.controls === false);
-
-    // Set lockscreen / process audio title on devices
-    const title = this.props.title ? this.props.title : this.props.src;
-
-    // Some props should only be added if specified
-    const conditionalProps: any = {};
-    if (this.props.controlsList) {
-      conditionalProps.controlsList = this.props.controlsList;
-    }
-
-    return (
-      <audio
-        autoPlay={this.props.autoPlay}
-        className={`audio-player ${this.props.className}`}
-        controls={controls}
-        crossOrigin={this.props.crossOrigin}
-        id={this.props.id}
-        loop={this.props.loop}
-        muted={this.props.muted}
-        onAbort={this.onAbort}
-        onCanPlay={this.props.onCanPlay}
-        onCanPlayThrough={this.props.onCanPlayThrough}
-        onEnded={this.onEnded}
-        onError={this.props.onError}
-        onLoadedMetadata={this.props.onLoadedMetadata}
-        onPause={this.onPause}
-        onPlay={this.onPlay}
-        onSeeked={this.props.onSeeked}
-        onVolumeChange={this.props.onVolumeChanged}
-        preload={this.props.preload}
-        ref={(ref) => { if (ref) this.audioElement = ref; }}
-        src={this.props.src}
-        style={this.props.style}
-        title={title}
-        {...conditionalProps}
-      >
-        {incompatibilyMessage}
-      </audio>
-    );
-  }
+    </audio>
+  );
 }
 
-export default AudioPlayer;
+export default React.forwardRef(AudioPlayer);

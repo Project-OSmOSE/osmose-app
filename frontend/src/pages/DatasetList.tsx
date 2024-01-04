@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Toast, { ToastMsg } from '../components/Toast.tsx';
 import '../css/modal.css';
-import { DatasetApiService } from "../services/DatasetApiService.tsx";
+import { DatasetApiService } from "../services/API/DatasetApiService.tsx";
 import ReactDOM from "react-dom";
 import { ModalNewData } from "../components/ModalNewData.tsx";
-import { Dataset } from "../services/ApiService.data.tsx";
+import { Dataset } from "../services/API/ApiService.data.tsx";
 
 
 const DatasetList: React.FC = () => {
