@@ -13,6 +13,7 @@ export const ContactList: React.FC<ContactListProps> = ({
                                                             teamMembers,
                                                             namedMembers
                                                         }) => {
+  if (teamMembers.length < 1 && namedMembers.length < 1) return (<React.Fragment></React.Fragment>);
 
     return (
         <p id="contact-list" className="text-muted">
