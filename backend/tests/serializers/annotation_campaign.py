@@ -8,7 +8,6 @@ from copy import deepcopy
 from backend.api.serializers import (
     AnnotationCampaignCreateSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
-    SpectroConfigSerializer,
 )
 from backend.api.models import AnnotationCampaign, AnnotationTask
 
@@ -65,9 +64,9 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
             campaign, data=update_data
         )
         self.assertFalse(create_serializer.is_valid())
-        self.assertEquals(list(create_serializer.errors.keys()), ["non_field_errors"])
-        self.assertEquals(len(create_serializer.errors["non_field_errors"]), 1)
-        self.assertEquals(
+        self.assertEqual(list(create_serializer.errors.keys()), ["non_field_errors"])
+        self.assertEqual(len(create_serializer.errors["non_field_errors"]), 1)
+        self.assertEqual(
             str(create_serializer.errors["non_field_errors"][0]),
             "{3} not valid ids for spectro configs of given datasets",
         )

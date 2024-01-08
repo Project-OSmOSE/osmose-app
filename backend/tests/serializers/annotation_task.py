@@ -54,8 +54,8 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
         update_data["annotations"][0]["annotation"] = "Unknown"
         update_serializer = AnnotationTaskUpdateSerializer(task, data=update_data)
         self.assertFalse(update_serializer.is_valid())
-        self.assertEquals(list(update_serializer.errors.keys()), ["annotations"])
-        self.assertEquals(len(update_serializer.errors["annotations"]), 1)
+        self.assertEqual(list(update_serializer.errors.keys()), ["annotations"])
+        self.assertEqual(len(update_serializer.errors["annotations"]), 1)
         self.assertIn(
             "{'Unknown'} not valid tags from annotation set",
             str(update_serializer.errors["annotations"][0]),

@@ -1,12 +1,12 @@
-import os, glob
-from random import randint, choice, shuffle
 from datetime import datetime, timedelta
+from random import randint, choice, shuffle
+
+from django.contrib.auth.models import User
+from django.core import management
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from faker import Faker
 
-from django.core import management, files
-from django.utils.dateparse import parse_datetime
-from django.utils import timezone
-from django.contrib.auth.models import User
 from backend.api.models import (
     DatasetType,
     GeoMetadatum,
@@ -21,6 +21,7 @@ from backend.api.models import (
     AnnotationResult,
     News,
 )
+from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
 class Command(management.BaseCommand):
@@ -28,9 +29,11 @@ class Command(management.BaseCommand):
 
     def handle(self, *args, **options):
         # Cleanup
+        print("# Cleanup")
         management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
+        print("# Creation")
         self.faker = Faker()
         self.main_datafile_count = 50
         self._create_users()
@@ -42,6 +45,7 @@ class Command(management.BaseCommand):
         self._create_annotation_results()
         self._create_comments()
         self._create_news()
+        WebsiteCommand().handle(*args, **options)
 
     def _create_users(self):
         users = ["dc", "ek", "ja", "pnhd", "ad", "rv"]
@@ -143,7 +147,7 @@ class Command(management.BaseCommand):
 
     def _create_confidence_sets(self):
 
-        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
+        confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
             desc=self.faker.paragraph(nb_sentences=5),
         )
@@ -151,16 +155,16 @@ class Command(management.BaseCommand):
         confidence_0 = ConfidenceIndicator.objects.create(
             label="not confident",
             level=0,
-            confidence_indicator_set=confidenceIndicatorSet,
+            confidence_indicator_set=confidence_indicator_set,
         )
         confidence_1 = ConfidenceIndicator.objects.create(
             label="confident",
             level=1,
-            confidence_indicator_set=confidenceIndicatorSet,
+            confidence_indicator_set=confidence_indicator_set,
             is_default=True,
         )
         self.confidences_indicators = [confidence_0, confidence_1]
-        self.confidenceIndicatorSet = confidenceIndicatorSet
+        self.confidenceIndicatorSet = confidence_indicator_set
 
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")

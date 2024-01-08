@@ -1,0 +1,23 @@
+#people-page section {
+    margin: 3rem;
+    display: grid;
+    justify-items: center;
+}
+
+#people-page section h2 {
+    margin-top: 5rem;
+}
+
+#people-page section .members-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+    #people-page section {
+        margin: 3rem 1rem;
+    }
+}

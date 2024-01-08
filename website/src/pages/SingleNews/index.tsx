@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import {Parser} from "html-to-react";
 
 import {CardArticle} from "../../components/CardArticle";
+import {API_FETCH_INIT} from "../../utils";
 
 const NEWS_API_URL = '/api/news/';
 interface SingleNewsProps {
@@ -28,14 +29,8 @@ export const SingleNews: React.FC = () => {
   React.useEffect(
     () => {
       const fetchArticle = async () => {
-        const init = {	
-          method: 'GET',
-          headers: { 
-              'Accept': 'application/json',
-          }
-        };
         try {
-          const resp = await fetch(NEWS_API_URL+urlParams.id, init);
+          const resp = await fetch(NEWS_API_URL+urlParams.id, API_FETCH_INIT);
           if (resp.ok){
             tempArticle = await resp.json();
             setArticle(tempArticle);

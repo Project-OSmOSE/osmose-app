@@ -1,0 +1,45 @@
+- model: osmosewebsite.teammember
+  pk: 1
+  fields:
+    firstname: user1
+    lastname: user1
+    position: job1
+    level: 5
+    biography: biography1
+    picture: picture1
+    mail_address: user1@gmail.com
+    research_gate_url: http://www.user1.com/
+    personal_website_url: http://www.user1.com/
+    github_url: http://www.user1.com/
+    linkedin_url: http://www.user1.com/
+    is_former_member: false
+- model: osmosewebsite.teammember
+  pk: 2
+  fields:
+    firstname: user2
+    lastname: user2
+    position: job2
+    level: 1
+    biography: biography2
+    picture: picture2
+    mail_address: user2@gmail.com
+    research_gate_url: http://www.user2.com/
+    personal_website_url: http://www.user2.com/
+    github_url: http://www.user2.com/
+    linkedin_url: http://www.user2.com/
+    is_former_member: false
+- model: osmosewebsite.teammember
+  pk: 3
+  fields:
+    firstname: user3
+    lastname: user3
+    position: job3
+    level: 2
+    biography: biography3
+    picture: picture3
+    mail_address: user3@gmail.com
+    research_gate_url: http://www.user3.com/
+    personal_website_url: http://www.user3.com/
+    github_url: http://www.user3.com/
+    linkedin_url: http://www.user3.com/
+    is_former_member: true

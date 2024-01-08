@@ -1,0 +1,21 @@
+#card-member {
+    display: grid;
+    justify-items: center;
+    text-decoration: none !important;
+    color: initial;
+    width: 10rem;
+    text-align: center;
+}
+#card-member > * {
+    margin: 0;
+    text-decoration: none !important;
+}
+#card-member h5 {
+    color: var(--color-primary);
+}
+#card-member > img {
+    height: 8rem;
+    width: 8rem;
+    object-fit: cover;
+    border-radius: 4rem;
+}
