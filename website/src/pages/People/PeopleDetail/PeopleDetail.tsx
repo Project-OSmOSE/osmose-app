@@ -39,7 +39,7 @@ export const PeopleDetail: React.FC = () => {
 
       <img src={ member?.picture } alt={ `${ member?.firstname } ${ member?.lastname }'s Portrait` }/>
 
-      <blockquote>❝ { member?.biography } ❞</blockquote>
+      <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote>
 
       <div className="links">
         { member?.research_gate_url && <a href={ member.research_gate_url } target="_blank">ResearchGate</a> }
