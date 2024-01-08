@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Keribin"
+  given-names: "Erwan"
+- family-names: "Morin"
+  given-names: "Élodie"
+- family-names: "Vovard"
+  given-names: "Romain"
+title: "APLOSE: a scalable web-based annotation tool for marine bioacoustics - public repository"
+version: 1.6.4
+doi: 10.5281/zenodo.10468000
+date-released: 2024-01-08
+url: "https://github.com/Project-OSmOSE/osmose-app"
