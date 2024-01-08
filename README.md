@@ -11,14 +11,14 @@
 [coverage-badge]: https://Project-OSmOSE.github.io/osmose-app/coverage/badge.svg
 [coverage-link]: https://Project-OSmOSE.github.io/osmose-app/coverage
 
-In this repository there is actually 2 projets : APLOSE software and OSmOSE team's website.
-The backend is shared by the 2 projects but are located in distincts Django apps.
+In this repository there are actually 2 projets : APLOSE software and OSmOSE team's website.
+The backend is shared by the 2 projects but is located in distincts Django apps.
 
 ### APLOSE
 APLOSE is a scalable web-based annotation tool for marine bioacoustics.
 It allows the annotations of audio spectrograms. It is currently used for
-marine bioaccoustics studies but its usage can be extended to all kind of
-accousitc studies.
+marine bioacoustics studies but its usage can be extended to all kind of
+acousitc studies.
 
 APLOSE is composed of a React frontend, located in "frontend" folder, and
 a Django backend, located in the "backend" folder ("api" app).
