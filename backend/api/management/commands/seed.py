@@ -21,7 +21,6 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     AnnotationComment,
     AnnotationResult,
-    News,
     DatasetFile,
     AnnotationTask,
     SpectroConfig,
