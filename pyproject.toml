@@ -46,7 +46,7 @@ load-plugins = "pylint_django"
 django-settings-module = "backend.settings"
 
 [tool.pylint.MAIN]
-ignore-paths= ["backend\\api\\migrations|backend/api/migrations", "backend\\api\\migrations|backend/osmosewebsite/migrations"]
+ignore-paths= ["backend\\api\\migrations|backend/api/migrations", "backend\\osmosewebsite\\migrations|backend/osmosewebsite/migrations"]
 
 [tool.pylint.FORMAT]
 max-line-length = 120
