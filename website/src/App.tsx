@@ -5,10 +5,11 @@ import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home/HomePage';
 import { NewsPage } from './pages/News/NewsPage';
 import { People } from './pages/People/People';
-import { Projects } from './pages/Projects';
+import { Projects } from './pages/Projects/Projects';
 import { Publications } from './pages/Publications';
 import { NewsDetailPage } from './pages/News/NewsDetail/NewsDetailPage';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
+import { ProjectDetail } from "./pages/Projects/ProjectDetail/ProjectDetail";
 
 import { setupIonicReact } from "@ionic/react";
 import '@ionic/react/css/core.css';
@@ -51,6 +52,12 @@ const App: React.FC = () => {
         <Route exact path="/projects">
           <Layout>
             <Projects/>
+          </Layout>
+        </Route>
+
+        <Route path="/projects/:id">
+          <Layout>
+            <ProjectDetail/>
           </Layout>
         </Route>
 

@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { Parser } from "html-to-react";
 
 export const API_FETCH_INIT = {
@@ -8,19 +8,58 @@ export const API_FETCH_INIT = {
     }
 }
 
-export const useCatch404 = (): (e: any, fallback: string) => void => {
+export const useFetchDetail = <T>(listPageURL: string, apiURL: string) => {
     const history = useHistory();
-    return (e: any, fallback: string) => {
-        console.debug('catch404', e.status, e)
-        if (e?.status !== 404) throw e;
-        history.push(fallback);
+
+    return async (id: string): Promise<T | undefined> => {
+        const url = `${apiURL}/${id}`;
+        try {
+            const response = await fetch(url, API_FETCH_INIT);
+            if (!response.ok) throw response;
+            return await response.json();
+        } catch (e: any) {
+            if (e?.status === 404) {
+                history.push(listPageURL);
+                return;
+            }
+            console.error(`Cannot fetch ${ url }, got error:`, e)
+        }
     }
 }
 
-export const getFormattedDate = (date: string) => {
+export const useFetchArray = <T>(apiUrL: string) => {
+    const history = useHistory();
+    const location = useLocation();
+
+    return async (pageOptions?: { currentPage: number, pageSize: number }): Promise<T | undefined> => {
+        let composedURL = apiUrL;
+        if (pageOptions) composedURL = `${ apiUrL }?page=${ pageOptions.currentPage }&page_size=${ pageOptions.pageSize }`
+        try {
+            const response = await fetch(composedURL, API_FETCH_INIT);
+            if (!response.ok) throw response;
+            return await response.json();
+        } catch (e: any) {
+            if (e?.status === 404) {
+                history.push(location.pathname);
+                return;
+            }
+            console.error(`Cannot fetch ${ composedURL }, got error:`, e);
+        }
+    }
+}
+
+export const getFormattedDate = (date?: string) => {
+    if (!date) return;
     return Intl.DateTimeFormat('en-US', {
         dateStyle: 'long'
     }).format(new Date(date)).replaceAll('/', '-');
+}
+
+export const getYear = (date?: string) => {
+    if (!date) return;
+    return Intl.DateTimeFormat('en-US', {
+        year: 'numeric'
+    }).format(new Date(date));
 }
 
 export const parseHTML = (body: string) => {

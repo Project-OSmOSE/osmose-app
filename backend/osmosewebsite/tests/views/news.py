@@ -20,12 +20,6 @@ class NewsViewSetTestCase(APITestCase):
         "thumbnail": "string",
     }
 
-    def setUp(self):
-        self.client.login(username="user1", password="osmose29")
-
-    def tearDown(self):
-        self.client.logout()
-
     def test_list(self):
         """NewsViewSet 'list' returns list of news"""
         url = reverse("news-list")

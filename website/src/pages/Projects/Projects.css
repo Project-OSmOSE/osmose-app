@@ -1,0 +1,21 @@
+#projects-page .content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: var(--content-margin);
+    gap: 4rem;
+}
+
+@media screen and (max-width: 1200px) {
+    #projects-page .content {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 2rem;
+        gap: 1rem;
+    }
+}
+@media screen and (max-width: 800px) {
+    #projects-page .content {
+        grid-template-columns: none;
+        margin: 1rem;
+        gap: 1rem;
+    }
+}

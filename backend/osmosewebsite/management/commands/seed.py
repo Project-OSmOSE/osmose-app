@@ -8,30 +8,58 @@ from faker import Faker
 
 from django.core.management.base import BaseCommand
 
-from backend.osmosewebsite.models import TeamMember, News
+from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project
+
+fake = Faker()
+random = Random()
+
+
+def get_fake_image_url():
+    return fake.image_url(
+        width=random.randint(300, 800), height=random.randint(100, 600)
+    )
+
+
+def generate_html_body(self):
+    body = ""
+    for _ in range(random.randint(1, 5)):
+        body += f"<blockquote><p>{fake.sentence(nb_words=10)}</p></blockquote>"
+        paragraphs = []
+        for k in (0, random.randint(2, 5)):
+            text = ""
+            for paragraph in fake.paragraph(nb_sentences=random.randint(8, 15)):
+                text += paragraph
+            paragraphs.append(f"<p>{text}</p>")
+        for _ in range(0, random.randint(0, 2)):
+            paragraphs.append(
+                f"<p><img src='{get_fake_image_url()}' alt='{fake.sentence()}'/></p>"
+            )
+        random.shuffle(paragraphs)
+        body += "".join(paragraphs)
+    return body
 
 
 class Command(BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
-    fake = Faker()
-    random = Random()
 
     def handle(self, *args, **options):
 
         # Creation
         self._create_team_members()
         self._create_news()
+        self._create_collaborators()
+        self._create_projects()
 
     def _create_team_members(self):
         print(" ###### _create_team_members ######")
-        for _ in range(0, self.random.randrange(start=1, stop=25)):
-            profile = self.fake.profile()
+        for _ in range(0, random.randrange(start=5, stop=25)):
+            profile = fake.profile()
             websites = profile["website"]
             TeamMember.objects.create(
-                firstname=self.fake.first_name(),
-                lastname=self.fake.last_name(),
+                firstname=fake.first_name(),
+                lastname=fake.last_name(),
                 position=profile["job"],
-                biography="\n".join(self.fake.paragraphs(5)),
+                biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
                 mail_address=profile["mail"],
                 research_gate_url=websites[0] if len(websites) > 0 else None,
@@ -39,14 +67,14 @@ class Command(BaseCommand):
                 github_url=websites[2] if len(websites) > 2 else None,
                 linkedin_url=websites[3] if len(websites) > 3 else None,
             )
-        for _ in range(0, self.random.randrange(start=1, stop=15)):
-            profile = self.fake.profile()
+        for _ in range(0, random.randrange(start=1, stop=15)):
+            profile = fake.profile()
             websites = profile["website"]
             TeamMember.objects.create(
-                firstname=self.fake.first_name(),
-                lastname=self.fake.last_name(),
+                firstname=fake.first_name(),
+                lastname=fake.last_name(),
                 position=profile["job"],
-                biography="\n".join(self.fake.paragraphs(5)),
+                biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
                 mail_address=profile["mail"],
                 research_gate_url=websites[0] if len(websites) > 0 else None,
@@ -56,37 +84,82 @@ class Command(BaseCommand):
                 is_former_member=True,
             )
 
-    def _generate_news_body(self):
+    def _generate_html_body(self):
         body = ""
-        for _ in range(self.random.randint(1, 5)):
-            body += f"<blockquote><p>{self.fake.sentence(nb_words=10)}</p></blockquote>"
-            paragraphs = [
-                f"<p>{para}</p>"
-                for para in self.fake.paragraphs(nb=self.random.randint(1, 5))
-            ]
-            for _ in range(0, self.random.randint(0, 2)):
+        for _ in range(random.randint(1, 5)):
+            body += f"<blockquote><p>{fake.sentence(nb_words=10)}</p></blockquote>"
+            paragraphs = []
+            for k in (0, random.randint(2, 5)):
+                text = ""
+                for paragraph in fake.paragraph(nb_sentences=random.randint(8, 15)):
+                    text += paragraph
+                paragraphs.append(f"<p>{text}</p>")
+            for _ in range(0, random.randint(0, 2)):
                 paragraphs.append(
-                    f"<p><img src='https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}' width='{100 + 50 * self.random.randint(0, 3)}px'/></p>"
+                    f"<p><img src='{get_fake_image_url()}' alt='{fake.sentence()}'/></p>"
                 )
-            self.random.shuffle(paragraphs)
+            random.shuffle(paragraphs)
             body += "".join(paragraphs)
         return body
 
     def _create_news(self):
         print(" ###### _create_news ######")
-        for _ in range(self.random.randint(5, 15)):
+        for _ in range(0, random.randint(5, 15)):
             news = News.objects.create(
-                title=self.fake.sentence(nb_words=10)[:255],
-                intro=self.fake.paragraph(nb_sentences=5)[:255],
-                body=self._generate_news_body(),
-                date=self.fake.date_time_between(start_date="-1y", end_date="now"),
-                thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={self.fake.word()}",
+                title=fake.sentence(nb_words=10)[:255],
+                intro=fake.paragraph(nb_sentences=5)[:255],
+                body=self._generate_html_body(),
+                date=fake.date_time_between(start_date="-1y", end_date="now"),
+                thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
             )
-            for i in range(1, self.random.randint(2, 5)):
+            for i in range(1, random.randint(2, 5)):
                 news.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())
                 news.save()
             other_authors = []
-            for i in range(self.random.randint(2, 5)):
-                other_authors.append(self.fake.name())
+            for i in range(1, random.randint(2, 5)):
+                other_authors.append(fake.name())
             news.other_authors = "{" + ",".join(other_authors) + "}"
             news.save()
+
+    def _create_collaborators(self):
+        print(" ###### _create_collaborators ######")
+        for i in range(0, random.randint(5, 15)):
+            news = Collaborator.objects.create(
+                name=fake.name(),
+                level=random.randint(0, 5),
+                thumbnail=get_fake_image_url(),
+                url=fake.uri(),
+                show_on_home_page=True,
+            )
+        for i in range(0, random.randint(5, 15)):
+            news = Collaborator.objects.create(
+                name=fake.name(),
+                level=random.randint(0, 5),
+                thumbnail=get_fake_image_url(),
+                url=fake.uri(),
+                show_on_home_page=False,
+            )
+
+    def _create_projects(self):
+        print(" ###### _create_projects ######")
+        for _ in range(0, random.randint(5, 15)):
+            project = Project.objects.create(
+                title=fake.sentence(nb_words=10)[:255],
+                intro=fake.paragraph(nb_sentences=5)[:255],
+                body=self._generate_html_body(),
+                start=fake.date_time_between(
+                    start_date="-" + str(random.randint(3, 8)) + "y",
+                    end_date="-3y",
+                ),
+                end=fake.date_time_between(
+                    start_date="-" + str(random.randint(1, 3)) + "y",
+                    end_date="now",
+                ),
+                thumbnail=get_fake_image_url(),
+            )
+            for i in range(1, random.randint(2, 3)):
+                project.contact.add(TeamMember.objects.filter(id=i).first())
+                project.save()
+            for i in range(1, random.randint(2, 7)):
+                project.collaborators.add(Collaborator.objects.filter(id=i).first())
+                project.save()
