@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0008_auto_20240103_1132'),
-        ('osmosewebsite', '0011_rename_vignette_news_thumbnail'),
+        ("osmosewebsite", "0008_auto_20240103_1132"),
+        ("osmosewebsite", "0011_rename_vignette_news_thumbnail"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0031_allow_blank_collections_confidence_set'),
-        ('api', '0031_delete_news'),
+        ("api", "0031_allow_blank_collections_confidence_set"),
+        ("api", "0031_delete_news"),
     ]
 
-    operations = [
-    ]
+    operations = []
