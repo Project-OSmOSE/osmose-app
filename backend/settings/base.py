@@ -174,6 +174,7 @@ FIXTURE_DIRS = (
 # TINYMCE Configuration
 # https://www.tiny.cloud/docs/advanced/available-menu-items/
 
+TINYMCE_COMPRESSOR = False
 TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",
     "width": "960px",

@@ -27,7 +27,7 @@ export const People: React.FC = () => {
 
       <PageTitle img={ imgTitle } imgAlt="People Banner">
         <h1 className="align-self-center">
-          PEOPLE
+          OUR TEAM
         </h1>
       </PageTitle>
 

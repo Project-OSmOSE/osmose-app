@@ -26,4 +26,6 @@ class TeamMember(models.Model):
         ordering = ["level"]
 
     def __str__(self):
-        return self.firstname + " " + self.lastname
+        if self.lastname:
+            return self.firstname + " " + self.lastname
+        return self.firstname
