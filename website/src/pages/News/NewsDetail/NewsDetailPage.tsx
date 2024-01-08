@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Redirect, useParams } from "react-router-dom";
 
-import { API_FETCH_INIT, getFormattedDate, parseHTML } from "../../../utils";
+import { API_FETCH_INIT, getFormattedDate, parseHTML, useCatch404 } from "../../../utils";
 import { News } from "../../../models/news";
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { Back } from "../../../components/Back/Back";
@@ -16,17 +16,18 @@ export const NewsDetailPage: React.FC = () => {
   let [isLoaded, setIsLoaded] = React.useState<boolean>(false);
   let [article, setArticle] = React.useState<News>();
 
+  const catch404= useCatch404();
 
   useEffect(() => {
     const fetchDetail = async () => {
       const response = await fetch(`${ NEWS_API_URL }/${ urlParams.id }`, API_FETCH_INIT);
-      if (!response.ok) throw new Error(`[${ response.status }] ${ response.statusText }`);
+      if (!response.ok) throw response;
       setArticle(await response.json());
     };
     fetchDetail()
+      .catch(e => catch404(e, '/news'))
       .catch(error => console.error(`Cannot fetch news detail, got error: ${ error }`))
       .finally(() => setIsLoaded(true));
-
   }, [urlParams.id]);
 
   if (!article) {

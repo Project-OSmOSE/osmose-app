@@ -21,7 +21,7 @@ export const ContactList: React.FC<ContactListProps> = ({
             { teamMembers.map((member, k) => (
                 <span key={ member.id }>
                     <Link to={ `/people/${ member.id }` }>
-                        { member.name }
+                        { member.firstname } { member.lastname }
                     </Link>
                     { (k < teamMembers.length - 1 || namedMembers.length > 0) && ', ' }
                 </span>
