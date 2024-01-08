@@ -5,11 +5,12 @@ import { PageTitle } from "../../components/PageTitle";
 import { Pagination } from "../../components/Pagination/Pagination";
 
 import imgTitle from '../../img/illust/pexels-berend-de-kort-1452701_1920_thin.webp';
-import { fetchPage, getFormattedDate } from "../../utils";
+import { getFormattedDate, useFetchArray } from "../../utils";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { News } from "../../models/news";
 
 import './NewsPage.css';
+import { Collaborator } from "../../models/collaborator";
 
 const NEWS_URL = '/api/news';
 
@@ -21,12 +22,14 @@ export const NewsPage: React.FC = () => {
 
   const [newsTotal, setNewsTotal] = useState<number>(0);
   const [news, setNews] = useState<Array<News>>([]);
+
+  const fetchNews = useFetchArray<{count: number, results: Array<News>}>('/api/news');
+
   useEffect(() => {
-    fetchPage(NEWS_URL, { currentPage, pageSize })
-      .then(data => {
-        setNewsTotal(data.count);
-        setNews(data.results);
-      });
+    fetchNews({ currentPage, pageSize }).then(data => {
+      setNewsTotal(data?.count ?? 0);
+      setNews(data?.results ?? []);
+    });
   }, [currentPage]);
 
   return (

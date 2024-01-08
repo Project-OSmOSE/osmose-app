@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Project } from "../../../models/project";
-import { fetchPage, getYear } from "../../../utils";
+import { getYear, useFetchDetail } from "../../../utils";
 import { IonIcon } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import './ProjectDetail.css';
 import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/CollaboratorsBanner";
-
-const PROJECT_DETAIL_URL = '/api/projects';
+import { News } from "../../../models/news";
 
 export const ProjectDetail: React.FC = () => {
-  const urlParams: any = useParams();
-  const projectID = Number(urlParams.id);
+  const { id: projectID } = useParams<{ id: string; }>();
 
   const [project, setProject] = useState<Project>();
+
+  const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
+
   useEffect(() => {
-    fetchPage(`${ PROJECT_DETAIL_URL }/${ projectID }`)
-      .then(data => setProject(data));
+    fetchDetail(projectID).then(setProject);
   }, [projectID]);
 
   return (

@@ -19,18 +19,17 @@ import labsticlogo from '../../img/logo/logo-lab-sticc.png';
 import iuemLogo from '../../img/logo/iuem.jpeg';
 import cebcLogo from '../../img/logo/cebc.png';
 import { CollaboratorsBanner } from "../../components/CollaboratorsBanner/CollaboratorsBanner";
-import { fetchPage } from "../../utils";
+import { useFetchArray } from "../../utils";
 import { Collaborator } from "../../models/collaborator";
-
-const HOME_COLLABORATORS_URL = '/api/collaborators/on_home/';
 
 export const HomePage: React.FC = () => {
 
-  const [collaborators, setCollaborators] = useState<Array<Collaborator>>([]);
+  const [collaborators, setCollaborators] = useState<Array<Collaborator> | undefined>();
+
+  const fetchCollaborators = useFetchArray<Array<Collaborator>>('/api/collaborators/on_home/');
 
   useEffect(() => {
-    fetchPage(HOME_COLLABORATORS_URL)
-      .then(setCollaborators)
+    fetchCollaborators().then(setCollaborators)
   }, [])
 
   return (

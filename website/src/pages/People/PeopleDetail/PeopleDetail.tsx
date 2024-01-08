@@ -3,33 +3,20 @@ import { useParams } from "react-router-dom";
 
 import { TeamMember } from "../../../models/team";
 import './PeopleDetail.css';
-import { API_FETCH_INIT, useCatch404 } from "../../../utils";
-import { fetchPage } from "../../../utils";
+import { useFetchDetail } from "../../../utils";
 import { IonIcon } from "@ionic/react";
 import { logoGithub, logoLinkedin, mailOutline } from "ionicons/icons";
 import { Back } from "../../../components/Back/Back";
 import './PeopleDetail.css';
 
-const MEMBERS_URL = '/api/members';
-
 export const PeopleDetail: React.FC = () => {
-  const memberID = Number(useParams<{ id: string; }>().id);
+  const { id: memberID } = useParams<{ id: string; }>();
   const [member, setMember] = useState<TeamMember>();
 
-  const catch404= useCatch404();
+  const fetchDetail = useFetchDetail<TeamMember>('/people', '/api/members');
 
   useEffect(() => {
-    const fetchMember = async () => {
-      const response = await fetch(`${ MEMBERS_URL }/${ memberID }`, API_FETCH_INIT);
-      if (!response.ok) throw response;
-      setMember(await response.json())
-    }
-    fetchMember()
-      .catch(e => catch404(e, '/people'))
-      .catch(e => console.error(`Cannot fetch member ${ memberID }, got error:`, e))
-  }, []);
-
-    fetchPage(`${ MEMBERS_URL }/${ memberID }`).then(setMember);
+    fetchDetail(memberID).then(setMember);
   }, [memberID]);
 
 
