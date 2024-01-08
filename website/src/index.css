@@ -1,17 +1,101 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&display=swap'); */
+/* Ionic styling customisation */
 :root {
-  --color-primary: #1a60af;
-  --color-text: rgba(33, 37, 41, 1);
-  /*--color-text-muted: rgba(108, 117, 125, 1);*/
+  --ion-color-primary: #1a60af;
+  --ion-color-primary-rgb: 26, 96, 175;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #17549a;
+  --ion-color-primary-tint: #3170b7;
+
+  --ion-color-secondary: #001531;
+  --ion-color-secondary-rgb: 0,21,49;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #00122b;
+  --ion-color-secondary-tint: #1a2c46;
+
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+
+  --ion-text-color: #212529;
+  --ion-text-color-rgb: 33, 37, 41;
+
+  --ion-color-step-25: #fafafa;
+  --ion-color-step-50: #f4f4f4;
+  --ion-color-step-100: #e9e9ea;
+  --ion-color-step-150: #dededf;
+  --ion-color-step-200: #d3d3d4;
+  --ion-color-step-250: #c8c9ca;
+  --ion-color-step-300: #bcbebf;
+  --ion-color-step-350: #b1b3b4;
+  --ion-color-step-400: #a6a8a9;
+  --ion-color-step-450: #9b9d9f;
+  --ion-color-step-500: #909294;
+  --ion-color-step-550: #858789;
+  --ion-color-step-600: #7a7c7f;
+  --ion-color-step-650: #6f7174;
+  --ion-color-step-700: #646669;
+  --ion-color-step-750: #595c5f;
+  --ion-color-step-800: #4d5154;
+  --ion-color-step-850: #424649;
+  --ion-color-step-900: #373b3e;
+  --ion-color-step-950: #2c3034;
+
+  --content-margin: 4rem 8rem;
 }
 
+@media screen and (max-width: 1200px) {
+  :root {
+    --content-margin: 2rem;
+  }
+}
 
-body {
-  font-family: 'Exo 2', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+@media screen and (max-width: 800px) {
+  :root {
+    --content-margin: 1rem;
+  }
+}
+
+/* Ionic components customisation */
+ion-card {
+  border-radius: 1rem;
+  --background: var(--ion-color-step-25);
+  font-size: 16px;
+}
+
+ion-card img {
+  height: 12rem;
+  width: 100%;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 800px) {
+  ion-card img {
+    height: 8rem;
+  }
+}
+
+ion-card ion-card-title {
+  font-size: 20px;
+  font-weight: 400;
+  text-align: center;
+}
+
+ion-card ion-card-subtitle {
+  font-size: 18px;
+  text-align: center;
+}
+
+* {
+  font-family: 'Exo 2', sans-serif;
   font-weight: 300;
   font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+
+body {
   background-size: auto, cover;
   background-attachment: fixed, fixed;
   background-position: center, center;
@@ -20,20 +104,20 @@ body {
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  monospace;
 }
 
-h2{
+h2 {
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--ion-color-primary);
   font-weight: 400;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
   padding: 0.5rem 0;
 }
 
-h3{
+h3 {
   letter-spacing: 2px;
   font-weight: 400;
   /* color: #2e3141; */
@@ -41,25 +125,30 @@ h3{
   /* padding: 0.5rem 0; */
 }
 
-a{
+a {
   text-decoration: none;
 }
-a:link{
+
+a:link {
   color: #00b6d9;
 }
-a:visited{
+
+a:visited {
   color: #42bed6;
 }
-a:hover{
+
+a:hover {
   color: #00d5ff;
   text-decoration: underline solid;
 }
-a:active{
+
+a:active {
   color: orangered;
   text-decoration: underline solid;
 }
 
-.card{
+.card {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
 }
+

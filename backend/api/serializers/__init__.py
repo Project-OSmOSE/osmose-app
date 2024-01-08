@@ -31,4 +31,3 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskOneResultUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )
-from backend.api.serializers.news import NewsSerializer

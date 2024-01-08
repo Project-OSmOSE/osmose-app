@@ -10,7 +10,7 @@ interface BackProps {
 }
 
 export const Back: React.FC<BackProps> = ({ path, pageName }) => (
-  <Link to={ path } id="back">
+  <Link to={ path } id="back-component">
     <IonIcon icon={ chevronBackOutline }></IonIcon>
     Back { pageName && `to ${ pageName }` }
   </Link>

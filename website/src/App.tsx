@@ -1,14 +1,21 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Layout } from './components/Layout';
-import { Home } from './pages/Home';
-import { News } from './pages/News';
+import { HomePage } from './pages/Home/HomePage';
+import { NewsPage } from './pages/News/NewsPage';
 import { People } from './pages/People/People';
 import { Projects } from './pages/Projects';
 import { Publications } from './pages/Publications';
-import { SingleNews } from './pages/SingleNews';
+import { NewsDetailPage } from './pages/News/NewsDetail/NewsDetailPage';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
+
+import { setupIonicReact } from "@ionic/react";
+import '@ionic/react/css/core.css';
+
+setupIonicReact({
+  mode: 'md'
+})
 
 const App: React.FC = () => {
   return (
@@ -17,7 +24,7 @@ const App: React.FC = () => {
 
         <Route exact path="/">
           <Layout>
-            <Home/>
+            <HomePage/>
           </Layout>
         </Route>
 
@@ -54,22 +61,14 @@ const App: React.FC = () => {
         </Route>
 
         <Route exact path="/news">
-          <Redirect to="/news/1"/>
-        </Route>
-
-        <Route path="/news/:page">
           <Layout>
-            <News/>
+            <NewsPage/>
           </Layout>
         </Route>
 
-        <Route exact path="/article">
-          <Redirect to="/news/1"/>
-        </Route>
-
-        <Route path="/article/:id">
+        <Route path="/news/:id">
           <Layout>
-            <SingleNews/>
+            <NewsDetailPage/>
           </Layout>
         </Route>
 

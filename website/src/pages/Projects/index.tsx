@@ -21,11 +21,8 @@ import React from "react";
 export const Projects: React.FC = () => {
   return (
     <div id="projects-page">
-      <PageTitle
-        img={imgTitle}
-        imgAlt="Project Banner"
-      >
-        <h1 className="text-shadow">PROJECTS</h1>
+      <PageTitle img={imgTitle} imgAlt="Project Banner">
+          PROJECTS
       </PageTitle>
 
       <div className="container">

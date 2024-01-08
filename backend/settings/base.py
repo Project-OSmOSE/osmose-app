@@ -150,6 +150,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "backend.osmosewebsite.pagination.OsmosePagination",
 }
 
 # rest_framework_simplejwt params
@@ -178,7 +179,8 @@ TINYMCE_COMPRESSOR = False
 TINYMCE_DEFAULT_CONFIG = {
     "height": "320px",
     "width": "960px",
-    "plugins": "image, link",
-    "toolbar": "undo redo | formatselect blockquote | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image | link unlink",
+    "plugins": "image, link, lists, media",
+    "toolbar": "undo redo | formatselect blockquote | bold italic | alignleft aligncenter alignright alignjustify | bullist outdent indent | image | link unlink",
     "default_link_target": "_blank",
+    "image_title": "true",
 }

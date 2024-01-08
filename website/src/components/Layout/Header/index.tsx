@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
     <div id="main-nav" className="collapse navbar-collapse justify-content-end align-self-stretch">
       <ul className="navbar-nav text-center">
         <li className="mx-5 mx-md-4 nav-item">
-          <Link to="/people" className="nav-link navigation-link">People</Link>
+          <Link to="/people" className="nav-link navigation-link">Our team</Link>
         </li>
         <li className="mx-5 mx-md-4 nav-item dropdown">
           <p className="nav-link dropdown-toggle m-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">

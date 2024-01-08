@@ -1,5 +1,5 @@
 #member-page {
-    margin: 4rem 8rem;
+    margin: var(--content-margin);
     position: relative;
     display: grid;
     gap: 3rem;
@@ -20,7 +20,7 @@
 }
 
 #member-page .title h2 {
-    color: var(--color-text);
+    color: var(--ion-text-color);
 }
 
 #member-page img {
@@ -51,9 +51,8 @@
     align-items: center;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1200px) {
     #member-page {
-        margin: 2rem 1rem;
         position: relative;
         display: grid;
         gap: 1rem;
