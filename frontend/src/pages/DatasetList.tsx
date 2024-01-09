@@ -4,8 +4,8 @@ import '../css/modal.css';
 import ReactDOM from "react-dom";
 import { ModalNewData } from "../components/ModalNewData.tsx";
 import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import { SuperAgentRequest } from "superagent";
 import * as Datasets from '../utils/api/dataset.tsx';
+import { Request } from '../utils/requests.tsx';
 
 
 const DatasetList: React.FC = () => {
@@ -17,9 +17,9 @@ const DatasetList: React.FC = () => {
 
   const auth = useAuth();
   const catch401 = useCatch401();
-  const [listToImport, setListToImport] = useState<SuperAgentRequest | undefined>();
-  const [listRequest, setListRequest] = useState<SuperAgentRequest | undefined>();
-  const [importRequest, setImportRequest] = useState<SuperAgentRequest | undefined>();
+  const [listToImport, setListToImport] = useState<Request | undefined>();
+  const [listRequest, setListRequest] = useState<Request | undefined>();
+  const [importRequest, setImportRequest] = useState<Request | undefined>();
 
 
   useEffect(() => {

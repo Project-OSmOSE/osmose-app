@@ -15,7 +15,7 @@ export class UserApiService extends ApiServiceParent {
   }
 
   public async isStaff(): Promise<boolean> {
-    const response = await this.doRequest(this.listRequest);
+    const response = await this.doRequest(this.isStaffRequest);
     return response.body.is_staff;
   }
 

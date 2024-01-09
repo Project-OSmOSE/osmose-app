@@ -18,8 +18,8 @@ export type ListItem = {
 
 export function list(bearer: string): Response<List> {
   const request = get(URI).set("Authorization", bearer);
-  const response = new Promise<List>((resolve, reject) => {
-    request.then(r => r.body).then(resolve).catch(reject);
-  });
-  return { request, response }
+  return {
+    request,
+    response: request.then(r => r.body)
+  }
 }

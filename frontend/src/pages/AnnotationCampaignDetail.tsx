@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AnnotationCampaign, User } from "../services/API/ApiService.data.tsx";
-import { UserApiService } from "../services/API/UserApiService.tsx";
-import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
+import { Link, useParams } from 'react-router-dom';
+import { useAuth, useCatch401 } from "../utils/auth.tsx";
+import * as Campaign from '../utils/api/annotation-campaign.tsx';
+import * as User from '../utils/api/user.tsx';
+import { Request } from '../utils/requests.tsx';
 
 type ACDProps = {
   match: {
@@ -13,23 +14,39 @@ type ACDProps = {
 };
 
 type AnnotationStatus = {
-  annotator: User;
+  annotator: User.ListItem;
   progress: string;
 }
 
-const AnnotationCampaignDetail: React.FC<ACDProps> = ({ match }) => {
-  const [annotationCampaign, setAnnotationCampaign] = useState<AnnotationCampaign | undefined>(undefined);
+const AnnotationCampaignDetail: React.FC<ACDProps> = () => {
+  const { id: campaignID } = useParams<{ id: string }>()
+  const [annotationCampaign, setAnnotationCampaign] = useState<Campaign.RetrieveCampaign | undefined>(undefined);
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
+
+  const auth = useAuth();
+  const catch401 = useCatch401();
   const [error, setError] = useState<any | undefined>(undefined);
+  const [retrieveCampaignRequest, setRetrieveCampaignRequest] = useState<Request | undefined>()
+  const [listUserRequest, setListUserRequest] = useState<Request | undefined>()
+  const [isStaffRequest, setIsStaffRequest] = useState<Request | undefined>()
+  const [dlResultRequest, setDlResultRequest] = useState<Request | undefined>()
+  const [dlStatusRequest, setDlStatusRequest] = useState<Request | undefined>()
+
 
   useEffect(() => {
+    const campaign = Campaign.retrieve(campaignID, auth.bearer!);
+    setRetrieveCampaignRequest(campaign.request);
+    const users = User.list(auth.bearer!);
+    setListUserRequest(users.request);
+    const isStaff = User.isStaff(auth.bearer!);
+    setIsStaffRequest(isStaff.request);
+
     Promise.all([
-      UserApiService.shared.isStaff(),
-      UserApiService.shared.list(),
-      AnnotationCampaignsApiService.shared.retrieve(match.params.campaign_id)
-    ]).then(([isStaff, users, data]) => {
-      setIsStaff(isStaff)
+      users.response,
+      campaign.response,
+      isStaff.response.then(setIsStaff),
+    ]).then(([users, data]) => {
       setAnnotationCampaign(data.campaign);
 
       const status = data.tasks
@@ -39,19 +56,31 @@ const AnnotationCampaignDetail: React.FC<ACDProps> = ({ match }) => {
           const totalCompleteUserTasks = userTasks.find(t => t.status === 2)?.count ?? 0;
           const totalUserTasks = userTasks.reduce((a, b) => a + b.count, 0);
           return {
-            annotator: users[task.annotator_id],
+            annotator: users.find(u => u.id === task.annotator_id),
             progress: `${ totalCompleteUserTasks }/${ totalUserTasks }`
           } as AnnotationStatus;
         })
       setAnnotationStatus(status);
-    }).catch(setError);
+    }).catch(catch401).catch(setError)
 
     return () => {
-      UserApiService.shared.abortRequests();
-      AnnotationCampaignsApiService.shared.abortRequests();
+      retrieveCampaignRequest?.abort();
+      listUserRequest?.abort();
+      isStaffRequest?.abort();
+      dlResultRequest?.abort();
+      dlStatusRequest?.abort();
     }
-  }, [])
+  }, [campaignID])
 
+  const downloadResult = () => {
+    if (!annotationCampaign) return;
+    setDlResultRequest(Campaign.downloadResults(annotationCampaign, auth.bearer!).request);
+  }
+
+  const downloadStatus = () => {
+    if (!annotationCampaign) return;
+    setDlStatusRequest(Campaign.downloadStatus(annotationCampaign, auth.bearer!).request);
+  }
 
   if (error) {
     return (
@@ -107,8 +136,8 @@ const AnnotationCampaignDetail: React.FC<ACDProps> = ({ match }) => {
         <tbody>
         { annotationStatus.map(status => {
           return (
-            <tr key={ status.annotator.id }>
-              <td className="text-center">{ status.annotator.email }</td>
+            <tr key={ status.annotator?.id }>
+              <td className="text-center">{ status.annotator?.email }</td>
               <td className="text-center">{ status.progress }</td>
             </tr>
           );
@@ -116,12 +145,12 @@ const AnnotationCampaignDetail: React.FC<ACDProps> = ({ match }) => {
         </tbody>
       </table>
       <p className="text-center">
-        <button onClick={ () => AnnotationCampaignsApiService.shared.downloadResult(annotationCampaign) }
+        <button onClick={ downloadResult }
                 className="btn btn-primary">
           Download CSV results
         </button>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <button onClick={ () => AnnotationCampaignsApiService.shared.downloadResultStatus(annotationCampaign) }
+        <button onClick={ downloadStatus }
                 className="btn btn-primary">
           Download CSV task status
         </button>

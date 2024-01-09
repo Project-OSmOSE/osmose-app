@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
-import { SuperAgentRequest } from "superagent";
 import { useAuth, useCatch401 } from "../utils/auth.tsx";
+import { Request } from '../utils/requests.tsx';
 
 
 const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<AnnotationCampaign.List>([]);
-  const [error, setError] = useState<any | undefined>(undefined);
 
   const auth = useAuth();
   const catch401 = useCatch401();
-  const [listRequest, setListRequest] = useState<SuperAgentRequest | undefined>()
+  const [error, setError] = useState<any | undefined>(undefined);
+  const [listRequest, setListRequest] = useState<Request | undefined>()
 
 
   useEffect(() => {

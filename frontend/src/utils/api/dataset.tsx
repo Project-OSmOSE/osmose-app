@@ -62,31 +62,30 @@ export type ListToImportItem = {
 
 export function list(bearer: string, filterFilesType?: string): Response<List> {
   const request = get(URI).set("Authorization", bearer);
-  const response = new Promise<List>((resolve, reject) => {
-    request.then(r => r.body.map((d: any) => ({
+  return {
+    request,
+    response: request.then(r => r.body.map((d: any) => ({
       ...d,
       start_date: new Date(d.start_date),
       end_date: new Date(d.end_date),
       created_at: new Date(d.created_at),
     })))
       .then((datasets: List) => {
-        if (!filterFilesType) resolve(datasets);
-        resolve(datasets.filter(d => d.files_type === filterFilesType))
+        if (!filterFilesType) return datasets;
+        return datasets.filter(d => d.files_type === filterFilesType)
       })
-      .catch(reject);
-  });
-  return { request, response }
+  }
 }
 
 export function listToImport(bearer: string): Response<ListToImport> {
   const request = get(`${ URI }/list_to_import`).set("Authorization", bearer);
-  const response = new Promise<ListToImport>((resolve, reject) => {
-    request.then(r => r.body.map((d: any) => ({
+  return {
+    request,
+    response: request.then(r => r.body.map((d: any) => ({
       ...d,
       id: uuidV4()
-    }))).then(resolve).catch(reject);
-  });
-  return { request, response }
+    })))
+  }
 }
 
 export function importDatasets(data: ListToImport, bearer: string): Response<ListToImport> {// TODO: check type
@@ -94,8 +93,8 @@ export function importDatasets(data: ListToImport, bearer: string): Response<Lis
     .set("Authorization", bearer)
     .set("Accept", "application/json")
     .send({ 'wanted_datasets': data });
-  const response = new Promise<any>((resolve, reject) => {
-    request.then(r => r.body).then(resolve).catch(reject);
-  });
-  return { request, response }
+  return {
+    request,
+    response: request.then(r => r.body)
+  }
 }

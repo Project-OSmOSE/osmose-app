@@ -2,13 +2,13 @@ import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import ListChooser from '../components/ListChooser.tsx';
 import { useHistory } from "react-router-dom";
 import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import { SuperAgentRequest } from "superagent";
 import * as Dataset from "../utils/api/dataset.tsx";
 import * as User from "../utils/api/user.tsx";
 import * as AnnotationSet from "../utils/api/annotation-set.tsx";
 import * as ConfidenceSet from "../utils/api/confidence-set.tsx";
 import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
 import { AnnotationMethod, AnnotationMode } from "../utils/api/annotation-campaign.tsx";
+import { Request } from '../utils/requests.tsx';
 
 
 type ShowAnnotationSetProps = {
@@ -126,11 +126,11 @@ const CreateAnnotationCampaign: React.FC = () => {
   const history = useHistory();
   const auth = useAuth();
   const catch401 = useCatch401();
-  const [listDatasetRequest, setListDatasetRequest] = useState<SuperAgentRequest | undefined>()
-  const [listAnnotationSetRequest, setListAnnotationSetRequest] = useState<SuperAgentRequest | undefined>()
-  const [listUserRequest, setListUserRequest] = useState<SuperAgentRequest | undefined>()
-  const [listConfidenceSetRequest, setListConfidenceSetRequest] = useState<SuperAgentRequest | undefined>()
-  const [postCampaignRequest, setPostCampaignRequest] = useState<SuperAgentRequest | undefined>()
+  const [listDatasetRequest, setListDatasetRequest] = useState<Request | undefined>()
+  const [listAnnotationSetRequest, setListAnnotationSetRequest] = useState<Request | undefined>()
+  const [listUserRequest, setListUserRequest] = useState<Request | undefined>()
+  const [listConfidenceSetRequest, setListConfidenceSetRequest] = useState<Request | undefined>()
+  const [postCampaignRequest, setPostCampaignRequest] = useState<Request | undefined>()
 
 
   useEffect(() => {

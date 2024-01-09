@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
-import { SuperAgentRequest } from "superagent";
 import { login, useAuth, useAuthDispatch } from "../utils/auth.tsx";
 import { useHistory, useLocation } from "react-router-dom";
+import { Request } from '../utils/requests.tsx';
 
 
 export const Login: FC = () => {
@@ -9,7 +9,7 @@ export const Login: FC = () => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<Error | undefined>();
 
-  const [loginRequest, setLoginRequest] = useState<SuperAgentRequest | undefined>();
+  const [loginRequest, setLoginRequest] = useState<Request | undefined>();
 
   const state = useAuth();
   const dispatch = useAuthDispatch();
