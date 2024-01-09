@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
 import { SuperAgentRequest } from "superagent";
-import { login, useAuthDispatch } from "../utils/auth.tsx";
+import { login, useAuth, useAuthDispatch } from "../utils/auth.tsx";
 import { useHistory, useLocation } from "react-router-dom";
 
 
@@ -11,6 +11,7 @@ export const Login: FC = () => {
 
   const [loginRequest, setLoginRequest] = useState<SuperAgentRequest | undefined>();
 
+  const state = useAuth();
   const dispatch = useAuthDispatch();
   const history = useHistory();
   const location = useLocation<any>();
@@ -20,7 +21,12 @@ export const Login: FC = () => {
     return () => {
       loginRequest?.abort();
     }
-  })
+  });
+
+  useEffect(() => {
+    if (state.token)
+      history.replace(from);
+  }, [state])
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.currentTarget.value.trim());

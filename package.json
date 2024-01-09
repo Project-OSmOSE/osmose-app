@@ -11,6 +11,7 @@
     "server:test": "coverage run manage.py test && coverage report",
     "server:format": "poetry run black backend",
     "server:lint": "poetry run black pylint",
+    "preaplose:test": "npm run server:seed",
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",
     "osmose:run": "cd website && npm run start",
