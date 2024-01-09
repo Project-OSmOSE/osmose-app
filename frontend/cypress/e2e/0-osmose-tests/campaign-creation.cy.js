@@ -12,19 +12,22 @@ describe("osmose-campaign-creation", () => {
     cy.get(".btn").contains("New annotation campaign").click();
     cy.get("#cac-name").type(campaignName);
     cy.get("#cac-desc").type("Testing campaign creation");
-    cy.get("#cac-dataset").select("New Test Dataset");
+    cy.get("#cac-dataset").select(1);
     cy.get("#cac-spectro").select("4096_4096_90");
     cy.get("#cac-annotation-set").select("Test SPM campaign");
     cy.get("#cac-confidence-indicator-set").select("Confident/NotConfident");
     cy.get("#cac-annotation-mode").select("Whole file");
     cy.get("#cac-user").select("admin@osmose.xyz");
-    cy.get("#cac-user").select("dc@osmose.xyz");
-    cy.get("#cac-user").select("ek@osmose.xyz");
+    cy.get("#cac-user").select(1);
+    cy.get("#cac-user").select(1);
     cy.get("#cac-annotation-method").select("Sequential");
     cy.get(".btn").contains("Submit").click();
 
     // Let's test a task quickly
-    cy.get("tr").contains(campaignName).get("a").contains("My tasks").click();
+    cy.get("tr").contains(campaignName).parent().parent().within(() => {
+      cy.get("a").contains("My tasks").click();
+    });
+    // cy.get("tr").contains(campaignName).get("a").contains("My tasks").click();
     cy.get("tr").contains("sound005.wav").get("a").contains("Task link").click();
     cy.viewport(1990, 1331); // Let's have some room
 
