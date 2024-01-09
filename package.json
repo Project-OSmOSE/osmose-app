@@ -1,0 +1,23 @@
+{
+  "name": "osmose",
+  "scripts": {
+    "database:remove": "docker stop devdb && docker rm devdb",
+    "database:create": "docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis",
+    "database:run": "docker start devdb",
+    "server:migrate": "poetry run manage.py migrate",
+    "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add .",
+    "server:seed": "poetry run manage.py seed",
+    "server:run": "poetry run manage.py runserver 8000",
+    "server:test": "coverage run manage.py test && coverage report",
+    "server:format": "poetry run black backend",
+    "server:lint": "poetry run black pylint",
+    "aplose:test": "cd frontend && npx cypress open",
+    "aplose:run": "cd frontend && npm run dev",
+    "osmose:run": "cd website && npm run start",
+    "launch": "concurrently --kill-others-on-fail \"npm run database:run && npm run server:migrate && npm run server:run\" \"npm run aplose:run\" \"npm run osmose:run\"",
+    "beforeCommit": "npm run server:makemigrations; npm run server:format; npm run server:lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
