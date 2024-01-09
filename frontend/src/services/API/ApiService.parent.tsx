@@ -5,9 +5,9 @@ import { SuperAgentRequest, Response } from "superagent";
 export class ApiServiceParent {
   protected currentRequestedUrl?: string;
 
-  protected async doRequest(request: SuperAgentRequest): Promise<Response> {
+  protected async doRequest(request: SuperAgentRequest, bearer: string): Promise<Response> {
     try {
-      return await request.set("Authorization", AuthService.shared.bearer)
+      return await request.set("Authorization", bearer)
     } catch (error: any) {
       if (error?.status === 401) AuthService.shared.logout();
       throw error

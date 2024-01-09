@@ -1,41 +1,59 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
-import { AuthService } from '../services/API/AuthService.tsx';
+import { SuperAgentRequest } from "superagent";
+import { login, useAuthDispatch } from "../utils/auth.tsx";
+import { useHistory, useLocation } from "react-router-dom";
 
 
 export const Login: FC = () => {
-  const [login, setLogin] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<Error | undefined>();
 
+  const [loginRequest, setLoginRequest] = useState<SuperAgentRequest | undefined>();
+
+  const dispatch = useAuthDispatch();
+  const history = useHistory();
+  const location = useLocation<any>();
+  const { from } = location.state || { from: { pathname: '/' } };
+
   useEffect(() => {
-    return function unmount() {
-      AuthService.shared.abortLogin();
+    return () => {
+      loginRequest?.abort();
     }
   })
 
-  const handleLoginChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setLogin(event.currentTarget.value.trim());
+  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.currentTarget.value.trim());
   }
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPassword(event.currentTarget.value.trim());
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(undefined);
-    AuthService.shared.login(login, password)
-      .catch(err => {
-        // Checking if this is an HTTP error
-        if (err.status && err.response) {
-          if (err.status === 401) {
-            err.message = 'Access denied'
-          }
-          setError(err);
-        } else {
-          throw err
+
+    const { request, response } = login(username, password);
+    setLoginRequest(request);
+
+    try {
+      const token = await response;
+      dispatch!({
+        type: 'login',
+        token
+      });
+      history.replace(from);
+    } catch (e: any) {
+      // Checking if this is an HTTP error
+      if (e.status && e.response) {
+        if (e.status === 401) {
+          e.message = 'Access denied'
         }
-      })
+        setError(e);
+      }
+      console.warn(e)
+    }
   }
 
 
@@ -49,8 +67,8 @@ export const Login: FC = () => {
             <div className="form-group">
               <label htmlFor="loginInput">Login</label>
               <input id="loginInput" className="form-control" type="text"
-                     value={ login }
-                     onChange={ handleLoginChange }/>
+                     value={ username }
+                     onChange={ handleUsernameChange }/>
             </div>
             <div className="form-group">
               <label htmlFor="passwordInput">Password</label>

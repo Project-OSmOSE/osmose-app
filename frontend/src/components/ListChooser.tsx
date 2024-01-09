@@ -15,7 +15,10 @@ const ListChooser: React.FC<ListChooserProps> = ({ choice_type, chosen_list, cho
       { chosen_list.map(choice => (
           <div className="col-sm-3 text-center border rounded" key={ choice.id }>
             { choice.name }
-            <button className="btn btn-danger" onClick={ () => onDelClick(choice.id) }>x</button>
+            <button className="btn btn-danger" onClick={ e => {
+              e.preventDefault();
+              onDelClick(choice.id)
+            } }>x</button>
           </div>
         )) }
 

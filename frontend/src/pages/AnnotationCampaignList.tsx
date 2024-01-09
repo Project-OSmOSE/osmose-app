@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnnotationCampaign } from "../services/API/ApiService.data.tsx";
-import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
+import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
+import { SuperAgentRequest } from "superagent";
+import { useAuth, useCatch401 } from "../utils/auth.tsx";
 
 
 const AnnotationCampaignList: React.FC = () => {
-  const [annotationCampaigns, setAnnotationCampaigns] = useState<Array<AnnotationCampaign>>([]);
+  const [annotationCampaigns, setAnnotationCampaigns] = useState<AnnotationCampaign.List>([]);
   const [error, setError] = useState<any | undefined>(undefined);
+
+  const auth = useAuth();
+  const catch401 = useCatch401();
+  const [listRequest, setListRequest] = useState<SuperAgentRequest | undefined>()
 
 
   useEffect(() => {
-    AnnotationCampaignsApiService.shared.list()
-      .then(setAnnotationCampaigns)
-      .catch(setError);
+    const { request, response } = AnnotationCampaign.list(auth.bearer!);
+    setListRequest(request);
+    response.then(setAnnotationCampaigns).catch(catch401).catch(setError);
 
     return () => {
-      AnnotationCampaignsApiService.shared.abortRequests();
+      listRequest?.abort();
     }
   }, [])
 
@@ -57,12 +62,12 @@ const AnnotationCampaignList: React.FC = () => {
           { annotationCampaigns.map(campaign => (
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
-              <td>{ new Date(campaign.created_at).toDateString() }</td>
-              <td>{ campaign.annotation_set.name }</td>
+              <td>{ campaign.created_at.toDateString() }</td>
+              <td>{ campaign.annotation_set.name ?? "-" }</td>
               <td>{ campaign.confidence_indicator_set?.name ?? "-" }</td>
               <td>{ campaign.files_count }</td>
-              <td>{ campaign.start ? new Date(campaign.start).toDateString() : 'N/A' }</td>
-              <td>{ campaign.end ? new Date(campaign.end).toDateString() : 'N/A' }</td>
+              <td>{ campaign.start?.toDateString() ?? 'N/A' }</td>
+              <td>{ campaign.end?.toDateString() ?? 'N/A' }</td>
               <td>{ campaign.user_complete_tasks_count } / { campaign.user_tasks_count }</td>
               <td>{ campaign.instructions_url ?
                 (<a href={ campaign.instructions_url }

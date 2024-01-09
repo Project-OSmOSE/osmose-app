@@ -1,9 +1,9 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
-import { Dataset } from "../services/API/ApiService.data.tsx";
+import { ListToImport, ListToImportItem } from "../utils/api/dataset.tsx";
 
 
 const NewDataItem: React.FC<{
-  data: Dataset,
+  data: ListToImportItem,
   index: number,
 }> = ({ data, index }) => {
   return (
@@ -27,16 +27,16 @@ const NewDataItem: React.FC<{
 
 export const ModalNewData: React.FC<{
   onClose: () => void,
-  newData: Dataset[],
-  startImport: (datasets: Array<Dataset>) => void
+  newData: ListToImport,
+  startImport: (datasets: ListToImport) => void
 }> = ({ onClose, newData, startImport }) => {
   const [searchInputFilter, setSearchInputFilter] = useState<string>("");
-  const [filteredResults, setFilteredResults] = useState<Dataset[]>([]);
+  const [filteredResults, setFilteredResults] = useState<ListToImport>([]);
 
   useEffect(() => {
     if (searchInputFilter !== "") {
       const regex = new RegExp(searchInputFilter, "i");
-      const filteredData = newData.filter((oneData: Dataset) => {
+      const filteredData = newData.filter(oneData => {
         return regex.test(oneData.name);
       });
       setFilteredResults(filteredData);
@@ -49,7 +49,7 @@ export const ModalNewData: React.FC<{
   const items = () => [...document.getElementsByName("addDataset")] as Array<HTMLInputElement>;
 
   const onSave = () => {
-    startImport(items().filter(data => data.checked).map(data => ({ name: data.value } as Dataset)));
+    startImport(items().filter(data => data.checked).map(data => ({ name: data.value })) as ListToImport);
   }
 
   const onCheckAll = (event: ChangeEvent<HTMLInputElement>) => {

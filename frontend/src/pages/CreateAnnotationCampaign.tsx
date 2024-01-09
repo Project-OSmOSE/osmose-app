@@ -1,29 +1,23 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import ListChooser from '../components/ListChooser.tsx';
-import { DatasetApiService } from "../services/API/DatasetApiService.tsx";
-import {
-  AnnotationMethod,
-  AnnotationMode,
-  AnnotationSet,
-  ConfidenceIndicatorSet,
-  Dataset,
-  SpectrogramConfiguration,
-  User
-} from "../services/API/ApiService.data.tsx";
-import { AnnotationSetApiService } from "../services/API/AnnotationSetApiService.tsx";
-import { UserApiService } from "../services/API/UserApiService.tsx";
-import { ConfidenceSetApiService } from "../services/API/ConfidenceSetApiService.tsx";
-import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
 import { useHistory } from "react-router-dom";
+import { useAuth, useCatch401 } from "../utils/auth.tsx";
+import { SuperAgentRequest } from "superagent";
+import * as Dataset from "../utils/api/dataset.tsx";
+import * as User from "../utils/api/user.tsx";
+import * as AnnotationSet from "../utils/api/annotation-set.tsx";
+import * as ConfidenceSet from "../utils/api/confidence-set.tsx";
+import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
+import { AnnotationMethod, AnnotationMode } from "../utils/api/annotation-campaign.tsx";
 
 
 type ShowAnnotationSetProps = {
-  annotation_sets: Array<AnnotationSet>,
-  onSelectionChange: (selected: AnnotationSet | undefined) => void
+  annotation_sets: AnnotationSet.List,
+  onSelectionChange: (selected: AnnotationSet.ListItem | undefined) => void
 };
 
 const ShowAnnotationSet: React.FC<ShowAnnotationSetProps> = ({ annotation_sets, onSelectionChange }) => {
-  const [selected, setSelected] = useState<AnnotationSet | undefined>(undefined);
+  const [selected, setSelected] = useState<AnnotationSet.ListItem | undefined>(undefined);
 
   const handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const set = annotation_sets.find(s => s.id === +event.currentTarget.value);
@@ -57,15 +51,15 @@ const ShowAnnotationSet: React.FC<ShowAnnotationSetProps> = ({ annotation_sets, 
 
 
 type ShowConfidenceIndicatorSetProps = {
-  confidence_indicator_sets: Array<ConfidenceIndicatorSet>,
-  onSelectionChange: (selected: ConfidenceIndicatorSet | undefined) => void
+  confidence_indicator_sets: ConfidenceSet.List,
+  onSelectionChange: (selected: ConfidenceSet.ListItem | undefined) => void
 };
 
 const ShowConfidenceIndicatorSet: React.FC<ShowConfidenceIndicatorSetProps> = ({
                                                                                  confidence_indicator_sets,
                                                                                  onSelectionChange
                                                                                }) => {
-  const [selected, setSelected] = useState<ConfidenceIndicatorSet | null | undefined>(undefined);
+  const [selected, setSelected] = useState<ConfidenceSet.ListItem | null | undefined>(undefined);
 
   const handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.currentTarget.value === "no-confidence-indicator-set") {
@@ -95,7 +89,7 @@ const ShowConfidenceIndicatorSet: React.FC<ShowConfidenceIndicatorSetProps> = ({
       { selected &&
           <div className="col-sm-12 border rounded">
               <p>{ selected.desc }</p>
-            { selected.confidence_indicators.map((confidence_indicator: any) => {
+            { selected.confidenceIndicators.map((confidence_indicator: any) => {
               return (
                 <p key={ "confidence" + confidence_indicator.level + "_" + confidence_indicator.label }>
                   <b>{ confidence_indicator.level }: </b> { confidence_indicator.label }</p>
@@ -107,80 +101,88 @@ const ShowConfidenceIndicatorSet: React.FC<ShowConfidenceIndicatorSetProps> = ({
   )
 }
 
-type CACProps = {
-  history: {
-    push: (url: string) => void
-  }
-};
-
-const CreateAnnotationCampaign: React.FC<CACProps> = () => {
-  const [name, setName] = useState<string | undefined>(undefined);
-  const [description, setDescription] = useState<string | undefined>(undefined);
-  const [start, setStart] = useState<string | undefined>(undefined);
-  const [end, setEnd] = useState<string | undefined>(undefined);
-  const [selectedSpectrogramConfigurations, setSelectedSpectrogramConfigurations] = useState<Array<SpectrogramConfiguration>>([]);
-  const [selectedAnnotators, setSelectedAnnotators] = useState<Array<User>>([]);
-  const [instructionURL, setInstructionURL] = useState<string | undefined>(undefined);
-  const [selectedConfidenceIndicatorSet, setSelectedConfidenceIndicatorSet] = useState<ConfidenceIndicatorSet | undefined>(undefined);
-  const [selectedAnnotationSet, setSelectedAnnotationSet] = useState<AnnotationSet | undefined>(undefined);
-  const [selectedDataset, setSelectedDataset] = useState<Dataset | undefined>(undefined);
+const CreateAnnotationCampaign: React.FC = () => {
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [start, setStart] = useState<string>('');
+  const [end, setEnd] = useState<string>('');
+  const [selectedSpectrogramConfigurations, setSelectedSpectrogramConfigurations] = useState<Array<Dataset.ListItemSpectros>>([]);
+  const [selectedAnnotators, setSelectedAnnotators] = useState<User.List>([]);
+  const [instructionURL, setInstructionURL] = useState<string>('');
+  const [selectedConfidenceIndicatorSet, setSelectedConfidenceIndicatorSet] = useState<ConfidenceSet.ListItem | undefined>(undefined);
+  const [selectedAnnotationSet, setSelectedAnnotationSet] = useState<AnnotationSet.ListItem | undefined>(undefined);
+  const [selectedDataset, setSelectedDataset] = useState<Dataset.ListItem | undefined>(undefined);
   const [annotationMethod, setAnnotationMethod] = useState<AnnotationMethod>(AnnotationMethod.notSelected);
   const [annotationMode, setAnnotationMode] = useState<AnnotationMode>(AnnotationMode.boxes);
   const [annotationGoal, setAnnotationGoal] = useState<number>(0);
 
-  const [confidenceIndicatorSets, setConfidenceIndicatorSets] = useState<Array<ConfidenceIndicatorSet>>([]);
-  const [users, setUsers] = useState<Array<User>>([]);
-  const [annotationSets, setAnnotationSets] = useState<Array<AnnotationSet>>([]);
-  const [spectrogramConfigurations, setSpectrogramConfigurations] = useState<Array<SpectrogramConfiguration> | undefined>(undefined);
-  const [datasets, setDatasets] = useState<Array<Dataset> | undefined>(undefined);
+  const [confidenceIndicatorSets, setConfidenceIndicatorSets] = useState<ConfidenceSet.List>([]);
+  const [users, setUsers] = useState<User.List>([]);
+  const [annotationSets, setAnnotationSets] = useState<AnnotationSet.List>([]);
+  const [spectrogramConfigurations, setSpectrogramConfigurations] = useState<Array<Dataset.ListItemSpectros> | undefined>(undefined);
+  const [datasets, setDatasets] = useState<Dataset.List>([]);
   const [error, setError] = useState<any | undefined>(undefined);
 
   const history = useHistory();
+  const auth = useAuth();
+  const catch401 = useCatch401();
+  const [listDatasetRequest, setListDatasetRequest] = useState<SuperAgentRequest | undefined>()
+  const [listAnnotationSetRequest, setListAnnotationSetRequest] = useState<SuperAgentRequest | undefined>()
+  const [listUserRequest, setListUserRequest] = useState<SuperAgentRequest | undefined>()
+  const [listConfidenceSetRequest, setListConfidenceSetRequest] = useState<SuperAgentRequest | undefined>()
+  const [postCampaignRequest, setPostCampaignRequest] = useState<SuperAgentRequest | undefined>()
 
-//   postAnnotationCampaign!
-// :
-//   SuperAgentRequest;
 
   useEffect(() => {
+    const dataset = Dataset.list(auth.bearer!, '.wav');
+    setListDatasetRequest(dataset.request);
+    const user = User.list(auth.bearer!);
+    setListUserRequest(user.request);
+    const annotationSet = AnnotationSet.list(auth.bearer!);
+    setListAnnotationSetRequest(annotationSet.request);
+    const confidenceSet = ConfidenceSet.list(auth.bearer!);
+    setListConfidenceSetRequest(confidenceSet.request);
+
+
     Promise.all([
-      DatasetApiService.shared.list().then(datasets =>
-        setDatasets(datasets.filter(d => d.files_type === '.wav'))),
-      AnnotationSetApiService.shared.list().then(setAnnotationSets),
-      UserApiService.shared.list().then(setUsers),
-      ConfidenceSetApiService.shared.list().then(setConfidenceIndicatorSets)
-    ]).catch(setError);
+      dataset.response.then(setDatasets),
+      user.response.then(setUsers),
+      annotationSet.response.then(setAnnotationSets),
+      confidenceSet.response.then(setConfidenceIndicatorSets)
+    ]).catch(catch401).catch(setError)
 
     return () => {
-      DatasetApiService.shared.abortRequests();
-      AnnotationSetApiService.shared.abortRequests();
-      UserApiService.shared.abortRequests();
-      ConfidenceSetApiService.shared.abortRequests();
+      listDatasetRequest?.abort();
+      listUserRequest?.abort();
+      listAnnotationSetRequest?.abort();
+      listConfidenceSetRequest?.abort();
+      postCampaignRequest?.abort();
     }
   }, [])
 
   const handleDatasetChanged = (event: ChangeEvent<HTMLSelectElement>) => {
-    const dataset = datasets?.find(d => d.id === event.target.value)
+    const dataset = datasets?.find(d => d.id === +event.target.value)
     setSelectedDataset(dataset);
     setSpectrogramConfigurations(dataset?.spectros);
     setSelectedSpectrogramConfigurations([]);
   }
 
   const handleAddSpectro = (id: number) => {
-    const config = spectrogramConfigurations?.find(s => s.id !== id);
+    const config = spectrogramConfigurations?.find(s => s.id === id);
     if (!config) return;
     setSelectedSpectrogramConfigurations([...(selectedSpectrogramConfigurations ?? []), config])
     setSpectrogramConfigurations(spectrogramConfigurations?.filter(s => s.id !== id))
   }
 
   const handleRemoveSpectro = (id: number) => {
-    const config = selectedSpectrogramConfigurations?.find(s => s.id !== id);
+    const config = selectedSpectrogramConfigurations?.find(s => s.id === id);
     if (!config) return;
     setSelectedSpectrogramConfigurations(selectedSpectrogramConfigurations?.filter(s => s.id !== id))
-    setSpectrogramConfigurations([...(selectedSpectrogramConfigurations ?? []), config])
+    setSpectrogramConfigurations([...(spectrogramConfigurations ?? []), config])
   }
 
   const handleAddAnnotator = (id: number) => {
-    const user = users?.find(u => u.id !== id);
+    const user = users?.find(u => u.id === id);
     if (!user) return;
     setSelectedAnnotators([...(selectedAnnotators ?? []), user])
     setUsers(users?.filter(u => u.id !== id))
@@ -188,7 +190,7 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
   }
 
   const handleRemoveAnnotator = (id: number) => {
-    const user = selectedAnnotators?.find(u => u.id !== id);
+    const user = selectedAnnotators?.find(u => u.id === id);
     if (!user) return;
     setSelectedAnnotators(selectedAnnotators?.filter(u => u.id !== id))
     setUsers([...(users ?? []), user])
@@ -199,10 +201,11 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
     event.preventDefault();
     setError(undefined)
     try {
-      await AnnotationCampaignsApiService.shared.create({
+      console.debug( selectedDataset ? [selectedDataset] : [])
+      const { request, response } = AnnotationCampaign.create({
         name: name?.trim() || 'Unnamed Campaign',
         desc: description?.trim(),
-        datasets: selectedDataset ? [selectedDataset] : [],
+        datasets: selectedDataset ? [selectedDataset.id] : [],
         spectro_configs: selectedSpectrogramConfigurations.map(s => s.id),
         annotation_set_id: selectedAnnotationSet?.id,
         confidence_indicator_set_id: selectedConfidenceIndicatorSet?.id,
@@ -213,7 +216,10 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
         instructions_url: instructionURL?.trim(),
         start: start ? start.trim() + 'T00:00' : undefined,
         end: end ? end.trim() + 'T00:00' : undefined
-      });
+      }, auth.bearer!);
+      setPostCampaignRequest(request);
+
+      await response;
       history.push('/annotation-campaigns');
     } catch (e: any) {
       if (e.status && e.response) {
@@ -224,7 +230,7 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
           .join("\n");
         setError({
           status: e.status,
-          message: message
+          message: message.length > 0 ? message : JSON.stringify(e.response.body)
         });
       }
     }
@@ -271,7 +277,7 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
         { spectrogramConfigurations &&
             <div className="form-group">
                 <ListChooser choice_type="spectro"
-                             choices_list={ spectrogramConfigurations }
+                             choices_list={ [...new Set(spectrogramConfigurations.sort((a, b) => a.name.localeCompare(b.name)))] }
                              chosen_list={ selectedSpectrogramConfigurations }
                              onSelectChange={ handleAddSpectro }
                              onDelClick={ handleRemoveSpectro }/>
@@ -319,8 +325,8 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
         <div className="form-group">
           <label>Choose annotators:</label>
           <ListChooser choice_type="user"
-                       choices_list={ users }
-                       chosen_list={ selectedAnnotators }
+                       choices_list={ [...new Set(users.map(u => ({ ...u, name: u.username })).sort((a, b) => a.name.localeCompare(b.name)))] }
+                       chosen_list={ selectedAnnotators.map(u => ({ ...u, name: u.username })) }
                        onSelectChange={ handleAddAnnotator }
                        onDelClick={ handleRemoveAnnotator }/>
         </div>
@@ -345,8 +351,10 @@ const CreateAnnotationCampaign: React.FC<CACProps> = () => {
           </div>
           { selectedDataset && selectedAnnotators.length > 0 && files_per_person &&
               <p className="col-sm-5">
-                  Each annotator will annotate at least { files_per_person } files in the campaign (${ Math.round(files_per_person / selectedDataset?.files_count * 100) }%), which contains ${ selectedDataset?.files_count } files in total
-              </p>}
+                  Each annotator will annotate at least { files_per_person } files in the campaign
+                  (${ Math.round(files_per_person / selectedDataset?.files_count * 100) }%), which contains
+                  ${ selectedDataset?.files_count } files in total
+              </p> }
         </div>
 
         <div className="form-group row">

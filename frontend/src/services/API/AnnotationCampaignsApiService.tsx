@@ -13,11 +13,6 @@ export class AnnotationCampaignsApiService extends ApiServiceParent {
   private downloadReportRequest?: SuperAgentRequest;
   private downloadReportStatusRequest?: SuperAgentRequest;
 
-  public async list(): Promise<Array<AnnotationCampaign>> { // TODO: check type
-    const response = await this.doRequest(this.listRequest);
-    return response.body
-  }
-
   public async retrieve(id: string): Promise<{ campaign: AnnotationCampaign, tasks: Array<AnnotationTaskStatus> }> {
     this.retrieveRequest?.abort();
     this.retrieveRequest = get(`${ this.URI }/${id}`)
