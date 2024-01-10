@@ -1,7 +1,7 @@
 describe("osmose-campaign-creation", () => {
   beforeEach(() => {
     cy.login("admin", "osmose29")
-    cy.visit('http://localhost:3000/')
+    cy.visit('http://localhost:5173/')
   })
 
   it("tests osmose-campaign-creation", () => {

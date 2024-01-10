@@ -85,7 +85,7 @@ We use [Cypress](https://docs.cypress.io) for end to end testing. Examples of cy
 ```bash
 cd frontend
 # Run Cypress test runner
-./node_modules/.bin/cypress open
+npm run e2e
 ```
 
 ### Before pushing to github
