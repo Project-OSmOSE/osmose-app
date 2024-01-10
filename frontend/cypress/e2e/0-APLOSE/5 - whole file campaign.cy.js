@@ -19,6 +19,7 @@ describe('Whole file', () => {
     //     cy.get("#cac-user").select("ek");
     //     cy.get("#cac-annotation-method").select("Sequential");
     //     cy.get('input[type=submit]').click(); // cy.contains('submit', {matchCase: false}).click()
+    //     cy.get("h1").should('include.text', 'Annotation Campaigns')
     // })
 
     describe('should be as created', () => {
@@ -32,9 +33,10 @@ describe('Whole file', () => {
         //     cy.contains('Description').parentsUntil('div').parent().should('include.text', "Testing campaign creation")
         // })
 
-        it('dataset', () => {
-            // TODO: check dataset = "New Test Dataset"
-        })
+        // it('dataset', () => {
+        //     cy.contains(Cypress.env('wholeFileCampaign')).parentsUntil('tr').parent().contains('My tasks').click()
+        //     cy.get("tbody").should('include.text', "New Test Dataset");
+        // })
 
         it('spectro', () => {
             // TODO: check available spectro = "4096_4096_90"

@@ -1,34 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
-import { AnnotationTasksApiService } from "../services/API/AnnotationTasksApiService.tsx";
-import { AnnotationCampaign, AnnotationTask, TaskStatus } from "../services/API/ApiService.data.tsx";
+import { Link, useParams } from 'react-router-dom';
+import { AnnotationTaskStatus, List, useAnnotationTaskAPI } from "../utils/api/annotation-task.tsx";
+import { RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
 
+const AnnotationTaskList: React.FC = () => {
+  const { id: campaignID } = useParams<{ id: string }>();
+  const [campaign, setCampaign] = useState<RetrieveCampaign | undefined>(undefined);
+  const [tasks, setTasks] = useState<List | undefined>(undefined);
 
-type AnnotationTaskListProps = {
-  match: {
-    params: {
-      campaign_id: string
-    }
-  },
-};
-
-
-const AnnotationTaskList: React.FC<AnnotationTaskListProps> = ({ match }) => {
-  const [campaign, setCampaign] = useState<AnnotationCampaign | undefined>(undefined);
-  const [tasks, setTasks] = useState<Array<AnnotationTask> | undefined>(undefined);
+  const taskService = useAnnotationTaskAPI();
+  const campaignService = useAnnotationCampaignAPI();
   const [error, setError] = useState<any | undefined>(undefined);
 
   useEffect(() => {
-    const campaignID = match.params.campaign_id;
-    AnnotationTasksApiService.shared.listForCampaign(campaignID).then(setTasks).catch(setError);
-    AnnotationCampaignsApiService.shared.retrieve(campaignID).then(data => setCampaign(data.campaign)).catch(setError);
+    let isCanceled = false;
+
+    setError(undefined);
+    Promise.all([
+      taskService.list(campaignID).then(setTasks),
+      campaignService.retrieve(campaignID).then(data => setCampaign(data.campaign)),
+    ]).catch(e => {
+      if (isCanceled) return;
+      setError(e);
+      throw e
+    })
 
     return () => {
-      AnnotationCampaignsApiService.shared.abortRequests();
-      AnnotationTasksApiService.shared.abortRequests();
+      isCanceled = true;
+      taskService.abort();
+      campaignService.abort();
     }
-  }, []);
+  }, [campaignID]);
 
   if (error) {
     return (
@@ -72,14 +74,14 @@ const AnnotationTaskList: React.FC<AnnotationTaskListProps> = ({ match }) => {
         { tasks?.map(task => {
           const startDate = new Date(task.start);
           const diffTime = new Date(new Date(task.end).getTime() - startDate.getTime());
-          return (<tr className={ task.status === TaskStatus.finished ? 'table-success' : 'table-warning' }
+          return (<tr className={ task.status === AnnotationTaskStatus.finished ? 'table-success' : 'table-warning' }
                       key={ task.id }>
             <td>{ task.filename }</td>
             <td>{ task.dataset_name }</td>
             <td>{ startDate.toLocaleDateString() }</td>
             <td>{ diffTime.toUTCString().split(' ')[4] }</td>
             <td>{ task.status }</td>
-            <td><Link to={ `/audio-annotator/${task.id}` }>Task link</Link></td>
+            <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
           </tr>)
         }) }
         </tbody>

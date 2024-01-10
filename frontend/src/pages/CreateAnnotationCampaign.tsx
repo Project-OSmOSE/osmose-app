@@ -1,23 +1,20 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import ListChooser from '../components/ListChooser.tsx';
 import { useHistory } from "react-router-dom";
-import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import * as Dataset from "../utils/api/dataset.tsx";
-import * as User from "../utils/api/user.tsx";
-import * as AnnotationSet from "../utils/api/annotation-set.tsx";
-import * as ConfidenceSet from "../utils/api/confidence-set.tsx";
-import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
-import { AnnotationMethod, AnnotationMode } from "../utils/api/annotation-campaign.tsx";
-import { Request } from '../utils/requests.tsx';
+import { AnnotationMethod, AnnotationMode, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
+import { useConfidenceSetAPI, List as ConfidenceSetList, ListItem as ConfidenceSetListItem } from "../utils/api/confidence-set.tsx";
+import { useAnnotationSetAPI, List as AnnotationSetList, ListItem as AnnotationSetListItem } from "../utils/api/annotation-set.tsx";
+import { useUsersAPI, List as UserList } from "../utils/api/user.tsx";
+import { useDatasetsAPI, List as DatasetList, ListItem as DatasetListItem, ListItemSpectros } from "../utils/api/dataset.tsx";
 
 
 type ShowAnnotationSetProps = {
-  annotation_sets: AnnotationSet.List,
-  onSelectionChange: (selected: AnnotationSet.ListItem | undefined) => void
+  annotation_sets: AnnotationSetList,
+  onSelectionChange: (selected: AnnotationSetListItem | undefined) => void
 };
 
 const ShowAnnotationSet: React.FC<ShowAnnotationSetProps> = ({ annotation_sets, onSelectionChange }) => {
-  const [selected, setSelected] = useState<AnnotationSet.ListItem | undefined>(undefined);
+  const [selected, setSelected] = useState<AnnotationSetListItem | undefined>(undefined);
 
   const handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const set = annotation_sets.find(s => s.id === +event.currentTarget.value);
@@ -51,15 +48,15 @@ const ShowAnnotationSet: React.FC<ShowAnnotationSetProps> = ({ annotation_sets, 
 
 
 type ShowConfidenceIndicatorSetProps = {
-  confidence_indicator_sets: ConfidenceSet.List,
-  onSelectionChange: (selected: ConfidenceSet.ListItem | undefined) => void
+  confidence_indicator_sets: ConfidenceSetList,
+  onSelectionChange: (selected: ConfidenceSetListItem | undefined) => void
 };
 
 const ShowConfidenceIndicatorSet: React.FC<ShowConfidenceIndicatorSetProps> = ({
                                                                                  confidence_indicator_sets,
                                                                                  onSelectionChange
                                                                                }) => {
-  const [selected, setSelected] = useState<ConfidenceSet.ListItem | null | undefined>(undefined);
+  const [selected, setSelected] = useState<ConfidenceSetListItem | null | undefined>(undefined);
 
   const handleOnChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.currentTarget.value === "no-confidence-indicator-set") {
@@ -106,57 +103,50 @@ const CreateAnnotationCampaign: React.FC = () => {
   const [description, setDescription] = useState<string>('');
   const [start, setStart] = useState<string>('');
   const [end, setEnd] = useState<string>('');
-  const [selectedSpectrogramConfigurations, setSelectedSpectrogramConfigurations] = useState<Array<Dataset.ListItemSpectros>>([]);
-  const [selectedAnnotators, setSelectedAnnotators] = useState<User.List>([]);
+  const [selectedSpectrogramConfigurations, setSelectedSpectrogramConfigurations] = useState<Array<ListItemSpectros>>([]);
+  const [selectedAnnotators, setSelectedAnnotators] = useState<UserList>([]);
   const [instructionURL, setInstructionURL] = useState<string>('');
-  const [selectedConfidenceIndicatorSet, setSelectedConfidenceIndicatorSet] = useState<ConfidenceSet.ListItem | undefined>(undefined);
-  const [selectedAnnotationSet, setSelectedAnnotationSet] = useState<AnnotationSet.ListItem | undefined>(undefined);
-  const [selectedDataset, setSelectedDataset] = useState<Dataset.ListItem | undefined>(undefined);
+  const [selectedConfidenceIndicatorSet, setSelectedConfidenceIndicatorSet] = useState<ConfidenceSetListItem | undefined>(undefined);
+  const [selectedAnnotationSet, setSelectedAnnotationSet] = useState<AnnotationSetListItem | undefined>(undefined);
+  const [selectedDataset, setSelectedDataset] = useState<DatasetListItem | undefined>(undefined);
   const [annotationMethod, setAnnotationMethod] = useState<AnnotationMethod>(AnnotationMethod.notSelected);
   const [annotationMode, setAnnotationMode] = useState<AnnotationMode>(AnnotationMode.boxes);
   const [annotationGoal, setAnnotationGoal] = useState<number>(0);
 
-  const [confidenceIndicatorSets, setConfidenceIndicatorSets] = useState<ConfidenceSet.List>([]);
-  const [users, setUsers] = useState<User.List>([]);
-  const [annotationSets, setAnnotationSets] = useState<AnnotationSet.List>([]);
-  const [spectrogramConfigurations, setSpectrogramConfigurations] = useState<Array<Dataset.ListItemSpectros> | undefined>(undefined);
-  const [datasets, setDatasets] = useState<Dataset.List>([]);
+  const [confidenceIndicatorSets, setConfidenceIndicatorSets] = useState<ConfidenceSetList>([]);
+  const [users, setUsers] = useState<UserList>([]);
+  const [annotationSets, setAnnotationSets] = useState<AnnotationSetList>([]);
+  const [spectrogramConfigurations, setSpectrogramConfigurations] = useState<Array<ListItemSpectros> | undefined>(undefined);
+  const [datasets, setDatasets] = useState<DatasetList>([]);
   const [error, setError] = useState<any | undefined>(undefined);
 
   const history = useHistory();
-  const auth = useAuth();
-  const catch401 = useCatch401();
-  const [listDatasetRequest, setListDatasetRequest] = useState<Request | undefined>()
-  const [listAnnotationSetRequest, setListAnnotationSetRequest] = useState<Request | undefined>()
-  const [listUserRequest, setListUserRequest] = useState<Request | undefined>()
-  const [listConfidenceSetRequest, setListConfidenceSetRequest] = useState<Request | undefined>()
-  const [postCampaignRequest, setPostCampaignRequest] = useState<Request | undefined>()
-
-
+  const campaignService = useAnnotationCampaignAPI();
+  const confidenceSetService = useConfidenceSetAPI();
+  const annotationSetService = useAnnotationSetAPI();
+  const userService = useUsersAPI();
+  const datasetService = useDatasetsAPI();
+  
   useEffect(() => {
-    const dataset = Dataset.list(auth.bearer!, '.wav');
-    setListDatasetRequest(dataset.request);
-    const user = User.list(auth.bearer!);
-    setListUserRequest(user.request);
-    const annotationSet = AnnotationSet.list(auth.bearer!);
-    setListAnnotationSetRequest(annotationSet.request);
-    const confidenceSet = ConfidenceSet.list(auth.bearer!);
-    setListConfidenceSetRequest(confidenceSet.request);
-
+    let isCancelled = false;
 
     Promise.all([
-      dataset.response.then(setDatasets),
-      user.response.then(setUsers),
-      annotationSet.response.then(setAnnotationSets),
-      confidenceSet.response.then(setConfidenceIndicatorSets)
-    ]).catch(catch401).catch(setError)
+      datasetService.list('.wav').then(setDatasets),
+      userService.list().then(setUsers),
+      annotationSetService.list().then(setAnnotationSets),
+      confidenceSetService.list().then(setConfidenceIndicatorSets)
+    ]).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    })
 
     return () => {
-      listDatasetRequest?.abort();
-      listUserRequest?.abort();
-      listAnnotationSetRequest?.abort();
-      listConfidenceSetRequest?.abort();
-      postCampaignRequest?.abort();
+      isCancelled = true;
+      campaignService.abort();
+      datasetService.abort();
+      userService.abort();
+      annotationSetService.abort();
+      confidenceSetService.abort();
     }
   }, [])
 
@@ -202,7 +192,8 @@ const CreateAnnotationCampaign: React.FC = () => {
     setError(undefined)
     try {
       console.debug( selectedDataset ? [selectedDataset] : [])
-      const { request, response } = AnnotationCampaign.create({
+
+      await campaignService.create({
         name: name?.trim() || 'Unnamed Campaign',
         desc: description?.trim(),
         datasets: selectedDataset ? [selectedDataset.id] : [],
@@ -216,10 +207,7 @@ const CreateAnnotationCampaign: React.FC = () => {
         instructions_url: instructionURL?.trim(),
         start: start ? start.trim() + 'T00:00' : undefined,
         end: end ? end.trim() + 'T00:00' : undefined
-      }, auth.bearer!);
-      setPostCampaignRequest(request);
-
-      await response;
+      })
       history.push('/annotation-campaigns');
     } catch (e: any) {
       if (e.status && e.response) {

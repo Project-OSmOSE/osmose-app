@@ -3,40 +3,34 @@ import Toast, { ToastMsg } from '../components/Toast.tsx';
 import '../css/modal.css';
 import ReactDOM from "react-dom";
 import { ModalNewData } from "../components/ModalNewData.tsx";
-import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import * as Datasets from '../utils/api/dataset.tsx';
-import { Request } from '../utils/requests.tsx';
+import { ListToImport, List, useDatasetsAPI } from "../utils/api/dataset.tsx";
 
 
 const DatasetList: React.FC = () => {
   const [toastMsg, setToastMsg] = useState<ToastMsg | undefined>(undefined);
-  const [datasets, setDatasets] = useState<Datasets.List>([]);
-  const [datasetsToImport, setDatasetsToImport] = useState<Datasets.ListToImport>([]);
+  const [datasets, setDatasets] = useState<List>([]);
+  const [datasetsToImport, setDatasetsToImport] = useState<ListToImport>([]);
   const [error, setError] = useState<any | undefined>(undefined);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const auth = useAuth();
-  const catch401 = useCatch401();
-  const [listToImport, setListToImport] = useState<Request | undefined>();
-  const [listRequest, setListRequest] = useState<Request | undefined>();
-  const [importRequest, setImportRequest] = useState<Request | undefined>();
+  const datasetService = useDatasetsAPI();
 
 
   useEffect(() => {
-    const { request, response } = Datasets.listToImport(auth.bearer!);
-    setListToImport(request);
-    response.then(setDatasetsToImport).catch(catch401).catch(setError);
+    let isCancelled  = false;
+
+    datasetService.listToImport().then(setDatasetsToImport).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    });
     return () => {
-      listToImport?.abort();
-      listRequest?.abort();
-      importRequest?.abort()
+      isCancelled = true;
+      datasetService.abort();
     };
   }, []);
 
   useEffect(() => {
-    const { request, response } = Datasets.list(auth.bearer!);
-    setListRequest(request);
-    response.then(setDatasets).catch(catch401).catch(setError);
+    datasetService.list().then(setDatasets).catch(setError);
   }, [datasetsToImport]);
 
   useEffect(() => {
@@ -55,16 +49,14 @@ const DatasetList: React.FC = () => {
     }
   }, [error]);
 
-  const importDatasets = async (datasets: Datasets.ListToImport) => {
-    const { request, response } = Datasets.importDatasets(datasets, auth.bearer!);
-    setImportRequest(request);
-    response.then(data => {
+  const importDatasets = async (datasets: ListToImport) => {
+    datasetService.importDatasets(datasets).then(data => {
       const remainingDatasets = datasetsToImport.filter(newDataset =>
         data.some(importedDataset => importedDataset.name !== newDataset.name)
       );
       setDatasetsToImport(remainingDatasets);
       setError(undefined)
-    }).catch(catch401).catch(setError).finally(() => setIsImportModalOpen(false));
+    }).catch(setError).finally(() => setIsImportModalOpen(false));
   }
 
   return (

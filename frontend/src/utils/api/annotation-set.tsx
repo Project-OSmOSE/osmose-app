@@ -1,7 +1,7 @@
-import { Response } from "../requests.tsx";
-import { get } from "superagent";
+import { APIService } from "../requests.tsx";
+import { useAuth, useAuthDispatch } from "../auth.tsx";
+import { useEffect } from "react";
 
-const URI = '/api/annotation-set';
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -11,10 +11,17 @@ export type ListItem = {
   tags: Array<string>;
 }
 
-export function list(bearer: string): Response<List> {
-  const request = get(URI).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body)
-  }
+export const useAnnotationSetAPI = () => {
+  const auth = useAuth();
+  const authDispatch = useAuthDispatch();
+
+  useEffect(() => {
+    service.setAuth(auth)
+  }, [auth])
+
+  const service = new class AnnotationSetAPIService extends APIService<List, never, never>{
+    URI = '/api/annotation-set';
+  }(auth, authDispatch!);
+
+  return service;
 }

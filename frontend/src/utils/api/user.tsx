@@ -1,27 +1,40 @@
-import { Response } from "../requests.tsx";
-import { get } from "superagent";
-
-const URI = '/api/user';
+import { APIService } from "../requests.tsx";
+import { get, SuperAgentRequest } from "superagent";
+import { useAuth, useAuthDispatch } from "../auth.tsx";
+import { useEffect } from "react";
 
 export type List = Array<ListItem>
-export type ListItem = {
+export interface ListItem {
   id: number;
   username: string;
   email: string;
 }
 
-export function list(bearer: string): Response<List> {
-  const request = get(URI).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body)
-  }
-}
+export const useUsersAPI = () => {
+  const auth = useAuth();
+  const authDispatch = useAuthDispatch();
 
-export function isStaff(bearer: string): Response<boolean> {
-  const request = get(`${ URI }/is_staff`).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body.is_staff)
-  }
+  useEffect(() => {
+    service.setAuth(auth)
+  }, [auth])
+
+  const service = new class UserAPIService extends APIService<List, never, never>{
+    URI = '/api/user';
+
+    private isStaffRequest?: SuperAgentRequest;
+
+    public isStaff(): Promise<boolean> {
+      this.isStaffRequest?.abort();
+      this.isStaffRequest = get(`${ this.URI }/is_staff`).set("Authorization", this.auth.bearer!);
+      return this.isStaffRequest.then(r => r.body.is_staff).catch(this.catch401)
+    }
+
+    public abort() {
+      super.abort();
+      this.isStaffRequest?.abort();
+    }
+
+  }(auth, authDispatch!);
+
+  return service;
 }

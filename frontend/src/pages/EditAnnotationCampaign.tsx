@@ -1,45 +1,47 @@
 import React, { FormEvent, useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import ListChooser from '../components/ListChooser.tsx';
-import { AnnotationCampaignsApiService } from "../services/API/AnnotationCampaignsApiService.tsx";
-import { AnnotationCampaign, AnnotationMethod, User } from "../services/API/ApiService.data.tsx";
-import { UserApiService } from "../services/API/UserApiService.tsx";
+import { AnnotationMethod, RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
+import { List as UserList, useUsersAPI } from "../utils/api/user.tsx";
 
-type EACProps = {
-  match: {
-    params: {
-      campaign_id: string
-    }
-  },
-}
 
-const EditAnnotationCampaign: React.FC<EACProps> = ({ match }) => {
+const EditAnnotationCampaign: React.FC = () => {
+  const { id: campaignID } = useParams<{id: string}>()
   const history = useHistory();
-  const [campaign, setCampaign] = useState<AnnotationCampaign | undefined>(undefined);
-  const [annotators, setAnnotators] = useState<Array<User>>([]);
+  const [campaign, setCampaign] = useState<RetrieveCampaign | undefined>(undefined);
+  const [annotators, setAnnotators] = useState<UserList>([]);
   const [annotationGoal, setAnnotationGoal] = useState<number>(0);
   const [annotationMethod, setAnnotationMethod] = useState<AnnotationMethod>(AnnotationMethod.notSelected);
-  const [users, setUsers] = useState<Array<User>>([]);
+  const [users, setUsers] = useState<UserList>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
   const [error, setError] = useState<any | undefined>(undefined);
 
+  const campaignService = useAnnotationCampaignAPI();
+  const userService = useUsersAPI();
+
   useEffect(() => {
+    let isCancelled  = false;
+
     Promise.all([
-      AnnotationCampaignsApiService.shared.retrieve(match.params.campaign_id),
-      UserApiService.shared.list(),
-      UserApiService.shared.isStaff().then(setIsStaff),
+      campaignService.retrieve(campaignID),
+      userService.list(),
+      userService.isStaff().then(setIsStaff)
     ]).then(([data, users]) => {
       const annotatorIds = [...new Set(data.tasks.map(t => t.annotator_id))];
-      const annotatorList = annotatorIds.map(id => users.find(u => u.id === id)).filter(u => u !== undefined) as Array<User>;
+      const annotatorList = annotatorIds.map(id => users.find(u => u.id === id)).filter(u => u !== undefined) as UserList;
       setAnnotators(annotatorList);
       setCampaign(data.campaign);
       setUsers(users.filter(u => annotatorList.indexOf(u) < 0));
-    }).catch(setError)
+    }).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    })
     return () => {
-      AnnotationCampaignsApiService.shared.abortRequests();
-      UserApiService.shared.abortRequests();
+      isCancelled = true;
+      campaignService.abort();
+      userService.abort();
     }
-  }, [])
+  }, [campaignID])
 
   const handleAddAnnotator = (id: number) => {
     const user = users?.find(u => u.id !== id);
@@ -62,10 +64,10 @@ const EditAnnotationCampaign: React.FC<EACProps> = ({ match }) => {
     setError(undefined);
     if (!campaign) return;
     try {
-      await AnnotationCampaignsApiService.shared.addAnnotators(campaign.id, {
+      await campaignService.addAnnotators(campaign.id, {
         annotators: annotators.map(a => a.id),
         annotation_method: annotationMethod,
-        annotation_goal: annotationGoal === 0 ? undefined : { annotation_goal: annotationGoal }
+        annotation_goal: annotationGoal === 0 ? undefined : annotationGoal
       });
       history.push(`/annotation_campaign/${ campaign.id }`);
     } catch (e: any) {
@@ -118,8 +120,8 @@ const EditAnnotationCampaign: React.FC<EACProps> = ({ match }) => {
         <div className="form-group">
           <label>Choose annotators:</label>
           <ListChooser choice_type="user"
-                       choices_list={ users }
-                       chosen_list={ annotators }
+                       choices_list={ [...new Set(users.map(u => ({ ...u, name: u.username })).sort((a, b) => a.name.localeCompare(b.name)))] }
+                       chosen_list={ annotators.map(u => ({ ...u, name: u.username })) }
                        onSelectChange={ handleAddAnnotator }
                        onDelClick={ handleRemoveAnnotator }/>
         </div>

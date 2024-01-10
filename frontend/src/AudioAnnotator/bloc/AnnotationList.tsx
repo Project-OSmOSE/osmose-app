@@ -1,7 +1,7 @@
 import React from "react";
 import { Annotation } from "../AudioAnnotator.tsx";
-import { AnnotationMode } from "../../services/API/ApiService.data.tsx";
 import * as utils from "../../utils.tsx";
+import { AnnotationMode } from "../../utils/api/annotation-campaign.tsx";
 
 interface Props {
   annotations: Array<Annotation>,

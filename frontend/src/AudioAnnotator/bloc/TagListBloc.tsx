@@ -1,8 +1,8 @@
 import React from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import { AnnotationMode } from "../../services/API/ApiService.data.tsx";
 import { getTagColor } from "../../utils.tsx";
 import { Tooltip } from "./Tooltip.tsx";
+import { AnnotationMode } from "../../utils/api/annotation-campaign.tsx";
 
 interface Props {
   tags: Array<string>,

@@ -1,7 +1,7 @@
-import { Response } from "../requests.tsx";
-import { get } from "superagent";
+import { APIService } from "../requests.tsx";
+import { useAuth, useAuthDispatch } from "../auth.tsx";
+import { useEffect } from "react";
 
-const URI = '/api/confidence-indicator';
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -16,10 +16,17 @@ export type ListItem = {
   }>;
 }
 
-export function list(bearer: string): Response<List> {
-  const request = get(URI).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body)
-  }
+export const useConfidenceSetAPI = () => {
+  const auth = useAuth();
+  const authDispatch = useAuthDispatch();
+
+  useEffect(() => {
+    service.setAuth(auth)
+  }, [auth])
+
+  const service = new class ConfidenceSetAPIService extends APIService<List, never, never>{
+    URI = '/api/confidence-indicator';
+  }(auth, authDispatch!);
+
+  return service;
 }

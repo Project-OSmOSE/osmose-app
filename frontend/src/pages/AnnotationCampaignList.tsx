@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import * as AnnotationCampaign from "../utils/api/annotation-campaign.tsx";
-import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import { Request } from '../utils/requests.tsx';
+import { List, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
 
 
 const AnnotationCampaignList: React.FC = () => {
-  const [annotationCampaigns, setAnnotationCampaigns] = useState<AnnotationCampaign.List>([]);
+  const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
 
-  const auth = useAuth();
-  const catch401 = useCatch401();
+  const campaignService = useAnnotationCampaignAPI();
   const [error, setError] = useState<any | undefined>(undefined);
-  const [listRequest, setListRequest] = useState<Request | undefined>()
-
 
   useEffect(() => {
-    const { request, response } = AnnotationCampaign.list(auth.bearer!);
-    setListRequest(request);
-    response.then(setAnnotationCampaigns).catch(catch401).catch(setError);
+    let isCanceled = false;
+
+    setError(undefined);
+    campaignService.list().then(setAnnotationCampaigns).catch(e => {
+      if (isCanceled) return;
+      setError(e);
+      throw e
+    })
 
     return () => {
-      listRequest?.abort();
+      isCanceled = true;
+      campaignService.abort();
     }
-  }, [])
+  }, []);
 
   if (error) return (
     <div className="col-sm-10 border rounded">

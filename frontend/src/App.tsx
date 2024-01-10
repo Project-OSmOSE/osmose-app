@@ -51,23 +51,16 @@ export const App: FC = () => (
       <Switch>
         <Route path="/login"><Login/></Route>
 
-        {/*<Route path='/audio-annotator/:annotation_task_id' render={ route_props => <AudioAnnotator { ...route_props } /> }/>*/ }
+        <AuthenticatedRoute path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
 
         <AploseSkeleton>
           <Switch>
-            {/*<Route path='/' render={ () => <DatasetList/> }/>*/ }
-            {/*<Route path="/">*/ }
-            {/*  <Redirect to="/datasets"></Redirect>*/ }
-            {/*</Route>*/ }
-
             <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
             <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
             <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
             <AuthenticatedRoute path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-            {/*<Route path='/annotation_campaign/:campaign_id' render={ route_props => <AnnotationCampaignDetail { ...route_props } /> }/>*/ }
-
-            {/*<Route path='/annotation_tasks/:campaign_id' render={ route_props => <AnnotationTaskList { ...route_props } /> }/>*/ }
-            {/*<Route path='/annotation_campaign/:campaign_id/edit' render={ route_props => <EditAnnotationCampaign { ...route_props } /> }/>*/ }
+            <AuthenticatedRoute path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
+            <AuthenticatedRoute path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
             <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
           </Switch>
         </AploseSkeleton>

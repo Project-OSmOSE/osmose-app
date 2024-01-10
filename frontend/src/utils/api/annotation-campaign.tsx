@@ -1,8 +1,8 @@
-import { download, Response } from "../requests.tsx";
-import { get, post } from "superagent";
+import { APIService } from "../requests.tsx";
 import { AnnotationTaskStatus } from "./annotation-task.tsx";
-
-const URI = '/api/annotation-campaign';
+import { useAuth, useAuthDispatch } from "../auth.tsx";
+import { useEffect } from "react";
+import { post, SuperAgentRequest } from "superagent";
 
 export enum AnnotationMode {
   boxes = 1,
@@ -120,79 +120,74 @@ export type CreateResult = {
   instructions_url?: string;
 }
 
-export function list(bearer: string): Response<List> {
-  const request = get(URI).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body.map((d: any) => ({
-      ...d,
-      start: d.start ? new Date(d.start) : d.start,
-      end: d.end ? new Date(d.end) : d.end,
-      created_at: new Date(d.created_at),
-    })))
-  }
+export type AddAnnotators = {
+  annotators: Array<number>,
+  annotation_method: AnnotationMethod,
+  annotation_goal?: number
 }
 
-export function retrieve(id: string, bearer: string): Response<Retrieve> {
-  const request = get(`${ URI }/${ id }`).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => {
-      return {
-        campaign: {
-          ...r.body.campaign,
-          start: r.body.campaign.start ? new Date(r.body.campaign.start) : r.body.campaign.start,
-          end: r.body.campaign.end ? new Date(r.body.campaign.end) : r.body.campaign.end,
-          created_at: new Date(r.body.campaign.created_at)
-        },
-        tasks: r.body.tasks
-      }
-    })
-  }
-}
+export const useAnnotationCampaignAPI = () => {
+  const auth = useAuth();
+  const authDispatch = useAuthDispatch();
 
-export function create(data: Create, bearer: string): Response<CreateResult> {
-  const request = post(`${ URI }/`)
-    .set("Authorization", bearer)
-    .send(data);
-  return {
-    request,
-    response: request.then(r => r.body)
-  }
-}
+  useEffect(() => {
+    service.setAuth(auth)
+  }, [auth])
 
-export function downloadResults(campaign: RetrieveCampaign, bearer: string): Response<void> {
-  const filename = campaign.name.replace(' ', '_') + '_results.csv';
-  const request = post(`${ URI }/${ campaign.id }/report`)
-    .set("Authorization", bearer);
-  let objectURL: string;
-  return {
-    request: {
-      abort: () => {
-        URL.revokeObjectURL(objectURL);
-        request?.abort();
-      }
-    },
-    response: download(request, filename).then(url => {
-      objectURL = url
-    })
-  }
-}
+  const service = new class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResult>{
+    URI = '/api/annotation-campaign';
 
-export function downloadStatus(campaign: RetrieveCampaign, bearer: string): Response<void> {
-  const filename = campaign.name.replace(' ', '_') + '_task_status.csv';
-  const request = post(`${ URI }/${ campaign.id }/report_status`)
-    .set("Authorization", bearer);
-  let objectURL: string;
-  return {
-    request: {
-      abort: () => {
-        URL.revokeObjectURL(objectURL);
-        request?.abort();
-      }
-    },
-    response: download(request, filename).then(url => {
-      objectURL = url
-    })
-  }
+    private addAnnotatorsRequest?: SuperAgentRequest;
+
+    list(): Promise<List> {
+      return super.list().then(r => r.map((d: any) => ({
+        ...d,
+        start: d.start ? new Date(d.start) : d.start,
+        end: d.end ? new Date(d.end) : d.end,
+        created_at: new Date(d.created_at),
+      })));
+    }
+
+    create(data: Create): Promise<CreateResult> {
+      return super.create(data);
+    }
+
+    retrieve(id: string): Promise<Retrieve> {
+      return super.retrieve(id).then(r => ({
+          campaign: {
+            ...r.campaign,
+            start: r.campaign.start ? new Date(r.campaign.start) : r.campaign.start,
+            end: r.campaign.end ? new Date(r.campaign.end) : r.campaign.end,
+            created_at: new Date(r.campaign.created_at)
+          },
+          tasks: r.tasks
+      }));
+    }
+
+    public downloadResults(campaign: RetrieveCampaign): Promise<void> {
+      const filename = campaign.name.replace(' ', '_') + '_results.csv';
+      const url= `${ this.URI }/${ campaign.id }/report`;
+      return this.download(url, filename);
+    }
+
+    public downloadStatus(campaign: RetrieveCampaign): Promise<void> {
+      const filename = campaign.name.replace(' ', '_') + '_task_status.csv';
+      const url = `${ this.URI }/${ campaign.id }/report_status`;
+      return this.download(url, filename);
+    }
+
+    public addAnnotators(campaignId: number, data: AddAnnotators) {
+      this.addAnnotatorsRequest = post(`${this.URI}/${campaignId}/add_annotators`)
+        .set("Authorization", this.auth.bearer!)
+        .send(data);
+      return this.addAnnotatorsRequest.then(r => r.body).catch(this.catch401)
+    }
+
+    abort() {
+      super.abort();
+      this.addAnnotatorsRequest?.abort();
+    }
+  }(auth, authDispatch!);
+
+  return service;
 }

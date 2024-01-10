@@ -1,8 +1,8 @@
-import { Response } from "../requests.tsx";
-import { get, post } from "superagent";
+import { APIService } from "../requests.tsx";
+import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
-
-const URI = '/api/dataset';
+import { useAuth, useAuthDispatch } from "../auth.tsx";
+import { useEffect } from "react";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -59,42 +59,56 @@ export type ListToImportItem = {
   location_lon: string;
   audio_file_dataset_duration: string;
 }
+export const useDatasetsAPI = () => {
 
-export function list(bearer: string, filterFilesType?: string): Response<List> {
-  const request = get(URI).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body.map((d: any) => ({
-      ...d,
-      start_date: new Date(d.start_date),
-      end_date: new Date(d.end_date),
-      created_at: new Date(d.created_at),
-    })))
-      .then((datasets: List) => {
-        if (!filterFilesType) return datasets;
-        return datasets.filter(d => d.files_type === filterFilesType)
-      })
-  }
-}
+  const auth = useAuth();
+  const authDispatch = useAuthDispatch();
 
-export function listToImport(bearer: string): Response<ListToImport> {
-  const request = get(`${ URI }/list_to_import`).set("Authorization", bearer);
-  return {
-    request,
-    response: request.then(r => r.body.map((d: any) => ({
-      ...d,
-      id: uuidV4()
-    })))
-  }
-}
+  useEffect(() => {
+    service.setAuth(auth)
+  }, [auth])
 
-export function importDatasets(data: ListToImport, bearer: string): Response<ListToImport> {// TODO: check type
-  const request = post(`${ URI }/datawork_import/`)
-    .set("Authorization", bearer)
-    .set("Accept", "application/json")
-    .send({ 'wanted_datasets': data });
-  return {
-    request,
-    response: request.then(r => r.body)
-  }
+  const service = new class DatasetAPIService extends APIService<List, never, never> {
+    URI = '/api/dataset';
+
+    private listToImportRequest?: SuperAgentRequest;
+    private importRequest?: SuperAgentRequest;
+
+    list(filterFilesType?: string): Promise<List> {
+      return super.list()
+        .then(r => r.map(d => ({
+          ...d,
+          start_date: new Date(d.start_date),
+          end_date: new Date(d.end_date),
+          created_at: new Date(d.created_at),
+        }))).then((datasets: List) => {
+          if (!filterFilesType) return datasets;
+          return datasets.filter(d => d.files_type === filterFilesType)
+        });
+    }
+
+    public listToImport(): Promise<ListToImport> {
+      this.listToImportRequest = get(`${ this.URI }/list_to_import`).set("Authorization", this.auth.bearer!);
+      return this.listToImportRequest.then(r => r.body.map((d: any) => ({
+        ...d,
+        id: uuidV4()
+      }))).catch(this.catch401);
+    }
+
+    public importDatasets(data: ListToImport): Promise<ListToImport> {
+      this.importRequest = post(`${ this.URI }/datawork_import/`)
+        .set("Authorization", this.auth.bearer!)
+        .set("Accept", "application/json")
+        .send({ 'wanted_datasets': data });
+      return this.importRequest.then(r => r.body).catch(this.catch401);
+    }
+
+    public abort() {
+      super.abort();
+      this.listToImportRequest?.abort();
+      this.importRequest?.abort();
+    }
+  }(auth, authDispatch!);
+
+  return service;
 }

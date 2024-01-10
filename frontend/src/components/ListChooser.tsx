@@ -1,5 +1,9 @@
 import React from 'react';
-import { Item } from "../services/API/ApiService.data.tsx";
+
+interface Item {
+  id: number,
+  name: string
+}
 
 type ListChooserProps = {
   choice_type: string,

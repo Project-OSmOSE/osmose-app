@@ -1,51 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useAuth, useCatch401 } from "../utils/auth.tsx";
-import * as Campaign from '../utils/api/annotation-campaign.tsx';
-import * as User from '../utils/api/user.tsx';
-import { Request } from '../utils/requests.tsx';
+import { RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
+import { ListItem, useUsersAPI } from "../utils/api/user.tsx";
 
-type ACDProps = {
-  match: {
-    params: {
-      campaign_id: string
-    }
-  },
-};
 
 type AnnotationStatus = {
-  annotator: User.ListItem;
+  annotator: ListItem;
   progress: string;
 }
 
-const AnnotationCampaignDetail: React.FC<ACDProps> = () => {
+const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
-  const [annotationCampaign, setAnnotationCampaign] = useState<Campaign.RetrieveCampaign | undefined>(undefined);
+  const [annotationCampaign, setAnnotationCampaign] = useState<RetrieveCampaign | undefined>(undefined);
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
 
-  const auth = useAuth();
-  const catch401 = useCatch401();
+  const campaignService = useAnnotationCampaignAPI();
+  const userService = useUsersAPI();
   const [error, setError] = useState<any | undefined>(undefined);
-  const [retrieveCampaignRequest, setRetrieveCampaignRequest] = useState<Request | undefined>()
-  const [listUserRequest, setListUserRequest] = useState<Request | undefined>()
-  const [isStaffRequest, setIsStaffRequest] = useState<Request | undefined>()
-  const [dlResultRequest, setDlResultRequest] = useState<Request | undefined>()
-  const [dlStatusRequest, setDlStatusRequest] = useState<Request | undefined>()
-
 
   useEffect(() => {
-    const campaign = Campaign.retrieve(campaignID, auth.bearer!);
-    setRetrieveCampaignRequest(campaign.request);
-    const users = User.list(auth.bearer!);
-    setListUserRequest(users.request);
-    const isStaff = User.isStaff(auth.bearer!);
-    setIsStaffRequest(isStaff.request);
+    let isCancelled = false;
 
     Promise.all([
-      users.response,
-      campaign.response,
-      isStaff.response.then(setIsStaff),
+      userService.list(),
+      campaignService.retrieve(campaignID),
+      userService.isStaff().then(setIsStaff)
     ]).then(([users, data]) => {
       setAnnotationCampaign(data.campaign);
 
@@ -61,26 +41,17 @@ const AnnotationCampaignDetail: React.FC<ACDProps> = () => {
           } as AnnotationStatus;
         })
       setAnnotationStatus(status);
-    }).catch(catch401).catch(setError)
+    }).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    })
 
     return () => {
-      retrieveCampaignRequest?.abort();
-      listUserRequest?.abort();
-      isStaffRequest?.abort();
-      dlResultRequest?.abort();
-      dlStatusRequest?.abort();
+      isCancelled = true;
+      campaignService.abort();
+      userService.abort();
     }
   }, [campaignID])
-
-  const downloadResult = () => {
-    if (!annotationCampaign) return;
-    setDlResultRequest(Campaign.downloadResults(annotationCampaign, auth.bearer!).request);
-  }
-
-  const downloadStatus = () => {
-    if (!annotationCampaign) return;
-    setDlStatusRequest(Campaign.downloadStatus(annotationCampaign, auth.bearer!).request);
-  }
 
   if (error) {
     return (
@@ -144,17 +115,18 @@ const AnnotationCampaignDetail: React.FC<ACDProps> = () => {
         }) }
         </tbody>
       </table>
-      <p className="text-center">
-        <button onClick={ downloadResult }
-                className="btn btn-primary">
-          Download CSV results
-        </button>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        <button onClick={ downloadStatus }
-                className="btn btn-primary">
-          Download CSV task status
-        </button>
-      </p>
+      { annotationCampaign &&
+        <p className="text-center">
+          <button onClick={ () => campaignService.downloadResults(annotationCampaign) }
+                  className="btn btn-primary">
+            Download CSV results
+          </button>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <button onClick={ () => campaignService.downloadStatus(annotationCampaign) }
+                  className="btn btn-primary">
+            Download CSV task status
+          </button>
+        </p> }
     </div>
   )
 }

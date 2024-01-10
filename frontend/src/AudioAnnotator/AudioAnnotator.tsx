@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
@@ -15,14 +15,16 @@ import { confirm } from '../components/Confirmation';
 import '../css/annotator.css';
 import { CommentBloc } from "./bloc/CommentBloc.tsx";
 import { AnnotationList } from "./bloc/AnnotationList.tsx";
-import { AnnotationMode } from "../services/API/ApiService.data.tsx";
 import { PresenceBloc } from "./bloc/PresenceBloc.tsx";
 import { ConfidenceIndicatorBloc } from "./bloc/ConfidenceIndicatorBloc.tsx";
 import { TagListBloc } from "./bloc/TagListBloc.tsx";
 import { CurrentAnnotationBloc } from "./bloc/CurrentAnnotationBloc.tsx";
-import { alphanumeric_keys, buildTagColors } from "../utils";
-import { AnnotationCommentsApiService } from "../services/API/AnnotationCommentsApiService.tsx";
-import { AnnotationTasksApiService } from "../services/API/AnnotationTasksApiService.tsx";
+import { alphanumeric_keys } from "../utils";
+import { useAnnotationTaskAPI } from "../utils/api/annotation-task.tsx";
+import { AnnotationMode } from "../utils/api/annotation-campaign.tsx";
+
+import { useAnnotationCommentAPI } from "../utils/api/annotation-comment.tsx";
+import { LoadResult, useAnnotationService } from "../utils/services/annotation.tsx";
 
 
 // Playback rates
@@ -90,7 +92,7 @@ export type Annotation = {
   result_comments: Array<Comment>,
 };
 
-type AnnotationTask = {
+export type AnnotationTask = {
   id: number,
   annotationTags: Array<string>,
   confidenceIndicatorSet?: ConfidenceIndicatorSet,
@@ -116,17 +118,10 @@ export interface TaskBoundaries {
   endFrequency: number,
 }
 
-type AudioAnnotatorProps = {
-  match: {
-    params: {
-      annotation_task_id: string
-    },
-  },
-};
 
-
-const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
+const AudioAnnotator: React.FC = () => {
   const history = useHistory();
+  const { id: taskID } = useParams<{ id: string }>();
 
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -136,7 +131,7 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
   const [stopTime, setStopTime] = useState<number | undefined>();
 
   const [annotations, setAnnotations] = useState<Array<Annotation>>([]);
-  const [task, setTask] = useState<AnnotationTask |undefined>();
+  const [task, setTask] = useState<AnnotationTask | undefined>();
   const [currentComment, setCurrentComment] = useState<Comment>({
     comment: '',
     annotation_task: 0,
@@ -158,84 +153,50 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
   const [taskStartTime, setTaskStartTime] = useState<number>(new Date().getTime());
   const [inModal, setInModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<ToastMsg | undefined>(undefined);
+
+  const annotationService = useAnnotationService();
+
+  const taskAPIService = useAnnotationTaskAPI();
+  const commentService = useAnnotationCommentAPI();
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    const taskId: number = parseInt(match.params.annotation_task_id, 10);
-    retrieveTask(taskId);
+    let isCancelled = false;
+    annotationService.loadTask(taskID)
+      .then(handleLoadedData)
+      .catch(e => {
+        if (isCancelled) return;
+        setError(buildErrorMessage(e));
+      })
+      .finally(() => {
+        if (isCancelled) return;
+        setIsLoading(false);
+      })
+
+    setTaskStartTime(new Date().getTime());
     document.addEventListener("keydown", handleKeyPress);
 
     return () => {
-      AnnotationCommentsApiService.shared.abortRequests();
-      AnnotationTasksApiService.shared.abortRequests();
+      isCancelled = true;
+      annotationService.abort();
+
+      commentService.abort();
+      taskAPIService.abort();
       document.removeEventListener("keydown", handleKeyPress);
     }
-  }, [])
+  }, [taskID])
 
-  useEffect(() => {
-    const taskId: number = parseInt(match.params.annotation_task_id, 10);
-    if (taskId === task?.id) return;
-    retrieveTask(taskId);
-    setTaskStartTime(new Date().getTime());
-  }, [match])
-
-  const retrieveTask = async (taskId: number) =>  {
-    // Retrieve current task
-    try {
-      const task: AnnotationTask = await AnnotationTasksApiService.shared.retrieve(taskId);
-
-      if (task.annotationTags.length < 1 || task.spectroUrls.length < 1) {
-        setIsLoading(false);
-        setError('Not enough data to retrieve spectrograms' );
-      }
-
-      // Computing duration (in seconds)
-      setDuration((task.boundaries.endTime.getTime() - task.boundaries.startTime.getTime()) / 1000);
-      setFrequencyRange(task.boundaries.endFrequency - task.boundaries.startFrequency);
-
-      // Load previous annotations
-      setAnnotations(task.prevAnnotations.map(a => {
-        const isBoxAnnotation = (typeof a.startTime === 'number') &&
-          (typeof a.endTime === 'number') &&
-          (typeof a.startFrequency === 'number') &&
-          (typeof a.endFrequency === 'number');
-
-        const comments = a.result_comments;
-        if (comments.length < 1) {
-          comments.push({
-            comment: "",
-            annotation_task: task.id,
-            annotation_result: a.id ?? null
-          });
-        }
-        return {
-          type: isBoxAnnotation ? 'box' : 'tag',
-          id: a.id,
-          annotation: a.annotation,
-          startTime: isBoxAnnotation ? a.startTime ?? 0 : -1,
-          endTime: isBoxAnnotation ? a.endTime ?? 0 : -1,
-          startFrequency: isBoxAnnotation ? a.startFrequency ?? 0 : -1,
-          endFrequency: isBoxAnnotation ? a.endFrequency ?? 0 : -1,
-          active: false,
-          result_comments: comments
-        }
-      }));
-
-      const comment: Comment = task.taskComment[0] ?? { comment: "", annotation_task: task.id, annotation_result: null };
-      setTaskComment(comment)
-      setCurrentComment(comment)
-
-      // Finally, setting state
-      setSelectedPresences(new Set(task.prevAnnotations.map(a => a.annotation)));
-      setTagColors(buildTagColors(task.annotationTags))
-      setTask(task)
-      setCurrentDefaultConfidenceIndicator(task.confidenceIndicatorSet?.confidenceIndicators.find((confidenceIndicator) => confidenceIndicator.isDefault)?.label)
-      setIsLoading(false);
-      setError(undefined);
-    } catch (e) {
-      setIsLoading(false);
-      setError(buildErrorMessage(e));
-    }
+  const handleLoadedData = (data: LoadResult) => {
+    setDuration(data.duration);
+    setFrequencyRange(data.frequencyRange);
+    setAnnotations(data.annotations);
+    setTaskComment(data.taskComment);
+    setCurrentComment(data.taskComment);
+    setSelectedPresences(data.presences);
+    setTagColors(data.tagColors);
+    setCurrentDefaultConfidenceIndicator(data.defaultConfidence?.label);
+    setTask(data.task);
+    setError(undefined);
   }
 
   const handleKeyPress = (event: any) => {
@@ -578,13 +539,12 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
       .map(ann => cleaningAnnotation(ann));
 
     try {
-      const response = await AnnotationTasksApiService.shared.update(
-        task!.id,
-        cleanAnnotations,
-        Math.floor(taskStartTime / 1000),
-        Math.floor(new Date().getTime() / 1000)
-      )
-      if (this.state.task.prevAndNextAnnotation.next) {
+      const response = await taskAPIService.update(task!.id, {
+        annotations: cleanAnnotations,
+        task_start_time: Math.floor(taskStartTime / 1000),
+        task_end_time: Math.floor(new Date().getTime() / 1000)
+      })
+      if (task.prevAndNextAnnotation.next) {
         history.push('/audio-annotator/' + this.state.task.prevAndNextAnnotation.next);
       } else {
         history.push('/annotation_tasks/' + this.state.task.campaignId);
@@ -633,31 +593,29 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
         // this task need the creation of a new annotation[type: tag] before save the annotation and comment
 
         try {
-          const cleanAnnotation = cleaningAnnotation(annotationList[0]);
-          const newTaskID = await AnnotationTasksApiService.shared.addAnnotation(
-            taskId,
-            cleanAnnotation,
-            Math.floor(taskStartTime / 1000),
-            Math.floor((new Date()).getTime() / 1000)
-          );
-          updateAnnotationsWithNewId(cleanAnnotation.id!, newTaskID)
+          const newTagId = await annotationService.addAnnotation({
+            task: task!,
+            annotation: annotationList[0],
+            taskStartTime
+          })
+          updateAnnotationsWithNewId(cleanAnnotation.id!, newTagId)
         } catch (e) {
           setIsLoading(false);
           setError(buildErrorMessage(e));
           return;
         }
-        }
+      }
     }
     // submitOneAnnotationAndAComment
     try {
-      const newTaskID = await AnnotationTasksApiService.shared.addAnnotation(
-        taskId,
-        cleaningAnnotation(annotationList[0]),
-        Math.floor(taskStartTime / 1000),
-        Math.floor((new Date()).getTime() / 1000)
-      );
+      const newTagId = await annotationService.addAnnotation({
+        task: task!,
+        annotation: annotationList[0],
+        taskStartTime
+      })
+
       setToastMessage({ msg: "This Annotation is saved", lvl: "success" });
-      submitComment(newTaskID)
+      submitComment(newTagId)
     } catch (e) {
       setIsLoading(false);
       setError(buildErrorMessage(e));
@@ -690,19 +648,26 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
 
   const submitComment = async (annotation_result_id = currentComment.annotation_result) => {
     /** Don't save new empty comment */
-    if (!currentComment.id && currentComment.comment === "") return
+    if ((!currentComment.id || currentComment.id < 0) && currentComment.comment === "") return
 
     try {
-      const response = await AnnotationCommentsApiService.shared.createOrUpdate({
-        ...currentComment,
-        annotation_result: annotation_result_id,
-      });
+      const response = await commentService.create({
+        comment_id: !currentComment.id || currentComment.id < 0 ? undefined : currentComment.id,
+        annotation_result_id,
+        annotation_task_id: currentComment.annotation_task,
+        comment: currentComment.comment
+      })
       const comment: Comment = response.delete ? {
         comment: "",
         annotation_task: currentComment.annotation_task,
         annotation_result: annotation_result_id,
         comment_id: null,
-      } as Comment : response;
+      } as Comment : {
+        comment: response.comment,
+        annotation_task: response.annotation_task_id,
+        id: response.comment_id,
+        annotation_result: response.annotation_result_id,
+      } as Comment;
 
       if (comment.annotation_result === null) {
         setCurrentComment(comment);
@@ -735,7 +700,7 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
       setCurrentComment(comment)
       setAnnotations(newAnnotations)
     } catch (e) {
-      setToastMessage({ msg: buildErrorMessage(e), lvl: "danger" } );
+      setToastMessage({ msg: buildErrorMessage(e), lvl: "danger" });
     }
   }
 
@@ -766,38 +731,38 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
 
   const switchToTaskComment = (): void => {
     setCurrentComment(taskComment);
-    setAnnotations(annotations.map(a => ({...a, active: false})));
+    setAnnotations(annotations.map(a => ({ ...a, active: false })));
   }
 
-    if (isLoading) return <p>Loading...</p>;
-    else if (error) return <p>Error while loading task: <code>{ error }</code></p>
-    else if (!task) return <p>Unknown error while loading task.</p>
+  if (isLoading) return <p>Loading...</p>;
+  else if (error) return <p>Error while loading task: <code>{ error }</code></p>
+  else if (!task) return <p>Unknown error while loading task.</p>
 
-      const playStatusClass = isPlaying ? "fa-pause-circle" : "fa-play-circle";
+  const playStatusClass = isPlaying ? "fa-pause-circle" : "fa-play-circle";
 
-      // File data
-      const fileMetadata: FileMetadata = {
-        name: task.audioUrl.split('/').pop() ?? '',
-        date: task.boundaries.startTime,
-        audioRate: task.audioRate,
-      };
+  // File data
+  const fileMetadata: FileMetadata = {
+    name: task.audioUrl.split('/').pop() ?? '',
+    date: task.boundaries.startTime,
+    audioRate: task.audioRate,
+  };
 
-      // Displayable annotations (for presence mode)
-      const boxAnnotations = annotations.filter((ann: Annotation) => ann.type === TYPE_BOX);
+  // Displayable annotations (for presence mode)
+  const boxAnnotations = annotations.filter((ann: Annotation) => ann.type === TYPE_BOX);
 
-      // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
-      const isDrawingEnabled = !!task && (task.annotationScope === AnnotationMode.boxes || (
-        task.annotationScope === AnnotationMode.wholeFile && getCurrentTag() !== ''
-      ));
+  // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
+  const isDrawingEnabled = !!task && (task.annotationScope === AnnotationMode.boxes || (
+    task.annotationScope === AnnotationMode.wholeFile && getCurrentTag() !== ''
+  ));
 
-      // Rendering
-      return (
-        <div className="annotator container-fluid ps-0">
+  // Rendering
+  return (
+    <div className="annotator container-fluid ps-0">
 
-          {/* Header */ }
-          <div className="row">
-            <h1 className="col-sm-6">APLOSE</h1>
-            <p className="col-sm-4 annotator-nav">
+      {/* Header */ }
+      <div className="row">
+        <h1 className="col-sm-6">APLOSE</h1>
+        <p className="col-sm-4 annotator-nav">
               <span>
                 <a href="https://github.com/Project-OSmOSE/osmose-app/blob/master/docs/user_guide_annotator.md"
                    rel="noopener noreferrer"
@@ -805,183 +770,183 @@ const AudioAnnotator: React.FC<AudioAnnotatorProps> = ({ match }) => {
                   <span className="fas fa-question-circle"></span>&nbsp;Annotator User Guide
                 </a>
               </span>
-              { task?.instructions_url &&
-                  <span>
+          { task?.instructions_url &&
+              <span>
                       <a href={ task.instructions_url }
                          rel="noopener noreferrer"
                          target="_blank">
                           <span className="fas fa-info-circle"></span>&nbsp;Campaign instructions
                       </a>
                   </span> }
-            </p>
-            <ul className="col-sm-2 annotator-nav">
-              <li>
-                <Link className="btn btn-danger"
-                      to={ `/annotation_tasks/${ task.campaignId }` }
-                      title="Go back to annotation campaign tasks">
-                  Back to campaign
-                </Link>
-              </li>
-            </ul>
-          </div>
+        </p>
+        <ul className="col-sm-2 annotator-nav">
+          <li>
+            <Link className="btn btn-danger"
+                  to={ `/annotation_tasks/${ task.campaignId }` }
+                  title="Go back to annotation campaign tasks">
+              Back to campaign
+            </Link>
+          </li>
+        </ul>
+      </div>
 
-          {/* Audio player (hidden) */ }
-          <AudioPlayer onListen={ (seconds: number) => updateProgress(seconds) }
-                       onLoadedMetadata={ () => updateProgress(0) }
-                       ref={ audioPlayerRef  }
-                       playbackRate={ playbackRate }
-                       src={ task.audioUrl }
-                       onPause={ () => setIsPlaying(false) }
-                       onAbort={ () => setIsPlaying(false) }
-                       onEnded={ () => setIsPlaying(false) }
-                       onPlay={ () => setIsPlaying(true) }></AudioPlayer>
+      {/* Audio player (hidden) */ }
+      <AudioPlayer onListen={ (seconds: number) => updateProgress(seconds) }
+                   onLoadedMetadata={ () => updateProgress(0) }
+                   ref={ audioPlayerRef }
+                   playbackRate={ playbackRate }
+                   src={ task.audioUrl }
+                   onPause={ () => setIsPlaying(false) }
+                   onAbort={ () => setIsPlaying(false) }
+                   onEnded={ () => setIsPlaying(false) }
+                   onPlay={ () => setIsPlaying(true) }></AudioPlayer>
 
-          {/* Workbench (spectrogram viz, box drawing) */ }
-          <Workbench availableSpectroConfigs={ task.spectroUrls }
-                     tagColors={ tagColors }
-                     currentTime={ currentTime }
-                     duration={ duration }
-                     fileMetadata={ fileMetadata }
-                     startFrequency={ task.boundaries.startFrequency }
-                     frequencyRange={ frequencyRange }
-                     annotations={ boxAnnotations }
-                     onAnnotationCreated={ saveAnnotation }
-                     onAnnotationUpdated={ updateAnnotation }
-                     onAnnotationDeleted={ deleteAnnotation }
-                     onAnnotationSelected={ activateAnnotation }
-                     onAnnotationPlayed={ play }
-                     onSeek={ seekTo }
-                     drawingEnabled={ isDrawingEnabled }
-                     currentDefaultTagAnnotation={ currentDefaultTagAnnotation }
-                     currentDefaultConfidenceIndicator={ currentDefaultConfidenceIndicator }
-          ></Workbench>
+      {/* Workbench (spectrogram viz, box drawing) */ }
+      <Workbench availableSpectroConfigs={ task.spectroUrls }
+                 tagColors={ tagColors }
+                 currentTime={ currentTime }
+                 duration={ duration }
+                 fileMetadata={ fileMetadata }
+                 startFrequency={ task.boundaries.startFrequency }
+                 frequencyRange={ frequencyRange }
+                 annotations={ boxAnnotations }
+                 onAnnotationCreated={ saveAnnotation }
+                 onAnnotationUpdated={ updateAnnotation }
+                 onAnnotationDeleted={ deleteAnnotation }
+                 onAnnotationSelected={ activateAnnotation }
+                 onAnnotationPlayed={ play }
+                 onSeek={ seekTo }
+                 drawingEnabled={ isDrawingEnabled }
+                 currentDefaultTagAnnotation={ currentDefaultTagAnnotation }
+                 currentDefaultConfidenceIndicator={ currentDefaultConfidenceIndicator }
+      ></Workbench>
 
-          {/* Toolbar (play button, play speed, submit button, timer) */ }
-          <div className="row annotator-controls">
-            <p className="col-sm-1 text-right">
-              <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
-                onClick={ playPause }></button>
-            </p>
-            <p className="col-sm-1">
-              { !!audioPlayerRef.current?.preservesPitch &&
-                  <select className="form-control select-rate"
-                          defaultValue={ playbackRate }
-                          onChange={ changePlaybackRate }>
-                    { AVAILABLE_RATES.map(rate => (
-                      <option key={ `rate-${ rate }` } value={ rate.toString() }>{ rate.toString() }x</option>
-                    )) }
-                  </select> }
-            </p>
+      {/* Toolbar (play button, play speed, submit button, timer) */ }
+      <div className="row annotator-controls">
+        <p className="col-sm-1 text-right">
+          <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
+                  onClick={ playPause }></button>
+        </p>
+        <p className="col-sm-1">
+          { !!audioPlayerRef.current?.preservesPitch &&
+              <select className="form-control select-rate"
+                      defaultValue={ playbackRate }
+                      onChange={ changePlaybackRate }>
+                { AVAILABLE_RATES.map(rate => (
+                  <option key={ `rate-${ rate }` } value={ rate.toString() }>{ rate.toString() }x</option>
+                )) }
+              </select> }
+        </p>
 
-            <div className="col-sm-5 text-center">
-              <OverlayTrigger overlay={
-                <div className="card">
-                  <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
-                  <div className="card-body p-1">
-                    <p>
+        <div className="col-sm-5 text-center">
+          <OverlayTrigger overlay={
+            <div className="card">
+              <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
+              <div className="card-body p-1">
+                <p>
                       <span className="font-italic"><i
                         className="fa fa-arrow-left"></i></span>{ " : load previously recording" }<br/>
-                    </p>
-                  </div>
-                </div>
-              }>
-                <Link
-                  className="btn btn-submit rounded-left rounded-right-0"
-                  to={ task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ task.prevAndNextAnnotation.prev }` }>
-                  <i className="fa fa-caret-left"></i>
-                </Link>
-              </OverlayTrigger>
-              <OverlayTrigger overlay={
-                <div className="card">
-                  <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
-                  <div className="card-body p-1">
-                    <p>
-                      <span className="font-italic">Enter</span>{ " : Submit & load next recording" }<br/>
-                    </p>
-                  </div>
-                </div>
-              }>
-                <button
-                  className="btn btn-submit border-radius-0"
-                  onClick={ checkAndSubmitAnnotations }
-                  type="button"
-                >Submit &amp; load next recording
-                </button>
-              </OverlayTrigger>
-              <OverlayTrigger overlay={
-                <div className="card">
-                  <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
-                  <div className="card-body p-1">
-                    <p>
+                </p>
+              </div>
+            </div>
+          }>
+            <Link
+              className="btn btn-submit rounded-left rounded-right-0"
+              to={ task.prevAndNextAnnotation.prev === "" ? "#" : `/audio-annotator/${ task.prevAndNextAnnotation.prev }` }>
+              <i className="fa fa-caret-left"></i>
+            </Link>
+          </OverlayTrigger>
+          <OverlayTrigger overlay={
+            <div className="card">
+              <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
+              <div className="card-body p-1">
+                <p>
+                  <span className="font-italic">Enter</span>{ " : Submit & load next recording" }<br/>
+                </p>
+              </div>
+            </div>
+          }>
+            <button
+              className="btn btn-submit border-radius-0"
+              onClick={ checkAndSubmitAnnotations }
+              type="button"
+            >Submit &amp; load next recording
+            </button>
+          </OverlayTrigger>
+          <OverlayTrigger overlay={
+            <div className="card">
+              <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
+              <div className="card-body p-1">
+                <p>
                       <span className="font-italic"><i
                         className="fa fa-arrow-right"></i></span>{ " : load next recording" }<br/>
-                    </p>
-                  </div>
-                </div>
-              }>
-                <Link
-                  className="btn btn-submit rounded-right rounded-left-0"
-                  to={ task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${ task.prevAndNextAnnotation.next }` }>
-                  <i className="fa fa-caret-right"></i>
-                </Link>
-              </OverlayTrigger>
+                </p>
+              </div>
             </div>
+          }>
+            <Link
+              className="btn btn-submit rounded-right rounded-left-0"
+              to={ task.prevAndNextAnnotation.next === "" ? "#" : `/audio-annotator/${ task.prevAndNextAnnotation.next }` }>
+              <i className="fa fa-caret-right"></i>
+            </Link>
+          </OverlayTrigger>
+        </div>
 
 
-            <div className="col-sm-3">
-              <Toast toastMsg={ toastMessage }></Toast>
-            </div>
-            <p className="col-sm-2 text-right">
-              { utils.formatTimestamp(currentTime) }
-              &nbsp;/&nbsp;
-              { utils.formatTimestamp(duration) }
-            </p>
+        <div className="col-sm-3">
+          <Toast toastMsg={ toastMessage }></Toast>
+        </div>
+        <p className="col-sm-2 text-right">
+          { utils.formatTimestamp(currentTime) }
+          &nbsp;/&nbsp;
+          { utils.formatTimestamp(duration) }
+        </p>
+      </div>
+
+      {/* Tag and annotations management */ }
+      { task && <React.Fragment>
+          <div className="row justify-content-around m-2">
+              <CurrentAnnotationBloc annotation={ annotations.find(a => a.active) }
+                                     taskBoundaries={ task.boundaries }
+                                     hasConfidence={ !!task.confidenceIndicatorSet }></CurrentAnnotationBloc>
+
+              <div className="col-5 flex-shrink-2">
+                  <TagListBloc tags={ task.annotationTags }
+                               tagColors={ tagColors }
+                               activeTag={ currentDefaultTagAnnotation }
+                               selectedTags={ [...selectedPresences] }
+                               annotationMode={ task.annotationScope }
+                               onTagSelected={ toggleAnnotationTag }></TagListBloc>
+
+                {/* Confidence Indicator management */ }
+                { task.confidenceIndicatorSet && currentDefaultTagAnnotation &&
+                    <ConfidenceIndicatorBloc set={ task.confidenceIndicatorSet }
+                                             currentIndicator={ currentDefaultTagAnnotation }
+                                             onIndicatorSelected={ toggleAnnotationConfidence }></ConfidenceIndicatorBloc> }
+              </div>
+
+            { task.annotationScope === AnnotationMode.wholeFile &&
+                <PresenceBloc tags={ task.annotationTags }
+                              tagsColors={ tagColors }
+                              selectedTags={ [...selectedPresences] }
+                              onTagSelected={ toggleGlobalTag }></PresenceBloc> }
           </div>
 
-          {/* Tag and annotations management */ }
-          { task && <React.Fragment>
-              <div className="row justify-content-around m-2">
-                  <CurrentAnnotationBloc annotation={ annotations.find(a => a.active) }
-                                         taskBoundaries={ task.boundaries }
-                                         hasConfidence={ !!task.confidenceIndicatorSet }></CurrentAnnotationBloc>
+          <div className="row justify-content-center">
+              <AnnotationList annotations={ annotations }
+                              annotationMode={ task.annotationScope }
+                              onAnnotationClicked={ activateAnnotation }></AnnotationList>
 
-                  <div className="col-5 flex-shrink-2">
-                      <TagListBloc tags={ task.annotationTags }
-                                   tagColors={ tagColors }
-                                   activeTag={ currentDefaultTagAnnotation }
-                                   selectedTags={ [...selectedPresences] }
-                                   annotationMode={ task.annotationScope }
-                                   onTagSelected={ toggleAnnotationTag }></TagListBloc>
-
-                    {/* Confidence Indicator management */ }
-                    { task.confidenceIndicatorSet && currentDefaultTagAnnotation &&
-                        <ConfidenceIndicatorBloc set={ task.confidenceIndicatorSet }
-                                                 currentIndicator={ currentDefaultTagAnnotation }
-                                                 onIndicatorSelected={ toggleAnnotationConfidence }></ConfidenceIndicatorBloc> }
-                  </div>
-
-                { task.annotationScope === AnnotationMode.wholeFile &&
-                    <PresenceBloc tags={ task.annotationTags }
-                                  tagsColors={ tagColors }
-                                  selectedTags={ [...selectedPresences] }
-                                  onTagSelected={ toggleGlobalTag }></PresenceBloc> }
-              </div>
-
-              <div className="row justify-content-center">
-                  <AnnotationList annotations={ annotations }
-                                  annotationMode={ task.annotationScope }
-                                  onAnnotationClicked={ activateAnnotation }></AnnotationList>
-
-                  <CommentBloc currentComment={ currentComment }
-                               taskComment={ taskComment }
-                               onCommentUpdated={ setCurrentComment }
-                               onFocusUpdated={ setInModal }
-                               onSubmit={ submitCommentAndAnnotation }
-                               switchToTaskComment={ switchToTaskComment }></CommentBloc>
-              </div>
-          </React.Fragment> }
-        </div>
-      );
+              <CommentBloc currentComment={ currentComment }
+                           taskComment={ taskComment }
+                           onCommentUpdated={ setCurrentComment }
+                           onFocusUpdated={ setInModal }
+                           onSubmit={ submitCommentAndAnnotation }
+                           switchToTaskComment={ switchToTaskComment }></CommentBloc>
+          </div>
+      </React.Fragment> }
+    </div>
+  );
 }
 
 export default AudioAnnotator;

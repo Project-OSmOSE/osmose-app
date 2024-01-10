@@ -5,12 +5,12 @@ import { Response } from "./requests.tsx";
 
 const URI = '/api/token/';
 
-interface Auth {
+export interface Auth {
   token?: string;
   bearer?: string;
 }
 
-interface AuthAction {
+export interface AuthAction {
   type: 'login' | 'logout';
   token?: string;
 }
@@ -39,7 +39,7 @@ export const ProvideAuth: FC<{ children?: ReactNode }> = ({ children }) => {
   useEffect(() => {
     if (!document.cookie) return;
     const value = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
-    const token = value.split('=').pop()
+    const token = value?.split('=').pop()
     if (!token) return;
     dispatch({ type: 'login', token })
   }, [])
@@ -73,11 +73,3 @@ export function login(username: string, password: string): Response<string> {
 
 export const useAuth = () => useContext(AuthContext);
 export const useAuthDispatch = () => useContext(AuthDispatchContext);
-
-export const useCatch401 = (): (e: any) => void => {
-  const authDispatch = useAuthDispatch();
-  return (e: any) => {
-    if (e?.status !== 401) throw e;
-    authDispatch!({ type: 'logout' });
-  }
-}
