@@ -59,4 +59,4 @@ jobs:
           start: |
             poetry run python ../manage.py runserver
             npm start
-          wait-on: 'http://localhost:3000, http://localhost:8000/backend/admin'
+          wait-on: 'http://localhost:5173, http://localhost:8000/backend/admin'
