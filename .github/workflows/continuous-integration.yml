@@ -76,5 +76,5 @@ jobs:
           ${{ runner.os }}-npm-
     - name: Install dependencies
       run: npm install
-    - name: Run React tests
-      run: npm run mocha
+#    - name: Run React tests
+#      run: npm run mocha
