@@ -134,7 +134,7 @@ type CACProps = {
 type CACState = {
   new_ac_name: string,
   new_ac_desc: string,
-  new_ac_dataset: any, // TODO HERE
+  new_ac_dataset: any, // TODO typing is inconsistent through the file, it must be reworked
   new_ac_spectros: choices_type,
   new_ac_start: string,
   new_ac_end: string,
@@ -160,7 +160,7 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   state: CACState = {
     new_ac_name: '',
     new_ac_desc: '',
-    new_ac_dataset: {}, // TODO HERE
+    new_ac_dataset: {}, // TODO inconsistent typing
     new_ac_spectros: new Map(),
     new_ac_start: '',
     new_ac_end: '',
@@ -230,21 +230,11 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   componentWillUnmount() {
-    if (this.getDatasets) {
-      this.getDatasets.abort();
-    }
-    if (this.getAnnotationSets) {
-      this.getAnnotationSets.abort();
-    }
-    if (this.getUsers) {
-      this.getUsers.abort();
-    }
-    if (this.getConfidenceSets) {
-      this.getConfidenceSets.abort();
-    }
-    if (this.postAnnotationCampaign) {
-      this.postAnnotationCampaign.abort();
-    }
+    this.getDatasets?.abort();
+    this.getAnnotationSets?.abort();
+    this.getUsers?.abort();
+    this.getConfidenceSets?.abort();
+    this.postAnnotationCampaign?.abort();
   }
 
   handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -256,12 +246,12 @@ class CreateAnnotationCampaign extends Component<CACProps, CACState> {
   }
 
   handleDatasetChanged = (event: ChangeEvent<HTMLSelectElement>) => {
-    let new_ac_dataset: any; // TODO HERE
+    let new_ac_dataset: any; // TODO inconsistent typing
     let spectro_choices: choices_type = new Map();
     if (event.target.value !== '') {
       let dataset_id = parseInt(event.target.value, 10);
       new_ac_dataset = this.state.dataset_choices.get(dataset_id)!;
-      spectro_choices = utils.arrayToMap(new_ac_dataset.spectros, 'id'); // TODO HERE
+      spectro_choices = utils.arrayToMap(new_ac_dataset.spectros, 'id'); // TODO inconsistent typing
     }
     this.setState({
       new_ac_dataset: new_ac_dataset,

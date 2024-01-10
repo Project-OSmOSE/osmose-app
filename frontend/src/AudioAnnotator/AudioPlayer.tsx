@@ -1,11 +1,11 @@
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
 type AudioPlayerProps = {
   autoPlay: boolean,
-  children: Node,
+  children: ReactNode,
   className: string,
   controls: boolean,
   controlsList: string,

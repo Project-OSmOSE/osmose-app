@@ -191,9 +191,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   }
 
   componentWillUnmount() {
-    if (this.getTask) {
-      this.getTask.abort();
-    }
+    this.getTask?.abort();
     document.removeEventListener("keydown", this.handleKeyPress);
   }
 

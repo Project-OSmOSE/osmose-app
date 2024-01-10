@@ -92,18 +92,10 @@ class EditAnnotationCampaign extends Component<EACProps, EACState> {
   }
 
   componentWillUnmount() {
-    if (this.getData) {
-      this.getData.abort();
-    }
-    if (this.getUsers) {
-      this.getUsers.abort();
-    }
-    if (this.getIsStaff) {
-      this.getIsStaff.abort();
-    }
-    if (this.postAnnotationCampaign) {
-      this.postAnnotationCampaign.abort();
-    }
+    this.getData?.abort();
+    this.getUsers?.abort();
+    this.getIsStaff?.abort();
+    this.postAnnotationCampaign?.abort();
   }
 
   handleAddAnnotator = (event: ChangeEvent<HTMLSelectElement>) => {

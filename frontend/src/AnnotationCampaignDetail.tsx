@@ -19,9 +19,7 @@ class DownloadButton extends Component<DownloadButtonProps> {
   url = ''
 
   componentWillUnmount() {
-    if (this.getDownload) {
-      this.getDownload.abort();
-    }
+    this.getDownload?.abort();
     URL.revokeObjectURL(this.url);
   }
 
@@ -155,15 +153,9 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
   }
 
   componentWillUnmount() {
-    if (this.getData) {
-      this.getData.abort();
-    }
-    if (this.getUsers) {
-      this.getUsers.abort();
-    }
-    if (this.getIsStaff) {
-      this.getIsStaff.abort();
-    }
+    this.getData?.abort();
+    this.getUsers?.abort();
+    this.getIsStaff?.abort();
   }
 
   renderAddAnnotatorButton(isStaff: boolean, campaignId: number) {

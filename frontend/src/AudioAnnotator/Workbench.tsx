@@ -481,58 +481,58 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     const timeAxis: HTMLCanvasElement = this.timeAxisRef.current;
     const context: CanvasRenderingContext2D | null = timeAxis.getContext('2d');
 
-    if (context) {
-      context.clearRect(0, 0, timeAxis.width, timeAxis.height);
+    if (!context) return;
 
-      let step: number = 1; // step of scale (in seconds)
-      let bigStep: number = 5;
+    context.clearRect(0, 0, timeAxis.width, timeAxis.height);
 
-      const durationOnScreen: number = this.state.wrapperWidth / this.state.timePxRatio;
-      if (durationOnScreen <= 60) {
-        step = 1;
-        bigStep = 5;
-      } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
-        step = 2;
-        bigStep = 5;
-      } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
-        step = 4;
-        bigStep = 5;
-      } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
-        step = 10;
-        bigStep = 60;
-      } else {
-        step = 30;
-        bigStep = 120;
-      }
+    let step: number = 1; // step of scale (in seconds)
+    let bigStep: number = 5;
 
-      const bounds: DOMRect = timeAxis.getBoundingClientRect();
-      const startTime: number = Math.ceil(this.getTimeFromClientX(bounds.left));
-      const endTime: number = Math.floor(this.getTimeFromClientX(bounds.right));
+    const durationOnScreen: number = this.state.wrapperWidth / this.state.timePxRatio;
+    if (durationOnScreen <= 60) {
+      step = 1;
+      bigStep = 5;
+    } else if (durationOnScreen > 60 && durationOnScreen <= 120) {
+      step = 2;
+      bigStep = 5;
+    } else if (durationOnScreen > 120 && durationOnScreen <= 500) {
+      step = 4;
+      bigStep = 5;
+    } else if (durationOnScreen > 500 && durationOnScreen <= 1000) {
+      step = 10;
+      bigStep = 60;
+    } else {
+      step = 30;
+      bigStep = 120;
+    }
 
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.font = '10px Arial';
+    const bounds: DOMRect = timeAxis.getBoundingClientRect();
+    const startTime: number = Math.ceil(this.getTimeFromClientX(bounds.left));
+    const endTime: number = Math.floor(this.getTimeFromClientX(bounds.right));
 
-      let i: number = 0;
-      for (i = startTime ; i <= endTime; i++) {
-        if (i % step === 0) {
-          const x: number = (i - startTime) * this.state.timePxRatio;
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.font = '10px Arial';
 
-          if (i % bigStep === 0) {
-            // Bar
-            context.fillRect(x, 0, 2, 15);
+    let i: number = 0;
+    for (i = startTime ; i <= endTime; i++) {
+      if (i % step === 0) {
+        const x: number = (i - startTime) * this.state.timePxRatio;
 
-            // Text
-            const timeText: string = utils.formatTimestamp(i, false);
-            let xTxt: number = x;
-            if (xTxt > 0) {
-              // "Right align" all labels but first
-              xTxt -= Math.round(timeText.length * 5);
-            }
-            context.fillText(timeText, xTxt, 25);
-          } else {
-            // Bar only
-            context.fillRect(x, 0, 1, 10);
+        if (i % bigStep === 0) {
+          // Bar
+          context.fillRect(x, 0, 2, 15);
+
+          // Text
+          const timeText: string = utils.formatTimestamp(i, false);
+          let xTxt: number = x;
+          if (xTxt > 0) {
+            // "Right align" all labels but first
+            xTxt -= Math.round(timeText.length * 5);
           }
+          context.fillText(timeText, xTxt, 25);
+        } else {
+          // Bar only
+          context.fillRect(x, 0, 1, 10);
         }
       }
     }
@@ -542,56 +542,56 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     const freqAxis: HTMLCanvasElement = this.freqAxisRef.current;
     const context: CanvasRenderingContext2D | null = freqAxis.getContext('2d');
 
-    if (context) {
-      context.clearRect(0, 0, freqAxis.width, freqAxis.height);
+    if (!context) return;
 
-      let step: number = 500; // step of scale (in hz)
-      let bigStep: number = 2000;
+    context.clearRect(0, 0, freqAxis.width, freqAxis.height);
 
-      if (this.props.frequencyRange <= 200) {
-        step = 5;
-        bigStep = 20;
-      } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
-        step = 10;
-        bigStep = 100;
-      } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
-        step = 20;
-        bigStep = 100;
-      } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
-        step = 500;
-        bigStep = 2000;
-      } else {
-        step = 2000;
-        bigStep = 10000;
-      }
+    let step: number = 500; // step of scale (in hz)
+    let bigStep: number = 2000;
 
-      const bounds: DOMRect = freqAxis.getBoundingClientRect();
-      const startFreq: number = Math.ceil(this.props.startFrequency);
-      const endFreq: number = Math.floor(this.props.startFrequency + this.props.frequencyRange);
+    if (this.props.frequencyRange <= 200) {
+      step = 5;
+      bigStep = 20;
+    } else if (this.props.frequencyRange > 200 && this.props.frequencyRange <= 500) {
+      step = 10;
+      bigStep = 100;
+    } else if (this.props.frequencyRange > 500 && this.props.frequencyRange <= 2000) {
+      step = 20;
+      bigStep = 100;
+    } else if (this.props.frequencyRange > 2000 && this.props.frequencyRange <= 20000) {
+      step = 500;
+      bigStep = 2000;
+    } else {
+      step = 2000;
+      bigStep = 10000;
+    }
 
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.font = '10px Arial';
+    const bounds: DOMRect = freqAxis.getBoundingClientRect();
+    const startFreq: number = Math.ceil(this.props.startFrequency);
+    const endFreq: number = Math.floor(this.props.startFrequency + this.props.frequencyRange);
 
-      let i: number = 0;
-      for (i = startFreq ; i <= endFreq ; i += 5) {
-        if (i % step === 0) {
-          const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.font = '10px Arial';
 
-          if (i % bigStep === 0) {
-            // Bar
-            context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+    let i: number = 0;
+    for (i = startFreq ; i <= endFreq ; i += 5) {
+      if (i % step === 0) {
+        const y: number = CANVAS_HEIGHT - (i - startFreq) * this.state.freqPxRatio - 2;
 
-            // Text
-            let yTxt: number = y;
-            if (yTxt < (bounds.height - 5)) {
-              // "Top align" all labels but first
-              yTxt += 12;
-            }
-            context.fillText(i.toString(), 0, yTxt);
-          } else {
-            // Bar only
-            context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
+        if (i % bigStep === 0) {
+          // Bar
+          context.fillRect(FREQ_AXIS_SIZE - 15, y, 15, 2);
+
+          // Text
+          let yTxt: number = y;
+          if (yTxt < (bounds.height - 5)) {
+            // "Top align" all labels but first
+            yTxt += 12;
           }
+          context.fillText(i.toString(), 0, yTxt);
+        } else {
+          // Bar only
+          context.fillRect(FREQ_AXIS_SIZE - 10, y, 10, 1);
         }
       }
     }
@@ -601,39 +601,39 @@ class Workbench extends Component<WorkbenchProps, WorkbenchState> {
     const canvas: HTMLCanvasElement = this.canvasRef.current;
     const context: CanvasRenderingContext2D | null = canvas.getContext('2d', { alpha: false });
 
-    if (context) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
+    if (!context) return;
 
-      // Draw spectro images
-      const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (spectrograms) {
-        spectrograms.images.forEach(spectro => {
-          if (spectro.image && spectro.image.complete) {
-            const image = spectro.image;
-            const x = spectro.start * this.state.timePxRatio;
-            const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
-            context.drawImage(image, x, 0, width, canvas.height);
-          }
-        });
-      }
+    // Draw spectro images
+    const spectrograms = this.getSpectrosForCurrentDetails().find(details => details.zoom === this.state.currentZoom);
 
-      // Progress bar
-      const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
-      context.fillStyle = 'rgba(0, 0, 0)';
-      context.fillRect(newX, 0, 1, canvas.height);
+    if (spectrograms) {
+      spectrograms.images.forEach(spectro => {
+        if (spectro.image && spectro.image.complete) {
+          const image = spectro.image;
+          const x = spectro.start * this.state.timePxRatio;
+          const width = Math.floor((spectro.end - spectro.start) * this.state.timePxRatio);
+          context.drawImage(image, x, 0, width, canvas.height);
+        }
+      });
+    }
 
-      // Render new annotation
-      if (this.state.newAnnotation) {
-        const ann: Annotation = this.state.newAnnotation;
-        const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
-        const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
-        const y: number = Math.floor(canvas.height - freqOffset);
-        const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
-        const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
-        context.strokeStyle = 'blue';
-        context.strokeRect(x, y, width, height);
-      }
+    // Progress bar
+    const newX: number = Math.floor(canvas.width * this.props.currentTime / this.props.duration);
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.fillRect(newX, 0, 1, canvas.height);
+
+    // Render new annotation
+    if (this.state.newAnnotation) {
+      const ann: Annotation = this.state.newAnnotation;
+      const x: number = Math.floor(ann.startTime * this.state.timePxRatio);
+      const freqOffset: number = (ann.startFrequency - this.props.startFrequency) * this.state.freqPxRatio;
+      const y: number = Math.floor(canvas.height - freqOffset);
+      const width: number = Math.floor((ann.endTime - ann.startTime) * this.state.timePxRatio);
+      const height: number = - Math.floor((ann.endFrequency - ann.startFrequency) * this.state.freqPxRatio);
+      context.strokeStyle = 'blue';
+      context.strokeRect(x, y, width, height);
     }
   }
 

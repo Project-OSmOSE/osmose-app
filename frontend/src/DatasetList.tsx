@@ -70,9 +70,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
         setError(err);
       });
     return () => {
-      if (getNewData) {
-        getNewData.abort();
-      }
+      getNewData?.abort();
     };
   }, []);
 
@@ -94,9 +92,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
       });
 
     return () => {
-      if (getData) {
-        getData.abort();
-      }
+      getData?.abort();
     };
   }, [newDatasets]);
 
@@ -152,9 +148,7 @@ const DatasetList: React.FC<DatasetListProps> = (props: DatasetListProps) => {
     }
 
     return () => {
-      if (startImport) {
-        startImport.abort();
-      }
+      startImport?.abort();
     };
   }, [launchImport])
 

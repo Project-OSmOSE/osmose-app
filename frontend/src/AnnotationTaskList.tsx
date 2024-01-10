@@ -97,12 +97,8 @@ class AnnotationTaskList extends Component<AnnotationTaskListProps, AnnotationTa
   }
 
   componentWillUnmount() {
-    if (this.getCampaign) {
-      this.getCampaign.abort();
-    }
-    if (this.getTasks) {
-      this.getTasks.abort();
-    }
+    this.getCampaign?.abort();
+    this.getTasks?.abort();
   }
 
   render() {

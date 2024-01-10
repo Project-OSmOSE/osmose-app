@@ -70,9 +70,7 @@ class AnnotationCampaignList extends Component<ACLProps, ACLState> {
   }
 
   componentWillUnmount() {
-    if (this.getData) {
-      this.getData.abort();
-    }
+    this.getData?.abort();
   }
 
   render() {

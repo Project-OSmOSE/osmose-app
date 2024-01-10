@@ -23,9 +23,7 @@ class Login extends Component<LoginProps, LoginState> {
   sendData?: SuperAgentRequest;
 
   componentWillUnmount() {
-    if (this.sendData) {
-      this.sendData.abort();
-    }
+    this.sendData?.abort();
   }
 
   handleLoginChange = (event: ChangeEvent<HTMLInputElement>) => {
