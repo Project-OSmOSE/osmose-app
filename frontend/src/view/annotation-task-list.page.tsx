@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AnnotationTaskStatus, List, useAnnotationTaskAPI } from "../utils/api/annotation-task.tsx";
-import { RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
+import { AnnotationTaskStatus } from "../enum";
+import {
+  AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
+  AnnotationTaskList as List, useAnnotationTaskAPI
+} from "../services/api";
 
-const AnnotationTaskList: React.FC = () => {
+export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
-  const [campaign, setCampaign] = useState<RetrieveCampaign | undefined>(undefined);
+  const [campaign, setCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
   const [tasks, setTasks] = useState<List | undefined>(undefined);
 
   const taskService = useAnnotationTaskAPI();
@@ -89,5 +92,3 @@ const AnnotationTaskList: React.FC = () => {
     </div>
   )
 }
-
-export default AnnotationTaskList;

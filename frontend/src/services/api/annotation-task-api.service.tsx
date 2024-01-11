@@ -1,15 +1,9 @@
-import { useAuth, useAuthDispatch } from "../auth.tsx";
-import { APIService } from "../requests.tsx";
 import { useEffect } from "react";
 import { put, SuperAgentRequest } from "superagent";
-import { AnnotationDto } from "../../AudioAnnotator/AudioAnnotator.tsx";
-import { AnnotationMode } from "./annotation-campaign.tsx";
-
-export enum AnnotationTaskStatus {
-  created = 0,
-  started = 1,
-  finished = 2
-}
+import { AnnotationMode, AnnotationTaskStatus } from "../../enum";
+import { useAuthService } from "../auth";
+import { APIService } from "./api-service.util.tsx";
+import { AnnotationComment } from "../../src/interface/annotation-comment.interface.tsx";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -79,14 +73,25 @@ export interface RetrieveComment {
   annotation_result: number | null;
 }
 
+export type AnnotationTaskDto = {
+  id?: number,
+  annotation: string,
+  startTime: number | null,
+  endTime: number | null,
+  startFrequency: number | null,
+  endFrequency: number | null,
+  confidenceIndicator?: string,
+  result_comments: Array<AnnotationComment>,
+};
+
 interface AddAnnotation {
-  annotation: AnnotationDto,
+  annotation: AnnotationTaskDto,
   task_start_time: number,
   task_end_time: number,
 }
 
 interface Update {
-  annotations: AnnotationDto[],
+  annotations: AnnotationTaskDto[],
   task_start_time: number,
   task_end_time: number,
 }
@@ -96,8 +101,6 @@ interface UpdateResult {
 }
 
 export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> {
-  URI = '/api/annotation-task';
-
   private addAnnotationRequest?: SuperAgentRequest;
   private updateRequest?: SuperAgentRequest;
 
@@ -123,7 +126,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   public addAnnotation(taskID: number,
                        data: AddAnnotation): Promise<number> {
     this.addAnnotationRequest = put(`${ this.URI }/one-result/${ taskID }/`)
-      .set("Authorization", this.auth.bearer!)
+      .set("Authorization", this.auth!.bearer!)
       .send(data);
     return this.addAnnotationRequest.then(r => r.body.id).catch(this.catch401)
   }
@@ -131,7 +134,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   public update(taskID: number,
                 data: Update): Promise<UpdateResult> {
     this.addAnnotationRequest = put(`${ this.URI }/${ taskID }/`)
-      .set("Authorization", this.auth.bearer!)
+      .set("Authorization", this.auth!.bearer!)
       .send(data);
     return this.addAnnotationRequest.then(r => r.body).catch(this.catch401)
   }
@@ -144,14 +147,13 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
 }
 
 export const useAnnotationTaskAPI = () => {
-  const auth = useAuth();
-  const authDispatch = useAuthDispatch();
+  const {context, catch401} = useAuthService();
 
   useEffect(() => {
-    service.setAuth(auth)
-  }, [auth])
+    service.auth = context;
+  }, [context])
 
-  const service = new AnnotationTaskAPIService(auth, authDispatch!);
+  const service = new AnnotationTaskAPIService('/api/annotation-task', catch401);
 
   return service;
 }
