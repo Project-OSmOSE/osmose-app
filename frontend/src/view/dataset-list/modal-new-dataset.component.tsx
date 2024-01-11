@@ -1,9 +1,9 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
-import { ListToImport, ListToImportItem } from "../utils/api/dataset.tsx";
+import { ChangeEvent, FC, Fragment, useEffect, useState } from "react";
+import { DatasetListToImport, DatasetListToImportItem } from "../../services/api";
 
 
-const NewDataItem: React.FC<{
-  data: ListToImportItem,
+const NewDataItem: FC<{
+  data: DatasetListToImportItem,
   index: number,
 }> = ({ data, index }) => {
   return (
@@ -25,13 +25,13 @@ const NewDataItem: React.FC<{
 };
 
 
-export const ModalNewData: React.FC<{
+export const ModalNewDataset: FC<{
   onClose: () => void,
-  newData: ListToImport,
-  startImport: (datasets: ListToImport) => void
+  newData: DatasetListToImport,
+  startImport: (datasets: DatasetListToImport) => void
 }> = ({ onClose, newData, startImport }) => {
   const [searchInputFilter, setSearchInputFilter] = useState<string>("");
-  const [filteredResults, setFilteredResults] = useState<ListToImport>([]);
+  const [filteredResults, setFilteredResults] = useState<DatasetListToImport>([]);
 
   useEffect(() => {
     if (searchInputFilter !== "") {
@@ -49,7 +49,7 @@ export const ModalNewData: React.FC<{
   const items = () => [...document.getElementsByName("addDataset")] as Array<HTMLInputElement>;
 
   const onSave = () => {
-    startImport(items().filter(data => data.checked).map(data => ({ name: data.value })) as ListToImport);
+    startImport(items().filter(data => data.checked).map(data => ({ name: data.value })) as DatasetListToImport);
   }
 
   const onCheckAll = (event: ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +57,7 @@ export const ModalNewData: React.FC<{
   }
 
   return (
-    <React.Fragment>
+    <Fragment>
       <div onClick={ onClose }
            className="overlay fade show"
            id="exampleModal"
@@ -133,7 +133,7 @@ export const ModalNewData: React.FC<{
           </div>
         </div>
       </div>
-    </React.Fragment>
+    </Fragment>
   );
 };
 

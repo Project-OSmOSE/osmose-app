@@ -19,6 +19,10 @@ export const useAuthService = () => {
         token
       });
     },
+    catch401: (e: any) => {
+      if (e?.status !== 401) throw e;
+      dispatch!({ type: 'logout' });
+    },
     abort: () => {
       request?.abort();
     }
