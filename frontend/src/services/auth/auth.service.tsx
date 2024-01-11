@@ -1,19 +1,26 @@
 import { useAuthContext, useAuthDispatch } from "./auth.context.tsx";
-import { Response } from "../../old/utils/requests.tsx";
-import { post } from "superagent";
+import { post, SuperAgentRequest } from "superagent";
+import { useState } from "react";
 
 const _URI = '/api/token/';
 
 export const useAuthService = () => {
+  const [request, setRequest] = useState<SuperAgentRequest | undefined>();
+  const dispatch = useAuthDispatch();
   return {
     context: useAuthContext(),
-    dispatch: useAuthDispatch(),
-    login: (username: string, password: string): Response<string> => {
+    dispatch,
+    login: async (username: string, password: string): Promise<void> => {
       const request = post(_URI).send({ username, password });
-      const response = new Promise<string>((resolve, reject) => {
-        request.then(r => resolve(r.body.access)).catch(reject);
+      setRequest(request);
+      const token = await request.then(r => r.body.access);
+      dispatch!({
+        type: 'login',
+        token
       });
-      return { request, response }
+    },
+    abort: () => {
+      request?.abort();
     }
   }
 }

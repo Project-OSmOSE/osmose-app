@@ -1,7 +1,6 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
-import { login, useAuth, useAuthDispatch } from "../utils/auth.tsx";
 import { useHistory, useLocation } from "react-router-dom";
-import { Request } from '../utils/requests.tsx';
+import { useAuthService } from "../services/auth";
 
 
 export const Login: FC = () => {
@@ -9,24 +8,21 @@ export const Login: FC = () => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<Error | undefined>();
 
-  const [loginRequest, setLoginRequest] = useState<Request | undefined>();
-
-  const state = useAuth();
-  const dispatch = useAuthDispatch();
+  const { context, login, abort } = useAuthService();
   const history = useHistory();
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/' } };
 
   useEffect(() => {
     return () => {
-      loginRequest?.abort();
+      abort();
     }
   });
 
   useEffect(() => {
-    if (state.token)
+    if (context.token)
       history.replace(from);
-  }, [state])
+  }, [context])
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.currentTarget.value.trim());
@@ -40,15 +36,8 @@ export const Login: FC = () => {
     event.preventDefault();
     setError(undefined);
 
-    const { request, response } = login(username, password);
-    setLoginRequest(request);
-
     try {
-      const token = await response;
-      dispatch!({
-        type: 'login',
-        token
-      });
+      await login(username, password);
       history.replace(from);
     } catch (e: any) {
       // Checking if this is an HTTP error
