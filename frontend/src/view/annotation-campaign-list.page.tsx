@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { List, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
+import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "../services/api";
 
 
-const AnnotationCampaignList: React.FC = () => {
+export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
 
   const campaignService = useAnnotationCampaignAPI();
@@ -92,5 +92,3 @@ const AnnotationCampaignList: React.FC = () => {
     </div>
   )
 }
-
-export default AnnotationCampaignList;

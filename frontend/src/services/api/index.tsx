@@ -7,6 +7,11 @@ import {
   useDatasetsAPI
 } from './dataset-api.service.tsx';
 
+import {
+  List as AnnotationCampaignList,
+  useAnnotationCampaignAPI
+} from './annotation-campaign-api.service.tsx'
+
 export {
   type DatasetList,
   type DatasetListItem,
@@ -14,4 +19,6 @@ export {
   type DatasetListToImport,
   type DatasetListToImportItem,
   useDatasetsAPI,
+  type AnnotationCampaignList,
+  useAnnotationCampaignAPI,
 }
