@@ -1,19 +1,5 @@
-import { Context, createContext, Dispatch, FC, ReactNode, Reducer, useContext, useEffect, useReducer } from "react";
-import { Redirect, Route } from "react-router-dom";
-import { post } from "superagent";
-import { Response } from "./requests.tsx";
-
-const URI = '/api/token/';
-
-export interface Auth {
-  token?: string;
-  bearer?: string;
-}
-
-export interface AuthAction {
-  type: 'login' | 'logout';
-  token?: string;
-}
+import { Context, createContext, Dispatch, FC, ReactNode, Reducer, useEffect, useReducer } from "react";
+import { Auth, AuthAction } from "./auth.context.tsx";
 
 const AuthContext: Context<Auth> = createContext<Auth>({});
 const AuthDispatchContext: Context<Dispatch<AuthAction> | undefined> = createContext<Dispatch<AuthAction> | undefined>(undefined);
@@ -52,24 +38,3 @@ export const ProvideAuth: FC<{ children?: ReactNode }> = ({ children }) => {
     </AuthContext.Provider>
   )
 }
-
-export const AuthenticatedRoute: FC<{ children?: ReactNode } & any> = ({ children, ...params }) => {
-  const auth: Auth = useContext(AuthContext);
-  return (
-    <Route { ...params }
-           render={ ({ location }) =>
-             auth.token ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
-           }/>
-  )
-}
-
-export function login(username: string, password: string): Response<string> {
-  const request = post(URI).send({ username, password });
-  const response = new Promise<string>((resolve, reject) => {
-    request.then(r => resolve(r.body.access)).catch(reject);
-  });
-  return { request, response }
-}
-
-export const useAuth = () => useContext(AuthContext);
-export const useAuthDispatch = () => useContext(AuthDispatchContext);
