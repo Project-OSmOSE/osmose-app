@@ -8,10 +8,6 @@ enum ToastStatus {
   hiding = 'toasty-hiding',
 }
 
-// TODO backend error messages must be more consistent
-// There is only one case when a sub "error_lines" property is returned
-// Perhaps always return an array of string as messages?
-// Ot just an error code and additional metadata as json
 export type ToastMessage = {
   messages: Array<string>,
   level: 'danger' | 'success' | 'primary',
