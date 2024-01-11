@@ -11,7 +11,7 @@ type ConfirmationProps = {
   enableEscape?: boolean,
 }
 
-const ConfirmationModal = ({
+export const ConfirmationModal = ({
                              okLabel = "OK",
                              cancelLabel = "Cancel",
                              title = "Confirmation",
