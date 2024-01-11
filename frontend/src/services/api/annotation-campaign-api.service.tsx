@@ -2,18 +2,8 @@ import { useEffect } from "react";
 import { post, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
-import { AnnotationTaskStatus } from "../../enum";
+import { AnnotationTaskStatus, AnnotationMethod } from "../../enum";
 
-export enum AnnotationMode {
-  boxes = 1,
-  wholeFile = 2
-}
-
-export enum AnnotationMethod {
-  notSelected = -1,
-  random = 0,
-  sequential = 1
-}
 
 export type List = Array<{
   id: number;

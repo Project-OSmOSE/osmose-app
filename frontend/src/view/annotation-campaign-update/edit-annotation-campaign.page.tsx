@@ -1,14 +1,19 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import ListChooser from '../components/ListChooser.tsx';
-import { AnnotationMethod, RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
-import { List as UserList, useUsersAPI } from "../utils/api/user.tsx";
+import { AnnotationMethod } from "../../enum";
+import {
+  AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
+  UserList, useUsersAPI
+} from "../../services/api";
+import { AnnotatorsSelectComponent } from "./annotators-select.component.tsx";
+import { AnnotationGoalEditInputComponent } from "./annotation-goal-edit-input.component.tsx";
+import { AnnotationMethodSelectComponent } from "./annotation-method-select.component.tsx";
 
 
-const EditAnnotationCampaign: React.FC = () => {
+export const EditAnnotationCampaign: React.FC = () => {
   const { id: campaignID } = useParams<{id: string}>()
   const history = useHistory();
-  const [campaign, setCampaign] = useState<RetrieveCampaign | undefined>(undefined);
+  const [campaign, setCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
   const [annotators, setAnnotators] = useState<UserList>([]);
   const [annotationGoal, setAnnotationGoal] = useState<number>(0);
   const [annotationMethod, setAnnotationMethod] = useState<AnnotationMethod>(AnnotationMethod.notSelected);
@@ -42,22 +47,6 @@ const EditAnnotationCampaign: React.FC = () => {
       userService.abort();
     }
   }, [campaignID])
-
-  const handleAddAnnotator = (id: number) => {
-    const user = users?.find(u => u.id !== id);
-    if (!user) return;
-    setAnnotators([...(annotators ?? []), user])
-    setUsers(users?.filter(u => u.id !== id))
-    setAnnotationGoal(Math.max(1, annotationGoal))
-  }
-
-  const handleRemoveAnnotator = (id: number) => {
-    const user = annotators?.find(u => u.id !== id);
-    if (!user) return;
-    setAnnotators(annotators?.filter(u => u.id !== id))
-    setUsers([...(users ?? []), user])
-    setAnnotationGoal(Math.min(annotationGoal, annotators.length));
-  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -117,40 +106,18 @@ const EditAnnotationCampaign: React.FC = () => {
       <br/>
       { error && <p className="error-message">{ error.message }</p> }
       <form onSubmit={ handleSubmit }>
-        <div className="form-group">
-          <label>Choose annotators:</label>
-          <ListChooser choice_type="user"
-                       choices_list={ [...new Set(users.map(u => ({ ...u, name: u.username })).sort((a, b) => a.name.localeCompare(b.name)))] }
-                       chosen_list={ annotators.map(u => ({ ...u, name: u.username })) }
-                       onSelectChange={ handleAddAnnotator }
-                       onDelClick={ handleRemoveAnnotator }/>
-        </div>
+        <AnnotatorsSelectComponent users={users}
+                                   setUsers={setUsers}
+                                   annotators={annotators}
+                                   setAnnotators={setAnnotators}
+                                   annotationGoal={annotationGoal}
+                                   setAnnotationGoal={setAnnotationGoal}/>
 
-        <div className="form-group row">
-          <label className="col-sm-5 col-form-label">Wanted number of files to annotate<br/>(0 for all files):</label>
-          <div className="col-sm-2">
-            <input id="cac-annotation-goal"
-                   className="form-control"
-                   type="number"
-                   min={ 0 }
-                   value={ annotationGoal }
-                   onChange={ e => setAnnotationGoal(+e.currentTarget.value) }/>
-          </div>
-        </div>
+        <AnnotationGoalEditInputComponent annotationGoal={annotationGoal}
+                                          setAnnotationGoal={setAnnotationGoal}/>
 
-        <div className="form-group row">
-          <label className="col-sm-7 col-form-label">Wanted distribution method for files amongst annotators:</label>
-          <div className="col-sm-3">
-            <select id="cac-annotation-method"
-                    value={ annotationMethod }
-                    className="form-control"
-                    onChange={ e => setAnnotationMethod(+e.currentTarget.value) }>
-              <option value={ AnnotationMethod.notSelected } disabled>Select a method</option>
-              <option value={ AnnotationMethod.random }>Random</option>
-              <option value={ AnnotationMethod.sequential }>Sequential</option>
-            </select>
-          </div>
-        </div>
+        <AnnotationMethodSelectComponent annotationMethod={annotationMethod}
+                                         setAnnotationMethod={setAnnotationMethod}/>
 
         <div className="text-center">
           <input className="btn btn-primary" type="submit" value="Submit"/>
@@ -159,5 +126,3 @@ const EditAnnotationCampaign: React.FC = () => {
     </div>
   );
 }
-
-export default EditAnnotationCampaign;

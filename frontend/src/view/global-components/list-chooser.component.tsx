@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 
 interface Item {
   id: number,
@@ -13,7 +13,7 @@ type ListChooserProps = {
   onSelectChange: (choice_id: number) => void
 };
 
-const ListChooser: React.FC<ListChooserProps> = ({ choice_type, chosen_list, choices_list, onDelClick, onSelectChange }) => {
+export const ListChooser: FC<ListChooserProps> = ({ choice_type, chosen_list, choices_list, onDelClick, onSelectChange }) => {
   return (
     <div className="form-group row">
       { chosen_list.map(choice => (
@@ -40,5 +40,3 @@ const ListChooser: React.FC<ListChooserProps> = ({ choice_type, chosen_list, cho
     </div>
   )
 }
-
-export default ListChooser;

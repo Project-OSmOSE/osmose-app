@@ -19,6 +19,18 @@ import {
   useUsersAPI
 } from './user-api.service.tsx'
 
+import {
+  List as ConfidenceSetList,
+  ListItem as ConfidenceSetListItem,
+  useConfidenceSetAPI
+} from './confidence-set-api.service.tsx'
+
+import {
+  List as AnnotationSetList,
+  ListItem as AnnotationSetListItem,
+  useAnnotationSetAPI
+} from './annotation-set-api.service.tsx'
+
 export {
   type DatasetList,
   type DatasetListItem,
@@ -32,4 +44,10 @@ export {
   type UserList,
   type UserListItem,
   useUsersAPI,
+  type ConfidenceSetList,
+  type ConfidenceSetListItem,
+  useConfidenceSetAPI,
+  type AnnotationSetList,
+  type AnnotationSetListItem,
+  useAnnotationSetAPI
 }

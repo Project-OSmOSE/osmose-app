@@ -1,5 +1,7 @@
-import { AnnotationTaskStatus } from "./annotation-task.enum.tsx";
+import { AnnotationMethod, AnnotationMode, AnnotationTaskStatus } from "./annotation.enum.tsx";
 
 export {
-  AnnotationTaskStatus
+  AnnotationTaskStatus,
+  AnnotationMode,
+  AnnotationMethod
 }
