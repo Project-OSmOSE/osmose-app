@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { RetrieveCampaign, useAnnotationCampaignAPI } from "../utils/api/annotation-campaign.tsx";
-import { ListItem, useUsersAPI } from "../utils/api/user.tsx";
+import {
+  AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
+  UserListItem, useUsersAPI
+} from "../services/api";
 
 
 type AnnotationStatus = {
-  annotator: ListItem;
+  annotator: UserListItem;
   progress: string;
 }
 
-const AnnotationCampaignDetail: React.FC = () => {
+export const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
-  const [annotationCampaign, setAnnotationCampaign] = useState<RetrieveCampaign | undefined>(undefined);
+  const [annotationCampaign, setAnnotationCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
 
@@ -130,5 +132,3 @@ const AnnotationCampaignDetail: React.FC = () => {
     </div>
   )
 }
-
-export default AnnotationCampaignDetail;
