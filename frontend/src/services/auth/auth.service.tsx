@@ -9,11 +9,11 @@ export const useAuthService = () => {
     context: useAuthContext(),
     dispatch: useAuthDispatch(),
     login: (username: string, password: string): Response<string> => {
-    const request = post(_URI).send({ username, password });
-    const response = new Promise<string>((resolve, reject) => {
-      request.then(r => resolve(r.body.access)).catch(reject);
-    });
-    return { request, response }
-  }
+      const request = post(_URI).send({ username, password });
+      const response = new Promise<string>((resolve, reject) => {
+        request.then(r => resolve(r.body.access)).catch(reject);
+      });
+      return { request, response }
+    }
   }
 }
