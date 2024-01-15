@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { put, SuperAgentRequest } from "superagent";
-import { AnnotationMode, AnnotationTaskStatus } from "../../enum";
-import { useAuthService } from "../auth";
-import { APIService } from "./api-service.util.tsx";
-import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
+import { APIService } from "../../../services/api/api-service.util.tsx";
+import { useAuthService } from "../../../services/auth";
+import { AnnotationTaskStatus, AnnotationMode } from "../../../enum";
+import { AnnotationComment } from "../../../interface/annotation-comment.interface.tsx";
+
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -73,7 +74,13 @@ export interface RetrieveComment {
   annotation_result: number | null;
 }
 
-export type AnnotationTaskDto = {
+interface AddAnnotation {
+  annotation: AnnotationDto,
+  task_start_time: number,
+  task_end_time: number,
+}
+
+export type AnnotationDto = {
   id?: number,
   annotation: string,
   startTime: number | null,
@@ -84,14 +91,8 @@ export type AnnotationTaskDto = {
   result_comments: Array<AnnotationComment>,
 };
 
-interface AddAnnotation {
-  annotation: AnnotationTaskDto,
-  task_start_time: number,
-  task_end_time: number,
-}
-
 interface Update {
-  annotations: AnnotationTaskDto[],
+  annotations: AnnotationDto[],
   task_start_time: number,
   task_end_time: number,
 }
@@ -131,7 +132,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
     return this.addAnnotationRequest.then(r => r.body.id).catch(this.catch401)
   }
 
-  public update(taskID: number,
+  public update(taskID: string,
                 data: Update): Promise<UpdateResult> {
     this.addAnnotationRequest = put(`${ this.URI }/${ taskID }/`)
       .set("Authorization", this.auth!.bearer!)
@@ -146,8 +147,9 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   }
 }
 
-export const useAnnotationTaskAPI = () => {
-  const {context, catch401} = useAuthService();
+
+export const useAnnotationTaskAPIService = () => {
+  const { context, catch401 } = useAuthService();
 
   useEffect(() => {
     service.auth = context;

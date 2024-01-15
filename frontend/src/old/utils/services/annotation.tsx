@@ -1,14 +1,15 @@
-import { Auth, AuthAction, useAuth, useAuthDispatch } from "../auth.tsx";
 import { Dispatch, useEffect } from "react";
 import {
   AnnotationTaskAPIService,
-  Retrieve as TaskRetrieve, RetrieveAnnotation, RetrieveComment,
-  RetrieveConfidenceIndicator,
+  AnnotationTaskRetrieve,
+  AnnotationTaskRetrieveAnnotation,
+  AnnotationTaskRetrieveComment,
+  AnnotationTaskRetrieveConfidenceIndicator,
   useAnnotationTaskAPI
-} from "../api/annotation-task.tsx";
-import { AnnotationTask, Comment, TYPE_BOX } from "../../AudioAnnotator/AudioAnnotator.tsx";
-
-const COLORS = ['#00b1b9', '#a23b72', '#f18f01', '#c73e1d', '#bb7e5d', '#eac435', '#98ce00', '#2a2d34', '#6761a8', '#009b72'];
+} from "../../../services/api";
+import { AnnotationTask, TYPE_BOX } from "../../AudioAnnotator/AudioAnnotator.tsx";
+import { Auth, AuthAction, useAuthService } from "../../../services/auth";
+import { COLORS } from "../../../consts/colors.const.tsx";
 
 export type Annotation = {
   type: string,
@@ -24,14 +25,14 @@ export type Annotation = {
 };
 
 export interface LoadResult {
-  task: TaskRetrieve,
+  task: AnnotationTaskRetrieve,
   duration: number;
   frequencyRange: number;
   annotations: Array<Annotation>;
   presences: Set<string>;
-  taskComment: RetrieveComment;
+  taskComment: AnnotationTaskRetrieveComment;
   tagColors: Map<string, string>;
-  defaultConfidence?: RetrieveConfidenceIndicator;
+  defaultConfidence?: AnnotationTaskRetrieveConfidenceIndicator;
 }
 
 export interface AddAnnotationData {
@@ -40,21 +41,14 @@ export interface AddAnnotationData {
   taskStartTime: number
 }
 
-export type AnnotationDto = {
-  id?: number,
-  annotation: string,
-  startTime: number | null,
-  endTime: number | null,
-  startFrequency: number | null,
-  endFrequency: number | null,
-  confidenceIndicator?: string,
-  result_comments: Array<Comment>,
-};
-
 export interface AddAnnotationData {
   task: AnnotationTask,
   annotation: Annotation,
   taskStartTime: number
+}
+
+interface SubmitData {
+  annotations: Annotation[]
 }
 
 class AnnotationService {
@@ -128,14 +122,14 @@ class AnnotationService {
     this.taskAPI.abort();
   }
 
-  private isBoxAnnotation(a: RetrieveAnnotation) {
+  private isBoxAnnotation(a: AnnotationTaskRetrieveAnnotation) {
     return (typeof a.startTime === 'number') &&
       (typeof a.endTime === 'number') &&
       (typeof a.startFrequency === 'number') &&
       (typeof a.endFrequency === 'number');
   }
 
-  private transformAnnotationForAPI(annotation: Annotation): AnnotationDto {
+  private transformAnnotationForAPI(annotation: Annotation): AnnotationTaskDto {
     const startTime = annotation.type === TYPE_BOX ? annotation.startTime : null;
     const endTime = annotation.type === TYPE_BOX ? annotation.endTime : null;
     const startFrequency = annotation.type === TYPE_BOX ? annotation.startFrequency : null;
@@ -152,25 +146,29 @@ class AnnotationService {
       result_comments: result_comments,
     };
   }
+
+  public submit({ annotations }: SubmitData) {
+    if (annotations.filter(a => a.annotation.length < 1).length > 0) throw 'Make sure all your annotations are tagged'
+
+  }
 }
 
 export const useAnnotationService = () => {
-  const auth = useAuth();
-  const authDispatch = useAuthDispatch();
+  const {context, dispatch} = useAuthService();
 
   const taskAPI = useAnnotationTaskAPI();
 
   const service = new AnnotationService(taskAPI);
-  service.auth = auth;
-  service.authDispatch = authDispatch;
+  service.auth = context;
+  service.authDispatch = dispatch;
 
   useEffect(() => {
-    service.auth = auth;
-  }, [auth])
+    service.auth = context;
+  }, [context])
 
   useEffect(() => {
-    service.authDispatch = authDispatch;
-  }, [authDispatch])
+    service.authDispatch = dispatch;
+  }, [dispatch])
 
   return service;
 }

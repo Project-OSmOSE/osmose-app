@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import nock from 'nock';
 import { mount, shallow } from 'enzyme';
 
-import { ShowAnnotationSet } from '../src/pages/CreateAnnotationCampaign.js';
-import CreateAnnotationCampaign from '../src/pages/CreateAnnotationCampaign.js';
+import { ShowAnnotationSet } from '../src/pages/CreateAnnotationCampaignPage.js';
+import CreateAnnotationCampaign from '../src/pages/CreateAnnotationCampaignPage.js';
 
 import datasets from './fixtures/dataset_list.json';
 import annotation_sets from './fixtures/annotation_set_list.json';
@@ -33,7 +33,7 @@ describe('testing ShowAnnotationSet component', function () {
     });
 });
 
-describe('testing CreateAnnotationCampaign component', function () {
+describe('testing CreateAnnotationCampaignPage component', function () {
     this.timeout(20000);
 
     it('mounts properly with title', () => {
@@ -88,7 +88,7 @@ describe('testing CreateAnnotationCampaign component', function () {
             return true;
         }).reply(200);
         let history = [];
-        let wrapper = mount(<CreateAnnotationCampaign history={history} />);
+        let wrapper = mount(<CreateAnnotationCampaignPage history={history} />);
         return wrapper.instance().handleSubmit({preventDefault: () => null}).then(r => {
             assert.deepEqual(history, ['/annotation-campaigns']);
             //wrapper.unmount();

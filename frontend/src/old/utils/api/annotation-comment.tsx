@@ -1,6 +1,6 @@
 import { APIService } from "../requests.tsx";
-import { useAuth, useAuthDispatch } from "../auth.tsx";
 import { useEffect } from "react";
+import { useAuthService } from "../../../services/auth/auth.service.tsx";
 
 export interface Create {
   comment_id?: number,
@@ -17,12 +17,11 @@ export interface CreateResult {
 }
 
 export const useAnnotationCommentAPI = () => {
-  const auth = useAuth();
-  const authDispatch = useAuthDispatch();
+  const {context, dispatch} = useAuthService();
 
   useEffect(() => {
-    service.setAuth(auth)
-  }, [auth])
+    service.setAuth(context)
+  }, [context])
 
   const service = new class AnnotationCommentAPIService extends APIService<never, never, CreateResult>{
     URI = '/api/annotation-comment';
@@ -37,7 +36,7 @@ export const useAnnotationCommentAPI = () => {
     abort() {
       super.abort();
     }
-  }(auth, authDispatch!);
+  }(context, dispatch!);
 
   return service;
 }

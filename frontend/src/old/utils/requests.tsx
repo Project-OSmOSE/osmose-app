@@ -1,6 +1,6 @@
 import { get, post, SuperAgentRequest } from "superagent";
-import { Auth, AuthAction } from "./auth.tsx";
 import { Dispatch } from "react";
+import { Auth, AuthAction } from "../../services/auth";
 
 export interface Request {
   abort(): void;
