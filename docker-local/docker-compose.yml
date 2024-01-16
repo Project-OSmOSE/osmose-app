@@ -1,0 +1,91 @@
+version: '3.6'
+
+#docker-compose --file=.\docker-local\docker-compose.yml --project-directory=. --env-file=./docker-local/.env up -d  osmose_front --build
+
+services:
+  osmose_back:
+    build:
+      context: .
+      dockerfile: docker-local/dockerfiles/back.dockerfile
+    image: osmose_back-image
+    container_name: osmose_back
+    user: "101:101"
+    environment:
+      ENV: "${ENV}"
+      SECRET_KEY: "${SECRET_KEY}"
+      OSMOSE_HOST: "${OSMOSE_HOST}"
+      OSMOSE_DB_HOST: db
+      OSMOSE_DB_PORT: 5432
+      OSMOSE_DB_USER: "${OSMOSE_DB_USER}"
+      OSMOSE_DB_PWD: "${OSMOSE_DB_PWD}"
+      OSMOSE_DB_BASE: "${OSMOSE_DB_USER}"
+    volumes:
+      - static:/opt/staticfiles:ro
+      - ./docker-local/volumes/datawork:/opt/datawork:ro
+      - ./manage.py:/opt/manage.py
+      - ./poetry.lock:/opt/poetry.lock
+      - ./pyproject.toml:/opt/pyproject.toml
+      - ./backend:/opt/backend
+    stdin_open: true
+
+  osmose_front:
+    build:
+      context: .
+      dockerfile: ./docker-local/dockerfiles/front.dockerfile
+    image: osmose_front-image
+    container_name: osmose_front
+    user: root
+    environment:
+      OSMOSE_BACK_HOST: osmose_back
+      CHOKIDAR_USEPOLLING: true
+    ports:
+      - 3001:3000
+    volumes:
+      - static:/opt/staticfiles:ro
+      - node_modules:/opt/node_modules
+      - ./volumes/datawork:/opt/datawork:ro
+      - ./frontend:/opt
+    restart: always
+
+  nginx:
+    build:
+      context: docker-local
+      dockerfile: dockerfiles/nginx.dockerfile
+    image: osmose_nginx-image
+    container_name: osmose_nginx
+    user: "101:101"
+    environment:
+      APLOSE_BACK_HOST: osmose_back
+      APLOSE_FRONT_HOST: osmose_front
+    volumes:
+      - static:/opt/staticfiles:ro
+      - ./docker-local/volumes/datawork:/opt/datawork:ro
+    restart: always
+
+  db:
+    image: postgres:13.3-alpine
+    container_name: osmose_db
+    environment:
+      POSTGRES_USER: "${OSMOSE_DB_USER}"
+      POSTGRES_PASSWORD: "${OSMOSE_DB_PWD}"
+    volumes:
+      - ./docker-local/volumes/postgresql:/var/lib/postgresql/data
+    restart: always
+
+  https-portal:
+    image: steveltn/https-portal:1.19
+    container_name: osmose_https-portal
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+    environment:
+      DOMAINS: "${OSMOSE_HOST} -> http://osmose_front:8080"
+      STAGE: "${HTTPS_PORTAL_STAGE:-production}"
+    restart: always
+
+volumes:
+  https-portal-data:
+  static:
+  node_modules:

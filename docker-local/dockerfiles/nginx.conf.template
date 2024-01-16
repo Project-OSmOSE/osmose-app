@@ -1,0 +1,50 @@
+# See https://tonny.medium.com/how-to-use-nginx-to-service-multiple-react-apps-641501e92581
+
+
+server {
+  listen 8080;
+  server_name osmose;
+
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://${APLOSE_FRONT_HOST}:3000/;
+    proxy_ssl_session_reuse off;
+    proxy_set_header Host $http_host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+  }
+
+  location /api/ {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://${APLOSE_BACK_HOST}:8000/api/;
+    proxy_ssl_session_reuse off;
+    proxy_set_header Host $http_host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+  }
+
+  location /backend/ {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://${APLOSE_BACK_HOST}:8000/backend/;
+    proxy_ssl_session_reuse off;
+    proxy_set_header Host $http_host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+  }
+
+  location /backend/static/ {
+    rewrite ^/backend/static/(.*) /$1 break;
+    root /opt/staticfiles;
+  }
+
+  location /backend/static/datawork/ {
+    rewrite ^/backend/static/datawork/(.*) /$1 break;
+    root /opt/datawork;
+  }
+}
