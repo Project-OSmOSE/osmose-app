@@ -16,7 +16,6 @@ class TeamMemberAdmin(ModelAdmin):
         "lastname",
         "firstname",
         "position",
-        "mail_address",
         "is_former_member",
         "level",
     ]
@@ -29,7 +28,6 @@ class TeamMemberAdmin(ModelAdmin):
                     "lastname",
                     "firstname",
                     "position",
-                    "mail_address",
                     "picture",
                     "biography",
                     "is_former_member",
@@ -38,9 +36,10 @@ class TeamMemberAdmin(ModelAdmin):
             },
         ),
         (
-            "Links",
+            "Email & Links",
             {
                 "fields": [
+                    "mail_address",
                     "research_gate_url",
                     "personal_website_url",
                     "github_url",
