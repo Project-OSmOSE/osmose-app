@@ -40,8 +40,8 @@ class TeamMemberAdmin(ModelAdmin):
             {
                 "fields": [
                     "mail_address",
-                    "research_gate_url",
                     "personal_website_url",
+                    "research_gate_url",
                     "github_url",
                     "linkedin_url",
                 ]

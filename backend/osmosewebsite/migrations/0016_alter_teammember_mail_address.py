@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0015_merge_20240108_1547'),
+        ("osmosewebsite", "0015_merge_20240108_1547"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='teammember',
-            name='mail_address',
-            field=models.EmailField(blank=True, max_length=254, null=True, verbose_name='Mail address'),
+            model_name="teammember",
+            name="mail_address",
+            field=models.EmailField(
+                blank=True, max_length=254, null=True, verbose_name="Mail address"
+            ),
         ),
     ]
