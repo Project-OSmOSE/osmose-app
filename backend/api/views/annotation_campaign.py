@@ -186,7 +186,10 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
 
         for result in results:
             confidence_indicator_and_lvl_max = ""
-            if campaign.confidence_indicator_set is not None:
+            if (
+                campaign.confidence_indicator_set is not None
+                and result.confidence_indicator is not None
+            ):
                 max_level = campaign.confidence_indicator_set.max_level
                 confidence_indicator_and_lvl_max = (
                     f"{result.confidence_indicator.level}/{max_level}"
@@ -253,6 +256,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     "",
                     "",
                     task_comment.annotation_task.annotator.username,
+                    "",
+                    "",
                     "",
                     "",
                     "",
