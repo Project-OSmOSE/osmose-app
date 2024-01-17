@@ -13,7 +13,7 @@ class TeamMember(models.Model):
     biography = models.TextField()
     picture = models.URLField()
 
-    mail_address = models.EmailField("Mail address")
+    mail_address = models.EmailField("Mail address", blank=True, null=True)
     research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
     personal_website_url = models.URLField(
         "Personal website URL", blank=True, null=True
