@@ -4,7 +4,7 @@ export interface TeamMember {
     firstname: string;
     lastname: string;
     position: string;
-    biography: string;
+    biography?: string;
     picture: string;
 
     mail_address?: string;

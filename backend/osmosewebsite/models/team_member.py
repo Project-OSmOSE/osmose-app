@@ -10,7 +10,7 @@ class TeamMember(models.Model):
     firstname = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100, blank=True, null=True)
     position = models.CharField(max_length=255)
-    biography = models.TextField()
+    biography = models.TextField(blank=True, null=True)
     picture = models.URLField()
 
     mail_address = models.EmailField("Mail address", blank=True, null=True)
