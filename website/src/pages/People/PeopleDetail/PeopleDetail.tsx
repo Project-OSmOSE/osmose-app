@@ -31,31 +31,32 @@ export const PeopleDetail: React.FC = () => {
 
       <img src={ member?.picture } alt={ `${ member?.firstname } ${ member?.lastname }'s Portrait` }/>
 
-      <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote>
+      { member?.biography && <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote> }
 
       <div className="links">
-        { member?.research_gate_url && <a href={ member.research_gate_url } target="_blank"  rel="noreferrer">ResearchGate</a> }
+        { member?.research_gate_url &&
+            <a href={ member.research_gate_url } target="_blank" rel="noreferrer">ResearchGate</a> }
 
         { member?.personal_website_url &&
-            <a href={ member.personal_website_url } target="_blank"  rel="noreferrer">Personal website</a> }
+            <a href={ member.personal_website_url } target="_blank" rel="noreferrer">Personal website</a> }
 
         <div className="socials">
           { member?.github_url &&
-              <a href={ member.github_url } target="_blank"  rel="noreferrer">
+              <a href={ member.github_url } target="_blank" rel="noreferrer">
                   <IonIcon icon={ logoGithub }></IonIcon>
                   Github
               </a>
           }
 
           { member?.mail_address &&
-              <a href={ `mailto:${ member.mail_address }` } target="_blank"  rel="noreferrer">
+              <a href={ `mailto:${ member.mail_address }` } target="_blank" rel="noreferrer">
                   <IonIcon icon={ mailOutline }></IonIcon>
                   Mail
               </a>
           }
 
           { member?.linkedin_url &&
-              <a href={ member.linkedin_url } target="_blank"  rel="noreferrer">
+              <a href={ member.linkedin_url } target="_blank" rel="noreferrer">
                   <IonIcon icon={ logoLinkedin }></IonIcon>
                   LinkedIn
               </a>
