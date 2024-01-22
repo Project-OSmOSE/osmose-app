@@ -682,14 +682,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         task_start_time: taskStartTime,
         task_end_time: taskEndTime,
       })
-      .then(result => {
-        const nextTask: number = result.body.next_task;
-        const campaignId: number = result.body.campaign_id;
-
-        if (nextTask) {
-          this.props.history.push('/audio-annotator/' + nextTask.toString());
+      .then(() => {
+        if (this.state.task.prevAndNextAnnotation.next) {
+          this.props.history.push('/audio-annotator/' + this.state.task.prevAndNextAnnotation.next);
         } else {
-          this.props.history.push('/annotation_tasks/' + campaignId.toString());
+          this.props.history.push('/annotation_tasks/' + this.state.task.campaignId);
         }
       })
       .catch(err => {
