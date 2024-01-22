@@ -242,7 +242,7 @@ class Command(management.BaseCommand):
             campaign.datasets.add(dataset)
             campaign.spectro_configs.add(dataset.spectro_configs.first())
             tasks = []
-            for file in dataset.files.all():
+            for file in dataset.files.all().order_by("?"):
                 for user in self.users:
                     task = AnnotationTask(
                         dataset_file=file,

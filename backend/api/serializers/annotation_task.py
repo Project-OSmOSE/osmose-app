@@ -184,32 +184,41 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         return AnnotationTaskResultSerializer(queryset, many=True).data
 
     def get_prevAndNextAnnotation(self, task):
-        id__lt = (
+        taskMetadatum = (
+            AnnotationTask.objects.filter(id=task.id)
+            .first()
+            .dataset_file.audio_metadatum
+        )
+        id_prev = (
             AnnotationTask.objects.filter(
                 annotation_campaign=task.annotation_campaign.id,
                 annotator=task.annotator.id,
-                id__lt=task.id,
+                dataset_file__audio_metadatum__start__lt=taskMetadatum.start,
             )
-            .order_by("id")
+            .order_by("dataset_file__audio_metadatum__start")
             .reverse()
             .first()
         )
-        id__gt = AnnotationTask.objects.filter(
-            annotation_campaign=task.annotation_campaign.id,
-            annotator=task.annotator.id,
-            id__gt=task.id,
-        ).first()
+        id_next = (
+            AnnotationTask.objects.filter(
+                annotation_campaign=task.annotation_campaign.id,
+                annotator=task.annotator.id,
+                dataset_file__audio_metadatum__start__gt=taskMetadatum.start,
+            )
+            .order_by("dataset_file__audio_metadatum__start")
+            .first()
+        )
 
-        if id__lt is None:
-            id__lt = ""
+        if id_prev is None:
+            id_prev = ""
         else:
-            id__lt = id__lt.id
-        if id__gt is None:
-            id__gt = ""
+            id_prev = id_prev.id
+        if id_next is None:
+            id_next = ""
         else:
-            id__gt = id__gt.id
+            id_next = id_next.id
 
-        return {"prev": id__lt, "next": id__gt}
+        return {"prev": id_prev, "next": id_next}
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
@@ -334,7 +343,6 @@ class AnnotationTaskOneResultUpdateSerializer(AnnotationTaskUpdateSerializer):
     """
 
     def update(self, instance, validated_data):
-
         instance = self._create_results(instance, validated_data)
 
         return instance
