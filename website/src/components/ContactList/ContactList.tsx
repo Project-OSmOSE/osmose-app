@@ -3,7 +3,7 @@ import { TeamMember } from "../../models/team";
 import { Link } from "react-router-dom";
 
 interface ContactListProps {
-  label: string;
+  label?: string;
   teamMembers?: Array<TeamMember>;
   namedMembers?: Array<string>;
 }
@@ -18,7 +18,7 @@ export const ContactList: React.FC<ContactListProps> = ({
 
   return (
     <p id="contact-list" className="text-muted">
-      <span>{ label }: </span>
+      { label && <span>{ label }: </span> }
 
       { teamMembers && teamMembers.map((member, k) => (
         <span key={ member.id }>

@@ -7,14 +7,13 @@ interface CollaboratorsBannerProps {
 }
 
 export const CollaboratorsBanner: React.FC<CollaboratorsBannerProps> = ({ collaborators }) => {
-  if (!collaborators) return <React.Fragment></React.Fragment>;
+  if (!collaborators?.length) return <React.Fragment></React.Fragment>;
   return (
     <div id="collaborators-banner-component">
       <h2>Collaborators & Funders</h2>
 
       <div className="logo-container">
         { collaborators.map(collaborator => {
-          console.debug(collaborator)
           const img = (<img key={ collaborator.id }
                             src={ collaborator.thumbnail }
                             alt={ collaborator.name }

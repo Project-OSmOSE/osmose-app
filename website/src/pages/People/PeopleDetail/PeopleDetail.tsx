@@ -16,8 +16,13 @@ export const PeopleDetail: React.FC = () => {
   const fetchDetail = useFetchDetail<TeamMember>('/people', '/api/members');
 
   useEffect(() => {
-    fetchDetail(memberID).then(setMember);
-  }, [memberID]);
+    let isMounted = true;
+    fetchDetail(memberID).then(member => isMounted && setMember(member));
+
+    return () => {
+      isMounted = false;
+    }
+  }, [memberID, fetchDetail]);
 
 
   return (
