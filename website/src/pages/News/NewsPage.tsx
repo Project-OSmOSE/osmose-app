@@ -10,9 +10,6 @@ import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle }
 import { News } from "../../models/news";
 
 import './NewsPage.css';
-import { Collaborator } from "../../models/collaborator";
-
-const NEWS_URL = '/api/news';
 
 
 export const NewsPage: React.FC = () => {
@@ -26,11 +23,17 @@ export const NewsPage: React.FC = () => {
   const fetchNews = useFetchArray<{count: number, results: Array<News>}>('/api/news');
 
   useEffect(() => {
+    let isMounted = true;
     fetchNews({ currentPage, pageSize }).then(data => {
+      if (!isMounted) return;
       setNewsTotal(data?.count ?? 0);
       setNews(data?.results ?? []);
     });
-  }, [currentPage]);
+
+    return () => {
+      isMounted = false;
+    }
+  }, [currentPage, fetchNews]);
 
   return (
     <div id="news-page">

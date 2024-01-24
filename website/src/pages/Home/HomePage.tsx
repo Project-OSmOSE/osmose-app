@@ -2,22 +2,13 @@ import React, { useEffect, useState } from 'react';
 
 import { PageTitle } from '../../components/PageTitle';
 import { Card } from '../../components/Card';
-import { Banner } from '../../components/Banner';
 import { Carousel } from '../../components/Carousel/Carousel';
 
 import './HomePage.css';
 import imgTitle from '../../img/illust/dolphin_1920_thin.webp';
 import imgGlider from '../../img/illust/glider_640.webp';
 import imgMissions from '../../img/illust/thumbnail_4_Paysage_sonore_800_449.webp';
-import logoofb from '../../img/logo/logo_ofb.png';
 import logoFAIR from '../../img/logo/logo_fairlogo.png';
-
-import sorbonneLogo from '../../img/logo/Logo-Sorbonne-Universite-300x122.png';
-import enstalogo from '../../img/logo/logo-ensta-bretagne.jpg';
-import ubologo from '../../img/logo/logo-ubo.png';
-import labsticlogo from '../../img/logo/logo-lab-sticc.png';
-import iuemLogo from '../../img/logo/iuem.jpeg';
-import cebcLogo from '../../img/logo/cebc.png';
 import { CollaboratorsBanner } from "../../components/CollaboratorsBanner/CollaboratorsBanner";
 import { useFetchArray } from "../../utils";
 import { Collaborator } from "../../models/collaborator";
@@ -29,8 +20,13 @@ export const HomePage: React.FC = () => {
   const fetchCollaborators = useFetchArray<Array<Collaborator>>('/api/collaborators/on_home/');
 
   useEffect(() => {
-    fetchCollaborators().then(setCollaborators)
-  }, [])
+    let isMounted = true;
+    fetchCollaborators().then(collaborators => isMounted && setCollaborators(collaborators));
+
+    return () => {
+      isMounted = false;
+    }
+  }, [fetchCollaborators])
 
   return (
     <div id="home-page">

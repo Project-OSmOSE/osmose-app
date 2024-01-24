@@ -6,7 +6,6 @@ import { TeamMember } from "../../models/team";
 import { useFetchArray } from "../../utils";
 
 import './People.css';
-import { News } from "../../models/news";
 
 
 export const People: React.FC = () => {
@@ -16,8 +15,13 @@ export const People: React.FC = () => {
   const fetchMembers = useFetchArray<Array<TeamMember>>('/api/members');
 
   useEffect(() => {
-    fetchMembers().then(setMembers)
-  }, []);
+    let isMounted = true;
+    fetchMembers().then(members => isMounted && setMembers(members));
+
+    return () => {
+      isMounted = false;
+    }
+  }, [fetchMembers]);
 
   return (
     <div id="people-page">

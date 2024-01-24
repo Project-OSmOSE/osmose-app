@@ -8,7 +8,6 @@ import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import './ProjectDetail.css';
 import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/CollaboratorsBanner";
-import { News } from "../../../models/news";
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
@@ -18,8 +17,13 @@ export const ProjectDetail: React.FC = () => {
   const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
 
   useEffect(() => {
-    fetchDetail(projectID).then(setProject);
-  }, [projectID]);
+    let isMounted = true;
+    fetchDetail(projectID).then(project => isMounted && setProject(project));
+
+    return () => {
+      isMounted = false;
+    }
+  }, [projectID, fetchDetail]);
 
   return (
     <div id="project-detail">

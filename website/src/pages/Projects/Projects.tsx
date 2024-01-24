@@ -10,7 +10,6 @@ import { getYear, useFetchArray } from "../../utils";
 import { Project } from "../../models/project";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { Pagination } from "../../components/Pagination/Pagination";
-import { News } from "../../models/news";
 
 
 export const Projects: React.FC = () => {
@@ -22,14 +21,20 @@ export const Projects: React.FC = () => {
   const [projectsTotal, setProjectsTotal] = useState<number>(0);
   const [projects, setProjects] = useState<Array<Project>>([]);
 
-  const fetchNews = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
+  const fetchProjects = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
 
   useEffect(() => {
-    fetchNews({ currentPage, pageSize }).then(data => {
+    let isMounted = true;
+    fetchProjects({ currentPage, pageSize }).then(data => {
+      if (!isMounted) return;
       setProjectsTotal(data?.count ?? 0);
       setProjects(data?.results ?? []);
     });
-  }, [currentPage]);
+
+    return () => {
+      isMounted = false;
+    }
+  }, [currentPage, fetchProjects]);
 
   return (
     <div id="projects-page">
