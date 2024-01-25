@@ -22,7 +22,7 @@ export const PeopleDetail: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [memberID, fetchDetail]);
+  }, [memberID]);
 
 
   return (

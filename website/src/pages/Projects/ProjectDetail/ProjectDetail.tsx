@@ -23,7 +23,7 @@ export const ProjectDetail: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [projectID, fetchDetail]);
+  }, [projectID]);
 
   return (
     <div id="project-detail">

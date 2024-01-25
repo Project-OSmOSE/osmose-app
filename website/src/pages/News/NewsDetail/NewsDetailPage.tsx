@@ -24,7 +24,7 @@ export const NewsDetailPage: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [articleID, fetchDetail]);
+  }, [articleID]);
 
   return (
     <DetailPage>

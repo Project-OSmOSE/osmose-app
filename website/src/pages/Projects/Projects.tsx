@@ -34,7 +34,7 @@ export const Projects: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [currentPage, fetchProjects]);
+  }, [currentPage]);
 
   return (
     <div id="projects-page">

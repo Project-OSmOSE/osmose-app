@@ -21,7 +21,7 @@ export const People: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [fetchMembers]);
+  }, []);
 
   return (
     <div id="people-page">

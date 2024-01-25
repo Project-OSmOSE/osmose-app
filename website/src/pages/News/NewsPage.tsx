@@ -33,7 +33,7 @@ export const NewsPage: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [currentPage, fetchNews]);
+  }, [currentPage]);
 
   return (
     <div id="news-page">
