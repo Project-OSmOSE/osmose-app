@@ -26,7 +26,7 @@ export const HomePage: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [fetchCollaborators])
+  }, [])
 
   return (
     <div id="home-page">
