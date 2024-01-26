@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 
@@ -21,11 +21,10 @@ class ConfidenceSetAPIService extends APIService<List, never, never>{}
 export const useConfidenceSetAPI = () => {
   const {context, catch401} = useAuthService();
 
+  const service = useMemo(() => new ConfidenceSetAPIService('/api/confidence-indicator', catch401), [catch401]);
+
   useEffect(() => {
     service.auth = context;
-  }, [context])
-
-  const service = new ConfidenceSetAPIService('/api/confidence-indicator', catch401);
-
+  }, [context, service])
   return service;
 }

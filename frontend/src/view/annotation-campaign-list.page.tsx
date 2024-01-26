@@ -23,7 +23,7 @@ export const AnnotationCampaignList: React.FC = () => {
       isCanceled = true;
       campaignService.abort();
     }
-  }, []);
+  }, [campaignService]);
 
   if (error) return (
     <div className="col-sm-10 border rounded">

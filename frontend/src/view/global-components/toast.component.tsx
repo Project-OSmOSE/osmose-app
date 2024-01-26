@@ -14,12 +14,12 @@ export type ToastMessage = {
 };
 
 type ToastProps = {
-  toastMsg?: ToastMessage,
+  toastMessage?: ToastMessage,
 };
 
-export const Toast: FC<ToastProps> = ({ toastMsg }) => {
+export const Toast: FC<ToastProps> = ({ toastMessage }) => {
   const [status, setStatus] = useState<ToastStatus>(ToastStatus.hidden);
-  const [currentMsg, setCurrentMsg] = useState<ToastMessage | undefined>(toastMsg);
+  const [currentMsg, setCurrentMsg] = useState<ToastMessage | undefined>(toastMessage);
   const [nextMsg, setNextMsg] = useState<ToastMessage | undefined>();
   const [currentTimeout, setCurrentTimeout] = useState<any>();
 
@@ -30,8 +30,8 @@ export const Toast: FC<ToastProps> = ({ toastMsg }) => {
   }, [])
 
   useEffect(() => {
-    if (currentMsg !== toastMsg) setNextMsg(toastMsg)
-  }, [toastMsg])
+    if (currentMsg !== toastMessage) setNextMsg(toastMessage)
+  }, [toastMessage])
 
   useEffect(() => {
     if (nextMsg) hiding();

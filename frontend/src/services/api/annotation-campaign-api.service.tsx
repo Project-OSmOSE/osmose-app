@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { post, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
+import { AnnotationMethod, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
 import { APIService } from "./api-service.util.tsx";
-import { AnnotationTaskStatus, AnnotationMethod } from "../../enum";
 
 
 export type List = Array<{
@@ -171,12 +171,11 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 
 export const useAnnotationCampaignAPI = () => {
   const {context, catch401} = useAuthService();
+  const service = useMemo(() => new AnnotationCampaignAPIService('/api/annotation-campaign', catch401), [catch401]);
 
   useEffect(() => {
     service.auth = context;
-  }, [context])
-
-  const service = new AnnotationCampaignAPIService('/api/annotation-campaign', catch401);
+  }, [context, service])
 
   return service;
 }

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { AnnotationMode } from "../../enum";
+import { AnnotationMode } from "../../enum/annotation.enum.tsx";
 
 export const AnnotationModeSelectComponent: FC<{
   annotationMode: AnnotationMode,

@@ -42,6 +42,10 @@ import {
   useAnnotationTaskAPI
 } from './annotation-task-api.service.tsx';
 
+import {
+  useAnnotationCommentAPI
+} from "./annotation-comment-api.service.tsx";
+
 export {
   type DatasetList,
   type DatasetListItem,
@@ -68,5 +72,6 @@ export {
   type AnnotationTaskRetrieveComment,
   type AnnotationTaskRetrieveConfidenceIndicator,
   AnnotationTaskAPIService,
-  useAnnotationTaskAPI
+  useAnnotationTaskAPI,
+  useAnnotationCommentAPI
 }

@@ -6,25 +6,18 @@ import {
   AudioCtxAction,
   AudioCtxInitialValue
 } from "./audio.context.tsx";
-import { AudioPlayStatus } from "../../../enum";
+import { AudioPlayStatus } from "../../../enum/audio.enum.tsx";
 
 const audioReducer: Reducer<AudioCtx, AudioCtxAction> = (currentContext: AudioCtx, action: AudioCtxAction): AudioCtx => {
   switch (action.type) {
     case 'element':
-      return {
-        ...currentContext,
-        element: action.element
-      }
+      return { ...currentContext, element: action.element }
     case 'state':
-      return {
-        ...currentContext,
-        state: action.newState ?? AudioPlayStatus.pause
-      }
+      return { ...currentContext, state: action.state ?? AudioPlayStatus.pause }
     case 'time':
-      return {
-        ...currentContext,
-        time: action.newTime ?? 0
-      }
+      return { ...currentContext, time: action.time ?? 0 }
+    case 'stopTime':
+      return { ...currentContext, stopTime: action.stopTime }
     default:
       return currentContext;
   }

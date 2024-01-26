@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { AnnotationMethod } from "../../enum";
+import { AnnotationMethod } from "../../enum/annotation.enum.tsx";
 import {
   AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
   UserList, useUsersAPI

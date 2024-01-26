@@ -1,4 +1,4 @@
-import { FC, FormEvent, useEffect, useState } from 'react';
+import { FC, FormEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 import {
   useAnnotationCampaignAPI,
@@ -7,7 +7,7 @@ import {
   UserList, useUsersAPI,
   DatasetList, DatasetListItem, DatasetListItemSpectros, useDatasetsAPI
 } from "../../services/api";
-import { AnnotationMethod, AnnotationMode } from '../../enum';
+import { AnnotationMethod, AnnotationMode } from '../../enum/annotation.enum.tsx';
 import { AnnotationMethodSelectComponent } from "./annotation-method-select.component.tsx";
 import { AnnotationGoalCreateInputComponent } from "./annotation-goal-create-input.component.tsx";
 import { AnnotatorsSelectComponent } from "./annotators-select.component.tsx";
@@ -71,10 +71,10 @@ export const CreateAnnotationCampaign: FC = () => {
     }
   }, [])
 
-  useEffect(() => {
+  useCallback(() => {
     setSpectrogramConfigurations(selectedDataset?.spectros);
     setSelectedSpectrogramConfigurations([]);
-  }, [selectedDataset])
+  }, [selectedDataset]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

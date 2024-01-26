@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { AnnotationMethod } from "../../enum";
+import { AnnotationMethod } from "../../enum/annotation.enum.tsx";
 
 export const AnnotationMethodSelectComponent: FC<{
   annotationMethod: AnnotationMethod,

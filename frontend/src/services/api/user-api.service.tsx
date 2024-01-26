@@ -1,5 +1,5 @@
 import { get, SuperAgentRequest } from "superagent";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 
@@ -29,12 +29,10 @@ class UserAPIService extends APIService<List, never, never> {
 
 export const useUsersAPI = () => {
   const { context, catch401 } = useAuthService();
+  const service = useMemo(() => new UserAPIService('/api/user', catch401), [catch401]);
 
   useEffect(() => {
     service.auth = context;
-  }, [context])
-
-  const service = new UserAPIService('/api/user', catch401);
-
+  }, [context, service])
   return service;
 }

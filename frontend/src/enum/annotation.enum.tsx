@@ -5,8 +5,13 @@ export enum AnnotationTaskStatus {
 }
 
 export enum AnnotationMode {
-  boxes = 1,
-  wholeFile = 2
+  boxes = 0,
+  wholeFile = 1
+}
+
+export enum AnnotationType {
+  box = 'box',
+  tag = "tag"
 }
 
 export enum AnnotationMethod {

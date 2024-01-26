@@ -1,6 +1,6 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { APIService } from "./api-service.util.tsx";
 import { useAuthService } from "../auth";
 
@@ -103,12 +103,12 @@ class DatasetAPIService extends APIService<List, never, never> {
 }
 
 export const useDatasetsAPI = () => {
-  const { context, catch401 } = useAuthService();
+  const {context, catch401} = useAuthService();
+
+  const service = useMemo(() => new DatasetAPIService('/api/dataset', catch401), [catch401]);
 
   useEffect(() => {
-    service.auth = context
-  }, [context])
-
-  const service = new DatasetAPIService('/api/dataset', catch401);
+    service.auth = context;
+  }, [context, service])
   return service;
 }

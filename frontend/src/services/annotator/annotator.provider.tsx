@@ -1,17 +1,17 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useReducer } from "react";
+import { AnnotatorCtxInit, AnnotatorContext, AnnotatorDispatchContext } from "./annotator.context.tsx";
+import { annotatorReducer } from "./annotator.reducer.tsx";
 import { ProvideAudio } from "./audio";
-import { ProvideTask } from "./task/task.reducer.tsx";
-import { ProvideAnnotation } from "./annotation/annotation.reducer.tsx";
-import { ProvideAnnotationTag } from "./annotation-tag/annotation-tag.reducer.tsx";
 
-export const ProvideAnnotator: FC<{ children: ReactNode }> = ({ children }) => (
-  <ProvideAudio>
-    <ProvideTask>
-        <ProvideAnnotation>
-          <ProvideAnnotationTag>
-            { children }
-          </ProvideAnnotationTag>
-        </ProvideAnnotation>
-    </ProvideTask>
-  </ProvideAudio>
-)
+export const ProvideAnnotator: FC<{ children: ReactNode }> = ({ children }) => {
+  const [context, dispatch] = useReducer(annotatorReducer, AnnotatorCtxInit);
+  return (
+    <AnnotatorContext.Provider value={ context }>
+      <AnnotatorDispatchContext.Provider value={ dispatch }>
+        <ProvideAudio>
+          { children }
+        </ProvideAudio>
+      </AnnotatorDispatchContext.Provider>
+    </AnnotatorContext.Provider>
+  )
+}

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { put, SuperAgentRequest } from "superagent";
-import { AnnotationMode, AnnotationTaskStatus } from "../../enum";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
+import { AnnotationMode, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -95,7 +95,7 @@ interface Update {
   task_start_time: number,
   task_end_time: number,
 }
-interface UpdateResult {
+export interface UpdateResult {
   next_task: number;
   campaign_id: number;
 }
@@ -123,7 +123,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
     }))
   }
 
-  public addAnnotation(taskID: number,
+  public addAnnotation(taskID: string | number,
                        data: AddAnnotation): Promise<number> {
     this.addAnnotationRequest = put(`${ this.URI }/one-result/${ taskID }/`)
       .set("Authorization", this.auth!.bearer!)
@@ -149,11 +149,10 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
 export const useAnnotationTaskAPI = () => {
   const {context, catch401} = useAuthService();
 
+  const service = useMemo(() => new AnnotationTaskAPIService('/api/annotation-task', catch401), [catch401]);
+
   useEffect(() => {
     service.auth = context;
-  }, [context])
-
-  const service = new AnnotationTaskAPIService('/api/annotation-task', catch401);
-
+  }, [context, service])
   return service;
 }

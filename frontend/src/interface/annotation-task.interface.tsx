@@ -1,19 +1,23 @@
 import { AnnotationMode } from "../enum";
+import { ConfidenceIndicatorSet } from "./confidence-indicator.interface.tsx";
+import { SpectroUrlsParams } from "./spectrogram.interface.tsx";
 
 export interface AnnotationTask {
-  id: string;
+  id: number;
   instructions_url?: string;
-  campaignId: string;
+  campaignId: number;
   audioUrl: string;
+  audioRate: number;
   duration: number;
   prevAndNextAnnotation: {
-    prev: string;
-    next: string;
+    prev: number;
+    next: number;
   };
-  confidenceIndicatorSet?: any;
+  confidenceIndicatorSet?: ConfidenceIndicatorSet;
   boundaries: AnnotationTaskBoundaries;
   annotationTags: Array<string>;
   annotationScope: AnnotationMode;
+  spectroUrls: Array<SpectroUrlsParams>,
   // TODO
 }
 

@@ -62,7 +62,7 @@ export const DatasetList: React.FC = () => {
   return (
     <div className="col-sm-9 border rounded" id="content">
       <h1 className="text-center">Datasets</h1>
-      <Toast toastMsg={ toastMsg }></Toast>
+      <Toast toastMessage={ toastMsg }></Toast>
       <table className="table table-bordered">
         <thead>
         <tr>

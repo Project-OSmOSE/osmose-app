@@ -1,19 +1,19 @@
 import { Context, createContext, Dispatch, useContext } from "react";
-import { AudioPlayStatus } from "../../../enum";
+import { AudioPlayStatus } from "../../../enum/audio.enum.tsx";
 
 
 export interface AudioCtx {
   time: number;
   state: AudioPlayStatus;
   element?: HTMLAudioElement;
+  stopTime?: number
 }
-type AudioCtxActionType = 'element' | 'state' | 'time';
-export interface AudioCtxAction {
-  type: AudioCtxActionType;
-  element?: HTMLAudioElement;
-  newState?: AudioPlayStatus;
-  newTime?: number;
-}
+
+export type AudioCtxAction =
+  { type: 'element', element?: HTMLAudioElement } |
+  { type: 'state', state: AudioPlayStatus } |
+  { type: 'time', time?: number } |
+  { type: 'stopTime', stopTime?: number };
 
 export const AudioCtxInitialValue: AudioCtx = {
   time: 0,

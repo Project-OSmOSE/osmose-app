@@ -3,7 +3,7 @@ import { FC } from "react";
 export const AnnotationGoalEditInputComponent: FC<{
   annotationGoal: number,
   setAnnotationGoal: (annotationGoal: number) => void,
-}> = ({startDate, setAnnotationGoal}) => {
+}> = ({annotationGoal, setAnnotationGoal}) => {
 
   return (
     <div className="form-group row">
@@ -13,7 +13,7 @@ export const AnnotationGoalEditInputComponent: FC<{
                className="form-control"
                type="number"
                min={ 0 }
-               value={ startDate }
+               value={ annotationGoal }
                onChange={ e => setAnnotationGoal(+e.currentTarget.value) }/>
       </div>
     </div>

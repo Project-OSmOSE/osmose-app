@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AnnotationTaskStatus } from "../enum";
 import {
   AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
   AnnotationTaskList as List, useAnnotationTaskAPI
 } from "../services/api";
+import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -33,7 +33,7 @@ export const AnnotationTaskList: React.FC = () => {
       taskService.abort();
       campaignService.abort();
     }
-  }, [campaignID]);
+  }, [campaignID, campaignService, taskService]);
 
   if (error) {
     return (
