@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from "react";
 import { post, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 import { AnnotationMethod, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
@@ -158,9 +157,9 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 
   public addAnnotators(campaignId: number, data: AddAnnotators) {
     this.addAnnotatorsRequest = post(`${this.URI}/${campaignId}/add_annotators`)
-      .set("Authorization", this.auth!.bearer!)
+      .set("Authorization", this.auth.bearer)
       .send(data);
-    return this.addAnnotatorsRequest.then(r => r.body).catch(this.catch401)
+    return this.addAnnotatorsRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
   abort() {
@@ -170,12 +169,6 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 }
 
 export const useAnnotationCampaignAPI = () => {
-  const {context, catch401} = useAuthService();
-  const service = useMemo(() => new AnnotationCampaignAPIService('/api/annotation-campaign', catch401), [catch401]);
-
-  useEffect(() => {
-    service.auth = context;
-  }, [context, service])
-
-  return service;
+  const auth = useAuthService();
+  return new AnnotationCampaignAPIService('/api/annotation-campaign', auth);
 }

@@ -20,7 +20,7 @@ import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx"
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
 
 const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
-  const { dispatch } = useAuthService();
+  const auth = useAuthService();
   return (
     <div className="px-5 mx-5">
       <div className="row text-center">
@@ -34,7 +34,7 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
             <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
             <br/>
             <li>
-              <button className="btn btn-secondary" onClick={ () => dispatch!({ type: 'logout' }) }>Logout</button>
+              <button className="btn btn-secondary" onClick={ auth.logout.bind(auth) }>Logout</button>
             </li>
           </ul>
         </div>

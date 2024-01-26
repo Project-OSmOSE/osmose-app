@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from "react";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 
@@ -11,14 +10,18 @@ export type ListItem = {
   tags: Array<string>;
 }
 
+export class AnnotationCommentAPIService extends APIService<List, never, never> {
+  retrieve(): Promise<never> {
+    throw 'Unimplemented';
+  }
+
+  create(): Promise<never> {
+    throw 'Unimplemented';
+  }
+}
+
+
 export const useAnnotationSetAPI = () => {
-  const { context, catch401 } = useAuthService();
-
-  const service = useMemo(() => new APIService<List, never, never>('/api/annotation-set', catch401), [catch401]);
-
-  useEffect(() => {
-    service.auth = context;
-  }, [context, service])
-
-  return service;
+  const auth = useAuthService();
+  return new AnnotationCommentAPIService('/api/annotation-set', auth);
 }

@@ -1,5 +1,4 @@
 import { get, SuperAgentRequest } from "superagent";
-import { useEffect, useMemo } from "react";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 
@@ -16,8 +15,8 @@ class UserAPIService extends APIService<List, never, never> {
 
   public isStaff(): Promise<boolean> {
     this.isStaffRequest?.abort();
-    this.isStaffRequest = get(`${ this.URI }/is_staff`).set("Authorization", this.auth!.bearer!);
-    return this.isStaffRequest.then(r => r.body.is_staff).catch(this.catch401)
+    this.isStaffRequest = get(`${ this.URI }/is_staff`).set("Authorization", this.auth.bearer);
+    return this.isStaffRequest.then(r => r.body.is_staff).catch(this.auth.catch401.bind(this.auth))
   }
 
   public abort() {
@@ -25,14 +24,16 @@ class UserAPIService extends APIService<List, never, never> {
     this.isStaffRequest?.abort();
   }
 
+  retrieve(): Promise<never> {
+    throw 'Unimplemented';
+  }
+
+  create(): Promise<never> {
+    throw 'Unimplemented';
+  }
 }
 
 export const useUsersAPI = () => {
-  const { context, catch401 } = useAuthService();
-  const service = useMemo(() => new UserAPIService('/api/user', catch401), [catch401]);
-
-  useEffect(() => {
-    service.auth = context;
-  }, [context, service])
-  return service;
+  const auth = useAuthService();
+  return new UserAPIService('/api/user', auth);
 }

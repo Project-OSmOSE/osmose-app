@@ -1,13 +1,19 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
 import { useAuthService } from "../../services/auth";
 
 export const AuthenticatedRoute: FC<{ children?: ReactNode } & any> = ({ children, ...params }) => {
-  const { context } = useAuthService();
+  const auth = useAuthService();
+  const [canAccess, setCanAccess] = useState<boolean>(true);
+
+  useEffect(() => {
+    setCanAccess(auth.isConnected())
+  }, [])
+
   return (
     <Route { ...params }
            render={ ({ location }) =>
-             context.token ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
+             canAccess ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
            }/>
   )
 }

@@ -1,6 +1,5 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
-import { useEffect, useMemo } from "react";
 import { APIService } from "./api-service.util.tsx";
 import { useAuthService } from "../auth";
 
@@ -80,19 +79,19 @@ class DatasetAPIService extends APIService<List, never, never> {
   }
 
   public listToImport(): Promise<ListToImport> {
-    this.listToImportRequest = get(`${ this.URI }/list_to_import`).set("Authorization", this.auth!.bearer!);
+    this.listToImportRequest = get(`${ this.URI }/list_to_import`).set("Authorization", this.auth.bearer);
     return this.listToImportRequest.then(r => r.body.map((d: any) => ({
       ...d,
       id: uuidV4()
-    }))).catch(this.catch401);
+    }))).catch(this.auth.catch401.bind(this.auth));
   }
 
   public importDatasets(data: ListToImport): Promise<ListToImport> {
     this.importRequest = post(`${ this.URI }/datawork_import/`)
-      .set("Authorization", this.auth!.bearer!)
+      .set("Authorization", this.auth.bearer)
       .set("Accept", "application/json")
       .send({ 'wanted_datasets': data });
-    return this.importRequest.then(r => r.body).catch(this.catch401);
+    return this.importRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth));
   }
 
   public abort() {
@@ -100,15 +99,17 @@ class DatasetAPIService extends APIService<List, never, never> {
     this.listToImportRequest?.abort();
     this.importRequest?.abort();
   }
+
+  retrieve(): Promise<never> {
+    throw 'Unimplemented';
+  }
+
+  create(): Promise<never> {
+    throw 'Unimplemented';
+  }
 }
 
 export const useDatasetsAPI = () => {
-  const {context, catch401} = useAuthService();
-
-  const service = useMemo(() => new DatasetAPIService('/api/dataset', catch401), [catch401]);
-
-  useEffect(() => {
-    service.auth = context;
-  }, [context, service])
-  return service;
+  const auth = useAuthService();
+  return new DatasetAPIService('/api/dataset', auth);
 }

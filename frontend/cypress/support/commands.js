@@ -25,14 +25,10 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('login', (username, password) => {
-  cy.request({
-    method: 'POST',
-    url: 'http://localhost:8000/api/token/', // baseUrl is prepend to URL
-    body: {
-      username: username,
-      password: password,
-    },
-  }).then((response) => {
-    cy.setCookie('token', response.body.access)
-  })
+  cy.visit(Cypress.env('aploseURL'))
+  cy.get("#loginInput").click();
+  cy.get("#loginInput").type(username);
+  cy.get("#passwordInput").click();
+  cy.get("#passwordInput").type(password);
+  cy.contains("Submit").click()
 })

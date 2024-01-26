@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from "react";
 import { put, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
@@ -126,17 +125,17 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   public addAnnotation(taskID: string | number,
                        data: AddAnnotation): Promise<number> {
     this.addAnnotationRequest = put(`${ this.URI }/one-result/${ taskID }/`)
-      .set("Authorization", this.auth!.bearer!)
+      .set("Authorization", this.auth.bearer)
       .send(data);
-    return this.addAnnotationRequest.then(r => r.body.id).catch(this.catch401)
+    return this.addAnnotationRequest.then(r => r.body.id).catch(this.auth.catch401.bind(this.auth))
   }
 
   public update(taskID: number,
                 data: Update): Promise<UpdateResult> {
     this.addAnnotationRequest = put(`${ this.URI }/${ taskID }/`)
-      .set("Authorization", this.auth!.bearer!)
+      .set("Authorization", this.auth.bearer)
       .send(data);
-    return this.addAnnotationRequest.then(r => r.body).catch(this.catch401)
+    return this.addAnnotationRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
   abort() {
@@ -144,15 +143,13 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
     this.addAnnotationRequest?.abort();
     this.updateRequest?.abort();
   }
+
+  create(): Promise<never> {
+    throw 'Unimplemented';
+  }
 }
 
 export const useAnnotationTaskAPI = () => {
-  const {context, catch401} = useAuthService();
-
-  const service = useMemo(() => new AnnotationTaskAPIService('/api/annotation-task', catch401), [catch401]);
-
-  useEffect(() => {
-    service.auth = context;
-  }, [context, service])
-  return service;
+  const auth = useAuthService();
+  return new AnnotationTaskAPIService('/api/annotation-task', auth);
 }

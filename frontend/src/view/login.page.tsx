@@ -9,17 +9,17 @@ export const Login: FC = () => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>();
 
-  const { context, login, abort } = useAuthService();
+  const auth = useAuthService();
   const history = useHistory();
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/' } };
 
   // Abort calls on view leave
-  useEffect(() => () => abort(), []);
+  useEffect(() => () => auth.abort(), []);
 
   useCallback(() => {
-    if (context.token) history.replace(from);
-  }, [context])
+    if (auth.isConnected()) history.replace(from);
+  }, [auth.bearer])
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.currentTarget.value.trim());
@@ -34,7 +34,7 @@ export const Login: FC = () => {
     setError(undefined);
 
     try {
-      await login(username, password);
+      await auth.login(username, password);
       history.replace(from);
     } catch (e: any) {
       setError(buildErrorMessage(e))

@@ -1,11 +1,20 @@
-import { AuthAction, useAuthContext, useAuthDispatch } from "./auth.context.tsx";
-import { Dispatch } from "react";
+import { Auth, AuthAction, useAuthContext, useAuthDispatch } from "./auth.context.tsx";
+import { Dispatch, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { History, LocationState } from "history";
 
-class AuthAPIService {
+export class AuthAPIService {
   private readonly URI = '/api/token/';
   private readonly controller = new AbortController();
 
-  constructor(private dispatch: Dispatch<AuthAction>) {
+  context?: Auth;
+
+  get bearer(): string {
+    return `Bearer ${ this.context?.token }`
+  }
+
+  constructor(private dispatch: Dispatch<AuthAction>,
+              private history: History<LocationState>) {
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -23,6 +32,25 @@ class AuthAPIService {
     });
   }
 
+  isConnected(): boolean {
+    if (!document.cookie) return false;
+    const value = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
+    const token = value?.split('=').pop()
+    if (!token) return false;
+    this.dispatch({ type: 'login', token });
+    return true;
+  }
+
+  logout() {
+    this.dispatch({ type: 'logout' });
+    this.history.push('/login');
+  }
+
+  catch401(e: any) {
+    if (e?.status !== 401) throw e;
+    this.logout();
+  }
+
   abort() {
     this.controller.abort('Abort requested by the user');
   }
@@ -30,17 +58,14 @@ class AuthAPIService {
 
 export const useAuthService = () => {
   const dispatch = useAuthDispatch();
+  const context = useAuthContext();
+  const history = useHistory();
 
-  const api = new AuthAPIService(dispatch!);
+  const api = new AuthAPIService(dispatch!, history);
 
-  return {
-    context: useAuthContext(),
-    dispatch,
-    login: api.login.bind(api),
-    catch401: (e: any) => {
-      if (e?.status !== 401) throw e;
-      dispatch!({ type: 'logout' });
-    },
-    abort: api.abort.bind(api)
-  }
+  useEffect(() => {
+    api.context = context;
+  }, [context])
+
+  return api;
 }

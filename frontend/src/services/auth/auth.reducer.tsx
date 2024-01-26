@@ -1,4 +1,4 @@
-import { FC, ReactNode, Reducer, useEffect, useReducer } from "react";
+import { FC, ReactNode, Reducer, useReducer } from "react";
 import { AuthContext, AuthDispatchContext, Auth, AuthAction } from "./auth.context.tsx";
 
 const authReducer: Reducer<Auth, AuthAction> = (_: Auth, action: AuthAction): Auth => {
@@ -11,21 +11,12 @@ const authReducer: Reducer<Auth, AuthAction> = (_: Auth, action: AuthAction): Au
       document.cookie = `token=${ action.token };max-age=28000;path=/`;
       return {
         token: action.token,
-        bearer: `Bearer ${ action.token }`
       };
   }
 }
 
 export const ProvideAuth: FC<{ children?: ReactNode }> = ({ children }) => {
   const [auth, dispatch] = useReducer(authReducer, {});
-
-  useEffect(() => {
-    if (!document.cookie) return;
-    const value = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
-    const token = value?.split('=').pop()
-    if (!token) return;
-    dispatch({ type: 'login', token })
-  }, [])
 
   return (
     <AuthContext.Provider value={ auth }>

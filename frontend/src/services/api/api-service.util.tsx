@@ -1,9 +1,7 @@
 import { get, post, SuperAgentRequest } from "superagent";
-import { Auth } from "../auth";
+import { AuthAPIService } from "../auth/auth.service.tsx";
 
 export class APIService<List, Retrieve, Create>{
-
-  public auth?: Auth;
 
   private listRequest?: SuperAgentRequest;
   private retrieveRequest?: SuperAgentRequest;
@@ -12,22 +10,22 @@ export class APIService<List, Retrieve, Create>{
   private downloadURL: Map<string, string> = new Map();
 
   constructor(protected URI: string,
-              protected catch401: (e: any) => void) {
+              protected auth: AuthAPIService) {
   }
 
   public list(url?: string): Promise<List> {
-    this.listRequest = get(url ?? this.URI).set("Authorization", this.auth!.bearer!);
-    return this.listRequest.then(r => r.body).catch(this.catch401)
+    this.listRequest = get(url ?? this.URI).set("Authorization", this.auth.bearer);
+    return this.listRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
   public retrieve(id: string): Promise<Retrieve> {
-    this.retrieveRequest = get(`${ this.URI }/${ id }`).set("Authorization", this.auth!.bearer!);
-    return this.retrieveRequest.then(r => r.body).catch(this.catch401)
+    this.retrieveRequest = get(`${ this.URI }/${ id }`).set("Authorization", this.auth.bearer);
+    return this.retrieveRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
   public create(data: object, url?: string): Promise<Create> {
-    this.createRequest = post(url ?? `${ this.URI }/`).set("Authorization", this.auth!.bearer!).send(data);
-    return this.createRequest.then(r => r.body).catch(this.catch401)
+    this.createRequest = post(url ?? `${ this.URI }/`).set("Authorization", this.auth.bearer).send(data);
+    return this.createRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
   public abort(): void {
@@ -44,7 +42,7 @@ export class APIService<List, Retrieve, Create>{
     const formerURL= this.downloadURL.get(requestURL);
     if (formerURL) URL.revokeObjectURL(formerURL);
 
-    const request = get(requestURL).set("Authorization", this.auth!.bearer!);
+    const request = get(requestURL).set("Authorization", this.auth.bearer);
     this.downloadRequests.set(requestURL, request);
 
     const result = await request
