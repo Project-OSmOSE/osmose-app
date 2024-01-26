@@ -1,8 +1,5 @@
-import { Context, createContext, Dispatch, FC, ReactNode, Reducer, useEffect, useReducer } from "react";
-import { Auth, AuthAction } from "./auth.context.tsx";
-
-const AuthContext: Context<Auth> = createContext<Auth>({});
-const AuthDispatchContext: Context<Dispatch<AuthAction> | undefined> = createContext<Dispatch<AuthAction> | undefined>(undefined);
+import { FC, ReactNode, Reducer, useEffect, useReducer } from "react";
+import { AuthContext, AuthDispatchContext, Auth, AuthAction } from "./auth.context.tsx";
 
 const authReducer: Reducer<Auth, AuthAction> = (_: Auth, action: AuthAction): Auth => {
   switch (action.type) {

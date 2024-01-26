@@ -22,6 +22,6 @@ describe('login page', () => {
 
         cy.contains("Submit").click();
 
-        cy.get('.error-message').should('have.text', 'Access denied')
+        cy.get('.error-message').should('have.text', 'No active account found with the given credentials')
     });
 })

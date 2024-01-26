@@ -1,30 +1,46 @@
-import { useAuthContext, useAuthDispatch } from "./auth.context.tsx";
-import { post, SuperAgentRequest } from "superagent";
-import { useState } from "react";
+import { AuthAction, useAuthContext, useAuthDispatch } from "./auth.context.tsx";
+import { Dispatch } from "react";
 
-const _URI = '/api/token/';
+class AuthAPIService {
+  private readonly URI = '/api/token/';
+  private readonly controller = new AbortController();
+
+  constructor(private dispatch: Dispatch<AuthAction>) {
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    const response = await fetch(this.URI, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+      signal: this.controller.signal,
+    });
+    if (response.status !== 200) throw (await response.json()).detail ?? response.statusText
+    const data = await response.json();
+    this.dispatch({
+      type: 'login',
+      token: data.access
+    });
+  }
+
+  abort() {
+    this.controller.abort('Abort requested by the user');
+  }
+}
 
 export const useAuthService = () => {
-  const [request, setRequest] = useState<SuperAgentRequest | undefined>();
   const dispatch = useAuthDispatch();
+
+  const api = new AuthAPIService(dispatch!);
+
   return {
     context: useAuthContext(),
     dispatch,
-    login: async (username: string, password: string): Promise<void> => {
-      const request = post(_URI).send({ username, password });
-      setRequest(request);
-      const token = await request.then(r => r.body.access);
-      dispatch!({
-        type: 'login',
-        token
-      });
-    },
+    login: api.login.bind(api),
     catch401: (e: any) => {
       if (e?.status !== 401) throw e;
       dispatch!({ type: 'logout' });
     },
-    abort: () => {
-      request?.abort();
-    }
+    abort: api.abort.bind(api)
   }
 }

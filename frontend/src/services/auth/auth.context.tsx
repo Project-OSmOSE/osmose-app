@@ -10,8 +10,8 @@ export interface AuthAction {
   token?: string;
 }
 
-const _AuthContext: Context<Auth> = createContext<Auth>({});
-const _AuthDispatchContext: Context<Dispatch<AuthAction> | undefined> = createContext<Dispatch<AuthAction> | undefined>(undefined);
+export const AuthContext: Context<Auth> = createContext<Auth>({});
+export const AuthDispatchContext: Context<Dispatch<AuthAction> | undefined> = createContext<Dispatch<AuthAction> | undefined>(undefined);
 
-export const useAuthContext = () => useContext(_AuthContext);
-export const useAuthDispatch = () => useContext(_AuthDispatchContext);
+export const useAuthContext = () => useContext(AuthContext);
+export const useAuthDispatch = () => useContext(AuthDispatchContext);
