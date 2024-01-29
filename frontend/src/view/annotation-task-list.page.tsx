@@ -33,7 +33,7 @@ export const AnnotationTaskList: React.FC = () => {
       taskService.abort();
       campaignService.abort();
     }
-  }, [campaignID, campaignService, taskService]);
+  }, [campaignID]);
 
   if (error) {
     return (

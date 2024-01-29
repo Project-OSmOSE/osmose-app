@@ -80,8 +80,6 @@ export const CreateAnnotationCampaign: FC = () => {
     event.preventDefault();
     setError(undefined)
     try {
-      console.debug(selectedDataset ? [selectedDataset] : [])
-
       await campaignService.create({
         name: name?.trim() || 'Unnamed Campaign',
         desc: description?.trim(),

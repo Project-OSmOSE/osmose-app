@@ -14,8 +14,12 @@ export const Login: FC = () => {
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/' } };
 
-  // Abort calls on view leave
-  useEffect(() => () => auth.abort(), []);
+  useEffect(() => {
+    if (auth.isConnected()) history.replace(from);
+
+    // Abort calls on view leave
+    return () => auth.abort()
+  }, []);
 
   useCallback(() => {
     if (auth.isConnected()) history.replace(from);
@@ -40,7 +44,6 @@ export const Login: FC = () => {
       setError(buildErrorMessage(e))
     }
   }
-
 
   return (
     <div className="container">

@@ -53,7 +53,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       campaignService.abort();
       userService.abort();
     }
-  }, [campaignID, campaignService, userService])
+  }, [campaignID])
 
   if (error) {
     return (

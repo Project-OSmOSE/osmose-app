@@ -40,7 +40,6 @@ export const DatasetList: React.FC = () => {
       try {
         toastMessage = JSON.parse(error?.response.text)
       } catch (jsonError) {
-        console.debug(error)
         toastMessage = error?.response?.text ?? error.message
       }
       setToastMsg({ messages: [toastMessage], level: "danger" })

@@ -1,7 +1,6 @@
 describe('datasets page', () => {
     beforeEach(() => {
         cy.login("admin", "osmose29")
-        cy.visit(Cypress.env('aploseURL'))
         cy.contains("Datasets").click()
     })
 

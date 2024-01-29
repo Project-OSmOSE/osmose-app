@@ -10,7 +10,16 @@ export class AuthAPIService {
   context?: Auth;
 
   get bearer(): string {
-    return `Bearer ${ this.context?.token }`
+    return `Bearer ${ this.token }`
+  }
+
+  private get token(): string | undefined {
+    if (this.context?.token) return this.context?.token;
+    if (!document.cookie) return undefined;
+    const value = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
+    const token = value?.split('=').pop()
+    if (!token) return undefined;
+    return token;
   }
 
   constructor(private dispatch: Dispatch<AuthAction>,
@@ -24,7 +33,7 @@ export class AuthAPIService {
       body: JSON.stringify({ username, password }),
       signal: this.controller.signal,
     });
-    if (response.status !== 200) throw (await response.json()).detail ?? response.statusText
+    if (response.status !== 200) throw (await response.json()).detail ?? response.statusText;
     const data = await response.json();
     this.dispatch({
       type: 'login',
@@ -33,9 +42,8 @@ export class AuthAPIService {
   }
 
   isConnected(): boolean {
-    if (!document.cookie) return false;
-    const value = document.cookie.split(';').filter((item) => item.trim().startsWith('token='))[0];
-    const token = value?.split('=').pop()
+    if (this.context?.token) return true;
+    const token = this.token;
     if (!token) return false;
     this.dispatch({ type: 'login', token });
     return true;
