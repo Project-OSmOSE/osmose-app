@@ -12,7 +12,7 @@ export const AnnotatorsSelectComponent: FC<{
 }> = ({ users, annotators, annotationGoal, setUsers, setAnnotators, setAnnotationGoal }) => {
 
   const handleAddAnnotator = (id: number) => {
-    const user = users?.find(u => u.id !== id);
+    const user = users?.find(u => u.id === id);
     if (!user) return;
     setAnnotators([...(annotators ?? []), user])
     setUsers(users?.filter(u => u.id !== id))
@@ -20,7 +20,7 @@ export const AnnotatorsSelectComponent: FC<{
   }
 
   const handleRemoveAnnotator = (id: number) => {
-    const user = annotators?.find(u => u.id !== id);
+    const user = annotators?.find(u => u.id === id);
     if (!user) return;
     setAnnotators(annotators?.filter(u => u.id !== id))
     setUsers([...(users ?? []), user])

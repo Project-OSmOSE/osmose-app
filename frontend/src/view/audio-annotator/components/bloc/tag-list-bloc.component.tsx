@@ -17,6 +17,7 @@ export const TagListBloc: React.FC = () => {
           { context.task?.annotationTags.map((tag, key) => (
             <TagItem tag={ tag }
                      key={ key }
+                     id={ key }
                      isEnabled={ context.tags.array.includes(tag) }
                      isActive={ context.tags.focus === tag }></TagItem>
           )) }
@@ -28,14 +29,14 @@ export const TagListBloc: React.FC = () => {
 
 interface ItemProps {
   tag: string,
-  key: number,
+  id: number,
   isEnabled: boolean,
   isActive: boolean,
 }
 
 const TagItem: React.FC<ItemProps> = ({
                                         tag,
-                                        key,
+                                        id,
                                         isEnabled,
                                         isActive,
                                       }) => {
@@ -55,12 +56,10 @@ const TagItem: React.FC<ItemProps> = ({
   };
 
   return (
-    <OverlayTrigger overlay={ <TooltipComponent id={ key } hide={ !isEnabled }></TooltipComponent> }
-                    key={ `tag-overlay-${ key.toString() }` }
+    <OverlayTrigger overlay={ <TooltipComponent id={ id } hide={ !isEnabled }></TooltipComponent> }
                     placement="top">
-      <li key={ `tag-${ key.toString() }` }>
-        <button id={ `tags_key_shortcuts_${ key.toString() }` }
-                className={ isEnabled ? `btn pulse__${ key }--active` : 'btn' }
+      <li>
+        <button className={ isEnabled ? `btn pulse__${ id }--active` : 'btn' }
                 style={ isActive ? style.active : style.inactive }
                 onClick={ () => tags.focus(tag) }
                 type="button"

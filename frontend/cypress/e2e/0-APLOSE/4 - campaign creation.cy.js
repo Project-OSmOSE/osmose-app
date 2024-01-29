@@ -1,8 +1,6 @@
 describe('create campaign', () => {
     beforeEach(() => {
         cy.login("admin", "osmose29")
-        cy.visit(Cypress.env('aploseURL'))
-        cy.contains("Annotation campaigns").click()
         cy.contains('New annotation campaign', {matchCase: false}).click()
     })
 

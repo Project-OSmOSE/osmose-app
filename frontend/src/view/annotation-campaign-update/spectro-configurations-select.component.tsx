@@ -7,27 +7,27 @@ export const SpectroConfigurationsSelectComponent: FC<{
   setAvailableSpectroConfigurations: (availableSpectroConfigurations: Array<DatasetListItemSpectros>) => void,
   selectedSpectroConfigurations: Array<DatasetListItemSpectros>,
   setSelectedSpectroConfigurations: (selectedSpectroConfigurations: Array<DatasetListItemSpectros>) => void,
-}> = ({ availableDatasets, setAvailableSpectroConfigurations, selectedSpectroConfigurations, setSelectedSpectroConfigurations, }) => {
+}> = ({ availableSpectroConfigurations, setAvailableSpectroConfigurations, selectedSpectroConfigurations, setSelectedSpectroConfigurations, }) => {
 
   const handleAddSpectro = (id: number) => {
-    const config = availableDatasets?.find(s => s.id === id);
-    if (!availableDatasets || !config) return;
+    const config = availableSpectroConfigurations?.find(s => s.id === id);
+    if (!availableSpectroConfigurations || !config) return;
     setSelectedSpectroConfigurations([...(selectedSpectroConfigurations ?? []), config])
-    setAvailableSpectroConfigurations(availableDatasets?.filter(s => s.id !== id))
+    setAvailableSpectroConfigurations(availableSpectroConfigurations?.filter(s => s.id !== id))
   }
 
   const handleRemoveSpectro = (id: number) => {
     const config = selectedSpectroConfigurations?.find(s => s.id === id);
     if (!config) return;
     setSelectedSpectroConfigurations(selectedSpectroConfigurations?.filter(s => s.id !== id))
-    setAvailableSpectroConfigurations([...(availableDatasets ?? []), config])
+    setAvailableSpectroConfigurations([...(availableSpectroConfigurations ?? []), config])
   }
 
-  if (!availableDatasets) return <Fragment/>
+  if (!availableSpectroConfigurations) return <Fragment/>
   return (
     <div className="form-group">
       <ListChooser choice_type="spectro"
-                   choices_list={ [...new Set(availableDatasets.sort((a, b) => a.name.localeCompare(b.name)))] }
+                   choices_list={ [...new Set(availableSpectroConfigurations.sort((a, b) => a.name.localeCompare(b.name)))] }
                    chosen_list={ selectedSpectroConfigurations }
                    onSelectChange={ handleAddSpectro }
                    onDelClick={ handleRemoveSpectro }/>

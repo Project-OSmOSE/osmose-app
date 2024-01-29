@@ -6,11 +6,14 @@ export interface AudioCtx {
   time: number;
   state: AudioPlayStatus;
   element?: HTMLAudioElement;
-  stopTime?: number
+  stopTime?: number;
+  playbackRate?: number;
+  src?: string;
 }
 
 export type AudioCtxAction =
-  { type: 'element', element?: HTMLAudioElement } |
+  { type: 'element', element?: HTMLAudioElement, forSrc?: string } |
+  { type: 'playbackRate', playbackRate: number } |
   { type: 'state', state: AudioPlayStatus } |
   { type: 'time', time?: number } |
   { type: 'stopTime', stopTime?: number };

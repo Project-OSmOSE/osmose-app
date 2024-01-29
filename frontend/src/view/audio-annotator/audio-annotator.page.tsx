@@ -17,7 +17,6 @@ import { formatTimestamp } from "../../services/annotator/format/format.util.tsx
 import { Toast, confirm } from "../global-components";
 import { useAudioService } from "../../services/annotator/audio";
 import { AnnotationMode } from "../../enum/annotation.enum.tsx";
-import { AudioPlayStatus } from "../../enum/audio.enum.tsx";
 import { Annotation } from "../../interface/annotation.interface.tsx";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
@@ -104,7 +103,7 @@ export const AudioAnnotator: React.FC = () => {
     annotations,
     tags,
   } = useAnnotatorService();
-  const { context: audioContext, playPause, setPlaybackRate } = useAudioService();
+  const audioService = useAudioService();
 
   useEffect(() => {
     let isCancelled = false;
@@ -214,7 +213,7 @@ export const AudioAnnotator: React.FC = () => {
   else if (context.error) return <p>Error while loading task: <code>{ context.error }</code></p>
   else if (!context.task) return <p>Unknown error while loading task.</p>
 
-  const playStatusClass = audioContext.state === AudioPlayStatus.play ? "fa-pause-circle" : "fa-play-circle";
+  const playStatusClass = audioService.isPaused ? "fa-play-circle" : "fa-pause-circle";
 
   // File data
   const fileMetadata: FileMetadata = {
@@ -279,13 +278,13 @@ export const AudioAnnotator: React.FC = () => {
       <div className="row annotator-controls">
         <p className="col-sm-1 text-right">
           <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
-                  onClick={ playPause }></button>
+                  onClick={ audioService.playPause.bind(audioService) }></button>
         </p>
         <p className="col-sm-1">
-          { !!audioContext.element?.preservesPitch &&
+          { audioService.canPreservePitch &&
               <select className="form-control select-rate"
-                      defaultValue={ audioContext.element.playbackRate }
-                      onChange={ e => setPlaybackRate(+e.target.value) }>
+                      defaultValue={ audioService.playbackRate }
+                      onChange={ e => audioService.setPlaybackRate(+e.target.value) }>
                 { AVAILABLE_RATES.map(rate => (
                   <option key={ `rate-${ rate }` } value={ rate.toString() }>{ rate.toString() }x</option>
                 )) }
@@ -298,7 +297,7 @@ export const AudioAnnotator: React.FC = () => {
           <Toast toastMessage={ context.toast }/>
         </div>
         <p className="col-sm-2 text-right">
-          { formatTimestamp(audioContext.time) }
+          { formatTimestamp(audioService.currentTime) }
           &nbsp;/&nbsp;
           { formatTimestamp(context.task!.duration) }
         </p>

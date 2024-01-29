@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
-  AnnotationTaskList as List, useAnnotationTaskAPI
+  AnnotationCampaignRetrieveCampaign,
+  AnnotationTaskList as List,
+  useAnnotationCampaignAPI,
+  useAnnotationTaskAPI
 } from "../services/api";
 import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
 
@@ -16,6 +18,7 @@ export const AnnotationTaskList: React.FC = () => {
   const [error, setError] = useState<any | undefined>(undefined);
 
   useEffect(() => {
+    document.body.scrollTo({top: 0, behavior: 'instant'})
     let isCanceled = false;
 
     setError(undefined);
@@ -83,7 +86,7 @@ export const AnnotationTaskList: React.FC = () => {
             <td>{ task.dataset_name }</td>
             <td>{ startDate.toLocaleDateString() }</td>
             <td>{ diffTime.toUTCString().split(' ')[4] }</td>
-            <td>{ task.status }</td>
+            <td>{ task.status === AnnotationTaskStatus.finished ? 'Finished' : (task.status === AnnotationTaskStatus.started ? 'Started' : 'Created') }</td>
             <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
           </tr>)
         }) }

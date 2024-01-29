@@ -56,7 +56,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
                                                onAnnotationCreated
                                              }) => {
   const { context } = useAnnotatorService();
-  const { context: audioContext, seek } = useAudioService();
+  const audioService = useAudioService();
 
   const frequencyRange = context.task!.boundaries.endFrequency - context.task!.boundaries.startFrequency
 
@@ -99,14 +99,6 @@ const Workbench: React.FC<WorkbenchProps> = ({
 
   const availableSpectroConfigsRef = useRef<Array<SpectroUrlsParams>>([])
   const currentTimeRef = useRef<number>(0)
-
-  useEffect(() => {
-
-  }, [])
-
-  useCallback(() => {
-
-  }, [])
 
   useCallback(() => { // buildSpectrogramsDetails
     if (!context.task) return;
@@ -184,7 +176,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
     const canvas = canvasRef.current;
     if (!wrapper || !canvas) return;
     const oldX: number = Math.floor(canvas.width * currentTimeRef.current / context.task!.duration);
-    const newX: number = Math.floor(canvas.width * audioContext.time / context.task!.duration);
+    const newX: number = Math.floor(canvas.width * audioService.currentTime / context.task!.duration);
 
     if ((oldX - wrapper.scrollLeft) < SPECTRO_CANVAS_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_CANVAS_WIDTH) {
       wrapper.scrollLeft += SPECTRO_CANVAS_WIDTH;
@@ -194,7 +186,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
     renderCanvas();
     renderTimeAxis();
     renderFreqAxis();
-  }, [audioContext.time]);
+  }, [audioService.currentTime]);
 
   useEffect(() => {
     renderCanvas();
@@ -400,7 +392,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
       newCenter = (xFrom - bounds.left) * newZoom / currentZoom;
     } else {
       // If no x-coordinate: center on currentTime
-      newCenter = audioContext.time * newTimePxRatio;
+      newCenter = audioService.currentTime * newTimePxRatio;
     }
     wrapper.scrollLeft = Math.floor(newCenter - SPECTRO_CANVAS_WIDTH / 2);
 
@@ -587,7 +579,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
     }
 
     // Progress bar
-    const newX: number = Math.floor(canvas.width * audioContext.time / context.task!.duration);
+    const newX: number = Math.floor(canvas.width * audioService.currentTime / context.task!.duration);
     canvasContext.fillStyle = 'rgba(0, 0, 0)';
     canvasContext.fillRect(newX, 0, 1, canvas.height);
 
@@ -679,7 +671,7 @@ const Workbench: React.FC<WorkbenchProps> = ({
                 height={ SPECTRO_CANVAS_HEIGHT }
                 width={ SPECTRO_CANVAS_WIDTH }
                 style={ style.canvas }
-                onClick={ e => seek(getTimeFromClientX(e.clientX)) }
+                onClick={ e => audioService.seek(getTimeFromClientX(e.clientX)) }
                 onPointerDown={ onStartNewAnnotation }
                 onWheel={ onWheelZoom }></canvas>
 

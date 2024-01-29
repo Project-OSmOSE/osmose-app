@@ -29,7 +29,7 @@ const Region: React.FC<RegionProps> = ({
                                          currentZoom,
                                        }) => {
   const { context, annotations } = useAnnotatorService();
-  const { playAnnotation } = useAudioService();
+  const service = useAudioService();
 
   const offsetLeft = annotation.startTime * timePxRatio;
   const freqOffset: number = (annotation.endFrequency - (context.task?.boundaries.startFrequency ?? 0)) * freqPxRatio;
@@ -86,7 +86,7 @@ const Region: React.FC<RegionProps> = ({
          style={ styles.header }>
 
         <button className="btn-simple fa fa-play-circle"
-                onClick={ () => playAnnotation(annotation) }></button>
+                onClick={ () => service.play(annotation) }></button>
 
         <span className="flex-fill text-center"
               onClick={ () => annotations.focus(annotation) }

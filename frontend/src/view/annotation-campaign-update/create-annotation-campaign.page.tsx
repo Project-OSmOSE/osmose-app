@@ -1,4 +1,4 @@
-import { FC, FormEvent, useCallback, useEffect, useState } from 'react';
+import { FC, FormEvent, useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 import {
   useAnnotationCampaignAPI,
@@ -71,7 +71,7 @@ export const CreateAnnotationCampaign: FC = () => {
     }
   }, [])
 
-  useCallback(() => {
+  useEffect(() => {
     setSpectrogramConfigurations(selectedDataset?.spectros);
     setSelectedSpectrogramConfigurations([]);
   }, [selectedDataset]);

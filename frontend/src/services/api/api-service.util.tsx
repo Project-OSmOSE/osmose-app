@@ -15,7 +15,6 @@ export class APIService<List, Retrieve, Create>{
 
   public list(url?: string): Promise<List> {
     this.listRequest = get(url ?? this.URI).set("Authorization", this.auth.bearer);
-    console.trace(' > API [list]', this.auth.bearer, this.listRequest)
     return this.listRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 
