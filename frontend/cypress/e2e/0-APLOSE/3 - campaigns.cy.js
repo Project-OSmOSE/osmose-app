@@ -1,8 +1,6 @@
 describe('campaigns page', () => {
     beforeEach(() => {
         cy.login("admin", "osmose29")
-        cy.visit(Cypress.env('aploseURL'))
-        cy.contains("Annotation campaigns").click()
     })
 
     it('displays 2 campaigns by default', () => {
