@@ -1,4 +1,8 @@
 
+
+
+
+
 export type SpectroUrlsParams = {
   nfft: number,
   winsize: number,

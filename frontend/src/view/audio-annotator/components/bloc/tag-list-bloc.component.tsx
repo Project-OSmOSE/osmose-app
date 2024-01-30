@@ -4,6 +4,7 @@ import { TooltipComponent } from "../tooltip.component.tsx";
 import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
 import { AnnotationMode } from "../../../../enum/annotation.enum.tsx";
 import { DEFAULT_COLOR } from "../../../../consts/colors.const.tsx";
+import Tooltip from "react-bootstrap/Tooltip";
 
 
 export const TagListBloc: React.FC = () => {
@@ -56,8 +57,7 @@ const TagItem: React.FC<ItemProps> = ({
   };
 
   return (
-    <OverlayTrigger overlay={ <TooltipComponent id={ id } hide={ !isEnabled }></TooltipComponent> }
-                    placement="top">
+    <OverlayTrigger overlay={ <Tooltip hidden={ !isEnabled }><TooltipComponent id={ id }/></Tooltip> } placement="top">
       <li>
         <button className={ isEnabled ? `btn pulse__${ id }--active` : 'btn' }
                 style={ isActive ? style.active : style.inactive }

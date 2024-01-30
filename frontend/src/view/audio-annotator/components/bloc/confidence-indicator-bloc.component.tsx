@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
+import Tooltip from "react-bootstrap/Tooltip";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
@@ -18,7 +19,7 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
   )
 
   return (
-    <OverlayTrigger overlay={ tooltip } placement="top">
+    <OverlayTrigger overlay={ <Tooltip>{ tooltip }</Tooltip> } placement="top">
       <div className="card">
         <h6 className="card-header text-center">Confidence indicator</h6>
         <div className="card-body">

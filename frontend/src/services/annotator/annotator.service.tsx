@@ -4,7 +4,7 @@ import {
 import { Subject } from "rxjs";
 import { useAnnotationCommentAPI, useAnnotationTaskAPI } from "../api";
 import { COLORS } from "../../consts/colors.const.tsx";
-import { AnnotationType } from "../../enum/annotation.enum.tsx";
+import { AnnotationMode, AnnotationType } from "../../enum/annotation.enum.tsx";
 import { useShortcuts } from "./other/shorcuts.service.tsx";
 import { useToasts } from "./other/toast.service.tsx";
 import { useAnnotations } from "./other/annotations.service.tsx";
@@ -14,6 +14,8 @@ import { useTasks } from "./other/tasks.service.tsx";
 import { useTags } from "./other/tags.service.tsx";
 import { useConfidences } from "./other/confidences.service.tsx";
 import { useAnnotatorContext, useAnnotatorDispatch } from "./annotator.context.tsx";
+import { buildErrorMessage } from "./format/format.util.tsx";
+import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 
 export const useAnnotatorService = () => {
   const context = useAnnotatorContext();
@@ -25,16 +27,24 @@ export const useAnnotatorService = () => {
   const taskAPI = useAnnotationTaskAPI();
   const commentAPI = useAnnotationCommentAPI();
 
-  const annotations = useAnnotations();
-  const comments = useComments(toasts, errors, annotations, taskAPI, commentAPI);
-  const tasks = useTasks(toasts, errors, annotations, taskAPI);
+  const comments = useComments();
   const tags = useTags(toasts);
   const confidences = useConfidences(toasts);
+  const annotations = useAnnotations(comments, tags, confidences);
+  const tasks = useTasks(toasts, errors, annotations, taskAPI);
 
   const keyPressedSubject = new Subject<KeyboardEvent>();
+  const pointerMoveSubject = new Subject<PointerEvent>();
+  const pointerUpSubject = new Subject<PointerEvent>();
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!context.areShortcutsEnabled) return;
     keyPressedSubject.next(event);
+  }
+  const handlePointerMove = (event: PointerEvent) => {
+    pointerMoveSubject.next(event);
+  }
+  const handlePointerUp = (event: PointerEvent) => {
+    pointerUpSubject.next(event);
   }
 
   const isBoxAnnotation = (a: any): boolean => {
@@ -44,13 +54,89 @@ export const useAnnotatorService = () => {
       (typeof a.endFrequency === 'number');
   }
 
+  const saveFocusComment = async () => {
+    if (!context.comments.focus) return;
+
+    let newAnnotationID: number | null = context.comments.focus.annotation_result;
+    if (context.comments.focus.newAnnotation) {
+      const newAnnotation = context.annotations.array.find(a => a.id === context.comments.focus?.annotation_result);
+      if (!newAnnotation) return;
+
+      try {
+        annotations.check([newAnnotation]);
+      } catch (e) {
+        return toasts.setDanger(buildErrorMessage(e));
+      }
+
+      const now = new Date().getTime();
+      const task_start_time = Math.floor((context.start ?? now) / 1000);
+      const task_end_time = Math.floor(now / 1000);
+      if (context.task?.annotationScope === AnnotationMode.wholeFile) {
+        // Save new AnnotationTag in PresenceMode
+        const newPresence = context.annotations.array.find(
+          a => a.type === AnnotationType.tag && a.annotation === newAnnotation.annotation
+            && !a.result_comments.find((c: AnnotationComment) => c.newAnnotation)
+        );
+
+        try {
+          if (newPresence) {
+            const newPresenceNewID = await taskAPI.addAnnotation(context.task!.id, {
+              annotation: annotations.prepare(newPresence),
+              task_start_time, task_end_time
+            });
+            annotations.changeItemID(newPresence.id, newPresenceNewID);
+          }
+          newAnnotationID = await taskAPI.addAnnotation(context.task!.id, {
+            annotation: annotations.prepare(newAnnotation),
+            task_start_time, task_end_time
+          });
+          toasts.setSuccess('This Annotation is saved.');
+        } catch (e) {
+          errors.set(e);
+        }
+      }
+    }
+
+    /** Don't save new empty comment */
+    if ((!context.comments.focus?.id || context.comments.focus?.id < 0) && context.comments.focus?.comment === "") return;
+
+    try {
+      const response = await commentAPI.create({
+        comment_id: !context.comments.focus?.id || context.comments.focus?.id < 0 ? undefined : context.comments.focus?.id,
+        annotation_result_id: newAnnotationID,
+        annotation_task_id: context.comments.focus?.annotation_task,
+        comment: context.comments.focus?.comment
+      })
+      const comment: AnnotationComment = {
+        comment: response.delete ? '' : response.comment,
+        annotation_task: context.comments.focus.annotation_task,
+        annotation_result: newAnnotationID,
+        id: response.delete ? undefined : response.comment_id
+      }
+
+      if (comment.annotation_result === null) return dispatch!([{ type: 'setTaskComment', comment }])
+      comments.focus(comment);
+      annotations.update({
+        ...context.annotations.focus!,
+        id: newAnnotationID ?? undefined,
+        result_comments: [comment]
+      });
+    } catch (e) {
+      return toasts.setDanger(buildErrorMessage(e));
+    }
+  }
+
+
   return {
     context,
 
     keyPressedSubject,
+    pointerMoveSubject, pointerUpSubject,
 
     abort: () => {
       document.removeEventListener("keydown", handleKeyPressed);
+      document.addEventListener('pointermove', handlePointerMove);
+      document.addEventListener('pointerup', handlePointerUp);
       taskAPI.abort();
       commentAPI.abort();
     },
@@ -60,6 +146,8 @@ export const useAnnotatorService = () => {
         { type: 'setStart', start: new Date() }
       ])
       document.addEventListener("keydown", handleKeyPressed);
+      document.addEventListener('pointermove', handlePointerMove);
+      document.addEventListener('pointerup', handlePointerUp);
       const task = await taskAPI.retrieve(taskID);
       if (task.annotationTags.length < 1) throw new Error('Annotation set is empty');
       if (task.spectroUrls.length < 1) throw new Error('Cannot retrieve spectrograms');
@@ -113,7 +201,7 @@ export const useAnnotatorService = () => {
     shortcuts: useShortcuts(),
     toasts, errors,
     annotations,
-    comments,
+    comments, saveFocusComment,
     tasks,
     tags,
     confidences,

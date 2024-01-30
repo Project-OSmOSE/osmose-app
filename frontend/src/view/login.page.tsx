@@ -35,6 +35,7 @@ export const Login: FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!username || !password) return setError('You must enter your login and password');
     setError(undefined);
 
     try {
@@ -65,7 +66,6 @@ export const Login: FC = () => {
                      onChange={ handlePasswordChange }/>
             </div>
             <input className="btn btn-primary"
-                   disabled={ !password || !username }
                    type="submit"
                    value="Submit"/>
           </form>

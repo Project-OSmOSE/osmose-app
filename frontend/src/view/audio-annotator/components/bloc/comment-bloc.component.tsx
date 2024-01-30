@@ -8,7 +8,7 @@ export const CommentBloc: React.FC = () => {
   const {
     context,
     shortcuts,
-    comments,
+    comments, saveFocusComment,
   } = useAnnotatorService();
 
   if (!context.task) return <Fragment/>;
@@ -31,7 +31,7 @@ export const CommentBloc: React.FC = () => {
                       onBlur={ shortcuts.enable }></textarea>
             <div className="input-group-append col-sm-2 p-0">
               <div className="btn-group-vertical">
-                <button className="btn btn-submit" onClick={ comments.saveFocusComment }>
+                <button className="btn btn-submit" onClick={ saveFocusComment }>
                   <i className="fas fa-check"></i>
                 </button>
                 <button className="btn btn-danger ml-0"

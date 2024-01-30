@@ -5,6 +5,7 @@ import { useAnnotatorService } from "../../../../services/annotator/annotator.se
 import { AnnotationMode } from "../../../../enum/annotation.enum.tsx";
 import { DEFAULT_COLOR } from "../../../../consts/colors.const.tsx";
 import { AlphanumericKeys } from "../../../../consts/shorcuts.const.tsx";
+import Tooltip from "react-bootstrap/Tooltip";
 
 interface Props {
   onTagSelected: (tag: string) => void;
@@ -69,7 +70,7 @@ export const PresenceBloc: React.FC<Props> = ({ onTagSelected }) => {
                      onChange={ () => onTagSelected(tag) }
                      checked={ context.tags.array.includes(tag) }/>
 
-              <OverlayTrigger overlay={ <TooltipComponent id={key}></TooltipComponent> } placement="top">
+              <OverlayTrigger overlay={ <Tooltip><TooltipComponent id={key}/></Tooltip> } placement="top">
                 <label className="form-check-label" htmlFor={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
                        style={ { color: context.tagColors.get(tag) ?? DEFAULT_COLOR } }>
                   { tag }

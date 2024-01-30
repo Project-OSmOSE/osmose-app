@@ -2,6 +2,9 @@ import { AnnotationType } from "../../../enum/annotation.enum.tsx";
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import { DefaultCrudService, useCrud } from "./default-crud.service.tsx";
 import { useAnnotatorContext, useAnnotatorDispatch } from "../annotator.context.tsx";
+import { CommentsService } from "./comments.service.tsx";
+import { TagsService } from "./tags.service.tsx";
+import { ConfidencesService } from "./confidences.service.tsx";
 
 export interface AnnotationsService extends DefaultCrudService<Annotation> {
   changeItemID: (currentID: number | undefined, newID: number) => void;
@@ -9,11 +12,23 @@ export interface AnnotationsService extends DefaultCrudService<Annotation> {
   check: (annotations: Array<Annotation>) => void;
 }
 
-export const useAnnotations = (): AnnotationsService => {
+export const useAnnotations = (comments: CommentsService,
+                               tags: TagsService,
+                               confidences: ConfidencesService): AnnotationsService => {
   const context = useAnnotatorContext();
   const dispatch = useAnnotatorDispatch();
 
   const crud = useCrud<Annotation>('annotations');
+
+  // TODO: only once !!!
+  confidences.onFocusChanged.subscribe(confidenceIndicator => {
+    if (context.annotations.focus) crud.update({...context.annotations.focus, confidenceIndicator})
+  })
+  tags.onFocusChanged.subscribe(annotation => {
+    if (!annotation) return;
+    if (annotation === context.annotations.focus?.annotation) return;
+    if (context.annotations.focus?.type === AnnotationType.box) focus({...context.annotations.focus, annotation})
+  })
 
   const changeItemID = (currentID: number | undefined, newID: number) => {
     dispatch!([{
@@ -25,27 +40,19 @@ export const useAnnotations = (): AnnotationsService => {
   }
 
   const focus = (item: Annotation) => {
-    dispatch!([
-      { scope: 'annotations', type: 'focus', item },
-      {
-        scope: 'comments',
-        type: 'focus',
-        item: item.result_comments.length > 0 ? item.result_comments[0] : {
-          comment: '',
-          annotation_task: context.task!.id,
-          annotation_result: item.id ?? 0
-        }
-      },
-      { scope: 'tags', type: 'focus', item: item.annotation },
-      item.confidenceIndicator ? { scope: 'confidences', type: 'focus', item: item.confidenceIndicator } : {}
-    ])
+    crud.focus(item);
+    comments.focus(item.result_comments.length > 0 ? item.result_comments[0] : {
+      comment: '',
+      annotation_task: context.task!.id,
+      annotation_result: item.id ?? 0
+    })
+    tags.focus(item.annotation);
+    if (item.confidenceIndicator) confidences.focus(item.confidenceIndicator);
   }
 
   const blur = () => {
-    dispatch!([
-      { scope: 'annotations', type: 'blur' },
-      { scope: 'comments', type: 'focus', item: context.comments.taskComment }
-    ])
+    crud.blur();
+    comments.focusTaskComment();
   }
 
   const prepare = (annotation: Annotation) => {
@@ -78,5 +85,7 @@ export const useAnnotations = (): AnnotationsService => {
     add: crud.add,
     remove: crud.remove,
     focus, blur,
-    changeItemID, prepare, check }
+    onFocusChanged: crud.onFocusChanged,
+    changeItemID, prepare, check
+  }
 }

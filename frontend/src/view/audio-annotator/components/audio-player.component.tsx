@@ -1,27 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import { useAudioService } from "../../../services/annotator/audio";
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
+import { useAudioContext, useAudioDispatch } from "../../../services/annotator/audio/audio.context.tsx";
+import { Annotation } from "../../../interface/annotation.interface.tsx";
+import { buildErrorMessage } from "../../../services/annotator/format/format.util.tsx";
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
+export interface AudioPlayer {
+  seek: (time: number) => void;
+  play: (annotation?: Annotation) => void;
+  pause: () => void;
+  setPlaybackRate: (playbackRate?: number) => void;
+}
 
-export const AudioPlayer: React.FC = () => {
-  const service = useAudioService();
-  const { context: annotatorContext } = useAnnotatorService();
-  const [isElementRegistered, setIsElementRegistered] = useState<boolean>(false)
+export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: React.ForwardedRef<AudioPlayer>) => {
+  const context = useAudioContext();
+  const dispatch = useAudioDispatch();
+
+  const elementRef = useRef<HTMLAudioElement | null>(null);
+
+  const { context: annotatorContext, toasts } = useAnnotatorService();
+  const [stopTime, setStopTime] = useState<number | undefined>()
+  const [listenTrack, setListenTrack] = useState<number | undefined>()
 
   useEffect(() => {
-    return () => {
-      service.removeElement();
-      service.onPause();
-    }
+    return () => onPause()
   }, [])
 
-  const setElement = (element: HTMLAudioElement) => {
-    if (isElementRegistered) return;
-    service.setElement(element, annotatorContext.task?.audioUrl);
-    setIsElementRegistered(true);
+  useEffect(() => {
+    if (elementRef.current) {
+      elementRef.current.volume = 1.0;
+      elementRef.current.preservesPitch = false;
+      elementRef.current.playbackRate = context.playbackRate;
+    }
+  }, [elementRef.current])
+
+  const seek = (time: number) => {
+    if (elementRef.current) elementRef.current.currentTime = time;
+  }
+  const play = (annotation?: Annotation) => {
+    if (annotation && elementRef.current) elementRef.current.currentTime = annotation.startTime;
+    elementRef.current?.play().catch(e => {
+      toasts.setDanger(buildErrorMessage(e));
+    });
+    setStopTime(annotation?.endTime);
+  }
+  const pause = () => {
+    elementRef.current?.pause();
+  }
+  const setPlaybackRate = (playbackRate?: number) => {
+    const rate = playbackRate ?? 1.0;
+    if (elementRef.current) elementRef.current.playbackRate = rate;
+    dispatch!({type: 'setPlaybackRate', playbackRate: rate})
+  }
+
+  useImperativeHandle(ref, (): AudioPlayer => ({ seek, play, pause, setPlaybackRate }))
+
+  const onPause = () => {
+    if (listenTrack) clearInterval(listenTrack)
+    setListenTrack(undefined);
+    dispatch!({ type: 'onPause' });
+  }
+
+  const onPlay = () => {
+    if (listenTrack) return;
+    setListenTrack(setInterval((() => {
+      const time = elementRef.current?.currentTime;
+      if (stopTime && time && time > stopTime) pause();
+      else dispatch!({ type: 'setTime', time });
+    }) as TimerHandler, 10));
+    dispatch!({ type: 'onPlay' });
   }
 
   // title property used to set lockscreen / process audio title on devices
@@ -31,16 +80,16 @@ export const AudioPlayer: React.FC = () => {
            controls={ false }
            loop={ false }
            muted={ false }
-           ref={ setElement }
-           onLoadedMetadata={ () => service.updateCurrentTime(0) }
-           onAbort={ service.onPause.bind(service) }
-           onEnded={ service.onPause.bind(service) }
-           onPause={ service.onPause.bind(service) }
-           onPlay={ service.onPlay.bind(service) }
+           ref={ elementRef }
+           onLoadedMetadata={ () => dispatch!({ type: 'setTime', time: 0 }) }
+           onAbort={ onPause }
+           onEnded={ onPause }
+           onPause={ onPause }
+           onPlay={ onPlay }
            preload="auto"
            src={ annotatorContext.task?.audioUrl }
            title={ annotatorContext.task?.audioUrl }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );
-}
+});

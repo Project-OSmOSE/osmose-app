@@ -1,26 +1,28 @@
 import { Context, createContext, Dispatch, useContext } from "react";
-import { AudioPlayStatus } from "../../../enum/audio.enum.tsx";
 
 
 export interface AudioCtx {
   time: number;
-  state: AudioPlayStatus;
-  element?: HTMLAudioElement;
   stopTime?: number;
-  playbackRate?: number;
+  playbackRate: number;
   src?: string;
+  isPaused: boolean;
+  canPreservePitch: boolean;
 }
 
 export type AudioCtxAction =
-  { type: 'element', element?: HTMLAudioElement, forSrc?: string } |
-  { type: 'playbackRate', playbackRate: number } |
-  { type: 'state', state: AudioPlayStatus } |
-  { type: 'time', time?: number } |
-  { type: 'stopTime', stopTime?: number };
+  { type: 'setElement', element: HTMLAudioElement | null, forSrc?: string } |
+  { type: 'removeElement' } |
+  { type: 'onPlay' } |
+  { type: 'onPause' } |
+  { type: 'setTime', time?: number } |
+  { type: 'setPlaybackRate', playbackRate: number };
 
 export const AudioCtxInitialValue: AudioCtx = {
   time: 0,
-  state: AudioPlayStatus.pause,
+  playbackRate: 1.0,
+  isPaused: true,
+  canPreservePitch: false
 }
 
 export const AudioContext: Context<AudioCtx> = createContext<AudioCtx>(AudioCtxInitialValue);

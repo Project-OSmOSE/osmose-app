@@ -1,4 +1,4 @@
-import { AnnotationMode } from "../enum";
+import { AnnotationMode } from "../enum/annotation.enum.tsx";
 import { ConfidenceIndicatorSet } from "./confidence-indicator.interface.tsx";
 import { SpectroUrlsParams } from "./spectrogram.interface.tsx";
 

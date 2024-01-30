@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import { AudioPlayer } from './components/audio-player.component.tsx';
+import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
 import Workbench from './components/workbench.component.tsx';
 
 import '../../css/annotator.css';
@@ -15,12 +15,12 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { useAnnotatorService } from "../../services/annotator/annotator.service.tsx";
 import { formatTimestamp } from "../../services/annotator/format/format.util.tsx";
 import { Toast, confirm } from "../global-components";
-import { useAudioService } from "../../services/annotator/audio";
 import { AnnotationMode } from "../../enum/annotation.enum.tsx";
 import { Annotation } from "../../interface/annotation.interface.tsx";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
 import { AnnotationType } from "../../enum/annotation.enum.tsx";
+import { useAudioContext } from "../../services/annotator/audio/audio.context.tsx";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -30,12 +30,6 @@ export type SpectroUrlsParams = {
   winsize: number,
   overlap: number,
   urls: Array<string>,
-};
-
-export type FileMetadata = {
-  name: string,
-  date: Date,
-  audioRate: number,
 };
 
 export type AnnotationDto = {
@@ -103,7 +97,9 @@ export const AudioAnnotator: React.FC = () => {
     annotations,
     tags,
   } = useAnnotatorService();
-  const audioService = useAudioService();
+
+  const audioContext = useAudioContext();
+  const audioPlayerRef = useRef<AudioPlayer>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -151,22 +147,20 @@ export const AudioAnnotator: React.FC = () => {
         });
       }
     } else {
-      const newAnnotation: Annotation = Object.assign(
-        {}, annotation, {
-          id: parseInt(newId, 10),
-          result_comments: [{
-            comment: "",
-            annotation_result: parseInt(newId, 10),
-            annotation_task: context.task!.id,
-            newAnnotation: true,
-          }],
-        }
-      );
-
       if (context.annotations.array.length === 0) {
         toasts.setPrimary('Select a tag to annotate the box.')
       }
-      annotations.focus(newAnnotation);
+
+      annotations.focus({
+        ...annotation,
+        id: +newId,
+        result_comments: [{
+          comment: "",
+          annotation_result: +newId,
+          annotation_task: context.task!.id,
+          newAnnotation: true,
+        }]
+      });
     }
   }
 
@@ -209,26 +203,23 @@ export const AudioAnnotator: React.FC = () => {
     shortcuts.enable();
   }
 
+  const playPause = () => {
+    try {
+      if (audioContext.isPaused) audioPlayerRef.current?.play();
+      else audioPlayerRef.current?.pause();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  const playStatusClass = useMemo(
+    () => audioContext.isPaused ? "fa-play-circle" : "fa-pause-circle",
+    [audioContext.isPaused]
+  );
+
   if (context.isLoading) return <p>Loading...</p>;
   else if (context.error) return <p>Error while loading task: <code>{ context.error }</code></p>
   else if (!context.task) return <p>Unknown error while loading task.</p>
-
-  const playStatusClass = audioService.isPaused ? "fa-play-circle" : "fa-pause-circle";
-
-  // File data
-  const fileMetadata: FileMetadata = {
-    name: context.task.audioUrl.split('/').pop() ?? '',
-    date: context.task.boundaries.startTime,
-    audioRate: context.task.audioRate,
-  };
-
-  // Displayable annotations (for presence mode)
-  const boxAnnotations = context.annotations.array.filter((ann: Annotation) => ann.type === AnnotationType.box);
-
-  // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
-  const isDrawingEnabled = !!context.task && (context.task.annotationScope === AnnotationMode.boxes || (
-    context.task.annotationScope === AnnotationMode.wholeFile && !!context.annotations.focus?.annotation
-  ));
 
   // Rendering
   return (
@@ -266,29 +257,28 @@ export const AudioAnnotator: React.FC = () => {
       </div>
 
       {/* Audio player (hidden) */ }
-      <AudioPlayer/>
+      <AudioPlayerComponent ref={ audioPlayerRef }/>
 
       {/* Workbench (spectrogram viz, box drawing) */ }
-      <Workbench fileMetadata={ fileMetadata }
-                 annotations={ boxAnnotations }
-                 onAnnotationCreated={ saveAnnotation }
-                 drawingEnabled={ isDrawingEnabled }/>
+      <Workbench onAnnotationCreated={ saveAnnotation }
+                 audioPlayer={ audioPlayerRef.current }/>
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
         <p className="col-sm-1 text-right">
           <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
-                  onClick={ audioService.playPause.bind(audioService) }></button>
+                  onClick={ () => playPause() }></button>
         </p>
         <p className="col-sm-1">
-          { audioService.canPreservePitch &&
+          { audioContext.canPreservePitch &&
               <select className="form-control select-rate"
-                      defaultValue={ audioService.playbackRate }
-                      onChange={ e => audioService.setPlaybackRate(+e.target.value) }>
+                      defaultValue={ audioContext.playbackRate }
+                      onChange={ e => audioPlayerRef.current?.setPlaybackRate(+e.target.value) }>
                 { AVAILABLE_RATES.map(rate => (
                   <option key={ `rate-${ rate }` } value={ rate.toString() }>{ rate.toString() }x</option>
                 )) }
-              </select> }
+              </select>
+          }
         </p>
 
         <NavigationButtons/>
@@ -297,7 +287,7 @@ export const AudioAnnotator: React.FC = () => {
           <Toast toastMessage={ context.toast }/>
         </div>
         <p className="col-sm-2 text-right">
-          { formatTimestamp(audioService.currentTime) }
+          { formatTimestamp(audioContext.time) }
           &nbsp;/&nbsp;
           { formatTimestamp(context.task!.duration) }
         </p>

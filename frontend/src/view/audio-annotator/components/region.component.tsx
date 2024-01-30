@@ -1,10 +1,10 @@
 import React, { PointerEvent, RefObject } from 'react'
-
-import { SPECTRO_CANVAS_HEIGHT } from "./workbench.component.tsx";
-import { useAudioService } from "../../../services/annotator/audio";
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
 import { DEFAULT_COLOR } from "../../../consts/colors.const.tsx";
+import { AudioPlayer } from "./audio-player.component.tsx";
+import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
+import { useSpectroContext } from "../../../services/annotator/spectro/spectro.context.tsx";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -14,9 +14,9 @@ type RegionProps = {
   annotation: Annotation,
   timePxRatio: number,
   freqPxRatio: number,
-  currentZoom: number,
   onAddAnotherAnnotation: (e: PointerEvent<HTMLElement>) => void,
   canvasWrapperRef: RefObject<HTMLDivElement>,
+  audioPlayer: AudioPlayer | null;
 };
 
 
@@ -26,16 +26,16 @@ const Region: React.FC<RegionProps> = ({
                                          canvasWrapperRef,
                                          freqPxRatio,
                                          timePxRatio,
-                                         currentZoom,
+                                         audioPlayer,
                                        }) => {
   const { context, annotations } = useAnnotatorService();
-  const service = useAudioService();
+  const spectroContext = useSpectroContext();
 
   const offsetLeft = annotation.startTime * timePxRatio;
   const freqOffset: number = (annotation.endFrequency - (context.task?.boundaries.startFrequency ?? 0)) * freqPxRatio;
-  const offsetTop: number = SPECTRO_CANVAS_HEIGHT - freqOffset;
+  const offsetTop: number = SPECTRO_HEIGHT - freqOffset;
 
-  const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * currentZoom) - Math.floor(offsetLeft);
+  const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * spectroContext.currentZoom) - Math.floor(offsetLeft);
 
   const duration: number = annotation.endTime - annotation.startTime;
   const freqRange: number = annotation.endFrequency - annotation.startFrequency;
@@ -68,7 +68,7 @@ const Region: React.FC<RegionProps> = ({
   const regionBody = (
     <div className="region-body"
          style={ styles.body }
-         onPointerDown={ onAddAnotherAnnotation }></div>
+         onPointerDown={ e => onAddAnotherAnnotation(e) }></div>
   )
 
   return (
@@ -86,7 +86,7 @@ const Region: React.FC<RegionProps> = ({
          style={ styles.header }>
 
         <button className="btn-simple fa fa-play-circle"
-                onClick={ () => service.play(annotation) }></button>
+                onClick={ () => audioPlayer?.play(annotation) }></button>
 
         <span className="flex-fill text-center"
               onClick={ () => annotations.focus(annotation) }
