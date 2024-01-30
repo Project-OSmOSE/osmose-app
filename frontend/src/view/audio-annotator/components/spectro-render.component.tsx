@@ -184,7 +184,6 @@ export const SpectroRenderComponent: React.FC<Props> = ({
   }, [newAnnotation])
 
   const onPointerMove = (e: PointerEvent) => {
-    console.info('[pointerMove]', e)
     const time = getTimeFromClientX(e.clientX);
     const frequency = getFrequencyFromClientY(e.clientY)
 
@@ -315,7 +314,6 @@ export const SpectroRenderComponent: React.FC<Props> = ({
         data.image = new Image();
         data.image.src = data.src;
         data.image.onload = () => {
-          console.debug(nbLoaded, spectroContext.currentImages.length)
           if (++nbLoaded === spectroContext.currentImages.length) resolve();
         }
         data.image.onerror = e => {
@@ -333,7 +331,6 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw spectro images
-    console.info('[currentSpectroImages]', spectroContext.currentZoom, spectroContext.currentImages.map(i => i.start), timePixelRatio)
     await loadSpectroImages();
     spectroContext.currentImages
       .forEach(spectro => canvasContext.drawImage(
