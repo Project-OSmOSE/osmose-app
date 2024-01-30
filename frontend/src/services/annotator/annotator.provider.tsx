@@ -7,14 +7,14 @@ import { ProvideSpectro } from "./spectro/spectro.reducer.tsx";
 export const ProvideAnnotator: FC<{ children: ReactNode }> = ({ children }) => {
   const [context, dispatch] = useReducer(annotatorReducer, AnnotatorCtxInit);
   return (
-    <AnnotatorContext.Provider value={ context }>
-      <AnnotatorDispatchContext.Provider value={ dispatch }>
-        <ProvideAudio>
-          <ProvideSpectro>
+    <ProvideAudio>
+      <ProvideSpectro>
+        <AnnotatorContext.Provider value={ context }>
+          <AnnotatorDispatchContext.Provider value={ dispatch }>
             { children }
-          </ProvideSpectro>
-        </ProvideAudio>
-      </AnnotatorDispatchContext.Provider>
-    </AnnotatorContext.Provider>
+          </AnnotatorDispatchContext.Provider>
+        </AnnotatorContext.Provider>
+      </ProvideSpectro>
+    </ProvideAudio>
   )
 }

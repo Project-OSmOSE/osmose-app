@@ -12,7 +12,6 @@ import { AnnotationMode, AnnotationType } from "../../../enum/annotation.enum.ts
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import Region from "./region.component.tsx";
 import { buildErrorMessage, formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
-import { Subscription } from "rxjs";
 import { useAudioContext } from "../../../services/annotator/audio/audio.context.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { useSpectroContext, useSpectroDispatch } from "../../../services/annotator/spectro/spectro.context.tsx";
@@ -68,7 +67,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
                                                           onAnnotationCreated,
                                                           audioPlayer,
                                                         }) => {
-  const { context, pointerUpSubject, pointerMoveSubject, toasts } = useAnnotatorService();
+  const { context, toasts } = useAnnotatorService();
   const audioContext = useAudioContext();
   const spectroContext = useSpectroContext();
   const spectroDispatch = useSpectroDispatch();
@@ -106,11 +105,11 @@ export const SpectroRenderComponent: React.FC<Props> = ({
 
   const isInCanvas = (event: PointerEvent) => {
     const bounds = spectroRef.current?.getBoundingClientRect();
-    return !!bounds
-      && event.clientX >= bounds.x
-      && event.clientX <= (bounds.x + bounds.width)
-      && event.clientY >= bounds.y
-      && event.clientX <= (bounds.y + bounds.height)
+    if (!bounds) return false;
+    if (event.clientX < bounds.x) return false;
+    if (event.clientY < bounds.y) return false;
+    if (event.clientX > bounds.x + bounds.width) return false;
+    return event.clientY <= bounds.y + bounds.height;
   }
 
   // Component loads
@@ -118,21 +117,11 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     loadY();
     loadX();
 
-    const sub = new Subscription();
-    sub.add(pointerMoveSubject.subscribe(e => {
-      const time = getTimeFromClientX(e.clientX);
-      const frequency = getFrequencyFromClientY(e.clientY)
-
-      newAnnotation?.update(time, frequency);
-      console.info('[pointerMove]', time, frequency)
-      if (isInCanvas(e)) spectroDispatch!({ type: 'updatePointerPosition', position: { time, frequency } })
-      else spectroDispatch!({ type: 'leavePointer' })
-    }))
-    ;
-    sub.add(pointerUpSubject.subscribe(e => onEndNewAnnotation(e)));
-
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onEndNewAnnotation);
     return () => {
-      sub.unsubscribe();
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onEndNewAnnotation);
     }
   }, [])
 
@@ -193,6 +182,16 @@ export const SpectroRenderComponent: React.FC<Props> = ({
   useEffect(() => {
     loadSpectro();
   }, [newAnnotation])
+
+  const onPointerMove = (e: PointerEvent) => {
+    console.info('[pointerMove]', e)
+    const time = getTimeFromClientX(e.clientX);
+    const frequency = getFrequencyFromClientY(e.clientY)
+
+    newAnnotation?.update(time, frequency);
+    if (isInCanvas(e)) spectroDispatch!({ type: 'updatePointerPosition', position: { time, frequency } })
+    else spectroDispatch!({ type: 'leavePointer' })
+  }
 
   const getTimeFromClientX = (clientX: number): number => {
     const canvas = spectroRef.current;

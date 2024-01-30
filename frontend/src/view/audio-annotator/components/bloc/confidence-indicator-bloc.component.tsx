@@ -10,7 +10,7 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
   if (!context.task?.confidenceIndicatorSet || !context.confidences.focus) return <Fragment/>;
 
   const tooltip = (
-    <div className="card w-50">
+    <div className="card">
       <h3 className={ `card-header p-2 tooltip-header` }>Description</h3>
       <div className="card-body p-1">
         <p>{ context.task?.confidenceIndicatorSet?.desc }</p>

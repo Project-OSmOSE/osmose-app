@@ -34,17 +34,9 @@ export const useAnnotatorService = () => {
   const tasks = useTasks(toasts, errors, annotations, taskAPI);
 
   const keyPressedSubject = new Subject<KeyboardEvent>();
-  const pointerMoveSubject = new Subject<PointerEvent>();
-  const pointerUpSubject = new Subject<PointerEvent>();
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!context.areShortcutsEnabled) return;
     keyPressedSubject.next(event);
-  }
-  const handlePointerMove = (event: PointerEvent) => {
-    pointerMoveSubject.next(event);
-  }
-  const handlePointerUp = (event: PointerEvent) => {
-    pointerUpSubject.next(event);
   }
 
   const isBoxAnnotation = (a: any): boolean => {
@@ -131,12 +123,9 @@ export const useAnnotatorService = () => {
     context,
 
     keyPressedSubject,
-    pointerMoveSubject, pointerUpSubject,
 
     abort: () => {
       document.removeEventListener("keydown", handleKeyPressed);
-      document.addEventListener('pointermove', handlePointerMove);
-      document.addEventListener('pointerup', handlePointerUp);
       taskAPI.abort();
       commentAPI.abort();
     },
@@ -146,8 +135,6 @@ export const useAnnotatorService = () => {
         { type: 'setStart', start: new Date() }
       ])
       document.addEventListener("keydown", handleKeyPressed);
-      document.addEventListener('pointermove', handlePointerMove);
-      document.addEventListener('pointerup', handlePointerUp);
       const task = await taskAPI.retrieve(taskID);
       if (task.annotationTags.length < 1) throw new Error('Annotation set is empty');
       if (task.spectroUrls.length < 1) throw new Error('Cannot retrieve spectrograms');
