@@ -26,6 +26,7 @@ import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
 import { AnnotatorContext, AnnotatorDispatchContext } from "../../services/annotator/annotator.context.tsx";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { Annotation } from "../../interface/annotation.interface.tsx";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -105,6 +106,7 @@ export const AudioAnnotator: React.FC = () => {
   const resultDispatch = useContext(AnnotationsContextDispatch);
   const audioContext = useContext(AudioContext);
   const isAudioPaused = useRef<boolean>(true);
+  const focusResult = useRef<Annotation | undefined>();
   const areShortcutsEnabled = useRef<boolean>(true);
   const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
@@ -157,6 +159,9 @@ export const AudioAnnotator: React.FC = () => {
   useEffect(() => {
     areShortcutsEnabled.current = context.areShortcutsEnabled
   }, [context.areShortcutsEnabled])
+  useEffect(() => {
+    focusResult.current = resultContext.focusedResult
+  }, [resultContext.focusedResult])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!areShortcutsEnabled.current) return;
@@ -164,15 +169,15 @@ export const AudioAnnotator: React.FC = () => {
     switch (event.code) {
       case 'Space':
         event.preventDefault();
-        playPause();
+        playPause(focusResult.current);
     }
     navKeyPress.current?.handleKeyPressed(event);
     tagsKeyPress.current?.handleKeyPressed(event);
   }
 
-  const playPause = () => {
+  const playPause = (annotation?: Annotation) => {
     try {
-      if (isAudioPaused.current) audioPlayerRef.current?.play();
+      if (isAudioPaused.current) audioPlayerRef.current?.play(annotation);
       else audioPlayerRef.current?.pause();
     } catch (e) {
       console.warn(e);

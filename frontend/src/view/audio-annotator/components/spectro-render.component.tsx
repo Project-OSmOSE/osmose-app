@@ -114,7 +114,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
   );
 
   const timePixelRatio = useMemo(() => SPECTRO_WIDTH * spectroContext.currentZoom / resultContext.wholeFileBoundaries.duration, [resultContext.wholeFileBoundaries.duration, spectroContext.currentZoom]);
-  const frequencyPixelRatio = useMemo(() => SPECTRO_HEIGHT / (frequencyRange), [resultContext.wholeFileBoundaries]);
+  const frequencyPixelRatio = useMemo(() => SPECTRO_HEIGHT / frequencyRange, [resultContext.wholeFileBoundaries]);
 
   const isInCanvas = (event: PointerEvent<HTMLDivElement>) => {
     const bounds = spectroRef.current?.getBoundingClientRect();
@@ -382,8 +382,9 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
         getTimeFromClientX(e.clientX),
         getFrequencyFromClientY(e.clientY)
       )
-      if (Math.abs(newAnnotation.startTime - newAnnotation.endTime) > 2
-        && Math.abs(newAnnotation.startFrequency - newAnnotation.endFrequency) > 2) {
+      const width = Math.abs(newAnnotation.startTime - newAnnotation.endTime) * timePixelRatio
+      const height = Math.abs(newAnnotation.startFrequency - newAnnotation.endFrequency) * frequencyPixelRatio
+      if (width > 2 && height > 2) {
         resultDispatch!({
           type: 'addResult', result: {
             type: AnnotationType.box,

@@ -44,10 +44,12 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   }, [elementRef.current])
 
   const seek = (time: number) => {
+    console.debug('will seek', time)
     if (elementRef.current) elementRef.current.currentTime = time;
   }
   const play = (annotation?: Annotation) => {
-    if (annotation && elementRef.current) elementRef.current.currentTime = annotation.startTime;
+    console.debug('will play', annotation)
+    if (annotation && elementRef.current) seek(annotation.startTime)
     elementRef.current?.play().catch(e => {
       annotatorDispatch!({ type: 'setDangerToast', message: `Audio failed playing: ${e}` });
     });
