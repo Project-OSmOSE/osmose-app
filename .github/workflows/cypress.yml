@@ -58,5 +58,5 @@ jobs:
           working-directory: frontend
           start: |
             poetry run python ../manage.py runserver
-            npm start
-          wait-on: 'http://localhost:3000, http://localhost:8000/backend/admin'
+            npm run dev
+          wait-on: 'http://localhost:5173, http://localhost:8000/backend/admin'
