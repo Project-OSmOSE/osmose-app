@@ -8,9 +8,9 @@
     "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add .",
     "server:seed": "poetry run manage.py seed",
     "server:run": "poetry run manage.py runserver 8000",
-    "server:test": "coverage run manage.py test && coverage report",
+    "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
-    "server:lint": "poetry run black pylint",
+    "server:lint": "poetry run pylint backend",
     "preaplose:test": "npm run server:seed",
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",
@@ -18,7 +18,7 @@
 
     "reset data": "npm run database:remove && npm run database:create && npm run server:migrate && npm run server:seed",
     "launch": "concurrently --kill-others-on-fail \"npm run database:run && npm run server:migrate && npm run server:run\" \"npm run aplose:run\" \"npm run osmose:run\"",
-    "beforeCommit": "npm run server:makemigrations; npm run server:format; npm run server:lint"
+    "beforeCommit": "npm run \"server:makemigrations\" && npm run \"server:format\" && npm run \"server:lint\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
