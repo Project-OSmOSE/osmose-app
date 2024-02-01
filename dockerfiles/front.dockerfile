@@ -34,7 +34,7 @@ ARG GID=101
 
 COPY ./dockerfiles/nginx.conf.template /etc/nginx/templates/default.conf.template
 
-COPY --from=build-app /opt/build /usr/share/nginx/app
+COPY --from=build-app /opt/dist /usr/share/nginx/app
 COPY --from=build-website /opt/build /usr/share/nginx/website
 
 USER 0

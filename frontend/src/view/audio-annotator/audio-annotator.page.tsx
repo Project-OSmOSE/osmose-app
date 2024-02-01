@@ -105,6 +105,7 @@ export const AudioAnnotator: React.FC = () => {
   const resultDispatch = useContext(AnnotationsContextDispatch);
   const audioContext = useContext(AudioContext);
   const isAudioPaused = useRef<boolean>(true);
+  const areShortcutsEnabled = useRef<boolean>(true);
   const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
   const [isLoading, setIsLoading] = useState<boolean>();
@@ -153,9 +154,12 @@ export const AudioAnnotator: React.FC = () => {
   useEffect(() => {
     isAudioPaused.current = audioContext.isPaused
   }, [audioContext.isPaused])
+  useEffect(() => {
+    areShortcutsEnabled.current = context.areShortcutsEnabled
+  }, [context.areShortcutsEnabled])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!context.areShortcutsEnabled) return;
+    if (!areShortcutsEnabled.current) return;
 
     switch (event.code) {
       case 'Space':

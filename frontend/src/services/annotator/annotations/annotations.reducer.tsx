@@ -170,6 +170,7 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
         ...currentContext,
         results: [...new Set([...results])],
         focusedResult,
+        focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
         presenceTags: [...new Set([...currentContext.presenceTags, action.tag])],
         focusedTag: action.tag
       };

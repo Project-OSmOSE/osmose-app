@@ -4,7 +4,6 @@ import {
   AudioDispatchContext
 } from "../../../services/annotator/audio/audio.context.tsx";
 import { Annotation } from "../../../interface/annotation.interface.tsx";
-import { buildErrorMessage } from "../../../services/annotator/format/format.util.tsx";
 import { AnnotatorContext, AnnotatorDispatchContext } from "../../../services/annotator/annotator.context.tsx";
 
 // Heavily inspired from ReactAudioPlayer
@@ -50,7 +49,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   const play = (annotation?: Annotation) => {
     if (annotation && elementRef.current) elementRef.current.currentTime = annotation.startTime;
     elementRef.current?.play().catch(e => {
-      annotatorDispatch!({ type: 'setDangerToast', message: buildErrorMessage(e) });
+      annotatorDispatch!({ type: 'setDangerToast', message: `Audio failed playing: ${e}` });
     });
     setStopTime(annotation?.endTime);
   }

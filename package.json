@@ -5,7 +5,7 @@
     "database:create": "docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis",
     "database:run": "docker start devdb",
     "server:migrate": "poetry run manage.py migrate",
-    "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add .",
+    "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add . && cd ../../osmosewebsite/migrations && git add .",
     "server:seed": "poetry run manage.py seed",
     "server:run": "poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
