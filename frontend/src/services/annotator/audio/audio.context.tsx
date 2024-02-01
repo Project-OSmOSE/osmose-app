@@ -6,7 +6,6 @@ export interface AudioCtx {
   stopTime?: number;
   playbackRate: number;
   isPaused: boolean;
-  canPreservePitch: boolean;
 }
 
 export type AudioCtxAction =
@@ -19,7 +18,6 @@ export const AudioCtxInitialValue: AudioCtx = {
   time: 0,
   playbackRate: 1.0,
   isPaused: true,
-  canPreservePitch: false
 }
 
 export const AudioContext: Context<AudioCtx> = createContext<AudioCtx>(AudioCtxInitialValue);

@@ -16,7 +16,7 @@ interface Props {
   description: string;
 }
 
-const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>(({
+export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>(({
                                                                              shortcut,
                                                                              description,
                                                                            }, ref) => (
@@ -47,7 +47,8 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!context.areShortcutsEnabled) return;
     switch (event.code) {
-      case 'Space':
+      case 'Enter':
+      case 'NumpadEnter':
         event.preventDefault();
         submit();
         break;
@@ -79,7 +80,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
           annotation: r.annotation,
           startFrequency,
           endFrequency,
-          confidenceIndicator: r.confidenceIndicator,
+          confidenceIndicator: r.confidenceIndicator ?? null,
           result_comments: result_comments,
         };
 

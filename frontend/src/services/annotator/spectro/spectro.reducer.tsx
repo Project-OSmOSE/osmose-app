@@ -76,7 +76,6 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
     case 'init':
       allSpectrograms = getAllSpectrograms(action.task);
       currentSpectro = getSpectrogramForParams(allSpectrograms, 1);
-      console.log(availableParams)
       availableParams = allSpectrograms.map(c => ({
         nfft: c.nfft,
         overlap: c.overlap,

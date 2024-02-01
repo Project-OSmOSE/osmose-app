@@ -14,7 +14,7 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { buildErrorMessage, formatTimestamp } from "../../services/annotator/format/format.util.tsx";
 import { Toast } from "../global-components";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
-import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
+import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
 import { AudioContext } from "../../services/annotator/audio/audio.context.tsx";
 import { SpectroDispatchContext } from "../../services/annotator/spectro/spectro.context.tsx";
 import {
@@ -24,6 +24,8 @@ import {
 import { useAnnotationTaskAPI } from "../../services/api";
 import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
 import { AnnotatorContext, AnnotatorDispatchContext } from "../../services/annotator/annotator.context.tsx";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -102,6 +104,7 @@ export const AudioAnnotator: React.FC = () => {
   const resultContext = useContext(AnnotationsContext);
   const resultDispatch = useContext(AnnotationsContextDispatch);
   const audioContext = useContext(AudioContext);
+  const isAudioPaused = useRef<boolean>(true);
   const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
   const [isLoading, setIsLoading] = useState<boolean>();
@@ -115,7 +118,7 @@ export const AudioAnnotator: React.FC = () => {
   const audioPlayerRef = useRef<AudioPlayer>(null);
 
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyPressed);
+    document.addEventListener("keydown", e => handleKeyPressed(e));
 
     return () => {
       document.removeEventListener("keydown", handleKeyPressed);
@@ -128,10 +131,8 @@ export const AudioAnnotator: React.FC = () => {
     setStart(new Date());
     setError(undefined);
 
-    console.debug('[useEffect]', taskID)
     taskAPI.retrieve(taskID)
       .then((task: Retrieve) => {
-        console.debug('[taskRetrieve]', task, isCancelled)
         if (isCancelled) return;
         if (task.annotationTags.length < 1) return setError('Annotation set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -149,17 +150,25 @@ export const AudioAnnotator: React.FC = () => {
     }
   }, [taskID])
 
+  useEffect(() => {
+    isAudioPaused.current = audioContext.isPaused
+  }, [audioContext.isPaused])
+
   const handleKeyPressed = (event: KeyboardEvent) => {
-    console.debug(event, context.areShortcutsEnabled, !!navKeyPress, !!tagsKeyPress)
     if (!context.areShortcutsEnabled) return;
 
+    switch (event.code) {
+      case 'Space':
+        event.preventDefault();
+        playPause();
+    }
     navKeyPress.current?.handleKeyPressed(event);
     tagsKeyPress.current?.handleKeyPressed(event);
   }
 
   const playPause = () => {
     try {
-      if (audioContext.isPaused) audioPlayerRef.current?.play();
+      if (isAudioPaused.current) audioPlayerRef.current?.play();
       else audioPlayerRef.current?.pause();
     } catch (e) {
       console.warn(e);
@@ -219,11 +228,13 @@ export const AudioAnnotator: React.FC = () => {
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
         <p className="col-sm-1 text-right">
-          <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
-                  onClick={ () => playPause() }></button>
+          <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>
+            <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
+                    onClick={ () => playPause() }></button>
+          </OverlayTrigger>
         </p>
         <p className="col-sm-1">
-          { audioContext.canPreservePitch &&
+          { audioPlayerRef.current?.canPreservePitch &&
               <select className="form-control select-rate"
                       defaultValue={ audioContext.playbackRate }
                       onChange={ e => audioPlayerRef.current?.setPlaybackRate(+e.target.value) }>

@@ -82,7 +82,7 @@ export type AnnotationTaskDto = {
   endTime: number | null,
   startFrequency: number | null,
   endFrequency: number | null,
-  confidenceIndicator?: string,
+  confidenceIndicator: string | null,
   result_comments: Array<AnnotationComment>,
 };
 

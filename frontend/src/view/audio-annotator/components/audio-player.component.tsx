@@ -15,6 +15,7 @@ export interface AudioPlayer {
   play: (annotation?: Annotation) => void;
   pause: () => void;
   setPlaybackRate: (playbackRate?: number) => void;
+  canPreservePitch: boolean;
 }
 
 export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: React.ForwardedRef<AudioPlayer>) => {
@@ -30,10 +31,12 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   const [listenTrack, setListenTrack] = useState<number | undefined>()
 
   useEffect(() => {
+    onPause()
     return () => onPause()
   }, [])
 
   useEffect(() => {
+    onPause()
     if (elementRef.current) {
       elementRef.current.volume = 1.0;
       elementRef.current.preservesPitch = false;
@@ -47,7 +50,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   const play = (annotation?: Annotation) => {
     if (annotation && elementRef.current) elementRef.current.currentTime = annotation.startTime;
     elementRef.current?.play().catch(e => {
-      annotatorDispatch!({ type: 'setDangerToast', message: buildErrorMessage(e)});
+      annotatorDispatch!({ type: 'setDangerToast', message: buildErrorMessage(e) });
     });
     setStopTime(annotation?.endTime);
   }
@@ -57,10 +60,14 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   const setPlaybackRate = (playbackRate?: number) => {
     const rate = playbackRate ?? 1.0;
     if (elementRef.current) elementRef.current.playbackRate = rate;
-    dispatch!({type: 'setPlaybackRate', playbackRate: rate})
+    dispatch!({ type: 'setPlaybackRate', playbackRate: rate })
   }
 
-  useImperativeHandle(ref, (): AudioPlayer => ({ seek, play, pause, setPlaybackRate }))
+  useImperativeHandle(ref, (): AudioPlayer => ({
+    seek, play, pause, setPlaybackRate, get canPreservePitch() {
+      return elementRef.current?.preservesPitch !== undefined
+    }
+  }))
 
   const onPause = () => {
     if (listenTrack) clearInterval(listenTrack)
