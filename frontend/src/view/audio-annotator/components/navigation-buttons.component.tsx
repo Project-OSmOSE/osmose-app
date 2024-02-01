@@ -92,10 +92,10 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
 
 
     if (!response) return;
-    if (response.next_task) {
-      history.push(`/audio-annotator/${ response.next_task }`);
+    if (siblings?.next) {
+      history.push(`/audio-annotator/${ siblings.next }`);
     } else {
-      history.push(`/annotation_tasks/${ response.campaign_id }`);
+      history.push(`/annotation_tasks/${ context.campaignId }`)
     }
   }
 
