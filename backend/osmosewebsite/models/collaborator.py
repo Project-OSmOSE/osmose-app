@@ -13,7 +13,7 @@ class Collaborator(models.Model):
     show_on_home_page = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["level"]
+        ordering = ["level", "name"]
 
     def __str__(self):
         return self.name
