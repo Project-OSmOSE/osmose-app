@@ -1,21 +1,27 @@
-import React, { Fragment } from "react";
+import React, { useContext, useMemo } from "react";
 import { Annotation } from "../../../../interface/annotation.interface.tsx";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
 import { formatTimestamp } from "../../../../services/annotator/format/format.util.tsx";
 import { AnnotationType, AnnotationMode } from "../../../../enum/annotation.enum.tsx";
+import {
+  AnnotationsContext,
+  AnnotationsContextDispatch,
+} from "../../../../services/annotator/annotations/annotations.context.tsx";
 
 
 export const AnnotationList: React.FC = () => {
-  const { context, annotations } = useAnnotatorService();
-  if (!context.task) return <Fragment/>;
-  const sortedAnnotations: Array<Annotation> = context.annotations.array.sort((a: Annotation, b: Annotation): number => {
-    if (context.task?.annotationScope === AnnotationMode.wholeFile) {
-      if (a.annotation !== b.annotation) {
-        return a.annotation.localeCompare(b.annotation);
+
+  const context = useContext(AnnotationsContext);
+
+  const annotations: Array<Annotation> = useMemo(
+    () => context.results.sort((a, b) => {
+      if (context.currentMode === AnnotationMode.wholeFile) {
+        if (a.annotation !== b.annotation) {
+          return a.annotation.localeCompare(b.annotation);
+        }
       }
-    }
-    return a.startTime - b.startTime;
-  });
+      return a.startTime - b.startTime;
+    }),
+    [context.results, context.currentMode])
 
   return (
     <div className='mt-2 table__rounded shadow-double border__black--125'>
@@ -26,11 +32,9 @@ export const AnnotationList: React.FC = () => {
         </tr>
         </thead>
         <tbody>
-        { sortedAnnotations.map((annotation: Annotation, idx: number) => (
+        { annotations.map((annotation: Annotation, idx: number) => (
           <AnnotationItem annotation={ annotation }
-                          key={ idx }
-                          onClick={ () => annotations.focus(annotation) }
-          ></AnnotationItem>
+                          key={ idx }></AnnotationItem>
         )) }
         </tbody>
       </table>
@@ -39,19 +43,19 @@ export const AnnotationList: React.FC = () => {
 }
 
 interface ItemProps {
-  annotation: Annotation,
-  key: number,
-  onClick: () => void
+  annotation: Annotation
 }
 
-const AnnotationItem: React.FC<ItemProps> = ({ annotation, key, onClick }) => {
-  const {context: annotator} = useAnnotatorService();
+const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
+
+  const context = useContext(AnnotationsContext);
+  const dispatch = useContext(AnnotationsContextDispatch);
+
   switch (annotation.type) {
     case AnnotationType.box:
       return (
-        <tr key={ `listann-${ key }` }
-            className={ annotation.id === annotator.annotations.focus?.id ? "isActive p-1" : "p-1" }
-            onClick={ onClick }>
+        <tr className={ annotation.id === context.focusedResult?.id && annotation.newId === context.focusedResult?.newId ? "isActive p-1" : "p-1" }
+            onClick={ () => dispatch!({ type: 'focusResult', result: annotation }) }>
           <td className="p-1">
             <i className="fas fa-clock-o"></i>&nbsp;
             { formatTimestamp(annotation.startTime) }&nbsp;&gt;&nbsp;
@@ -71,16 +75,15 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation, key, onClick }) => {
             { (annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-' }
           </td>
           <td className="p-1">
-            { annotation.result_comments.length > 0 ? <i className="fas fa-comment mr-2"></i> :
+            { annotation.result_comments.filter(c => c.comment).length > 0 ? <i className="fas fa-comment mr-2"></i> :
               <i className="far fa-comment mr-2"></i> }
           </td>
         </tr>
       );
     case AnnotationType.tag:
       return (
-        <tr key={ `listen-${ annotation.id }` }
-            className={ annotation.id === annotator.annotations.focus?.id ? "isActive" : "" }
-            onClick={ onClick }>
+          <tr className={ annotation.id === context.focusedResult?.id && annotation.newId === context.focusedResult?.newId ? "isActive" : "" }
+            onClick={ () => dispatch!({ type: 'focusResult', result: annotation }) }>
           <td colSpan={ 3 }>
             <strong>
               <i className="fas fa-tag"></i>&nbsp;
@@ -92,7 +95,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation, key, onClick }) => {
             { (annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-' }
           </td>
           <td className="pl-1">
-            { annotation.result_comments.length > 0 ? <i className="fas fa-comment mr-2"></i> :
+            { annotation.result_comments.filter(c => c.comment).length > 0 ? <i className="fas fa-comment mr-2"></i> :
               <i className="far fa-comment mr-2"></i> }
           </td>
         </tr>

@@ -1,26 +1,29 @@
-import React, { Fragment } from "react";
+import React, { useContext } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
 import { AnnotationMode } from "../../../../enum/annotation.enum.tsx";
 import { DEFAULT_COLOR } from "../../../../consts/colors.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
+import {
+  AnnotationsContext, AnnotationsContextDispatch,
+} from "../../../../services/annotator/annotations/annotations.context.tsx";
 
 
 export const TagListBloc: React.FC = () => {
-  const { context } = useAnnotatorService();
-  if (!context.task) return <Fragment/>;
+
+  const context = useContext(AnnotationsContext);
+
   return (
     <div className="card">
       <h6 className="card-header text-center">Tags list</h6>
       <div className="card-body d-flex justify-content-between">
         <ul className="card-text annotation-tags">
-          { context.task?.annotationTags.map((tag, key) => (
+          { context.allTags.map((tag, key) => (
             <TagItem tag={ tag }
                      key={ key }
                      id={ key }
-                     isEnabled={ context.tags.array.includes(tag) }
-                     isActive={ context.tags.focus === tag }></TagItem>
+                     isEnabled={ context.presenceTags.includes(tag) }
+                     isActive={ context.focusedTag === tag }></TagItem>
           )) }
         </ul>
       </div>
@@ -41,7 +44,10 @@ const TagItem: React.FC<ItemProps> = ({
                                         isEnabled,
                                         isActive,
                                       }) => {
-  const { context, tags } = useAnnotatorService();
+
+  const context = useContext(AnnotationsContext);
+  const dispatch = useContext(AnnotationsContextDispatch);
+
   const color = context.tagColors.get(tag) ?? DEFAULT_COLOR;
   const style = {
     inactive: {
@@ -61,9 +67,9 @@ const TagItem: React.FC<ItemProps> = ({
       <li>
         <button className={ isEnabled ? `btn pulse__${ id }--active` : 'btn' }
                 style={ isActive ? style.active : style.inactive }
-                onClick={ () => tags.focus(tag) }
+                onClick={ () => dispatch!({ type: 'focusTag', tag }) }
                 type="button"
-                disabled={ context.task?.annotationScope === AnnotationMode.wholeFile ? !isEnabled : false }>
+                disabled={ context.currentMode === AnnotationMode.wholeFile ? !isEnabled : false }>
           { tag }
         </button>
       </li>

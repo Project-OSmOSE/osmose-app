@@ -1,10 +1,11 @@
-import React, { PointerEvent, RefObject } from 'react'
+import React, { RefObject, useContext } from 'react'
 import { Annotation } from "../../../interface/annotation.interface.tsx";
-import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
 import { DEFAULT_COLOR } from "../../../consts/colors.const.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
-import { useSpectroContext } from "../../../services/annotator/spectro/spectro.context.tsx";
+import {
+  AnnotationsContext, AnnotationsContextDispatch,
+} from "../../../services/annotator/annotations/annotations.context.tsx";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -14,7 +15,6 @@ type RegionProps = {
   annotation: Annotation,
   timePxRatio: number,
   freqPxRatio: number,
-  onAddAnotherAnnotation: (e: PointerEvent<HTMLElement>) => void,
   canvasWrapperRef: RefObject<HTMLDivElement>,
   audioPlayer: AudioPlayer | null;
 };
@@ -22,20 +22,21 @@ type RegionProps = {
 
 const Region: React.FC<RegionProps> = ({
                                          annotation,
-                                         onAddAnotherAnnotation,
-                                         canvasWrapperRef,
+                                         // canvasWrapperRef,
                                          freqPxRatio,
                                          timePxRatio,
                                          audioPlayer,
                                        }) => {
-  const { context, annotations } = useAnnotatorService();
-  const spectroContext = useSpectroContext();
+  // const spectroContext = useContext(SpectroContext);
+
+  const resultContext = useContext(AnnotationsContext);
+  const resultDispatch = useContext(AnnotationsContextDispatch);
 
   const offsetLeft = annotation.startTime * timePxRatio;
-  const freqOffset: number = (annotation.endFrequency - (context.task?.boundaries.startFrequency ?? 0)) * freqPxRatio;
+  const freqOffset: number = (annotation.endFrequency - (resultContext.wholeFileBoundaries.startFrequency ?? 0)) * freqPxRatio;
   const offsetTop: number = SPECTRO_HEIGHT - freqOffset;
 
-  const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * spectroContext.currentZoom) - Math.floor(offsetLeft);
+  // const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * spectroContext.currentZoom) - Math.floor(offsetLeft);
 
   const duration: number = annotation.endTime - annotation.startTime;
   const freqRange: number = annotation.endFrequency - annotation.startFrequency;
@@ -45,8 +46,9 @@ const Region: React.FC<RegionProps> = ({
 
   const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 
-  const color = context.tagColors.get(annotation.annotation) ?? DEFAULT_COLOR;
-  const currentColor = annotation.id === context.annotations.focus?.id ? color : `${ color }88`;
+  const color = resultContext.tagColors.get(annotation.annotation) ?? DEFAULT_COLOR;
+  const isActive = annotation.id === resultContext.focusedResult?.id && annotation.newId === resultContext.focusedResult?.newId;
+  const currentColor = isActive ? color : `${ color }88`;
   const styles = {
     header: {
       height: HEADER_HEIGHT,
@@ -54,7 +56,6 @@ const Region: React.FC<RegionProps> = ({
       marginBottom: (headerPositionIsTop ? HEADER_MARGIN : 0),
       backgroundColor: currentColor,
       border: `2px solid ${ currentColor }`,
-      marginLeft: distanceToMarginLeft > 150 ? '50%' : '-25%',
     },
     headerSpan: {
       height: `${ HEADER_HEIGHT }px`,
@@ -67,8 +68,7 @@ const Region: React.FC<RegionProps> = ({
 
   const regionBody = (
     <div className="region-body"
-         style={ styles.body }
-         onPointerDown={ e => onAddAnotherAnnotation(e) }></div>
+         style={ styles.body }></div>
   )
 
   return (
@@ -89,7 +89,7 @@ const Region: React.FC<RegionProps> = ({
                 onClick={ () => audioPlayer?.play(annotation) }></button>
 
         <span className="flex-fill text-center"
-              onClick={ () => annotations.focus(annotation) }
+              onClick={ () => resultDispatch!({ type: 'focusResult', result: annotation }) }
               style={ styles.headerSpan }>
           { annotation.annotation }
         </span>
@@ -99,7 +99,7 @@ const Region: React.FC<RegionProps> = ({
           <i className="far fa-comment mr-2"></i> }
 
         <button className="btn-simple fa fa-times-circle"
-                onClick={ () => annotations.remove(annotation) }></button>
+                onClick={ () => resultDispatch!({ type: 'removeResult', result: annotation }) }></button>
       </p>
 
       { headerPositionIsTop && regionBody }

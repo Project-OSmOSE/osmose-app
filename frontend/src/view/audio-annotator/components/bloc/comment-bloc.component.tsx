@@ -1,17 +1,18 @@
-import React, { Fragment } from "react";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
-import { DEFAULT_COMMENT } from "../../../../services/annotator/annotator.context.tsx";
-
+import React, { useContext } from "react";
+import {
+  AnnotationsContext,
+  AnnotationsContextDispatch,
+} from "../../../../services/annotator/annotations/annotations.context.tsx";
+import { AnnotatorDispatchContext } from "../../../../services/annotator/annotator.context.tsx";
 
 
 export const CommentBloc: React.FC = () => {
-  const {
-    context,
-    shortcuts,
-    comments, saveFocusComment,
-  } = useAnnotatorService();
 
-  if (!context.task) return <Fragment/>;
+  const context = useContext(AnnotationsContext);
+  const dispatch = useContext(AnnotationsContextDispatch);
+
+  const annotatorDispatch = useContext(AnnotatorDispatchContext);
+
   return (
     <div className="col-sm-2">
       <div className="card">
@@ -22,32 +23,23 @@ export const CommentBloc: React.FC = () => {
                       maxLength={ 255 }
                       rows={ 10 }
                       cols={ 10 }
-                      value={ context.comments.focus?.comment }
-                      onChange={ e => comments.update({
-                        ...context.comments.focus ?? DEFAULT_COMMENT,
-                        comment: e.target.value
-                      }) }
-                      onFocus={ shortcuts.disable }
-                      onBlur={ shortcuts.enable }></textarea>
+                      value={ context.focusedComment?.comment ?? '' }
+                      onChange={ e => dispatch!({ type: 'updateFocusComment', comment: e.target.value }) }
+                      onFocus={ () => annotatorDispatch!({ type: 'disableShortcuts'}) }
+                      onBlur={ () => annotatorDispatch!({ type: 'enableShortcuts'}) }></textarea>
             <div className="input-group-append col-sm-2 p-0">
               <div className="btn-group-vertical">
-                <button className="btn btn-submit" onClick={ saveFocusComment }>
-                  <i className="fas fa-check"></i>
-                </button>
                 <button className="btn btn-danger ml-0"
-                        onClick={ () => comments.update({
-                          ...context.comments.focus ?? DEFAULT_COMMENT,
-                          comment: ""
-                        }) }>
+                        onClick={ () => dispatch!({ type: 'removeFocusComment' }) }>
                   <i className="fas fa-broom"></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <button className={ `btn w-100 ${ context.comments.focus?.annotation_result === null ? "isActive" : "" }` }
-                onClick={ comments.focusTaskComment }>
-          Task Comment { context.comments.taskComment.comment !== "" ? <i className="fas fa-comment mx-2"></i> :
+        <button className={ `btn w-100 ${ !context.focusedResult ? "isActive" : "" }` }
+                onClick={ () => dispatch!({ type: 'focusTask' }) }>
+          Task Comment { context.taskComment.comment ? <i className="fas fa-comment mx-2"></i> :
           <i className="far fa-comment mr-2"></i> }
         </button>
       </div>

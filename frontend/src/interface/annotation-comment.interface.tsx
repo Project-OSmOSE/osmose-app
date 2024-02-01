@@ -3,5 +3,4 @@ export interface AnnotationComment {
   comment: string,
   annotation_task: number,
   annotation_result: number | null,
-  newAnnotation?: true;
 }

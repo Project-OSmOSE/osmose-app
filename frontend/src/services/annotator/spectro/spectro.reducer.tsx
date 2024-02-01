@@ -6,12 +6,12 @@ import {
   SpectroCtxAction,
   SpectroCtxInitialValue, SpectrogramData, SpectrogramParams
 } from "./spectro.context.tsx";
-import { AnnotationTask } from "../../../interface/annotation-task.interface.tsx";
+import { Retrieve } from "../../api/annotation-task-api.service.tsx";
 
 const baseUrlRegexp = /(.*\/)(.*)_\d*_\d*(\..*)/;
 
 const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: SpectroCtx, action: SpectroCtxAction): SpectroCtx => {
-  const getAllSpectrograms = (task: AnnotationTask): Array<SpectrogramData> => {
+  const getAllSpectrograms = (task: Retrieve): Array<SpectrogramData> => {
     return task.spectroUrls.map(configuration => {
       const urlParts = configuration.urls[0].match(baseUrlRegexp);
       const nbZooms = Math.log2(configuration.urls.length + 1);
@@ -27,7 +27,7 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
       }
     }).flatMap(info => {
       return info.zoomLevels.map(zoom => {
-        const step: number = task.duration / zoom;
+        const step: number = task.boundaries.duration / zoom;
         return {
           nfft: info.nfft,
           winsize: info.winsize,
@@ -70,29 +70,34 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
   let allSpectrograms = currentContext.allSpectrograms;
   let currentSpectro: SpectrogramData | undefined;
   let zoom = currentContext.currentZoom;
+  let availableParams = currentContext.availableParams;
 
   switch (action.type) {
     case 'init':
       allSpectrograms = getAllSpectrograms(action.task);
-      currentSpectro = getSpectrogramForParams(allSpectrograms, action.zoom);
+      currentSpectro = getSpectrogramForParams(allSpectrograms, 1);
+      console.log(availableParams)
+      availableParams = allSpectrograms.map(c => ({
+        nfft: c.nfft,
+        overlap: c.overlap,
+        winsize: c.winsize
+      }))
+      availableParams = availableParams.filter((p, i) => availableParams.findIndex(a => a.winsize === p.winsize && a.nfft === p.nfft && a.overlap === p.overlap) === i)
       return {
         ...currentContext,
         allSpectrograms,
         availableZoomLevels: [...new Set(allSpectrograms.map(c => c.zoom))].sort((a, b) => a - b),
-        availableParams: [...new Set(allSpectrograms.map(c => ({
-          nfft: c.nfft,
-          overlap: c.overlap,
-          winsize: c.winsize
-        })))],
+        availableParams,
         currentImages: currentSpectro?.images ?? [],
         currentParams: currentSpectro ? {
           nfft: currentSpectro.nfft,
           overlap: currentSpectro.overlap,
           winsize: currentSpectro.winsize
         } : undefined,
-        currentZoom: action.zoom,
+        currentZoom: 1,
         currentZoomOrigin: undefined
       }
+
     case 'updateParams':
       return {
         ...currentContext,

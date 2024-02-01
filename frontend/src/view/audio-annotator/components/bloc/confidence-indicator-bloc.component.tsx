@@ -1,19 +1,24 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
+import {
+  AnnotationsContext,
+  AnnotationsContextDispatch,
+} from "../../../../services/annotator/annotations/annotations.context.tsx";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
-  const { context, confidences } = useAnnotatorService();
 
-  if (!context.task?.confidenceIndicatorSet || !context.confidences.focus) return <Fragment/>;
+  const context = useContext(AnnotationsContext);
+  const dispatch = useContext(AnnotationsContextDispatch);
+
+  if (!context.focusedConfidence) return <Fragment/>;
 
   const tooltip = (
     <div className="card">
       <h3 className={ `card-header p-2 tooltip-header` }>Description</h3>
       <div className="card-body p-1">
-        <p>{ context.task?.confidenceIndicatorSet?.desc }</p>
+        <p>{ context.confidenceDescription }</p>
       </div>
     </div>
   )
@@ -25,16 +30,16 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
         <div className="card-body">
           <div className=" d-flex justify-content-center">
             <ul className="card-text annotation-tags">
-              { context.task?.confidenceIndicatorSet?.confidenceIndicators.map((indicator, key) => (
-                <li key={ `tag-${ key.toString() }` }>
-                  <button
-                    id={ `tags_key_shortcuts_${ key.toString() }` }
-                    className={ context.confidences.focus === indicator.label ? "btn btn--active" : "btn" }
-                    onClick={ () => confidences.focus(indicator.label) }
-                    type="button"
-                  >{ indicator.label }</button>
+              { context.allConfidences.map((confidence, key) => (
+                <li key={ `tag-${ key }` }>
+                  <button id={ `tags_key_shortcuts_${ key }` }
+                          className={ context.focusedConfidence === confidence ? "btn btn--active" : "btn" }
+                          onClick={ () => dispatch!({ type: 'selectConfidence', confidence}) }
+                          type="button">
+                    { confidence }
+                  </button>
                 </li>
-              ))}
+              )) }
             </ul>
           </div>
         </div>

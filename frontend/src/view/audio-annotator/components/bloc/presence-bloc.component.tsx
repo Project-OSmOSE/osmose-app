@@ -1,76 +1,79 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useContext, useImperativeHandle } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
 import { AnnotationMode } from "../../../../enum/annotation.enum.tsx";
 import { DEFAULT_COLOR } from "../../../../consts/colors.const.tsx";
 import { AlphanumericKeys } from "../../../../consts/shorcuts.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
+import { confirm } from "../../../global-components";
+import { KeypressHandler } from "../../audio-annotator.page.tsx";
+import {
+  AnnotationsContext,
+  AnnotationsContextDispatch,
+} from "../../../../services/annotator/annotations/annotations.context.tsx";
+import { AnnotatorContext, AnnotatorDispatchContext } from "../../../../services/annotator/annotator.context.tsx";
 
-interface Props {
-  onTagSelected: (tag: string) => void;
-}
 
-export const PresenceBloc: React.FC<Props> = ({ onTagSelected }) => {
-  const { context, keyPressedSubject, tags } = useAnnotatorService();
+export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
 
-  useEffect(() => {
-    const sub = keyPressedSubject.subscribe(handleKeyPress);
+  const context = useContext(AnnotationsContext);
+  const dispatch = useContext(AnnotationsContextDispatch);
 
-    return () => {
-      sub.unsubscribe();
-    }
-  }, [])
+  const annotatorContext = useContext(AnnotatorContext);
+  const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
-  const handleKeyPress = (event: KeyboardEvent) => {
-    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, context.task!.annotationTags.length);
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (!annotatorContext.areShortcutsEnabled) return;
+    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, context.allTags.length);
 
     if (event.key === "'") {
       event.preventDefault();
     }
 
-    active_alphanumeric_keys.forEach((value, index) => {
-      const tag = context.task!.annotationTags[index];
+    for (const i in active_alphanumeric_keys) {
+      if (event.key !== AlphanumericKeys[0][i] && event.key !== AlphanumericKeys[1][i]) continue;
 
-      if (event.key === value || event.key === AlphanumericKeys[1][index]) {
-        tags.focus(context.task!.annotationTags[index])
-
-        if (context.annotations.array.length === 0) {
-          onTagSelected(tag);
-          tags.add(tag);
-          return;
-        }
-        if (context.tags.array.includes(tag)) {
-          if (context.annotations.focus?.annotation === tag) {
-            /** Delete all annotations and annotations TYPE_TAG */
-            onTagSelected(tag);
-          } else {
-            //Change tag of this annotation
-            tags.focus(tag);
-          }
-        } else {
-          /** Create a new annotation TYPE_TAG */
-          onTagSelected(tag);
-        }
-      }
-    })
+      const calledTag = context.allTags[i];
+      if (context.presenceTags.includes(calledTag) && context.focusedTag !== calledTag) {
+        dispatch!({ type: 'focusTag', tag: calledTag })
+      } else toggle(calledTag);
+    }
   }
 
-  if (context.task?.annotationScope !== AnnotationMode.wholeFile) return <Fragment/>;
+  useImperativeHandle(ref, () => ({ handleKeyPressed }));
+
+  const toggle = async (tag: string) => {
+    if (context.presenceTags.includes(tag)) {
+      // Remove presence
+      if (context.results.find(a => a.annotation === tag)) {
+        // if annotations exists with this tag: wait for confirmation
+        annotatorDispatch!({ type: 'disableShortcuts' })
+        const response = await confirm(`You are about to remove ${context.results.filter(r => r.annotation === tag).length} annotations using "${tag}" label. Are you sure ?`, `Remove "${tag}" annotations`);
+        annotatorDispatch!({ type: 'enableShortcuts' })
+        if (!response) return;
+      }
+      dispatch!({ type: 'removePresence', tag })
+    } else {
+      // Add presence
+      dispatch!({ type: 'addPresence', tag })
+    }
+  }
+
+  if (context.currentMode !== AnnotationMode.wholeFile) return <Fragment/>;
   return (
     <div className="card ml-2 flex-grow-1 mini-content">
       <h6 className="card-header text-center">Presence / Absence</h6>
       <div className="card-body">
         <ul className="presence-absence-columns">
-          { context.task?.annotationTags.map((tag, key) => (
+          { context.allTags.map((tag, key) => (
             <li className="form-check tooltip-wrap" key={ `tag-${ key.toString() }` }>
               <input id={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
                      className="form-check-input"
                      type="checkbox"
-                     onChange={ () => onTagSelected(tag) }
-                     checked={ context.tags.array.includes(tag) }/>
+                     onChange={ () => toggle(tag) }
+                     checked={ context.presenceTags.includes(tag) }/>
 
-              <OverlayTrigger overlay={ <Tooltip><TooltipComponent id={key}/></Tooltip> } placement="top">
+              <OverlayTrigger overlay={ <Tooltip><TooltipComponent id={ key }/></Tooltip> } placement="top">
                 <label className="form-check-label" htmlFor={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
                        style={ { color: context.tagColors.get(tag) ?? DEFAULT_COLOR } }>
                   { tag }
@@ -82,4 +85,4 @@ export const PresenceBloc: React.FC<Props> = ({ onTagSelected }) => {
       </div>
     </div>
   )
-}
+})

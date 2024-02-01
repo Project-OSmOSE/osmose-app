@@ -1,14 +1,13 @@
-import React, { Fragment } from "react";
-import { useAnnotatorService } from "../../../../services/annotator/annotator.service.tsx";
+import React, { useContext } from "react";
 import { formatTimestamp } from "../../../../services/annotator/format/format.util.tsx";
+import { AnnotationsContext } from "../../../../services/annotator/annotations/annotations.context.tsx";
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
-  const { context } = useAnnotatorService();
 
-  if (!context.task) return <Fragment/>;
-  
-  if (!context.annotations.focus) return (
+  const context = useContext(AnnotationsContext);
+
+  if (!context.focusedResult) return (
     <div className="card mr-2  selected_annotation mini-content">
       <h6 className="card-header text-center">Selected annotation</h6>
       <div className="card-body">
@@ -17,10 +16,9 @@ export const CurrentAnnotationBloc: React.FC = () => {
     </div>
   )
 
-
   let max_time = "00:00.000";
-  if (context.annotations.focus?.endTime === -1) {
-    const timeInSeconds = (context.task.boundaries.endTime.getTime() - context.task.boundaries.startTime.getTime()) / 1000
+  if (context.focusedResult?.endTime === -1) {
+    const timeInSeconds = (context.wholeFileBoundaries.endTime.getTime() - context.wholeFileBoundaries.startTime.getTime()) / 1000
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds - minutes * 60;
     max_time = `${ minutes.toFixed().padStart(2, "0") }:${ seconds.toFixed().padStart(2, "0") }:000`;
@@ -32,13 +30,15 @@ export const CurrentAnnotationBloc: React.FC = () => {
       <div className="card-body d-flex justify-content-between">
         <p className="card-text">
           <i className="fa fa-clock"></i> :&nbsp;
-          { context.annotations.focus.startTime === -1 ? "00:00.000" : formatTimestamp(context.annotations.focus.startTime) }&nbsp;&gt;&nbsp;
-          { context.annotations.focus.endTime === -1 ? max_time : formatTimestamp(context.annotations.focus.endTime) }<br/>
+          { context.focusedResult.startTime === -1 ? "00:00.000" : formatTimestamp(context.focusedResult.startTime) }&nbsp;&gt;&nbsp;
+          { context.focusedResult.endTime === -1 ? max_time : formatTimestamp(context.focusedResult.endTime) }<br/>
           <i className="fa fa-arrow-up"></i> :&nbsp;
-          { context.annotations.focus.startFrequency === -1 ? context.task.boundaries.startFrequency : context.annotations.focus.startFrequency.toFixed(2) }&nbsp;&gt;&nbsp;
-          { context.annotations.focus.endFrequency === -1 ? context.task.boundaries.endFrequency : context.annotations.focus.endFrequency.toFixed(2) } Hz<br/>
-          <i className="fa fa-tag"></i> :&nbsp;{ context.annotations.focus.annotation ? context.annotations.focus.annotation : "None" }<br/>
-          { context.task.confidenceIndicatorSet && <span><i className="fa fa-handshake"></i> :&nbsp; { context.annotations.focus.confidenceIndicator ?? "None" }<br/></span> }
+          { context.focusedResult.startFrequency === -1 ? context.wholeFileBoundaries.startFrequency : context.focusedResult.startFrequency.toFixed(2) }&nbsp;&gt;&nbsp;
+          { context.focusedResult.endFrequency === -1 ? context.wholeFileBoundaries.endFrequency : context.focusedResult.endFrequency.toFixed(2) } Hz<br/>
+          <i
+            className="fa fa-tag"></i> :&nbsp;{ context.focusedResult.annotation ? context.focusedResult.annotation : "None" }<br/>
+          { context.focusedResult.confidenceIndicator && <span><i
+              className="fa fa-handshake"></i> :&nbsp; { context.focusedResult.confidenceIndicator }<br/></span> }
         </p>
       </div>
     </div>

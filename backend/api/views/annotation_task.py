@@ -120,6 +120,17 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         update_serializer.is_valid(raise_exception=True)
         task = update_serializer.save()
 
+        if request.data["task_comments"] is not None:
+            for comment in request.data["task_comments"]:
+                comment.pop("annotation_task")
+                comment.pop("annotation_result")
+                message = comment.pop("comment")
+                (commentObj, isNew) = AnnotationComment.objects.update_or_create(
+                    annotation_task=task, annotation_result=None, **comment
+                )
+                commentObj.comment = message
+                commentObj.save()
+
         task_date = task.dataset_file.audio_metadatum.start
         next_tasks = self.queryset.filter(
             annotator_id=request.user.id,

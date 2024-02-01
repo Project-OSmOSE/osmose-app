@@ -7,7 +7,7 @@ type ConfirmationProps = {
   title?: string,
   confirmation: string,
   show?: boolean,
-  proceed: any,     // called when ok button is clicked.
+  proceed?: any,     // called when ok button is clicked.
   enableEscape?: boolean,
 }
 
@@ -39,14 +39,6 @@ const ConfirmationModal = ({
   )
 }
 
-export function confirm(
-  confirmation: string,
-  proceed = "OK",
-  cancelLabel = "cancel",
-) {
-  return createConfirmation(confirmable(ConfirmationModal))({
-    confirmation,
-    proceed,
-    cancelLabel,
-  });
+export function confirm(confirmation: string, okLabel: string) {
+  return createConfirmation(confirmable(ConfirmationModal))({ confirmation, okLabel });
 }

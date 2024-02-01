@@ -18,13 +18,9 @@ export interface Retrieve {
   id: number;
   campaignId: number;
   annotationTags: string[];
-  boundaries: {
-    startTime: Date;
-    endTime: Date;
-    startFrequency: number;
-    endFrequency: number;
-  },
+  boundaries: Boundaries,
   audioUrl: string;
+  instructions_url?: string;
   audioRate: number;
   spectroUrls: Array<{
     nfft: number;
@@ -45,6 +41,13 @@ export interface Retrieve {
     desc: string;
     confidenceIndicators: Array<RetrieveConfidenceIndicator>;
   }
+}
+export interface Boundaries {
+  startTime: Date,
+  endTime: Date,
+  startFrequency: number,
+  endFrequency: number,
+  duration: number,
 }
 
 export interface RetrieveAnnotation {
@@ -93,7 +96,9 @@ interface Update {
   annotations: AnnotationTaskDto[],
   task_start_time: number,
   task_end_time: number,
+  task_comments: Array<AnnotationComment>,
 }
+
 export interface UpdateResult {
   next_task: number;
   campaign_id: number;
@@ -112,14 +117,18 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   }
 
   retrieve(id: string): Promise<Retrieve> {
-    return super.retrieve(id).then(r => ({
-      ...r,
-      boundaries: {
-        ...r.boundaries,
-        startTime: new Date(r.boundaries.startTime),
-        endTime: new Date(r.boundaries.endTime),
+    return super.retrieve(id).then(r => {
+      const startTime = new Date(r.boundaries.startTime);
+      const endTime = new Date(r.boundaries.endTime);
+      return {
+        ...r,
+        boundaries: {
+          ...r.boundaries,
+          startTime, endTime,
+          duration: (endTime.getTime() - startTime.getTime()) / 1000
+        }
       }
-    }))
+    })
   }
 
   public addAnnotation(taskID: string | number,

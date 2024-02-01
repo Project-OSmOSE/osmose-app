@@ -1,8 +1,11 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
-import { useAudioContext, useAudioDispatch } from "../../../services/annotator/audio/audio.context.tsx";
+import React, { useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  AudioContext,
+  AudioDispatchContext
+} from "../../../services/annotator/audio/audio.context.tsx";
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import { buildErrorMessage } from "../../../services/annotator/format/format.util.tsx";
+import { AnnotatorContext, AnnotatorDispatchContext } from "../../../services/annotator/annotator.context.tsx";
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
@@ -15,12 +18,14 @@ export interface AudioPlayer {
 }
 
 export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: React.ForwardedRef<AudioPlayer>) => {
-  const context = useAudioContext();
-  const dispatch = useAudioDispatch();
+  const context = useContext(AudioContext);
+  const dispatch = useContext(AudioDispatchContext);
+
+  const annotatorContext = useContext(AnnotatorContext);
+  const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
   const elementRef = useRef<HTMLAudioElement | null>(null);
 
-  const { context: annotatorContext, toasts } = useAnnotatorService();
   const [stopTime, setStopTime] = useState<number | undefined>()
   const [listenTrack, setListenTrack] = useState<number | undefined>()
 
@@ -42,7 +47,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
   const play = (annotation?: Annotation) => {
     if (annotation && elementRef.current) elementRef.current.currentTime = annotation.startTime;
     elementRef.current?.play().catch(e => {
-      toasts.setDanger(buildErrorMessage(e));
+      annotatorDispatch!({ type: 'setDangerToast', message: buildErrorMessage(e)});
     });
     setStopTime(annotation?.endTime);
   }
@@ -87,8 +92,8 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
            onPause={ onPause }
            onPlay={ onPlay }
            preload="auto"
-           src={ annotatorContext.task?.audioUrl }
-           title={ annotatorContext.task?.audioUrl }>
+           src={ annotatorContext.audioURL }
+           title={ annotatorContext.audioURL }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
@@ -11,16 +11,19 @@ import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
 import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
-
-import { useAnnotatorService } from "../../services/annotator/annotator.service.tsx";
-import { formatTimestamp } from "../../services/annotator/format/format.util.tsx";
-import { Toast, confirm } from "../global-components";
-import { AnnotationMode } from "../../enum/annotation.enum.tsx";
-import { Annotation } from "../../interface/annotation.interface.tsx";
+import { buildErrorMessage, formatTimestamp } from "../../services/annotator/format/format.util.tsx";
+import { Toast } from "../global-components";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
-import { AnnotationType } from "../../enum/annotation.enum.tsx";
-import { useAudioContext } from "../../services/annotator/audio/audio.context.tsx";
+import { AudioContext } from "../../services/annotator/audio/audio.context.tsx";
+import { SpectroDispatchContext } from "../../services/annotator/spectro/spectro.context.tsx";
+import {
+  AnnotationsContext,
+  AnnotationsContextDispatch
+} from "../../services/annotator/annotations/annotations.context.tsx";
+import { useAnnotationTaskAPI } from "../../services/api";
+import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
+import { AnnotatorContext, AnnotatorDispatchContext } from "../../services/annotator/annotator.context.tsx";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -84,123 +87,74 @@ export interface TaskBoundaries {
   endFrequency: number,
 }
 
+export interface KeypressHandler {
+  handleKeyPressed: (event: KeyboardEvent) => void;
+}
+
 
 export const AudioAnnotator: React.FC = () => {
   const { id: taskID } = useParams<{ id: string }>();
 
-  const {
-    context,
-    load, abort, endLoading,
-    errors,
-    shortcuts,
-    toasts,
-    annotations,
-    tags,
-  } = useAnnotatorService();
+  const navKeyPress = useRef<KeypressHandler | null>(null);
+  const tagsKeyPress = useRef<KeypressHandler | null>(null);
 
-  const audioContext = useAudioContext();
+  const spectroDispatch = useContext(SpectroDispatchContext);
+  const resultContext = useContext(AnnotationsContext);
+  const resultDispatch = useContext(AnnotationsContextDispatch);
+  const audioContext = useContext(AudioContext);
+  const annotatorDispatch = useContext(AnnotatorDispatchContext);
+
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<string | undefined>();
+  const [start, setStart] = useState<Date>(new Date());
+
+  const taskAPI = useAnnotationTaskAPI();
+
+  const context = useContext(AnnotatorContext);
+
   const audioPlayerRef = useRef<AudioPlayer>(null);
 
   useEffect(() => {
+    document.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPressed);
+    }
+  }, [])
+
+  useEffect(() => {
     let isCancelled = false;
-    load(taskID)
-      .catch((e: any) => !isCancelled && errors.set(e))
-      .finally(() => !isCancelled && endLoading())
+    setIsLoading(true);
+    setStart(new Date());
+    setError(undefined);
+
+    console.debug('[useEffect]', taskID)
+    taskAPI.retrieve(taskID)
+      .then((task: Retrieve) => {
+        console.debug('[taskRetrieve]', task, isCancelled)
+        if (isCancelled) return;
+        if (task.annotationTags.length < 1) return setError('Annotation set is empty');
+        if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
+        spectroDispatch!({ type: 'init', task })
+        resultDispatch!({ type: 'init', task })
+        annotatorDispatch!({ type: 'init', task })
+        setError(undefined);
+      })
+      .catch((e: any) => !isCancelled && setError(buildErrorMessage(e)))
+      .finally(() => !isCancelled && setIsLoading(false))
 
     return () => {
       isCancelled = true;
-      abort();
+      taskAPI.abort();
     }
   }, [taskID])
 
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    console.debug(event, context.areShortcutsEnabled, !!navKeyPress, !!tagsKeyPress)
+    if (!context.areShortcutsEnabled) return;
 
-  const saveAnnotation = (annotation: Annotation) => {
-    const isPresenceMode = context.task?.annotationScope === AnnotationMode.wholeFile;
-
-    const maxId: number | undefined = context.annotations.array
-      .map(ann => ann.id ?? 0)
-      .sort((a, b) => b - a)
-      .shift();
-
-    const newId: string = maxId ? `${ (maxId + 1).toString() }` : `1`;
-
-    if (isPresenceMode) {
-      if (annotation.type === AnnotationType.box) {
-        annotations.focus({
-          ...annotation,
-          id: parseInt(newId, 10),
-          annotation: context.annotations.focus?.annotation ?? '',
-          result_comments: [{
-            comment: "",
-            annotation_result: parseInt(newId, 10),
-            annotation_task: context.task!.id,
-            newAnnotation: true,
-          }]
-        });
-      } else {
-        // Type: TYPE_TAG
-        tags.add(annotation.annotation);
-        annotations.focus({
-          ...annotation,
-          id: +newId,
-          result_comments: annotation.result_comments.map((c: AnnotationComment) => ({ ...c, id: +newId }))
-        });
-      }
-    } else {
-      if (context.annotations.array.length === 0) {
-        toasts.setPrimary('Select a tag to annotate the box.')
-      }
-
-      annotations.focus({
-        ...annotation,
-        id: +newId,
-        result_comments: [{
-          comment: "",
-          annotation_result: +newId,
-          annotation_task: context.task!.id,
-          newAnnotation: true,
-        }]
-      });
-    }
-  }
-
-  const toggleGlobalTag = (tag: string) => {
-    if (context.tags.array.includes(tag)) {
-      deleteAnnotationInPresenceMode(tag)
-    } else {
-      // Tag is not present: create it
-      const newAnnotation: Annotation = {
-        type: AnnotationType.tag,
-        id: undefined,
-        annotation: tag,
-        startTime: -1,
-        endTime: -1,
-        startFrequency: -1,
-        endFrequency: -1,
-        confidenceIndicator: context.confidences.focus,
-        result_comments: [],
-      };
-      saveAnnotation(newAnnotation);
-    }
-  }
-
-  const deleteAnnotationInPresenceMode = async (tag: string) => {
-    shortcuts.disable();
-
-    if (await confirm("Are your sure?")) {
-      const newAnnotations: Array<Annotation> = context.annotations.array
-        .filter(ann => ann.annotation !== tag);
-      annotations.updateList(newAnnotations);
-
-      const annotationToActive = newAnnotations.find((ann: Annotation) => ann.type === AnnotationType.tag);
-      if (annotationToActive) {
-        annotations.focus(annotationToActive);
-      }
-
-      tags.remove(tag);
-      toasts.remove();
-    }
-    shortcuts.enable();
+    navKeyPress.current?.handleKeyPressed(event);
+    tagsKeyPress.current?.handleKeyPressed(event);
   }
 
   const playPause = () => {
@@ -217,9 +171,9 @@ export const AudioAnnotator: React.FC = () => {
     [audioContext.isPaused]
   );
 
-  if (context.isLoading) return <p>Loading...</p>;
-  else if (context.error) return <p>Error while loading task: <code>{ context.error }</code></p>
-  else if (!context.task) return <p>Unknown error while loading task.</p>
+  if (isLoading) return <p>Loading...</p>;
+  else if (error) return <p>Error while loading task: <code>{ error }</code></p>
+  else if (!context.taskId) return <p>Unknown error while loading task.</p>
 
   // Rendering
   return (
@@ -236,9 +190,9 @@ export const AudioAnnotator: React.FC = () => {
                   <span className="fas fa-question-circle"></span>&nbsp;Annotator User Guide
                 </a>
               </span>
-          { context.task?.instructions_url &&
+          { context.instructionsURL &&
               <span>
-                      <a href={ context.task.instructions_url }
+                      <a href={ context.instructionsURL }
                          rel="noopener noreferrer"
                          target="_blank">
                           <span className="fas fa-info-circle"></span>&nbsp;Campaign instructions
@@ -248,7 +202,7 @@ export const AudioAnnotator: React.FC = () => {
         <ul className="col-sm-2 annotator-nav">
           <li>
             <Link className="btn btn-danger"
-                  to={ `/annotation_tasks/${ context.task.campaignId }` }
+                  to={ `/annotation_tasks/${ context.campaignId }` }
                   title="Go back to annotation campaign tasks">
               Back to campaign
             </Link>
@@ -260,8 +214,7 @@ export const AudioAnnotator: React.FC = () => {
       <AudioPlayerComponent ref={ audioPlayerRef }/>
 
       {/* Workbench (spectrogram viz, box drawing) */ }
-      <Workbench onAnnotationCreated={ saveAnnotation }
-                 audioPlayer={ audioPlayerRef.current }/>
+      <Workbench audioPlayer={ audioPlayerRef.current }/>
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
@@ -281,7 +234,7 @@ export const AudioAnnotator: React.FC = () => {
           }
         </p>
 
-        <NavigationButtons/>
+        <NavigationButtons ref={ navKeyPress } start={ start }/>
 
         <div className="col-sm-3">
           <Toast toastMessage={ context.toast }/>
@@ -289,7 +242,7 @@ export const AudioAnnotator: React.FC = () => {
         <p className="col-sm-2 text-right">
           { formatTimestamp(audioContext.time) }
           &nbsp;/&nbsp;
-          { formatTimestamp(context.task!.duration) }
+          { formatTimestamp(resultContext.wholeFileBoundaries.duration) }
         </p>
       </div>
 
@@ -303,7 +256,7 @@ export const AudioAnnotator: React.FC = () => {
           <ConfidenceIndicatorBloc/>
         </div>
 
-        <PresenceBloc onTagSelected={ toggleGlobalTag }/>
+        <PresenceBloc ref={ tagsKeyPress }/>
       </div>
 
       <div className="row justify-content-center">

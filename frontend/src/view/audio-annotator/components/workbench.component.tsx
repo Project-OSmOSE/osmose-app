@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-
-import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
-
+import React, { useContext } from 'react';
 import { formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
-import { Annotation } from "../../../interface/annotation.interface.tsx";
 import { SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { useSpectroContext, useSpectroDispatch } from "../../../services/annotator/spectro/spectro.context.tsx";
+import {
+  SpectroContext, SpectroDispatchContext
+} from "../../../services/annotator/spectro/spectro.context.tsx";
+import { AnnotationsContext } from "../../../services/annotator/annotations/annotations.context.tsx";
+import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -17,23 +17,14 @@ const FREQ_AXIS_SIZE: number = 35;
 const SCROLLBAR_RESERVED: number = 20;
 
 type Props = {
-  onAnnotationCreated: (a: Annotation) => void,
   audioPlayer: AudioPlayer | null;
 };
 
-const Workbench: React.FC<Props> = ({
-                                               onAnnotationCreated,
-                                               audioPlayer,
-                                             }) => {
-  const spectroContext = useSpectroContext();
-  const spectroDispatch = useSpectroDispatch();
-
-  const { context } = useAnnotatorService();
-
-  useEffect(() => { // buildSpectrogramsDetails
-    if (!context.task) return;
-    spectroDispatch!({ type: 'init', task: context.task, zoom: 1 })
-  }, [context.task]);
+const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
+  const spectroContext = useContext(SpectroContext);
+  const spectroDispatch = useContext(SpectroDispatchContext);
+  const resultContext = useContext(AnnotationsContext);
+  const context = useContext(AnnotatorContext);
 
   const style = {
     workbench: {
@@ -69,17 +60,16 @@ const Workbench: React.FC<Props> = ({
       </p>
 
       { spectroContext.pointerPosition && <p className="workbench-pointer">
-        { spectroContext.pointerPosition.frequency }Hz / { formatTimestamp(spectroContext.pointerPosition.time, false) }
+        { spectroContext.pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(spectroContext.pointerPosition.time, false) }
       </p> }
 
       <p className="workbench-info workbench-info--intro">
-        File : <strong>{ context.task?.audioUrl.split('/').pop() ?? '' }</strong> - Sampling
-        : <strong>{ context.task?.audioRate } Hz</strong><br/>
-        Start date : <strong>{ context.task?.boundaries.startTime.toUTCString() }</strong>
+        File : <strong>{ context.audioURL?.split('/').pop() ?? '' }</strong> - Sampling
+        : <strong>{ context.audioRate ?? 0 } Hz</strong><br/>
+        Start date : <strong>{ resultContext.wholeFileBoundaries.startTime.toUTCString() }</strong>
       </p>
 
-      <SpectroRenderComponent onAnnotationCreated={ onAnnotationCreated }
-                              audioPlayer={ audioPlayer }/>
+      <SpectroRenderComponent audioPlayer={ audioPlayer }/>
     </div>
   );
 }

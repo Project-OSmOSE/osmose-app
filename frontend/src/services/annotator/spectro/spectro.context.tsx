@@ -1,5 +1,5 @@
-import { Context, createContext, Dispatch, useContext } from "react";
-import { AnnotationTask } from "../../../interface/annotation-task.interface.tsx";
+import { Context, createContext, Dispatch } from "react";
+import { Retrieve } from "../../api/annotation-task-api.service.tsx";
 
 export interface SpectrogramData {
   nfft: number;
@@ -45,7 +45,7 @@ export const SpectroCtxInitialValue: SpectroCtx = {
 }
 
 export type SpectroCtxAction =
-  { type: 'init', task: AnnotationTask, zoom: number } |
+  { type: 'init', task: Retrieve } |
   { type: 'updateParams', params: SpectrogramParams, zoom: number } |
   { type: 'updatePointerPosition', position: { time: number, frequency: number} } |
   { type: 'leavePointer' } |
@@ -53,7 +53,4 @@ export type SpectroCtxAction =
 
 export const SpectroContext: Context<SpectroCtx> = createContext<SpectroCtx>(SpectroCtxInitialValue);
 export const SpectroDispatchContext: Context<Dispatch<SpectroCtxAction> | undefined> = createContext<Dispatch<SpectroCtxAction> | undefined>(undefined);
-
-export const useSpectroContext = () => useContext(SpectroContext);
-export const useSpectroDispatch = () => useContext(SpectroDispatchContext);
 

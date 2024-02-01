@@ -1,7 +1,7 @@
-import { useAnnotatorService } from "../../../services/annotator/annotator.service.tsx";
 import React, {
   Fragment,
-  PointerEvent as ReactPointerEvent,
+  PointerEvent,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -12,9 +12,15 @@ import { AnnotationMode, AnnotationType } from "../../../enum/annotation.enum.ts
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import Region from "./region.component.tsx";
 import { buildErrorMessage, formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
-import { useAudioContext } from "../../../services/annotator/audio/audio.context.tsx";
+import { AudioContext } from "../../../services/annotator/audio/audio.context.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { useSpectroContext, useSpectroDispatch } from "../../../services/annotator/spectro/spectro.context.tsx";
+import {
+  SpectroContext, SpectroDispatchContext
+} from "../../../services/annotator/spectro/spectro.context.tsx";
+import {
+  AnnotationsContext, AnnotationsContextDispatch,
+} from "../../../services/annotator/annotations/annotations.context.tsx";
+import { AnnotatorDispatchContext } from "../../../services/annotator/annotator.context.tsx";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -24,9 +30,9 @@ export const SCROLLBAR_RESERVED: number = 20;
 export const CONTROLS_AREA_SIZE: number = 80;
 
 interface Props {
-  onAnnotationCreated: (a: Annotation) => void;
   audioPlayer: AudioPlayer | null;
 }
+
 
 class EditAnnotation {
   initTime: number;
@@ -61,20 +67,27 @@ class EditAnnotation {
     this.currentTime = time;
     this.currentFrequency = frequency;
   }
+
+  copy(): EditAnnotation {
+    const a = new EditAnnotation(this.initTime, this.initFrequency);
+    a.update(this.currentTime, this.currentFrequency);
+    return a;
+  }
 }
 
-export const SpectroRenderComponent: React.FC<Props> = ({
-                                                          onAnnotationCreated,
-                                                          audioPlayer,
-                                                        }) => {
-  const { context, toasts } = useAnnotatorService();
-  const audioContext = useAudioContext();
-  const spectroContext = useSpectroContext();
-  const spectroDispatch = useSpectroDispatch();
+export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
+  const audioContext = useContext(AudioContext);
+  const spectroContext = useContext(SpectroContext);
+  const spectroDispatch = useContext(SpectroDispatchContext);
+
+  const resultContext = useContext(AnnotationsContext);
+  const resultDispatch = useContext(AnnotationsContextDispatch);
+
+  const annotatorDispatch = useContext(AnnotatorDispatchContext);
 
   const [zoom, setZoom] = useState<number>(1);
   const [currenTime, setCurrenTime] = useState<number>(0);
-  const [newAnnotation, setNewAnnotation] = useState<EditAnnotation | undefined>();
+  const [newAnnotation, setNewAnnotation] = useState<EditAnnotation | undefined>(undefined);
 
   /**
    * Ref to canvas wrapper is used to modify its scrollLeft property.
@@ -91,19 +104,19 @@ export const SpectroRenderComponent: React.FC<Props> = ({
   const xAxisRef = useRef<HTMLCanvasElement>(null);
 
   // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => !!context.task && (context.task.annotationScope === AnnotationMode.boxes || (
-    context.task.annotationScope === AnnotationMode.wholeFile && !!context.annotations.focus?.annotation
-  )), [context.task, context.annotations.focus?.annotation]);
+  const isDrawingEnabled = useMemo(() => resultContext.currentMode === AnnotationMode.boxes || (
+    resultContext.currentMode === AnnotationMode.wholeFile && !!resultContext.focusedTag
+  ), [resultContext.focusedTag, resultContext.currentMode]);
 
   const frequencyRange = useMemo(
-    () => context.task!.boundaries.endFrequency - context.task!.boundaries.startFrequency,
-    [context.task?.boundaries]
+    () => resultContext.wholeFileBoundaries.endFrequency - resultContext.wholeFileBoundaries.startFrequency,
+    [resultContext.wholeFileBoundaries]
   );
 
-  const timePixelRatio = useMemo(() => SPECTRO_WIDTH * spectroContext.currentZoom / context.task!.duration, [context.task?.duration, spectroContext.currentZoom]);
-  const frequencyPixelRatio = useMemo(() => SPECTRO_HEIGHT / (frequencyRange), [context.task?.boundaries]);
+  const timePixelRatio = useMemo(() => SPECTRO_WIDTH * spectroContext.currentZoom / resultContext.wholeFileBoundaries.duration, [resultContext.wholeFileBoundaries.duration, spectroContext.currentZoom]);
+  const frequencyPixelRatio = useMemo(() => SPECTRO_HEIGHT / (frequencyRange), [resultContext.wholeFileBoundaries]);
 
-  const isInCanvas = (event: PointerEvent) => {
+  const isInCanvas = (event: PointerEvent<HTMLDivElement>) => {
     const bounds = spectroRef.current?.getBoundingClientRect();
     if (!bounds) return false;
     if (event.clientX < bounds.x) return false;
@@ -116,13 +129,6 @@ export const SpectroRenderComponent: React.FC<Props> = ({
   useEffect(() => {
     loadY();
     loadX();
-
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onEndNewAnnotation);
-    return () => {
-      document.removeEventListener('pointermove', onPointerMove);
-      document.removeEventListener('pointerup', onEndNewAnnotation);
-    }
   }, [])
 
   // On zoom updated
@@ -135,7 +141,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     // If zoom factor has changed
     if (spectroContext.currentZoom === zoom) return;
     // New timePxRatio
-    const newTimePxRatio: number = SPECTRO_WIDTH * spectroContext.currentZoom / context.task!.duration;
+    const newTimePxRatio: number = SPECTRO_WIDTH * spectroContext.currentZoom / resultContext.wholeFileBoundaries.duration;
 
     // Resize canvases and scroll
     canvas.width = SPECTRO_WIDTH * spectroContext.currentZoom;
@@ -169,8 +175,8 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     const wrapper = wrapperRef.current;
     const canvas = spectroRef.current;
     if (!wrapper || !canvas) return;
-    const oldX: number = Math.floor(canvas.width * currenTime / context.task!.duration);
-    const newX: number = Math.floor(canvas.width * audioContext.time / context.task!.duration);
+    const oldX: number = Math.floor(canvas.width * currenTime / resultContext.wholeFileBoundaries.duration);
+    const newX: number = Math.floor(canvas.width * audioContext.time / resultContext.wholeFileBoundaries.duration);
 
     if ((oldX - wrapper.scrollLeft) < SPECTRO_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_WIDTH) {
       wrapper.scrollLeft += SPECTRO_WIDTH;
@@ -181,16 +187,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
   // On current newAnnotation changed
   useEffect(() => {
     loadSpectro();
-  }, [newAnnotation])
-
-  const onPointerMove = (e: PointerEvent) => {
-    const time = getTimeFromClientX(e.clientX);
-    const frequency = getFrequencyFromClientY(e.clientY)
-
-    newAnnotation?.update(time, frequency);
-    if (isInCanvas(e)) spectroDispatch!({ type: 'updatePointerPosition', position: { time, frequency } })
-    else spectroDispatch!({ type: 'leavePointer' })
-  }
+  }, [newAnnotation?.currentTime, newAnnotation?.currentFrequency])
 
   const getTimeFromClientX = (clientX: number): number => {
     const canvas = spectroRef.current;
@@ -207,7 +204,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     const bounds = canvas.getBoundingClientRect();
 
     const pixel = Math.min(Math.max(clientY, bounds.top), bounds.bottom);
-    return (context.task!.boundaries.startFrequency + bounds.bottom - pixel) / frequencyPixelRatio;
+    return (resultContext.wholeFileBoundaries.startFrequency + bounds.bottom - pixel) / frequencyPixelRatio;
   }
 
   const getXSteps = (duration: number) => {
@@ -275,8 +272,8 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     canvasContext.clearRect(0, 0, freqAxis.width, freqAxis.height);
 
     const bounds: DOMRect = freqAxis.getBoundingClientRect();
-    const startFreq: number = Math.ceil(context.task?.boundaries.startFrequency ?? 0);
-    const endFreq: number = Math.floor((context.task?.boundaries.startFrequency ?? 0) + frequencyRange);
+    const startFreq: number = Math.ceil(resultContext.wholeFileBoundaries.startFrequency ?? 0);
+    const endFreq: number = Math.floor((resultContext.wholeFileBoundaries.startFrequency ?? 0) + frequencyRange);
 
     canvasContext.fillStyle = 'rgba(0, 0, 0)';
     canvasContext.font = '10px Arial';
@@ -317,7 +314,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
           if (++nbLoaded === spectroContext.currentImages.length) resolve();
         }
         data.image.onerror = e => {
-          toasts.setDanger(buildErrorMessage(e));
+          annotatorDispatch!({ type: 'setDangerToast', message: buildErrorMessage(e) });
           reject(e);
         }
       }
@@ -342,7 +339,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
       ));
 
     // Progress bar
-    const newX: number = Math.floor(canvas.width * audioContext.time / context.task!.duration);
+    const newX: number = Math.floor(canvas.width * audioContext.time / resultContext.wholeFileBoundaries.duration);
     canvasContext.fillStyle = 'rgba(0, 0, 0)';
     canvasContext.fillRect(newX, 0, 1, canvas.height);
 
@@ -350,7 +347,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     if (newAnnotation) {
       const a = newAnnotation;
       const x: number = Math.floor(a.startTime * timePixelRatio);
-      const freqOffset: number = (a.startFrequency - (context.task?.boundaries.startFrequency ?? 0)) * frequencyPixelRatio;
+      const freqOffset: number = (a.startFrequency - (resultContext.wholeFileBoundaries.startFrequency ?? 0)) * frequencyPixelRatio;
       const y: number = Math.floor(canvas.height - freqOffset);
       const width: number = Math.floor((a.endTime - a.startTime) * timePixelRatio);
       const height: number = -Math.floor((a.endFrequency - a.startFrequency) * frequencyPixelRatio);
@@ -359,31 +356,47 @@ export const SpectroRenderComponent: React.FC<Props> = ({
     }
   }
 
-  const onStartNewAnnotation = (event: PointerEvent | ReactPointerEvent<HTMLElement>) => {
-    if (!isDrawingEnabled) return;
+  const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    const time = getTimeFromClientX(e.clientX);
+    const frequency = getFrequencyFromClientY(e.clientY)
 
-    setNewAnnotation(new EditAnnotation(
-      getTimeFromClientX(event.clientX),
-      getFrequencyFromClientY(event.clientY)
-    ));
+    if (isInCanvas(e)) {
+      spectroDispatch!({ type: 'updatePointerPosition', position: { time, frequency } })
+      newAnnotation?.update(time, frequency);
+    } else spectroDispatch!({ type: 'leavePointer' })
   }
 
-  const onEndNewAnnotation = (event: PointerEvent) => {
+  const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    if (!isDrawingEnabled || !isInCanvas(e)) return;
+
+    const newAnnotation = new EditAnnotation(
+      getTimeFromClientX(e.clientX),
+      getFrequencyFromClientY(e.clientY)
+    );
+    setNewAnnotation(newAnnotation);
+  }
+
+  const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
     if (newAnnotation) {
       newAnnotation.update(
-        getTimeFromClientX(event.clientX),
-        getFrequencyFromClientY(event.clientY)
+        getTimeFromClientX(e.clientX),
+        getFrequencyFromClientY(e.clientY)
       )
-      onAnnotationCreated({
-        type: AnnotationType.box,
-        annotation: context.tags.focus ?? '',
-        confidenceIndicator: context.confidences.focus,
-        startTime: newAnnotation.startTime,
-        endTime: newAnnotation.endTime,
-        startFrequency: newAnnotation.startFrequency,
-        endFrequency: newAnnotation.endFrequency,
-        result_comments: []
-      })
+      if (Math.abs(newAnnotation.startTime - newAnnotation.endTime) > 2
+        && Math.abs(newAnnotation.startFrequency - newAnnotation.endFrequency) > 2) {
+        resultDispatch!({
+          type: 'addResult', result: {
+            type: AnnotationType.box,
+            annotation: resultContext.focusedTag ?? '',
+            confidenceIndicator: resultContext.focusedConfidence,
+            startTime: newAnnotation.startTime,
+            endTime: newAnnotation.endTime,
+            startFrequency: newAnnotation.startFrequency,
+            endFrequency: newAnnotation.endFrequency,
+            result_comments: []
+          }
+        })
+      }
     }
     setNewAnnotation(undefined);
   }
@@ -413,6 +426,9 @@ export const SpectroRenderComponent: React.FC<Props> = ({
 
       <div className="canvas-wrapper"
            ref={ wrapperRef }
+           onPointerDown={ onStartNewAnnotation }
+           onPointerMove={ onUpdateNewAnnotation }
+           onPointerUp={ onEndNewAnnotation }
            style={ {
              width: `${ SPECTRO_WIDTH }px`,
              height: `${ SPECTRO_HEIGHT + X_HEIGHT + SCROLLBAR_RESERVED }px`,
@@ -424,7 +440,6 @@ export const SpectroRenderComponent: React.FC<Props> = ({
                 height={ SPECTRO_HEIGHT }
                 width={ SPECTRO_WIDTH }
                 onClick={ e => audioPlayer?.seek(getTimeFromClientX(e.clientX)) }
-                onPointerDown={ onStartNewAnnotation }
                 onWheel={ onWheel }></canvas>
 
         <canvas className="time-axis"
@@ -433,7 +448,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
                 width={ SPECTRO_WIDTH }
                 style={ { top: `${ SPECTRO_HEIGHT }px` } }></canvas>
 
-        { context.annotations.array
+        { resultContext.results
           .filter(a => a.type === AnnotationType.box)
           .map((annotation: Annotation, key: number) => (
             <Region key={ key }
@@ -441,8 +456,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({
                     annotation={ annotation }
                     timePxRatio={ timePixelRatio }
                     freqPxRatio={ frequencyPixelRatio }
-                    audioPlayer={ audioPlayer }
-                    onAddAnotherAnnotation={ onStartNewAnnotation }></Region>
+                    audioPlayer={ audioPlayer }></Region>
           )) }
       </div>
     </Fragment>)
