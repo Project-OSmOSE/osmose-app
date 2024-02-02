@@ -31,16 +31,8 @@ from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from backend.api.views import (
-    DatasetViewSet,
-    UserViewSet,
-    AnnotationSetViewSet,
-    AnnotationTaskViewSet,
-    AnnotationCampaignViewSet,
-    AnnotationCommentViewSet,
-    ConfidenceIndicatorSetViewSet,
-)
 
+from backend.api.urls import api_router
 from backend.osmosewebsite.urls import website_router
 
 # Backend urls are for admin & api documentation
@@ -54,24 +46,6 @@ if settings.DEBUG:
     backend_urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
 
 # API urls are meant to be used by our React frontend
-api_router = routers.DefaultRouter()
-api_router.register(r"dataset", DatasetViewSet, basename="dataset")
-api_router.register(r"user", UserViewSet, basename="user")
-api_router.register(r"annotation-set", AnnotationSetViewSet, basename="annotation-set")
-api_router.register(
-    r"annotation-campaign", AnnotationCampaignViewSet, basename="annotation-campaign"
-)
-api_router.register(
-    r"annotation-comment", AnnotationCommentViewSet, basename="annotation-comment"
-)
-api_router.register(
-    r"annotation-task", AnnotationTaskViewSet, basename="annotation-task"
-)
-api_router.register(
-    r"confidence-indicator",
-    ConfidenceIndicatorSetViewSet,
-    basename="confidence-indicator",
-)
 api_urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

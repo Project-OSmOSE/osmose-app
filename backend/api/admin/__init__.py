@@ -26,6 +26,7 @@ from backend.api.models import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
+from backend.api.admin.annotation import DetectorAdmin
 
 
 def get_many_to_many(obj, field_name, related_field_name="name"):

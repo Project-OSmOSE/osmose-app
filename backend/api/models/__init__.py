@@ -23,5 +23,6 @@ from backend.api.models.annotations import (
     AnnotationSession,
     AnnotationTask,
 )
+from backend.api.models.annotation import Detector
 
 User = get_user_model()
