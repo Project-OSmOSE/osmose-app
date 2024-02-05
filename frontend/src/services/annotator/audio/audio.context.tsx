@@ -3,7 +3,6 @@ import { Context, createContext, Dispatch } from "react";
 
 export interface AudioCtx {
   time: number;
-  stopTime?: number;
   playbackRate: number;
   isPaused: boolean;
 }
