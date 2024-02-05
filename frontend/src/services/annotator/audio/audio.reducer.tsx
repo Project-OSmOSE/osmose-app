@@ -10,14 +10,14 @@ import {
 const audioReducer: Reducer<AudioCtx, AudioCtxAction> = (currentContext: AudioCtx, action: AudioCtxAction): AudioCtx => {
   switch (action.type) {
     case 'onPlay':
-      return { ...currentContext, isPaused: false }
+      return {...currentContext, isPaused: false}
     case 'onPause':
-      return { ...currentContext, isPaused: true }
+      return {...currentContext, isPaused: true}
 
     case 'setTime':
-      return { ...currentContext, time: action.time ?? 0 }
+      return {...currentContext, time: action.time ?? 0}
     case 'setPlaybackRate':
-      return { ...currentContext, playbackRate: action.playbackRate }
+      return {...currentContext, playbackRate: action.playbackRate}
 
     default:
       return currentContext;
@@ -25,8 +25,8 @@ const audioReducer: Reducer<AudioCtx, AudioCtxAction> = (currentContext: AudioCt
 }
 
 
-export const ProvideAudio: FC<{ children?: ReactNode }> = ({ children }) => {
-  const [task, dispatch] = useReducer(audioReducer, AudioCtxInitialValue);
+export const ProvideAudio: FC<{ children?: ReactNode }> = ({children}) => {
+  const [ task, dispatch ] = useReducer(audioReducer, AudioCtxInitialValue);
 
   return (
     <AudioContext.Provider value={ task }>

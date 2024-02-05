@@ -18,7 +18,7 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
 
   const getUpdatedResults = (newFocus?: Annotation): Array<Annotation> => {
     if (!newFocus) return currentContext.results;
-    return [...new Set([...currentContext.results.map(r => (r.id === newFocus.id && r.newId === newFocus.newId) ? newFocus : r)])]
+    return [ ...new Set([ ...currentContext.results.map(r => (r.id === newFocus.id && r.newId === newFocus.newId) ? newFocus : r) ]) ]
   }
 
   const createTagResult = (tag: string): Annotation => {
@@ -81,7 +81,7 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
         taskComment,
         allTags: action.task.annotationTags,
         presenceTags: action.task.prevAnnotations.map(a => a.annotation),
-        tagColors: new Map(action.task.annotationTags.map((t, i) => [t, COLORS[i % COLORS.length]])),
+        tagColors: new Map(action.task.annotationTags.map((t, i) => [ t, COLORS[i % COLORS.length] ])),
         focusedTag: undefined,
         allConfidences: action.task.confidenceIndicatorSet?.confidenceIndicators.map(c => c.label) ?? [],
         confidenceDescription: action.task.confidenceIndicatorSet?.desc,
@@ -103,10 +103,10 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
       focusedResult.newId = getNewId();
       return {
         ...currentContext,
-        results: [...currentContext.results, focusedResult],
+        results: [ ...currentContext.results, focusedResult ],
         focusedResult,
         focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceTags: [...new Set([...currentContext.presenceTags, focusedResult.annotation])].filter(t => !!t),
+        presenceTags: [ ...new Set([ ...currentContext.presenceTags, focusedResult.annotation ]) ].filter(t => !!t),
         focusedTag: focusedResult.annotation
       }
     case 'removeResult':
@@ -141,7 +141,7 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
         }
       }
       focusedComment.comment = action.comment;
-      if (focusedResult) focusedResult.result_comments = [focusedComment];
+      if (focusedResult) focusedResult.result_comments = [ focusedComment ];
       return {
         ...currentContext,
         results: getUpdatedResults(focusedResult),
@@ -152,7 +152,7 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
     case 'removeFocusComment':
       if (!focusedComment) return currentContext;
       if (!focusedComment.annotation_result) {
-        taskComment = { ...taskComment, comment: '' };
+        taskComment = {...taskComment, comment: ''};
         focusedComment = taskComment;
       } else focusedComment = undefined;
       if (focusedResult) focusedResult.result_comments = []
@@ -168,10 +168,10 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
       results.push(focusedResult);
       return {
         ...currentContext,
-        results: [...new Set([...results])],
+        results: [ ...new Set([ ...results ]) ],
         focusedResult,
         focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceTags: [...new Set([...currentContext.presenceTags, action.tag])],
+        presenceTags: [ ...new Set([ ...currentContext.presenceTags, action.tag ]) ],
         focusedTag: action.tag
       };
     case 'focusTag':
@@ -207,8 +207,8 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
   }
 }
 
-export const ProvideAnnotations: FC<{ children?: ReactNode }> = ({ children }) => {
-  const [task, dispatch] = useReducer(annotationsReducer, AnnotationsCtxInitialValue);
+export const ProvideAnnotations: FC<{ children?: ReactNode }> = ({children}) => {
+  const [ task, dispatch ] = useReducer(annotationsReducer, AnnotationsCtxInitialValue);
 
   return (
     <AnnotationsContext.Provider value={ task }>

@@ -42,6 +42,7 @@ export interface Retrieve {
     confidenceIndicators: Array<RetrieveConfidenceIndicator>;
   }
 }
+
 export interface Boundaries {
   startTime: Date,
   endTime: Date,

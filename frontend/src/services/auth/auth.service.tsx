@@ -29,8 +29,8 @@ export class AuthAPIService {
   async login(username: string, password: string): Promise<void> {
     const response = await fetch(this.URI, {
       method: 'POST',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({username, password}),
       signal: this.controller.signal,
     });
     if (response.status !== 200) throw (await response.json()).detail ?? response.statusText;
@@ -45,12 +45,12 @@ export class AuthAPIService {
     if (this.context?.token) return true;
     const token = this.token;
     if (!token) return false;
-    this.dispatch({ type: 'login', token });
+    this.dispatch({type: 'login', token});
     return true;
   }
 
   logout() {
-    this.dispatch({ type: 'logout' });
+    this.dispatch({type: 'logout'});
     this.history.push('/login');
   }
 
@@ -73,7 +73,7 @@ export const useAuthService = () => {
 
   useEffect(() => {
     api.context = context;
-  }, [context])
+  }, [ context ])
 
   return api;
 }

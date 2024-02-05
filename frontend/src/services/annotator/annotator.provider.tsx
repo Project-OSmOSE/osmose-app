@@ -5,8 +5,8 @@ import { ProvideAudio } from "./audio/audio.reducer.tsx";
 import { ProvideSpectro } from "./spectro/spectro.reducer.tsx";
 import { ProvideAnnotations } from "./annotations/annotations.reducer.tsx";
 
-export const ProvideAnnotator: FC<{ children: ReactNode }> = ({ children }) => {
-  const [context, dispatch] = useReducer(annotatorReducer, AnnotatorCtxInit);
+export const ProvideAnnotator: FC<{ children: ReactNode }> = ({children}) => {
+  const [ context, dispatch ] = useReducer(annotatorReducer, AnnotatorCtxInit);
   return (
     <ProvideAudio>
       <ProvideSpectro>

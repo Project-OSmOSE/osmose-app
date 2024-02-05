@@ -85,7 +85,7 @@ export const EditAnnotationCampaign: React.FC = () => {
     )
   }
 
-  if (users.length < 0 && annotators.length < 0) {
+  if (users.length === 0) {
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">Edit Annotation Campaign</h1>

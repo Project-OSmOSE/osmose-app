@@ -31,9 +31,9 @@ export interface SpectroCtx {
 
   availableZoomLevels: Array<number>;
   currentZoom: number;
-  currentZoomOrigin?: {x: number, y: number};
+  currentZoomOrigin?: { x: number, y: number };
 
-  pointerPosition?: { time: number, frequency: number};
+  pointerPosition?: { time: number, frequency: number };
 }
 
 export const SpectroCtxInitialValue: SpectroCtx = {
@@ -47,10 +47,9 @@ export const SpectroCtxInitialValue: SpectroCtx = {
 export type SpectroCtxAction =
   { type: 'init', task: Retrieve } |
   { type: 'updateParams', params: SpectrogramParams, zoom: number } |
-  { type: 'updatePointerPosition', position: { time: number, frequency: number} } |
+  { type: 'updatePointerPosition', position: { time: number, frequency: number } } |
   { type: 'leavePointer' } |
-  { type: 'zoom', direction: 'in' | 'out', origin?: {x: number; y: number} };
+  { type: 'zoom', direction: 'in' | 'out', origin?: { x: number; y: number } };
 
 export const SpectroContext: Context<SpectroCtx> = createContext<SpectroCtx>(SpectroCtxInitialValue);
 export const SpectroDispatchContext: Context<Dispatch<SpectroCtxAction> | undefined> = createContext<Dispatch<SpectroCtxAction> | undefined>(undefined);
-

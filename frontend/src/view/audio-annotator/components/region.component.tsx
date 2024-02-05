@@ -20,7 +20,7 @@ type RegionProps = {
 };
 
 
-const Region: React.FC<RegionProps> = ({
+export const Region: React.FC<RegionProps> = ({
                                          annotation,
                                          // canvasWrapperRef,
                                          freqPxRatio,
@@ -107,5 +107,3 @@ const Region: React.FC<RegionProps> = ({
     </div>
   );
 }
-
-export default Region;

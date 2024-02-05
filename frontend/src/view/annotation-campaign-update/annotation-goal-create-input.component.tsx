@@ -6,7 +6,7 @@ export const AnnotationGoalCreateInputComponent: FC<{
   annotators: UserList,
   annotationGoal: number,
   setAnnotationGoal: (annotationGoal: number) => void,
-}> = ({ annotationGoal, setAnnotationGoal, filesCounts, annotators }) => {
+}> = ({annotationGoal, setAnnotationGoal, filesCounts, annotators}) => {
 
   let filesPerPerson;
   if (filesCounts) filesPerPerson = Math.floor(filesCounts * annotationGoal / annotators.length);
@@ -24,8 +24,8 @@ export const AnnotationGoalCreateInputComponent: FC<{
       { filesCounts && filesPerPerson &&
           <p className="col-sm-5">
               Each annotator will annotate at least { filesPerPerson } files in the campaign
-              (${ Math.round(filesPerPerson / filesCounts * 100) }%), which contains
-              ${ filesCounts } files in total
+              ({ Math.round(filesPerPerson / filesCounts * 100) }%), which contains
+            { filesCounts } files in total
           </p> }
     </div>
   )

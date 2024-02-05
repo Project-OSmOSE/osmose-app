@@ -20,7 +20,7 @@ type Props = {
   audioPlayer: AudioPlayer | null;
 };
 
-const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
+export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
   const spectroContext = useContext(SpectroContext);
   const spectroDispatch = useContext(SpectroDispatchContext);
   const resultContext = useContext(AnnotationsContext);
@@ -73,5 +73,3 @@ const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
     </div>
   );
 }
-
-export default Workbench;

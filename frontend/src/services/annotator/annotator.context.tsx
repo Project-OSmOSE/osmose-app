@@ -41,4 +41,3 @@ export type AnnotatorCtxAction =
 
 export const AnnotatorContext: Context<AnnotatorCtx> = createContext<AnnotatorCtx>(AnnotatorCtxInit);
 export const AnnotatorDispatchContext: Context<Dispatch<AnnotatorCtxAction> | undefined> = createContext<Dispatch<AnnotatorCtxAction> | undefined>(undefined);
-

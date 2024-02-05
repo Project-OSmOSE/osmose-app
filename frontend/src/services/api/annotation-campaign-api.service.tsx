@@ -115,7 +115,7 @@ export type AddAnnotators = {
   annotation_goal?: number
 }
 
-class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResult>{
+class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResult> {
   private addAnnotatorsRequest?: SuperAgentRequest;
 
   list(): Promise<List> {
@@ -145,7 +145,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 
   public downloadResults(campaign: RetrieveCampaign): Promise<void> {
     const filename = campaign.name.replace(' ', '_') + '_results.csv';
-    const url= `${ this.URI }/${ campaign.id }/report`;
+    const url = `${ this.URI }/${ campaign.id }/report`;
     return this.download(url, filename);
   }
 
@@ -156,7 +156,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
   }
 
   public addAnnotators(campaignId: number, data: AddAnnotators) {
-    this.addAnnotatorsRequest = post(`${this.URI}/${campaignId}/add_annotators`)
+    this.addAnnotatorsRequest = post(`${ this.URI }/${ campaignId }/add_annotators/`)
       .set("Authorization", this.auth.bearer)
       .send(data);
     return this.addAnnotatorsRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))

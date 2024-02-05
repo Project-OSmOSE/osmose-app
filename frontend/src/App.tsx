@@ -49,9 +49,9 @@ export const App: FC = () => (
   <ProvideAuth>
     <Router basename='/app'>
       <Switch>
-        <Route path="/login"><Login/></Route>
+        <Route exact path="/login"><Login/></Route>
 
-        <AuthenticatedRoute path='/audio-annotator/:id'>
+        <AuthenticatedRoute exact path='/audio-annotator/:id'>
           <ProvideAnnotator>
             <AudioAnnotator/>
           </ProvideAnnotator>
@@ -62,9 +62,9 @@ export const App: FC = () => (
             <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
             <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
             <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
             <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
           </Switch>
         </AploseSkeleton>

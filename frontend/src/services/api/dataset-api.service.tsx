@@ -90,7 +90,7 @@ class DatasetAPIService extends APIService<List, never, never> {
     this.importRequest = post(`${ this.URI }/datawork_import/`)
       .set("Authorization", this.auth.bearer)
       .set("Accept", "application/json")
-      .send({ 'wanted_datasets': data });
+      .send({'wanted_datasets': data});
     return this.importRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth));
   }
 

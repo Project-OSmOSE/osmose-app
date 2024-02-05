@@ -20,7 +20,7 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
         nfft: configuration.nfft,
         winsize: configuration.winsize,
         overlap: configuration.overlap,
-        zoomLevels: [...Array(nbZooms)].map((_, i) => Math.pow(2, i)),
+        zoomLevels: [ ...Array(nbZooms) ].map((_, i) => Math.pow(2, i)),
         urlPrefix: urlParts ? urlParts[1] : '',
         urlFileName: urlParts ? urlParts[2] : '',
         urlFileExtension: urlParts ? urlParts[3] : '',
@@ -33,7 +33,7 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
           winsize: info.winsize,
           overlap: info.overlap,
           zoom,
-          images: [...Array(zoom)].map((_, i) => ({
+          images: [ ...Array(zoom) ].map((_, i) => ({
             start: i * step,
             end: (i + 1) * step,
             src: `${ info.urlPrefix }${ info.urlFileName }_${ zoom }_${ i }${ info.urlFileExtension }`
@@ -85,7 +85,7 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
       return {
         ...currentContext,
         allSpectrograms,
-        availableZoomLevels: [...new Set(allSpectrograms.map(c => c.zoom))].sort((a, b) => a - b),
+        availableZoomLevels: [ ...new Set(allSpectrograms.map(c => c.zoom)) ].sort((a, b) => a - b),
         availableParams,
         currentImages: currentSpectro?.images ?? [],
         currentParams: currentSpectro ? {
@@ -115,17 +115,17 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
       }
 
     case 'updatePointerPosition':
-      return { ...currentContext, pointerPosition: action.position }
+      return {...currentContext, pointerPosition: action.position}
     case 'leavePointer':
-      return { ...currentContext, pointerPosition: undefined }
+      return {...currentContext, pointerPosition: undefined}
 
     default:
       return currentContext;
   }
 }
 
-export const ProvideSpectro: FC<{ children?: ReactNode }> = ({ children }) => {
-  const [task, dispatch] = useReducer(spectroReducer, SpectroCtxInitialValue);
+export const ProvideSpectro: FC<{ children?: ReactNode }> = ({children}) => {
+  const [ task, dispatch ] = useReducer(spectroReducer, SpectroCtxInitialValue);
 
   return (
     <SpectroContext.Provider value={ task }>
