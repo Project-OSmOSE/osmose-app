@@ -214,6 +214,9 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_annotators",
         "confidence_indicator_set",
     )
+    search_fields = ("name", "desc")
+
+    list_filter = ("datasets",)
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
@@ -235,9 +238,9 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
         "status",
         "annotation_campaign",
         "dataset_file",
-        "annotator_id",
+        "annotator",
     )
-    list_filter = ("status", "annotation_campaign", "annotator_id")
+    list_filter = ("status", "annotation_campaign", "annotator", "detector")
 
 
 class AnnotationResultAdmin(admin.ModelAdmin):
@@ -252,6 +255,14 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "annotation_tag",
         "annotation_task",
         "confidence_indicator",
+    )
+    search_fields = (
+        "annotation_tag__name",
+        "confidence_indicator__label",
+    )
+    list_filter = (
+        "annotation_task__annotation_campaign",
+        "annotation_task__annotator_id",
     )
 
 

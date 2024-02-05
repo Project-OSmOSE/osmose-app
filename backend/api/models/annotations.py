@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
+from .annotation import Detector
 
 
 class ConfidenceIndicatorSet(models.Model):
@@ -104,6 +105,7 @@ class AnnotationCampaign(models.Model):
     """
 
     AnnotationScope = models.IntegerChoices("AnnotationScope", "RECTANGLE WHOLE")
+    AnnotationUsage = models.IntegerChoices("AnnotationUsage", "CREATE CHECK")
 
     class Meta:
         db_table = "annotation_campaigns"
@@ -126,6 +128,9 @@ class AnnotationCampaign(models.Model):
     )
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE
+    )
+    usage = models.IntegerField(
+        choices=AnnotationUsage.choices, default=AnnotationUsage.CREATE
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -205,6 +210,13 @@ class AnnotationTask(models.Model):
         on_delete=models.CASCADE,
         related_name="annotation_tasks",
     )
+    detector = models.ForeignKey(
+        Detector,
+        on_delete=models.CASCADE,
+        related_name="annotation_tasks",
+        null=True,
+        blank=True,
+    )
     dataset_file = models.ForeignKey(
         "DatasetFile", on_delete=models.CASCADE, related_name="annotation_tasks"
     )
@@ -230,6 +242,7 @@ class AnnotationResult(models.Model):
     confidence_indicator = models.ForeignKey(
         ConfidenceIndicator, on_delete=models.SET_NULL, null=True, blank=True
     )
+    is_valid = models.BooleanField(null=True, blank=True)
 
 
 class AnnotationComment(models.Model):
