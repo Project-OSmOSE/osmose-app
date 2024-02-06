@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from random import randint, choice, shuffle
+from random import randint, choice
 
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.core import management
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -86,6 +86,8 @@ class Command(management.BaseCommand):
                     username=name,
                     email=f"{name}@osmose.xyz",
                     password=make_password(password),
+                    first_name=name,
+                    last_name=self.fake.last_name(),
                 )
             )
         User.objects.bulk_create(users)

@@ -8,6 +8,8 @@ export interface ListItem {
   id: number;
   username: string;
   email: string;
+  first_name: string;
+  last_name: string;
 }
 
 class UserAPIService extends APIService<List, never, never> {

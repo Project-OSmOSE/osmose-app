@@ -15,9 +15,20 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
   const [searchResult, setSearchResult] = useState<Array<any>>([]);
 
   useEffect(() => {
-    if (!search) setSearchResult([]);
-    else setSearchResult(props.values.filter(e => props.show(e).includes(search)));
-    console.debug(props.values.filter(e => props.show(e).includes(search ?? '')))
+    if (!search) return setSearchResult([]);
+    const searchData = search.split(' ').filter(s => s).map(s => s.toLowerCase());
+    setSearchResult(
+      props.values.filter(value => {
+        const valueData = props.show(value).split(' ').filter(v => v).map(v => v.toLowerCase());
+        console.debug(valueData, searchData)
+        for (const s of searchData) {
+          if (valueData.find(v => v.includes(s))) continue;
+          console.debug('false', s, valueData.find(v => v.includes(s)))
+          return false;
+        }
+        return true;
+      })
+    );
   }, [search])
 
   return (
@@ -29,7 +40,7 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
 
       { !!search && <IonList id="searchbar-results" lines="none">
         { (searchResult.length > 5 ? searchResult.slice(0, 4) : searchResult.slice(0, 5)).map((v, i) => (
-          <IonItem key={i} onClick={ () => {
+          <IonItem key={ i } onClick={ () => {
             setSearch(null);
             props.onValueSelected(v)
           } }>{ props.show(v) }</IonItem>

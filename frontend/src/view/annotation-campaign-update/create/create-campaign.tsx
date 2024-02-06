@@ -93,6 +93,11 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
+  const showUser = (user: UserListItem): string => {
+    if (user.first_name && user.last_name) return `${user.first_name} ${user.last_name}`;
+    else return user.username;
+  }
+
   return (
     <div id="create-campaign-form" className="col-sm-9 border rounded">
       <h1>Create Annotation Campaign</h1>
@@ -178,13 +183,13 @@ export const CreateCampaign: React.FC = () => {
         <div className="input-item chips-selection">
           <Searchbar placeholder="Search annotator..."
                      values={ allAnnotators.filter(a => !annotators.find(annotator => annotator.id === a.id)) }
-                     show={ (annotator: UserListItem) => annotator.username }
+                     show={ showUser }
                      onValueSelected={ (annotator: UserListItem) => setAnnotators([...new Set([...annotators, annotator])]) }></Searchbar>
           { annotators.map(annotator => {
             return (
               <IonChip color="secondary" key={ annotator.id }
                        onClick={ () => setAnnotators(annotators.filter(a => annotator.id !== a.id)) }>
-                { annotator.username }
+                { showUser(annotator) }
                 <IonIcon icon={ closeCircle }/>
               </IonChip>
             )
