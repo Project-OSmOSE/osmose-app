@@ -1,0 +1,161 @@
+:root {
+  --ion-font-family: "Exo 2", Roboto, sans-serif;
+
+  --ion-color-primary: #238583;
+  --ion-color-primary-rgb: 35,133,131;
+  --ion-color-primary-contrast: #fff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1f7573;
+  --ion-color-primary-tint: #39918f;
+
+  --ion-color-secondary: #113548;
+  --ion-color-secondary-rgb: 17, 53, 72;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0f2f3f;
+  --ion-color-secondary-tint: #29495a;
+
+  --ion-color-success: #85B14D;
+  --ion-color-success-rgb: 133, 177, 77;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #759c44;
+  --ion-color-success-tint: #91b95f;
+
+  --ion-color-danger: #D86045;
+  --ion-color-danger-rgb: 216, 96, 69;
+  --ion-color-danger-contrast: #fff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #be543d;
+  --ion-color-danger-tint: #dc7058;
+
+  --ion-color-light: #fff;
+  --ion-color-light-rgb: 255, 255, 255;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #F2F3F5;
+  --ion-color-light-tint: #ffffff;
+
+  --ion-color-medium: #828D9B;
+  --ion-color-medium-rgb: 130, 141, 155;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #727c88;
+  --ion-color-medium-tint: #8f98a5;
+
+  --ion-color-dark: #061D38;
+  --ion-color-dark-rgb: 6, 29, 56;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #051a31;
+  --ion-color-dark-tint: #1f344c;
+
+  --aplose-box-shadow: rgba(var(--ion-color-secondary-rgb), 0.2) 0 20px 30px;
+}
+
+.disabled,
+[aria-disabled=true]{
+  opacity: 0.5;
+}
+
+/* Buttons */
+ion-button {
+  --border-radius: 0.5rem;
+}
+
+
+/* Inputs */
+ion-label {
+  padding-left: 1rem;
+}
+ion-label.mandatory {
+  font-weight: 700;
+}
+
+ion-textarea textarea {
+  resize: vertical !important;
+  min-height: 3rem !important;
+}
+ion-searchbar {
+  padding: 0 !important;
+  border-radius: 1rem;
+}
+ion-select label,
+ion-textarea textarea,
+ion-input input,
+ion-searchbar input {
+  background: var(--ion-color-light-shade) !important;
+  color: var(--ion-color-light-contrast) !important;
+  border-radius: 1rem !important;
+  overflow: hidden;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  font-size: 1rem !important;
+  padding-top: 0.5rem !important;
+  padding-right: 1rem !important;
+  padding-bottom: 0.5rem !important;
+}
+ion-select label,
+ion-textarea textarea,
+ion-input input {
+  padding-left: 1rem !important;
+}
+ion-searchbar .searchbar-search-icon {
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
+ion-select label,
+ion-textarea label,
+ion-input label {
+  margin: 0;
+}
+
+ion-select {
+  --background: var(--ion-color-light-shade);
+  --border-radius: 1rem;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.5rem;
+  --padding-bottom: 0.5rem;
+  --highlight-color-focused: none;
+  --highlight-color-invalid: none;
+  --highlight-color-valid: none;
+}
+ion-input input[type=number] {
+  max-width: 5rem !important;
+  text-align: end !important;
+}
+
+ion-select .select-highlight,
+ion-textarea .textarea-highlight,
+ion-input .input-highlight {
+  display: none !important;
+}
+
+/* Chips */
+ion-chip {
+  font-size: 1rem;
+  border-radius: 3rem;
+  margin: 0;
+  transition: 300ms;
+}
+ion-chip[color=secondary]:not([outline=true]) {
+  background: var(--ion-color-secondary);
+  color: var(--ion-color-secondary-contrast);
+  border: 1px solid var(--ion-color-secondary);
+}
+ion-chip[outline] {
+  /*border-width: 2px;*/
+  border-color: var(--ion-color-secondary);
+}
+ion-chip[color=secondary] ion-icon {
+  opacity: 0.5;
+}
+
+/* With backdrop */
+ion-alert,
+ion-toast {
+  position: fixed !important;
+}

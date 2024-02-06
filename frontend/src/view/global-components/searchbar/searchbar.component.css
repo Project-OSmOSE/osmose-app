@@ -1,0 +1,28 @@
+#searchbar.got-results {
+  background: var(--ion-color-light-shade);
+  box-shadow: var(--aplose-box-shadow);
+  border-radius: 1rem 1rem 0 0;
+  position: relative;
+}
+
+
+ion-list#searchbar-results {
+  position: absolute;
+  z-index: 10;
+  border-radius: 0 0 1rem 1rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: translateY(100%);
+  --background: var(--ion-color-light-shade);
+  color: var(--ion-color-light-contrast);
+  padding: 0;
+  box-shadow: var(--aplose-box-shadow);
+}
+ion-list#searchbar-results ion-item {
+  --background: var(--ion-color-light-shade);
+}
+ion-list#searchbar-results ion-item.none {
+  font-style: italic;
+  opacity: 0.75;
+}
