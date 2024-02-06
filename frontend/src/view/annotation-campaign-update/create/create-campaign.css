@@ -17,7 +17,7 @@
 
 #create-campaign-form .bloc {
   display: grid;
-  gap: 0.5rem 1rem;
+  gap: 1rem;
 }
 
 #create-campaign-form .bloc.global-info {
@@ -59,4 +59,9 @@
 }
 #create-campaign-form .bloc .input-item.chips-selection > *:not(ion-chip) {
   width: 100%;
+}
+
+#create-campaign-form .bloc > .item-button {
+  width: fit-content;
+  justify-self: center;
 }

@@ -9,6 +9,11 @@ export enum AnnotationMode {
   boxes = 2,
 }
 
+export enum Usage {
+  create = 1,
+  check = 2,
+}
+
 export enum AnnotationType {
   box = 'box',
   tag = "tag"

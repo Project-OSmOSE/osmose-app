@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import './create-campaign.css';
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   IonButton,
   IonChip,
@@ -7,8 +6,6 @@ import {
   IonInput,
   IonLabel,
   IonNote,
-  IonSelect,
-  IonSelectOption,
   IonTextarea, useIonToast
 } from "@ionic/react";
 import {
@@ -16,11 +13,16 @@ import {
   DatasetList,
   useDatasetsAPI,
   DatasetListItemSpectros,
-  useUsersAPI, UserList, UserListItem
+  useUsersAPI, UserList, UserListItem, useAnnotationSetAPI,
+  AnnotationSetList, useConfidenceSetAPI, ConfidenceSetList
 } from "../../../services/api";
 import { closeCircle } from "ionicons/icons";
 import { Searchbar } from "../../global-components/searchbar/searchbar.component.tsx";
 import { buildErrorMessage } from "../../../services/annotator/format/format.util.tsx";
+import { AnnotationBloc } from "./annotation-bloc/annotation-bloc.component.tsx";
+import { InputRef } from "../../../components/form/interface.tsx";
+import { Select } from "../../../components/form/select/select.component.tsx";
+import './create-campaign.css';
 
 export const CreateCampaign: React.FC = () => {
 
@@ -40,6 +42,7 @@ export const CreateCampaign: React.FC = () => {
     setActiveSpectroIDs(dataset?.spectros.map(s => s.id) ?? [])
   }, [dataset]);
   const [activeSpectroIDs, setActiveSpectroIDs] = useState<Array<number>>([]);
+  const datasetRef = useRef<InputRef | null>(null);
 
   // Annotators
   const [allAnnotators, setAllAnnotators] = useState<UserList>([]);
@@ -58,8 +61,16 @@ export const CreateCampaign: React.FC = () => {
   // API Services
   const datasetsAPI = useDatasetsAPI();
   const usersAPI = useUsersAPI();
+  const annotationSetAPI = useAnnotationSetAPI();
+  const confidenceSetAPI = useConfidenceSetAPI();
 
   const [presentToast, dismissToast] = useIonToast();
+
+  // Annotations
+  const annotationRef = useRef<InputRef | null>(null);
+  const [allAnnotationSets, setAllAnnotationSets] = useState<AnnotationSetList>([]);
+  const [allConfidenceSets, setAllConfidenceSets] = useState<ConfidenceSetList>([]);
+
 
   useEffect(() => {
     let isCancelled = false;
@@ -67,8 +78,8 @@ export const CreateCampaign: React.FC = () => {
     Promise.all([
       datasetsAPI.list('.wav').then(setAllDatasets),
       usersAPI.list().then(setAllAnnotators),
-      // annotationSetService.list().then(setAnnotationSets),
-      // confidenceSetService.list().then(setConfidenceIndicatorSets)
+      annotationSetAPI.list().then(setAllAnnotationSets),
+      confidenceSetAPI.list().then(setAllConfidenceSets)
     ]).catch(e => {
       if (isCancelled) return;
       presentToast({
@@ -83,18 +94,25 @@ export const CreateCampaign: React.FC = () => {
       })
     })
 
+    document.addEventListener('click', handleClicks)
     return () => {
       isCancelled = true;
       datasetsAPI.abort();
+      usersAPI.abort();
+      annotationSetAPI.abort();
+      confidenceSetAPI.abort();
       // campaignService.abort();
-      // userService.abort();
-      // annotationSetService.abort();
-      // confidenceSetService.abort();
+      document.removeEventListener('click', handleClicks);
     }
   }, [])
 
+  const handleClicks = (e: MouseEvent) => {
+    datasetRef.current?.blur(e);
+    annotationRef.current?.blur(e);
+  }
+
   const showUser = (user: UserListItem): string => {
-    if (user.first_name && user.last_name) return `${user.first_name} ${user.last_name}`;
+    if (user.first_name && user.last_name) return `${ user.first_name } ${ user.last_name }`;
     else return user.username;
   }
 
@@ -143,14 +161,14 @@ export const CreateCampaign: React.FC = () => {
         </div>
 
         <div className="input-item inline">
-          <IonLabel className="mandatory">Dataset</IonLabel>
-          <IonSelect placeholder="Select a dataset"
-                     value={ dataset?.id }
-                     onIonChange={ e => setDataset(allDatasets.find(d => d.id === e.detail.value)) }>
-            { allDatasets.map(item => (
-              <IonSelectOption value={ item.id } key={ item.id }>{ item.name }</IonSelectOption>
-            )) }
-          </IonSelect>
+          <Select label="Dataset"
+                  ref={ datasetRef }
+                  required={ true }
+                  placeholder="Select a dataset"
+                  options={ allDatasets.map(d => ({ id: d.id, label: d.name })) }
+                  optionsContainer="alert"
+                  value={ dataset?.id }
+                  onValueSelected={ value => setDataset(allDatasets.find(d => d.id === value)) }/>
         </div>
 
         <div className="input-item chips-selection" aria-disabled={ datasetSpectroConfig.length <= 0 }>
@@ -169,9 +187,16 @@ export const CreateCampaign: React.FC = () => {
               </IonChip>
             )
           }) }
-          { !dataset && <IonNote color="danger">You must select a dataset to choose the spectrogram configurations you want to annotate</IonNote> }
+          { !dataset &&
+              <IonNote color="danger">You must select a dataset to choose the spectrogram configurations you want to
+                  annotate</IonNote> }
         </div>
       </div>
+
+      <AnnotationBloc ref={ annotationRef }
+                      allAnnotationSets={ allAnnotationSets }
+                      allConfidenceSets={ allConfidenceSets }
+      />
 
       <div className="bloc annotators">
         <div className="separator">

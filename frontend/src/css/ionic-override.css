@@ -50,17 +50,26 @@
   --ion-color-dark-shade: #051a31;
   --ion-color-dark-tint: #1f344c;
 
-  --aplose-box-shadow: rgba(var(--ion-color-secondary-rgb), 0.2) 0 20px 30px;
+  --aplose-box-shadow:
+          rgba(var(--ion-color-secondary-rgb), 0.1) 0 1rem 50px,
+          rgba(var(--ion-color-secondary-rgb), 0.2) 0 0.25rem 10px;
 }
 
 .disabled,
 [aria-disabled=true]{
   opacity: 0.5;
 }
+.bold {
+  font-weight: 600;
+}
+p {
+  margin: 0;
+}
 
 /* Buttons */
 ion-button {
   --border-radius: 0.5rem;
+  text-transform: none;
 }
 
 
@@ -80,7 +89,6 @@ ion-searchbar {
   padding: 0 !important;
   border-radius: 1rem;
 }
-ion-select label,
 ion-textarea textarea,
 ion-input input,
 ion-searchbar input {
@@ -96,7 +104,6 @@ ion-searchbar input {
   padding-right: 1rem !important;
   padding-bottom: 0.5rem !important;
 }
-ion-select label,
 ion-textarea textarea,
 ion-input input {
   padding-left: 1rem !important;
@@ -106,29 +113,16 @@ ion-searchbar .searchbar-search-icon {
   transform: translateY(-50%);
 }
 
-ion-select label,
 ion-textarea label,
 ion-input label {
   margin: 0;
 }
 
-ion-select {
-  --background: var(--ion-color-light-shade);
-  --border-radius: 1rem;
-  --padding-start: 1rem;
-  --padding-end: 1rem;
-  --padding-top: 0.5rem;
-  --padding-bottom: 0.5rem;
-  --highlight-color-focused: none;
-  --highlight-color-invalid: none;
-  --highlight-color-valid: none;
-}
 ion-input input[type=number] {
   max-width: 5rem !important;
   text-align: end !important;
 }
 
-ion-select .select-highlight,
 ion-textarea .textarea-highlight,
 ion-input .input-highlight {
   display: none !important;
