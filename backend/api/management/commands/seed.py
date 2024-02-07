@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from random import randint, choice, shuffle
+from random import randint, choice
 
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.core import management
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -149,6 +149,21 @@ class Command(management.BaseCommand):
                         dataset=dataset,
                     )
                 )
+            start = parse_datetime("2012-10-03T12:00:00+0200")
+            end = start + timedelta(minutes=15)
+            audio_metadatum = AudioMetadatum(
+                start=(start + timedelta(hours=1)), end=(end + timedelta(hours=1))
+            )
+            audio_metadata.append(audio_metadatum)
+            files.append(
+                DatasetFile(
+                    filename=f"sound{1:03d}.wav",
+                    filepath="data/audio/50h_0.wav",
+                    size=58982478,
+                    audio_metadatum=audio_metadatum,
+                    dataset=dataset,
+                )
+            )
             configs.append(
                 SpectroConfig(
                     name="4096_4096_90",

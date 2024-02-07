@@ -30,7 +30,16 @@ export const DatasetList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    datasetService.list().then(setDatasets).catch(setError);
+    let isCancelled = false;
+    datasetService.list().then(setDatasets).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    });
+
+    return () => {
+      isCancelled = true;
+      datasetService.abort();
+    };
   }, [datasetsToImport]);
 
   useEffect(() => {
