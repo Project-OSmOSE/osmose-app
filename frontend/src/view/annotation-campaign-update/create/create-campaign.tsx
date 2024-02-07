@@ -17,7 +17,7 @@ import {
   AnnotationSetList, useConfidenceSetAPI, ConfidenceSetList
 } from "../../../services/api";
 import { closeCircle } from "ionicons/icons";
-import { Searchbar } from "../../global-components/searchbar/searchbar.component.tsx";
+import { Searchbar } from "../../../components/form/searchbar/searchbar.component.tsx";
 import { buildErrorMessage } from "../../../services/annotator/format/format.util.tsx";
 import { AnnotationBloc } from "./annotation-bloc/annotation-bloc.component.tsx";
 import { InputRef } from "../../../components/form/interface.tsx";
