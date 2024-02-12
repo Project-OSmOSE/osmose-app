@@ -35,7 +35,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
       const time = elementRef.current?.currentTime;
       if (stopTime && time && time > stopTime) player.pause();
       else dispatch!({ type: 'setTime', time });
-    }, 10)
+    }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
   }, [ annotatorContext.taskId ]);
