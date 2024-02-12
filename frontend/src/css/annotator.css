@@ -666,7 +666,7 @@ div[class^='pulse-'] {
 }
 
 .ps-0{
-  padding-left: 0px !important;
+  padding-left: 0 !important;
 }
 
 .mini-content{
@@ -675,4 +675,11 @@ div[class^='pulse-'] {
 
 .isInvisible{
   color: white;
+}
+
+.tooltip .tooltip-inner {
+  background-color: unset;
+  padding: unset;
+  color: unset;
+  border-radius: unset;
 }

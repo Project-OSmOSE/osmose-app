@@ -3,7 +3,7 @@ import React from "react";
 import nock from "nock";
 import {mount, shallow} from "enzyme";
 
-import DatasetList from "../src/DatasetList";
+import DatasetList from "../src/pages/DatasetList.js";
 import datasets from "./fixtures/dataset_list.json";
 
 // describe('testing DatasetList component', function () {

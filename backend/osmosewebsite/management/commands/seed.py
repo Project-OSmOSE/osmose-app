@@ -124,7 +124,7 @@ class Command(BaseCommand):
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")
         for i in range(0, random.randint(5, 15)):
-            news = Collaborator.objects.create(
+            Collaborator.objects.create(
                 name=fake.name(),
                 level=random.randint(0, 5),
                 thumbnail=get_fake_image_url(),
@@ -132,9 +132,8 @@ class Command(BaseCommand):
                 show_on_home_page=True,
             )
         for i in range(0, random.randint(5, 15)):
-            news = Collaborator.objects.create(
+            Collaborator.objects.create(
                 name=fake.name(),
-                level=random.randint(0, 5),
                 thumbnail=get_fake_image_url(),
                 url=fake.uri(),
                 show_on_home_page=False,
