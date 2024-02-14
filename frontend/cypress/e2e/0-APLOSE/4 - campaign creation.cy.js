@@ -1,6 +1,6 @@
 describe('create campaign', () => {
     beforeEach(() => {
-        cy.login("admin", "osmose29")
+        cy.session_login('admin', 'osmose29')
         cy.contains('New annotation campaign', {matchCase: false}).click()
     })
 

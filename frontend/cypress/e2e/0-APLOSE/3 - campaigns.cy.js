@@ -1,10 +1,10 @@
 describe('campaigns page', () => {
     beforeEach(() => {
-        cy.login("admin", "osmose29")
+        cy.session_login('admin', 'osmose29')
     })
 
-    it('displays 2 campaigns by default', () => {
-        cy.get('tr').should('have.length', 5) // Includes table head
+    it('displays 5 campaigns by default', () => {
+        cy.get('tr').should('have.length', 6) // Includes table head
     })
 
     it('open guide', () => {
