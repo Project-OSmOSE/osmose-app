@@ -55,7 +55,7 @@ export const AnnotationCampaignList: React.FC = () => {
             <th>Start Date</th>
             <th>End Date</th>
             <th>Progress</th>
-            <th>Campaign instructions</th>
+            <th>Mode</th>
             <th>Annotation Link</th>
           </tr>
           </thead>
@@ -64,18 +64,13 @@ export const AnnotationCampaignList: React.FC = () => {
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
               <td>{ campaign.created_at.toDateString() }</td>
-              <td>{ campaign.annotation_set.name ?? "-" }</td>
-              <td>{ campaign.confidence_indicator_set?.name ?? "-" }</td>
+              <td>{ campaign.annotation_set_name ?? "-" }</td>
+              <td>{ campaign.confidence_indicator_set_name ?? "-" }</td>
               <td>{ campaign.files_count }</td>
               <td>{ campaign.start?.toDateString() ?? 'N/A' }</td>
               <td>{ campaign.end?.toDateString() ?? 'N/A' }</td>
               <td>{ campaign.user_complete_tasks_count } / { campaign.user_tasks_count }</td>
-              <td>{ campaign.instructions_url ?
-                (<a href={ campaign.instructions_url }
-                    title="Instructions on how to annotate tasks for this campaign"
-                    rel="noopener noreferrer"
-                    target="_blank">Instructions</a>)
-                : "-" }</td>
+              <td>{ campaign.mode }</td>
               <td><Link to={ `/annotation_tasks/${ campaign.id }` }>My tasks</Link></td>
             </tr>
           )) }

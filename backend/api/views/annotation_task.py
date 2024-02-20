@@ -1,19 +1,14 @@
 """Annotation task DRF-Viewset file"""
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.db.models import Prefetch
-
 from django.db import transaction
-
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
-
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from backend.api.models import (
-    User,
     AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
@@ -48,36 +43,57 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     @action(detail=False, url_path="campaign/(?P<campaign_id>[^/.]+)")
     def campaign_list(self, request, campaign_id):
         """List tasks for given annotation campaign"""
-        get_object_or_404(AnnotationCampaign, pk=campaign_id)
-        queryset = self.queryset.filter(
-            annotator_id=request.user.id, annotation_campaign_id=campaign_id
-        ).prefetch_related("dataset_file", "dataset_file__dataset")
+        campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
+        queryset = campaign.tasks.raw(
+            """
+                                      SELECT task.id,
+                                             task.status,
+                                             file.filename,
+                                             file.dataset_name,
+                                             file.start,
+                                             file."end"
+                                      FROM annotation_tasks task
+                                      LEFT OUTER JOIN 
+                                        (SELECT file.id,
+                                                filename,
+                                                d.name as dataset_name,
+                                                a.start,
+                                                a."end"
+                                         FROM dataset_files file
+                                         LEFT JOIN datasets d on file.dataset_id = d.id
+                                         LEFT JOIN audio_metadata a on file.audio_metadatum_id = a.id
+                                        ) file on file.id = task.dataset_file_id
+                                      WHERE annotator_id=%s AND annotation_campaign_id=%s
+                                      ORDER BY file.start""",
+            (request.user.id, campaign_id),
+        )
+
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter("campaign_id", int, OpenApiParameter.PATH),
-            OpenApiParameter("user_id", int, OpenApiParameter.PATH),
-        ],
-        responses=AnnotationTaskSerializer(many=True),
-    )
-    @action(
-        detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/user/(?P<user_id>[^/.]+)",
-    )
-    def campaign_user_list(self, request, campaign_id, user_id):
-        """List tasks for given annotation campaign and user"""
-        annotation_campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
-        _user = get_object_or_404(User, pk=user_id)
-        if not request.user.is_staff and not request.user == annotation_campaign.owner:
-            return HttpResponse("Unauthorized", status=403)
-
-        queryset = self.queryset.filter(
-            annotator_id=user_id, annotation_campaign_id=campaign_id
-        ).prefetch_related("dataset_file", "dataset_file__dataset")
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+    # @extend_schema(
+    #     parameters=[
+    #         OpenApiParameter("campaign_id", int, OpenApiParameter.PATH),
+    #         OpenApiParameter("user_id", int, OpenApiParameter.PATH),
+    #     ],
+    #     responses=AnnotationTaskSerializer(many=True),
+    # )
+    # @action(
+    #     detail=False,
+    #     url_path="campaign/(?P<campaign_id>[^/.]+)/user/(?P<user_id>[^/.]+)",
+    # )
+    # def campaign_user_list(self, request, campaign_id, user_id):
+    #     """List tasks for given annotation campaign and user"""
+    #     annotation_campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
+    #     _user = get_object_or_404(User, pk=user_id)
+    #     if not request.user.is_staff and not request.user == annotation_campaign.owner:
+    #         return HttpResponse("Unauthorized", status=403)
+    #
+    #     queryset = self.queryset.filter(
+    #         annotator_id=user_id, annotation_campaign_id=campaign_id
+    #     ).prefetch_related("dataset_file", "dataset_file__dataset")
+    #     serializer = self.serializer_class(queryset, many=True)
+    #     return Response(serializer.data)
 
     @extend_schema(responses=AnnotationTaskRetrieveSerializer)
     def retrieve(self, request, pk):

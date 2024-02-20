@@ -1,15 +1,19 @@
 #aplose-select {
   display: grid;
-  grid-template-columns: 1fr auto;
   gap: 0 1rem;
   align-items: center;
   justify-content: space-between;
   transition: 300ms;
 }
 
+#aplose-select:has(#label) {
+  grid-template-columns: 1fr auto;
+}
+
 #aplose-select #label {
   padding-left: 1rem;
 }
+
 #aplose-select #label.required {
   font-weight: 600;
 }
@@ -31,13 +35,26 @@
   transition: 300ms;
   cursor: pointer;
 }
+#aplose-select #select[aria-disabled=true] .button {
+  cursor: default;
+}
+
+#aplose-select #select .button p {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 #aplose-select #select .button.placeholder,
 #aplose-select #select .button ion-icon {
   color: rgba(var(--ion-color-secondary-rgb), 0.6);
 }
+
 #aplose-select #select .button ion-icon {
   font-size: 1rem;
 }
+
 #aplose-select #select.open .button {
   box-shadow: var(--aplose-box-shadow);
 }
@@ -54,9 +71,11 @@
   bottom: 0;
   transform: translateY(calc(0.5rem + 100%));
 }
+
 #aplose-select #select:not(.open) #options {
   display: none;
 }
+
 #aplose-select #select #options .item {
   padding: 0.5rem 2.5rem 0.5rem 1rem;
   max-width: 20rem;

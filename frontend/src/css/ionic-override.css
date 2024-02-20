@@ -36,12 +36,12 @@
   --ion-color-light-shade: #F2F3F5;
   --ion-color-light-tint: #ffffff;
 
-  --ion-color-medium: #828D9B;
-  --ion-color-medium-rgb: 130, 141, 155;
-  --ion-color-medium-contrast: #000000;
-  --ion-color-medium-contrast-rgb: 0, 0, 0;
-  --ion-color-medium-shade: #727c88;
-  --ion-color-medium-tint: #8f98a5;
+  --ion-color-medium: #6C757D;
+  --ion-color-medium-rgb: 108,117,125;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255,255,255;
+  --ion-color-medium-shade: #5f676e;
+  --ion-color-medium-tint: #7b838a;
 
   --ion-color-dark: #061D38;
   --ion-color-dark-rgb: 6, 29, 56;
@@ -66,10 +66,33 @@ p {
   margin: 0;
 }
 
+/* Page */
+ion-app {
+  display: unset !important;
+  position: unset !important;
+}
+
 /* Buttons */
 ion-button {
   --border-radius: 0.5rem;
   text-transform: none;
+  margin: 0;
+}
+ion-button:has([slot=icon-only]) {
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  --padding-top: 0.5rem;
+  --padding-bottom: 0.5rem;
+}
+ion-button .disable-hint {
+  display: none;
+}
+ion-button[aria-disabled=true]:hover .disable-hint {
+  display: unset;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
 }
 
 
@@ -81,10 +104,6 @@ ion-label.mandatory {
   font-weight: 700;
 }
 
-ion-textarea textarea {
-  resize: vertical !important;
-  min-height: 3rem !important;
-}
 ion-searchbar {
   padding: 0 !important;
   border-radius: 1rem;
@@ -104,6 +123,11 @@ ion-searchbar input {
   padding-right: 1rem !important;
   padding-bottom: 0.5rem !important;
 }
+ion-textarea textarea {
+  resize: vertical !important;
+  min-height: 3rem !important;
+  border-bottom-right-radius: 0.25rem !important;
+}
 ion-textarea textarea,
 ion-input input {
   padding-left: 1rem !important;
@@ -112,7 +136,13 @@ ion-searchbar .searchbar-search-icon {
   top: 50% !important;
   transform: translateY(-50%);
 }
-
+ion-input {
+  min-height: unset;
+}
+ion-input input {
+  height: fit-content !important;
+  line-height: 1.5;
+}
 ion-textarea label,
 ion-input label {
   margin: 0;
@@ -148,8 +178,26 @@ ion-chip[color=secondary] ion-icon {
   opacity: 0.5;
 }
 
+
 /* With backdrop */
 ion-alert,
+ion-modal,
 ion-toast {
   position: fixed !important;
+}
+ion-modal {
+  --border-radius: 2.5rem;
+}
+
+ion-toast::part(message) {
+  font-size: 1rem;
+  line-height: unset;
+}
+
+ion-breadcrumb[active=true] {
+  font-weight: 600;
+}
+ion-radio-group {
+  display: grid;
+  gap: 0.5rem;
 }

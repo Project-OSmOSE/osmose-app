@@ -1,18 +1,19 @@
 """Annotation-related models"""
 
 from collections import defaultdict
-from random import shuffle
-from django.utils import timezone
-from django.db import models
+
 from django.conf import settings
+from django.db import models
 from django.db.models import Q
-from .annotation import Detector
+from django.utils import timezone
+
+from .annotation import AnnotationResult
 
 
 class ConfidenceIndicatorSet(models.Model):
     """
     This table contains collections of confidence indicator to be used for annotation campaign.
-    An confidence indicator set is created by a staff user.
+    A confidence indicator set is created by a staff user.
     """
 
     class Meta:
@@ -45,11 +46,12 @@ class ConfidenceIndicator(models.Model):
                 condition=Q(is_default=True),
             ),
         ]
+        unique_together = ("confidence_indicator_set", "label")
 
     def __str__(self):
         return str(self.label)
 
-    label = models.CharField(max_length=255, unique=True)
+    label = models.CharField(max_length=255)
     level = models.IntegerField()
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet,
@@ -92,20 +94,25 @@ class AnnotationSet(models.Model):
     desc = models.TextField(null=True, blank=True)
     tags = models.ManyToManyField(AnnotationTag)
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+class AnnotationCampaignUsage(models.IntegerChoices):
+    CREATE = (
+        0,
+        "Create",
+    )
+    CHECK = 1, "Check"
 
 
 class AnnotationCampaign(models.Model):
     """
     Table containing an annotation_campaign, to be used with the table annotation_campaign_datasets. A researcher
-    wanting to have a number of annotated datasets will chose a annotation_set and launch a campaign.
+    wanting to have a number of annotated datasets will choose an annotation_set and launch a campaign.
 
     For AnnotationScope RECTANGLE means annotating through boxes first, WHOLE means annotating presence/absence for the
     whole file first (boxes can be used to augment annotation).
     """
 
     AnnotationScope = models.IntegerChoices("AnnotationScope", "RECTANGLE WHOLE")
-    AnnotationUsage = models.IntegerChoices("AnnotationUsage", "CREATE CHECK")
 
     class Meta:
         db_table = "annotation_campaigns"
@@ -130,7 +137,7 @@ class AnnotationCampaign(models.Model):
         choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE
     )
     usage = models.IntegerField(
-        choices=AnnotationUsage.choices, default=AnnotationUsage.CREATE
+        choices=AnnotationCampaignUsage.choices, default=AnnotationCampaignUsage.CREATE
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -143,10 +150,8 @@ class AnnotationCampaign(models.Model):
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
 
-    def add_annotator(self, annotator, files_target=None, method="sequential"):
-        """Create a files_target number of annotation tasks assigned to annotator for a given method"""
-        if method not in ["sequential", "random"]:
-            raise ValueError(f'Given method argument "{method}" is not supported')
+    def add_annotator(self, annotator, files_target=None):
+        """Create a files_target number of annotation tasks assigned to annotator"""
         dataset_files = self.datasets.values_list("files__id", flat=True)
         if files_target > len(dataset_files):
             raise ValueError(f"Cannot annotate {files_target} files, not enough files")
@@ -166,8 +171,6 @@ class AnnotationCampaign(models.Model):
             dataset_files = []
             for key in sorted(file_groups.keys()):
                 group_files = file_groups[key]
-                if method == "random":
-                    shuffle(group_files)
                 dataset_files += group_files[:files_target]
                 if len(dataset_files) >= files_target:
                     break
@@ -210,39 +213,9 @@ class AnnotationTask(models.Model):
         on_delete=models.CASCADE,
         related_name="annotation_tasks",
     )
-    detector = models.ForeignKey(
-        Detector,
-        on_delete=models.CASCADE,
-        related_name="annotation_tasks",
-        null=True,
-        blank=True,
-    )
     dataset_file = models.ForeignKey(
         "DatasetFile", on_delete=models.CASCADE, related_name="annotation_tasks"
     )
-
-
-class AnnotationResult(models.Model):
-    """
-    This table contains the resulting tag associations for specific annotation_tasks
-    """
-
-    class Meta:
-        db_table = "annotation_results"
-
-    start_time = models.FloatField(null=True, blank=True)
-    end_time = models.FloatField(null=True, blank=True)
-    start_frequency = models.FloatField(null=True, blank=True)
-    end_frequency = models.FloatField(null=True, blank=True)
-
-    annotation_tag = models.ForeignKey(AnnotationTag, on_delete=models.CASCADE)
-    annotation_task = models.ForeignKey(
-        AnnotationTask, on_delete=models.CASCADE, related_name="results"
-    )
-    confidence_indicator = models.ForeignKey(
-        ConfidenceIndicator, on_delete=models.SET_NULL, null=True, blank=True
-    )
-    is_valid = models.BooleanField(null=True, blank=True)
 
 
 class AnnotationComment(models.Model):
@@ -272,7 +245,7 @@ class AnnotationComment(models.Model):
 class AnnotationSession(models.Model):
     """
     This table contains the AudioAnnotator sessions output linked to the annotation of a specific dataset file. There
-    can be multiple AA sessions for a annotation_tasks, the result of the latest session should be equal to the
+    can be multiple AA sessions for an annotation_tasks, the result of the latest session should be equal to the
     dataset’s file annotation.
     """
 

@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuthService } from "../services/auth";
-import { buildErrorMessage } from "../services/annotator/format/format.util.tsx";
+import { buildErrorMessage } from "../services/format/format.util.tsx";
 
 
 export const Login: FC = () => {

@@ -30,11 +30,20 @@ export const DatasetList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    datasetService.list().then(setDatasets).catch(setError);
+    let isCancelled = false;
+    datasetService.list().then(setDatasets).catch(e => {
+      console.info(e, isCancelled)
+      setError(e);
+    });
+    return () => {
+      isCancelled = true;
+      datasetService.abort();
+    };
   }, [datasetsToImport]);
 
   useEffect(() => {
     if (error) {
+      console.log('error to toast', error)
       let toastMessage;
 
       try {

@@ -20,14 +20,23 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
     setSearchResult(
       props.values.filter(value => {
         const valueData = props.show(value).split(' ').filter(v => v).map(v => v.toLowerCase());
-        console.debug(valueData, searchData)
         for (const s of searchData) {
           if (valueData.find(v => v.includes(s))) continue;
-          console.debug('false', s, valueData.find(v => v.includes(s)))
           return false;
         }
         return true;
       })
+        .sort((a, b) => {
+          const aShow = props.show(a).toLowerCase();
+          const bShow = props.show(b).toLowerCase();
+          if (aShow.indexOf(search.toLowerCase()) > bShow.indexOf(search.toLowerCase())) {
+            return 1;
+          } else if (aShow.indexOf(search.toLowerCase()) < bShow.indexOf(search.toLowerCase())) {
+            return -1;
+          }
+          return props.show(a).localeCompare(props.show(b))
+        })
+
     );
   }, [search])
 

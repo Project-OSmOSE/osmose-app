@@ -1,0 +1,14 @@
+#warning-message {
+  display: grid;
+  justify-items: center;
+  color: var(--ion-color-danger);
+  border: 2px solid var(--ion-color-danger);
+  border-radius: 0.5rem;
+  padding: 1rem 3rem;
+  gap: 1rem;
+  font-size: 1.25rem;
+  text-align: center;
+}
+#warning-message ion-icon {
+  font-size: 2rem;
+}

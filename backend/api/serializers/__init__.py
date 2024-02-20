@@ -31,4 +31,4 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskOneResultUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )
-from .annotation import DetectorSerializer
+from .annotation import DetectorSerializer, DetectorConfigurationSerializer

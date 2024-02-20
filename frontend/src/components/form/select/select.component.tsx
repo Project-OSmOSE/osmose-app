@@ -1,35 +1,39 @@
-import React, { ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import React, { HTMLProps, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { IonAlert, IonIcon } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { InputRef } from "../interface.tsx";
 import './select.component.css';
 
 interface Props {
-  label: string;
+  label?: string;
   required?: boolean;
   placeholder: string;
   options: Array<Item>;
   optionsContainer: 'popover' | 'alert';
-  value?: number;
-  onValueSelected: (value: number | undefined) => void;
-  children?: ReactNode
+  value?: number | string;
+  onValueSelected: (value: number | string | undefined) => void;
+  children?: ReactNode,
+  noneLabel?: string;
 }
 
 interface Item {
-  id: number;
+  id: number | string;
   label: string;
 }
 
-export const Select = React.forwardRef<InputRef, Props>(({
-                                                           label,
-                                                           placeholder,
-                                                           required = false,
-                                                           options: parentOptions,
-                                                           value,
-                                                           onValueSelected,
-                                                           optionsContainer,
-                                                           children
-                                                         }, ref) => {
+export const Select = React.forwardRef<InputRef, Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>>(({
+                                                                                                           label,
+                                                                                                           placeholder,
+                                                                                                           required = false,
+                                                                                                           options: parentOptions,
+                                                                                                           value,
+                                                                                                           onValueSelected,
+                                                                                                           optionsContainer,
+                                                                                                           children,
+                                                                                                           noneLabel = 'None',
+                                                                                                           disabled,
+                                                                                                           ...props
+                                                                                                         }, ref) => {
   const selectRef = useRef<HTMLDivElement | null>(null);
   const optionsRef = useRef<HTMLDivElement | null>(null);
 
@@ -44,14 +48,14 @@ export const Select = React.forwardRef<InputRef, Props>(({
     const values = [...parentOptions];
     if (!required) values.push({
       id: -1,
-      label: 'None'
+      label: noneLabel
     })
     return values;
   }
 
   const buttonLabel = useMemo(() => {
-    if (!value) {
-      if (hasSelectedItem) return 'None';
+    if (value === undefined || value === -1) {
+      if (hasSelectedItem) return noneLabel;
       else return placeholder;
     }
     return getOptions().find(o => o.id === value)?.label ?? placeholder
@@ -89,15 +93,16 @@ export const Select = React.forwardRef<InputRef, Props>(({
   useImperativeHandle(ref, () => _ref);
 
   return (
-    <div id="aplose-select" ref={ selectRef }>
-      <div id="label" className={ required ? 'required' : '' }>{ label }</div>
+    <div id="aplose-select" ref={ selectRef } { ...props }>
+      { label && <div id="label" className={ required ? 'required' : '' }>{ label }{ required && '*' }</div> }
 
       <div id="select"
+           aria-disabled={ disabled }
            className={ isOpen ? 'open' : '' }>
         <div id={ buttonId }
-             onClick={ () => setIsOpen(!isOpen) }
+             onClick={ () => !disabled && setIsOpen(!isOpen) }
              className={ 'button' + (!value && !hasSelectedItem ? ' placeholder' : '') }>
-          { buttonLabel }
+          <p>{ buttonLabel }</p>
           { !isOpen && <IonIcon icon={ caretDown }/> }
           { isOpen && <IonIcon icon={ caretUp }/> }
         </div>
@@ -105,7 +110,7 @@ export const Select = React.forwardRef<InputRef, Props>(({
         { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>
           { getOptions().map(v => (
             <div className="item" onClick={ () => {
-              onValueSelected(v.id)
+              onValueSelected(v.id === -1 ? undefined : v.id)
               setHasSelectedItem(true)
               setIsOpen(false)
             } } key={ v.id }>{ v.label }</div>
@@ -117,9 +122,10 @@ export const Select = React.forwardRef<InputRef, Props>(({
             header={ placeholder }
             buttons={ ['OK'] }
             inputs={ getOptions().map(o => ({ type: 'radio', value: o.id, label: o.label })) }
-            onDidDismiss={ data => {
-              if (data.detail.data?.values !== undefined) {
-                onValueSelected(data.detail.data.values)
+            onWillDismiss={ data => {
+              const value = data.detail.data?.values
+              if (value !== undefined) {
+                onValueSelected(value >= 0 ? value : undefined)
                 setHasSelectedItem(true)
               }
               setIsOpen(false)

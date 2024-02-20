@@ -28,7 +28,5 @@ ion-list#searchbar-results ion-item.none {
   cursor: default;
 }
 ion-list#searchbar-results ion-item:not(.none) {
-  font-style: italic;
-  opacity: 0.75;
   cursor: pointer;
 }

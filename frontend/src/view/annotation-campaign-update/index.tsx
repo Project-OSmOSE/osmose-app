@@ -1,9 +1,7 @@
-import { EditAnnotationCampaign } from "./edit-annotation-campaign.page.tsx";
-import { CreateAnnotationCampaign } from "./create-annotation-campaign.page.tsx";
-import { CreateCampaign } from './create/create-campaign.tsx';
+import { CreateCampaign } from './create-campaign.tsx';
+import { EditCampaign } from './edit-campaign.tsx';
 
 export {
-  EditAnnotationCampaign,
-  CreateAnnotationCampaign,
-  CreateCampaign
+  CreateCampaign,
+  EditCampaign
 }

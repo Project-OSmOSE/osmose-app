@@ -1,1 +1,1 @@
-from .detector import DetectorSerializer
+from .detector import DetectorSerializer, DetectorConfigurationSerializer

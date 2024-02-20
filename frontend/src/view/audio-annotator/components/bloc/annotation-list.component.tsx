@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from "react";
 import { Annotation } from "../../../../interface/annotation.interface.tsx";
-import { formatTimestamp } from "../../../../services/annotator/format/format.util.tsx";
+import { formatTimestamp } from "../../../../services/format/format.util.tsx";
 import { AnnotationType, AnnotationMode } from "../../../../enum/annotation.enum.tsx";
 import {
   AnnotationsContext,

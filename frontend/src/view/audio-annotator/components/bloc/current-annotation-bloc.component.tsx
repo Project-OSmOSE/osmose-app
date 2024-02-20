@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { formatTimestamp } from "../../../../services/annotator/format/format.util.tsx";
+import { formatTimestamp } from "../../../../services/format/format.util.tsx";
 import { AnnotationsContext } from "../../../../services/annotator/annotations/annotations.context.tsx";
 
 

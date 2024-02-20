@@ -11,7 +11,7 @@ import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
 import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
-import { buildErrorMessage, formatTimestamp } from "../../services/annotator/format/format.util.tsx";
+import { buildErrorMessage, formatTimestamp } from "../../services/format/format.util.tsx";
 import { Toast } from "../global-components";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
@@ -61,7 +61,7 @@ export type ConfidenceIndicatorSet = {
   id: number,
   name: string,
   desc: string,
-  confidenceIndicators: Array<ConfidenceIndicator>,
+  confidence_indicators: Array<ConfidenceIndicator>,
 };
 
 export type AnnotationTask = {

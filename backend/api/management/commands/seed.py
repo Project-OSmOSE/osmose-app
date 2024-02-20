@@ -197,7 +197,7 @@ class Command(management.BaseCommand):
         self.annotation_sets = []
         for seed_set in sets:
             annotation_set = AnnotationSet.objects.create(
-                name=seed_set["name"], desc=seed_set["desc"], owner=self.admin
+                name=seed_set["name"], desc=seed_set["desc"]
             )
             for tag in seed_set["tags"]:
                 annotation_set.tags.create(name=tag)
@@ -272,13 +272,15 @@ class Command(management.BaseCommand):
                 for _ in range(randint(1, 5)):
                     start_time = randint(0, 600)
                     start_frequency = randint(0, 10000)
-                    task.results.create(
+                    campaign.results.create(
                         start_time=start_time,
                         end_time=start_time + randint(30, 300),
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
                         confidence_indicator=choice(self.confidences_indicators),
+                        dataset_file_id=task.dataset_file_id,
+                        annotator_id=task.annotator_id,
                     )
                 task.status = 2
                 task.save()
@@ -293,7 +295,11 @@ class Command(management.BaseCommand):
                 comments.append(
                     AnnotationComment(
                         comment=f"a comment : {result.annotation_tag.name}",
-                        annotation_task=result.annotation_task,
+                        annotation_task=AnnotationTask.objects.filter(
+                            annotation_campaign_id=result.annotation_campaign_id,
+                            dataset_file_id=result.dataset_file_id,
+                            annotator_id=result.annotator_id,
+                        ).first(),
                         annotation_result=result,
                     )
                 )

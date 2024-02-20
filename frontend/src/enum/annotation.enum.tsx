@@ -5,22 +5,16 @@ export enum AnnotationTaskStatus {
 }
 
 export enum AnnotationMode {
-  wholeFile = 1,
-  boxes = 2,
+  boxes = 1,
+  wholeFile = 2,
 }
 
 export enum Usage {
-  create = 1,
-  check = 2,
+  create = 'Create',
+  check = 'Check',
 }
 
 export enum AnnotationType {
   box = 'box',
   tag = "tag"
-}
-
-export enum AnnotationMethod {
-  notSelected = -1,
-  random = 0,
-  sequential = 1
 }

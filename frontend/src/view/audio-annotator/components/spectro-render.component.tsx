@@ -11,7 +11,7 @@ import React, {
 import { AnnotationMode, AnnotationType } from "../../../enum/annotation.enum.tsx";
 import { Annotation } from "../../../interface/annotation.interface.tsx";
 import Region from "./region.component.tsx";
-import { buildErrorMessage, formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
+import { buildErrorMessage, formatTimestamp } from "../../../services/format/format.util.tsx";
 import { AudioContext } from "../../../services/annotator/audio/audio.context.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import {

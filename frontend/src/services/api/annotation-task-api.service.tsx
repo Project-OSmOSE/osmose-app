@@ -39,7 +39,7 @@ export interface Retrieve {
     id: number;
     name: string;
     desc: string;
-    confidenceIndicators: Array<RetrieveConfidenceIndicator>;
+    confidence_indicators: Array<RetrieveConfidenceIndicator>;
   }
 }
 export interface Boundaries {

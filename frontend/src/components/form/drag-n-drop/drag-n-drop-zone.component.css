@@ -1,0 +1,44 @@
+#drag-n-drop-zone {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%23238583FF' stroke-width='4' stroke-dasharray='16%2c 16' stroke-dashoffset='2' stroke-linecap='square'/%3e%3c/svg%3e");
+  border-radius: 8px;
+  padding: 1rem;
+
+  display: grid;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  transition: 300ms;
+}
+
+#drag-n-drop-zone.available {
+  height: 100%;
+  cursor: pointer;
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  grid-auto-flow: column;
+  color: var(--ion-color-primary);
+}
+#drag-n-drop-zone.available ion-icon {
+  font-size: 1.5rem;
+}
+
+#drag-n-drop-zone.loading {
+  height: 100%;
+}
+
+#drag-n-drop-zone.file-loaded {
+  height: fit-content;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+#drag-n-drop-zone.dragging {
+  height: 100%;
+  cursor: pointer;
+  background: rgba(var(--ion-color-primary-rgb), 0.25);
+}
+

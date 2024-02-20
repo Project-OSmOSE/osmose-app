@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
+import { formatTimestamp } from "../../../services/format/format.util.tsx";
 import { SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import {

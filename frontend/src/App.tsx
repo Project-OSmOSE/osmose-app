@@ -6,9 +6,10 @@ import { Login } from "./view/login.page.tsx";
 import { DatasetList } from "./view/dataset-list";
 import { AnnotationCampaignList } from "./view/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "./view/annotation-campaign-detail.page.tsx";
-import { CreateCampaign, EditAnnotationCampaign } from "./view/annotation-campaign-update";
+import { CreateCampaign, EditCampaign } from "./view/annotation-campaign-update";
 import { AnnotationTaskList } from "./view/annotation-task-list.page.tsx";
 import { AuthenticatedRoute } from "./view/global-components";
+import { StaffOnlyRoute } from "./view/global-components/staff-only-route.component.tsx";
 import { ProvideAuth, useAuthService } from "./services/auth";
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
@@ -20,9 +21,12 @@ import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
-import { setupIonicReact } from '@ionic/react';
+import { IonApp, setupIonicReact } from '@ionic/react';
 
-setupIonicReact();
+setupIonicReact({
+  mode: 'md',
+  spinner: 'crescent',
+});
 
 
 const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
@@ -52,31 +56,35 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
 }
 
 export const App: FC = () => (
-  <ProvideAuth>
-    <Router basename='/app'>
-      <Switch>
-        <Route path="/login"><Login/></Route>
+  <IonApp>
+    <ProvideAuth>
+      <Router basename='/app'>
+        <Switch>
+          <Route path="/login"><Login/></Route>
 
-        <AuthenticatedRoute path='/audio-annotator/:id'>
-          <ProvideAnnotator>
-            <AudioAnnotator/>
-          </ProvideAnnotator>
-        </AuthenticatedRoute>
+          <AuthenticatedRoute path='/audio-annotator/:id'>
+            <ProvideAnnotator>
+              <AudioAnnotator/>
+            </ProvideAnnotator>
+          </AuthenticatedRoute>
 
-        <AploseSkeleton>
-          <Switch>
-            <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
-            <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
-          </Switch>
-        </AploseSkeleton>
-      </Switch>
-    </Router>
-  </ProvideAuth>
+          <AploseSkeleton>
+            <Switch>
+              <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
+              <AuthenticatedRoute path='/annotation_campaign/:id/edit'>
+                <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
+              </AuthenticatedRoute>
+              <AuthenticatedRoute path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+              <AuthenticatedRoute path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+              <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+            </Switch>
+          </AploseSkeleton>
+        </Switch>
+      </Router>
+    </ProvideAuth>
+  </IonApp>
 )
 
 export default App;

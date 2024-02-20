@@ -20,6 +20,13 @@ import {
 } from './user-api.service.tsx'
 
 import {
+  List as DetectorList,
+  ListItem as DetectorListItem,
+  ListItemConfiguration as DetectorListItemConfiguration,
+  useDetectorsAPI
+} from './detector-api.service.tsx'
+
+import {
   List as ConfidenceSetList,
   ListItem as ConfidenceSetListItem,
   useConfidenceSetAPI
@@ -73,5 +80,9 @@ export {
   type AnnotationTaskRetrieveConfidenceIndicator,
   AnnotationTaskAPIService,
   useAnnotationTaskAPI,
-  useAnnotationCommentAPI
+  useAnnotationCommentAPI,
+  type DetectorList,
+  type DetectorListItem,
+  type DetectorListItemConfiguration,
+  useDetectorsAPI,
 }

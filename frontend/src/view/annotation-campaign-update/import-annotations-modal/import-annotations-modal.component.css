@@ -1,0 +1,58 @@
+#import-annotations-modal::part(scroll) {
+  padding: 2rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+#header {
+  display: grid;
+  justify-items: center;
+}
+
+#import-annotations-modal h1 {
+  text-align: center;
+}
+
+#import-annotations-modal #content {
+  display: grid;
+  gap: 1rem;
+  justify-self: stretch;
+  overflow: auto;
+}
+#import-annotations-modal #content.has-content {
+  align-content: baseline;
+}
+#import-annotations-modal #content .detector-entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+#import-annotations-modal #content .detector-entry .config-select,
+#import-annotations-modal #content .detector-entry ion-textarea {
+  width: 100%;
+  margin-right: 1rem;
+  margin-left: 2rem;
+}
+#import-annotations-modal #content .detector-entry ion-textarea {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid red;
+  border-bottom: 1px solid rgba(var(--ion-color-secondary-rgb), 0.25);
+}
+#import-annotations-modal #content .detector-entry ion-input {
+  width: fit-content;
+}
+#import-annotations-modal #content .detector-entry.all p {
+  opacity: 0.75;
+}
+
+#import-annotations-modal #buttons {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+}
+

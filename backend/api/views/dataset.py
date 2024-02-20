@@ -1,21 +1,19 @@
 """Dataset DRF-Viewset file"""
 import csv
 
-from django.db.models import Count
-from django.db.models.functions import Lower
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.conf import settings
-
+from django.db.models import Count
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import action
-
+from rest_framework.response import Response
 from sentry_sdk import capture_exception
-from backend.api.models import Dataset
+
 from backend.api.actions import datawork_import
 from backend.api.actions.check_new_spectro_config_errors import (
     check_new_spectro_config_errors,
 )
+from backend.api.models import Dataset
 from backend.api.serializers import DatasetSerializer
 
 
@@ -28,12 +26,25 @@ class DatasetViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """List available datasets"""
-        queryset = (
-            Dataset.objects.annotate(Count("files"))
-            .select_related("dataset_type")
-            .prefetch_related("spectro_configs")
-            .order_by(Lower("name"), "created_at")
-        )
+        queryset = Dataset.objects.raw(
+            """
+            SELECT datasets.id,
+            datasets.name,
+            files_type,
+            start_date,
+            end_date,
+            created_at,
+            files.count               as files_count,
+            type.name                 as type
+            FROM datasets
+            LEFT OUTER JOIN (SELECT dataset_id, count(*)
+                      FROM dataset_files group by dataset_id) files
+                     on files.dataset_id = datasets.id
+            LEFT OUTER JOIN (SELECT id, name
+                      FROM dataset_types) type
+                     on type.id = datasets.dataset_type_id
+            """
+        ).prefetch_related("spectro_configs")
 
         serializer = self.serializer_class(queryset, many=True)
 

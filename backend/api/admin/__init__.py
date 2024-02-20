@@ -7,7 +7,6 @@ from django import forms
 from django.db import IntegrityError, transaction
 from django.utils.html import format_html
 
-
 from backend.api.models import (
     Dataset,
     DatasetFile,
@@ -16,7 +15,6 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
-    AnnotationResult,
     AnnotationSession,
     SpectroConfig,
     DatasetType,
@@ -26,7 +24,12 @@ from backend.api.models import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
-from backend.api.admin.annotation import DetectorAdmin
+from backend.api.admin.annotation import (
+    DetectorAdmin,
+    DetectorConfigurationAdmin,
+    AnnotationResultAdmin,
+    AnnotationResultValidationAdmin,
+)
 
 
 def get_many_to_many(obj, field_name, related_field_name="name"):
@@ -56,7 +59,7 @@ class NewItemsForm(forms.ModelForm):
 
 
 class ConfidenceIndicatorAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin"""
+    """ConfidenceIndicatorAdmin presentation in DjangoAdmin"""
 
     list_display = (
         "id",
@@ -76,19 +79,13 @@ class ConfidenceIndicatorAdmin(admin.ModelAdmin):
 
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin"""
+    """ConfidenceIndicatorSet presentation in DjangoAdmin"""
 
     list_display = (
         "id",
         "name",
         "desc",
     )
-
-
-class CollectionAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin"""
-
-    list_display = ("name", "desc", "owner")
 
 
 class DatasetTypeAdmin(admin.ModelAdmin):
@@ -114,9 +111,7 @@ class DatasetAdmin(admin.ModelAdmin):
         "dataset_type",
         "geo_metadatum",
         "owner",
-        "tabular_metadatum",
         "show_spectro_configs",
-        "show_collections",
     )
     fields = (
         "name",
@@ -130,17 +125,11 @@ class DatasetAdmin(admin.ModelAdmin):
         "dataset_type",
         "geo_metadatum",
         "owner",
-        "tabular_metadatum",
-        "collections",
     )
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
         return get_many_to_many(obj, "spectro_configs")
-
-    def show_collections(self, obj):
-        """show_collections"""
-        return get_many_to_many(obj, "collections")
 
     def show_audio_metadatum_url(self, obj):
         """show_audio_metadatum_url"""
@@ -160,7 +149,6 @@ class DatasetFileAdmin(admin.ModelAdmin):
         "size",
         "dataset",
         "audio_metadatum",
-        "tabular_metadatum",
     )
 
 
@@ -176,7 +164,6 @@ class AnnotationSetAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "desc",
-        "owner",
         "show_tags",
     )
 
@@ -191,8 +178,6 @@ class AnnotationCommentAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "comment",
-        "annotation_task",
-        "annotation_result",
     )
 
 
@@ -213,10 +198,11 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_datasets",
         "show_annotators",
         "confidence_indicator_set",
+        "usage",
     )
     search_fields = ("name", "desc")
 
-    list_filter = ("datasets",)
+    list_filter = ("datasets", "usage")
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
@@ -240,30 +226,8 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
         "dataset_file",
         "annotator",
     )
-    list_filter = ("status", "annotation_campaign", "annotator", "detector")
-
-
-class AnnotationResultAdmin(admin.ModelAdmin):
-    """AnnotationResult presentation in DjangoAdmin"""
-
-    list_display = (
-        "id",
-        "start_time",
-        "end_time",
-        "start_frequency",
-        "end_frequency",
-        "annotation_tag",
-        "annotation_task",
-        "confidence_indicator",
-    )
-    search_fields = (
-        "annotation_tag__name",
-        "confidence_indicator__label",
-    )
-    list_filter = (
-        "annotation_task__annotation_campaign",
-        "annotation_task__annotator_id",
-    )
+    search_fields = ("dataset_file__filename",)
+    list_filter = ("status", "annotation_campaign", "annotator")
 
 
 class AnnotationSessionAdmin(admin.ModelAdmin):
@@ -344,40 +308,6 @@ class SpectroConfigAdmin(admin.ModelAdmin):
     )
 
 
-class TabularMetadatumAdmin(admin.ModelAdmin):
-    """TabularMetadatum presentation in DjangoAdmin"""
-
-    list_display = (
-        "name",
-        "desc",
-        "dimension_count",
-        "variable_count",
-    )
-
-
-class TabularMetadataVariableAdmin(admin.ModelAdmin):
-    """TabularMetadataVariable presentation in DjangoAdmin"""
-
-    list_display = (
-        "name",
-        "desc",
-        "data_type",
-        "dimension_size",
-        "variable_position",
-        "tabular_metadata",
-    )
-
-
-class TabularMetadataShapeAdmin(admin.ModelAdmin):
-    """TabularMetadataShape presentation in DjangoAdmin"""
-
-    list_display = (
-        "dimension_position",
-        "tabular_metadata_dimension",
-        "tabular_metadata_variable",
-    )
-
-
 admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
 admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
@@ -388,15 +318,8 @@ admin.site.register(AnnotationSet, AnnotationSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)
-admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)
 admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
 admin.site.register(SpectroConfig, SpectroConfigAdmin)
 admin.site.register(WindowType, WindowTypeAdmin)
-
-
-# admin.site.register(Collection, CollectionAdmin)
-# admin.site.register(TabularMetadatum, TabularMetadatumAdmin)
-# admin.site.register(TabularMetadataVariable, TabularMetadataVariableAdmin)
-# admin.site.register(TabularMetadataShape, TabularMetadataShapeAdmin)

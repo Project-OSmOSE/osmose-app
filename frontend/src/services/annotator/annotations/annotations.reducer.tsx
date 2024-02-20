@@ -83,10 +83,10 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
         presenceTags: action.task.prevAnnotations.map(a => a.annotation),
         tagColors: new Map(action.task.annotationTags.map((t, i) => [t, COLORS[i % COLORS.length]])),
         focusedTag: undefined,
-        allConfidences: action.task.confidenceIndicatorSet?.confidenceIndicators.map(c => c.label) ?? [],
+        allConfidences: action.task.confidenceIndicatorSet?.confidence_indicators.map(c => c.label) ?? [],
         confidenceDescription: action.task.confidenceIndicatorSet?.desc,
-        focusedConfidence: action.task.confidenceIndicatorSet?.confidenceIndicators.find(c => c.isDefault)?.label
-          ?? action.task.confidenceIndicatorSet?.confidenceIndicators.find(c => c.label)?.label,
+        focusedConfidence: action.task.confidenceIndicatorSet?.confidence_indicators.find(c => c.isDefault)?.label
+          ?? action.task.confidenceIndicatorSet?.confidence_indicators.find(c => c.label)?.label,
         wholeFileBoundaries: action.task.boundaries
       }
 
