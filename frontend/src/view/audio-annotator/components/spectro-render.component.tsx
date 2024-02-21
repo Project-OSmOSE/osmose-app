@@ -21,6 +21,7 @@ import {
   AnnotationsContext, AnnotationsContextDispatch,
 } from "../../../services/annotator/annotations/annotations.context.tsx";
 import { AnnotatorDispatchContext } from "../../../services/annotator/annotator.context.tsx";
+import { colorSpectro } from "../../../services/annotator/spectro/color.util.tsx";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -337,6 +338,9 @@ export const SpectroRenderComponent: React.FC<Props> = ({audioPlayer,}) => {
         Math.floor((spectro.end - spectro.start) * timePixelRatio),
         canvas.height
       ));
+
+    // Color spectro image (TODO: add a select + checkbox to select colormap and invert)
+    colorSpectro(canvas, 'jet', true);
 
     // Progress bar
     const newX: number = Math.floor(canvas.width * audioContext.time / resultContext.wholeFileBoundaries.duration);
