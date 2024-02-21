@@ -131,7 +131,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
           ...r.boundaries,
           startTime, endTime,
           duration: (endTime.getTime() - startTime.getTime()) / 1000
-        },
+        }
       }
     })
   }
@@ -146,7 +146,6 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
 
   public update(taskID: number,
                 data: Update): Promise<UpdateResult> {
-    console.debug(data)
     this.addAnnotationRequest = put(`${ this.URI }/${ taskID }/`)
       .set("Authorization", this.auth.bearer)
       .send(data);

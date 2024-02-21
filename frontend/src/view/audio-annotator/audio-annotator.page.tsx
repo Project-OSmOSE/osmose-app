@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
-import Workbench from './components/workbench.component.tsx';
+import { Workbench } from './components/workbench.component.tsx';
 
 import '../../css/annotator.css';
 import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
@@ -288,4 +288,3 @@ export const AudioAnnotator: React.FC = () => {
     </div>
   );
 }
-

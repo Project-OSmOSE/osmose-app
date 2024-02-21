@@ -15,7 +15,7 @@ export type ListItem = {
   }>;
 }
 
-class ConfidenceSetAPIService extends APIService<List, never, never>{
+class ConfidenceSetAPIService extends APIService<List, never, never> {
   retrieve(): Promise<never> {
     throw 'Unimplemented';
   }

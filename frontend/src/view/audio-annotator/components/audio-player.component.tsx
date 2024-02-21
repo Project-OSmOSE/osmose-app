@@ -26,63 +26,56 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
 
   const elementRef = useRef<HTMLAudioElement | null>(null);
 
-  const [stopTime, setStopTime] = useState<number | undefined>()
-  const [listenTrack, setListenTrack] = useState<number | undefined>()
+  const [ stopTime, setStopTime ] = useState<number | undefined>()
 
   useEffect(() => {
-    onPause()
-    return () => onPause()
-  }, [])
+    const interval = setInterval(() => {
+      if (!elementRef.current || elementRef.current?.paused) return;
+
+      const time = elementRef.current?.currentTime;
+      if (stopTime && time && time > stopTime) player.pause();
+      else dispatch!({ type: 'setTime', time });
+    }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
+
+    return () => clearInterval(interval)
+  }, [ annotatorContext.taskId ]);
 
   useEffect(() => {
-    onPause()
+    dispatch!({ type: 'onPause' })
     if (elementRef.current) {
       elementRef.current.volume = 1.0;
       elementRef.current.preservesPitch = false;
       elementRef.current.playbackRate = context.playbackRate;
     }
-  }, [elementRef.current])
+  }, [ elementRef.current ])
 
-  const seek = (time: number) => {
-    if (elementRef.current) elementRef.current.currentTime = time;
-  }
-  const play = (annotation?: Annotation) => {
-    if (annotation && elementRef.current) seek(annotation.startTime)
-    elementRef.current?.play().catch(e => {
-      annotatorDispatch!({ type: 'setDangerToast', message: `Audio failed playing: ${e}` });
-    });
-    setStopTime(annotation?.endTime);
-  }
-  const pause = () => {
-    elementRef.current?.pause();
-  }
-  const setPlaybackRate = (playbackRate?: number) => {
-    const rate = playbackRate ?? 1.0;
-    if (elementRef.current) elementRef.current.playbackRate = rate;
-    dispatch!({ type: 'setPlaybackRate', playbackRate: rate })
-  }
-
-  useImperativeHandle(ref, (): AudioPlayer => ({
-    seek, play, pause, setPlaybackRate, get canPreservePitch() {
+  const player: AudioPlayer = {
+    seek(time: number) {
+      if (!elementRef.current) return;
+      elementRef.current.currentTime = time;
+      dispatch!({ type: 'setTime', time });
+    },
+    play(annotation?: Annotation) {
+      if (annotation && elementRef.current) player.seek(annotation.startTime)
+      elementRef.current?.play().catch(e => {
+        annotatorDispatch!({ type: 'setDangerToast', message: `Audio failed playing: ${ e }` });
+      });
+      setStopTime(annotation?.endTime);
+    },
+    pause() {
+      elementRef.current?.pause();
+    },
+    setPlaybackRate(playbackRate?: number) {
+      const rate = playbackRate ?? 1.0;
+      if (elementRef.current) elementRef.current.playbackRate = rate;
+      dispatch!({ type: 'setPlaybackRate', playbackRate: rate })
+    },
+    get canPreservePitch() {
       return elementRef.current?.preservesPitch !== undefined
     }
-  }))
-
-  const onPause = () => {
-    if (listenTrack) clearInterval(listenTrack)
-    setListenTrack(undefined);
-    dispatch!({ type: 'onPause' });
   }
 
-  const onPlay = () => {
-    if (listenTrack) return;
-    setListenTrack(setInterval((() => {
-      const time = elementRef.current?.currentTime;
-      if (stopTime && time && time > stopTime) pause();
-      else dispatch!({ type: 'setTime', time });
-    }) as TimerHandler, 10));
-    dispatch!({ type: 'onPlay' });
-  }
+  useImperativeHandle(ref, (): AudioPlayer => player)
 
   // title property used to set lockscreen / process audio title on devices
   return (
@@ -93,10 +86,10 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
            muted={ false }
            ref={ elementRef }
            onLoadedMetadata={ () => dispatch!({ type: 'setTime', time: 0 }) }
-           onAbort={ onPause }
-           onEnded={ onPause }
-           onPause={ onPause }
-           onPlay={ onPlay }
+           onAbort={ () => dispatch!({ type: 'onPause' }) }
+           onEnded={ () => dispatch!({ type: 'onPause' }) }
+           onPause={ () => dispatch!({ type: 'onPause' }) }
+           onPlay={ () => dispatch!({ type: 'onPlay' }) }
            preload="auto"
            src={ annotatorContext.audioURL }
            title={ annotatorContext.audioURL }>

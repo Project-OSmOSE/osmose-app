@@ -32,7 +32,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     queryset = (
         AnnotationTask.objects.all()
         .prefetch_related("dataset_file__audio_metadatum")
-        .order_by("dataset_file__audio_metadatum__start")
+        .order_by("dataset_file__audio_metadatum__start", "id")
     )
     serializer_class = AnnotationTaskSerializer
 

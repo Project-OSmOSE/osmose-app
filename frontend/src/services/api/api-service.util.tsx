@@ -1,7 +1,7 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { AuthAPIService } from "../auth/auth.service.tsx";
 
-export class APIService<List, Retrieve, Create>{
+export class APIService<List, Retrieve, Create> {
 
   private listRequest?: SuperAgentRequest;
   private retrieveRequest?: SuperAgentRequest;
@@ -39,7 +39,7 @@ export class APIService<List, Retrieve, Create>{
   }
 
   protected async download(requestURL: string, filename: string) {
-    const formerURL= this.downloadURL.get(requestURL);
+    const formerURL = this.downloadURL.get(requestURL);
     if (formerURL) URL.revokeObjectURL(formerURL);
 
     const request = get(requestURL).set("Authorization", this.auth.bearer);

@@ -7,7 +7,6 @@ from django.core import management
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from faker import Faker
-from faker.providers.person.en import Provider
 
 from backend.api.models import (
     DatasetType,
@@ -80,7 +79,11 @@ class Command(management.BaseCommand):
             "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
         )
         users = []
-        for name in list(set(Provider.first_names))[0:40]:
+        # WARNING : names like TestUserX are used for Cypress tests, do not change or remove
+        names = ["TestUser1", "TestUser2"] + [
+            self.fake.unique.first_name() for _ in range(40)
+        ]
+        for name in names:
             users.append(
                 User(
                     username=name,
@@ -116,7 +119,11 @@ class Command(management.BaseCommand):
         audio_metadata = []
         files = []
         configs = []
-        for name in list(set(Provider.first_names))[0 : self.data_nb]:
+        dataset_names = [
+            "Test Dataset"
+        ]  # WARNING : This name is used for Cypress tests, do not change or remove
+        dataset_names += [self.fake.unique.city() for _ in range(self.data_nb - 1)]
+        for name in dataset_names:
             dataset = Dataset(
                 name=name,
                 start_date=timezone.make_aware(
@@ -151,6 +158,21 @@ class Command(management.BaseCommand):
                         dataset=dataset,
                     )
                 )
+            start = parse_datetime("2012-10-03T12:00:00+0200")
+            end = start + timedelta(minutes=15)
+            audio_metadatum = AudioMetadatum(
+                start=(start + timedelta(hours=1)), end=(end + timedelta(hours=1))
+            )
+            audio_metadata.append(audio_metadatum)
+            files.append(
+                DatasetFile(
+                    filename=f"sound{1:03d}.wav",
+                    filepath="data/audio/50h_0.wav",
+                    size=58982478,
+                    audio_metadatum=audio_metadatum,
+                    dataset=dataset,
+                )
+            )
             configs.append(
                 SpectroConfig(
                     name="4096_4096_90",
@@ -225,11 +247,10 @@ class Command(management.BaseCommand):
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
         self.campaigns = []
-        names = list(set(Provider.first_names))[: self.data_nb]
         for i in range(0, self.data_nb):
             dataset = self.datasets[i]
             campaign = AnnotationCampaign.objects.create(
-                name=names[i],
+                name=f"{dataset.name} campaign",
                 desc=self.fake.sentence(),
                 start=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
                 end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),

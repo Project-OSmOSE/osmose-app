@@ -280,41 +280,24 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     def get_prevAndNextAnnotation(self, task):
         # type:(AnnotationTask) -> {"prev": int, "next": int}
-        taskMetadatum = (
-            AnnotationTask.objects.filter(id=task.id)
-            .first()
-            .dataset_file.audio_metadatum
-        )
-        id_prev = (
-            AnnotationTask.objects.filter(
+        qs_list = list(
+            AnnotationTask.objects.all()
+            .filter(
                 annotation_campaign=task.annotation_campaign.id,
                 annotator=task.annotator.id,
-                dataset_file__audio_metadatum__start__lt=taskMetadatum.start,
             )
-            .order_by("dataset_file__audio_metadatum__start")
-            .reverse()
-            .first()
+            .prefetch_related("dataset_file__audio_metadatum")
+            .order_by("dataset_file__audio_metadatum__start", "id")
+            .values_list("id", flat=True)
         )
-        id_next = (
-            AnnotationTask.objects.filter(
-                annotation_campaign=task.annotation_campaign.id,
-                annotator=task.annotator.id,
-                dataset_file__audio_metadatum__start__gt=taskMetadatum.start,
-            )
-            .order_by("dataset_file__audio_metadatum__start")
-            .first()
-        )
-
-        if id_prev is None:
-            id_prev = ""
-        else:
-            id_prev = id_prev.id
-        if id_next is None:
-            id_next = ""
-        else:
-            id_next = id_next.id
-
-        return {"prev": id_prev, "next": id_next}
+        currentKey = qs_list.index(task.id)
+        prevId = ""
+        nextId = ""
+        if currentKey > 0:
+            prevId = qs_list[currentKey - 1]
+        if currentKey < len(qs_list) - 1:
+            nextId = qs_list[currentKey + 1]
+        return {"prev": prevId, "next": nextId}
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):

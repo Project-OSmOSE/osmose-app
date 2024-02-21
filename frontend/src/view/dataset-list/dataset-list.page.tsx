@@ -32,9 +32,10 @@ export const DatasetList: React.FC = () => {
   useEffect(() => {
     let isCancelled = false;
     datasetService.list().then(setDatasets).catch(e => {
-      console.info(e, isCancelled)
+      if (isCancelled) return;
       setError(e);
     });
+
     return () => {
       isCancelled = true;
       datasetService.abort();
@@ -43,7 +44,6 @@ export const DatasetList: React.FC = () => {
 
   useEffect(() => {
     if (error) {
-      console.log('error to toast', error)
       let toastMessage;
 
       try {

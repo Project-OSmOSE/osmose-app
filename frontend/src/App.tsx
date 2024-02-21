@@ -73,11 +73,11 @@ export const App: FC = () => (
               <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
               <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
               <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
-              <AuthenticatedRoute path='/annotation_campaign/:id/edit'>
+              <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'>
                 <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
               </AuthenticatedRoute>
-              <AuthenticatedRoute path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-              <AuthenticatedRoute path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
               <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
             </Switch>
           </AploseSkeleton>

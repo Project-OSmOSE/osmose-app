@@ -1,20 +1,20 @@
-describe('Whole file', () => {
+describe('Whole file campaign creation', () => {
     beforeEach(() => {
-        cy.login("admin", "osmose29")
+        cy.session_login('admin', 'osmose29')
     })
 
     it('create', () => {
         cy.contains('New annotation campaign', {matchCase: false}).click()
         cy.get('#cac-name').type(Cypress.env('wholeFileCampaign'))
         cy.get("#cac-desc").type("Testing campaign creation");
-        cy.get("#cac-dataset").select("New Test Dataset");
+        cy.get("#cac-dataset").select("Test Dataset");
         cy.get("#cac-spectro").select("4096_4096_90");
         cy.get("#cac-annotation-set").select("Test SPM campaign");
         cy.get("#cac-confidence-indicator-set").select("Confident/NotConfident");
         cy.get("#cac-annotation-mode").select("Whole file");
         cy.get("#cac-user").select("admin@osmose.xyz");
-        cy.get("#cac-user").select("dc@osmose.xyz");
-        cy.get("#cac-user").select("ek@osmose.xyz");
+        cy.get("#cac-user").select("TestUser1@osmose.xyz");
+        cy.get("#cac-user").select("TestUser2@osmose.xyz");
         cy.get("#cac-annotation-method").select("Sequential");
         cy.get('input[type=submit]').click(); // cy.contains('submit', {matchCase: false}).click()
         cy.get("h1").should('include.text', 'Annotation Campaigns')
@@ -33,7 +33,7 @@ describe('Whole file', () => {
 
         it('dataset', () => {
             cy.contains(Cypress.env('wholeFileCampaign')).parentsUntil('tr').parent().contains('My tasks').click()
-            cy.get("tbody").should('include.text', "New Test Dataset");
+            cy.get("tbody").should('include.text', "Test Dataset");
         })
 
         it('spectro', () => {
@@ -70,9 +70,8 @@ describe('Whole file', () => {
             })
 
             cy.get('tr').should('include.text', 'admin@osmose.xyz')
-            cy.get('tr').should('include.text', 'dc@osmose.xyz')
-            cy.get('tr').should('include.text', 'ek@osmose.xyz')
+            cy.get('tr').should('include.text', 'TestUser1@osmose.xyz')
+            cy.get('tr').should('include.text', 'TestUser1@osmose.xyz')
         })
     })
-
 })

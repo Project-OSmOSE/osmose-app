@@ -1,8 +1,4 @@
 describe('login page', () => {
-    beforeEach(() => {
-        cy.visit(Cypress.env('aploseURL'))
-    });
-
     it('logs in with admin credentials', () => {
         cy.login("admin", "osmose29")
 
