@@ -12,8 +12,10 @@ from rest_framework.response import Response
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationResult,
+    AnnotationResultValidation,
     AnnotationTask,
     AnnotationComment,
+    AnnotationCampaignUsage,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
@@ -154,24 +156,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             ),
             pk=pk,
         )
-        data = [
-            [  # headers
-                "dataset",
-                "filename",
-                "start_time",
-                "end_time",
-                "start_frequency",
-                "end_frequency",
-                "annotation",
-                "annotator",
-                "start_datetime",
-                "end_datetime",
-                "is_box",
-                "confidence_indicator_label",
-                "confidence_indicator_level",
-                "comments",
-            ]
-        ]
 
         results = AnnotationResult.objects.raw(
             """
@@ -183,6 +167,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                COALESCE(end_frequency, sample_rate / 2)                          as end_frequency,
                tag.name                                                          as annotation,
                username                                                          as annotator_name,
+               detector.name                                                     as detector_name,
                (extract(EPOCH FROM start) + COALESCE(start_time, 0)) * 1000      as start_date,
                (extract(EPOCH FROM start) + COALESCE(end_time, duration)) * 1000 as end_date,
                CASE
@@ -230,6 +215,12 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         
                  LEFT OUTER JOIN (SELECT id, username
                                   FROM auth_user) annotator on annotator.id = result.annotator_id
+                 
+                 LEFT OUTER JOIN (SELECT id, detector_id
+                                  FROM api_detectorconfiguration) detector_config on detector_config.id = result.detector_configuration_id
+                 
+                 LEFT OUTER JOIN (SELECT id, name
+                                  FROM api_detector) detector on detector.id = detector_config.detector_id
         
                  LEFT OUTER JOIN (SELECT indicator.id, label, level
                                   FROM confidence_indicator indicator) confidence
@@ -287,9 +278,65 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         """,
             (pk,),
         )
-        for r in list(results) + list(comments):
-            data.append(
-                [
+        data = [
+            [  # headers
+                "dataset",
+                "filename",
+                "start_time",
+                "end_time",
+                "start_frequency",
+                "end_frequency",
+                "annotation",
+                "annotator",
+                "start_datetime",
+                "end_datetime",
+                "is_box",
+                "confidence_indicator_label",
+                "confidence_indicator_level",
+                "comments",
+            ]
+        ]
+        if campaign.usage == AnnotationCampaignUsage.CREATE:
+            for r in list(results) + list(comments):
+                data.append(
+                    [
+                        r.dataset_name,
+                        r.filename,
+                        str(r.start_time),
+                        str(r.end_time),
+                        str(r.start_frequency),
+                        str(r.end_frequency),
+                        r.annotation,
+                        r.annotator_name,
+                        str(r.start_date),
+                        str(r.end_date),
+                        str(r.is_box),
+                        str(r.confidence_label),
+                        str(r.confidence_level),
+                        str(r.comment),
+                    ]
+                )
+        if campaign.usage == AnnotationCampaignUsage.CHECK:
+            validations = (
+                AnnotationResultValidation.objects.filter(
+                    result__annotation_campaign=campaign
+                )
+                .prefetch_related("annotator")
+                .order_by("annotator__username")
+            )
+            print(
+                ">>> ",
+                list(
+                    validations.values_list("annotator__username", flat=True).distinct()
+                ),
+            )
+            data[0] = data[0] + list(
+                validations.values_list("annotator__username", flat=True).distinct()
+            )
+            print(">>> ", data)
+            for r in list(results):
+                val_data = validations.filter(result__id=r.id)
+                r_data = [
                     r.dataset_name,
                     r.filename,
                     str(r.start_time),
@@ -297,7 +344,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     str(r.start_frequency),
                     str(r.end_frequency),
                     r.annotation,
-                    r.annotator_name,
+                    r.detector_name,
                     str(r.start_date),
                     str(r.end_date),
                     str(r.is_box),
@@ -305,8 +352,36 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     str(r.confidence_level),
                     str(r.comment),
                 ]
-            )
+                for user_val in val_data:
+                    print(
+                        ">>> ",
+                        user_val.annotator.username,
+                        user_val.is_valid,
+                        "'" + str(user_val.is_valid) + "'",
+                    )
+                    r_data.append(str(user_val.is_valid))
+                data.append(r_data)
+            for r in list(comments):
+                data.append(
+                    [
+                        r.dataset_name,
+                        r.filename,
+                        str(r.start_time),
+                        str(r.end_time),
+                        str(r.start_frequency),
+                        str(r.end_frequency),
+                        r.annotation,
+                        r.annotator_name,
+                        str(r.start_date),
+                        str(r.end_date),
+                        str(r.is_box),
+                        str(r.confidence_label),
+                        str(r.confidence_level),
+                        str(r.comment),
+                    ]
+                )
 
+        print(">>> ", data)
         response = Response(data)
         response[
             "Content-Disposition"

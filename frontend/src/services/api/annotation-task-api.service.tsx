@@ -3,6 +3,7 @@ import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { AnnotationMode, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
+import { AnnotationCampaignMode } from "./annotation-campaign-api.service.tsx";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -40,8 +41,10 @@ export interface Retrieve {
     name: string;
     desc: string;
     confidence_indicators: Array<RetrieveConfidenceIndicator>;
-  }
+  },
+  mode: AnnotationCampaignMode
 }
+
 export interface Boundaries {
   startTime: Date,
   endTime: Date,
@@ -59,6 +62,7 @@ export interface RetrieveAnnotation {
   endFrequency: number;
   confidenceIndicator: string;
   result_comments: Array<RetrieveComment>;
+  validation: boolean;
 }
 
 export interface RetrieveConfidenceIndicator {
@@ -84,6 +88,7 @@ export type AnnotationTaskDto = {
   endFrequency: number | null,
   confidenceIndicator: string | null,
   result_comments: Array<AnnotationComment>,
+  validation: boolean | null;
 };
 
 interface AddAnnotation {
@@ -126,7 +131,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
           ...r.boundaries,
           startTime, endTime,
           duration: (endTime.getTime() - startTime.getTime()) / 1000
-        }
+        },
       }
     })
   }
@@ -141,6 +146,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
 
   public update(taskID: number,
                 data: Update): Promise<UpdateResult> {
+    console.debug(data)
     this.addAnnotationRequest = put(`${ this.URI }/${ taskID }/`)
       .set("Authorization", this.auth.bearer)
       .send(data);

@@ -16,6 +16,7 @@ from backend.api.models import (
     SpectroConfig,
     AnnotationComment,
     AnnotationCampaignUsage,
+    AnnotationResultValidation
 )
 from backend.api.serializers.annotation import (
     DetectorSerializer,
@@ -26,6 +27,7 @@ from backend.api.serializers.annotation_comment import (
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
+from .utils import EnumField
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -57,6 +59,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     It is used for prevAnnotations field AnnotationTaskRetrieveSerializer
     """
 
+    id = serializers.IntegerField(allow_null=True)
     annotation = serializers.CharField(source="annotation_tag.name")
     startTime = serializers.FloatField(source="start_time", allow_null=True)
     endTime = serializers.FloatField(source="end_time", allow_null=True)
@@ -67,6 +70,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     )
     result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
     detector = serializers.SerializerMethodField()
+    validation = serializers.SerializerMethodField()
 
     class Meta:
         model = AnnotationResult
@@ -80,16 +84,69 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "confidenceIndicator",
             "result_comments",
             "detector",
+            "validation"
         ]
+
+    def __init__(self, *args, **kwargs):
+        if "user_id" in kwargs:
+            self.user_id = kwargs.pop("user_id")
+        super().__init__(*args, **kwargs)
 
     @extend_schema_field(DetectorSerializer(allow_null=True))
     def get_detector(self, result):
+        # type: (AnnotationResult) -> any
         if result.detector_configuration is None:
             return None
         return DetectorSerializer(
             result.detector_configuration.detector,
             configuration=result.detector_configuration,
         ).data
+
+    @extend_schema_field(serializers.BooleanField(allow_null=True))
+    def get_validation(self, result):
+        # type: (AnnotationResult) -> bool | None
+        if result.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
+            return None
+        if self.user_id is None:
+            return None
+        validation = result.validations.filter(annotator_id=self.user_id)
+        if not validation.exists():
+            return None
+        return validation.first().is_valid
+
+
+class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
+    """
+    Serializer meant to output basic AnnotationResult data
+
+    It is used for prevAnnotations field AnnotationTaskRetrieveSerializer
+    """
+
+    id = serializers.IntegerField(allow_null=True)
+    annotation = serializers.CharField(source="annotation_tag.name")
+    startTime = serializers.FloatField(source="start_time", allow_null=True)
+    endTime = serializers.FloatField(source="end_time", allow_null=True)
+    startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
+    endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
+    confidenceIndicator = serializers.CharField(
+        source="confidence_indicator", allow_null=True
+    )
+    result_comments = AnnotationCommentSerializer(many=True, allow_null=True)
+    validation = serializers.BooleanField()
+
+    class Meta:
+        model = AnnotationResult
+        fields = [
+            "id",
+            "annotation",
+            "startTime",
+            "endTime",
+            "startFrequency",
+            "endFrequency",
+            "confidenceIndicator",
+            "result_comments",
+            "validation"
+        ]
 
 
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
@@ -118,7 +175,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
         spectro_path = (
-            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
+                settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
         )
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
@@ -147,6 +204,12 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     confidenceIndicatorSet = ConfidenceIndicatorSetSerializer(
         source="annotation_campaign.confidence_indicator_set"
     )
+    mode = EnumField(enum=AnnotationCampaignUsage, source="annotation_campaign.usage")
+
+    def __init__(self, *args, **kwargs):
+        if "user_id" in kwargs:
+            self.user_id = kwargs.pop("user_id")
+        super().__init__(*args, **kwargs)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_annotationTags(self, task):
@@ -205,9 +268,6 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
                 annotator_id=task.annotator_id,
             )
 
-        elif task.annotation_campaign.usage == AnnotationCampaignUsage.CHECK:
-            queryset = queryset.prefetch_related("validations")
-
         queryset = queryset.prefetch_related(
             "annotation_tag",
             "confidence_indicator",
@@ -216,7 +276,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             "detector_configuration",
             "detector_configuration__detector",
         )
-        return AnnotationTaskResultSerializer(queryset, many=True).data
+        return AnnotationTaskResultSerializer(queryset, many=True, user_id=self.user_id).data
 
     def get_prevAndNextAnnotation(self, task):
         # type:(AnnotationTask) -> {"prev": int, "next": int}
@@ -258,19 +318,19 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
-        # type:(AnnotationTask) -> any
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 
 class AnnotationTaskUpdateSerializer(serializers.Serializer):
     """This serializer is responsible for updating a task with new results from the annotator"""
 
-    annotations = AnnotationTaskResultSerializer(many=True)
+    annotations = AnnotationTaskUpdateResultSerializer(many=True)
     task_start_time = serializers.IntegerField()
     task_end_time = serializers.IntegerField()
 
     def validate_annotations(self, annotations):
         """Validates that annotations correspond to annotation set tags and set confidence indicator"""
+        print("validation in progress", annotations)
         set_tags = set(
             self.instance.annotation_campaign.annotation_set.tags.values_list(
                 "name", flat=True
@@ -299,7 +359,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 ann["confidence_indicator"] for ann in annotations
             )
             unknown_confidence_indicators = (
-                update_confidence_indicators - set_confidence_indicators
+                    update_confidence_indicators - set_confidence_indicators
             )
             if unknown_confidence_indicators:
                 raise serializers.ValidationError(
@@ -308,6 +368,18 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 )
 
         return annotations
+
+    def _create_comments(self, comments_data, result, task):
+        if comments_data is not None:
+            for comment_data in comments_data:
+                comment_data.pop("annotation_result")
+                comment_data.pop("annotation_task")
+                comment = AnnotationComment.objects.create(
+                    annotation_result=result,
+                    annotation_task=task,
+                    **comment_data,
+                )
+                result.result_comments.set([comment])
 
     def _create_results(self, instance, validated_data):
         # type:(AnnotationTask, any) -> AnnotationTask
@@ -350,34 +422,52 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 **annotation,
             )
 
-            if comments_data is not None:
-                for comment_data in comments_data:
-                    comment_data.pop("annotation_result")
-                    comment_data.pop("annotation_task")
-                    comment = AnnotationComment.objects.create(
-                        annotation_result=new_result,
-                        annotation_task=instance,
-                        **comment_data,
-                    )
-                    new_result.result_comments.set([comment])
-
-        instance.sessions.create(
-            start=datetime.fromtimestamp(validated_data["task_start_time"]),
-            end=datetime.fromtimestamp(validated_data["task_end_time"]),
-            session_output=validated_data,
-        )
+            self._create_comments(
+                comments_data=comments_data,
+                result=new_result,
+                task=instance
+            )
 
         return instance
 
     def update(self, instance, validated_data):
         # type:(AnnotationTask, any) -> AnnotationTask
         """The update of an AnnotationTask and change status."""
-        AnnotationResult.objects.filter(
-            annotation_campaign_id=instance.annotation_campaign_id,
-            annotator_id=instance.annotator_id,
-            dataset_file_id=instance.dataset_file_id,
-        ).delete()
-        instance = self._create_results(instance, validated_data)
+        if instance.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
+            AnnotationResult.objects.filter(
+                annotation_campaign_id=instance.annotation_campaign_id,
+                annotator_id=instance.annotator_id,
+                dataset_file_id=instance.dataset_file_id,
+            ).delete()
+            instance = self._create_results(instance, validated_data)
+        else:
+            AnnotationResultValidation.objects.filter(
+                annotator_id=instance.annotator_id,
+                result__annotation_campaign_id=instance.annotation_campaign_id,
+                result__dataset_file_id=instance.dataset_file_id
+            ).delete()
+            print(validated_data["annotations"])
+            for annotation in validated_data["annotations"]:
+                print(annotation)
+                result = AnnotationResult.objects.get(pk=int(annotation.pop("id")))
+                AnnotationResultValidation.objects.create(
+                    is_valid=bool(annotation.pop("validation")),
+                    annotator_id=instance.annotator_id,
+                    result=result
+                )
+                comments_data = annotation.pop("result_comments")
+                self._create_comments(
+                    comments_data=comments_data,
+                    result=result,
+                    task=instance
+                )
+
+
+        instance.sessions.create(
+            start=datetime.fromtimestamp(validated_data["task_start_time"]),
+            end=datetime.fromtimestamp(validated_data["task_end_time"]),
+            session_output=validated_data,
+        )
 
         instance.status = 2
         instance.save()

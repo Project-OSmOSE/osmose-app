@@ -683,3 +683,8 @@ div[class^='pulse-'] {
   color: unset;
   border-radius: unset;
 }
+
+.validation-buttons {
+  display: flex;
+  gap: 0.5rem;
+}

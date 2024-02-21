@@ -13,4 +13,5 @@ export type Annotation = {
   startFrequency: number,
   endFrequency: number,
   result_comments: Array<AnnotationComment>,
+  validation: boolean | null,
 };

@@ -12,7 +12,8 @@ export const annotatorReducer: Reducer<AnnotatorCtx, AnnotatorCtxAction> = (curr
         instructionsURL: action.task.instructions_url,
         campaignId: action.task.campaignId,
         prevAndNextAnnotation: action.task.prevAndNextAnnotation,
-        audioRate: action.task.audioRate
+        audioRate: action.task.audioRate,
+        mode:action.task.mode
       }
 
     case 'setDangerToast':

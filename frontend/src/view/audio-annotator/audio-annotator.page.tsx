@@ -267,17 +267,18 @@ export const AudioAnnotator: React.FC = () => {
       </div>
 
       {/* Tag and annotations management */ }
-      <div className="row justify-content-around m-2">
-        <CurrentAnnotationBloc/>
+      { context.mode === 'Create' && <div className="row justify-content-around m-2">
+          <CurrentAnnotationBloc/>
 
-        <div className="col-5 flex-shrink-2">
-          <TagListBloc/>
+          <div className="col-5 flex-shrink-2">
+              <TagListBloc/>
 
-          <ConfidenceIndicatorBloc/>
-        </div>
+              <ConfidenceIndicatorBloc/>
+          </div>
 
-        <PresenceBloc ref={ tagsKeyPress }/>
-      </div>
+          <PresenceBloc ref={ tagsKeyPress }/>
+      </div> }
+
 
       <div className="row justify-content-center">
         <AnnotationList/>

@@ -55,6 +55,8 @@ export type AnnotationsCtxAction =
   { type: 'addPresence', tag: string } |
   { type: 'focusTag', tag: string } |
   { type: 'removePresence', tag: string } |
+  { type: 'validateResult', result: Annotation } |
+  { type: 'invalidateResult', result: Annotation } |
   { type: 'selectConfidence', confidence: string };
 
 export const AnnotationsContext = createContext<AnnotationsCtx>(AnnotationsCtxInitialValue);

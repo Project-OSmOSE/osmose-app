@@ -6,6 +6,7 @@ import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
 import {
   AnnotationsContext, AnnotationsContextDispatch,
 } from "../../../services/annotator/annotations/annotations.context.tsx";
+import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -29,6 +30,7 @@ const Region: React.FC<RegionProps> = ({
                                        }) => {
   // const spectroContext = useContext(SpectroContext);
 
+  const annotatorContext = useContext(AnnotatorContext);
   const resultContext = useContext(AnnotationsContext);
   const resultDispatch = useContext(AnnotationsContextDispatch);
 
@@ -98,8 +100,8 @@ const Region: React.FC<RegionProps> = ({
           <i className="fas fa-comment mr-2"></i> :
           <i className="far fa-comment mr-2"></i> }
 
-        <button className="btn-simple fa fa-times-circle"
-                onClick={ () => resultDispatch!({ type: 'removeResult', result: annotation }) }></button>
+        { annotatorContext.mode === 'Create' && <button className="btn-simple fa fa-times-circle"
+                                                        onClick={ () => resultDispatch!({ type: 'removeResult', result: annotation }) }></button> }
       </p>
 
       { headerPositionIsTop && regionBody }

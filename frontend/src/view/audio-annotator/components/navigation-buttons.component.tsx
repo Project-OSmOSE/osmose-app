@@ -82,6 +82,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
           endFrequency,
           confidenceIndicator: r.confidenceIndicator ?? null,
           result_comments: result_comments,
+          validation: context.mode === 'Create' ? null : r.validation
         };
 
       }),

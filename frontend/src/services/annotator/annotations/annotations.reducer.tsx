@@ -33,7 +33,8 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
       startFrequency: -1,
       endFrequency: -1,
       type: AnnotationType.tag,
-      confidenceIndicator: currentContext.focusedConfidence
+      confidenceIndicator: currentContext.focusedConfidence,
+      validation: null
     }
   }
 
@@ -73,7 +74,8 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
             endTime: isBox ? a.endTime ?? 0 : -1,
             startFrequency: isBox ? a.startFrequency ?? 0 : -1,
             endFrequency: isBox ? a.endFrequency ?? 0 : -1,
-            result_comments: a.result_comments
+            result_comments: a.result_comments,
+            validation: action.task.mode === 'Create' ? null : (a.validation === null ? true : !!a.validation)
           }
         }),
         focusedResult: undefined,
@@ -192,6 +194,38 @@ const annotationsReducer: Reducer<AnnotationsCtx, AnnotationsCtxAction> = (curre
         presenceTags: currentContext.presenceTags.filter(t => t !== action.tag),
         focusedTag: undefined
       };
+
+    case 'validateResult':
+      focusedResult = results.find(r => r.id === action.result.id && r.newId === action.result.newId);
+      focusedResult!.validation = true;
+      results = getUpdatedResults(focusedResult);
+      if (focusedResult?.type === AnnotationType.box) {
+        results = results.map(r => {
+          if (r.type === AnnotationType.box) return r;
+          if (r.annotation !== focusedResult?.annotation) return r;
+          return {
+            ...r,
+            validation: true
+          }
+        })
+      }
+      return { ...currentContext, results, focusedResult }
+    case 'invalidateResult':
+      focusedResult = results.find(r => r.id === action.result.id && r.newId === action.result.newId);
+      focusedResult!.validation = false;
+      results = getUpdatedResults(focusedResult);
+      if (focusedResult?.type === AnnotationType.tag) {
+        results = results.map(r => {
+          if (r.type === AnnotationType.tag) return r;
+          if (r.annotation !== focusedResult?.annotation) return r;
+          return {
+            ...r,
+            validation: false
+          }
+        })
+      }
+      return { ...currentContext, results, focusedResult }
+
 
     case 'selectConfidence':
       if (focusedResult) focusedResult.confidenceIndicator = action.confidence;

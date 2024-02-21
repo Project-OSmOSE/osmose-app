@@ -380,7 +380,6 @@ class AnnotationCampaignAddAnnotatorsSerializer(serializers.Serializer):
     annotators = serializers.ListField(
         child=serializers.IntegerField(), validators=[valid_model_ids(User)]
     )
-    annotation_method = serializers.IntegerField(min_value=0, max_value=1)
     annotation_goal = serializers.IntegerField(min_value=1, required=False)
 
     def update(self, instance, validated_data):

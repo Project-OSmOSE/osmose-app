@@ -17,8 +17,8 @@
 
   --ion-color-success: #85B14D;
   --ion-color-success-rgb: 133, 177, 77;
-  --ion-color-success-contrast: #000000;
-  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-contrast: #fff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
   --ion-color-success-shade: #759c44;
   --ion-color-success-tint: #91b95f;
 

@@ -2,6 +2,7 @@ import { Context, createContext, Dispatch } from "react";
 import { ToastMessage } from "../../view/global-components";
 import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
 import { Retrieve } from "../api/annotation-task-api.service.tsx";
+import { AnnotationCampaignMode } from "../api/annotation-campaign-api.service.tsx";
 
 export const DEFAULT_COMMENT: AnnotationComment = {
   comment: '',
@@ -11,6 +12,7 @@ export const DEFAULT_COMMENT: AnnotationComment = {
 
 export const AnnotatorCtxInit: AnnotatorCtx = {
   areShortcutsEnabled: true,
+  mode: "Create"
 }
 
 export interface AnnotatorCtx {
@@ -25,6 +27,7 @@ export interface AnnotatorCtx {
   audioRate?: number;
   toast?: ToastMessage;
   areShortcutsEnabled: boolean;
+  mode: AnnotationCampaignMode;
 }
 
 export type AnnotatorCtxAction =

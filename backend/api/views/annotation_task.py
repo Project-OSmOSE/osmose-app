@@ -118,7 +118,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         if task.status == 0:
             task.status = 1
             task.save()
-        serializer = AnnotationTaskRetrieveSerializer(task)
+        serializer = AnnotationTaskRetrieveSerializer(task, user_id=request.user.id)
 
         return Response(serializer.data)
 
