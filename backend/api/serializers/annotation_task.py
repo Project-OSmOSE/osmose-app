@@ -205,6 +205,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         source="annotation_campaign.confidence_indicator_set"
     )
     mode = EnumField(enum=AnnotationCampaignUsage, source="annotation_campaign.usage")
+    instructions_url = serializers.CharField(source="annotation_campaign.instructions_url")
 
     def __init__(self, *args, **kwargs):
         if "user_id" in kwargs:
