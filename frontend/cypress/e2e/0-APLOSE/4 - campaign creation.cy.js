@@ -5,7 +5,7 @@ describe('create campaign', () => {
     })
 
     it('cannot submit empty form', () => {
-        cy.get('input[type=submit]').click(); // cy.contains('submit', {matchCase: false}).click()
+        cy.contains('Create campaign').click(); // cy.contains('submit', {matchCase: false}).click()
         cy.get('.error-message')
             .should('include.text', 'field')
             .should('include.text', 'required')
