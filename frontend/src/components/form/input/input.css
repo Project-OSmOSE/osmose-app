@@ -1,0 +1,35 @@
+#aplose-input {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: stretch;
+  width: 100%;
+}
+
+#aplose-input > #label {
+  padding-left: 1rem;
+}
+
+#aplose-input > #input {
+  display: grid;
+  position: relative;
+}
+#aplose-input > #input > input {
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--ion-color-light-shade);
+  padding: 0.5rem 1rem;
+  outline-color: var(--ion-color-primary);
+}
+
+#aplose-input > #input > input.has-start-icon {
+  padding-left: 3rem;
+}
+#aplose-input > #input > ion-icon#input-start-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ion-color-medium);
+  --ionicon-stroke-width: 3rem;
+}

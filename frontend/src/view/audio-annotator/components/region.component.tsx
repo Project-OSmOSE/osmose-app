@@ -87,7 +87,7 @@ export const Region: React.FC<RegionProps> = ({
       <p className="d-flex region-header"
          style={ styles.header }>
 
-        <button className="btn-simple fa fa-play-circle"
+        <button className="btn-simple fa fa-play-circle text-white"
                 onClick={ () => audioPlayer?.play(annotation) }></button>
 
         <span className="flex-fill text-center"
@@ -100,7 +100,7 @@ export const Region: React.FC<RegionProps> = ({
           <i className="fas fa-comment mr-2"></i> :
           <i className="far fa-comment mr-2"></i> }
 
-        { annotatorContext.mode === 'Create' && <button className="btn-simple fa fa-times-circle"
+        { annotatorContext.mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
                                                         onClick={ () => resultDispatch!({ type: 'removeResult', result: annotation }) }></button> }
       </p>
 

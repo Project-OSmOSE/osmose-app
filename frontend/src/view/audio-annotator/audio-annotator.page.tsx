@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
 import { Workbench } from './components/workbench.component.tsx';
@@ -27,6 +27,9 @@ import { AnnotatorContext, AnnotatorDispatchContext } from "../../services/annot
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { Annotation } from "../../interface/annotation.interface.tsx";
+import { ANNOTATOR_GUIDE_URL } from "../../consts/links.const.tsx";
+import { IonButton, IonIcon } from "@ionic/react";
+import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -184,10 +187,18 @@ export const AudioAnnotator: React.FC = () => {
     }
   }
 
-  const playStatusClass = useMemo(
-    () => audioContext.isPaused ? "fa-play-circle" : "fa-pause-circle",
-    [audioContext.isPaused]
-  );
+  const openGuide = () => {
+    window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
+  }
+
+  const openInstructions = () => {
+    if (!context?.instructionsURL) return;
+    window.open(context.instructionsURL, "_blank", "noopener, noreferrer")
+  }
+
+  const goBack = () => {
+    window.open(`/annotation_tasks/${ context.campaignId }`, "_self")
+  }
 
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
@@ -200,30 +211,28 @@ export const AudioAnnotator: React.FC = () => {
       {/* Header */ }
       <div className="row">
         <h1 className="col-sm-6">APLOSE</h1>
-        <p className="col-sm-4 annotator-nav">
-              <span>
-                <a href="https://github.com/Project-OSmOSE/osmose-app/blob/master/docs/user_guide_annotator.md"
-                   rel="noopener noreferrer"
-                   target="_blank">
-                  <span className="fas fa-question-circle"></span>&nbsp;Annotator User Guide
-                </a>
-              </span>
-          { context.instructionsURL &&
-              <span>
-                      <a href={ context.instructionsURL }
-                         rel="noopener noreferrer"
-                         target="_blank">
-                          <span className="fas fa-info-circle"></span>&nbsp;Campaign instructions
-                      </a>
-                  </span> }
-        </p>
+        <div className="col-sm-4 annotator-nav align-items-center gap-1">
+          <IonButton color="secondary"
+                     fill={ "outline" }
+                     onClick={ openGuide }>
+            <IonIcon icon={ helpCircle } slot="start"/>
+            Annotator user guide
+          </IonButton>
+
+          { context?.instructionsURL && <IonButton color="secondary"
+                                                   fill={ "outline" }
+                                                   onClick={ openInstructions }>
+              <IonIcon icon={ informationCircle } slot="start"/>
+              Campaign instructions
+          </IonButton> }
+        </div>
         <ul className="col-sm-2 annotator-nav">
           <li>
-            <Link className="btn btn-danger"
-                  to={ `/annotation_tasks/${ context.campaignId }` }
-                  title="Go back to annotation campaign tasks">
+            <IonButton color="danger"
+                       onClick={ goBack }
+                       title="Go back to annotation campaign tasks">
               Back to campaign
-            </Link>
+            </IonButton>
           </li>
         </ul>
       </div>
@@ -236,12 +245,16 @@ export const AudioAnnotator: React.FC = () => {
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
-        <p className="col-sm-1 text-right">
-          <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>
-            <button className={ `btn-simple btn-play fas ${ playStatusClass }` }
-                    onClick={ () => playPause() }></button>
+        <div className="col-sm-1 d-flex justify-content-end">
+          <OverlayTrigger
+            overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>
+            <IonButton color={ "primary" }
+                       shape={ "round" }>
+              { audioContext.isPaused && <IonIcon icon={ play } slot={ "icon-only" }/> }
+              { !audioContext.isPaused && <IonIcon icon={ pause } slot={ "icon-only" }/> }
+            </IonButton>
           </OverlayTrigger>
-        </p>
+        </div>
         <p className="col-sm-1">
           { audioPlayerRef.current?.canPreservePitch &&
               <select className="form-control select-rate"

@@ -50,6 +50,7 @@
   --ion-color-dark-shade: #051a31;
   --ion-color-dark-tint: #1f344c;
 
+  --aplose-border-color: rgba(var(--ion-color-medium-rgb), 0.5);
   --aplose-box-shadow:
           rgba(var(--ion-color-secondary-rgb), 0.1) 0 1rem 50px,
           rgba(var(--ion-color-secondary-rgb), 0.2) 0 0.25rem 10px;
@@ -73,7 +74,7 @@ ion-app {
 }
 
 /* Buttons */
-ion-button {
+ion-button:not([shape=round]) {
   --border-radius: 0.5rem;
   text-transform: none;
   margin: 0;
@@ -83,6 +84,22 @@ ion-button:has([slot=icon-only]) {
   --padding-end: 0.5rem;
   --padding-top: 0.5rem;
   --padding-bottom: 0.5rem;
+}
+ion-button.button-has-icon-only {
+  /* Firefox doesn't support :has selector until v121 */
+  --padding-start: 0.5rem !important;
+  --padding-end: 0.5rem !important;
+  --padding-top: 0.5rem !important;
+  --padding-bottom: 0.5rem !important;
+}
+ion-button.rounded-right-0 {
+  --border-radius: 0.5rem 0 0 0.5rem;
+}
+ion-button.rounded-left-0 {
+  --border-radius: 0 0.5rem 0.5rem 0;
+}
+ion-button.rounded-0 {
+  --border-radius: 0;
 }
 ion-button .disable-hint {
   display: none;

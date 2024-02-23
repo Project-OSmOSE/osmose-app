@@ -2,6 +2,8 @@ import { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from 're
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuthService } from "../services/auth";
 import { buildErrorMessage } from "../services/format/format.util.tsx";
+import { Input } from "../components/form/input/input.tsx";
+import { IonButton } from "@ionic/react";
 
 
 export const Login: FC = () => {
@@ -54,20 +56,22 @@ export const Login: FC = () => {
           { error && <p className="error-message">{ error }</p> }
           <form onSubmit={ handleSubmit }>
             <div className="form-group">
-              <label htmlFor="loginInput">Login</label>
-              <input id="loginInput" className="form-control" type="text"
+              <Input id="loginInput" className="form-control"
+                     label={ "Login" }
                      value={ username }
                      onChange={ handleUsernameChange }/>
             </div>
             <div className="form-group">
-              <label htmlFor="passwordInput">Password</label>
-              <input id="passwordInput" className="form-control" type="password"
+              <Input id="passwordInput" className="form-control"
+                     label={ "Password" }
+                     type={ "password" }
                      value={ password }
                      onChange={ handlePasswordChange }/>
             </div>
-            <input className="btn btn-primary"
-                   type="submit"
-                   value="Submit"/>
+
+            <IonButton color={ "primary" } type={ "submit" }>
+              Submit
+            </IonButton>
           </form>
         </div>
       </div>

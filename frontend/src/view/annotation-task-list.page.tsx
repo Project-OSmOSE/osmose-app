@@ -7,6 +7,9 @@ import {
   useAnnotationTaskAPI
 } from "../services/api";
 import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
+import { ANNOTATOR_GUIDE_URL } from "../consts/links.const.tsx";
+import { IonButton, IonIcon } from "@ionic/react";
+import { helpCircle, informationCircle } from "ionicons/icons";
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -18,7 +21,7 @@ export const AnnotationTaskList: React.FC = () => {
   const [error, setError] = useState<any | undefined>(undefined);
 
   useEffect(() => {
-    document.body.scrollTo({top: 0, behavior: 'instant'})
+    document.body.scrollTo({ top: 0, behavior: 'instant' })
     let isCanceled = false;
 
     setError(undefined);
@@ -38,6 +41,16 @@ export const AnnotationTaskList: React.FC = () => {
     }
   }, [campaignID]);
 
+  const openGuide = () => {
+    window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
+  }
+
+  const openInstructions = () => {
+    if (!campaign?.instructions_url) return;
+    window.open(campaign.instructions_url, "_blank", "noopener, noreferrer")
+  }
+
+
   if (error) {
     return (
       <div className="col-sm-9 border rounded">
@@ -50,21 +63,17 @@ export const AnnotationTaskList: React.FC = () => {
   return (
     <div className="col-sm-9 border rounded">
       <h1 className="text-center">Annotation Tasks</h1>
-      <p className="text-center">
-        <a className="btn btn-warning"
-           href="https://github.com/Project-ODE/FrontApp/blob/master/docs/user_guide_annotator.md"
-           rel="noopener noreferrer"
-           target="_blank">
-          <span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide
-        </a>
-        &nbsp;
-        { campaign?.instructions_url &&
-            <a className="btn btn-warning"
-               href={ campaign.instructions_url }
-               rel="noopener noreferrer"
-               target="_blank"
-            ><span className="fa fa-info-circle"></span>&nbsp;Campaign instructions</a> }
-      </p>
+
+      <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonButton color="warning" onClick={ openGuide }>
+          <IonIcon icon={ helpCircle } slot="start"/>
+          Annotator user guide
+        </IonButton>
+        { campaign?.instructions_url && <IonButton color="warning" onClick={ openInstructions }>
+            <IonIcon icon={ informationCircle } slot="start"/>
+            Campaign instructions
+        </IonButton> }
+      </div>
       <table className="table table-bordered">
         <thead>
         <tr>

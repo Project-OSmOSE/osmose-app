@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { IonButton, IonChip, IonIcon, IonInput, IonLabel, IonNote, IonTextarea, useIonToast } from "@ionic/react";
+import {
+  IonButton,
+  IonChip,
+  IonIcon,
+  IonInput,
+  IonLabel,
+  IonNote,
+  IonTextarea,
+  useIonToast
+} from "@ionic/react";
 import {
   AnnotationSetList,
   AnnotationSetListItem,
@@ -29,6 +38,7 @@ import { AnnotationMode, Usage } from "../../enum/annotation.enum.tsx";
 import { CSVData } from "./import-annotations-modal/csv-import.tsx";
 import { useHistory } from "react-router-dom";
 import './create-edit-campaign.css';
+import { Input } from "../../components/form/input/input.tsx";
 
 export const CreateCampaign: React.FC = () => {
 
@@ -133,15 +143,6 @@ export const CreateCampaign: React.FC = () => {
   const history = useHistory();
 
   // Submit
-  const [canSubmit, setCanSubmit] = useState<boolean>(false);
-  useEffect(() => {
-    setCanSubmit(
-      !!name &&
-      !!dataset &&
-      activeSpectroIDs.length > 0 &&
-      !!mode &&
-      mode === Usage.create ? !!annotationSet : (!!data && data.detectorNames.length > 0))
-  }, [name, dataset, activeSpectroIDs, mode, annotationSet, data]);
 
   const handleSubmit = async () => {
     try {
@@ -206,6 +207,7 @@ export const CreateCampaign: React.FC = () => {
       <h1>Create Annotation Campaign</h1>
 
       <FormBloc>
+        <Input/>
         <div>
           <IonLabel className="mandatory">Name*</IonLabel>
           <IonInput placeholder="Campaign name" required={ true } type="text"
@@ -320,8 +322,6 @@ export const CreateCampaign: React.FC = () => {
       </FormBloc>
 
       <IonButton color="primary"
-                 disabled={ !canSubmit }
-                 aria-disabled={ !canSubmit }
                  onClick={ handleSubmit }>Create campaign</IonButton>
     </div>
   )

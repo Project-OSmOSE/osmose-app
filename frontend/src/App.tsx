@@ -14,14 +14,13 @@ import { ProvideAuth, useAuthService } from "./services/auth";
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
 import './css/fontawesome/css/regular.min.css'
-import './css/materialize.min.css';
 import './css/bootstrap-4.1.3.min.css';
 import '@ionic/react/css/core.css';
 import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
-import { IonApp, setupIonicReact } from '@ionic/react';
+import { IonApp, IonButton, setupIonicReact } from '@ionic/react';
 
 setupIonicReact({
   mode: 'md',
@@ -44,7 +43,10 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
             <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
             <br/>
             <li>
-              <button className="btn btn-secondary" onClick={ auth.logout.bind(auth) }>Logout</button>
+              <IonButton color={ "medium" }
+                         onClick={ auth.logout.bind(auth) }>
+                Logout
+              </IonButton>
             </li>
           </ul>
         </div>

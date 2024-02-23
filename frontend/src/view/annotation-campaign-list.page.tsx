@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "../services/api";
+import { ANNOTATOR_GUIDE_URL } from "../consts/links.const.tsx";
+import { IonButton, IonIcon } from "@ionic/react";
+import { addOutline, helpCircle } from "ionicons/icons";
 
 
 export const AnnotationCampaignList: React.FC = () => {
@@ -25,6 +28,14 @@ export const AnnotationCampaignList: React.FC = () => {
     }
   }, []);
 
+  const openGuide = () => {
+    window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
+  }
+
+  const openNewCampaign = () => {
+    window.open("/create-annotation-campaign", "_self")
+  }
+
   if (error) return (
     <div className="col-sm-10 border rounded">
       <h1>Annotation Campaigns</h1>
@@ -35,13 +46,17 @@ export const AnnotationCampaignList: React.FC = () => {
   return (
     <div className="col-sm-10 border rounded">
       <h1 className="text-center">Annotation Campaigns</h1>
-      <p className="text-center">
-        <a className="btn btn-warning"
-           href="https://github.com/Project-ODE/FrontApp/blob/master/docs/user_guide_annotator.md"
-           rel="noopener noreferrer"
-           target="_blank">
-          <span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>
-      </p>
+
+      <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonButton color="primary" onClick={ openNewCampaign }>
+          <IonIcon icon={ addOutline } slot="start"/>
+          New annotation campaign
+        </IonButton>
+        <IonButton color="warning" onClick={ openGuide }>
+          <IonIcon icon={ helpCircle } slot="start"/>
+          Annotator user guide
+        </IonButton>
+      </div>
 
       <div className="table-responsive">
         <table className="table table-bordered">
@@ -77,13 +92,6 @@ export const AnnotationCampaignList: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      <p className="text-center">
-        <Link to="/create-annotation-campaign"
-              className="btn btn-primary">
-          New annotation campaign
-        </Link>
-      </p>
     </div>
   )
 }

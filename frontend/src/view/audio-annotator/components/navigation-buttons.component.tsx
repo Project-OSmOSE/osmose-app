@@ -10,6 +10,8 @@ import { AnnotationType } from "../../../enum/annotation.enum.tsx";
 import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
+import { IonButton, IonIcon } from "@ionic/react";
+import { caretBack, caretForward } from "ionicons/icons";
 
 interface Props {
   shortcut: ReactNode;
@@ -17,9 +19,9 @@ interface Props {
 }
 
 export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>(({
-                                                                             shortcut,
-                                                                             description,
-                                                                           }, ref) => (
+                                                                                    shortcut,
+                                                                                    description,
+                                                                                  }, ref) => (
   <div className="card" ref={ ref }>
     <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
     <div className="card-body p-1">
@@ -119,27 +121,30 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
 
   if (!siblings) return <Fragment/>;
   return (
-    <div className="col-sm-5 text-center">
-      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <i className="fa fa-arrow-left"/> }
-        description="load previous recording"/></Tooltip> }>
-        <button className="btn btn-submit rounded-left rounded-right-0"
-                onClick={ navPrevious }>
-          <i className="fa fa-caret-left"></i>
-        </button>
+    <div className="col-sm-5 d-flex justify-content-center">
+      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
+                                                                    description="load previous recording"/></Tooltip> }>
+        <IonButton color={ "primary" }
+                   className="rounded-right-0"
+                   onClick={ navPrevious }>
+          <IonIcon icon={ caretBack } slot={ "icon-only" }/>
+        </IonButton>
       </OverlayTrigger>
-      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Enter" description="Submit & load next recording"/></Tooltip> }>
-        <button className="btn btn-submit border-radius-0"
-                onClick={ submit }
-                type="button">
+      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Enter"
+                                                                    description="Submit & load next recording"/></Tooltip> }>
+        <IonButton color={ "primary" }
+                   className="rounded-0"
+                   onClick={ submit }>
           Submit &amp; load next recording
-        </button>
+        </IonButton>
       </OverlayTrigger>
-      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <i className="fa fa-arrow-right"/> }
+      <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
                                                                     description="load next recording"/></Tooltip> }>
-        <button className="btn btn-submit rounded-right rounded-left-0"
-                onClick={ navNext }>
-          <i className="fa fa-caret-right"></i>
-        </button>
+        <IonButton color={ "primary" }
+                   className="rounded-left-0"
+                   onClick={ navNext }>
+          <IonIcon icon={ caretForward } slot={ "icon-only" }/>
+        </IonButton>
       </OverlayTrigger>
     </div>
   )

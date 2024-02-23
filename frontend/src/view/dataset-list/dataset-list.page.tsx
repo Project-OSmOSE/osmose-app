@@ -4,6 +4,7 @@ import { useDatasetsAPI, DatasetListToImport, DatasetList as List } from "../../
 import '../../css/modal.css';
 import { Toast, ToastMessage } from '../global-components';
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
+import { IonButton } from "@ionic/react";
 
 
 export const DatasetList: React.FC = () => {
@@ -71,6 +72,19 @@ export const DatasetList: React.FC = () => {
     <div className="col-sm-9 border rounded" id="content">
       <h1 className="text-center">Datasets</h1>
       <Toast toastMessage={ toastMsg }></Toast>
+      <p className="text-center">
+        <IonButton color={"primary"}
+                   disabled={ datasetsToImport.length === 0 }
+                   onClick={ () => setIsImportModalOpen(!isImportModalOpen) }>
+          Import
+        </IonButton>
+
+        { isImportModalOpen && ReactDOM.createPortal(
+          <ModalNewDataset startImport={ (datasets) => importDatasets(datasets) }
+                           onClose={ () => setIsImportModalOpen(false) }
+                           newData={ datasetsToImport }/>,
+          document.body) }
+      </p>
       <table className="table table-bordered">
         <thead>
         <tr>
@@ -99,19 +113,6 @@ export const DatasetList: React.FC = () => {
         }) }
         </tbody>
       </table>
-      <p className="text-center">
-        <button className="btn btn-primary"
-                disabled={ datasetsToImport.length === 0 }
-                onClick={ () => setIsImportModalOpen(!isImportModalOpen) }>
-          Import
-        </button>
-
-        { isImportModalOpen && ReactDOM.createPortal(
-          <ModalNewDataset startImport={ (datasets) => importDatasets(datasets) }
-                           onClose={ () => setIsImportModalOpen(false) }
-                           newData={ datasetsToImport }/>,
-          document.body) }
-      </p>
     </div>
   );
 };

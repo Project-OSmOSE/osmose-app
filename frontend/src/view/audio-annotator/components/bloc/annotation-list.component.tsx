@@ -32,7 +32,7 @@ export const AnnotationList: React.FC = () => {
       <table className="table table-hover rounded">
         <thead className="">
         <tr className="text-center bg__black--003">
-          <th colSpan={ annotatorContext.mode === 'Create' ? 5 : 6 }>Annotations</th>
+          <th colSpan={ annotatorContext.mode === 'Create' ? 5 : 7 }>Annotations</th>
         </tr>
         </thead>
         <tbody>

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
   UserListItem, useUsersAPI
 } from "../services/api";
 import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
+import { IonButton } from "@ionic/react";
 
 
 type AnnotationStatus = {
@@ -65,6 +66,11 @@ export const AnnotationCampaignDetail: React.FC = () => {
     }
   }, [campaignID])
 
+  const openEditCampaign = () => {
+    if (!annotationCampaign) return;
+    window.open(`/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
+  }
+
   if (error) {
     return (
       <div className="col-sm-9 border rounded">
@@ -107,12 +113,12 @@ export const AnnotationCampaignDetail: React.FC = () => {
         { annotationCampaign.desc }
       </div>
       <br/>
-      { isStaff && <p className="text-center">
-          <Link to={ `/annotation_campaign/${ annotationCampaign.id }/edit` }
-                className="btn btn-primary">
+      { isStaff && <div className="d-flex justify-content-center">
+          <IonButton color={ "primary" }
+                     onClick={ openEditCampaign }>
               Add annotators
-          </Link>
-      </p> }
+          </IonButton>
+      </div> }
       <table className="table table-bordered">
         <thead className="text-center">
         <tr>
@@ -131,18 +137,17 @@ export const AnnotationCampaignDetail: React.FC = () => {
         }) }
         </tbody>
       </table>
-      { annotationCampaign &&
-          <p className="text-center">
-              <button onClick={ () => campaignService.downloadResults(annotationCampaign) }
-                      className="btn btn-primary">
-                  Download CSV results
-              </button>
-              &nbsp;&nbsp;&nbsp;&nbsp;
-              <button onClick={ () => campaignService.downloadStatus(annotationCampaign) }
-                      className="btn btn-primary">
-                  Download CSV task status
-              </button>
-          </p> }
+
+      <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonButton color="primary"
+                   onClick={ () => campaignService.downloadResults(annotationCampaign) }>
+          Download CSV results
+        </IonButton>
+        <IonButton color="primary"
+                   onClick={ () => campaignService.downloadStatus(annotationCampaign) }>
+          Download CSV task status
+        </IonButton>
+      </div>
     </div>
   )
 }

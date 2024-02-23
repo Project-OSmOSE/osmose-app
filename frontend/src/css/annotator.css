@@ -688,3 +688,7 @@ div[class^='pulse-'] {
   display: flex;
   gap: 0.5rem;
 }
+
+select {
+  border: var(--aplose-border-color)
+}
