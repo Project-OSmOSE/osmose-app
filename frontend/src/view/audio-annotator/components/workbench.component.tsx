@@ -36,7 +36,7 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
-      <p className="workbench-controls">
+      <div className="workbench-controls">
         <select
           defaultValue={ spectroContext.currentParams ? spectroContext.availableParams.indexOf(spectroContext.currentParams) : 0 }
           onChange={ e => spectroDispatch!({
@@ -57,7 +57,34 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
         <button className="btn-simple fa fa-search-minus"
                 onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'out' }) }></button>
         <span>{ spectroContext.currentZoom }x</span>
-      </p>
+        <label htmlFor="colormap">Colormap:</label>
+        <select
+          id="colormap"
+          defaultValue={ spectroContext.currentColormap.colormap }
+          onChange={ e => spectroDispatch!({
+            type: 'updateColormap',
+            params: { colormap: e.target.value, invertColors: spectroContext.currentColormap.invertColors },
+          })}>
+            { spectroContext.availableColormaps.map((colormap, idx) => {
+              return (
+                <option key={ `colormap-${idx}` } value={ colormap }>{ colormap }</option>
+              );
+            }) }
+        </select>
+        <div className="form-check">
+          <input
+            id="invertColors"
+            type="checkbox"
+            className="form-check-input"
+            checked={ spectroContext.currentColormap.invertColors }
+            onChange={ e => spectroDispatch!({
+              type: 'updateColormap',
+              params: { colormap: spectroContext.currentColormap.colormap, invertColors: e.target.checked },
+            }) }
+          />
+          <label className="form-check-label" htmlFor="invertColors">Invert colors</label>
+        </div>
+      </div>
 
       { spectroContext.pointerPosition && <p className="workbench-pointer">
         { spectroContext.pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(spectroContext.pointerPosition.time, false) }
