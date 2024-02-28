@@ -168,6 +168,11 @@ export const SpectroRenderComponent: React.FC<Props> = ({audioPlayer,}) => {
     loadSpectro();
   }, [ spectroContext.currentImages ])
 
+  // On current colormap changed
+  useEffect(() => {
+    loadSpectro();
+  }, [ spectroContext.currentColormap ]);
+
   // On current audio time changed
   useEffect(() => {
     loadSpectro();
@@ -339,8 +344,8 @@ export const SpectroRenderComponent: React.FC<Props> = ({audioPlayer,}) => {
         canvas.height
       ));
 
-    // Color spectro image (TODO: add a select + checkbox to select colormap and invert)
-    colorSpectro(canvas, 'jet', true);
+    // Color spectro image
+    colorSpectro(canvas, spectroContext.currentColormap.colormap, spectroContext.currentColormap.invertColors);
 
     // Progress bar
     const newX: number = Math.floor(canvas.width * audioContext.time / resultContext.wholeFileBoundaries.duration);
