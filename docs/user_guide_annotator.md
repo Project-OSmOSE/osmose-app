@@ -26,14 +26,14 @@ For each campaign, there is a link to the Task list at the end of the line.
 
 The Annotation Tasks page lists the tasks for a given campaign, for the user currently logged in.
 
-Column | Content
------- | -------
-Filename | name of the task file
-Dataset | short name of the dataset
-Date | when this file was recorded
-Duration | duration of the task file
-Status | Created if the user hasn’t begun to annotate the file, Finished otherwise
-Link | a link to the Audio Annotator page for this task
+| Column   | Content                                                                   |
+|----------|---------------------------------------------------------------------------|
+| Filename | name of the task file                                                     |
+| Dataset  | short name of the dataset                                                 |
+| Date     | when this file was recorded                                               |
+| Duration | duration of the task file                                                 |
+| Status   | Created if the user hasn’t begun to annotate the file, Finished otherwise |
+| Link     | a link to the Audio Annotator page for this task                          |
 
 ![Task list screen capture](images/16_campaign_tasks.png)
 
@@ -75,17 +75,42 @@ The spectrogram only zooms on time (no zoom on frequency). The zoom is discrete:
 
 ### Create, tag, select and delete an annotation
 
-To create an annotation, click on the spectrogram and drag over the area containing the feature.<br />
+There is two types of annotations : presence tag and box tag.
+The presence tag indicate a presence in the whole file, the box tag only in the selected time/frequency area.
+For each box tag label there is a presence tag for the same label.
+
+To create a presence tag you need to check the wanted label in the "Presence / Absence" block.
+
+![Create a presence tag](images/24_annotator_presence.png)
+
+To create a box annotation, click on the spectrogram and drag over the area containing the feature.<br />
 On click / tap release, the annotation is created and selected: it appears in Selected annotation block and in the Annotations list, both below the spectrogram.
 
 ![Screen captures of annotation states: during creation / created / tagged](images/24_annotator_annotation.png)
 
-The selected annotation block gives precise details about the annotation: start and end time, min and max frequency. It also list available tags (from the dataset). To tag / untag the annotation, press the matching button. An annotation must have one and only one tag.
+By default, the last tag selected is used to label your new annotation. You can switch your box tag by click on the corresponding button in the "Tags list" block.
+Note that only selected presence tag can be used to annotate box.
+
+![Create a box tag](images/24_annotator_tag.png)
+
+### Selected annotation
+
+The selected annotation block gives precise details about the annotation: start and end time, min and max frequency.
+An annotation must have one and only one tag.
 
 ![Selected annotation block screen capture](images/25_annotation_selected.png)
 
+It also lists available tags (from the dataset). To tag / untag the annotation, press the matching button.
+
 The selected annotation can be chosen by clicking on its header on the spectrogram, or its line on the annotation list.<br />
 The header also allow playing the sound file only for the duration of the annotation, and deleting the annotation by pressing corresponding buttons.
+
+### Comments
+
+You can also edit a comment for each annotation, or for the task.
+
+![Comment an annotation](images/30_comments.png)
+
 
 ### Annotation list
 
@@ -93,9 +118,11 @@ All the annotations created by the user for the current task are listed in the a
 
 Table content:
 
-- Start / end time
-- Min / max frequency
+- Start / end time for boxes
+- Min / max frequency for boxes
 - Tag, “-” if no tag has been selected yet
+- Confidence level, if the campaign allows it
+- An indicator of comment on the annotation
 
 Clicking on an annotation selects it (it appears it the selected annotation block and can be tagged).
 
@@ -105,7 +132,7 @@ Clicking on an annotation selects it (it appears it the selected annotation bloc
 
 The Submit & load next recording button works this way:
 
-- If several annotations are not tagged, it selects the first one, display an error message and stay on this task
+- If several annotations are not tagged, it displays an error message and stay on this task
 - If all annotations are tagged (or if no annotation has been created), it saves them for this task, and loads the next available task
 - If there is no next available task, the user is sent back to the task list for this campaign.
 
