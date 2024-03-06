@@ -36,28 +36,62 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
-      <p className="workbench-controls">
-        <select
-          defaultValue={ spectroContext.currentParams ? spectroContext.availableParams.indexOf(spectroContext.currentParams) : 0 }
-          onChange={ e => spectroDispatch!({
-            type: 'updateParams',
-            params: spectroContext.availableParams[+e.target.value],
-            zoom: 1
-          }) }>
-          { spectroContext.availableParams.map((params, idx) => {
-            return (
-              <option key={ `params-${ idx }` } value={ idx }>
-                { `nfft: ${ params.nfft } / winsize: ${ params.winsize } / overlap: ${ params.overlap }` }
-              </option>
-            );
-          }) }
-        </select>
-        <button className="btn-simple fa fa-search-plus"
-                onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'in' }) }></button>
-        <button className="btn-simple fa fa-search-minus"
-                onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'out' }) }></button>
-        <span>{ spectroContext.currentZoom }x</span>
-      </p>
+      <div className="workbench-controls">
+
+        {/* Param selection */}
+        <div>
+          <select
+            defaultValue={ spectroContext.currentParams ? spectroContext.availableParams.indexOf(spectroContext.currentParams) : 0 }
+            onChange={ e => spectroDispatch!({
+              type: 'updateParams',
+              params: spectroContext.availableParams[+e.target.value],
+              zoom: 1
+            }) }>
+            { spectroContext.availableParams.map((params, idx) => {
+              return (
+                <option key={ `params-${ idx }` } value={ idx }>
+                  { `nfft: ${ params.nfft } / winsize: ${ params.winsize } / overlap: ${ params.overlap }` }
+                </option>
+              );
+            }) }
+          </select>
+        </div>
+
+        {/* Zoom selection */}
+        <div>
+          <button className="btn-simple fa fa-search-plus"
+                  onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'in' }) }></button>
+          <button className="btn-simple fa fa-search-minus"
+                  onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'out' }) }></button>
+          <span>{ spectroContext.currentZoom }x</span>
+        </div>
+
+        {/* Color map selection */}
+        <div>
+          <select
+            defaultValue={ spectroContext.currentColormap.colormap }
+            onChange={ e => spectroDispatch!({
+              type: 'updateColormap',
+              params: { colormap: e.target.value, invertColors: spectroContext.currentColormap.invertColors },
+            })}>
+              { spectroContext.availableColormaps.map((colormap, idx) => {
+                return (
+                  <option key={ `colormap-${idx}` } value={ colormap }>{ colormap !== '' ? colormap : 'No colormap' }</option>
+                );
+              }) }
+          </select>
+          <input
+            id="invertColors"
+            type="checkbox"
+            checked={ spectroContext.currentColormap.invertColors }
+            onChange={ e => spectroDispatch!({
+              type: 'updateColormap',
+              params: { colormap: spectroContext.currentColormap.colormap, invertColors: e.target.checked },
+            }) }
+          />
+          <label htmlFor="invertColors">Inverted</label>
+        </div>
+      </div>
 
       { spectroContext.pointerPosition && <p className="workbench-pointer">
         { spectroContext.pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(spectroContext.pointerPosition.time, false) }
