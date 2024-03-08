@@ -1,30 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "../services/api";
-import { ANNOTATOR_GUIDE_URL } from "../consts/links.const.tsx";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { addOutline, helpCircle } from "ionicons/icons";
+import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "@/services/api";
+import { useToast } from "@/services/utils/toast";
+import { ANNOTATOR_GUIDE_URL } from "@/consts/links";
 
 
 export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Services
   const campaignService = useAnnotationCampaignAPI();
-  const [error, setError] = useState<any | undefined>(undefined);
+  const toast = useToast();
 
   useEffect(() => {
-    let isCanceled = false;
+    let isCancelled = false;
+    setIsLoading(true);
 
-    setError(undefined);
-    campaignService.list().then(setAnnotationCampaigns).catch(e => {
-      if (isCanceled) return;
-      setError(e);
-      throw e
-    })
+    campaignService.list()
+      .then(setAnnotationCampaigns)
+      .catch(e => {
+        if (isCancelled) return;
+        toast.presentError(e);
+      })
+      .finally(() => !isCancelled && setIsLoading(false))
 
     return () => {
-      isCanceled = true;
+      isCancelled = true;
       campaignService.abort();
+      setIsLoading(false);
+      toast.dismiss();
     }
   }, []);
 
@@ -35,13 +42,6 @@ export const AnnotationCampaignList: React.FC = () => {
   const openNewCampaign = () => {
     window.open("/create-annotation-campaign", "_self")
   }
-
-  if (error) return (
-    <div className="col-sm-10 border rounded">
-      <h1>Annotation Campaigns</h1>
-      <p className="error-message">{ error.message }</p>
-    </div>
-  )
 
   return (
     <div className="col-sm-10 border rounded">
@@ -92,6 +92,8 @@ export const AnnotationCampaignList: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
     </div>
   )
 }
