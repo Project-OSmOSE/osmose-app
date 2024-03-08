@@ -15,7 +15,7 @@ describe('login page', () => {
         cy.login("admin", "osmose29")
 
         cy.get("h1").eq(1).should('have.text', 'Annotation Campaigns')
-        cy.get('button').contains('logout', {matchCase: false}).click();
+        cy.contains('logout', {matchCase: false}).click();
 
         cy.get("h1").should('have.text', 'Login')
     })
