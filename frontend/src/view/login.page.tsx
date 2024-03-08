@@ -1,9 +1,9 @@
 import { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from "react-router-dom";
-import { useAuthService } from "../services/auth";
-import { buildErrorMessage } from "../services/format/format.util.tsx";
-import { Input } from "../components/form/input/input.tsx";
 import { IonButton } from "@ionic/react";
+import { useAuthService } from "@/services/auth";
+import { buildErrorMessage } from "@/services/utils/format.tsx";
+import { Input } from "@/components/form/inputs/input.tsx";
 
 
 export const Login: FC = () => {
@@ -59,6 +59,7 @@ export const Login: FC = () => {
               <Input id="loginInput" className="form-control"
                      label={ "Login" }
                      value={ username }
+                     autoComplete={ "username" }
                      onChange={ handleUsernameChange }/>
             </div>
             <div className="form-group">
@@ -66,6 +67,7 @@ export const Login: FC = () => {
                      label={ "Password" }
                      type={ "password" }
                      value={ password }
+                     autoComplete={ "current-password" }
                      onChange={ handlePasswordChange }/>
             </div>
 
