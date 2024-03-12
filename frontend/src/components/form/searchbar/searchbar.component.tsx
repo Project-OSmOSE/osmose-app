@@ -1,11 +1,11 @@
 import React, { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { IonItem, IonList, IonSearchbar } from "@ionic/react";
+import { Item } from "@/types/item.ts";
 import './searchbar.component.css';
 
 interface Props {
-  values: Array<any & { id: number }>;
-  show: (value: any) => string;
-  onValueSelected: (value: any) => void;
+  values: Array<Item>;
+  onValueSelected: (value: Item) => void;
 }
 
 export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>> = (props) => {
@@ -19,7 +19,7 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
     const searchData = search.split(' ').filter(s => s).map(s => s.toLowerCase());
     setSearchResult(
       props.values.filter(value => {
-        const valueData = props.show(value).split(' ').filter(v => v).map(v => v.toLowerCase());
+        const valueData = value.label.split(' ').filter(v => v).map(v => v.toLowerCase());
         for (const s of searchData) {
           if (valueData.find(v => v.includes(s))) continue;
           return false;
@@ -27,14 +27,14 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
         return true;
       })
         .sort((a, b) => {
-          const aShow = props.show(a).toLowerCase();
-          const bShow = props.show(b).toLowerCase();
+          const aShow = a.label.toLowerCase();
+          const bShow = b.label.toLowerCase();
           if (aShow.indexOf(search.toLowerCase()) > bShow.indexOf(search.toLowerCase())) {
             return 1;
           } else if (aShow.indexOf(search.toLowerCase()) < bShow.indexOf(search.toLowerCase())) {
             return -1;
           }
-          return props.show(a).localeCompare(props.show(b))
+          return a.label.localeCompare(b.label)
         })
 
     );
@@ -52,7 +52,7 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
           <IonItem key={ i } onClick={ () => {
             setSearch(null);
             props.onValueSelected(v)
-          } }>{ props.show(v) }</IonItem>
+          } }>{ v.label }</IonItem>
         )) }
         { searchResult.length > 5 && <IonItem className="none">{ searchResult.length - 4 } more results</IonItem> }
         { searchResult.length === 0 && <IonItem className="none">No results</IonItem> }
