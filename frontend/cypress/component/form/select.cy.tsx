@@ -50,7 +50,6 @@ describe('Input', () => {
 
       cy.get('div.item').contains(selectedOption.label).click()
         .then(() => {
-          cy.get('@onValueSelected').should('be.called')
           cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
         })
     })
@@ -60,7 +59,6 @@ describe('Input', () => {
 
       cy.get('div.item').contains(noneLabel).click()
         .then(() => {
-          cy.get('@onValueSelected').should('be.called')
           cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
         })
     })
@@ -104,7 +102,6 @@ describe('Input', () => {
       cy.get('button').contains(selectedOption.label).click()
       cy.contains('Ok', { matchCase: false }).click()
         .then(() => {
-          cy.get('@onValueSelected').should('be.called')
           cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
         })
     })
@@ -115,7 +112,6 @@ describe('Input', () => {
       cy.get('button').contains(noneLabel).click()
       cy.contains('Ok', { matchCase: false }).click()
         .then(() => {
-          cy.get('@onValueSelected').should('be.called')
           cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
         })
     })
