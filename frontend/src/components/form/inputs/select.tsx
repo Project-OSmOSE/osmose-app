@@ -1,11 +1,4 @@
-import React, {
-  HTMLProps,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState, } from "react";
 import { IonAlert, IonIcon } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { useBlur } from "@/services/utils/clic.ts";
@@ -25,19 +18,19 @@ interface Props {
 }
 
 export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>> = ({
-                                                                                                           label,
-                                                                                                           placeholder,
-                                                                                                           required = false,
-                                                                                                           options: parentOptions,
-                                                                                                           value,
-                                                                                                           onValueSelected,
-                                                                                                           optionsContainer,
-                                                                                                           children,
-                                                                                                           noneLabel = 'None',
-                                                                                                           disabled,
-                                                                                                           className,
-                                                                                                           ...props
-                                                                                                         }) => {
+                                                                                          label,
+                                                                                          placeholder,
+                                                                                          required = false,
+                                                                                          options: parentOptions,
+                                                                                          value,
+                                                                                          onValueSelected,
+                                                                                          optionsContainer,
+                                                                                          children,
+                                                                                          noneLabel = 'None',
+                                                                                          disabled,
+                                                                                          className,
+                                                                                          ...props
+                                                                                        }) => {
   const blurUtil = useBlur();
 
   const selectRef = useRef<HTMLDivElement | null>(null);
@@ -82,7 +75,8 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
               className="hide-real-input"
               value={ value }>
         <option></option>
-        { getOptions().map(o => <option value={ o.value === -1 ? undefined : value } key={ o.value }>{ o.label }</option>) }
+        { getOptions().map(o => <option value={ o.value === -1 ? undefined : value }
+                                        key={ o.value }>{ o.label }</option>) }
       </select>
 
       <div id={ buttonId }

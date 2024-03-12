@@ -19,6 +19,7 @@
   grid-auto-flow: column;
   color: var(--ion-color-primary);
 }
+
 #drag-n-drop-zone.available ion-icon {
   font-size: 1.5rem;
 }

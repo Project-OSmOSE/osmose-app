@@ -9,7 +9,7 @@ export const Textarea: React.FC<TextareaProperties> = ({
                                                          label,
                                                          required,
                                                          ...textareaArgs
-                                                       }) =>
+                                                       }) => (
   <div id="aplose-input" className="textarea">
     { label && <p id="label"
                   className={ required ? 'required' : '' }>
@@ -21,3 +21,4 @@ export const Textarea: React.FC<TextareaProperties> = ({
                 required={ required }/>
     </div>
   </div>
+)

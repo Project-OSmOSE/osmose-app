@@ -17,7 +17,7 @@ setupIonicReact({
   spinner: 'crescent',
 });
 
-describe('Input', () => {
+describe('Select', () => {
 
   it('renders', () => {
     cy.mount(<Select label={ label }

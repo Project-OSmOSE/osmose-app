@@ -15,7 +15,7 @@ setupIonicReact({
   spinner: 'crescent',
 });
 
-describe('Input', () => {
+describe('Chips input', () => {
   beforeEach(() => {
     const setActiveItemsValues = cy.stub().as('setActiveItemsValues')
     cy.mount(<ChipsInput label={ label }

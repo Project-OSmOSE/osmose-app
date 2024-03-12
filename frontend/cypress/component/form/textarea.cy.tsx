@@ -5,7 +5,7 @@ const label = 'My label';
 const placeholder = 'My placeholder';
 const value = 'My value';
 
-describe('Input', () => {
+describe('Textarea', () => {
   beforeEach(() => {
     cy.mount(<Textarea label={ label }
                        placeholder={ placeholder }/>)
