@@ -66,6 +66,7 @@ export const DragNDropFileInput: React.FC<Props> = ({
   const handleInput = (files?: FileList) => {
     const _file = files?.item(0);
     if (!_file || !onFileImported) return;
+    if (!accept.includes(_file.type)) return;
     onFileImported(_file)
   }
 
@@ -81,6 +82,11 @@ export const DragNDropFileInput: React.FC<Props> = ({
          onDragLeave={ () => setIsDraggingHover(false) }
          onDragEnd={ () => setIsDraggingHover(false) }
          className={ dragZoneClass.join(' ') }>
+
+      <input className="hide-real-input"
+             type="file"
+             accept={accept}
+             onChange={ event => handleInput(event.target.files ?? undefined) }/>
 
       { state === DragNDropState.available && <Fragment>
           <IonIcon icon={ cloudUploadOutline }/>

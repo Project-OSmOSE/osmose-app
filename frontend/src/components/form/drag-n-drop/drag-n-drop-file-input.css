@@ -42,4 +42,10 @@
   cursor: pointer;
   background: rgba(var(--ion-color-primary-rgb), 0.25);
 }
+#drag-n-drop-zone > .hide-real-input {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+}
 

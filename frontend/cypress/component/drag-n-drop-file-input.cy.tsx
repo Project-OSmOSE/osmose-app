@@ -27,6 +27,16 @@ describe('Drag-n-drop file input', () => {
       cy.get('#drag-n-drop-zone').should('contain', label)
     })
 
+    it('imports CSV', () => {
+      cy.get('input[type=file]').selectFile('cypress/fixtures/annotation_results.csv', { force: true });
+      cy.get('@onFileImported').should('have.been.called')
+    })
+
+    it('doesn\'t imports other files types', () => {
+      cy.get('input[type=file]').selectFile('cypress/fixtures/example.json', { force: true });
+      cy.get('@onFileImported').should('not.have.been.called')
+    })
+
     // TODO: add tests
     //  - Check loading non csv files
     //  - Check loading csv files
@@ -56,7 +66,7 @@ describe('Drag-n-drop file input', () => {
     })
 
     it('can reset', () => {
-      cy.get('#drag-n-drop-zone').contains('Import another file', {matchCase: false}).click()
+      cy.get('#drag-n-drop-zone').contains('Import another file', { matchCase: false }).click()
       cy.get('@onReset').should('have.been.called')
     })
   })
