@@ -90,7 +90,6 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
       { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>
         { getOptions().map(v => <div className="item" onClick={ () => {
           onValueSelected(v.value === -1 ? undefined : v.value)
-          console.debug('popover select', v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
         } } key={ v.value }>{ v.label }</div>) }

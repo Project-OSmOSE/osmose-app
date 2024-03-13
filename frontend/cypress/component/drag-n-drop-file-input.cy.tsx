@@ -36,10 +36,6 @@ describe('Drag-n-drop file input', () => {
       cy.get('input[type=file]').selectFile('cypress/fixtures/example.json', { force: true });
       cy.get('@onFileImported').should('not.have.been.called')
     })
-
-    // TODO: add tests
-    //  - Check loading non csv files
-    //  - Check loading csv files
   })
 
   describe('Loading state', () => {
