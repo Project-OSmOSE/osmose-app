@@ -72,6 +72,8 @@ class DatasetFile(models.Model):
     and changing parameters at file level.
     """
 
+    # TODO: add constraint to disallow identical filenames/filepath within the same dataset
+
     class Meta:
         db_table = "dataset_files"
 

@@ -78,11 +78,24 @@ class Command(management.BaseCommand):
         self.admin = User.objects.create_user(
             "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
         )
-        users = []
         # WARNING : names like TestUserX are used for Cypress tests, do not change or remove
-        names = ["TestUser1", "TestUser2"] + [
-            self.fake.unique.first_name() for _ in range(40)
+        users = [
+            User(
+                username="TestUser1",
+                email="TestUser1@osmose.xyz",
+                password=make_password(password),
+                first_name="User1",
+                last_name="Test",
+            ),
+            User(
+                username="TestUser2",
+                email="TestUser2@osmose.xyz",
+                password=make_password(password),
+                first_name="User2",
+                last_name="Test",
+            ),
         ]
+        names = [self.fake.unique.first_name() for _ in range(40)]
         for name in names:
             users.append(
                 User(
@@ -158,21 +171,6 @@ class Command(management.BaseCommand):
                         dataset=dataset,
                     )
                 )
-            start = parse_datetime("2012-10-03T12:00:00+0200")
-            end = start + timedelta(minutes=15)
-            audio_metadatum = AudioMetadatum(
-                start=(start + timedelta(hours=1)), end=(end + timedelta(hours=1))
-            )
-            audio_metadata.append(audio_metadatum)
-            files.append(
-                DatasetFile(
-                    filename=f"sound{1:03d}.wav",
-                    filepath="data/audio/50h_0.wav",
-                    size=58982478,
-                    audio_metadatum=audio_metadatum,
-                    dataset=dataset,
-                )
-            )
             configs.append(
                 SpectroConfig(
                     name="4096_4096_90",
