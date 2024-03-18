@@ -96,11 +96,15 @@ class AnnotationSet(models.Model):
 
 
 class AnnotationCampaignUsage(models.IntegerChoices):
+    """Annotation campaign usage"""
     CREATE = (
         0,
         "Create",
     )
-    CHECK = 1, "Check"
+    CHECK = (
+        1,
+        "Check",
+    )
 
 
 class AnnotationCampaign(models.Model):

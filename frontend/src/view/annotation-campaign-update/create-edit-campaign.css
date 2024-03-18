@@ -55,3 +55,15 @@
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
+
+#create-campaign-form #import-button {
+  position: relative;
+}
+#create-campaign-form #import-button .hide-real-input {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+}
+

@@ -2,7 +2,7 @@
 import csv
 
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -101,7 +101,13 @@ class DatasetViewSet(viewsets.ViewSet):
                 status=400,
             )
 
-        queryset = new_datasets.annotate(Count("files")).select_related("dataset_type")
+        queryset = new_datasets.annotate(
+            files_count=Count("files"),
+            type=Subquery(
+                new_datasets.filter(pk=OuterRef("pk")).values("dataset_type__name")[:1]
+            ),
+        )
+        print(queryset)
         serializer = self.serializer_class(queryset, many=True)
 
         errors = check_new_spectro_config_errors()

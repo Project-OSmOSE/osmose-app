@@ -8,12 +8,12 @@ export type ListItem = {
   id: number;
   name: string;
   files_type: string;
-  start_date: Date;
-  end_date: Date;
+  start_date: string;
+  end_date: string;
   files_count: number;
   type: string;
   spectros: Array<ListItemSpectros>;
-  created_at: Date;
+  created_at: string;
 }
 export type ListItemSpectros = {
   id: number;
@@ -67,12 +67,7 @@ class DatasetAPIService extends APIService<List, never, never> {
 
   list(filterFilesType?: string): Promise<List> {
     return super.list()
-      .then(r => r.map(d => ({
-        ...d,
-        start_date: new Date(d.start_date),
-        end_date: new Date(d.end_date),
-        created_at: new Date(d.created_at),
-      }))).then((datasets: List) => {
+      .then((datasets: List) => {
         if (!filterFilesType) return datasets;
         return datasets.filter(d => d.files_type === filterFilesType)
       });

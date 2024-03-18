@@ -1,5 +1,5 @@
 import { get, post, SuperAgentRequest } from "superagent";
-import { AuthAPIService } from "../auth/auth.service.tsx";
+import { AuthAPIService } from "../auth.ts";
 
 export class APIService<List, Retrieve, Create> {
 

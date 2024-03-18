@@ -1,12 +1,9 @@
-import React, { useContext } from 'react';
-import { formatTimestamp } from "../../../services/format/format.util.tsx";
+import React from 'react';
+import { formatTimestamp } from "@/services/utils/format.tsx";
 import { SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import {
-  SpectroContext, SpectroDispatchContext
-} from "../../../services/annotator/spectro/spectro.context.tsx";
-import { AnnotationsContext } from "../../../services/annotator/annotations/annotations.context.tsx";
-import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
+import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { updateParams, zoom } from "@/slices/annotator/spectro.ts";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -21,10 +18,21 @@ type Props = {
 };
 
 export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
-  const spectroContext = useContext(SpectroContext);
-  const spectroDispatch = useContext(SpectroDispatchContext);
-  const resultContext = useContext(AnnotationsContext);
-  const context = useContext(AnnotatorContext);
+
+  const {
+    audioURL,
+    audioRate,
+  } = useAppSelector(state => state.annotator.global);
+  const {
+    wholeFileBoundaries,
+  } = useAppSelector(state => state.annotator.annotations);
+  const {
+    currentParams,
+    availableParams,
+    currentZoom,
+    pointerPosition
+  } = useAppSelector(state => state.annotator.spectro);
+  const dispatch = useAppDispatch()
 
   const style = {
     workbench: {
@@ -38,13 +46,9 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
          style={ style.workbench }>
       <p className="workbench-controls">
         <select
-          defaultValue={ spectroContext.currentParams ? spectroContext.availableParams.indexOf(spectroContext.currentParams) : 0 }
-          onChange={ e => spectroDispatch!({
-            type: 'updateParams',
-            params: spectroContext.availableParams[+e.target.value],
-            zoom: 1
-          }) }>
-          { spectroContext.availableParams.map((params, idx) => {
+          defaultValue={ currentParams ? availableParams.indexOf(currentParams) : 0 }
+          onChange={ e => dispatch(updateParams({...availableParams[+e.target.value], zoom: 1})) }>
+          { availableParams.map((params, idx) => {
             return (
               <option key={ `params-${ idx }` } value={ idx }>
                 { `nfft: ${ params.nfft } / winsize: ${ params.winsize } / overlap: ${ params.overlap }` }
@@ -53,20 +57,20 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
           }) }
         </select>
         <button className="btn-simple fa fa-search-plus"
-                onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'in' }) }></button>
+                onClick={ () => dispatch(zoom({ direction: 'in'})) }></button>
         <button className="btn-simple fa fa-search-minus"
-                onClick={ () => spectroDispatch!({ type: 'zoom', direction: 'out' }) }></button>
-        <span>{ spectroContext.currentZoom }x</span>
+                onClick={ () => dispatch(zoom({ direction: 'out'})) }></button>
+        <span>{ currentZoom }x</span>
       </p>
 
-      { spectroContext.pointerPosition && <p className="workbench-pointer">
-        { spectroContext.pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(spectroContext.pointerPosition.time, false) }
+      { pointerPosition && <p className="workbench-pointer">
+        { pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(pointerPosition.time, false) }
       </p> }
 
       <p className="workbench-info workbench-info--intro">
-        File : <strong>{ context.audioURL?.split('/').pop() ?? '' }</strong> - Sampling
-        : <strong>{ context.audioRate ?? 0 } Hz</strong><br/>
-        Start date : <strong>{ resultContext.wholeFileBoundaries.startTime.toUTCString() }</strong>
+        File : <strong>{ audioURL?.split('/').pop() ?? '' }</strong> - Sampling
+        : <strong>{ audioRate ?? 0 } Hz</strong><br/>
+        Start date : <strong>{ new Date(wholeFileBoundaries.startTime).toUTCString() }</strong>
       </p>
 
       <SpectroRenderComponent audioPlayer={ audioPlayer }/>

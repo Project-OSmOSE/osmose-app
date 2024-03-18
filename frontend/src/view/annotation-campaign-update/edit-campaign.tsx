@@ -1,31 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useAnnotationCampaignAPI, UserList, UserListItem, useUsersAPI } from "../../services/api";
+import React, { useEffect, useState } from "react";
+import { useAnnotationCampaignAPI, useUsersAPI } from "@/services/api";
 import { IonButton, IonChip, IonIcon, IonInput, IonLabel, IonNote, useIonToast } from "@ionic/react";
-import { buildErrorMessage } from "../../services/format/format.util.tsx";
+import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { closeCircle } from "ionicons/icons";
 import { useHistory, useParams } from "react-router-dom";
-import { FormBloc } from "../../components/form/bloc/form-bloc.component.tsx";
-import { Searchbar } from "../../components/form/searchbar/searchbar.component.tsx";
+import { FormBloc } from "@/components/form";
+import { Searchbar } from "@/components/form";
+import { User } from '@/types/user';
 import './create-edit-campaign.css';
+
 
 export const EditCampaign: React.FC = () => {
   const { id: campaignID } = useParams<{id: string}>()
 
   // Annotators
-  const [datasetFilesCount, setDatasetFilesCount] = useState<number>(0);
-  const [allAnnotators, setAllAnnotators] = useState<UserList>([]);
+  const [allAnnotators, setAllAnnotators] = useState<Array<User>>([]);
 
-  const [annotators, setAnnotators] = useState<UserList>([]);
+  const [annotators, setAnnotators] = useState<Array<User>>([]);
   const [annotatorsPerFile, setAnnotatorsPerFile] = useState<number>(0);
   useEffect(() => setAnnotatorsPerFile(annotators.length), [annotators]);
-  const annotatedFilesCount = useMemo(() => {
-    if (!datasetFilesCount|| !annotators.length) return 0;
-    return Math.round(datasetFilesCount * annotatorsPerFile / annotators.length);
-  }, [datasetFilesCount, annotatorsPerFile, annotators.length])
-  const annotatedFilesPercent = useMemo(() => {
-    if (!datasetFilesCount || !annotatedFilesCount) return 0;
-    return Math.round(annotatedFilesCount / datasetFilesCount * 100);
-  }, [datasetFilesCount, annotatedFilesCount])
 
   // API Services
   const usersAPI = useUsersAPI();
@@ -43,8 +36,6 @@ export const EditCampaign: React.FC = () => {
       if (isCancelled) return;
       const campaignUsersIDs = campaign.tasks.map(t => t.annotator_id);
       setAllAnnotators(users.filter(u => !campaignUsersIDs.includes(u.id)));
-      console.debug(datasetFilesCount, campaign)
-      setDatasetFilesCount(campaign.campaign.dataset_files_count);
     }).catch(e => {
       if (isCancelled) return;
       presentToast({
@@ -66,7 +57,7 @@ export const EditCampaign: React.FC = () => {
     }
   }, [campaignID])
 
-  const showUser = (user: UserListItem): string => {
+  const showUser = (user: User): string => {
     if (user.first_name && user.last_name) return `${ user.first_name } ${ user.last_name }`;
     else return user.username;
   }
@@ -108,9 +99,14 @@ export const EditCampaign: React.FC = () => {
       <FormBloc label="Annotators">
         <div>
           <Searchbar placeholder="Search annotator..."
-                     values={ allAnnotators.filter(a => !annotators.find(annotator => annotator.id === a.id)) }
-                     show={ showUser }
-                     onValueSelected={ (annotator: UserListItem) => setAnnotators([...new Set([...annotators, annotator])]) }></Searchbar>
+                     values={ allAnnotators.filter(a => !annotators.find(annotator => annotator.id === a.id))
+                       .map(a => ({value: a.id, label: showUser(a)})) }
+                     onValueSelected={ item => {
+                       const array = annotators;
+                       const annotator = annotators.find(a => a.id === item.value);
+                       if (annotator) array.push(annotator)
+                       setAnnotators(array)
+                     }}></Searchbar>
           <div className="chips-container">{ annotators.map(annotator => {
             return (
               <IonChip color="secondary" key={ annotator.id }
@@ -124,7 +120,7 @@ export const EditCampaign: React.FC = () => {
 
         <div aria-disabled={ annotators.length <= 0 }>
           <div className="inline">
-            <IonLabel>Wanted number of annotators per file</IonLabel>
+            <IonLabel>Wanted number of files to annotate</IonLabel>
             <IonInput type="number"
                       maxlength={ 3 }
                       max={ annotators.length ?? 0 }
@@ -134,10 +130,7 @@ export const EditCampaign: React.FC = () => {
               else setAnnotatorsPerFile(+e.detail.value)
             } }></IonInput>
           </div>
-          <IonNote>
-            Each annotator will annotate { annotatedFilesCount } / { datasetFilesCount ?? 0 } files
-            ({ annotatedFilesPercent }%)
-          </IonNote>
+          <IonNote>Enter 0 to annotate all files</IonNote>
         </div>
       </FormBloc>
 

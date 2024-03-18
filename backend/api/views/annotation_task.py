@@ -53,7 +53,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
                                              file.start,
                                              file."end"
                                       FROM annotation_tasks task
-                                      LEFT OUTER JOIN 
+                                      LEFT OUTER JOIN
                                         (SELECT file.id,
                                                 filename,
                                                 d.name as dataset_name,

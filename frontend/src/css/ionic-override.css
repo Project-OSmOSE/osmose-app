@@ -66,6 +66,9 @@
 p {
   margin: 0;
 }
+p .separator:last-child {
+  display: none;
+}
 
 /* Page */
 ion-app {
@@ -111,7 +114,12 @@ ion-button[aria-disabled=true]:hover .disable-hint {
   bottom: 0;
   transform: translate(-50%, 100%);
 }
-
+.alert-button.ion-activatable {
+  cursor: pointer;
+}
+ion-button.ion-text-wrap {
+  white-space: break-spaces;
+}
 
 /* Inputs */
 ion-label {

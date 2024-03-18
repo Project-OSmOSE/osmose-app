@@ -1,24 +1,25 @@
-import React, { Fragment, useContext } from "react";
+import React, { Fragment } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import {
-  AnnotationsContext,
-  AnnotationsContextDispatch,
-} from "../../../../services/annotator/annotations/annotations.context.tsx";
+import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { selectConfidence } from "@/slices/annotator/annotations.ts";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const {
+    focusedConfidence,
+    confidenceDescription,
+    allConfidences
+  } = useAppSelector(state => state.annotator.annotations)
 
-  const context = useContext(AnnotationsContext);
-  const dispatch = useContext(AnnotationsContextDispatch);
-
-  if (!context.focusedConfidence) return <Fragment/>;
+  if (!focusedConfidence) return <Fragment/>;
 
   const tooltip = (
     <div className="card">
       <h3 className={ `card-header p-2 tooltip-header` }>Description</h3>
       <div className="card-body p-1">
-        <p>{ context.confidenceDescription }</p>
+        <p>{ confidenceDescription }</p>
       </div>
     </div>
   )
@@ -30,11 +31,11 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
         <div className="card-body">
           <div className=" d-flex justify-content-center">
             <ul className="card-text annotation-tags">
-              { context.allConfidences.map((confidence, key) => (
+              { allConfidences.map((confidence, key) => (
                 <li key={ `tag-${ key }` }>
                   <button id={ `tags_key_shortcuts_${ key }` }
-                          className={ context.focusedConfidence === confidence ? "btn btn--active" : "btn" }
-                          onClick={ () => dispatch!({ type: 'selectConfidence', confidence}) }
+                          className={ focusedConfidence === confidence ? "btn btn--active" : "btn" }
+                          onClick={ () => dispatch(selectConfidence(confidence)) }
                           type="button">
                     { confidence }
                   </button>

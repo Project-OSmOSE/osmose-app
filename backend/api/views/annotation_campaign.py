@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from backend.api.models import (
@@ -20,9 +21,10 @@ from backend.api.models import (
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveSerializer,
-    AnnotationCampaignCreateSerializer,
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    AnnotationCampaignCreateCheckAnnotationsSerializer,
+    AnnotationCampaignCreateCreateAnnotationsSerializer,
 )
 from backend.utils.renderers import CSVRenderer
 
@@ -99,12 +101,20 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     @transaction.atomic
     @extend_schema(
-        request=AnnotationCampaignCreateSerializer,
         responses=AnnotationCampaignRetrieveAuxCampaignSerializer,
     )
     def create(self, request):
+        # type: (Request) -> Response
         """Create a new annotation campaign"""
-        create_serializer = AnnotationCampaignCreateSerializer(data=request.data)
+        create_serializer = None
+        if request.data["usage"] == AnnotationCampaignUsage.CREATE.label:
+            create_serializer = AnnotationCampaignCreateCreateAnnotationsSerializer(
+                data=request.data
+            )
+        elif request.data["usage"] == AnnotationCampaignUsage.CHECK.label:
+            create_serializer = AnnotationCampaignCreateCheckAnnotationsSerializer(
+                data=request.data
+            )
         create_serializer.is_valid(raise_exception=True)
         campaign = create_serializer.save(owner_id=request.user.id)
         serializer = AnnotationCampaignRetrieveAuxCampaignSerializer(campaign)
@@ -187,7 +197,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                concat(comment, ' |- ', username)                    as comment_content,
                result.id
         FROM annotation_results result
-        
+
                  LEFT OUTER JOIN (SELECT f.id,
                                          filename,
                                          d.name                               as dataset_name,
@@ -196,12 +206,13 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                                          duration,
                                          COALESCE(m.dataset_sr, d.dataset_sr) as sample_rate
                                   FROM dataset_files f
-        
+
                                            LEFT OUTER JOIN (SELECT datasets.id, name, dataset_sr
                                                             FROM datasets
-                                                                     LEFT OUTER JOIN audio_metadata am on datasets.audio_metadatum_id = am.id) d
+                                                            LEFT OUTER JOIN audio_metadata am 
+                                                            on datasets.audio_metadatum_id = am.id) d
                                                            on d.id = f.dataset_id
-        
+
                                            LEFT OUTER JOIN (SELECT id,
                                                                    start,
                                                                    "end",
@@ -209,34 +220,36 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                                                                    extract(EPOCH FROM ("end" - start)) as duration
                                                             FROM audio_metadata) m on m.id = f.audio_metadatum_id) file
                                  on file.id = result.dataset_file_id
-        
+
                  LEFT OUTER JOIN (SELECT id, name
                                   FROM annotation_tags) tag on tag.id = result.annotation_tag_id
-        
+
                  LEFT OUTER JOIN (SELECT id, username
                                   FROM auth_user) annotator on annotator.id = result.annotator_id
-                 
+
                  LEFT OUTER JOIN (SELECT id, detector_id
-                                  FROM api_detectorconfiguration) detector_config on detector_config.id = result.detector_configuration_id
-                 
+                                  FROM api_detectorconfiguration) detector_config
+                                   on detector_config.id = result.detector_configuration_id
+
                  LEFT OUTER JOIN (SELECT id, name
                                   FROM api_detector) detector on detector.id = detector_config.detector_id
-        
+
                  LEFT OUTER JOIN (SELECT indicator.id, label, level
                                   FROM confidence_indicator indicator) confidence
                                  on confidence.id = result.confidence_indicator_id
-        
+
                  LEFT OUTER JOIN (SELECT campaign.id,
                                          annotation_scope,
                                          max_confidence_level
                                   FROM annotation_campaigns campaign
-                                           LEFT OUTER JOIN (SELECT confidence_indicator_set_id, max(level) as max_confidence_level
+                                           LEFT OUTER JOIN (SELECT confidence_indicator_set_id,
+                                                                   max(level) as max_confidence_level
                                                             FROM confidence_indicator indicator
                                                             GROUP BY confidence_indicator_set_id) confidence
                                                            on confidence.confidence_indicator_set_id =
                                                               campaign.confidence_indicator_set_id) campaign
                                  on campaign.id = result.annotation_campaign_id
-        
+
                  LEFT OUTER JOIN (SELECT annotation_result_id, comment
                                   FROM annotation_comment) comments 
                                   on comments.annotation_result_id = result.id
@@ -265,13 +278,13 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         FROM annotation_comment
                  LEFT OUTER JOIN (select id, dataset_file_id, annotator_id, annotation_campaign_id
                                   FROM annotation_tasks) t on t.id = annotation_comment.annotation_task_id
-        
+
                  LEFT OUTER JOIN (select id, dataset_id, filename
                                   FROM dataset_files) f on f.id = t.dataset_file_id
-        
+
                  LEFT OUTER JOIN (select id, name
                                   FROM datasets) d on d.id = f.dataset_id
-        
+
                  LEFT OUTER JOIN (select id, username
                                   FROM auth_user) u on u.id = t.annotator_id
         WHERE annotation_result_id is null and t.annotation_campaign_id = %s
@@ -297,23 +310,23 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             ]
         ]
         if campaign.usage == AnnotationCampaignUsage.CREATE:
-            for r in list(results) + list(comments):
+            for row in list(results) + list(comments):
                 data.append(
                     [
-                        r.dataset_name,
-                        r.filename,
-                        str(r.start_time),
-                        str(r.end_time),
-                        str(r.start_frequency),
-                        str(r.end_frequency),
-                        r.annotation,
-                        r.annotator_name,
-                        str(r.start_date),
-                        str(r.end_date),
-                        str(r.is_box),
-                        str(r.confidence_label),
-                        str(r.confidence_level),
-                        str(r.comment),
+                        row.dataset_name,
+                        row.filename,
+                        str(row.start_time),
+                        str(row.end_time),
+                        str(row.start_frequency),
+                        str(row.end_frequency),
+                        row.annotation,
+                        row.annotator_name,
+                        str(row.start_date),
+                        str(row.end_date),
+                        str(row.is_box),
+                        str(row.confidence_label),
+                        str(row.confidence_level),
+                        str(row.comment),
                     ]
                 )
         if campaign.usage == AnnotationCampaignUsage.CHECK:
@@ -334,23 +347,23 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 validations.values_list("annotator__username", flat=True).distinct()
             )
             print(">>> ", data)
-            for r in list(results):
-                val_data = validations.filter(result__id=r.id)
+            for row in list(results):
+                val_data = validations.filter(result__id=row.id)
                 r_data = [
-                    r.dataset_name,
-                    r.filename,
-                    str(r.start_time),
-                    str(r.end_time),
-                    str(r.start_frequency),
-                    str(r.end_frequency),
-                    r.annotation,
-                    r.detector_name,
-                    str(r.start_date),
-                    str(r.end_date),
-                    str(r.is_box),
-                    str(r.confidence_label),
-                    str(r.confidence_level),
-                    str(r.comment),
+                    row.dataset_name,
+                    row.filename,
+                    str(row.start_time),
+                    str(row.end_time),
+                    str(row.start_frequency),
+                    str(row.end_frequency),
+                    row.annotation,
+                    row.detector_name,
+                    str(row.start_date),
+                    str(row.end_date),
+                    str(row.is_box),
+                    str(row.confidence_label),
+                    str(row.confidence_level),
+                    str(row.comment),
                 ]
                 for user_val in val_data:
                     print(
@@ -361,23 +374,23 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     )
                     r_data.append(str(user_val.is_valid))
                 data.append(r_data)
-            for r in list(comments):
+            for row in list(comments):
                 data.append(
                     [
-                        r.dataset_name,
-                        r.filename,
-                        str(r.start_time),
-                        str(r.end_time),
-                        str(r.start_frequency),
-                        str(r.end_frequency),
-                        r.annotation,
-                        r.annotator_name,
-                        str(r.start_date),
-                        str(r.end_date),
-                        str(r.is_box),
-                        str(r.confidence_label),
-                        str(r.confidence_level),
-                        str(r.comment),
+                        row.dataset_name,
+                        row.filename,
+                        str(row.start_time),
+                        str(row.end_time),
+                        str(row.start_frequency),
+                        str(row.end_frequency),
+                        row.annotation,
+                        row.annotator_name,
+                        str(row.start_date),
+                        str(row.end_date),
+                        str(row.is_box),
+                        str(row.confidence_label),
+                        str(row.confidence_level),
+                        str(row.comment),
                     ]
                 )
 

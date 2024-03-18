@@ -1,3 +1,5 @@
+import { CSVColumns } from "@/types/csv-import-annotations.ts";
+
 export function formatTimestamp(rawSeconds: number, withMs: boolean = true) {
   const hours: number = Math.floor(rawSeconds / 3600);
   const minutes: number = Math.floor(rawSeconds / 60) % 60;
@@ -48,27 +50,27 @@ export function buildErrorMessage(e: any): string {
 }
 
 export function formatCSV(content: string,
-                          separators: Array<string>,
-                          mandatoryColumns: Array<string>,
-                          optionalColumns: Array<string>) {
+                          separator: string,
+                          columns: CSVColumns) {
   let lines = content.split('\n').map(l => [l]);
-  for (const separator of separators) {
-    lines = lines.map(l => l.flatMap(l => l.split(separator)));
-  }
+  lines = lines.map(l => l.flatMap(l => l.split(separator)));
 
   const headers = lines.shift();
   if (!headers) throw new Error('Missing header line');
 
-  for (const column of mandatoryColumns) {
-    if (!headers.includes(column)) throw new Error(`Missing column ${ column }`);
+  const missingColumns = [];
+  for (const column of columns.required) {
+    if (!headers.includes(column)) missingColumns.push(column);
   }
+  if (missingColumns.length > 0)
+    throw new Error(`Missing columns: ${ missingColumns.join(', ') }`);
 
-  return lines.filter(l => l.length >= mandatoryColumns.length).map(l => {
+  return lines.filter(l => l.length >= columns.required.length).map(l => {
     const data: any = {};
-    for (const column of mandatoryColumns) {
+    for (const column of columns.required) {
       data[column] = l[headers.indexOf(column)];
     }
-    for (const column of optionalColumns) {
+    for (const column of columns.optional) {
       const index = headers.indexOf(column);
       if (index > -1) data[column] = l[index];
     }

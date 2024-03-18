@@ -1,8 +1,8 @@
 import { post, SuperAgentRequest } from "superagent";
+import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
+import { CampaignUsage } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
-import { AnnotationTaskStatus, Usage } from "../../enum/annotation.enum.tsx";
 import { APIService } from "./api-service.util.tsx";
-import { Detector } from "../../view/annotation-campaign-update/import-annotations-modal/csv-import.tsx";
 
 
 export type List = Array<{
@@ -18,10 +18,9 @@ export type List = Array<{
   complete_tasks_count: number;
   user_complete_tasks_count: number;
   files_count: number;
-  mode: AnnotationCampaignMode;
+  mode: CampaignUsage;
   created_at: Date;
 }>
-export type AnnotationCampaignMode = 'Create' | 'Check';
 export type Retrieve = {
   campaign: RetrieveCampaign;
   tasks: Array<{
@@ -62,34 +61,30 @@ export type RetrieveCampaign = {
 export type Create = {
   name: string;
   desc?: string;
+  instructions_url?: string;
   start?: string;
   end?: string;
   datasets: Array<number>;
   spectro_configs: Array<number>;
-  annotation_set_id?: number;
-  confidence_indicator_set_id?: number;
   annotation_scope: number;
-  usage: Usage.create;
   annotators: Array<number>;
   annotation_goal: number;
-  instructions_url?: string;
+} & ({
+  usage: Usage.create;
+  annotation_set: number;
+  confidence_indicator_set?: number;
 } | {
-  name: string;
-  desc?: string;
-  start?: string;
-  end?: string;
-  datasets: Array<number>;
-  detectors: Array<Detector>;
-  spectro_configs: Array<number>;
+  usage: Usage.check;
   annotation_set_labels: Array<string>;
   confidence_set_indicators: Array<[string, number]>,
+  detectors: Array<{
+    detectorId?: number;
+    detectorName: string;
+    configurationId?: number;
+    configuration: string
+  }>;
   results: Array<CreateResultItem>;
-  annotation_scope: number;
-  usage: Usage.check;
-  annotators: Array<number>;
-  annotation_goal: number;
-  instructions_url?: string;
-}
+})
 export type CreateResultItem = {
   is_box: boolean
   confidence?: string;

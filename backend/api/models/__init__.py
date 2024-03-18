@@ -16,7 +16,6 @@ from backend.api.models.annotations import (
     AnnotationSet,
     AnnotationCampaign,
     AnnotationComment,
-    AnnotationResult,
     AnnotationSession,
     AnnotationTask,
     AnnotationCampaignUsage,
@@ -28,4 +27,4 @@ from backend.api.models.annotation import (
     AnnotationResultValidation,
 )
 
-User = get_user_model()
+from .user import User

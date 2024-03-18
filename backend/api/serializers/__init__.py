@@ -18,8 +18,6 @@ from backend.api.serializers.annotation_campaign import (
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignRetrieveAuxTaskSerializer,
     AnnotationCampaignRetrieveSerializer,
-    AnnotationCampaignCreateSerializer,
-    AnnotationCampaignAddAnnotatorsSerializer,
 )
 from backend.api.serializers.annotation_task import (
     AnnotationTaskSerializer,
@@ -31,4 +29,10 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskOneResultUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )
-from .annotation import DetectorSerializer, DetectorConfigurationSerializer
+from .annotation import (
+    DetectorSerializer,
+    DetectorConfigurationSerializer,
+    AnnotationCampaignCreateCreateAnnotationsSerializer,
+    AnnotationCampaignCreateCheckAnnotationsSerializer,
+    AnnotationCampaignAddAnnotatorsSerializer,
+)

@@ -1,3 +1,4 @@
+""" Annotation admin management """
 from django.contrib import admin
 
 from backend.api.admin.annotation.detector import (

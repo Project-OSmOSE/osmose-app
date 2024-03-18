@@ -1,9 +1,8 @@
 import { put, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
-import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
-import { AnnotationMode, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
-import { AnnotationCampaignMode } from "./annotation-campaign-api.service.tsx";
+import { AnnotationMode, AnnotationTaskStatus, AnnotationComment } from "@/types/annotations.ts";
+import { CampaignUsage } from "@/types/campaign.ts";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -42,12 +41,12 @@ export interface Retrieve {
     desc: string;
     confidence_indicators: Array<RetrieveConfidenceIndicator>;
   },
-  mode: AnnotationCampaignMode
+  mode: CampaignUsage
 }
 
 export interface Boundaries {
-  startTime: Date,
-  endTime: Date,
+  startTime: string,
+  endTime: string,
   startFrequency: number,
   endFrequency: number,
   duration: number,
@@ -129,7 +128,6 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
         ...r,
         boundaries: {
           ...r.boundaries,
-          startTime, endTime,
           duration: (endTime.getTime() - startTime.getTime()) / 1000
         }
       }

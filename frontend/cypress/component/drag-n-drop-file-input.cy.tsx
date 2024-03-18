@@ -28,12 +28,12 @@ describe('Drag-n-drop file input', () => {
     })
 
     it('imports CSV', () => {
-      cy.get('input[type=file]').selectFile('cypress/fixtures/annotation_results.csv', { force: true });
+      cy.get('#drag-n-drop-zone').selectFile('cypress/fixtures/annotation_results.csv', { force: true, action: 'drag-drop' });
       cy.get('@onFileImported').should('have.been.called')
     })
 
     it('doesn\'t imports other files types', () => {
-      cy.get('input[type=file]').selectFile('cypress/fixtures/example.json', { force: true });
+      cy.get('#drag-n-drop-zone').selectFile('cypress/fixtures/example.json', { force: true, action: 'drag-drop' });
       cy.get('@onFileImported').should('not.have.been.called')
     })
   })

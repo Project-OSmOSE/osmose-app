@@ -6,8 +6,8 @@ import {
   useAnnotationCampaignAPI,
   useAnnotationTaskAPI
 } from "../services/api";
-import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
-import { ANNOTATOR_GUIDE_URL } from "../consts/links.const.tsx";
+import { AnnotationTaskStatus } from "@/types/annotations.ts";
+import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpCircle, informationCircle } from "ionicons/icons";
 

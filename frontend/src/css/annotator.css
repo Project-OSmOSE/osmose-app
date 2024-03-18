@@ -692,3 +692,9 @@ div[class^='pulse-'] {
 select {
   border: var(--aplose-border-color)
 }
+
+.modal {
+  width: 50%;
+  margin: auto;
+  max-height: 80%;
+}

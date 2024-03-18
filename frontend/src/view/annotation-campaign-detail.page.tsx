@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
-  UserListItem, useUsersAPI
 } from "../services/api";
-import { AnnotationTaskStatus } from "../enum/annotation.enum.tsx";
+import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { IonButton } from "@ionic/react";
 
+import { User } from '@/types/user';
+import { useUsersAPI } from '@/services/api';
 
 type AnnotationStatus = {
-  annotator: UserListItem;
+  annotator: User;
   finished: number;
   total: number;
 }

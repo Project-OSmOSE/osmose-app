@@ -31,7 +31,6 @@
   fields:
     name: Test SPM campaign
     desc: Annotation set made for Test SPM campaign
-    owner: 1
     tags:
     - 1
     - 2
@@ -43,7 +42,6 @@
   fields:
     name: Test DCLDE LF campaign
     desc: Test annotation campaign DCLDE LF 2015
-    owner: 1
     tags:
     - 6
     - 7

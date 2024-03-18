@@ -1,12 +1,10 @@
-import React, { RefObject, useContext } from 'react'
-import { Annotation } from "../../../interface/annotation.interface.tsx";
-import { DEFAULT_COLOR } from "../../../consts/colors.const.tsx";
+import React, { RefObject } from 'react'
+import { Annotation } from "@/types/annotations.ts";
+import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
-import {
-  AnnotationsContext, AnnotationsContextDispatch,
-} from "../../../services/annotator/annotations/annotations.context.tsx";
-import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
+import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { focusResult, removeResult } from "@/slices/annotator/annotations.ts";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -22,20 +20,25 @@ type RegionProps = {
 
 
 export const Region: React.FC<RegionProps> = ({
-                                         annotation,
-                                         // canvasWrapperRef,
-                                         freqPxRatio,
-                                         timePxRatio,
-                                         audioPlayer,
-                                       }) => {
-  // const spectroContext = useContext(SpectroContext);
+                                                annotation,
+                                                // canvasWrapperRef,
+                                                freqPxRatio,
+                                                timePxRatio,
+                                                audioPlayer,
+                                              }) => {
 
-  const annotatorContext = useContext(AnnotatorContext);
-  const resultContext = useContext(AnnotationsContext);
-  const resultDispatch = useContext(AnnotationsContextDispatch);
+  const {
+    mode,
+  } = useAppSelector(state => state.annotator.global);
+  const {
+    wholeFileBoundaries,
+    tagColors,
+    focusedResult,
+  } = useAppSelector(state => state.annotator.annotations);
+  const dispatch = useAppDispatch()
 
   const offsetLeft = annotation.startTime * timePxRatio;
-  const freqOffset: number = (annotation.endFrequency - (resultContext.wholeFileBoundaries.startFrequency ?? 0)) * freqPxRatio;
+  const freqOffset: number = (annotation.endFrequency - (wholeFileBoundaries.startFrequency ?? 0)) * freqPxRatio;
   const offsetTop: number = SPECTRO_HEIGHT - freqOffset;
 
   // const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * spectroContext.currentZoom) - Math.floor(offsetLeft);
@@ -48,8 +51,8 @@ export const Region: React.FC<RegionProps> = ({
 
   const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 
-  const color = resultContext.tagColors.get(annotation.annotation) ?? DEFAULT_COLOR;
-  const isActive = annotation.id === resultContext.focusedResult?.id && annotation.newId === resultContext.focusedResult?.newId;
+  const color = tagColors[annotation.annotation] ?? DEFAULT_COLOR;
+  const isActive = annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId;
   const currentColor = isActive ? color : `${ color }88`;
   const styles = {
     header: {
@@ -91,7 +94,7 @@ export const Region: React.FC<RegionProps> = ({
                 onClick={ () => audioPlayer?.play(annotation) }></button>
 
         <span className="flex-fill text-center"
-              onClick={ () => resultDispatch!({ type: 'focusResult', result: annotation }) }
+              onClick={ () => dispatch(focusResult(annotation)) }
               style={ styles.headerSpan }>
           { annotation.annotation }
         </span>
@@ -100,8 +103,8 @@ export const Region: React.FC<RegionProps> = ({
           <i className="fas fa-comment mr-2"></i> :
           <i className="far fa-comment mr-2"></i> }
 
-        { annotatorContext.mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
-                                                        onClick={ () => resultDispatch!({ type: 'removeResult', result: annotation }) }></button> }
+        { mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
+                                       onClick={ () => dispatch(removeResult(annotation)) }></button> }
       </p>
 
       { headerPositionIsTop && regionBody }

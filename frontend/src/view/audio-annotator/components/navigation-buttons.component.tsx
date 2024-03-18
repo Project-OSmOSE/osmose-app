@@ -1,17 +1,14 @@
-import React, { Fragment, ReactNode, useContext, useEffect, useImperativeHandle, useState } from "react";
+import React, { Fragment, ReactNode, useEffect, useImperativeHandle, useState } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
-import { useAnnotationTaskAPI } from "../../../services/api";
-import {
-  AnnotationsContext
-} from "../../../services/annotator/annotations/annotations.context.tsx";
-import { AnnotationType } from "../../../enum/annotation.enum.tsx";
-import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
+import { useAnnotationTaskAPI } from "@/services/api";
+import { AnnotationType } from "@/types/annotations.ts";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
+import { useAppSelector } from "@/slices/app";
 
 interface Props {
   shortcut: ReactNode;
@@ -37,17 +34,28 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
 
 export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date }>(({ start }, ref) => {
   const history = useHistory();
-  const context = useContext(AnnotatorContext);
   const [siblings, setSiblings] = useState<{ prev?: number, next?: number } | undefined>()
   const taskAPI = useAnnotationTaskAPI();
-  const resultsContext = useContext(AnnotationsContext);
+
+  const {
+    prevAndNextAnnotation,
+    areShortcutsEnabled,
+    taskId,
+    mode,
+    campaignId,
+  } = useAppSelector(state => state.annotator.global);
+  const {
+    results,
+    taskComment,
+    hasChanged
+  } = useAppSelector(state => state.annotator.annotations);
 
   useEffect(() => {
-    setSiblings(context.prevAndNextAnnotation);
-  }, [context.prevAndNextAnnotation])
+    setSiblings(prevAndNextAnnotation);
+  }, [prevAndNextAnnotation])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!context.areShortcutsEnabled) return;
+    if (!areShortcutsEnabled) return;
     switch (event.code) {
       case 'Enter':
       case 'NumpadEnter':
@@ -67,8 +75,8 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
 
   const submit = async () => {
     const now = new Date().getTime();
-    const response = await taskAPI.update(context.taskId!, {
-      annotations: resultsContext.results.map(r => {
+    const response = await taskAPI.update(taskId!, {
+      annotations: results.map(r => {
         const isBox = r.type === AnnotationType.box;
         const startTime = isBox ? r.startTime : null;
         const endTime = isBox ? r.endTime : null;
@@ -84,13 +92,13 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
           endFrequency,
           confidenceIndicator: r.confidenceIndicator ?? null,
           result_comments: result_comments,
-          validation: context.mode === 'Create' ? null : r.validation
+          validation: mode === 'Create' ? null : r.validation
         };
 
       }),
       task_start_time: Math.floor((start.getTime() ?? now) / 1000),
       task_end_time: Math.floor(new Date().getTime() / 1000),
-      task_comments: resultsContext.taskComment.comment ? [resultsContext.taskComment] : []
+      task_comments: taskComment.comment ? [taskComment] : []
     })
 
 
@@ -98,13 +106,13 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     if (siblings?.next) {
       history.push(`/audio-annotator/${ siblings.next }`);
     } else {
-      history.push(`/annotation_tasks/${ context.campaignId }`)
+      history.push(`/annotation_tasks/${ campaignId }`)
     }
   }
 
   const navPrevious = async () => {
     if (!siblings?.prev) return;
-    if (resultsContext.hasChanged) {
+    if (hasChanged) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
@@ -112,7 +120,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   }
   const navNext = async () => {
     if (!siblings?.next) return;
-    if (resultsContext.hasChanged) {
+    if (hasChanged) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
