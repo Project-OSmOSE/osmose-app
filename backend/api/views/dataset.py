@@ -81,7 +81,7 @@ class DatasetViewSet(viewsets.ViewSet):
     def datawork_import(self, request):
         """Import new datasets from datawork"""
         if not request.user.is_staff:
-            return HttpResponse("Unauthorized", status=403)
+            return HttpResponse("Forbidden", status=403)
 
         try:
             new_datasets = datawork_import(
