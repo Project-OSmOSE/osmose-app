@@ -435,6 +435,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
            ref={ wrapperRef }
            onPointerDown={ onStartNewAnnotation }
            onPointerMove={ onUpdateNewAnnotation }
+           onPointerLeave={ () => dispatch(leavePointer())}
            onPointerUp={ onEndNewAnnotation }
            style={ {
              width: `${ SPECTRO_WIDTH }px`,
