@@ -54,12 +54,12 @@ class AnnotationResultValidationAdmin(admin.ModelAdmin):
 
     @admin.display(description="Campaign")
     def get_campaign(self, result_validation):
-        """ Get campaign for given result validation """
+        """Get campaign for given result validation"""
         return result_validation.result.annotation_campaign
 
     @admin.display(description="Detector")
     def get_detector(self, result_validation):
-        """ Get detector for given result validation """
+        """Get detector for given result validation"""
         conf = result_validation.result.detector_configuration
         if conf is None:
             return None

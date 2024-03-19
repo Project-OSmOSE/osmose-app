@@ -151,7 +151,9 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
                 comment_obj.comment = message
                 comment_obj.save()
         else:
-            AnnotationComment.objects.filter(annotation_task=task, annotation_result=None).delete()
+            AnnotationComment.objects.filter(
+                annotation_task=task, annotation_result=None
+            ).delete()
 
         task_date = task.dataset_file.audio_metadatum.start
         next_tasks = self.queryset.filter(

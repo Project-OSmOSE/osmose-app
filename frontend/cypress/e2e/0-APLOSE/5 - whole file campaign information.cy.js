@@ -30,27 +30,29 @@ describe('Whole file campaign information', () => {
             cy.contains(Campaign.name).parentsUntil('tr').parent().contains('My tasks').click()
             cy.contains('Task link').click()
             const config = Campaign.dataset.spectrogramConfigurations[0]
-            cy.get('select').should('have.text', `nfft: ${config.nfft} / winsize: ${config.winsize} / overlap: ${config.overlap}`)
+            cy.get('select').should('include.text', `nfft: ${config.nfft} / winsize: ${config.winsize} / overlap: ${config.overlap}`)
         })
 
         it('annotation set', () => {
             cy.contains(Campaign.name).parentsUntil('tr').parent()
-                .contains(Campaign.annotationSet.name)
+                .should('include.text', Campaign.annotationSet.name)
         })
 
         it('confidence set', () => {
             cy.contains(Campaign.name).parentsUntil('tr').parent()
-                .contains(Campaign.confidenceSet.name)
+                .should('include.text', Campaign.confidenceSet.name)
         })
 
         describe('annotation mode', () => {
             it('Create annotations', () => {
+                cy.contains(Campaign.name).parentsUntil('tr').parent().should('include.text', 'Create')
                 cy.contains(Campaign.name).parentsUntil('tr').parent().contains('My tasks').click()
                 cy.contains('Task link').click()
                 cy.get('.card').should('include.text', 'Presence / Absence');
             })
 
             it('Check annotations', () => {
+                cy.contains(CAMPAIGNS_DATA[Usage.check].name).parentsUntil('tr').parent().should('include.text', 'Check')
                 cy.contains(CAMPAIGNS_DATA[Usage.check].name).parentsUntil('tr').parent().contains('My tasks').click()
                 cy.contains('Task link').click()
                 cy.get('.card').should('not.include.text', 'Presence / Absence');

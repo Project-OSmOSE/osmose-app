@@ -97,6 +97,7 @@ class AnnotationSet(models.Model):
 
 class AnnotationCampaignUsage(models.IntegerChoices):
     """Annotation campaign usage"""
+
     CREATE = (
         0,
         "Create",

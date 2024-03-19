@@ -175,7 +175,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
         spectro_path = (
-                settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
+            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
         )
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
@@ -348,7 +348,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 ann["confidence_indicator"] for ann in annotations
             )
             unknown_confidence_indicators = (
-                    update_confidence_indicators - set_confidence_indicators
+                update_confidence_indicators - set_confidence_indicators
             )
             if unknown_confidence_indicators:
                 raise serializers.ValidationError(

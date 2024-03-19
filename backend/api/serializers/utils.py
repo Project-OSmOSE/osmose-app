@@ -3,7 +3,8 @@ from rest_framework import serializers
 
 
 class EnumField(serializers.ChoiceField):
-    """ Serializer for enums """
+    """Serializer for enums"""
+
     def __init__(self, enum, **kwargs):
         self.enum = enum
         self.choices = enum.choices
