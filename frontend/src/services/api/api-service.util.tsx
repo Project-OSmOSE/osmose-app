@@ -1,5 +1,5 @@
 import { get, post, SuperAgentRequest } from "superagent";
-import { AuthAPIService } from "../auth/auth.service.tsx";
+import { AuthAPIService } from "../auth.ts";
 
 export class APIService<List, Retrieve, Create> {
 
@@ -46,7 +46,7 @@ export class APIService<List, Retrieve, Create> {
     this.downloadRequests.set(requestURL, request);
 
     const result = await request
-    const url = URL.createObjectURL(new File([ result.text ], filename, {type: result.header['content-type']}));
+    const url = URL.createObjectURL(new File([result.text], filename, { type: result.header['content-type'] }));
     // Using <a>-linking trick https://stackoverflow.com/a/19328891/2730032
     const a = document.createElement('a');
     a.style.display = "none";

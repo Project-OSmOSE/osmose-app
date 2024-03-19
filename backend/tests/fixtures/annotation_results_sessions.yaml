@@ -6,8 +6,11 @@
     start_frequency: 6432.0
     end_frequency: 12864.0
     annotation_tag: 2
-    annotation_task: 7
+#    annotation_task: 7
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 1
+    dataset_file: 7
 - model: api.annotationresult
   pk: 2
   fields:
@@ -16,8 +19,11 @@
     start_frequency: 3936.0
     end_frequency: 9888.0
     annotation_tag: 4
-    annotation_task: 7
+#    annotation_task: 7
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 2
+    dataset_file: 7
 - model: api.annotationresult
   pk: 3
   fields:
@@ -26,8 +32,11 @@
     start_frequency: 11232.0
     end_frequency: 14976.0
     annotation_tag: 5
-    annotation_task: 7
+#    annotation_task: 7
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 1
+    dataset_file: 7
 - model: api.annotationresult
   pk: 4
   fields:
@@ -36,8 +45,11 @@
     start_frequency: 5216.0
     end_frequency: 13024.0
     annotation_tag: 1
-    annotation_task: 8
+#    annotation_task: 8
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 1
+    dataset_file: 8
 - model: api.annotationresult
   pk: 5
   fields:
@@ -46,8 +58,11 @@
     start_frequency: 11104.0
     end_frequency: 14912.0
     annotation_tag: 3
-    annotation_task: 8
+#    annotation_task: 8
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 1
+    dataset_file: 8
 - model: api.annotationresult
   pk: 6
   fields:
@@ -56,8 +71,11 @@
     start_frequency: 4160.0
     end_frequency: 7680.0
     annotation_tag: 1
-    annotation_task: 8
+#    annotation_task: 8
+    annotator: 4
+    annotation_campaign: 1
     confidence_indicator: 2
+    dataset_file: 8
 - model: api.annotationresult
   pk: 7
   fields:
@@ -66,8 +84,11 @@
     start_frequency: 7520.0
     end_frequency: 13696.0
     annotation_tag: 2
-    annotation_task: 1
+#    annotation_task: 1
+    annotator: 1
+    annotation_campaign: 1
     confidence_indicator: 1
+    dataset_file: 1
 - model: api.annotationresult
   pk: 8
   fields:
@@ -76,8 +97,11 @@
     start_frequency: 7008.0
     end_frequency: 13056.0
     annotation_tag: 5
-    annotation_task: 1
+#    annotation_task: 1
+    annotation_campaign: 1
+    annotator: 1
     confidence_indicator: 1
+    dataset_file: 1
 - model: api.annotationresult
   pk: 9
   fields:
@@ -86,8 +110,11 @@
     start_frequency: 5088.0
     end_frequency: 10880.0
     annotation_tag: 4
-    annotation_task: 1
+#    annotation_task: 1
+    annotator: 1
+    annotation_campaign: 1
     confidence_indicator: 2
+    dataset_file: 1
 - model: api.annotationsession
   pk: 1
   fields:
@@ -113,6 +140,8 @@
       task_end_time: 1643037084
       task_start_time: 1643037067
     annotation_task: 7
+#    annotator: 4
+#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 2
   fields:
@@ -138,6 +167,8 @@
       task_end_time: 1643037095
       task_start_time: 1643037085
     annotation_task: 8
+#    annotator: 4
+#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 3
   fields:
@@ -163,3 +194,5 @@
       task_end_time: 1643037163
       task_start_time: 1643037155
     annotation_task: 1
+#    annotator: 1
+#    annotation_campaign: 1

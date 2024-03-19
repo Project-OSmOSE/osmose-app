@@ -19,12 +19,6 @@ class AnnotationSetSerializer(serializers.ModelSerializer):
         model = AnnotationSet
         fields = ["id", "name", "desc", "tags"]
 
-    def __init__(self, *args, **kwargs):
-        with_tags = kwargs.pop("with_tags", True)
-        super().__init__(*args, **kwargs)
-        if not with_tags:
-            self.fields.pop("tags")
-
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_tags(self, annotation_set):
         return list(annotation_set.tags.values_list("name", flat=True))

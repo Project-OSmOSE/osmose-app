@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from copy import deepcopy
 
 from backend.api.serializers import (
-    AnnotationCampaignCreateSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    AnnotationCampaignCreateCreateAnnotationsSerializer,
 )
 from backend.api.models import AnnotationCampaign, AnnotationTask
 
@@ -29,7 +29,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "instructions_url": "https://instructions.org",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
-        "annotation_set_id": 1,
+        "annotation_set": 1,
         "confidence_indicator_set_id": 1,
         "datasets": [1],
         "annotators": [1, 2],
@@ -37,6 +37,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "annotation_goal": 1,
         "annotation_scope": 1,
         "spectro_configs": [1],
+        "usage": "Create",
     }
 
     def test_with_valid_data(self):
@@ -44,7 +45,9 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         old_count = AnnotationCampaign.objects.count()
         old_tasks_count = AnnotationTask.objects.count()
 
-        create_serializer = AnnotationCampaignCreateSerializer(data=self.creation_data)
+        create_serializer = AnnotationCampaignCreateCreateAnnotationsSerializer(
+            data=self.creation_data
+        )
         create_serializer.is_valid(raise_exception=True)
         create_serializer.save(owner_id=1)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
@@ -60,15 +63,14 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         update_data = deepcopy(self.creation_data)
         update_data["spectro_configs"] = [3]
 
-        create_serializer = AnnotationCampaignCreateSerializer(
+        create_serializer = AnnotationCampaignCreateCreateAnnotationsSerializer(
             campaign, data=update_data
         )
         self.assertFalse(create_serializer.is_valid())
-        self.assertEqual(list(create_serializer.errors.keys()), ["non_field_errors"])
-        self.assertEqual(len(create_serializer.errors["non_field_errors"]), 1)
+        self.assertEqual(list(create_serializer.errors.keys()), ["spectro_configs"])
         self.assertEqual(
-            str(create_serializer.errors["non_field_errors"][0]),
-            "{3} not valid ids for spectro configs of given datasets",
+            str(create_serializer.errors["spectro_configs"][0]),
+            "['spectro_config2 - Another Dataset'] not valid ids for spectro configs of given datasets (['SPM Aural A 2010'])",
         )
 
 
@@ -112,16 +114,10 @@ class AnnotationCampaignAddAnnotatorsSerializerTestCase(TestCase):
         """Fails validation when given an unknown tag with correct message"""
         add_annotators_data = deepcopy(self.add_annotators_data)
         add_annotators_data.pop("annotation_goal")
-        new_annotator = User.objects.get(id=add_annotators_data["annotators"][0])
-        old_user_count = new_annotator.annotation_tasks.count()
         campaign = AnnotationCampaign.objects.first()
-        old_tasks_count = campaign.tasks.count()
 
         update_serializer = AnnotationCampaignAddAnnotatorsSerializer(
             campaign, data=add_annotators_data
         )
-        update_serializer.is_valid(raise_exception=True)
-        update_serializer.save()
-        campaign.refresh_from_db()
-        self.assertEqual(new_annotator.annotation_tasks.count(), old_user_count + 11)
-        self.assertEqual(campaign.tasks.count(), old_tasks_count + 11)
+        self.assertFalse(update_serializer.is_valid())
+        self.assertEqual(list(update_serializer.errors.keys()), ["annotation_goal"])

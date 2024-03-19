@@ -5,21 +5,6 @@ from django.conf import settings
 from django.utils import timezone
 
 
-class Collection(models.Model):
-    """
-    This table contains collections which are groups of datasets which are meant to be logical groupings, for example
-    datasets coming from a common project.
-    """
-
-    class Meta:
-        db_table = "collections"
-
-    name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True, blank=True)
-
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-
 class DatasetType(models.Model):
     """
     Table containing the possible data types for dataset’s. These data types are not about the technical storage of the
@@ -76,12 +61,6 @@ class Dataset(models.Model):
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tabular_metadatum = models.ForeignKey(
-        "TabularMetadatum", on_delete=models.CASCADE, null=True, blank=True
-    )
-    collections = models.ManyToManyField(
-        Collection, related_name="datasets", blank=True
-    )
 
 
 class DatasetFile(models.Model):
@@ -92,6 +71,8 @@ class DatasetFile(models.Model):
     It can be specified in both with parameters (or other information) common to all files written at dataset level
     and changing parameters at file level.
     """
+
+    # TODO: add constraint to disallow identical filenames/filepath within the same dataset
 
     class Meta:
         db_table = "dataset_files"
@@ -106,9 +87,6 @@ class DatasetFile(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
     audio_metadatum = models.ForeignKey(
         "AudioMetadatum", on_delete=models.CASCADE, null=True, blank=True
-    )
-    tabular_metadatum = models.ForeignKey(
-        "TabularMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
 
     @property
