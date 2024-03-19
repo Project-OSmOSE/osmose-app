@@ -253,7 +253,7 @@ class Command(management.BaseCommand):
                 start=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
                 end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
                 instructions_url=self.fake.uri(),
-                annotation_scope=1,
+                annotation_scope=2,
                 annotation_set=AnnotationSet.objects.first(),
                 confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,
