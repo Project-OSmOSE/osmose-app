@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { IonButton } from '@ionic/react';
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { selectConfidence } from "@/slices/annotator/annotations.ts";
 
@@ -30,16 +31,13 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
         <h6 className="card-header text-center">Confidence indicator</h6>
         <div className="card-body">
           <div className=" d-flex justify-content-center">
-            <ul className="card-text annotation-tags">
+            <ul className="card-text confidence-tags">
               { allConfidences.map((confidence, key) => (
-                <li key={ `tag-${ key }` }>
-                  <button id={ `tags_key_shortcuts_${ key }` }
-                          className={ focusedConfidence === confidence ? "btn btn--active" : "btn" }
-                          onClick={ () => dispatch(selectConfidence(confidence)) }
-                          type="button">
-                    { confidence }
-                  </button>
-                </li>
+                <IonButton key={ key }
+                           fill={ focusedConfidence === confidence ? 'outline' : 'solid' }
+                           onClick={ () => dispatch(selectConfidence(confidence)) }>
+                  { confidence }
+                </IonButton>
               )) }
             </ul>
           </div>

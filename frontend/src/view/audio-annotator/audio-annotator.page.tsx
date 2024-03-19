@@ -22,7 +22,7 @@ import { Annotation, AnnotationComment } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
@@ -100,11 +100,11 @@ export const AudioAnnotator: React.FC = () => {
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const tagsKeyPress = useRef<KeypressHandler | null>(null);
 
-  const isAudioPaused = useRef<boolean>(true);
-
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
+
+  const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
 
   const taskAPI = useAnnotationTaskAPI();
 
@@ -178,7 +178,7 @@ export const AudioAnnotator: React.FC = () => {
 
   const playPause = (annotation?: Annotation) => {
     try {
-      if (isAudioPaused.current) audioPlayerRef.current?.play(annotation);
+      if (isPaused) audioPlayerRef.current?.play(annotation);
       else audioPlayerRef.current?.pause();
     } catch (e) {
       console.warn(e);
@@ -218,8 +218,8 @@ export const AudioAnnotator: React.FC = () => {
           </IonButton>
 
           { instructionsURL && <IonButton color="secondary"
-                                                   fill={ "outline" }
-                                                   onClick={ openInstructions }>
+                                          fill={ "outline" }
+                                          onClick={ openInstructions }>
               <IonIcon icon={ informationCircle } slot="start"/>
               Campaign instructions
           </IonButton> }
@@ -236,7 +236,11 @@ export const AudioAnnotator: React.FC = () => {
       </div>
 
       {/* Audio player (hidden) */ }
-      <AudioPlayerComponent ref={ audioPlayerRef }/>
+      <AudioPlayerComponent ref={ ref => {
+        audioPlayerRef.current = ref;
+        console.debug()
+        setCanChangePlaybackRate(!!ref?.canPreservePitch)
+      } }/>
 
       {/* Workbench (spectrogram viz, box drawing) */ }
       <Workbench audioPlayer={ audioPlayerRef.current }/>
@@ -247,14 +251,15 @@ export const AudioAnnotator: React.FC = () => {
           <OverlayTrigger
             overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>
             <IonButton color={ "primary" }
-                       shape={ "round" }>
+                       shape={ "round" }
+                       onClick={ () =>  playPause() }>
               { isPaused && <IonIcon icon={ play } slot={ "icon-only" }/> }
               { !isPaused && <IonIcon icon={ pause } slot={ "icon-only" }/> }
             </IonButton>
           </OverlayTrigger>
         </div>
         <p className="col-sm-1">
-          { audioPlayerRef.current?.canPreservePitch &&
+          { canChangePlaybackRate &&
               <select className="form-control select-rate"
                       defaultValue={ playbackRate }
                       onChange={ e => audioPlayerRef.current?.setPlaybackRate(+e.target.value) }>
@@ -268,7 +273,7 @@ export const AudioAnnotator: React.FC = () => {
         <NavigationButtons ref={ navKeyPress } start={ start }/>
 
         <div className="col-sm-3">
-          {/* FIXME: avoid line expansion due to toasts -> absolute IonToast*/}
+          {/* FIXME: avoid line expansion due to toasts -> absolute IonToast*/ }
           <Toast toastMessage={ toast }/>
         </div>
         <p className="col-sm-2 text-right">

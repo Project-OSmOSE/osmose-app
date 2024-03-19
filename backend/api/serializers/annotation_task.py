@@ -306,6 +306,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
+        print("get_taskComment", task.task_comment)
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 

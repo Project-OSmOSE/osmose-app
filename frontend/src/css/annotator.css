@@ -307,6 +307,13 @@ html {
   justify-content: right;
 }
 
+.confidence-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: right;
+  gap: 1rem;
+}
+
 .annotation-tags li {
   margin: 0.2em 1em;
 }

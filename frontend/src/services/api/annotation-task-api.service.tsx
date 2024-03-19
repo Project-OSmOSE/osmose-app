@@ -87,7 +87,7 @@ export type AnnotationTaskDto = {
   endFrequency: number | null,
   confidenceIndicator: string | null,
   result_comments: Array<AnnotationComment>,
-  validation: boolean | null;
+  validation?: boolean;
 };
 
 interface AddAnnotation {

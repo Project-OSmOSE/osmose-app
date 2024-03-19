@@ -2,7 +2,7 @@ import React, { Fragment, ReactNode, useEffect, useImperativeHandle, useState } 
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
-import { useAnnotationTaskAPI } from "@/services/api";
+import { AnnotationTaskDto, useAnnotationTaskAPI } from "@/services/api";
 import { AnnotationType } from "@/types/annotations.ts";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
@@ -83,7 +83,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
         const startFrequency = isBox ? r.startFrequency : null;
         const endFrequency = isBox ? r.endFrequency : null;
         const result_comments = r.result_comments.filter(c => c.comment.length > 0);
-        return {
+        const result: AnnotationTaskDto = {
           id: r.id,
           startTime,
           endTime,
@@ -92,9 +92,9 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
           endFrequency,
           confidenceIndicator: r.confidenceIndicator ?? null,
           result_comments: result_comments,
-          validation: mode === 'Create' ? null : r.validation
-        };
-
+        }
+        if (mode === 'Check') result.validation = !!r.validation;
+        return result;
       }),
       task_start_time: Math.floor((start.getTime() ?? now) / 1000),
       task_end_time: Math.floor(new Date().getTime() / 1000),

@@ -139,6 +139,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         if (
             "task_comments" in request.data.keys()
             and request.data["task_comments"] is not None
+            and len(request.data["task_comments"]) > 0
         ):
             for comment in request.data["task_comments"]:
                 comment.pop("annotation_task")
@@ -149,6 +150,8 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
                 )
                 comment_obj.comment = message
                 comment_obj.save()
+        else:
+            AnnotationComment.objects.filter(annotation_task=task, annotation_result=None).delete()
 
         task_date = task.dataset_file.audio_metadatum.start
         next_tasks = self.queryset.filter(

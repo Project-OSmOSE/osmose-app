@@ -60,7 +60,7 @@ describe('create campaign', () => {
         // Annotators
         for (const annotator of data.annotators) {
             cy.get('#searchbar').type(annotator.displayName);
-            cy.contains(annotator.displayName).click();
+            cy.get('ion-list').contains(annotator.displayName).click();
             cy.get('#searchbar').parent().should('contain', annotator.displayName)
         }
 
