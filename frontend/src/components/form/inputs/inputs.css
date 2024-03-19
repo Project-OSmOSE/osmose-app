@@ -13,6 +13,9 @@
 #aplose-input.select:not(.has-label) {
   width: fit-content;
 }
+#aplose-input ion-note {
+  grid-column: 1 / 3;
+}
 
 #aplose-input > #label {
   padding-left: 1rem;

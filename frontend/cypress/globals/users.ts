@@ -15,7 +15,7 @@ export const USER_ADMIN: User = {
   email: 'admin@osmose.xyz'
 }
 
-export const USER_COMMON = {
+export const USER_COMMON_1 = {
   id: 2,
   displayName: 'User1 Test',
   username: 'TestUser1',
@@ -23,4 +23,12 @@ export const USER_COMMON = {
   email: 'TestUser1@osmose.xyz'
 }
 
-export const USERS: Array<User> = [USER_ADMIN, USER_COMMON]
+export const USER_COMMON_2 = {
+  id: 3,
+  displayName: 'User2 Test',
+  username: 'TestUser2',
+  password: 'osmose29',
+  email: 'TestUser2@osmose.xyz'
+}
+
+export const USERS: Array<User> = [USER_ADMIN, USER_COMMON_1]

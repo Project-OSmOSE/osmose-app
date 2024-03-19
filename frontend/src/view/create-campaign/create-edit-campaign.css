@@ -20,13 +20,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
-#create-campaign-form .inline {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 1rem;
-  justify-content: space-between;
-  align-items: center;
-}
 #create-campaign-form .chips-container {
   display: flex;
   flex-direction: row;

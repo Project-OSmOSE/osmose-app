@@ -8,6 +8,7 @@ import { GlobalInfoBloc } from "./blocs/global-info.bloc.tsx";
 import { DatasetBloc } from "./blocs/dataset.bloc.tsx";
 import { AnnotatorsBloc } from "./blocs/annotators.bloc.tsx";
 import { AnnotationsBloc } from "./blocs/annotations.bloc.tsx";
+import './create-edit-campaign.css'
 
 export const CreateCampaign: React.FC = () => {
 

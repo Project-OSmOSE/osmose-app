@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { InputChangeEventDetail, IonInput, IonLabel, IonNote } from "@ionic/react";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { createCampaignActions } from "@/slices/create-campaign";
-import { useUsersAPI } from '@/services/api/user.ts';
-import { FormBloc, Searchbar, ChipsInput } from "@/components/form";
+import { useUsersAPI } from '@/services/api/user';
+import { FormBloc, Searchbar, ChipsInput, Input } from "@/components/form";
 import { Item } from "@/types/item";
 import { User } from '@/types/user';
 import { useAppSelector, useAppDispatch } from "@/slices/app";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/services/utils/toast";
 
 
 export const AnnotatorsBloc: React.FC = () => {
@@ -50,8 +49,8 @@ export const AnnotatorsBloc: React.FC = () => {
     dispatch(createCampaignActions.updateAnnotatorsPerFile(newAnnotators.length))
   }
 
-  const onAnnotatorsPerFileChange = (e: CustomEvent<InputChangeEventDetail>) => {
-    dispatch(createCampaignActions.updateAnnotatorsPerFile(e.detail.value ? +e.detail.value : undefined))
+  const onAnnotatorsPerFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(createCampaignActions.updateAnnotatorsPerFile(e.target.value ? +e.target.value : undefined))
   }
 
   // Calculated data
@@ -79,22 +78,14 @@ export const AnnotatorsBloc: React.FC = () => {
                   activeItemsValues={ annotators.map(a => a.id) }
                   setActiveItemsValues={ onAnnotatorsChange }/>
 
-
-      <div aria-disabled={ annotators.length <= 0 }>
-        <div className="inline">
-          <IonLabel>Wanted number of annotators per file</IonLabel>
-          <IonInput type="number"
-                    maxlength={ 3 }
-                    max={ annotators.length ?? 0 }
-                    min={ annotators.length > 0 ? 1 : 0 }
-                    value={ annotatorsPerFile }
-                    onIonChange={ onAnnotatorsPerFileChange }/>
-        </div>
-        <IonNote>
-          Each annotator will annotate { annotatedFilesCount } / { dataset?.files_count ?? 0 } files
-          ({ annotatedFilesPercent }%)
-        </IonNote>
-      </div>
+      <Input label="Wanted number of annotators per file"
+             disabled={ annotators.length <= 0 }
+             type="number"
+             max={ annotators.length ?? 0 }
+             min={ annotators.length > 0 ? 1 : 0 }
+             value={ annotatorsPerFile }
+             onChange={ onAnnotatorsPerFileChange }
+             note={ ` Each annotator will annotate ${ annotatedFilesCount } / ${ dataset?.files_count ?? 0 } files (${ annotatedFilesPercent }%)` }/>
     </FormBloc>
   )
 }

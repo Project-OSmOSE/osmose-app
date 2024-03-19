@@ -20,6 +20,7 @@ export const DETECTOR_3 = {
 }
 export const CAMPAIGNS_DATA = {
   [Usage.create]: {
+    id: 6,
     name: 'My create campaign test',
     description: 'My create campaign test description',
     instructionsURL: 'https://my-create-campaign-description.com',
@@ -32,6 +33,7 @@ export const CAMPAIGNS_DATA = {
     confidenceSet: CONFIDENCE_SET,
   },
   [Usage.check]: {
+    id: 7,
     name: 'My check campaign test',
     description: 'My check campaign test description',
     instructionsURL: 'https://my-check-campaign-description.com',

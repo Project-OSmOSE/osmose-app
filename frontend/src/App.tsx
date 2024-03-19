@@ -1,12 +1,12 @@
 import { FC, ReactNode } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Redirect, Route, Switch } from 'react-router-dom';
 
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
 import { AnnotationCampaignList } from "@/view/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "@/view/annotation-campaign-detail.page.tsx";
-import { EditCampaign } from "@/view/annotation-campaign-update";
+import { EditCampaign } from "@/view/create-campaign/edit-campaign.page.tsx";
 import { AnnotationTaskList } from "@/view/annotation-task-list.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
@@ -68,28 +68,28 @@ export const App: FC = () => {
   return (
     <Provider store={ AppStore }>
       <IonApp>
-          <Router basename='/app'>
-            <Switch>
-              <Route path="/login"><Login/></Route>
+        <Router basename='/app'>
+          <Switch>
+            <Route path="/login"><Login/></Route>
 
-              <AuthenticatedRoute path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
 
-              <AploseSkeleton>
-                <Switch>
-                  <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-                  <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-                  <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
-                  <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'>
-                    <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
-                  </AuthenticatedRoute>
-                  <AuthenticatedRoute exact
-                                      path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                  <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
-                  <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
-                </Switch>
-              </AploseSkeleton>
-            </Switch>
-          </Router>
+            <AploseSkeleton>
+              <Switch>
+                <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'>
+                  <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
+                </AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+                <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+              </Switch>
+            </AploseSkeleton>
+          </Switch>
+        </Router>
       </IonApp>
     </Provider>
   )

@@ -1,24 +1,27 @@
 import React, { InputHTMLAttributes } from "react";
-import { IonIcon } from "@ionic/react";
+import { IonIcon, IonNote } from "@ionic/react";
 import './inputs.css';
 
 type InputProperties = {
   label?: string;
   startIcon?: string;
+  note?: string;
 } & InputHTMLAttributes<HTMLInputElement>
 
 export const Input: React.FC<InputProperties> = ({
                                                    label,
                                                    startIcon,
                                                    required,
+                                                   disabled,
+                                                   note,
                                                    ...inputArgs
                                                  }) => {
   const className = [];
   if (startIcon) className.push('has-start-icon');
-  return <div id="aplose-input">
+  return <div id="aplose-input" aria-disabled={ disabled }>
     { label && <p id="label"
                   className={ required ? 'required' : '' }>
-      { label }{ required ? '*' : ''}
+      { label }{ required ? '*' : '' }
     </p> }
 
     <div id="input">
@@ -27,5 +30,7 @@ export const Input: React.FC<InputProperties> = ({
              required={ required }
              className={ `${ className.join(' ') } ${ inputArgs.className }` }/>
     </div>
+
+    { note && <IonNote>{ note }</IonNote> }
   </div>
 }
