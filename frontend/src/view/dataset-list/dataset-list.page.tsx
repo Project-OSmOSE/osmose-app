@@ -46,9 +46,9 @@ export const DatasetList: React.FC = () => {
     setIsLoading(true);
     datasetService.importDatasets(datasets)
       .then(data => {
-        const remainingDatasets = datasetsToImport.filter(newDataset =>
-          data.some(importedDataset => importedDataset.name !== newDataset.name)
-        );
+        const remainingDatasets = datasetsToImport.filter(newDataset => {
+          return !data.find(d => d.name === newDataset.name)
+        });
         setDatasetsToImport(remainingDatasets);
         toast.dismiss();
         setIsImportModalOpen(false);
@@ -62,8 +62,6 @@ export const DatasetList: React.FC = () => {
   return (
     <div className="col-sm-9 border rounded" id="content">
       <h1 className="text-center">Datasets</h1>
-
-      {/*<Toast toastMessage={ toastMsg }></Toast>*/ }
 
       <div className="d-flex justify-content-center">
         <IonButton color={ "primary" }
