@@ -29,8 +29,9 @@ const NewDataItem: FC<{
 export const ModalNewDataset: FC<{
   onClose: () => void,
   newData: DatasetListToImport,
-  startImport: (datasets: DatasetListToImport) => void
-}> = ({ onClose, newData, startImport }) => {
+  startImport: (datasets: DatasetListToImport) => void,
+  isLoading: boolean
+}> = ({ onClose, newData, startImport, isLoading }) => {
   const [searchInputFilter, setSearchInputFilter] = useState<string>("");
   const [filteredResults, setFilteredResults] = useState<DatasetListToImport>([]);
 
@@ -119,12 +120,14 @@ export const ModalNewDataset: FC<{
               </div>
             </div>
             <div className="modal-footer">
-              <IonButton color={"medium"}
+              <IonButton color={ "medium" }
+                         disabled={ isLoading }
                          data-dismiss="modal"
                          onClick={ onClose }>
                 Close
               </IonButton>
-              <IonButton color={"primary"}
+              <IonButton color={ "primary" }
+                         disabled={ isLoading }
                          onClick={ onSave }>
                 Save changes
               </IonButton>
