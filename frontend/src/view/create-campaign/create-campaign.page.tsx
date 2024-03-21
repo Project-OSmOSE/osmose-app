@@ -16,7 +16,6 @@ export const CreateCampaign: React.FC = () => {
   const service = useCreateCampaign();
   const blurUtil = useBlur();
   const toast = useToast();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const history = useHistory();
 
