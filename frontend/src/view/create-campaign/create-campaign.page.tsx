@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { IonButton } from "@ionic/react";
 import { useCreateCampaign } from "@/services/create-campaign";
@@ -15,6 +15,7 @@ export const CreateCampaign: React.FC = () => {
   const service = useCreateCampaign();
   const blurUtil = useBlur();
   const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const history = useHistory();
 
@@ -28,11 +29,12 @@ export const CreateCampaign: React.FC = () => {
   }, [])
 
 
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       await service.submitCampaign();
+      setIsSubmitting(false);
 
       history.push('/annotation-campaigns');
     } catch (e: any) {
@@ -56,7 +58,9 @@ export const CreateCampaign: React.FC = () => {
       <AnnotatorsBloc/>
 
 
-      <IonButton color="primary" type="submit">
+      <IonButton color="primary"
+                 disabled={ isSubmitting }
+                 type="submit">
         Create campaign
       </IonButton>
     </form>
