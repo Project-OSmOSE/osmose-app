@@ -34,11 +34,12 @@ export const CreateCampaign: React.FC = () => {
     try {
       setIsSubmitting(true);
       await service.submitCampaign();
-      setIsSubmitting(false);
 
       history.push('/annotation-campaigns');
     } catch (e: any) {
       toast.presentError(e);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
