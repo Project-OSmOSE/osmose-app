@@ -4,8 +4,8 @@ from copy import deepcopy
 
 from django.test import TestCase
 
+from backend.api.models import AnnotationTask, AnnotationResult
 from backend.api.serializers import AnnotationTaskUpdateSerializer
-from backend.api.models import AnnotationTask
 
 
 class AnnotationTaskUpdateSerializerTestCase(TestCase):
@@ -37,21 +37,32 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
 
     def test_with_valid_data(self):
         """Updates correctly the DB when serializer saves with correct data"""
-        task = AnnotationTask.objects.first()
+        task = AnnotationTask.objects.first()  # type: AnnotationTask
         self.assertEqual(task.status, 0)
-        self.assertEqual(task.results.count(), 3)
+        results_count = AnnotationResult.objects.filter(
+            annotation_campaign_id=task.annotation_campaign_id,
+            dataset_file_id=task.dataset_file_id,
+            annotator_id=task.annotator_id,
+        ).count()
+        self.assertEqual(results_count, 3)
         update_serializer = AnnotationTaskUpdateSerializer(task, data=self.update_data)
         update_serializer.is_valid(raise_exception=True)
         update_serializer.save()
         task.refresh_from_db()
+        results_count = AnnotationResult.objects.filter(
+            annotation_campaign_id=task.annotation_campaign_id,
+            dataset_file_id=task.dataset_file_id,
+            annotator_id=task.annotator_id,
+        ).count()
         self.assertEqual(task.status, 2)
-        self.assertEqual(task.results.count(), 1)
+        self.assertEqual(results_count, 1)
 
     def test_with_unknown_tags(self):
         """Fails validation when given an unknown tag with correct message"""
         task = AnnotationTask.objects.first()
         update_data = deepcopy(self.update_data)
         update_data["annotations"][0]["annotation"] = "Unknown"
+        update_data["id"] = task.id
         update_serializer = AnnotationTaskUpdateSerializer(task, data=update_data)
         self.assertFalse(update_serializer.is_valid())
         self.assertEqual(list(update_serializer.errors.keys()), ["annotations"])

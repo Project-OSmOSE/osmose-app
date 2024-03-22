@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react';
+import { ToastMessage } from "@/types/toast.ts";
 
 // String enum matching css rules
 enum ToastStatus {
@@ -7,11 +8,6 @@ enum ToastStatus {
   visible = 'toasty-visible',
   hiding = 'toasty-hiding',
 }
-
-export type ToastMessage = {
-  messages: Array<string>,
-  level: 'danger' | 'success' | 'primary',
-};
 
 type ToastProps = {
   toastMessage?: ToastMessage,

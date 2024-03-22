@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, Fragment, useEffect, useState } from "react";
 import { DatasetListToImport, DatasetListToImportItem } from "../../services/api";
+import { IonButton } from "@ionic/react";
 
 
 const NewDataItem: FC<{
@@ -28,8 +29,9 @@ const NewDataItem: FC<{
 export const ModalNewDataset: FC<{
   onClose: () => void,
   newData: DatasetListToImport,
-  startImport: (datasets: DatasetListToImport) => void
-}> = ({ onClose, newData, startImport }) => {
+  startImport: (datasets: DatasetListToImport) => void,
+  isLoading: boolean
+}> = ({ onClose, newData, startImport, isLoading }) => {
   const [searchInputFilter, setSearchInputFilter] = useState<string>("");
   const [filteredResults, setFilteredResults] = useState<DatasetListToImport>([]);
 
@@ -118,17 +120,17 @@ export const ModalNewDataset: FC<{
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button"
-                      className="btn btn-secondary"
-                      data-dismiss="modal"
-                      onClick={ onClose }>
+              <IonButton color={ "medium" }
+                         disabled={ isLoading }
+                         data-dismiss="modal"
+                         onClick={ onClose }>
                 Close
-              </button>
-              <button type="button"
-                      className="btn btn-primary"
-                      onClick={ onSave }>
+              </IonButton>
+              <IonButton color={ "primary" }
+                         disabled={ isLoading }
+                         onClick={ onSave }>
                 Save changes
-              </button>
+              </IonButton>
             </div>
           </div>
         </div>

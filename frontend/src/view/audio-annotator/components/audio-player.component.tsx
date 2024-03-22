@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import {
-  AudioContext,
-  AudioDispatchContext
-} from "../../../services/annotator/audio/audio.context.tsx";
-import { Annotation } from "../../../interface/annotation.interface.tsx";
-import { AnnotatorContext, AnnotatorDispatchContext } from "../../../services/annotator/annotator.context.tsx";
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Annotation } from "@/types/annotations.ts";
+import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
+import { onPause, onPlay, setPlaybackRate, setTime } from "@/slices/annotator/audio.ts";
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
@@ -18,11 +16,15 @@ export interface AudioPlayer {
 }
 
 export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: React.ForwardedRef<AudioPlayer>) => {
-  const context = useContext(AudioContext);
-  const dispatch = useContext(AudioDispatchContext);
 
-  const annotatorContext = useContext(AnnotatorContext);
-  const annotatorDispatch = useContext(AnnotatorDispatchContext);
+  const {
+    taskId,
+    audioURL,
+  } = useAppSelector(state => state.annotator.global);
+  const {
+    playbackRate
+  } = useAppSelector(state => state.annotator.audio);
+  const dispatch = useAppDispatch();
 
   const elementRef = useRef<HTMLAudioElement | null>(null);
 
@@ -34,18 +36,18 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
 
       const time = elementRef.current?.currentTime;
       if (stopTime && time && time > stopTime) player.pause();
-      else dispatch!({ type: 'setTime', time });
+      else dispatch(setTime(time))
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
-  }, [ annotatorContext.taskId ]);
+  }, [ taskId ]);
 
   useEffect(() => {
-    dispatch!({ type: 'onPause' })
+    dispatch(onPause())
     if (elementRef.current) {
       elementRef.current.volume = 1.0;
       elementRef.current.preservesPitch = false;
-      elementRef.current.playbackRate = context.playbackRate;
+      elementRef.current.playbackRate = playbackRate;
     }
   }, [ elementRef.current ])
 
@@ -53,12 +55,12 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
     seek(time: number) {
       if (!elementRef.current) return;
       elementRef.current.currentTime = time;
-      dispatch!({ type: 'setTime', time });
+      dispatch(setTime(time))
     },
     play(annotation?: Annotation) {
       if (annotation && elementRef.current) player.seek(annotation.startTime)
       elementRef.current?.play().catch(e => {
-        annotatorDispatch!({ type: 'setDangerToast', message: `Audio failed playing: ${ e }` });
+        dispatch(setDangerToast(`Audio failed playing: ${ e }`))
       });
       setStopTime(annotation?.endTime);
     },
@@ -68,7 +70,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
     setPlaybackRate(playbackRate?: number) {
       const rate = playbackRate ?? 1.0;
       if (elementRef.current) elementRef.current.playbackRate = rate;
-      dispatch!({ type: 'setPlaybackRate', playbackRate: rate })
+      dispatch(setPlaybackRate(rate))
     },
     get canPreservePitch() {
       return elementRef.current?.preservesPitch !== undefined
@@ -85,14 +87,14 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
            loop={ false }
            muted={ false }
            ref={ elementRef }
-           onLoadedMetadata={ () => dispatch!({ type: 'setTime', time: 0 }) }
-           onAbort={ () => dispatch!({ type: 'onPause' }) }
-           onEnded={ () => dispatch!({ type: 'onPause' }) }
-           onPause={ () => dispatch!({ type: 'onPause' }) }
-           onPlay={ () => dispatch!({ type: 'onPlay' }) }
+           onLoadedMetadata={ () => dispatch(setTime(0)) }
+           onAbort={ () => dispatch(onPause()) }
+           onEnded={ () => dispatch(onPause()) }
+           onPause={ () => dispatch(onPause()) }
+           onPlay={ () => dispatch(onPlay()) }
            preload="auto"
-           src={ annotatorContext.audioURL }
-           title={ annotatorContext.audioURL }>
+           src={ audioURL }
+           title={ audioURL }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );

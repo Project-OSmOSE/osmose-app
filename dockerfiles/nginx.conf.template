@@ -11,12 +11,14 @@ server {
     root /usr/share/nginx/;
     proxy_intercept_errors on;
     error_page 404 = /app/index.html;
+    proxy_no_cache 1;
   }
 
   location / {
     root /usr/share/nginx/website/;
     proxy_intercept_errors on;
     error_page 404 = /index.html;
+    proxy_no_cache 1;
   }
 
   location /static {

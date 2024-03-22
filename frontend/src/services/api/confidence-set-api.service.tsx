@@ -7,7 +7,7 @@ export type ListItem = {
   id: number;
   name: string;
   desc: string;
-  confidenceIndicators: Array<{
+  confidence_indicators: Array<{
     id: number;
     label: string;
     level: number;

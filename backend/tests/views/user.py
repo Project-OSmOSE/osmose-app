@@ -53,7 +53,13 @@ class UserViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), User.objects.count())
         self.assertEqual(
             dict(response.data[0]),
-            {"id": 1, "username": "admin", "email": "admin@osmose.xyz"},
+            {
+                "id": 1,
+                "username": "admin",
+                "email": "admin@osmose.xyz",
+                "first_name": "",
+                "last_name": "",
+            },
         )
 
     def test_is_staff_for_user(self):
@@ -88,5 +94,11 @@ class UserViewSetTestCase(APITestCase):
         self.assertEqual(User.objects.last().username, "new_user")
         self.assertEqual(
             dict(response.data),
-            {"id": 6, "username": "new_user", "email": "user@example.com"},
+            {
+                "id": 6,
+                "username": "new_user",
+                "email": "user@example.com",
+                "first_name": "",
+                "last_name": "",
+            },
         )

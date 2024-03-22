@@ -6,6 +6,7 @@
     "database:run": "docker start devdb",
     "server:migrate": "poetry run manage.py migrate",
     "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add . && cd ../../osmosewebsite/migrations && git add .",
+    "server:migrate & seed": "npm run server:migrate && npm run server:seed",
     "server:seed": "poetry run manage.py seed",
     "server:run": "poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
