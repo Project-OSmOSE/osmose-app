@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { addOutline, helpCircle } from "ionicons/icons";
@@ -44,7 +44,7 @@ export const AnnotationCampaignList: React.FC = () => {
   }
 
   return (
-    <div className="col-sm-10 border rounded">
+    <Fragment>
       <h1 className="text-center">Annotation Campaigns</h1>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
@@ -94,6 +94,6 @@ export const AnnotationCampaignList: React.FC = () => {
       </div>
 
       { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
-    </div>
+    </Fragment>
   )
 }
