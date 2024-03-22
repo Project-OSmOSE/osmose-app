@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
 
 
@@ -45,32 +45,39 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
   )
 }
 
-export const App: FC = () => (
-  <ProvideAuth>
-    <Router basename='/app'>
-      <Switch>
-        <Route exact path="/login"><Login/></Route>
+export const App: FC = () => {
 
-        <AuthenticatedRoute exact path='/audio-annotator/:id'>
-          <ProvideAnnotator>
-            <AudioAnnotator/>
-          </ProvideAnnotator>
-        </AuthenticatedRoute>
+  useEffect(() => {
+    console.info(`Version: ${import.meta.env.VITE_GIT_TAG}`)
+  }, []);
 
-        <AploseSkeleton>
-          <Switch>
-            <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
-            <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
-            <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
-          </Switch>
-        </AploseSkeleton>
-      </Switch>
-    </Router>
-  </ProvideAuth>
-)
+  return (
+    <ProvideAuth>
+      <Router basename='/app'>
+        <Switch>
+          <Route exact path="/login"><Login/></Route>
+
+          <AuthenticatedRoute exact path='/audio-annotator/:id'>
+            <ProvideAnnotator>
+              <AudioAnnotator/>
+            </ProvideAnnotator>
+          </AuthenticatedRoute>
+
+          <AploseSkeleton>
+            <Switch>
+              <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+              <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+            </Switch>
+          </AploseSkeleton>
+        </Switch>
+      </Router>
+    </ProvideAuth>
+  )
+}
 
 export default App;
