@@ -45,9 +45,10 @@ export const Login: FC = () => {
       setIsSubmitting(true)
       await auth.login(username, password);
       history.replace(from);
-      setIsSubmitting(false)
     } catch (e: any) {
       setError(buildErrorMessage(e))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

@@ -57,11 +57,12 @@ export const EditCampaign: React.FC = () => {
         annotators: annotators.map(a => a.id),
         annotation_goal: filesToAnnotate
       })
-      setIsSubmitting(false);
 
       history.push(`/annotation_campaign/${ campaignID }`);
     } catch (e: any) {
       toast.presentError(e)
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
