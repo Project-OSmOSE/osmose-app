@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
@@ -74,21 +74,17 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
   if (error) {
     return (
-      <div className="col-sm-9 border rounded">
+      <Fragment>
         <h1>Annotation Campaign</h1>
         <p className="error-message">{ error.message }</p>
-      </div>
+      </Fragment>
     )
   }
   if (!annotationCampaign) {
-    return (
-      <div className="col-sm-9 border rounded">
-        <h6>Loading Annotation Campaign ...</h6>
-      </div>
-    )
+    return <h6>Loading Annotation Campaign ...</h6>
   }
   return (
-    <div className="col-sm-9 border rounded">
+    <Fragment>
       <h1 className="text-center">{ annotationCampaign.name }</h1>
       <div className="row justify-content-around">
         <div>
@@ -149,6 +145,6 @@ export const AnnotationCampaignDetail: React.FC = () => {
           Download CSV task status
         </IonButton>
       </div>
-    </div>
+    </Fragment>
   )
 }
