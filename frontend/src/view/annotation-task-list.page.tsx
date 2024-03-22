@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   AnnotationCampaignRetrieveCampaign,
@@ -53,15 +53,15 @@ export const AnnotationTaskList: React.FC = () => {
 
   if (error) {
     return (
-      <div className="col-sm-9 border rounded">
+      <Fragment>
         <h1>Annotation Tasks</h1>
         <p className="error-message">{ error.message }</p>
-      </div>
+      </Fragment>
     )
   }
 
   return (
-    <div className="col-sm-9 border rounded">
+    <Fragment>
       <h1 className="text-center">Annotation Tasks</h1>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
@@ -101,6 +101,6 @@ export const AnnotationTaskList: React.FC = () => {
         }) }
         </tbody>
       </table>
-    </div>
+    </Fragment>
   )
 }

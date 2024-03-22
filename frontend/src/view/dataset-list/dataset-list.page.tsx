@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import ReactDOM from "react-dom";
 import { useDatasetsAPI, DatasetListToImport, DatasetList as List } from "@/services/api";
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
@@ -60,7 +60,7 @@ export const DatasetList: React.FC = () => {
   }
 
   return (
-    <div className="col-sm-9 border rounded" id="content">
+    <Fragment>
       <h1 className="text-center">Datasets</h1>
 
       {/*<Toast toastMessage={ toastMsg }></Toast>*/}
@@ -109,6 +109,6 @@ export const DatasetList: React.FC = () => {
       </table>
 
       { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
-    </div>
+    </Fragment>
   );
 };
