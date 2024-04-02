@@ -58,16 +58,6 @@ html {
     border-top-right-radius: 0.30em;
     border-top-left-radius: 0.30em;
 }
-/* Annotator */
-
-.annotator-nav {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-}
-.annotator-nav > span, .annotator-nav > li {
-  padding: 10px 10px 0 10px;
-}
 
 /* Generic elements */
 
@@ -704,4 +694,24 @@ select {
   width: 50%;
   margin: auto;
   max-height: 80%;
+}
+
+
+
+#aplose-annotator #header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4rem;
+  padding: 0.25rem 1rem;
+}
+
+#aplose-annotator #header .buttons {
+  justify-self: stretch;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
 }

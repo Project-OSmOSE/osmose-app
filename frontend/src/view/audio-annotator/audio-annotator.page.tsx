@@ -1,32 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
+import { IonButton, IonIcon } from "@ionic/react";
+import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
+import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
+import { useAnnotationTaskAPI } from "@/services/api";
+import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
+import { Annotation, AnnotationComment } from "@/types/annotations.ts";
+import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
+import { initAnnotations } from "@/slices/annotator/annotations.ts";
+import { initSpectro } from "@/slices/annotator/spectro.ts";
+import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
+
+import { Toast } from "../global-components";
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
 import { Workbench } from './components/workbench.component.tsx';
-
-import '../../css/annotator.css';
 import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
 import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
 import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
-import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Toast } from "../global-components";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
-import { useAnnotationTaskAPI } from "@/services/api";
-import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
-import { Annotation, AnnotationComment } from "@/types/annotations.ts";
-import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
-import { IonButton, IonIcon } from "@ionic/react";
-import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
-import { initAnnotations } from "@/slices/annotator/annotations.ts";
-import { initSpectro } from "@/slices/annotator/spectro.ts";
-import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
+
+import '../../css/annotator.css';
+
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -211,12 +213,13 @@ export const AudioAnnotator: React.FC = () => {
 
   // Rendering
   return (
-    <div className="annotator container-fluid ps-0">
+    <div id="aplose-annotator" className="annotator container-fluid ps-0">
 
       {/* Header */ }
-      <div className="row">
-        <h1 className="col-sm-6">APLOSE</h1>
-        <div className="col-sm-4 annotator-nav align-items-center gap-1">
+      <div id="header">
+        <h1>APLOSE</h1>
+
+        <div className="buttons">
           <IonButton color="secondary"
                      fill={ "outline" }
                      onClick={ openGuide }>
@@ -231,15 +234,12 @@ export const AudioAnnotator: React.FC = () => {
               Campaign instructions
           </IonButton> }
         </div>
-        <ul className="col-sm-2 annotator-nav">
-          <li>
-            <IonButton color="danger"
-                       onClick={ goBack }
-                       title="Go back to annotation campaign tasks">
-              Back to campaign
-            </IonButton>
-          </li>
-        </ul>
+
+        <IonButton color="danger"
+                   onClick={ goBack }
+                   title="Go back to annotation campaign tasks">
+          Back to campaign
+        </IonButton>
       </div>
 
       {/* Audio player (hidden) */ }
