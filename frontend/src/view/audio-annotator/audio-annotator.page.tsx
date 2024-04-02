@@ -1,30 +1,31 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
+import { IonButton, IonIcon } from "@ionic/react";
+import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
-import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
+import { useAnnotationTaskAPI } from "@/services/api";
+import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
+import { Annotation, AnnotationComment } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
-import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import { Toast } from "../global-components";
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
-import { SpectrogramRender } from "./components/spectro-render.component.tsx";
 import { Workbench } from './components/workbench.component.tsx';
 import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
 import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
-import { LabelListBloc } from "./components/bloc/label-list-bloc.component.tsx";
+import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
 
