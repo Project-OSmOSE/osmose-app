@@ -101,6 +101,8 @@ export const AudioAnnotator: React.FC = () => {
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const tagsKeyPress = useRef<KeypressHandler | null>(null);
 
+  const _areShortcutsEnabled = useRef<boolean>(false);
+
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
@@ -165,8 +167,12 @@ export const AudioAnnotator: React.FC = () => {
     }
   }, [taskID])
 
+  useEffect(() => {
+    _areShortcutsEnabled.current = areShortcutsEnabled
+  }, [areShortcutsEnabled])
+
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!areShortcutsEnabled) return;
+    if (!_areShortcutsEnabled.current) return;
 
     switch (event.code) {
       case 'Space':
