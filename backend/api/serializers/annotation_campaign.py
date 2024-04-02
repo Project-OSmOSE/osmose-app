@@ -36,6 +36,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationCampaign
+        # pylint:disable=duplicate-code
         fields = [
             "id",
             "name",

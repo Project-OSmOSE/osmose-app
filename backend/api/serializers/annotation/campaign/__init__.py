@@ -1,3 +1,7 @@
+"""
+DRF serializers module to be used in viewsets
+"""
+
 from .create import (
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignCreateCreateAnnotationsSerializer,

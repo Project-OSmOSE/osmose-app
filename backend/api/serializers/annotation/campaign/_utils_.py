@@ -2,6 +2,7 @@
 
 from django.db.models import Count
 from rest_framework import serializers
+
 from backend.api.models import (
     AnnotationCampaign,
     User,
@@ -11,6 +12,7 @@ from backend.api.models import (
 def create_campaign_with_annotators(
     campaign: AnnotationCampaign, goal: int, annotators: list[User]
 ) -> AnnotationCampaign:
+    """Finalize campaign creation"""
     file_count = sum(
         campaign.datasets.annotate(Count("files")).values_list(
             "files__count", flat=True
@@ -28,18 +30,15 @@ def create_campaign_with_annotators(
 
 
 def check_annotation_goal(attrs: dict) -> None:
-    # Max for annotation_goal
+    """Max for annotation_goal"""
     annotators_nb = len(attrs["annotators"])
     if attrs["annotation_goal"] > annotators_nb:
-        raise serializers.ValidationError(
-            {
-                "annotation_goal": f"Ensure this value is lower than or equal to the number of annotators {annotators_nb}"
-            }
-        )
+        error = f"Ensure this value is lower than or equal to the number of annotators {annotators_nb}"
+        raise serializers.ValidationError({"annotation_goal": error})
 
 
 def check_spectro_configs_in_datasets(attrs: dict) -> None:
-    # Validates that chosen spectros correspond to chosen datasets
+    """Validates that chosen spectros correspond to chosen datasets"""
     spectro_configs = attrs["spectro_configs"]  # type: list[SpectroConfig]
     datasets = attrs["datasets"]  # type: list[Dataset]
     bad_vals = []
@@ -47,8 +46,5 @@ def check_spectro_configs_in_datasets(attrs: dict) -> None:
         if spectro.dataset not in datasets:
             bad_vals.append(str(spectro))
     if bad_vals:
-        raise serializers.ValidationError(
-            {
-                "spectro_configs": f"{bad_vals} not valid ids for spectro configs of given datasets ({[str(d) for d in datasets]})"
-            }
-        )
+        error = f"{bad_vals} not valid ids for spectro configs of given datasets ({[str(d) for d in datasets]})"
+        raise serializers.ValidationError({"spectro_configs": error})

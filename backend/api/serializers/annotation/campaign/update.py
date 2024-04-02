@@ -1,5 +1,5 @@
 """Annotation campaign update DRF serializers file"""
-
+# pylint: disable=W0223
 from django.db.models import Count
 from rest_framework import serializers
 

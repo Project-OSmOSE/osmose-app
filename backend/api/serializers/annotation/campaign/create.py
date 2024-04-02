@@ -36,6 +36,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
 
     class Meta:
         model = AnnotationCampaign
+        # pylint:disable=duplicate-code
         fields = [
             "name",
             "desc",
@@ -115,6 +116,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
 
     class Meta:
         model = AnnotationCampaign
+        # pylint:disable=duplicate-code
         fields = [
             "id",
             "name",
@@ -147,17 +149,19 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         return attrs
 
     def get_annotation_set_name(self, target_name):
+        """Create automatically new annotation set name"""
         if AnnotationSet.objects.filter(name=target_name):
             return self.get_annotation_set_name(target_name + "_1")
         return target_name
 
     def get_confidence_set_name(self, target_name):
+        """Create automatically new confidence set name"""
         if ConfidenceIndicatorSet.objects.filter(name=target_name):
             return self.get_confidence_set_name(target_name + "_1")
         return target_name
 
     def create(self, validated_data):
-        # Create annotation set
+        """Create annotation set"""
         annotation_set = AnnotationSet.objects.create(
             name=self.get_annotation_set_name(validated_data["name"] + "_set"),
             desc="Annotation set for " + validated_data["name"] + " campaign",
@@ -173,13 +177,11 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             desc="Confidence set for " + validated_data["name"] + " campaign",
         )
         for data in validated_data["confidence_set_indicators"]:
-            label = data[0]
-            level = data[1]
-            if label is None or level is None:
+            if data[0] is None or data[1] is None:
                 continue
             confidence_set.confidence_indicators.get_or_create(
-                label=label,
-                level=level,
+                label=data[0],
+                level=data[1],
             )
         confidence_set.save()
 
@@ -191,18 +193,18 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             try:
                 detector_id = detector.pop("detectorId")
                 detector_config_id = detector.pop("configurationId")
-            except KeyError as e:
-                print("KeyError", e)
+            except KeyError as error:
+                print("KeyError", error)
             detector_config = detector.pop("configuration")
-            d = None
-            print(">> Will get detector", detector_name, detector_id, d)
+            detector_obj = None
+            print(">> Will get detector", detector_name, detector_id, detector_obj)
             if detector_id is not None:
-                d = Detector.objects.get(pk=detector_id)
-            if d is None:
-                d = Detector.objects.get_or_create(name=detector_name)[0]
+                detector_obj = Detector.objects.get(pk=detector_id)
+            if detector_obj is None:
+                detector_obj = Detector.objects.get_or_create(name=detector_name)[0]
             if detector_config_id is None:
-                d.configurations.create(configuration=detector_config)
-            d.save()
+                detector_obj.configurations.create(configuration=detector_config)
+            detector_obj.save()
         print(">> Will create campaign")
 
         campaign = AnnotationCampaign(

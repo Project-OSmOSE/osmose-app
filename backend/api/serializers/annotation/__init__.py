@@ -1,3 +1,6 @@
+"""
+DRF serializers module to be used in viewsets
+"""
 from .detector import (
     DetectorSerializer,
     DetectorConfigurationSerializer,

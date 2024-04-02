@@ -39,6 +39,7 @@ class DetectorSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(DetectorConfigurationSerializer(many=True, allow_null=True))
     def get_configurations(self, detector):
+        """Get configuration for detector"""
         if self._conf is None:
             return DetectorConfigurationSerializer(
                 detector.configurations, many=True

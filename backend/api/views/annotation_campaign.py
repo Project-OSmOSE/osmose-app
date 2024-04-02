@@ -185,7 +185,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         not (start_time is null or end_time is null or start_frequency is null or end_frequency is null)
                        THEN 1
                    else 0 end                                                as is_box,
-               CASE 
+               CASE
                    WHEN confidence.label is null then ''
                    else confidence.label end                                     as confidence_label,
                CASE
@@ -209,7 +209,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
 
                                            LEFT OUTER JOIN (SELECT datasets.id, name, dataset_sr
                                                             FROM datasets
-                                                            LEFT OUTER JOIN audio_metadata am 
+                                                            LEFT OUTER JOIN audio_metadata am
                                                             on datasets.audio_metadatum_id = am.id) d
                                                            on d.id = f.dataset_id
 
@@ -251,7 +251,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                                  on campaign.id = result.annotation_campaign_id
 
                  LEFT OUTER JOIN (SELECT annotation_result_id, comment
-                                  FROM annotation_comment) comments 
+                                  FROM annotation_comment) comments
                                   on comments.annotation_result_id = result.id
         WHERE annotation_campaign_id = %s
         """,
