@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Fragment } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
@@ -6,8 +6,7 @@ import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { useAnnotationTaskAPI } from "@/services/api";
-import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
+import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
 import { Annotation, AnnotationComment } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
@@ -110,11 +109,13 @@ export const AudioAnnotator: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
+  const [isUserStaff, setIsUserStaff] = useState<boolean>(false);
   const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
 
   const taskAPI = useAnnotationTaskAPI();
+  const userAPI = useUsersAPI();
 
   const {
     areShortcutsEnabled,
@@ -153,8 +154,11 @@ export const AudioAnnotator: React.FC = () => {
     setStart(new Date());
     setError(undefined);
 
-    taskAPI.retrieve(taskID)
-      .then((task: Retrieve) => {
+    Promise.all([
+      taskAPI.retrieve(taskID),
+      userAPI.isStaff()
+    ])
+      .then(([task, isStaff]) => {
         if (isCancelled) return;
         if (task.annotationTags.length < 1) return setError('Annotation set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -164,6 +168,7 @@ export const AudioAnnotator: React.FC = () => {
         dispatch(initAnnotator(task))
 
         setError(undefined);
+        setIsUserStaff(isStaff);
       })
       .catch((e: any) => !isCancelled && setError(buildErrorMessage(e)))
       .finally(() => !isCancelled && setIsLoading(false))
@@ -256,20 +261,22 @@ export const AudioAnnotator: React.FC = () => {
         <h1>APLOSE</h1>
 
         <div className="buttons">
-          <IonButton color="secondary"
-                     fill={ "outline" }
-                     onClick={ downloadAudio }>
-            <IonIcon icon={ downloadOutline } slot="start"/>
-            Download audio
-          </IonButton>
+          { isUserStaff && <Fragment>
+              <IonButton color="secondary"
+                         fill={ "outline" }
+                         onClick={ downloadAudio }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Download audio
+              </IonButton>
 
-          <IonButton color="secondary"
-                     fill={ "outline" }
-                     onClick={ downloadSpectro }>
-            <IonIcon icon={ downloadOutline } slot="start"/>
-            Download spectrogram (zoom x{ zoom })
-            { isLoadingSpectroDL && <IonSpinner/> }
-          </IonButton>
+              <IonButton color="secondary"
+                         fill={ "outline" }
+                         onClick={ downloadSpectro }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Download spectrogram (zoom x{ zoom })
+                { isLoadingSpectroDL && <IonSpinner/> }
+              </IonButton>
+          </Fragment>}
 
           <IonButton color="secondary"
                      fill={ "outline" }
