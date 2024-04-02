@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
@@ -19,6 +19,7 @@ import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-b
 
 import { Toast } from "../global-components";
 import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
+import { SpectrogramRender } from "./components/spectro-render.component.tsx";
 import { Workbench } from './components/workbench.component.tsx';
 import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
@@ -103,12 +104,14 @@ export const AudioAnnotator: React.FC = () => {
 
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const tagsKeyPress = useRef<KeypressHandler | null>(null);
+  const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
   const _areShortcutsEnabled = useRef<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
+  const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
 
@@ -132,6 +135,7 @@ export const AudioAnnotator: React.FC = () => {
     playbackRate,
     isPaused,
   } = useAppSelector(state => state.annotator.audio);
+  const zoom = useAppSelector(state => state.annotator.spectro.currentZoom);
   const dispatch = useAppDispatch();
 
   const audioPlayerRef = useRef<AudioPlayer>(null);
@@ -219,6 +223,27 @@ export const AudioAnnotator: React.FC = () => {
     link.click();
   }
 
+  const downloadSpectro = async () => {
+    if (!audioURL) return;
+    const link = document.createElement('a');
+    setIsLoadingSpectroDL(true);
+    console.debug('downloadSpectro', spectrogramRender.current)
+    const data = await spectrogramRender.current?.getCanvasData().catch(e => {
+      console.warn(e);
+      setIsLoadingSpectroDL(false)
+    });
+    if (!data) return;
+    link.href = data;
+    link.target = '_blank';
+    let pathSplit = audioURL.split('/')
+    pathSplit = pathSplit[pathSplit.length - 1].split('.');
+    pathSplit.pop(); // Remove audio file extension
+    const filename = pathSplit.join('.');
+    link.download = `${ filename }-x${ zoom }.png`;
+    link.click();
+    setIsLoadingSpectroDL(false);
+  }
+
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!taskId) return <p>Unknown error while loading task.</p>
@@ -237,6 +262,14 @@ export const AudioAnnotator: React.FC = () => {
                      onClick={ downloadAudio }>
             <IonIcon icon={ downloadOutline } slot="start"/>
             Download audio
+          </IonButton>
+
+          <IonButton color="secondary"
+                     fill={ "outline" }
+                     onClick={ downloadSpectro }>
+            <IonIcon icon={ downloadOutline } slot="start"/>
+            Download spectrogram (zoom x{ zoom })
+            { isLoadingSpectroDL && <IonSpinner/> }
           </IonButton>
 
           <IonButton color="secondary"
@@ -269,7 +302,7 @@ export const AudioAnnotator: React.FC = () => {
       } }/>
 
       {/* Workbench (spectrogram viz, box drawing) */ }
-      <Workbench audioPlayer={ audioPlayerRef.current }/>
+      <Workbench audioPlayer={ audioPlayerRef.current } ref={ spectrogramRender }/>
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
