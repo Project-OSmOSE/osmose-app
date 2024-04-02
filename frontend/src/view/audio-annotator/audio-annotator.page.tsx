@@ -3,7 +3,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon } from "@ionic/react";
-import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
+import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
 import { useAnnotationTaskAPI } from "@/services/api";
@@ -120,6 +120,7 @@ export const AudioAnnotator: React.FC = () => {
     taskId,
     mode,
     toast,
+    audioURL,
   } = useAppSelector(state => state.annotator.global);
   const {
     focusedResult,
@@ -128,7 +129,7 @@ export const AudioAnnotator: React.FC = () => {
   const {
     time,
     playbackRate,
-    isPaused
+    isPaused,
   } = useAppSelector(state => state.annotator.audio);
   const dispatch = useAppDispatch();
 
@@ -207,6 +208,16 @@ export const AudioAnnotator: React.FC = () => {
     window.open(`/annotation_tasks/${ campaignId }`, "_self")
   }
 
+  const downloadAudio = () => {
+    if (!audioURL) return;
+    const link = document.createElement('a');
+    link.href = audioURL;
+    link.target = '_blank';
+    const pathSplit = audioURL.split('/')
+    link.download = pathSplit[pathSplit.length - 1];
+    link.click();
+  }
+
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!taskId) return <p>Unknown error while loading task.</p>
@@ -220,6 +231,13 @@ export const AudioAnnotator: React.FC = () => {
         <h1>APLOSE</h1>
 
         <div className="buttons">
+          <IonButton color="secondary"
+                     fill={ "outline" }
+                     onClick={ downloadAudio }>
+            <IonIcon icon={ downloadOutline } slot="start"/>
+            Download audio
+          </IonButton>
+
           <IonButton color="secondary"
                      fill={ "outline" }
                      onClick={ openGuide }>
