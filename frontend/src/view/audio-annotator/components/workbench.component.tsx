@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import { formatTimestamp } from "@/services/utils/format.tsx";
-import { SpectroRenderComponent } from "./spectro-render.component.tsx";
+import { SpectrogramRender, SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { updateParams, zoom } from "@/slices/annotator/spectro.ts";
 
 // Component dimensions constants
@@ -17,7 +17,7 @@ type Props = {
   audioPlayer: AudioPlayer | null;
 };
 
-export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
+export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
 
   const {
     audioURL,
@@ -41,13 +41,22 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
     },
   };
 
+  const spectrogramRender = useRef<SpectrogramRender | null>(null);
+  useImperativeHandle(ref, () => ({
+    getCanvasData: async () => {
+      console.debug('[getCanvasData - workbench] init')
+      if (!spectrogramRender.current) throw new Error('no renderer');
+      return spectrogramRender.current.getCanvasData();
+    }
+  }))
+
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
       <p className="workbench-controls">
         <select
           defaultValue={ currentParams ? availableParams.indexOf(currentParams) : 0 }
-          onChange={ e => dispatch(updateParams({...availableParams[+e.target.value], zoom: 1})) }>
+          onChange={ e => dispatch(updateParams({ ...availableParams[+e.target.value], zoom: 1 })) }>
           { availableParams.map((params, idx) => {
             return (
               <option key={ `params-${ idx }` } value={ idx }>
@@ -57,9 +66,9 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
           }) }
         </select>
         <button className="btn-simple fa fa-search-plus"
-                onClick={ () => dispatch(zoom({ direction: 'in'})) }></button>
+                onClick={ () => dispatch(zoom({ direction: 'in' })) }></button>
         <button className="btn-simple fa fa-search-minus"
-                onClick={ () => dispatch(zoom({ direction: 'out'})) }></button>
+                onClick={ () => dispatch(zoom({ direction: 'out' })) }></button>
         <span>{ currentZoom }x</span>
       </p>
 
@@ -73,7 +82,7 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
         Start date : <strong>{ new Date(wholeFileBoundaries.startTime).toUTCString() }</strong>
       </p>
 
-      <SpectroRenderComponent audioPlayer={ audioPlayer }/>
+      <SpectroRenderComponent audioPlayer={ audioPlayer } ref={ spectrogramRender }/>
     </div>
   );
-}
+})

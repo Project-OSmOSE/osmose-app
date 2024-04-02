@@ -5,7 +5,8 @@ import React, {
   useMemo,
   useRef,
   useState,
-  WheelEvent
+  WheelEvent,
+  useImperativeHandle,
 } from "react";
 import { Annotation, AnnotationMode, AnnotationType } from "@/types/annotations.ts";
 import { Region } from "./region.component.tsx";
@@ -70,7 +71,10 @@ class EditAnnotation {
   }
 }
 
-export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
+export interface SpectrogramRender {
+  getCanvasData: () => Promise<string>;
+}
+export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
 
   const {
     currentMode,
@@ -193,6 +197,71 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
   useEffect(() => {
     loadSpectro();
   }, [newAnnotation?.currentTime, newAnnotation?.currentFrequency])
+
+  useImperativeHandle(ref, () => ({
+    getCanvasData: async () => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Cannot get fake canvas 2D context');
+
+      // Get spectro images
+      await loadSpectro(false)
+      const spectroDataURL = spectroRef.current?.toDataURL('image/png');
+      if (!spectroDataURL) throw new Error('Cannot recover spectro dataURL');
+      loadSpectro();
+      const spectroImg = new Image();
+
+      // Get frequency scale
+      const freqDataURL = yAxisRef.current?.toDataURL('image/png');
+      if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
+      const freqImg = new Image();
+
+      // Get time scale
+      const timeDataURL = xAxisRef.current?.toDataURL('image/png');
+      if (!timeDataURL) throw new Error('Cannot recover time dataURL');
+      const timeImg = new Image();
+
+      // Compute global canvas
+      /// Load images
+      await new Promise((resolve, reject) => {
+        let isSpectroLoaded = false;
+        let isFreqLoaded = false;
+        let isTimeLoaded = false;
+        spectroImg.onerror = e => reject(e)
+        freqImg.onerror = e => reject(e)
+        timeImg.onerror = e => reject(e)
+
+        spectroImg.onload = () => {
+          isSpectroLoaded = true;
+          if (isFreqLoaded && isTimeLoaded) resolve(true);
+        }
+        freqImg.onload = () => {
+          isFreqLoaded = true;
+          if (isSpectroLoaded && isTimeLoaded) resolve(true);
+        }
+        timeImg.onload = () => {
+          isTimeLoaded = true;
+          if (isSpectroLoaded && isFreqLoaded) resolve(true);
+        }
+
+        spectroImg.src = spectroDataURL;
+        freqImg.src = freqDataURL;
+        timeImg.src = timeDataURL;
+      });
+      canvas.height = timeImg.height + spectroImg.height;
+      canvas.width = freqImg.width + spectroImg.width;
+
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height)
+
+      context.drawImage(spectroImg, Y_WIDTH, 0, spectroImg.width, spectroImg.height);
+      context.drawImage(freqImg, 0, 0, freqImg.width, freqImg.height);
+      context.drawImage(timeImg, Y_WIDTH, SPECTRO_HEIGHT, timeImg.width, timeImg.height);
+
+      return canvas.toDataURL('image/png')
+    }
+  }))
+
 
   const getTimeFromClientX = (clientX: number): number => {
     const canvas = spectroRef.current;
@@ -328,7 +397,7 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
     }
     return Promise.all(promises).then();
   }
-  const loadSpectro = async (): Promise<void> => {
+  const loadSpectro = async (withProgressBar: boolean = true): Promise<void> => {
     const canvas = spectroRef.current;
     const canvasContext = canvas?.getContext('2d', { alpha: false });
     if (!canvas || !canvasContext) return;
@@ -346,9 +415,11 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
     ));
 
     // Progress bar
-    const newX: number = Math.floor(canvas.width * time / wholeFileBoundaries.duration);
-    canvasContext.fillStyle = 'rgba(0, 0, 0)';
-    canvasContext.fillRect(newX, 0, 1, canvas.height);
+    if (withProgressBar) {
+      const newX: number = Math.floor(canvas.width * time / wholeFileBoundaries.duration);
+      canvasContext.fillStyle = 'rgba(0, 0, 0)';
+      canvasContext.fillRect(newX, 0, 1, canvas.height);
+    }
 
     // Render new annotation
     if (newAnnotation) {
@@ -468,4 +539,4 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
           )) }
       </div>
     </Fragment>)
-}
+})
