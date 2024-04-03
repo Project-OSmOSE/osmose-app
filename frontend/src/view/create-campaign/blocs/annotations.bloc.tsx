@@ -4,20 +4,21 @@ import { cloudUploadOutline, trashOutline } from "ionicons/icons";
 import { createCampaignActions, } from "@/slices/create-campaign";
 import { useBlur } from "@/services/utils/clic";
 import {
-  AnnotationSetList,
-  ConfidenceSetList, DetectorList, useAnnotationSetAPI, useConfidenceSetAPI, useDetectorsAPI
+  ConfidenceSetList, DetectorList, useConfidenceSetAPI, useDetectorsAPI
 } from '@/services/api';
+import { useAnnotationSetAPI } from '@/services/api/annotation-set-api.service';
 import { FormBloc, Select, ChipsInput } from "@/components/form";
 import { Usage } from "@/types/annotations.ts";
 import { ImportModal } from "./import-modal/import-modal.component.tsx";
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useToast } from "@/services/utils/toast.ts";
+import { AnnotationSet } from "@/types/label.ts";
 
 
 export const AnnotationsBloc: React.FC = () => {
   // API Data
-  const [allAnnotationSets, setAllAnnotationSets] = useState<AnnotationSetList>([]);
+  const [allAnnotationSets, setAllAnnotationSets] = useState<Array<AnnotationSet>>([]);
   const annotationSetAPI = useAnnotationSetAPI();
   const [allConfidenceSets, setAllConfidenceSets] = useState<ConfidenceSetList>([]);
   const confidenceSetAPI = useConfidenceSetAPI();
@@ -77,7 +78,7 @@ export const AnnotationsBloc: React.FC = () => {
 }
 
 interface CreateAnnotationsProps {
-  allAnnotationSets: AnnotationSetList,
+  allAnnotationSets: Array<AnnotationSet>,
   allConfidenceSets: ConfidenceSetList
 }
 
@@ -112,7 +113,7 @@ const CreateAnnotationsInputs: React.FC<CreateAnnotationsProps> = ({
         { !!annotationSet && (
           <Fragment>
             { annotationSet.desc }
-            <p><span className="bold">Tags:</span> { annotationSet.tags.join(', ') }</p>
+            <p><span className="bold">Labels:</span> { annotationSet.labels.join(', ') }</p>
           </Fragment>)
         }
       </Select>

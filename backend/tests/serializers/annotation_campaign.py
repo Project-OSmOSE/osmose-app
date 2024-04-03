@@ -111,7 +111,7 @@ class AnnotationCampaignAddAnnotatorsSerializerTestCase(TestCase):
         self.assertEqual(campaign.tasks.count(), old_tasks_count + files_target)
 
     def test_without_annotation_goal(self):
-        """Fails validation when given an unknown tag with correct message"""
+        """Fails validation when given an unknown label with correct message"""
         add_annotators_data = deepcopy(self.add_annotators_data)
         add_annotators_data.pop("annotation_goal")
         campaign = AnnotationCampaign.objects.first()

@@ -17,7 +17,7 @@ export type ListItem = {
 export interface Retrieve {
   id: number;
   campaignId: number;
-  annotationTags: string[];
+  labels: string[];
   boundaries: Boundaries,
   audioUrl: string;
   instructions_url?: string;
@@ -54,7 +54,7 @@ export interface Boundaries {
 
 export interface RetrieveAnnotation {
   id: number;
-  annotation: string;
+  label: string;
   startTime: number;
   endTime: number;
   startFrequency: number;

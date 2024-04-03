@@ -2,12 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   DatasetListItem as Dataset,
   DatasetListItemSpectros as SpectroConfig,
-  AnnotationSetListItem as AnnotationSet,
   ConfidenceSetListItem as ConfidenceSet,
 } from "@/services/api"
 import { Usage } from "@/types/annotations.ts";
 import { CSVDetectorItem, AnnotationsCSV } from "@/types/csv-import-annotations.ts";
 import { User } from '@/types/user.ts';
+import { AnnotationSet } from "@/types/label.ts";
 
 
 

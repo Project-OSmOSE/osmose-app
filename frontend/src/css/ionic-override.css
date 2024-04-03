@@ -217,6 +217,11 @@ ion-modal {
 ion-toast::part(message) {
   font-size: 1rem;
   line-height: unset;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 
 ion-breadcrumb[active=true] {

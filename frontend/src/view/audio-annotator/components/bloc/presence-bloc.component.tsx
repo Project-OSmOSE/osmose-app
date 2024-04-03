@@ -9,7 +9,7 @@ import { confirm } from "@/view/global-components";
 import { KeypressHandler } from "../../audio-annotator.page.tsx";
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { disableShortcuts, enableShortcuts } from "@/slices/annotator/global-annotator.ts";
-import { addPresence, focusTag, removePresence } from "@/slices/annotator/annotations.ts";
+import { addPresence, focusLabel, removePresence } from "@/slices/annotator/annotations.ts";
 
 
 export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
@@ -18,18 +18,18 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
     areShortcutsEnabled,
   } = useAppSelector(state => state.annotator.global);
   const {
-    allTags,
-    presenceTags,
-    focusedTag,
+    allLabels,
+    presenceLabels,
+    focusedLabel,
     results,
     currentMode,
-    tagColors
+    labelColors
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!areShortcutsEnabled) return;
-    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, allTags.length);
+    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, allLabels.length);
 
     if (event.key === "'") {
       event.preventDefault();
@@ -38,29 +38,29 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
     for (const i in active_alphanumeric_keys) {
       if (event.key !== AlphanumericKeys[0][i] && event.key !== AlphanumericKeys[1][i]) continue;
 
-      const calledTag = allTags[i];
-      if (presenceTags.includes(calledTag) && focusedTag !== calledTag) {
-        dispatch(focusTag(calledTag))
-      } else toggle(calledTag);
+      const calledLabel = allLabels[i];
+      if (presenceLabels.includes(calledLabel) && focusedLabel !== calledLabel) {
+        dispatch(focusLabel(calledLabel))
+      } else toggle(calledLabel);
     }
   }
 
   useImperativeHandle(ref, () => ({ handleKeyPressed }));
 
-  const toggle = async (tag: string) => {
-    if (presenceTags.includes(tag)) {
+  const toggle = async (label: string) => {
+    if (presenceLabels.includes(label)) {
       // Remove presence
-      if (results.find(a => a.annotation === tag)) {
-        // if annotations exists with this tag: wait for confirmation
+      if (results.find(a => a.label === label)) {
+        // if annotations exists with this label: wait for confirmation
         dispatch(disableShortcuts())
-        const response = await confirm(`You are about to remove ${results.filter(r => r.annotation === tag).length} annotations using "${tag}" label. Are you sure ?`, `Remove "${tag}" annotations`);
+        const response = await confirm(`You are about to remove ${results.filter(r => r.label === label).length} annotations using "${label}" label. Are you sure ?`, `Remove "${label}" annotations`);
         dispatch(enableShortcuts())
         if (!response) return;
       }
-      dispatch(removePresence(tag));
+      dispatch(removePresence(label));
     } else {
       // Add presence
-      dispatch(addPresence(tag));
+      dispatch(addPresence(label));
     }
   }
 
@@ -70,18 +70,18 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
       <h6 className="card-header text-center">Presence / Absence</h6>
       <div className="card-body">
         <ul className="presence-absence-columns">
-          { allTags.map((tag, key) => (
+          { allLabels.map((label, key) => (
             <li className="form-check tooltip-wrap" key={ `tag-${ key.toString() }` }>
               <input id={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
                      className="form-check-input"
                      type="checkbox"
-                     onChange={ () => toggle(tag) }
-                     checked={ presenceTags.includes(tag) }/>
+                     onChange={ () => toggle(label) }
+                     checked={ presenceLabels.includes(label) }/>
 
               <OverlayTrigger overlay={ <Tooltip><TooltipComponent id={ key }/></Tooltip> } placement="top">
                 <label className="form-check-label" htmlFor={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
-                       style={ { color: tagColors[tag] ?? DEFAULT_COLOR } }>
-                  { tag }
+                       style={ { color: labelColors[label] ?? DEFAULT_COLOR } }>
+                  { label }
                 </label>
               </OverlayTrigger>
             </li>

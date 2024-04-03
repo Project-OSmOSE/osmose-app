@@ -10,7 +10,7 @@ from backend.api.models import (
     SpectroConfig,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
-    AnnotationTag,
+    Label,
     ConfidenceIndicator,
     Detector,
     DetectorConfiguration,
@@ -166,9 +166,9 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             name=self.get_annotation_set_name(validated_data["name"] + "_set"),
             desc="Annotation set for " + validated_data["name"] + " campaign",
         )
-        for label in validated_data["annotation_set_labels"]:
-            tag = AnnotationTag.objects.get_or_create(name=label)
-            annotation_set.tags.add(tag[0])
+        for name in validated_data["annotation_set_labels"]:
+            label = Label.objects.get_or_create(name=name)
+            annotation_set.labels.add(label[0])
         annotation_set.save()
 
         # Create confidence set
@@ -246,7 +246,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             AnnotationResult.objects.create(
                 annotation_campaign=campaign,
                 detector_configuration=detector_config,
-                annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                label=Label.objects.get(name=result["label"]),
                 confidence_indicator=ConfidenceIndicator.objects.get(
                     label=result["confidence"],
                     confidence_indicator_set=confidence_set,

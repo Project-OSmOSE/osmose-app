@@ -11,14 +11,14 @@ from backend.api.models import AnnotationSet
 
 
 class AnnotationSetSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic AnnotationSet data (with or without tags)"""
+    """Serializer meant to output basic AnnotationSet data (with or without labels)"""
 
-    tags = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
 
     class Meta:
         model = AnnotationSet
-        fields = ["id", "name", "desc", "tags"]
+        fields = ["id", "name", "desc", "labels"]
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_tags(self, annotation_set):
-        return list(annotation_set.tags.values_list("name", flat=True))
+    def get_labels(self, annotation_set):
+        return list(annotation_set.labels.values_list("name", flat=True))

@@ -31,7 +31,7 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
         <h6 className="card-header text-center">Confidence indicator</h6>
         <div className="card-body">
           <div className=" d-flex justify-content-center">
-            <ul className="card-text confidence-tags">
+            <ul className="card-text confidence-labels">
               { allConfidences.map((confidence, key) => (
                 <IonButton key={ key }
                            fill={ focusedConfidence === confidence ? 'outline' : 'solid' }

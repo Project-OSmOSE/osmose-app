@@ -22,7 +22,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
     update_data = {
         "annotations": [
             {
-                "annotation": "Boat",
+                "label": "Boat",
                 "startTime": 10,
                 "endTime": 50,
                 "startFrequency": 100,
@@ -57,17 +57,17 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
         self.assertEqual(task.status, 2)
         self.assertEqual(results_count, 1)
 
-    def test_with_unknown_tags(self):
-        """Fails validation when given an unknown tag with correct message"""
+    def test_with_unknown_labels(self):
+        """Fails validation when given an unknown label with correct message"""
         task = AnnotationTask.objects.first()
         update_data = deepcopy(self.update_data)
-        update_data["annotations"][0]["annotation"] = "Unknown"
+        update_data["annotations"][0]["label"] = "Unknown"
         update_data["id"] = task.id
         update_serializer = AnnotationTaskUpdateSerializer(task, data=update_data)
         self.assertFalse(update_serializer.is_valid())
         self.assertEqual(list(update_serializer.errors.keys()), ["annotations"])
         self.assertEqual(len(update_serializer.errors["annotations"]), 1)
         self.assertIn(
-            "{'Unknown'} not valid tags from annotation set",
+            "{'Unknown'} not valid labels from annotation set",
             str(update_serializer.errors["annotations"][0]),
         )

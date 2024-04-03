@@ -11,7 +11,7 @@ from backend.api.models import (
     Dataset,
     DatasetFile,
     AnnotationSet,
-    AnnotationTag,
+    Label,
     AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
@@ -152,8 +152,8 @@ class DatasetFileAdmin(admin.ModelAdmin):
     )
 
 
-class AnnotationTagAdmin(admin.ModelAdmin):
-    """AnnotationTag presentation in DjangoAdmin"""
+class LabelAdmin(admin.ModelAdmin):
+    """Label presentation in DjangoAdmin"""
 
     list_display = ["name"]
 
@@ -164,12 +164,12 @@ class AnnotationSetAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "desc",
-        "show_tags",
+        "show_labels",
     )
 
-    def show_tags(self, obj):
-        """show_tags"""
-        return get_many_to_many(obj, "tags", "name")
+    def show_labels(self, obj):
+        """show_labels"""
+        return get_many_to_many(obj, "labels", "name")
 
 
 class AnnotationCommentAdmin(admin.ModelAdmin):
@@ -313,7 +313,7 @@ admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)
-admin.site.register(AnnotationTag, AnnotationTagAdmin)
+admin.site.register(Label, LabelAdmin)
 admin.site.register(AnnotationSet, AnnotationSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)

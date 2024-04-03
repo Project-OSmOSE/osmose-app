@@ -8,7 +8,7 @@ from ..user import User
 
 class AnnotationResult(models.Model):
     """
-    This table contains the resulting tag associations for specific annotation_tasks
+    This table contains the resulting label associations for specific annotation_tasks
     """
 
     class Meta:
@@ -32,7 +32,7 @@ class AnnotationResult(models.Model):
     start_frequency = models.FloatField(null=True, blank=True)
     end_frequency = models.FloatField(null=True, blank=True)
 
-    annotation_tag = models.ForeignKey("AnnotationTag", on_delete=models.CASCADE)
+    label = models.ForeignKey("Label", on_delete=models.CASCADE)
     confidence_indicator = models.ForeignKey(
         "ConfidenceIndicator", on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -66,7 +66,7 @@ class AnnotationResult(models.Model):
 
 class AnnotationResultValidation(models.Model):
     """
-    This table contains the resulting tag associations for specific annotation_tasks
+    This table contains the resulting label associations for specific annotation_tasks
     """
 
     is_valid = models.BooleanField(null=True, blank=True)

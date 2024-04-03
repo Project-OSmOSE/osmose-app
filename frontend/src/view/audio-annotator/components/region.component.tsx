@@ -32,7 +32,7 @@ export const Region: React.FC<RegionProps> = ({
   } = useAppSelector(state => state.annotator.global);
   const {
     wholeFileBoundaries,
-    tagColors,
+    labelColors,
     focusedResult,
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
@@ -51,7 +51,7 @@ export const Region: React.FC<RegionProps> = ({
 
   const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 
-  const color = tagColors[annotation.annotation] ?? DEFAULT_COLOR;
+  const color = labelColors[annotation.label] ?? DEFAULT_COLOR;
   const isActive = annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId;
   const currentColor = isActive ? color : `${ color }88`;
   const styles = {
@@ -96,7 +96,7 @@ export const Region: React.FC<RegionProps> = ({
         <span className="flex-fill text-center"
               onClick={ () => dispatch(focusResult(annotation)) }
               style={ styles.headerSpan }>
-          { annotation.annotation }
+          { annotation.label }
         </span>
 
         { annotation.result_comments.length > 0 ?
