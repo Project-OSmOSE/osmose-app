@@ -49,7 +49,7 @@ export const DetectorsContent: React.FC<Props> = ({
   }
 
   const _save = () => {
-    service.keepDetectors(detectors)
+    service.keepDetectors(detectors.filter(d => d.selected))
     save();
   }
 
