@@ -9,7 +9,7 @@ describe('create campaign', () => {
         cy.contains('New annotation campaign', {matchCase: false}).click()
     })
 
-    it.skip('Create annotations usage', () => {
+    it('Create annotations usage', () => {
         const data = CAMPAIGNS_DATA[Usage.create];
         /** @type {Create} */
         const expectedResult = {
