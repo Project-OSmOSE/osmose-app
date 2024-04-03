@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from backend.api.models import (
     Dataset,
     DatasetFile,
-    AnnotationSet,
+    LabelSet,
     Label,
     AnnotationCampaign,
     AnnotationTask,
@@ -158,8 +158,8 @@ class LabelAdmin(admin.ModelAdmin):
     list_display = ["name"]
 
 
-class AnnotationSetAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin"""
+class LabelSetAdmin(admin.ModelAdmin):
+    """LabelSet presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -173,7 +173,7 @@ class AnnotationSetAdmin(admin.ModelAdmin):
 
 
 class AnnotationCommentAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin"""
+    """AnnotationComment presentation in DjangoAdmin"""
 
     list_display = (
         "id",
@@ -191,7 +191,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "instructions_url",
         "start",
         "end",
-        "annotation_set",
+        "label_set",
         "annotation_scope",
         "owner",
         "show_spectro_configs",
@@ -314,7 +314,7 @@ admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)
 admin.site.register(Label, LabelAdmin)
-admin.site.register(AnnotationSet, AnnotationSetAdmin)
+admin.site.register(LabelSet, LabelSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)

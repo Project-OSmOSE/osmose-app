@@ -12,7 +12,7 @@ export const useCreateCampaign = () => {
     instructionURL,
     startDate,
     endDate,
-    annotationSet,
+    labelSet,
     confidenceSet,
     dataset,
     datasetSpectroConfigs,
@@ -43,11 +43,11 @@ export const useCreateCampaign = () => {
 
     switch (usage) {
       case Usage.create:
-        if (!annotationSet) throw new Error('Missing required field: Annotation set')
+        if (!labelSet) throw new Error('Missing required field: Label set')
         return campaignAPI.create({
           ...data,
           usage,
-          annotation_set: annotationSet.id,
+          label_set: labelSet.id,
           confidence_indicator_set: confidenceSet?.id,
         });
       case Usage.check:
@@ -60,7 +60,7 @@ export const useCreateCampaign = () => {
             configurationId: d.existingConfiguration?.id,
             configuration: d.existingConfiguration?.configuration ?? d.editConfiguration!
           })),
-          annotation_set_labels: importedAnnotations.distinctLabels,
+          label_set_labels: importedAnnotations.distinctLabels,
           confidence_set_indicators: importedAnnotations.distinctConfidenceIndicators,
           results: importedAnnotations.results
         });

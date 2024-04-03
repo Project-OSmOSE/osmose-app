@@ -50,7 +50,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
@@ -61,7 +61,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "instructions_url": "string",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
-        "annotation_set": 1,
+        "label_set": 1,
         "confidence_indicator_set": 1,
         "datasets": [1],
         "spectro_configs": [1],
@@ -103,7 +103,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_name",
+                "label_set_name",
                 "confidence_indicator_set_name",
                 "user_tasks_count",
                 "complete_tasks_count",
@@ -141,7 +141,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set_name",
+                "label_set_name",
                 "confidence_indicator_set_name",
                 "user_tasks_count",
                 "complete_tasks_count",
@@ -172,7 +172,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "instructions_url",
                 "start",
                 "end",
-                "annotation_set",
+                "label_set",
                 "confidence_indicator_set",
                 "datasets",
                 "created_at",
@@ -227,12 +227,10 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
         self.assertEqual(len(confidence_indicator_set["confidence_indicators"]), 2)
 
-        annotation_set = reponse_data.pop("annotation_set")
-        self.assertEqual(annotation_set["name"], "Test SPM campaign")
-        self.assertEqual(
-            annotation_set["desc"], "Annotation set made for Test SPM campaign"
-        )
-        self.assertEqual(len(annotation_set["labels"]), 5)
+        label_set = reponse_data.pop("label_set")
+        self.assertEqual(label_set["name"], "Test SPM campaign")
+        self.assertEqual(label_set["desc"], "Label set made for Test SPM campaign")
+        self.assertEqual(len(label_set["labels"]), 5)
         expected_reponse["usage"] = 0
         expected_reponse["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]

@@ -33,9 +33,9 @@ describe('Whole file campaign information', () => {
             cy.get('select').should('include.text', `nfft: ${config.nfft} / winsize: ${config.winsize} / overlap: ${config.overlap}`)
         })
 
-        it('annotation set', () => {
+        it('label set', () => {
             cy.contains(Campaign.name).parentsUntil('tr').parent()
-                .should('include.text', Campaign.annotationSet.name)
+                .should('include.text', Campaign.labelSet.name)
         })
 
         it('confidence set', () => {

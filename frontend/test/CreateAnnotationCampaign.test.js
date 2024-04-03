@@ -44,7 +44,7 @@ describe('testing CreateAnnotationCampaignPage component', function () {
 
     it('contains the info from the API calls', () => {
         nock(/.*/).get('/api/dataset/').reply(200, datasets);
-        nock(/.*/).get('/api/annotation-set/').reply(200, annotation_sets);
+        nock(/.*/).get('/api/label-set/').reply(200, annotation_sets);
         nock(/.*/).get('/api/user/').reply(200, users);
         let wrapper = mount(<CreateAnnotationCampaign />, { disableLifecycleMethods: true });
         return wrapper.instance().componentDidMount().then(() => {

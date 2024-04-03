@@ -13,7 +13,7 @@ from backend.api.models import (
     GeoMetadatum,
     AudioMetadatum,
     Dataset,
-    AnnotationSet,
+    LabelSet,
     AnnotationCampaign,
     WindowType,
     ConfidenceIndicator,
@@ -65,7 +65,7 @@ class Command(management.BaseCommand):
         self._create_users()
         self._create_metadata()
         self._create_datasets()
-        self._create_annotation_sets()
+        self._create_label_sets()
         self._create_confidence_sets()
         self._create_annotation_campaigns()
         self._create_annotation_results()
@@ -195,33 +195,33 @@ class Command(management.BaseCommand):
         DatasetFile.objects.bulk_create(files)
         SpectroConfig.objects.bulk_create(configs)
 
-    def _create_annotation_sets(self):
-        print(" ###### _create_annotation_sets ######")
+    def _create_label_sets(self):
+        print(" ###### _create_label_set ######")
         sets = [
             {
                 "name": "Test SPM campaign",
-                "desc": "Annotation set made for Test SPM campaign",
+                "desc": "Label set made for Test SPM campaign",
                 "labels": ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
             },
             {
                 "name": "Test DCLDE LF campaign",
-                "desc": "Test annotation set DCLDE LF 2015",
+                "desc": "Test label set DCLDE LF 2015",
                 "labels": ["Dcall", "40-Hz"],
             },
             {
                 "name": "Big label set",
-                "desc": "Test annotation set with lots of labels",
+                "desc": "Test label set with lots of labels",
                 "labels": set([self.fake.color_name() for _ in range(0, 20)]),
             },
         ]
-        self.annotation_sets = []
+        self.label_sets = []
         for seed_set in sets:
-            annotation_set = AnnotationSet.objects.create(
+            label_set = LabelSet.objects.create(
                 name=seed_set["name"], desc=seed_set["desc"]
             )
             for label in seed_set["labels"]:
-                annotation_set.labels.create(name=label)
-            self.annotation_sets.append(annotation_set)
+                label_set.labels.create(name=label)
+            self.label_sets.append(label_set)
 
     def _create_confidence_sets(self):
         self.confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
@@ -254,7 +254,7 @@ class Command(management.BaseCommand):
                 end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
                 instructions_url=self.fake.uri(),
                 annotation_scope=2,
-                annotation_set=AnnotationSet.objects.first(),
+                label_set=LabelSet.objects.first(),
                 confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,
             )
@@ -277,7 +277,7 @@ class Command(management.BaseCommand):
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
-        labels = self.annotation_sets[0].labels.values_list("id", flat=True)
+        labels = self.label_sets[0].labels.values_list("id", flat=True)
         for user in self.users:
             done_files = randint(5, max(self.files_nb - 5, 5))
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]

@@ -53,7 +53,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                        tasks.user_complete_count as user_complete_tasks_count,
                        files.count               as files_count,
                        confidence.name           as confidence_indicator_set_name,
-                       annotation.name           as annotation_set_name,
+                       label_set.name           as label_set_name,
                        created_at
                 FROM annotation_campaigns campaign
                 LEFT OUTER JOIN
@@ -77,8 +77,8 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                      on confidence.id = campaign.confidence_indicator_set_id
                  LEFT OUTER JOIN
                      (SELECT id, name
-                      FROM annotation_sets) annotation
-                     on annotation.id = campaign.annotation_set_id
+                      FROM api_labelset) label_set
+                     on label_set.id = campaign.label_set_id
                 WHERE tasks.user_count is not null or %s
                 ORDER BY lower(campaign.name), created_at""",
             (

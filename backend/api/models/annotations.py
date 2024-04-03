@@ -64,7 +64,7 @@ class ConfidenceIndicator(models.Model):
 
 class Label(models.Model):
     """
-    This table contains labels which are used to constitute annotation_sets and serve to annotate files for annotation
+    This table contains labels which are used to constitute label_set and serve to annotate files for annotation
     campaigns.
     """
 
@@ -74,15 +74,12 @@ class Label(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
 
-class AnnotationSet(models.Model):
+class LabelSet(models.Model):
     """
     This table contains collections of labels to be used for dataset annotations.
-    An annotation_set is created by a staff user
+    An label_set is created by a staff user
     and can be used for multiple datasets and annotation campaigns.
     """
-
-    class Meta:
-        db_table = "annotation_sets"
 
     def __str__(self):
         return str(self.name)
@@ -108,7 +105,7 @@ class AnnotationCampaignUsage(models.IntegerChoices):
 class AnnotationCampaign(models.Model):
     """
     Table containing an annotation_campaign, to be used with the table annotation_campaign_datasets. A researcher
-    wanting to have a number of annotated datasets will choose an annotation_set and launch a campaign.
+    wanting to have a number of annotated datasets will choose an label_set and launch a campaign.
 
     For AnnotationScope RECTANGLE means annotating through boxes first, WHOLE means annotating presence/absence for the
     whole file first (boxes can be used to augment annotation).
@@ -130,7 +127,7 @@ class AnnotationCampaign(models.Model):
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
 
-    annotation_set = models.ForeignKey(AnnotationSet, on_delete=models.CASCADE)
+    label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset")
     spectro_configs = models.ManyToManyField(
         "SpectroConfig", related_name="annotation_campaigns"

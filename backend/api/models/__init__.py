@@ -10,7 +10,7 @@ from backend.api.models.annotations import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
     Label,
-    AnnotationSet,
+    LabelSet,
     AnnotationCampaign,
     AnnotationComment,
     AnnotationSession,

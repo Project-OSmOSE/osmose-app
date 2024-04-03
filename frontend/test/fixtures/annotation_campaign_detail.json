@@ -7,8 +7,8 @@
         "end": "2018-12-30T00:00:00.000Z",
         "annotation_set_id":{
             "id":1,
-            "name":"SPM annotation set",
-            "desc":"Annotation set made for the SPM collection",
+            "name":"SPM label set",
+            "desc":"Label set made for the SPM collection",
             "tags":[
                 "Mysticète",
                 "Humpback Whale",

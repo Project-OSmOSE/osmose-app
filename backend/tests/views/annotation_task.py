@@ -46,7 +46,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",

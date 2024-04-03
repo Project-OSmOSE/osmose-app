@@ -89,7 +89,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       <div className="row justify-content-around">
         <div>
           <div>
-            <b>Annotation set:</b> { annotationCampaign.annotation_set.name }
+            <b>Label set:</b> { annotationCampaign.label_set.name }
           </div>
           <div>
             <b>Confidence Indicator

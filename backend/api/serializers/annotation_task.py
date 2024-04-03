@@ -218,9 +218,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     def get_labels(self, task):
         # type:(AnnotationTask) -> list[str]
         return list(
-            task.annotation_campaign.annotation_set.labels.values_list(
-                "name", flat=True
-            )
+            task.annotation_campaign.label_set.labels.values_list("name", flat=True)
         )
 
     @extend_schema_field(ConfidenceIndicatorSetSerializer)
@@ -320,10 +318,10 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
     task_end_time = serializers.IntegerField()
 
     def validate_annotations(self, annotations):
-        """Validates that annotations correspond to annotation set labels and set confidence indicator"""
+        """Validates that annotations correspond to label set labels and set confidence indicator"""
         print("validation in progress", annotations)
         set_labels = set(
-            self.instance.annotation_campaign.annotation_set.labels.values_list(
+            self.instance.annotation_campaign.label_set.labels.values_list(
                 "name", flat=True
             )
         )
@@ -336,7 +334,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
         unknown_labels = update_labels - set_labels
         if unknown_labels:
             raise serializers.ValidationError(
-                f"{unknown_labels} not valid labels from annotation set {set_labels}."
+                f"{unknown_labels} not valid labels from label set {set_labels}."
             )
 
         if self.instance.annotation_campaign.confidence_indicator_set:
@@ -379,9 +377,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
         labels = dict(
             map(
                 reversed,
-                instance.annotation_campaign.annotation_set.labels.values_list(
-                    "id", "name"
-                ),
+                instance.annotation_campaign.label_set.labels.values_list("id", "name"),
             )
         )
 

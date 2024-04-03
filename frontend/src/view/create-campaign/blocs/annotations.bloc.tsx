@@ -6,20 +6,20 @@ import { useBlur } from "@/services/utils/clic";
 import {
   ConfidenceSetList, DetectorList, useConfidenceSetAPI, useDetectorsAPI
 } from '@/services/api';
-import { useAnnotationSetAPI } from '@/services/api/annotation-set-api.service';
+import { useLabelSetAPI } from '@/services/api/label-set-api.service.tsx';
 import { FormBloc, Select, ChipsInput } from "@/components/form";
 import { Usage } from "@/types/annotations.ts";
 import { ImportModal } from "./import-modal/import-modal.component.tsx";
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useToast } from "@/services/utils/toast.ts";
-import { AnnotationSet } from "@/types/label.ts";
+import { LabelSet } from "@/types/label.ts";
 
 
 export const AnnotationsBloc: React.FC = () => {
   // API Data
-  const [allAnnotationSets, setAllAnnotationSets] = useState<Array<AnnotationSet>>([]);
-  const annotationSetAPI = useAnnotationSetAPI();
+  const [allLabelSets, setAllLabelSets] = useState<Array<LabelSet>>([]);
+  const labelSetAPI = useLabelSetAPI();
   const [allConfidenceSets, setAllConfidenceSets] = useState<ConfidenceSetList>([]);
   const confidenceSetAPI = useConfidenceSetAPI();
   const [allDetectors, setAllDetectors] = useState<DetectorList>([]);
@@ -33,14 +33,14 @@ export const AnnotationsBloc: React.FC = () => {
     blurUtil.addListener(blur)
     let isCancelled = false;
     Promise.all([
-      annotationSetAPI.list().then(setAllAnnotationSets),
+      labelSetAPI.list().then(setAllLabelSets),
       confidenceSetAPI.list().then(setAllConfidenceSets),
       detectorsAPI.list().then(setAllDetectors),
     ]).catch(e => !isCancelled && toast.presentError(e));
 
     return () => {
       isCancelled = true;
-      annotationSetAPI.abort();
+      labelSetAPI.abort();
       confidenceSetAPI.abort();
       detectorsAPI.abort();
     }
@@ -68,7 +68,7 @@ export const AnnotationsBloc: React.FC = () => {
               onValueSelected={ onUsageChange }/>
 
       {/* Create annotation mode*/ }
-      { usage === Usage.create && <CreateAnnotationsInputs allAnnotationSets={ allAnnotationSets }
+      { usage === Usage.create && <CreateAnnotationsInputs allLabelSets={ allLabelSets }
                                                            allConfidenceSets={ allConfidenceSets }/> }
 
       {/* Check annotation mode*/ }
@@ -78,24 +78,24 @@ export const AnnotationsBloc: React.FC = () => {
 }
 
 interface CreateAnnotationsProps {
-  allAnnotationSets: Array<AnnotationSet>,
+  allLabelSets: Array<LabelSet>,
   allConfidenceSets: ConfidenceSetList
 }
 
 const CreateAnnotationsInputs: React.FC<CreateAnnotationsProps> = ({
-                                                                     allAnnotationSets,
+                                                                     allLabelSets,
                                                                      allConfidenceSets
                                                                    }) => {
 
   // Form data
   const dispatch = useAppDispatch();
   const {
-    annotationSet,
+    labelSet,
     confidenceSet
   } = useAppSelector(state => state.createCampaignForm.global);
 
   const onAnnotatorSetChange = (value: string | number | undefined) => {
-    dispatch(createCampaignActions.updateAnnotationSet(allAnnotationSets.find(s => s.id === value)));
+    dispatch(createCampaignActions.updateLabelSet(allLabelSets.find(s => s.id === value)));
   }
 
   const onConfidenceSetChange = (value: string | number | undefined) => {
@@ -104,16 +104,16 @@ const CreateAnnotationsInputs: React.FC<CreateAnnotationsProps> = ({
 
   return (
     <Fragment>
-      <Select label="Annotation set" placeholder="Select an annotation set"
+      <Select label="Label set" placeholder="Select a label set"
               required={ true }
-              options={ allAnnotationSets.map(s => ({ value: s.id, label: s.name })) }
+              options={ allLabelSets.map(s => ({ value: s.id, label: s.name })) }
               optionsContainer="alert"
-              value={ annotationSet?.id }
+              value={ labelSet?.id }
               onValueSelected={ onAnnotatorSetChange }>
-        { !!annotationSet && (
+        { !!labelSet && (
           <Fragment>
-            { annotationSet.desc }
-            <p><span className="bold">Labels:</span> { annotationSet.labels.join(', ') }</p>
+            { labelSet.desc }
+            <p><span className="bold">Labels:</span> { labelSet.labels.join(', ') }</p>
           </Fragment>)
         }
       </Select>

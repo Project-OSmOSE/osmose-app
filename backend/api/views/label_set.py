@@ -1,23 +1,23 @@
-"""Annotation set DRF-Viewset file"""
+"""Label set DRF-Viewset file"""
 
 from django.db.models.functions import Lower
 
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from backend.api.models import AnnotationSet
-from backend.api.serializers import AnnotationSetSerializer
+from backend.api.models import LabelSet
+from backend.api.serializers import LabelSetSerializer
 
 
-class AnnotationSetViewSet(viewsets.ViewSet):
+class LabelSetViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for user-related actions
     """
 
-    serializer_class = AnnotationSetSerializer
+    serializer_class = LabelSetSerializer
 
     def list(self, request):
         """List users"""
-        queryset = AnnotationSet.objects.all().order_by(Lower("name"))
+        queryset = LabelSet.objects.all().order_by(Lower("name"))
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

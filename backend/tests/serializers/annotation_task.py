@@ -14,7 +14,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
@@ -68,6 +68,6 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
         self.assertEqual(list(update_serializer.errors.keys()), ["annotations"])
         self.assertEqual(len(update_serializer.errors["annotations"]), 1)
         self.assertIn(
-            "{'Unknown'} not valid labels from annotation set",
+            "{'Unknown'} not valid labels from label set",
             str(update_serializer.errors["annotations"][0]),
         )
