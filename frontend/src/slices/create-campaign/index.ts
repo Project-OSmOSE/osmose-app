@@ -7,7 +7,7 @@ import {
 import { Usage } from "@/types/annotations.ts";
 import { CSVDetectorItem, AnnotationsCSV } from "@/types/csv-import-annotations.ts";
 import { User } from '@/types/user.ts';
-import { AnnotationSet } from "@/types/label.ts";
+import { LabelSet } from "@/types/label.ts";
 
 
 
@@ -22,7 +22,7 @@ export type CreateCampaignSlice = {
   datasetSpectroConfigs: Array<SpectroConfig>;
 
   usage: Usage | undefined;
-  annotationSet: AnnotationSet | undefined;
+  labelSet: LabelSet | undefined;
   confidenceSet: ConfidenceSet | undefined;
   detectors: Array<CSVDetectorItem & { display_name: string }>;
   csv: AnnotationsCSV | undefined;
@@ -44,7 +44,7 @@ export const createCampaignSlice = createSlice({
     datasetSpectroConfigs: [],
 
     usage: undefined,
-    annotationSet: undefined,
+    labelSet: undefined,
     confidenceSet: undefined,
     detectors: [],
     csv: undefined,
@@ -87,8 +87,8 @@ export const createCampaignSlice = createSlice({
     updateUsage: (state, action: { payload: Usage | undefined }) => {
       state.usage = action.payload;
     },
-    updateAnnotationSet: (state, action: { payload: AnnotationSet | undefined }) => {
-      state.annotationSet = action.payload;
+    updateLabelSet: (state, action: { payload: LabelSet | undefined }) => {
+      state.labelSet = action.payload;
     },
     updateConfidenceSet: (state, action: { payload: ConfidenceSet | undefined }) => {
       state.confidenceSet = action.payload;

@@ -1,4 +1,4 @@
-export interface AnnotationSet {
+export interface LabelSet {
   id: number;
   name: string;
   desc?: string;

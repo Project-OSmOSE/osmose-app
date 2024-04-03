@@ -1,7 +1,7 @@
 import { AnnotationMode, Usage } from "../../src/types/annotations";
 import { DATASET } from "./dataset";
 import { USERS } from "./users";
-import { ANNOTATION_SET } from "./annotation-set";
+import { LABEL_SET } from "./label-set";
 import { CONFIDENCE_SET } from "./confidence-set";
 import { CreateResultItem } from "../../src/services/api/annotation-campaign-api.service";
 
@@ -29,7 +29,7 @@ export const CAMPAIGNS_DATA = {
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
-    annotationSet: ANNOTATION_SET,
+    labelSet: LABEL_SET,
     confidenceSet: CONFIDENCE_SET,
   },
   [Usage.check]: {
@@ -42,7 +42,7 @@ export const CAMPAIGNS_DATA = {
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
-    annotationSetLabels: [
+    labelSetLabels: [
       "Madagascan pygmy blue whale song",
       "Antarctic blue whale song",
       "Sri Lanka pygmy blue whale song"

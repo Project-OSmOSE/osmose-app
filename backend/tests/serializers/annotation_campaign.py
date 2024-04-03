@@ -18,7 +18,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
@@ -29,7 +29,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         "instructions_url": "https://instructions.org",
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
-        "annotation_set": 1,
+        "label_set": 1,
         "confidence_indicator_set_id": 1,
         "datasets": [1],
         "annotators": [1, 2],
@@ -80,7 +80,7 @@ class AnnotationCampaignAddAnnotatorsSerializerTestCase(TestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",

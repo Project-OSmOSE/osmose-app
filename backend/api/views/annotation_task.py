@@ -66,7 +66,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         queryset = self.queryset.prefetch_related(
             "annotation_campaign",
             "annotation_campaign__spectro_configs",
-            "annotation_campaign__annotation_set",
+            "annotation_campaign__label_set",
             "annotation_campaign__confidence_indicator_set__confidence_indicators",
             "dataset_file__dataset",
             "dataset_file__dataset__spectro_configs",

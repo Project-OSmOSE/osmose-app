@@ -161,7 +161,7 @@ export const AudioAnnotator: React.FC = () => {
     ])
       .then(([task, isStaff]) => {
         if (isCancelled) return;
-        if (task.labels.length < 1) return setError('Annotation set is empty');
+        if (task.labels.length < 1) return setError('Label set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
 
         dispatch(initSpectro(task))
