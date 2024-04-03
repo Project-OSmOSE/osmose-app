@@ -62,14 +62,11 @@ class ConfidenceIndicator(models.Model):
     is_default = models.BooleanField(default=False)
 
 
-class AnnotationTag(models.Model):
+class Label(models.Model):
     """
-    This table contains tags which are used to constitute annotation_sets and serve to annotate files for annotation
+    This table contains labels which are used to constitute annotation_sets and serve to annotate files for annotation
     campaigns.
     """
-
-    class Meta:
-        db_table = "annotation_tags"
 
     def __str__(self):
         return str(self.name)
@@ -79,7 +76,7 @@ class AnnotationTag(models.Model):
 
 class AnnotationSet(models.Model):
     """
-    This table contains collections of tags to be used for dataset annotations.
+    This table contains collections of labels to be used for dataset annotations.
     An annotation_set is created by a staff user
     and can be used for multiple datasets and annotation campaigns.
     """
@@ -92,7 +89,7 @@ class AnnotationSet(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
-    tags = models.ManyToManyField(AnnotationTag)
+    labels = models.ManyToManyField(Label)
 
 
 class AnnotationCampaignUsage(models.IntegerChoices):

@@ -232,7 +232,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(
             annotation_set["desc"], "Annotation set made for Test SPM campaign"
         )
-        self.assertEqual(len(annotation_set["tags"]), 5)
+        self.assertEqual(len(annotation_set["labels"]), 5)
         expected_reponse["usage"] = 0
         expected_reponse["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]

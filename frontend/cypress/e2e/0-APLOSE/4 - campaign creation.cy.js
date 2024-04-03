@@ -46,8 +46,8 @@ describe('create campaign', () => {
         cy.contains('Select an annotation set').click();
         cy.get('button').contains(data.annotationSet.name).click();
         cy.get('ion-alert .alert-button').filter(':visible').contains('OK').click();
-        for (const tag of data.annotationSet.tags) {
-            cy.contains('Tags:').parent().should('contain', tag)
+        for (const label of data.annotationSet.labels) {
+            cy.contains('Labels:').parent().should('contain', label)
         }
         cy.contains('Select a confidence set').click();
         cy.get('button').contains(data.confidenceSet.name).click();

@@ -297,7 +297,7 @@ html {
   justify-content: right;
 }
 
-.confidence-tags {
+.confidence-labels {
   display: flex;
   flex-wrap: wrap;
   justify-content: right;

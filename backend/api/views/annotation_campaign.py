@@ -175,7 +175,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                COALESCE(end_time, duration)                                      as end_time,
                COALESCE(start_frequency, 0)                                      as start_frequency,
                COALESCE(end_frequency, sample_rate / 2)                          as end_frequency,
-               tag.name                                                          as annotation,
+               label.name                                                          as annotation,
                username                                                          as annotator_name,
                detector.name                                                     as detector_name,
                (extract(EPOCH FROM start) + COALESCE(start_time, 0)) * 1000      as start_date,
@@ -222,7 +222,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                                  on file.id = result.dataset_file_id
 
                  LEFT OUTER JOIN (SELECT id, name
-                                  FROM annotation_tags) tag on tag.id = result.annotation_tag_id
+                                  FROM api_label) label on label.id = result.label_id
 
                  LEFT OUTER JOIN (SELECT id, username
                                   FROM auth_user) annotator on annotator.id = result.annotator_id

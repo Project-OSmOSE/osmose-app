@@ -96,7 +96,7 @@ export const useImportAnnotations = () => {
       return state.rows.map(i => ({
         is_box: i.is_box,
         confidence: i.confidence_indicator_label,
-        tag: i.annotation,
+        label: i.annotation,
         min_time: i.start_time,
         max_time: i.end_time,
         min_frequency: i.start_frequency,
@@ -107,7 +107,7 @@ export const useImportAnnotations = () => {
         dataset: i.dataset,
         detector: getDisplayNameForDetector(i.detector_item),
         detector_config: i.detector_item.existingConfiguration?.configuration ?? i.detector_item.editConfiguration!
-      })).filter(i => !!i.tag)
+      })).filter(i => !!i.label)
     },
     loadFile: async (file: File) => {
       dispatch(importAnnotationsActions.setStatus('loading'));

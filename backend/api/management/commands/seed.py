@@ -201,17 +201,17 @@ class Command(management.BaseCommand):
             {
                 "name": "Test SPM campaign",
                 "desc": "Annotation set made for Test SPM campaign",
-                "tags": ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
+                "labels": ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
             },
             {
                 "name": "Test DCLDE LF campaign",
                 "desc": "Test annotation set DCLDE LF 2015",
-                "tags": ["Dcall", "40-Hz"],
+                "labels": ["Dcall", "40-Hz"],
             },
             {
-                "name": "Big tag set",
-                "desc": "Test annotation set with lots of tags",
-                "tags": set([self.fake.color_name() for _ in range(0, 20)]),
+                "name": "Big label set",
+                "desc": "Test annotation set with lots of labels",
+                "labels": set([self.fake.color_name() for _ in range(0, 20)]),
             },
         ]
         self.annotation_sets = []
@@ -219,8 +219,8 @@ class Command(management.BaseCommand):
             annotation_set = AnnotationSet.objects.create(
                 name=seed_set["name"], desc=seed_set["desc"]
             )
-            for tag in seed_set["tags"]:
-                annotation_set.tags.create(name=tag)
+            for label in seed_set["labels"]:
+                annotation_set.labels.create(name=label)
             self.annotation_sets.append(annotation_set)
 
     def _create_confidence_sets(self):
@@ -277,7 +277,7 @@ class Command(management.BaseCommand):
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
-        tags = self.annotation_sets[0].tags.values_list("id", flat=True)
+        labels = self.annotation_sets[0].labels.values_list("id", flat=True)
         for user in self.users:
             done_files = randint(5, max(self.files_nb - 5, 5))
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
@@ -296,7 +296,7 @@ class Command(management.BaseCommand):
                         end_time=start_time + randint(30, 300),
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
-                        annotation_tag_id=choice(tags),
+                        label_id=choice(labels),
                         confidence_indicator=choice(self.confidences_indicators),
                         dataset_file_id=task.dataset_file_id,
                         annotator_id=task.annotator_id,
@@ -313,7 +313,7 @@ class Command(management.BaseCommand):
             if randint(1, 3) >= 2:
                 comments.append(
                     AnnotationComment(
-                        comment=f"a comment : {result.annotation_tag.name}",
+                        comment=f"a comment : {result.label.name}",
                         annotation_task=AnnotationTask.objects.filter(
                             annotation_campaign_id=result.annotation_campaign_id,
                             dataset_file_id=result.dataset_file_id,

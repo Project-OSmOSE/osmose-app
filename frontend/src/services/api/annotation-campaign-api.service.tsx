@@ -3,6 +3,7 @@ import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
 import { CampaignUsage } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
+import { AnnotationSet } from "@/types/label.ts";
 
 
 export type List = Array<{
@@ -40,7 +41,7 @@ export type RetrieveCampaign = {
     id: number;
     name: string;
     desc: string;
-    tags: Array<string>
+    labels: Array<string>
   };
   confidence_indicator_set?: {
     id: number;
@@ -88,7 +89,7 @@ export type Create = {
 export type CreateResultItem = {
   is_box: boolean
   confidence?: string;
-  tag: string;
+  label: string;
   min_time: number;
   max_time: number;
   min_frequency: number;
@@ -108,12 +109,7 @@ export type CreateResult = {
   start?: string;
   end?: string;
   datasets: Array<number>;
-  annotation_set: {
-    id: number;
-    name: string;
-    desc?: string;
-    tags: Array<string>
-  };
+  annotation_set: AnnotationSet;
   created_at: string;
   confidence_indicator_set?: {
     id: number;

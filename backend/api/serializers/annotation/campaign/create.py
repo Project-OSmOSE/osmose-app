@@ -13,7 +13,7 @@ from backend.api.models import (
     SpectroConfig,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
-    AnnotationTag,
+    Label,
     ConfidenceIndicator,
     Detector,
     DetectorConfiguration,
@@ -171,9 +171,9 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             name=self.get_annotation_set_name(f"{campaign_name}_set"),
             desc=f"Annotation set for {campaign_name} campaign",
         )
-        for label in labels:
-            tag = AnnotationTag.objects.get_or_create(name=label)
-            annotation_set.tags.add(tag[0])
+        for label_name in labels:
+            label = Label.objects.get_or_create(name=label_name)
+            annotation_set.labels.add(label[0])
         annotation_set.save()
         return annotation_set
 
@@ -282,7 +282,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
                     detector_configuration=detector_config,
-                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    label=Label.objects.get(name=result["label"]),
                     confidence_indicator=confidence_indicator,
                     dataset_file=dataset_files.first(),
                 )
@@ -303,7 +303,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
                     detector_configuration=detector_config,
-                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    label=Label.objects.get(name=result["label"]),
                     confidence_indicator=confidence_indicator,
                     dataset_file=dataset_file,
                     start_frequency=result["min_frequency"]
