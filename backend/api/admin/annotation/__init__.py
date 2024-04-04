@@ -1,13 +1,17 @@
 """ Annotation admin management """
 from django.contrib import admin
 
-from backend.api.admin.annotation.detector import (
+from .detector import (
     DetectorAdmin,
     DetectorConfigurationAdmin,
 )
-from backend.api.admin.annotation.result import (
+from .result import (
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
+)
+from .campaign import (
+    AnnotationCampaignAdmin,
+    AnnotationCampaign
 )
 from backend.api.models.annotation import (
     Detector,
@@ -21,3 +25,5 @@ admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)
 
 admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationResultValidation, AnnotationResultValidationAdmin)
+
+admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
