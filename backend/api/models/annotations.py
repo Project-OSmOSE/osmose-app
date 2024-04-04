@@ -149,6 +149,8 @@ class AnnotationCampaign(models.Model):
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
 
+    archived_date = models.DateField(null=True, blank=True)
+
     def add_annotator(self, annotator, files_target=None):
         """Create a files_target number of annotation tasks assigned to annotator"""
         dataset_files = self.datasets.values_list("files__id", flat=True)
