@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .annotation import AnnotationResult
+from .user import User
 
 
 class ConfidenceIndicatorSet(models.Model):
@@ -102,6 +103,19 @@ class AnnotationCampaignUsage(models.IntegerChoices):
     )
 
 
+class AnnotationCampaignArchive(models.Model):
+    date = models.DateField(auto_now_add=True)
+    by_user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        related_name="archived_campaigns",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    def __str__(self):
+        return str(self.date) + ' | ' + str(self.by_user)
+
+
 class AnnotationCampaign(models.Model):
     """
     Table containing an annotation_campaign, to be used with the table annotation_campaign_datasets. A researcher
@@ -148,8 +162,12 @@ class AnnotationCampaign(models.Model):
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
-
-    archived_date = models.DateField(null=True, blank=True)
+    archive = models.OneToOneField(
+        AnnotationCampaignArchive,
+        related_name="campaign",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
     def add_annotator(self, annotator, files_target=None):
         """Create a files_target number of annotation tasks assigned to annotator"""
@@ -187,6 +205,14 @@ class AnnotationCampaign(models.Model):
                 for dataset_file_id in dataset_files
             ]
         )
+
+    def do_archive(self, user: User):
+        if self.archive is not None:
+            return
+        self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
+        self.save()
+
+
 
 
 class AnnotationTask(models.Model):

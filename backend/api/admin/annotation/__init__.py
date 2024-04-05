@@ -9,10 +9,7 @@ from .result import (
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
 )
-from .campaign import (
-    AnnotationCampaignAdmin,
-    AnnotationCampaign
-)
+from .campaign import AnnotationCampaignAdmin
 from backend.api.models.annotation import (
     Detector,
     DetectorConfiguration,
@@ -25,5 +22,3 @@ admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)
 
 admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationResultValidation, AnnotationResultValidationAdmin)
-
-admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
