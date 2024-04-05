@@ -1,3 +1,5 @@
+import {DEFAULT_CAMPAIGN_NAME} from "../../globals/campaign";
+
 describe('campaigns page', () => {
     beforeEach(() => {
         cy.session_login('admin', 'osmose29')
@@ -13,5 +15,10 @@ describe('campaigns page', () => {
 
     it('Allows campaign creation', () => {
         cy.contains('New annotation campaign')
+    })
+
+    it('Can search campaign', () => {
+        cy.get('ion-searchbar').type(DEFAULT_CAMPAIGN_NAME)
+        cy.get('#content table').should('include.text', DEFAULT_CAMPAIGN_NAME)
     })
 })
