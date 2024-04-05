@@ -140,8 +140,7 @@ class AnnotationCampaign(models.Model):
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     instructions_url = models.TextField(null=True, blank=True)
-    start = models.DateTimeField(null=True, blank=True)
-    end = models.DateTimeField(null=True, blank=True)
+    deadline = models.DateTimeField(null=True, blank=True)
 
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset")
