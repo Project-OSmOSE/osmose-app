@@ -1,13 +1,14 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI,
-} from "../services/api";
+import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, } from "../services/api";
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
-import { IonButton } from "@ionic/react";
+import { IonButton, IonIcon } from "@ionic/react";
+import { archiveOutline } from "ionicons/icons";
 
 import { User } from '@/types/user';
 import { useUsersAPI } from '@/services/api';
+
+import './annotation-campaign-detail.page.css';
 
 type AnnotationStatus = {
   annotator: User;
@@ -20,6 +21,10 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const [annotationCampaign, setAnnotationCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
+  const [isCampaignOwner, setIsCampaignOwner] = useState<boolean>(false);
+
+  const isArchived = useMemo(() => !!annotationCampaign?.archive, [annotationCampaign?.archive]);
+  const isEditionAllowed = useMemo(() => isStaff && isCampaignOwner && !isArchived, [isStaff, isCampaignOwner, isArchived]);
 
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();
@@ -55,6 +60,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
           } else return [...array, { annotator, finished, total }]
         }, [])
       setAnnotationStatus(status);
+      setIsCampaignOwner(data.is_campaign_owner);
     }).catch(e => {
       if (isCancelled) return;
       setError(e);
@@ -72,6 +78,12 @@ export const AnnotationCampaignDetail: React.FC = () => {
     window.open(`/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
   }
 
+  const archive = () => {
+    if (!annotationCampaign) return;
+    campaignService.archive(annotationCampaign.id);
+    window.location.reload();
+  }
+
   if (error) {
     return (
       <Fragment>
@@ -86,6 +98,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
   return (
     <Fragment>
       <h1 className="text-center">{ annotationCampaign.name }</h1>
+      { isArchived && <p className="archive-description">Archived
+          on { annotationCampaign?.archive?.date.toLocaleDateString() } by { annotationCampaign?.archive?.by_user.display_name }</p> }
       <div className="row justify-content-around">
         <div>
           <div>
@@ -110,7 +124,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         { annotationCampaign.desc }
       </div>
       <br/>
-      { isStaff && <div className="d-flex justify-content-center">
+      { isEditionAllowed && <div className="d-flex justify-content-center m-2">
           <IonButton color={ "primary" }
                      onClick={ openEditCampaign }>
               Add annotators
@@ -135,7 +149,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         </tbody>
       </table>
 
-      <div className="d-flex justify-content-center gap-1 flex-wrap">
+      <div className="d-flex justify-content-center gap-1 flex-wrap m-2">
         <IonButton color="primary"
                    onClick={ () => campaignService.downloadResults(annotationCampaign) }>
           Download CSV results
@@ -145,6 +159,13 @@ export const AnnotationCampaignDetail: React.FC = () => {
           Download CSV task status
         </IonButton>
       </div>
+      { isEditionAllowed && <div className="d-flex justify-content-center m-2">
+          <IonButton color={ "medium" }
+                     onClick={ archive }>
+              <IonIcon icon={ archiveOutline }/>
+              Archive
+          </IonButton>
+      </div> }
     </Fragment>
   )
 }

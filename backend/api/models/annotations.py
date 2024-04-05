@@ -104,7 +104,7 @@ class AnnotationCampaignUsage(models.IntegerChoices):
 
 
 class AnnotationCampaignArchive(models.Model):
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
     by_user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         related_name="archived_campaigns",

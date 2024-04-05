@@ -1,6 +1,6 @@
 import { post, SuperAgentRequest } from "superagent";
 import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
-import { CampaignUsage } from "@/types/campaign.ts";
+import { AnnotationCampaignArchive, AnnotationCampaignArchiveDTO, CampaignUsage } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { LabelSet } from "@/types/label.ts";
@@ -29,11 +29,13 @@ export type Retrieve = {
     annotator_id: number;
     count: number;
   }>;
+  is_campaign_owner: boolean;
 }
 export type RetrieveCampaign = {
   id: number;
   name: string;
   desc: string;
+  archive?: AnnotationCampaignArchive;
   instructions_url: string;
   start?: Date;
   end?: Date;
@@ -143,11 +145,13 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
     return super.retrieve(id).then(r => ({
       campaign: {
         ...r.campaign,
+        archive: r.campaign.archive ? new AnnotationCampaignArchive(r.campaign.archive as unknown as AnnotationCampaignArchiveDTO) : undefined,
         start: r.campaign.start ? new Date(r.campaign.start) : r.campaign.start,
         end: r.campaign.end ? new Date(r.campaign.end) : r.campaign.end,
         created_at: new Date(r.campaign.created_at)
       },
-      tasks: r.tasks
+      tasks: r.tasks,
+      is_campaign_owner: r.is_campaign_owner
     }));
   }
 
@@ -168,6 +172,12 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
       .set("Authorization", this.auth.bearer)
       .send(data);
     return this.addAnnotatorsRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
+  }
+
+  public archive(campaignId: number) {
+    this.addAnnotatorsRequest = post(`${ this.URI }/${ campaignId }/archive/`)
+      .set("Authorization", this.auth.bearer);
+    return this.addAnnotatorsRequest.catch(this.auth.catch401.bind(this.auth))
   }
 
   abort() {
