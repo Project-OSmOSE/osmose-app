@@ -1,6 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 
 from django.db import transaction
+from django.db.models import Count, Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -35,60 +36,28 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     """
 
     queryset = AnnotationCampaign.objects.all()
-    serializer_class = AnnotationCampaignListSerializer
 
+    @extend_schema(responses=AnnotationCampaignListSerializer)
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.raw(
-            """
-                SELECT campaign.id,
-                       campaign.name,
-                       "desc",
-                       instructions_url,
-                       deadline,
-                       usage,
-                       tasks.complete_count      as complete_tasks_count,
-                       tasks.user_count          as user_tasks_count,
-                       tasks.user_complete_count as user_complete_tasks_count,
-                       files.count               as files_count,
-                       confidence.name           as confidence_indicator_set_name,
-                       label_set.name           as label_set_name,
-                       created_at
-                FROM annotation_campaigns campaign
-                LEFT OUTER JOIN
-                     (SELECT annotation_campaign_id,
-                             count(*) filter(where status = 2) as complete_count,
-                             count(*) filter(where annotator_id = %s) as user_count,
-                             count(*) filter(where annotator_id = %s and status = 2) as user_complete_count
-                      FROM annotation_tasks
-                      WHERE %s or annotator_id = %s
-                      group by annotation_campaign_id) tasks
-                     on tasks.annotation_campaign_id = campaign.id
-                 LEFT OUTER JOIN
-                     (SELECT annotationcampaign_id, count(*)
-                      FROM dataset_files LEFT OUTER JOIN annotation_campaigns_datasets
-                          on dataset_files.dataset_id = annotation_campaigns_datasets.dataset_id
-                      group by annotationcampaign_id) files
-                     on files.annotationcampaign_id = campaign.id
-                 LEFT OUTER JOIN
-                     (SELECT id, name
-                      FROM confidence_sets) confidence
-                     on confidence.id = campaign.confidence_indicator_set_id
-                 LEFT OUTER JOIN
-                     (SELECT id, name
-                      FROM api_labelset) label_set
-                     on label_set.id = campaign.label_set_id
-                WHERE tasks.user_count is not null or %s
-                ORDER BY lower(campaign.name), created_at""",
-            (
-                request.user.id,
-                request.user.id,
-                request.user.is_staff,
-                request.user.id,
-                request.user.is_staff,
+        queryset = self.queryset
+        if not request.user.is_staff:
+            queryset = queryset.filter(
+                Q(owner_id=request.user.id)
+                | (Q(tasks__annotator_id=request.user.id) & Q(archive__isnull=True))
+            )
+        queryset = queryset.prefetch_related("datasets").annotate(
+            my_progress=Count(
+                "tasks",
+                filter=Q(tasks__annotator_id=request.user.id) & Q(tasks__status=2),
             ),
+            my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
+            progress=Count("tasks", filter=Q(tasks__status=2)),
+            total=Count("tasks"),
         )
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = AnnotationCampaignListSerializer(
+            queryset, many=True, context={"user_id": request.user.id}
+        )
         return Response(serializer.data)
 
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
