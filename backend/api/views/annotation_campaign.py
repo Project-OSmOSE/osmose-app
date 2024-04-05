@@ -96,7 +96,10 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         """Show a specific annotation campaign"""
         annotation_campaign = get_object_or_404(self.queryset, pk=pk)
-        serializer = AnnotationCampaignRetrieveSerializer(annotation_campaign)
+        serializer = AnnotationCampaignRetrieveSerializer(
+            annotation_campaign,
+            context={'user_id': request.user.id}
+        )
         return Response(serializer.data)
 
     @transaction.atomic

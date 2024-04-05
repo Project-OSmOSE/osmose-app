@@ -10,12 +10,14 @@ from drf_spectacular.utils import extend_schema_field
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
+    AnnotationCampaignArchive
 )
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
 from backend.api.serializers.label_set import LabelSetSerializer
 from .utils import EnumField
+from .user import UserSerializer
 
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
@@ -55,6 +57,21 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
         ]
 
 
+class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
+    """
+    Serializer meant to output AnnotationCampaignArchive basic data
+    """
+
+    by_user = UserSerializer()
+
+    class Meta:
+        model = AnnotationCampaignArchive
+        fields = [
+            "date",
+            "by_user"
+        ]
+
+
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):
     """
     Serializer meant to output AnnotationCampaign basic data used in AnnotationCampaignRetrieveSerializer
@@ -63,6 +80,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     label_set = LabelSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
     dataset_files_count = serializers.SerializerMethodField()
+    archive = AnnotationCampaignArchiveSerializer()
 
     class Meta:
         model = AnnotationCampaign
@@ -70,6 +88,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "id",
             "name",
             "desc",
+            "archive",
             "instructions_url",
             "start",
             "end",
@@ -106,6 +125,7 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
+    is_campaign_owner = serializers.SerializerMethodField('_is_campaign_owner')
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxCampaignSerializer)
     def get_campaign(self, campaign):
@@ -118,3 +138,7 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
                 count=Count("status")
             )
         )
+
+    def _is_campaign_owner(self, campaign: AnnotationCampaign):
+        """Get information about current user ownership of this campaign"""
+        return campaign.owner_id == self.context.get("user_id")
