@@ -1,15 +1,30 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
 import { addOutline, helpCircle } from "ionicons/icons";
-import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "@/services/api";
+import { AnnotationCampaignList as List, useAnnotationCampaignAPI } from "@/services/api";
 import { useToast } from "@/services/utils/toast";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links";
+import { searchFilter } from "@/services/utils/search.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [search, setSearch] = useState<string | undefined>();
+
+  // Memo
+  const showCampaigns = useMemo(() => {
+    const results = searchFilter(
+      annotationCampaigns.map(c => ({
+        value: c.id,
+        label: c.name
+      })),
+      search
+    );
+    if (results.length === 0) return annotationCampaigns;
+    return annotationCampaigns.filter(c => results.find(r => r.value === c.id));
+  }, [annotationCampaigns, search]);
 
   // Services
   const campaignService = useAnnotationCampaignAPI();
@@ -48,6 +63,12 @@ export const AnnotationCampaignList: React.FC = () => {
       <h1 className="text-center">Annotation Campaigns</h1>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonSearchbar placeholder="Search campaign"
+                      onIonInput={ e => setSearch(e.detail.value ?? undefined) }
+                      value={ search }/>
+      </div>
+
+      <div className="d-flex justify-content-center gap-1 flex-wrap">
         <IonButton color="primary" onClick={ openNewCampaign }>
           <IonIcon icon={ addOutline } slot="start"/>
           New annotation campaign
@@ -74,7 +95,7 @@ export const AnnotationCampaignList: React.FC = () => {
           </tr>
           </thead>
           <tbody>
-          { annotationCampaigns.map(campaign => (
+          { showCampaigns.map(campaign => (
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
               <td>{ campaign.created_at.toLocaleDateString() }</td>

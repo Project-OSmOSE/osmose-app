@@ -2,6 +2,7 @@ import React, { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { IonItem, IonList, IonSearchbar } from "@ionic/react";
 import { Item } from "@/types/item.ts";
 import './searchbar.component.css';
+import { searchFilter } from "@/services/utils/search.ts";
 
 interface Props {
   values: Array<Item>;
@@ -11,46 +12,22 @@ interface Props {
 export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>> = (props) => {
   const searchbarRef = useRef<HTMLIonSearchbarElement | null>(null);
 
-  const [search, setSearch] = useState<string | null>();
+  const [search, setSearch] = useState<string>();
   const [searchResult, setSearchResult] = useState<Array<any>>([]);
 
-  useEffect(() => {
-    if (!search) return setSearchResult([]);
-    const searchData = search.split(' ').filter(s => s).map(s => s.toLowerCase());
-    setSearchResult(
-      props.values.filter(value => {
-        const valueData = value.label.split(' ').filter(v => v).map(v => v.toLowerCase());
-        for (const s of searchData) {
-          if (valueData.find(v => v.includes(s))) continue;
-          return false;
-        }
-        return true;
-      })
-        .sort((a, b) => {
-          const aShow = a.label.toLowerCase();
-          const bShow = b.label.toLowerCase();
-          if (aShow.indexOf(search.toLowerCase()) > bShow.indexOf(search.toLowerCase())) {
-            return 1;
-          } else if (aShow.indexOf(search.toLowerCase()) < bShow.indexOf(search.toLowerCase())) {
-            return -1;
-          }
-          return a.label.localeCompare(b.label)
-        })
-
-    );
-  }, [search])
+  useEffect(() => setSearchResult(searchFilter(props.values, search)), [search])
 
   return (
     <div id="searchbar" className={ !search ? '' : 'got-results' }>
       <IonSearchbar { ...props }
                     ref={ searchbarRef }
                     value={ search }
-                    onIonInput={ e => setSearch(e.detail.value) }></IonSearchbar>
+                    onIonInput={ e => setSearch(e.detail.value ?? undefined) }></IonSearchbar>
 
       { !!search && <IonList id="searchbar-results" lines="none">
         { (searchResult.length > 5 ? searchResult.slice(0, 4) : searchResult.slice(0, 5)).map((v, i) => (
           <IonItem key={ i } onClick={ () => {
-            setSearch(null);
+            setSearch(undefined);
             props.onValueSelected(v)
           } }>{ v.label }</IonItem>
         )) }
