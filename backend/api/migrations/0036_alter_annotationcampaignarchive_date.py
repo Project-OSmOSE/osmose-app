@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0035_add_campaign_archivage'),
+        ("api", "0035_add_campaign_archivage"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='annotationcampaignarchive',
-            name='date',
+            model_name="annotationcampaignarchive",
+            name="date",
             field=models.DateTimeField(auto_now_add=True),
         ),
     ]

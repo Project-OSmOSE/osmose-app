@@ -10,7 +10,7 @@ from drf_spectacular.utils import extend_schema_field
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
-    AnnotationCampaignArchive
+    AnnotationCampaignArchive,
 )
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
@@ -66,10 +66,7 @@ class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationCampaignArchive
-        fields = [
-            "date",
-            "by_user"
-        ]
+        fields = ["date", "by_user"]
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):
@@ -84,6 +81,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
 
     class Meta:
         model = AnnotationCampaign
+        # pylint: disable=R0801
         fields = [
             "id",
             "name",
@@ -125,7 +123,7 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
-    is_campaign_owner = serializers.SerializerMethodField('_is_campaign_owner')
+    is_campaign_owner = serializers.SerializerMethodField("_is_campaign_owner")
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxCampaignSerializer)
     def get_campaign(self, campaign):

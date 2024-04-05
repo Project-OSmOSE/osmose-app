@@ -18,6 +18,8 @@ export const DETECTOR_3 = {
   name: 'detector3',
   configuration: 'detector3 parameters'
 }
+
+export const DEFAULT_CAMPAIGN_NAME = 'Test Dataset campaign';
 export const CAMPAIGNS_DATA = {
   [Usage.create]: {
     id: 6,
