@@ -9,21 +9,42 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('api', '0034_alter_annotationresult_dataset_file'),
+        ("api", "0034_alter_annotationresult_dataset_file"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AnnotationCampaignArchive',
+            name="AnnotationCampaignArchive",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(auto_now_add=True)),
-                ('by_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='archived_campaigns', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(auto_now_add=True)),
+                (
+                    "by_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="archived_campaigns",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='archive',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='campaign', to='api.annotationcampaignarchive'),
+            model_name="annotationcampaign",
+            name="archive",
+            field=models.OneToOneField(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="campaign",
+                to="api.annotationcampaignarchive",
+            ),
         ),
     ]

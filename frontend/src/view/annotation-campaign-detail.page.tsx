@@ -78,9 +78,9 @@ export const AnnotationCampaignDetail: React.FC = () => {
     window.open(`/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
   }
 
-  const archive = () => {
+  const archive = async () => {
     if (!annotationCampaign) return;
-    campaignService.archive(annotationCampaign.id);
+    await campaignService.archive(annotationCampaign.id);
     window.location.reload();
   }
 

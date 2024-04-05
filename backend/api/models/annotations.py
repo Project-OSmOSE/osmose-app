@@ -104,16 +104,18 @@ class AnnotationCampaignUsage(models.IntegerChoices):
 
 
 class AnnotationCampaignArchive(models.Model):
+    """AnnotationCampaign archive information"""
+
     date = models.DateTimeField(auto_now_add=True)
     by_user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         related_name="archived_campaigns",
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
     )
 
     def __str__(self):
-        return str(self.date) + ' | ' + str(self.by_user)
+        return str(self.date) + " | " + str(self.by_user)
 
 
 class AnnotationCampaign(models.Model):
@@ -207,12 +209,11 @@ class AnnotationCampaign(models.Model):
         )
 
     def do_archive(self, user: User):
+        """Archive current campaign"""
         if self.archive is not None:
             return
         self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
         self.save()
-
-
 
 
 class AnnotationTask(models.Model):

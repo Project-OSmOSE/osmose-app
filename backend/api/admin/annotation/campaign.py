@@ -6,22 +6,24 @@ from ..__utils__ import get_many_to_many
 
 
 class IsArchivedFilter(admin.SimpleListFilter):
+    """Filter archived campaign"""
+
     title = "Is archived"
     parameter_name = "is_archived"
 
     def lookups(self, request, model_admin):
         return (
-            ('Yes', 'Yes'),
-            ('No', 'No'),
+            ("Yes", "Yes"),
+            ("No", "No"),
         )
 
     def queryset(self, request, queryset):
         value = self.value()
         for campaign in queryset:
             print(campaign, campaign.archive)
-        if value == 'Yes':
+        if value == "Yes":
             return queryset.filter(archive__isnull=False)
-        elif value == 'No':
+        if value == "No":
             return queryset.filter(archive__isnull=True)
         return queryset
 
@@ -30,9 +32,8 @@ class IsArchivedFilter(admin.SimpleListFilter):
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin"""
 
-    readonly_fields = (
-        "archive",
-    )
+    readonly_fields = ("archive",)
+    # pylint: disable=R0801
     list_display = (
         "name",
         "desc",
@@ -54,7 +55,9 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     list_filter = ("datasets", "usage", IsArchivedFilter)
 
-    actions = ["archive", ]
+    actions = [
+        "archive",
+    ]
 
     @admin.action(description="Archive")
     # pylint: disable-next=unused-argument
@@ -77,5 +80,8 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     def is_archived(self, campaign: AnnotationCampaign) -> bool:
         """is_archived"""
-        print(campaign.archive, AnnotationCampaignArchive.objects.filter(campaign=campaign))
+        print(
+            campaign.archive,
+            AnnotationCampaignArchive.objects.filter(campaign=campaign),
+        )
         return campaign.archive is not None

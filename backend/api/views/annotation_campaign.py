@@ -97,8 +97,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         """Show a specific annotation campaign"""
         annotation_campaign = get_object_or_404(self.queryset, pk=pk)
         serializer = AnnotationCampaignRetrieveSerializer(
-            annotation_campaign,
-            context={'user_id': request.user.id}
+            annotation_campaign, context={"user_id": request.user.id}
         )
         return Response(serializer.data)
 
@@ -146,7 +145,9 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["post"])
     def archive(self, request, pk):
         """Archive a given annotation campaign"""
-        annotation_campaign: AnnotationCampaign = get_object_or_404(self.queryset, pk=pk)
+        annotation_campaign: AnnotationCampaign = get_object_or_404(
+            self.queryset, pk=pk
+        )
         if not request.user.is_staff and not request.user == annotation_campaign.owner:
             return HttpResponse("Unauthorized", status=403)
 

@@ -162,13 +162,16 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         url = reverse("annotation-campaign-detail", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data.keys()), ["campaign", "tasks"])
+        self.assertEqual(
+            list(response.data.keys()), ["campaign", "tasks", "is_campaign_owner"]
+        )
         self.assertEqual(
             list(response.data["campaign"].keys()),
             [
                 "id",
                 "name",
                 "desc",
+                "archive",
                 "instructions_url",
                 "start",
                 "end",
@@ -187,6 +190,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             dict(response.data["tasks"][0]),
             {"annotator_id": 1, "count": 6, "status": 0},
         )
+        self.assertEqual(response.data["is_campaign_owner"], True)
 
     def test_retrieve_for_unknown_campaign(self):
         """AnnotationCampaign view 'retrieve' returns 404 for unknown campaign"""
@@ -235,6 +239,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         expected_reponse["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()
+        expected_reponse["archive"] = None
         self.assertEqual(reponse_data, expected_reponse)
 
     # Testing 'add_annotators'
