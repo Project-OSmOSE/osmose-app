@@ -9,3 +9,6 @@ from .create import (
 from .update import (
     AnnotationCampaignAddAnnotatorsSerializer,
 )
+from .read import (
+    AnnotationCampaignListSerializer,
+)

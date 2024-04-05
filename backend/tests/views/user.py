@@ -95,7 +95,7 @@ class UserViewSetTestCase(APITestCase):
         self.assertEqual(
             dict(response.data),
             {
-                "id": 6,
+                "id": 7,
                 "username": "new_user",
                 "email": "user@example.com",
                 "first_name": "",

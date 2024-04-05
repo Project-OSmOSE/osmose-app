@@ -14,7 +14,6 @@ from backend.api.serializers.annotation_comment import (
     AnnotationCommentCreateSerializer,
 )
 from backend.api.serializers.annotation_campaign import (
-    AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignRetrieveAuxTaskSerializer,
     AnnotationCampaignRetrieveSerializer,
@@ -35,4 +34,5 @@ from .annotation import (
     AnnotationCampaignCreateCreateAnnotationsSerializer,
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    AnnotationCampaignListSerializer,
 )

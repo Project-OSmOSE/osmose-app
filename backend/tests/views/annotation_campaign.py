@@ -7,6 +7,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import AnnotationCampaign, AnnotationTask, Dataset
+from backend.api.serializers.annotation.campaign.read import (
+    AnnotationCampaignListFields,
+)
 
 
 class AnnotationCampaignViewSetUnauthenticatedTestCase(APITestCase):
@@ -95,30 +98,16 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(
             list(response.data[0].keys()),
-            [
-                "id",
-                "name",
-                "desc",
-                "instructions_url",
-                "deadline",
-                "label_set_name",
-                "confidence_indicator_set_name",
-                "user_tasks_count",
-                "complete_tasks_count",
-                "user_complete_tasks_count",
-                "files_count",
-                "mode",
-                "created_at",
-            ],
+            AnnotationCampaignListFields,
         )
 
-        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[0]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
 
     def test_list_user_no_campaign(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
         url = reverse("annotation-campaign-list")
-        self.client.login(username="user1", password="osmose29")
+        self.client.login(username="user4", password="osmose29")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
@@ -132,25 +121,11 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), 2)
         self.assertEqual(
             list(response.data[0].keys()),
-            [
-                "id",
-                "name",
-                "desc",
-                "instructions_url",
-                "deadline",
-                "label_set_name",
-                "confidence_indicator_set_name",
-                "user_tasks_count",
-                "complete_tasks_count",
-                "user_complete_tasks_count",
-                "files_count",
-                "mode",
-                "created_at",
-            ],
+            AnnotationCampaignListFields,
         )
-        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[0]["user_tasks_count"], 1)
+        self.assertEqual(response.data[0]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["my_total"], 1)
 
     # Testing 'retrieve'
 

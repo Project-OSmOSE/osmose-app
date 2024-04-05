@@ -9,4 +9,5 @@ from .campaign import (
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignCreateCreateAnnotationsSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    AnnotationCampaignListSerializer,
 )

@@ -3,57 +3,20 @@
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
 from django.db.models import Count
-
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from drf_spectacular.utils import extend_schema_field
 from backend.api.models import (
     AnnotationCampaign,
-    AnnotationCampaignUsage,
     AnnotationCampaignArchive,
 )
+from backend.api.serializers.annotation_set import AnnotationSetSerializer
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
 from backend.api.serializers.label_set import LabelSetSerializer
 from .utils import EnumField
 from .user import UserSerializer
-
-
-class AnnotationCampaignListSerializer(serializers.ModelSerializer):
-    """
-    Serializer meant to output list of AnnotationCampaigns augmented data
-
-    This serializer expects to be used on AnnotationCampaigns that have had prefetched data on tasks using the right
-    attr_names
-    """
-
-    user_tasks_count = serializers.IntegerField()
-    complete_tasks_count = serializers.IntegerField()
-    user_complete_tasks_count = serializers.IntegerField()
-    files_count = serializers.IntegerField()
-    confidence_indicator_set_name = serializers.CharField()
-    label_set_name = serializers.CharField()
-    mode = EnumField(enum=AnnotationCampaignUsage, source="usage")
-
-    class Meta:
-        model = AnnotationCampaign
-        # pylint:disable=duplicate-code
-        fields = [
-            "id",
-            "name",
-            "desc",
-            "instructions_url",
-            "deadline",
-            "label_set_name",
-            "confidence_indicator_set_name",
-            "user_tasks_count",
-            "complete_tasks_count",
-            "user_complete_tasks_count",
-            "files_count",
-            "mode",
-            "created_at",
-        ]
 
 
 class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
