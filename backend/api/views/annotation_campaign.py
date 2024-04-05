@@ -139,6 +139,17 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         serializer = AnnotationCampaignRetrieveSerializer(campaign)
         return Response(serializer.data)
 
+    @extend_schema(responses={200: None})
+    @action(detail=True, methods=["post"])
+    def archive(self, request, pk):
+        """Archive a given annotation campaign"""
+        annotation_campaign: AnnotationCampaign = get_object_or_404(self.queryset, pk=pk)
+        if not request.user.is_staff and not request.user == annotation_campaign.owner:
+            return HttpResponse("Unauthorized", status=403)
+
+        annotation_campaign.do_archive(request.user)
+        return HttpResponse(status=200)
+
     @extend_schema(
         responses={(200, "text/csv"): str},
         examples=[
