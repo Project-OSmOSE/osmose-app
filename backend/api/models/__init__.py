@@ -9,15 +9,18 @@ from backend.api.models.annotation import (
 from backend.api.models.annotations import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
-    Label,
-    LabelSet,
     AnnotationCampaign,
+    AnnotationCampaignArchive,
     AnnotationComment,
     AnnotationSession,
     AnnotationTask,
     AnnotationCampaignUsage,
 )
-from backend.api.models.datasets import DatasetType, Dataset, DatasetFile
+from backend.api.models.datasets import (
+    DatasetType,
+    Dataset,
+    DatasetFile,
+)
 from backend.api.models.metadata import (
     AudioMetadatum,
     GeoMetadatum,

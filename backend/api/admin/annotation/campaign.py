@@ -1,7 +1,7 @@
 """Campaign admin model"""
 from django.contrib import admin
 
-from backend.api.models import AnnotationCampaign
+from backend.api.models import AnnotationCampaign, AnnotationCampaignArchive
 from ..__utils__ import get_many_to_many
 
 
@@ -17,21 +17,27 @@ class IsArchivedFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
+        for campaign in queryset:
+            print(campaign, campaign.archive)
         if value == 'Yes':
-            return queryset.filter(archived_date__isnull=False)
+            return queryset.filter(archive__isnull=False)
         elif value == 'No':
-            return queryset.filter(archived_date__isnull=True)
+            return queryset.filter(archive__isnull=True)
         return queryset
 
 
+@admin.register(AnnotationCampaign)
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin"""
 
+    readonly_fields = (
+        "archive",
+    )
     list_display = (
         "name",
         "desc",
         "created_at",
-        "is_archived",
+        "archive",
         "instructions_url",
         "start",
         "end",
@@ -48,6 +54,15 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     list_filter = ("datasets", "usage", IsArchivedFilter)
 
+    actions = ["archive", ]
+
+    @admin.action(description="Archive")
+    # pylint: disable-next=unused-argument
+    def archive(self, request, queryset):
+        """Hide selected collaborators on HomePage"""
+        for campaign in queryset:
+            campaign.do_archive(request.user)
+
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
         return get_many_to_many(obj, "spectro_configs", "name")
@@ -62,6 +77,5 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     def is_archived(self, campaign: AnnotationCampaign) -> bool:
         """is_archived"""
-        return campaign.archived_date is not None
-
-
+        print(campaign.archive, AnnotationCampaignArchive.objects.filter(campaign=campaign))
+        return campaign.archive is not None
