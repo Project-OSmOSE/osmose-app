@@ -67,8 +67,7 @@ export const AnnotationCampaignList: React.FC = () => {
             <th>Label Set</th>
             <th>Confidence indicator Set</th>
             <th>Number of files</th>
-            <th>Start Date</th>
-            <th>End Date</th>
+            <th>Deadline</th>
             <th>Progress</th>
             <th>Mode</th>
             <th>Annotation Link</th>
@@ -78,12 +77,11 @@ export const AnnotationCampaignList: React.FC = () => {
           { annotationCampaigns.map(campaign => (
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
-              <td>{ campaign.created_at.toDateString() }</td>
+              <td>{ campaign.created_at.toLocaleDateString() }</td>
               <td>{ campaign.label_set_name ?? "-" }</td>
               <td>{ campaign.confidence_indicator_set_name ?? "-" }</td>
               <td>{ campaign.files_count }</td>
-              <td>{ campaign.start?.toDateString() ?? 'N/A' }</td>
-              <td>{ campaign.end?.toDateString() ?? 'N/A' }</td>
+              <td>{ campaign.deadline?.toLocaleDateString() ?? 'N/A' }</td>
               <td>{ campaign.user_complete_tasks_count } / { campaign.user_tasks_count }</td>
               <td>{ campaign.mode }</td>
               <td><Link to={ `/annotation_tasks/${ campaign.id }` }>My tasks</Link></td>

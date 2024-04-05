@@ -250,8 +250,7 @@ class Command(management.BaseCommand):
             campaign = AnnotationCampaign.objects.create(
                 name=f"{dataset.name} campaign",
                 desc=self.fake.sentence(),
-                start=timezone.make_aware(datetime.strptime("2010-08-19", "%Y-%m-%d")),
-                end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
+                deadline=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
                 instructions_url=self.fake.uri(),
                 annotation_scope=2,
                 label_set=LabelSet.objects.first(),

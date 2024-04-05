@@ -112,10 +112,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         </div>
         <div>
           <div>
-            <b>Start:</b> { annotationCampaign.start ? new Date(annotationCampaign.start).toLocaleDateString() : 'N/A' }
-          </div>
-          <div>
-            <b>End:</b> { annotationCampaign.end ? new Date(annotationCampaign.end).toLocaleDateString() : 'N/A' }
+            <b>Deadline:</b> { annotationCampaign.deadline ? new Date(annotationCampaign.deadline).toLocaleDateString() : 'N/A' }
           </div>
         </div>
       </div>

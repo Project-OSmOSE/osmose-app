@@ -15,8 +15,7 @@ export type CreateCampaignSlice = {
   name: string | undefined;
   description: string | undefined;
   instructionURL: string | undefined;
-  startDate: string | undefined;
-  endDate: string | undefined;
+  deadline: string | undefined;
 
   dataset: Dataset | undefined;
   datasetSpectroConfigs: Array<SpectroConfig>;
@@ -37,8 +36,7 @@ export const createCampaignSlice = createSlice({
     name: undefined,
     description: undefined,
     instructionURL: undefined,
-    startDate: undefined,
-    endDate: undefined,
+    deadline: undefined,
 
     dataset: undefined,
     datasetSpectroConfigs: [],
@@ -63,11 +61,8 @@ export const createCampaignSlice = createSlice({
     updateInstructionURL: (state, action: { payload: string }) => {
       state.instructionURL = action.payload;
     },
-    updateStartDate: (state, action: { payload: string }) => {
-      state.startDate = action.payload;
-    },
-    updateEndDate: (state, action: { payload: string }) => {
-      state.endDate = action.payload;
+    updateDeadline: (state, action: { payload: string }) => {
+      state.deadline = action.payload;
     },
 
     updateDataset: (state, action: { payload: Dataset | undefined }) => {

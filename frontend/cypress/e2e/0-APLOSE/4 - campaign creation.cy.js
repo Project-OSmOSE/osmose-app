@@ -17,8 +17,7 @@ describe('create campaign', () => {
             name: data.name,
             desc: data.description,
             instructions_url: data.instructionsURL,
-            start: data.start + 'T00:00',
-            end: data.end + 'T00:00',
+            deadline: data.deadline + 'T00:00',
             datasets: [data.dataset.id],
             spectro_configs: data.dataset.spectrogramConfigurations.map(c => c.id),
             annotators: data.annotators.map(a => a.id),
@@ -32,8 +31,7 @@ describe('create campaign', () => {
         cy.contains('Name').parent().type(data.name);
         cy.contains('Description').parent().type(data.description);
         cy.contains('Instruction URL').parent().type(data.instructionsURL);
-        cy.contains('Start').parent().type(data.start)
-        cy.contains('End').parent().type(data.end)
+        cy.contains('Deadline').parent().type(data.deadline)
 
         // Dataset
         cy.contains('Select a dataset').click();
@@ -87,8 +85,7 @@ describe('create campaign', () => {
             name: data.name,
             desc: data.description,
             instructions_url: data.instructionsURL,
-            start: data.start + 'T00:00',
-            end: data.end + 'T00:00',
+            deadline: data.deadline + 'T00:00',
             datasets: [data.dataset.id],
             spectro_configs: data.dataset.spectrogramConfigurations.map(c => c.id),
             annotators: data.annotators.map(a => a.id),
@@ -107,8 +104,7 @@ describe('create campaign', () => {
         cy.contains('Name').parent().type(data.name);
         cy.contains('Description').parent().type(data.description);
         cy.contains('Instruction URL').parent().type(data.instructionsURL);
-        cy.contains('Start').parent().type(data.start)
-        cy.contains('End').parent().type(data.end)
+        cy.contains('Deadline').parent().type(data.deadline)
 
         // Dataset
         cy.contains('Select a dataset').click();

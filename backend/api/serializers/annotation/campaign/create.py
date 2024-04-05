@@ -44,8 +44,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
             "name",
             "desc",
             "instructions_url",
-            "start",
-            "end",
+            "deadline",
             "datasets",
             "spectro_configs",
             "label_set",
@@ -76,8 +75,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
         campaign = AnnotationCampaign(
             name=validated_data["name"],
             desc=validated_data.get("desc"),
-            start=validated_data.get("start"),
-            end=validated_data.get("end"),
+            deadline=validated_data.get("deadline"),
             label_set=label_set,
             confidence_indicator_set=confidence_indicator_set,
             annotation_scope=validated_data["annotation_scope"],
@@ -126,8 +124,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             "name",
             "desc",
             "instructions_url",
-            "start",
-            "end",
+            "deadline",
             "datasets",
             "spectro_configs",
             "spectro_configs",
@@ -338,8 +335,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         campaign = AnnotationCampaign(
             name=validated_data["name"],
             desc=validated_data.get("desc"),
-            start=validated_data.get("start"),
-            end=validated_data.get("end"),
+            deadline=validated_data.get("deadline"),
             label_set_id=label_set.id,
             confidence_indicator_set_id=confidence_set.id
             if confidence_set is not None

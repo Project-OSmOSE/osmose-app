@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { createCampaignActions } from "@/slices/create-campaign";
-import { FormBloc, Textarea, Input } from "@/components/form";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { FormBloc, Input, Textarea } from "@/components/form";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 
 export const GlobalInfoBloc: React.FC = () => {
 
@@ -11,8 +11,7 @@ export const GlobalInfoBloc: React.FC = () => {
     name,
     description,
     instructionURL,
-    startDate,
-    endDate
+    deadline
   } = useAppSelector(state => state.createCampaignForm.global);
 
   const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,12 +26,8 @@ export const GlobalInfoBloc: React.FC = () => {
     dispatch(createCampaignActions.updateInstructionURL(e.target.value));
   }
 
-  const onStartDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    dispatch(createCampaignActions.updateStartDate(e.target.value));
-  }
-
-  const onEndDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    dispatch(createCampaignActions.updateEndDate(e.target.value));
+  const onDeadlineChange = (e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(createCampaignActions.updateDeadline(e.target.value));
   }
 
   return (
@@ -53,17 +48,10 @@ export const GlobalInfoBloc: React.FC = () => {
              value={ instructionURL ?? '' }
              onChange={ onInstructionURLChange }/>
 
-      <div id="dates-input">
-        <Input label="Start"
-               value={ startDate ?? '' }
-               type="date"
-               onChange={ onStartDateChange }/>
-
-        <Input label="End"
-               value={ endDate ?? '' }
-               type="date"
-               onChange={ onEndDateChange }/>
-      </div>
+      <Input label="Deadline"
+             value={ deadline ?? '' }
+             type="date"
+             onChange={ onDeadlineChange }/>
     </FormBloc>
   )
 }
