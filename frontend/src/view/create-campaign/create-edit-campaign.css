@@ -15,11 +15,6 @@
   text-align: center;
 }
 
-#create-campaign-form #dates-input {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
 #create-campaign-form .chips-container {
   display: flex;
   flex-direction: row;

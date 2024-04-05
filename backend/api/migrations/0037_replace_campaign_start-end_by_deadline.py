@@ -6,17 +6,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0036_alter_annotationcampaignarchive_date'),
+        ("api", "0036_alter_annotationcampaignarchive_date"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='annotationcampaign',
-            old_name='end',
-            new_name='deadline',
+            model_name="annotationcampaign",
+            old_name="end",
+            new_name="deadline",
         ),
         migrations.RemoveField(
-            model_name='annotationcampaign',
-            name='start',
+            model_name="annotationcampaign",
+            name="start",
         ),
     ]

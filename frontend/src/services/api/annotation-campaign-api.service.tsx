@@ -11,9 +11,8 @@ export type List = Array<{
   name: string;
   desc: string;
   instructions_url: string;
-  start?: Date;
-  end?: Date;
-  label_set_name: string;
+  deadline?: Date;
+  label_set: string;
   confidence_indicator_set_name: string;
   user_tasks_count: number;
   complete_tasks_count: number;
@@ -37,8 +36,7 @@ export type RetrieveCampaign = {
   desc: string;
   archive?: AnnotationCampaignArchive;
   instructions_url: string;
-  start?: Date;
-  end?: Date;
+  deadline?: Date;
   label_set: LabelSet;
   confidence_indicator_set?: {
     id: number;
@@ -60,8 +58,7 @@ export type Create = {
   name: string;
   desc?: string;
   instructions_url?: string;
-  start?: string;
-  end?: string;
+  deadline?: string;
   datasets: Array<number>;
   spectro_configs: Array<number>;
   annotation_scope: number;
@@ -131,8 +128,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
   list(): Promise<List> {
     return super.list().then(r => r.map((d: any) => ({
       ...d,
-      start: d.start ? new Date(d.start) : d.start,
-      end: d.end ? new Date(d.end) : d.end,
+      deadline: d.deadline ? new Date(d.deadline) : d.deadline,
       created_at: new Date(d.created_at),
     })));
   }
@@ -146,8 +142,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
       campaign: {
         ...r.campaign,
         archive: r.campaign.archive ? new AnnotationCampaignArchive(r.campaign.archive as unknown as AnnotationCampaignArchiveDTO) : undefined,
-        start: r.campaign.start ? new Date(r.campaign.start) : r.campaign.start,
-        end: r.campaign.end ? new Date(r.campaign.end) : r.campaign.end,
+        deadline: r.campaign.deadline ? new Date(r.campaign.deadline) : r.campaign.deadline,
         created_at: new Date(r.campaign.created_at)
       },
       tasks: r.tasks,
