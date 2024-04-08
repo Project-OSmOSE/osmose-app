@@ -6,11 +6,11 @@ describe('campaigns page', () => {
     })
 
     it('displays 5 campaigns by default', () => {
-        cy.get('tr').should('have.length', 6) // Includes table head
+        cy.get('.campaign-card').should('have.length', 5)
     })
 
     it('Has guide link', () => {
-        cy.contains('Annotator user guide')
+        cy.contains('User guide')
     })
 
     it('Allows campaign creation', () => {
@@ -19,6 +19,6 @@ describe('campaigns page', () => {
 
     it('Can search campaign', () => {
         cy.get('ion-searchbar').type(DEFAULT_CAMPAIGN_NAME)
-        cy.get('#content table').should('include.text', DEFAULT_CAMPAIGN_NAME)
+        cy.get('#campaign-card').should('include.text', DEFAULT_CAMPAIGN_NAME)
     })
 })

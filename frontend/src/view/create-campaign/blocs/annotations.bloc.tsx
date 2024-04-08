@@ -170,7 +170,7 @@ const CheckAnnotationsInputs: React.FC<CheckAnnotationsProps> = ({
     <Fragment>
       { !detectors.length && <Fragment>
           <div id="import-button" className="d-flex justify-content-center">
-              <IonButton color="secondary" className="center"
+              <IonButton color="dark" className="center"
                          onClick={ openImportModal }
                          disabled={ !dataset } aria-disabled={ !dataset }>
                   Import annotations

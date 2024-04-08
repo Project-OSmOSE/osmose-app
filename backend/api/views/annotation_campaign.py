@@ -1,7 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -40,13 +40,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationCampaignListSerializer)
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset
-        if not request.user.is_staff:
-            queryset = queryset.filter(
-                Q(owner_id=request.user.id)
-                | (Q(tasks__annotator_id=request.user.id) & Q(archive__isnull=True))
-            )
-        queryset = queryset.prefetch_related("datasets").annotate(
+        queryset = self.queryset.annotate(
             my_progress=Count(
                 "tasks",
                 filter=Q(tasks__annotator_id=request.user.id) & Q(tasks__status=2),
@@ -55,6 +49,20 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             progress=Count("tasks", filter=Q(tasks__status=2)),
             total=Count("tasks"),
         )
+        if not request.user.is_staff:
+            queryset = queryset.filter(
+                Q(owner_id=request.user.id)
+                | (
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=OuterRef("pk"),
+                            annotator_id=request.user.id,
+                        )
+                    )
+                    & Q(archive__isnull=True)
+                )
+            )
+        queryset = queryset.prefetch_related("datasets")
         serializer = AnnotationCampaignListSerializer(
             queryset, many=True, context={"user_id": request.user.id}
         )

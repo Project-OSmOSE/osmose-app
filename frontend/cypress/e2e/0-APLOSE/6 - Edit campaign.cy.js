@@ -7,7 +7,7 @@ const Campaign = CAMPAIGNS_DATA[Usage.create]
 describe('Edit campaign', () => {
     beforeEach(() => {
         cy.session_login('admin', 'osmose29')
-        cy.contains(Campaign.name).click()
+        cy.contains(Campaign.name).parent().parent().contains('Manage').click()
     })
 
     it('Add annotator', () => {
@@ -45,7 +45,7 @@ describe('Archive campaign', () => {
     describe('Non admin', () => {
         beforeEach(() => {
             cy.session_login('TestUser1', 'osmose29')
-            cy.contains(DEFAULT_CAMPAIGN_NAME).click()
+            cy.contains(DEFAULT_CAMPAIGN_NAME).parent().parent().contains('Manage').click()
         })
 
         it('Can\'t archive', () => {
@@ -56,7 +56,7 @@ describe('Archive campaign', () => {
     describe('Non admin', () => {
         beforeEach(() => {
             cy.session_login('admin', 'osmose29')
-            cy.contains(DEFAULT_CAMPAIGN_NAME).click()
+            cy.contains(DEFAULT_CAMPAIGN_NAME).parent().parent().contains('Manage').click()
         })
 
         it('Can archive', () => {

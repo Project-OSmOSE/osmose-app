@@ -1,0 +1,55 @@
+#campaign-card {
+  padding: 1rem;
+  gap: 1rem;
+  display: grid;
+  border-radius: 1rem;
+  background: var(--ion-color-light);
+  box-shadow: 0 0 8px rgba(var(--ion-color-dark-rgb), 0.25),
+  0 0 32px rgba(var(--ion-color-dark-rgb), 0.08);
+  font-family: var(--ion-font-family);
+}
+
+#campaign-card #head {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+#campaign-card #head p {
+  margin: 0;
+}
+
+#campaign-card #head #campaign-name {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 1rem;
+  color: var(--ion-color-dark);
+}
+
+#campaign-card #head #dataset-name {
+  font-weight: 500;
+  font-size: 0.8rem;
+  line-height: 0.8rem;
+  color: var(--ion-color-medium);
+}
+
+
+#campaign-card .progression {
+  display: grid;
+}
+
+#campaign-card .progression .progress-label {
+  color: var(--ion-color-medium);
+}
+
+#campaign-card .progression .progress-value {
+  color: var(--ion-color-shade);
+}
+
+
+#campaign-card #buttons {
+  display: grid;
+  justify-content: space-between;
+  grid-auto-flow: column;
+  margin-top: 0.5rem;
+}

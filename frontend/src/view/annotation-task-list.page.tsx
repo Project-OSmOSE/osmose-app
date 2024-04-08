@@ -9,7 +9,7 @@ import {
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
-import { helpCircle, informationCircle } from "ionicons/icons";
+import { helpBuoyOutline, informationCircle } from "ionicons/icons";
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -65,11 +65,11 @@ export const AnnotationTaskList: React.FC = () => {
       <h1 className="text-center">Annotation Tasks</h1>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
-        <IonButton color="warning" onClick={ openGuide }>
-          <IonIcon icon={ helpCircle } slot="start"/>
-          Annotator user guide
+        <IonButton color="warning" shape="round" fill="outline" onClick={ openGuide }>
+          User guide
+          <IonIcon icon={ helpBuoyOutline } slot="end"/>
         </IonButton>
-        { campaign?.instructions_url && <IonButton color="warning" onClick={ openInstructions }>
+        { campaign?.instructions_url && <IonButton color="secondary" onClick={ openInstructions }>
             <IonIcon icon={ informationCircle } slot="start"/>
             Campaign instructions
         </IonButton> }
