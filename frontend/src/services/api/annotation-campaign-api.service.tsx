@@ -13,6 +13,7 @@ export type ListItem = {
   deadline?: Date;
   datasets_name: string;
   is_mine: boolean;
+  is_archived: boolean;
   my_progress: number;
   my_total: number;
   progress: number;

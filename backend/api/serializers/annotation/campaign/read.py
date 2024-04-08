@@ -11,6 +11,7 @@ AnnotationCampaignListFields = [
     "deadline",
     "datasets_name",
     "is_mine",
+    "is_archived",
     "my_progress",
     "my_total",
     "progress",
@@ -23,6 +24,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
 
     datasets_name = serializers.SerializerMethodField()
     is_mine = serializers.SerializerMethodField()
+    is_archived = serializers.SerializerMethodField()
     my_progress = serializers.IntegerField()
     my_total = serializers.IntegerField()
     progress = serializers.IntegerField()
@@ -39,3 +41,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     def get_is_mine(self, campaign: AnnotationCampaign) -> bool:
         """Defined either the campaign is owned by the context user"""
         return campaign.owner_id == self.context["user_id"]
+
+    def get_is_archived(self, campaign: AnnotationCampaign) -> bool:
+        """Defined either the campaign is archived"""
+        return campaign.archive_id is not None

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { IonButton, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
-import { addOutline, helpBuoyOutline } from "ionicons/icons";
+import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
+import { addOutline, closeCircle, helpBuoyOutline } from "ionicons/icons";
 import { AnnotationCampaignList as List, useAnnotationCampaignAPI } from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
@@ -13,19 +13,23 @@ export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string | undefined>();
+  const [showArchived, setShowArchived] = useState<boolean>(false);
 
   // Memo
   const showCampaigns = useMemo(() => {
-    if (!search) return annotationCampaigns;
+    const baseCampaigns = annotationCampaigns.filter(c => c.is_archived === showArchived);
+    if (!search) return baseCampaigns;
     const results = searchFilter(
-      annotationCampaigns.map(c => ({
+      baseCampaigns.map(c => ({
         value: c.id,
         label: c.name
       })),
       search
     );
-    return annotationCampaigns.filter(c => results.find(r => r.value === c.id));
-  }, [annotationCampaigns, search]);
+    return baseCampaigns.filter(c => results.find(r => r.value === c.id));
+  }, [annotationCampaigns, search, showArchived]);
+  const canAccessArchive = useMemo(() => annotationCampaigns.filter(c => c.is_archived).length > 0, [annotationCampaigns]);
+
 
   // Services
   const campaignService = useAnnotationCampaignAPI();
@@ -59,6 +63,10 @@ export const AnnotationCampaignList: React.FC = () => {
     window.open("/create-annotation-campaign", "_self")
   }
 
+  const toggleArchived = () => {
+    setShowArchived(!showArchived);
+  }
+
   return (
     <div id="campaign-list">
       <h2>Annotation Campaigns</h2>
@@ -68,6 +76,12 @@ export const AnnotationCampaignList: React.FC = () => {
           <IonSearchbar placeholder="Search campaign"
                         onIonInput={ e => setSearch(e.detail.value ?? undefined) }
                         value={ search }/>
+
+          { canAccessArchive &&
+              <IonChip color={ showArchived ? 'dark' : 'medium' } outline={ showArchived } onClick={ toggleArchived }>
+                  Show archived
+                { showArchived && <IonIcon icon={ closeCircle }/> }
+              </IonChip> }
         </div>
 
         <div id="actions">
@@ -84,8 +98,8 @@ export const AnnotationCampaignList: React.FC = () => {
       </div>
 
       <div id="content">
-        { showCampaigns.map(c => <CampaignCard campaign={c} key={c.id} />)}
-        { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote>}
+        { showCampaigns.map(c => <CampaignCard campaign={ c } key={ c.id }/>) }
+        { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
 
       { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }

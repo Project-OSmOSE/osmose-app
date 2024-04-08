@@ -199,16 +199,16 @@ ion-chip {
   margin: 0;
   transition: 300ms;
 }
-ion-chip[color=secondary]:not([outline=true]) {
-  background: var(--ion-color-secondary);
-  color: var(--ion-color-secondary-contrast);
-  border: 1px solid var(--ion-color-secondary);
+ion-chip[color=dark]:not([outline=true]) {
+  background: var(--ion-color-dark);
+  color: var(--ion-color-dark-contrast);
+  border: 1px solid var(--ion-color-dark);
 }
 ion-chip[outline] {
   /*border-width: 2px;*/
-  border-color: var(--ion-color-secondary);
+  border-color: var(--ion-color-dark);
 }
-ion-chip[color=secondary] ion-icon {
+ion-chip[color=dark] ion-icon {
   opacity: 0.5;
 }
 

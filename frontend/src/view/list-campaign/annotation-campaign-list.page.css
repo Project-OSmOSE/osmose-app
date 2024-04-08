@@ -16,7 +16,7 @@
   justify-content: space-between;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   #campaign-list > #head {
     grid-auto-flow: row;
     justify-content: stretch;
@@ -24,6 +24,10 @@
 
   #campaign-list > #head > #actions {
     justify-content: start;
+  }
+
+  #campaign-list > #head > #search-zone {
+    grid-template-columns: 1fr auto;
   }
 }
 

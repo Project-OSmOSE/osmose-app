@@ -18,12 +18,21 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
   const history = useHistory();
 
   const state = useMemo(() => {
+    if (campaign.is_archived) return State.archived;
     if (campaign.deadline && (campaign.deadline.getTime() - 7 * 24 * 60 * 60 * 1000) <= Date.now()) return State.dueDate;
-    console.debug(campaign.deadline?.toLocaleDateString(), campaign.deadline?.getTime())
     return State.open;
-  }, [campaign.deadline]);
+  }, [campaign.deadline, campaign.is_archived]);
 
-  const color = useMemo(() => state === State.open ? 'secondary' : 'warning', [state]);
+  const color = useMemo(() => {
+    switch (state) {
+      case State.open:
+        return 'secondary';
+      case State.dueDate:
+        return 'warning';
+      case State.archived:
+        return 'medium';
+    }
+  }, [state]);
 
   const manage = () => history.push(`/annotation_campaign/${ campaign.id }`);
   const annotate = () => history.push(`/annotation_tasks/${ campaign.id }`);
@@ -35,6 +44,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
         { state === State.open && <IonBadge color="secondary">Open</IonBadge> }
         { state === State.dueDate &&
             <IonBadge color="warning">Due date: { campaign.deadline?.toLocaleDateString() }</IonBadge> }
+        { state === State.archived && <IonBadge color="medium">Archived</IonBadge> }
 
         <p id="campaign-name">{ campaign.name }</p>
         <p id="dataset-name">{ campaign.datasets_name }</p>
@@ -54,9 +64,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
       <div className="progression">
         <p>
           <span className="progress-label">
-            Campaign progress:
-          </span> <span className="progress-value">
-            { campaign.progress }&nbsp;/&nbsp;{ campaign.total }
+            Campaign progress: { campaign.progress }&nbsp;/&nbsp;{ campaign.total }
           </span>
         </p>
         <IonProgressBar color="medium"
@@ -64,8 +72,10 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
       </div>
 
       <div id="buttons">
-        <IonButton fill="outline" onClick={ manage }>Manage</IonButton>
-        <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton>
+        <IonButton fill="outline" onClick={ manage }>
+          { campaign.is_archived ? "Info" : "Manage" }
+        </IonButton>
+        { !campaign.is_archived && <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton> }
       </div>
     </div>
   );
