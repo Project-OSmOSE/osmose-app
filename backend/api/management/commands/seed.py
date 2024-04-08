@@ -15,6 +15,7 @@ from backend.api.models import (
     Dataset,
     LabelSet,
     AnnotationCampaign,
+    AnnotationCampaignArchive,
     WindowType,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
@@ -133,7 +134,8 @@ class Command(management.BaseCommand):
         files = []
         configs = []
         dataset_names = [
-            "Test Dataset"
+            "Test Dataset",
+            "Test archived",
         ]  # WARNING : This name is used for Cypress tests, do not change or remove
         dataset_names += [self.fake.unique.city() for _ in range(self.data_nb - 1)]
         for name in dataset_names:
@@ -260,6 +262,10 @@ class Command(management.BaseCommand):
                 owner=self.admin,
             )
             self.campaigns.append(campaign)
+            if dataset.name == "Test archived":
+                archive = AnnotationCampaignArchive.objects.create(by_user=self.admin)
+                campaign.archive = archive
+                campaign.save()
             # dataset = self.datasets[i - 1]
             campaign.datasets.add(dataset)
             campaign.spectro_configs.add(dataset.spectro_configs.first())
