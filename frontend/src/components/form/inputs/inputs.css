@@ -86,7 +86,7 @@
 
 #aplose-input.select #input .button.placeholder,
 #aplose-input.select #input .button ion-icon {
-  color: rgba(var(--ion-color-secondary-rgb), 0.6);
+  color: rgba(var(--ion-color-dark-rgb), 0.6);
 }
 
 #aplose-input.select #input .button ion-icon {

@@ -2,7 +2,7 @@ describe('login page', () => {
     it('logs in with admin credentials', () => {
         cy.login("admin", "osmose29")
 
-        cy.get("h1").eq(1).should('have.text', 'Annotation Campaigns')
+        cy.get("h2").should('include.text', 'Annotation Campaigns')
     });
 
     it('logs in with invalid credentials', () => {
@@ -14,7 +14,7 @@ describe('login page', () => {
     it('logs out', () => {
         cy.login("admin", "osmose29")
 
-        cy.get("h1").eq(1).should('have.text', 'Annotation Campaigns')
+        cy.get("h2").should('include.text', 'Annotation Campaigns')
         cy.contains('logout', {matchCase: false}).click();
 
         cy.get("h1").should('have.text', 'Login')

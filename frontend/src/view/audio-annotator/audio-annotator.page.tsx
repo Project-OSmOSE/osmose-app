@@ -262,14 +262,14 @@ export const AudioAnnotator: React.FC = () => {
 
         <div className="buttons">
           { isUserStaff && <Fragment>
-              <IonButton color="secondary"
+              <IonButton color="dark"
                          fill={ "outline" }
                          onClick={ downloadAudio }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
                   Download audio
               </IonButton>
 
-              <IonButton color="secondary"
+              <IonButton color="dark"
                          fill={ "outline" }
                          onClick={ downloadSpectro }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
@@ -278,14 +278,14 @@ export const AudioAnnotator: React.FC = () => {
               </IonButton>
           </Fragment>}
 
-          <IonButton color="secondary"
+          <IonButton color="dark"
                      fill={ "outline" }
                      onClick={ openGuide }>
             <IonIcon icon={ helpCircle } slot="start"/>
             Annotator user guide
           </IonButton>
 
-          { instructionsURL && <IonButton color="secondary"
+          { instructionsURL && <IonButton color="dark"
                                           fill={ "outline" }
                                           onClick={ openInstructions }>
               <IonIcon icon={ informationCircle } slot="start"/>

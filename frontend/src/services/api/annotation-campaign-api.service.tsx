@@ -1,26 +1,23 @@
 import { post, SuperAgentRequest } from "superagent";
 import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
-import { AnnotationCampaignArchive, AnnotationCampaignArchiveDTO, CampaignUsage } from "@/types/campaign.ts";
+import { AnnotationCampaignArchive, AnnotationCampaignArchiveDTO } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { LabelSet } from "@/types/label.ts";
 
 
-export type List = Array<{
+export type List = Array<ListItem>
+export type ListItem = {
   id: number;
   name: string;
-  desc: string;
-  instructions_url: string;
   deadline?: Date;
-  label_set: string;
-  confidence_indicator_set_name: string;
-  user_tasks_count: number;
-  complete_tasks_count: number;
-  user_complete_tasks_count: number;
-  files_count: number;
-  mode: CampaignUsage;
-  created_at: Date;
-}>
+  datasets_name: string;
+  is_mine: boolean;
+  my_progress: number;
+  my_total: number;
+  progress: number;
+  total: number;
+}
 export type Retrieve = {
   campaign: RetrieveCampaign;
   tasks: Array<{

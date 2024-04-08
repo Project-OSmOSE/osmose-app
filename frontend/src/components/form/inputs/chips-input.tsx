@@ -44,7 +44,7 @@ export const ChipsInput: React.FC<ChipsProperties> = ({
       { items.map(c => {
         const isActive = activeItemsValues.includes(c.value);
         return <IonChip key={ c.value }
-                        color="secondary"
+                        color="dark"
                         outline={ !isActive }
                         onClick={ () => {
                           if (isActive) deactivateChip(c)
