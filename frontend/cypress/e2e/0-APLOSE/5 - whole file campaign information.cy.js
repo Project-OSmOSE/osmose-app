@@ -15,9 +15,7 @@ describe('Whole file campaign information', () => {
 
         it('description', () => {
             cy.contains(Campaign.name).parent().parent().contains("Manage").click()
-            cy.contains('Description')
-                .parentsUntil('div').parent().parent()
-                .should('include.text', Campaign.description)
+            cy.contains('Description').parent().should('include.text', Campaign.description)
         })
 
         it('dataset', () => {
@@ -60,13 +58,10 @@ describe('Whole file campaign information', () => {
 
         it('has 3 annotators', () => {
             cy.contains(Campaign.name).parent().parent().contains("Manage").click()
-
-            cy.get("tbody").within(() => {
-                cy.get('tr').should('have.length', Campaign.annotators.length)
-            })
+            cy.contains('Annotators').parent().should('include.text', Campaign.annotators.length)
 
             for (let user of Campaign.annotators) {
-                cy.get('tr').should('include.text', user.email)
+                cy.get('.table-bloc-content').should('include.text', user.displayName)
             }
         })
     })

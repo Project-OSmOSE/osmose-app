@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
 import { AnnotationCampaignList } from "@/view/list-campaign/annotation-campaign-list.page.tsx";
-import { AnnotationCampaignDetail } from "@/view/annotation-campaign-detail.page.tsx";
+import { AnnotationCampaignDetail } from "@/view/detail-campaign/annotation-campaign-detail.page.tsx";
 import { EditCampaign } from "@/view/create-campaign/edit-campaign.page.tsx";
 import { AnnotationTaskList } from "@/view/annotation-task-list.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
