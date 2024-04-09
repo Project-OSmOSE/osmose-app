@@ -148,7 +148,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "deadline",
                 "label_set",
                 "confidence_indicator_set",
-                "datasets",
+                "datasets_name",
                 "created_at",
                 "usage",
                 "dataset_files_count",
@@ -188,29 +188,31 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "desc",
                 "instructions_url",
                 "deadline",
-                "datasets",
                 "created_at",
             ]
         }
 
         expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        reponse_data = dict(response.data)
+        expected_reponse["datasets_name"] = ['SPM Aural A 2010']
+        response_data = dict(response.data)
 
-        confidence_indicator_set = reponse_data.pop("confidence_indicator_set")
+        confidence_indicator_set = response_data.pop("confidence_indicator_set")
         self.assertEqual(confidence_indicator_set["name"], "Confidence/NoConfidence")
         self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
         self.assertEqual(len(confidence_indicator_set["confidence_indicators"]), 2)
 
-        label_set = reponse_data.pop("label_set")
+        label_set = response_data.pop("label_set")
         self.assertEqual(label_set["name"], "Test SPM campaign")
-        self.assertEqual(label_set["desc"], "Label set made for Test SPM campaign")
+        self.assertEqual(
+            label_set["desc"], "Label set made for Test SPM campaign"
+        )
         self.assertEqual(len(label_set["labels"]), 5)
-        expected_reponse["usage"] = 0
+        expected_reponse["usage"] = 'Create'
         expected_reponse["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()
         expected_reponse["archive"] = None
-        self.assertEqual(reponse_data, expected_reponse)
+        self.assertEqual(response_data, expected_reponse)
 
     # Testing 'add_annotators'
 

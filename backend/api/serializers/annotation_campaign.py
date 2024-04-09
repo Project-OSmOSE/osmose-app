@@ -9,6 +9,7 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignArchive,
+    AnnotationCampaignUsage,
 )
 from backend.api.serializers.annotation_set import AnnotationSetSerializer
 from backend.api.serializers.confidence_indicator_set import (
@@ -17,6 +18,7 @@ from backend.api.serializers.confidence_indicator_set import (
 from backend.api.serializers.label_set import LabelSetSerializer
 from .utils import EnumField
 from .user import UserSerializer
+from .utils import EnumField
 
 
 class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
@@ -39,7 +41,9 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     label_set = LabelSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
     dataset_files_count = serializers.SerializerMethodField()
+    datasets_name = serializers.SerializerMethodField()
     archive = AnnotationCampaignArchiveSerializer()
+    usage = EnumField(enum=AnnotationCampaignUsage)
 
     class Meta:
         model = AnnotationCampaign
@@ -53,11 +57,15 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "deadline",
             "label_set",
             "confidence_indicator_set",
-            "datasets",
+            "datasets_name",
             "created_at",
             "usage",
             "dataset_files_count",
         ]
+
+    def get_datasets_name(self, campaign: AnnotationCampaign) -> list[str]:
+        """Get datasets name"""
+        return list(campaign.datasets.values_list("name", flat=True))
 
     @extend_schema_field(serializers.IntegerField)
     def get_dataset_files_count(self, campaign):

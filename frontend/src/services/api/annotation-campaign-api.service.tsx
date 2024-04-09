@@ -47,8 +47,9 @@ export type RetrieveCampaign = {
       isDefault: boolean;
     }>
   };
-  datasets: Array<number>;
+  datasets_name: Array<string>;
   dataset_files_count: number;
+  usage: Usage;
   created_at: Date;
 }
 

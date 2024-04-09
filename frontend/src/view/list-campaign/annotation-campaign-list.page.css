@@ -1,6 +1,7 @@
 #campaign-list {
   display: grid;
   gap: 2rem;
+  font-family: var(--ion-font-family);
 }
 
 
