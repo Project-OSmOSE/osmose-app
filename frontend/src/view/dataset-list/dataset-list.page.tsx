@@ -63,6 +63,8 @@ export const DatasetList: React.FC = () => {
     <Fragment>
       <h1 className="text-center">Datasets</h1>
 
+      {/*<Toast toastMessage={ toastMsg }></Toast>*/ }
+
       <div className="d-flex justify-content-center">
         <IonButton color={ "primary" }
                    disabled={ datasetsToImport.length === 0 }
