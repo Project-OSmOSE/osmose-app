@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, useUsersAPI, } from "@/services/api";
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
-import { IonButton, IonIcon, IonProgressBar } from "@ionic/react";
+import { IonButton, IonIcon, IonProgressBar, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, downloadOutline, people, pricetag } from "ionicons/icons";
 
 import { User } from '@/types/user.ts';
@@ -32,6 +32,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();
   const [error, setError] = useState<any | undefined>(undefined);
+  const [presentAlert, dismissAlert] = useIonAlert();
 
   useEffect(() => {
     let isCancelled = false;
@@ -75,6 +76,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       isCancelled = true;
       campaignService.abort();
       userService.abort();
+      dismissAlert();
     }
   }, [campaignID])
 
@@ -85,8 +87,28 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
   const archive = async () => {
     if (!annotationCampaign) return;
-    await campaignService.archive(annotationCampaign.id);
-    window.location.reload();
+    if (annotationStatus.filter(s => s.finished < s.total).length > 0) {
+      // If annotators haven't finished yet, ask for confirmation
+      return await presentAlert({
+        header: 'Archive',
+        message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
+        cssClass: 'danger-confirm-alert',
+        buttons: [
+          'Cancel',
+          {
+            text: 'Archive',
+            cssClass: 'ion-color-danger',
+            handler: async () => {
+              await campaignService.archive(annotationCampaign.id);
+              window.location.reload();
+            }
+          }
+        ]
+      });
+    } else {
+      await campaignService.archive(annotationCampaign.id);
+      window.location.reload();
+    }
   }
 
   if (error) {
@@ -240,7 +262,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
           <div className="divider"/>
 
           <div className="table-bloc-head first">Dataset sample rate</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">{ c.dataset_sr / 1000 } kHz</div>) }
+          { spectroConfigurations.map(c => <div key={ c.id }
+                                                className="table-bloc-content">{ c.dataset_sr / 1000 } kHz</div>) }
           <div className="divider"/>
 
           <div className="table-bloc-head first">Colormap</div>
@@ -312,7 +335,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
           <div className="divider"/>
 
           <div className="table-bloc-head first">Start</div>
-          { audioMetadata.map(c => <div key={ c.id } className="table-bloc-content">{ c.start.toLocaleString() }</div>) }
+          { audioMetadata.map(c => <div key={ c.id }
+                                        className="table-bloc-content">{ c.start.toLocaleString() }</div>) }
           <div className="divider"/>
 
           <div className="table-bloc-head first">End</div>
