@@ -41,7 +41,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "archive",
         "instructions_url",
         "deadline",
-        "annotation_set",
+        "label_set",
         "annotation_scope",
         "owner",
         "show_spectro_configs",

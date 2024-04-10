@@ -15,6 +15,8 @@ from backend.api.models.annotations import (
     AnnotationSession,
     AnnotationTask,
     AnnotationCampaignUsage,
+    LabelSet,
+    Label,
 )
 from backend.api.models.datasets import (
     DatasetType,

@@ -135,7 +135,14 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            list(response.data.keys()), ["campaign", "tasks", "is_campaign_owner", "spectro_configs", "audio_metadata"]
+            list(response.data.keys()),
+            [
+                "campaign",
+                "tasks",
+                "is_campaign_owner",
+                "spectro_configs",
+                "audio_metadata",
+            ],
         )
         self.assertEqual(
             list(response.data["campaign"].keys()),
@@ -203,9 +210,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
 
         label_set = response_data.pop("label_set")
         self.assertEqual(label_set["name"], "Test SPM campaign")
-        self.assertEqual(
-            label_set["desc"], "Label set made for Test SPM campaign"
-        )
+        self.assertEqual(label_set["desc"], "Label set made for Test SPM campaign")
         self.assertEqual(len(label_set["labels"]), 5)
         expected_reponse["usage"] = "Create"
         expected_reponse["dataset_files_count"] = Dataset.objects.get(

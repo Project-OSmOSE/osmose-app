@@ -53,13 +53,13 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             queryset = queryset.filter(
                 Q(owner_id=request.user.id)
                 | (
-                        Exists(
-                            AnnotationTask.objects.filter(
-                                annotation_campaign_id=OuterRef("pk"),
-                                annotator_id=request.user.id,
-                            )
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=OuterRef("pk"),
+                            annotator_id=request.user.id,
                         )
-                        & Q(archive__isnull=True)
+                    )
+                    & Q(archive__isnull=True)
                 )
             )
         queryset = queryset.prefetch_related("datasets")
