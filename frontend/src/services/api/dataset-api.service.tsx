@@ -2,6 +2,7 @@ import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
 import { APIService } from "./api-service.util.tsx";
 import { useAuthService } from "../auth";
+import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -12,36 +13,8 @@ export type ListItem = {
   end_date: string;
   files_count: number;
   type: string;
-  spectros: Array<ListItemSpectros>;
+  spectros: Array<SpectrogramConfiguration>;
   created_at: string;
-}
-export type ListItemSpectros = {
-  id: number;
-  name: string;
-  desc: string;
-  nfft: number;
-  window_size: number;
-  overlap: number;
-  zoom_level: number;
-  spectro_normalization: string;
-  data_normalization: string;
-  zscore_duration: string;
-  hp_filter_min_freq: number;
-  colormap: string;
-  dynamic_min: number;
-  dynamic_max: number;
-  frequency_resolution: number;
-  time_resolution_zoom_0: number;
-  time_resolution_zoom_1: number;
-  time_resolution_zoom_2: number;
-  time_resolution_zoom_3: number;
-  time_resolution_zoom_4: number;
-  time_resolution_zoom_5: number;
-  time_resolution_zoom_6: number;
-  time_resolution_zoom_7: number;
-  time_resolution_zoom_8: number;
-  window_type: number;
-  dataset: number;
 }
 export type ListToImport = Array<ListToImportItem>
 export type ListToImportItem = {

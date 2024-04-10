@@ -10,13 +10,13 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignArchive,
     AnnotationCampaignUsage,
+    AudioMetadatum,
 )
-from backend.api.serializers.annotation_set import AnnotationSetSerializer
-from backend.api.serializers.confidence_indicator_set import (
+from .confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
-from backend.api.serializers.label_set import LabelSetSerializer
-from .utils import EnumField
+from .dataset import SpectroConfigSerializer, AudioMetadatumSerializer
+from .label_set import LabelSetSerializer
 from .user import UserSerializer
 from .utils import EnumField
 
@@ -93,18 +93,27 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
     is_campaign_owner = serializers.SerializerMethodField("_is_campaign_owner")
+    spectro_configs = SpectroConfigSerializer(many=True)
+    audio_metadata = serializers.SerializerMethodField()
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxCampaignSerializer)
-    def get_campaign(self, campaign):
+    def get_campaign(self, campaign: AnnotationCampaign):
         return AnnotationCampaignRetrieveAuxCampaignSerializer(campaign).data
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxTaskSerializer(many=True))
-    def get_tasks(self, campaign):
+    def get_tasks(self, campaign: AnnotationCampaign):
         return list(
             campaign.tasks.values("status", "annotator_id").annotate(
                 count=Count("status")
             )
         )
+
+    @extend_schema_field(AudioMetadatumSerializer(many=True))
+    def get_audio_metadata(self, campaign: AnnotationCampaign):
+        return AudioMetadatumSerializer(
+            AudioMetadatum.objects.filter(dataset__in=campaign.datasets.all()),
+            many=True,
+        ).data
 
     def _is_campaign_owner(self, campaign: AnnotationCampaign):
         """Get information about current user ownership of this campaign"""

@@ -135,7 +135,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            list(response.data.keys()), ["campaign", "tasks", "is_campaign_owner"]
+            list(response.data.keys()), ["campaign", "tasks", "is_campaign_owner", "spectro_configs", "audio_metadata"]
         )
         self.assertEqual(
             list(response.data["campaign"].keys()),
@@ -193,7 +193,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         }
 
         expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        expected_reponse["datasets_name"] = ['SPM Aural A 2010']
+        expected_reponse["datasets_name"] = ["SPM Aural A 2010"]
         response_data = dict(response.data)
 
         confidence_indicator_set = response_data.pop("confidence_indicator_set")
@@ -207,7 +207,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             label_set["desc"], "Label set made for Test SPM campaign"
         )
         self.assertEqual(len(label_set["labels"]), 5)
-        expected_reponse["usage"] = 'Create'
+        expected_reponse["usage"] = "Create"
         expected_reponse["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()

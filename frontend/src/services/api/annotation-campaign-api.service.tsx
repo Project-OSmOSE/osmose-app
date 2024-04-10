@@ -4,6 +4,8 @@ import { AnnotationCampaignArchive, AnnotationCampaignArchiveDTO } from "@/types
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { LabelSet } from "@/types/label.ts";
+import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
+import { AudioMetadatum, AudioMetadatumDTO } from "@/types/process-metadata/audio.ts";
 
 
 export type List = Array<ListItem>
@@ -27,6 +29,8 @@ export type Retrieve = {
     count: number;
   }>;
   is_campaign_owner: boolean;
+  spectro_configs: Array<SpectrogramConfiguration>;
+  audio_metadata: Array<AudioMetadatum>;
 }
 export type RetrieveCampaign = {
   id: number;
@@ -140,14 +144,14 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 
   retrieve(id: string): Promise<Retrieve> {
     return super.retrieve(id).then(r => ({
+      ...r,
       campaign: {
         ...r.campaign,
         archive: r.campaign.archive ? new AnnotationCampaignArchive(r.campaign.archive as unknown as AnnotationCampaignArchiveDTO) : undefined,
         deadline: r.campaign.deadline ? new Date(r.campaign.deadline) : r.campaign.deadline,
         created_at: new Date(r.campaign.created_at)
       },
-      tasks: r.tasks,
-      is_campaign_owner: r.is_campaign_owner
+      audio_metadata: r.audio_metadata.map(m => new AudioMetadatum(m as unknown as AudioMetadatumDTO))
     }));
   }
 
@@ -160,6 +164,18 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
   public downloadStatus(campaign: RetrieveCampaign): Promise<void> {
     const filename = campaign.name.replace(' ', '_') + '_task_status.csv';
     const url = `${ this.URI }/${ campaign.id }/report_status`;
+    return this.download(url, filename);
+  }
+
+  public downloadSpectroConfig(campaign: RetrieveCampaign): Promise<void> {
+    const filename = campaign.name.replace(' ', '_') + '_spectro_config.csv';
+    const url = `${ this.URI }/${ campaign.id }/spectro_config`;
+    return this.download(url, filename);
+  }
+
+  public downloadAudioMeta(campaign: RetrieveCampaign): Promise<void> {
+    const filename = campaign.name.replace(' ', '_') + '_audio_metadata.csv';
+    const url = `${ this.URI }/${ campaign.id }/audio_metadata`;
     return this.download(url, filename);
   }
 
