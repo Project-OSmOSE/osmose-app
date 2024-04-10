@@ -53,13 +53,13 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             queryset = queryset.filter(
                 Q(owner_id=request.user.id)
                 | (
-                    Exists(
-                        AnnotationTask.objects.filter(
-                            annotation_campaign_id=OuterRef("pk"),
-                            annotator_id=request.user.id,
+                        Exists(
+                            AnnotationTask.objects.filter(
+                                annotation_campaign_id=OuterRef("pk"),
+                                annotator_id=request.user.id,
+                            )
                         )
-                    )
-                    & Q(archive__isnull=True)
+                        & Q(archive__isnull=True)
                 )
             )
         queryset = queryset.prefetch_related("datasets")
@@ -453,4 +453,125 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
         response[
             "Content-Disposition"
         ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_status.csv"'
+        return response
+
+    @extend_schema(
+        responses={(200, "text/csv"): str},
+        examples=[
+            OpenApiExample(
+                "Spectrogram configurations example",
+                # pylint:disable=C0301
+                value="""dataset_name,dataset_sr,nfft,window_size,overlap,colormap,zoom_level,number_adjustment_spectrogram,dynamic_min,dynamic_max,spectro_duration,audio_file_folder_name,data_normalization,hp_filter_min_freq,sensitivity_dB,peak_voltage,spectro_normalization,gain_dB,zscore_duration,window_type,number_spectra,frequency_resolution,temporal_resolution,audio_file_dataset_overlap
+TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,instrument,2,-170.0,2.5,density,0,original,hamming,1555,125.0,0.002,0""",
+                media_type="text/csv",
+            )
+        ],
+    )
+    @action(detail=True, renderer_classes=[CSVRenderer])
+    def spectro_config(self, request, pk=None):
+        """Returns the CSV of spectrogram configurations for the given campaign"""
+
+        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        header = [
+            "dataset_name",
+            "dataset_sr",
+            "nfft",
+            "window_size",
+            "overlap",
+            "colormap",
+            "zoom_level",
+            # "number_adjustment_spectrogram",
+            "dynamic_min",
+            "dynamic_max",
+            # "spectro_duration",
+            # "audio_file_folder_name",
+            "data_normalization",
+            "hp_filter_min_freq",
+            # "sensitivity_dB",
+            # "peak_voltage",
+            "spectro_normalization",
+            # "gain_dB",
+            "zscore_duration",
+            "window_type",
+            # "number_spectra",
+            "frequency_resolution",
+            # "temporal_resolution",
+            # "audio_file_dataset_overlap"
+        ]
+        data = [header]
+
+        for config in campaign.spectro_configs.all():
+            config_data = []
+            for label in header:
+                if label == "dataset_name":
+                    config_data.append(config.dataset.name)
+                elif label == "dataset_sr":
+                    config_data.append(str(config.dataset.audio_metadatum.dataset_sr))
+                else:
+                    config_data.append(str(getattr(config, label)))
+            data.append(config_data)
+
+        response = Response(data)
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_audio_metadata.csv"'
+        return response
+
+    @extend_schema(
+        responses={(200, "text/csv"): str},
+        examples=[
+            OpenApiExample(
+                "Spectrogram configurations example",
+                # pylint:disable=C0301
+                value="""origin_sr,sample_bits,channel_count,audio_file_count,start_date,end_date,audio_file_origin_duration,audio_file_origin_volume,dataset_origin_volume,dataset_origin_duration,is_built,audio_file_dataset_overlap,lat,lon,depth,dataset_sr,audio_file_dataset_duration
+128000,16,1,10,2022-07-17T00:25:46.000000+0200,2022-07-17T23:22:17.000000+0200,10,2.560036,25.6,100,True,0,48.5,-5.5,100,128000,10
+""",
+                media_type="text/csv",
+            )
+        ],
+    )
+    @action(detail=True, renderer_classes=[CSVRenderer])
+    def audio_metadata(self, request, pk=None):
+        """Returns the CSV of spectrogram configurations for the given campaign"""
+
+        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        header = [
+            "dataset",
+            # "origin_sr",
+            "sample_bits",
+            "channel_count",
+            # "audio_file_count",
+            "start_date",
+            "end_date",
+            # "audio_file_origin_duration",
+            # "audio_file_origin_volume",
+            # "dataset_origin_volume",
+            # "dataset_origin_duration",
+            # "is_built",
+            # "audio_file_dataset_overlap",
+            # "lat",
+            # "lon",
+            # "depth",
+            "dataset_sr",
+            # "audio_file_dataset_duration"
+        ]
+        data = [header]
+
+        for dataset in campaign.datasets.all():
+            metadatum_data = []
+            for label in header:
+                if label == "dataset":
+                    metadatum_data.append(dataset.name)
+                elif label == "start_date":
+                    metadatum_data.append(str(dataset.audio_metadatum.start))
+                elif label == "end_date":
+                    metadatum_data.append(str(dataset.audio_metadatum.end))
+                else:
+                    metadatum_data.append(str(getattr(dataset.audio_metadatum, label)))
+            data.append(metadatum_data)
+
+        response = Response(data)
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_audio_metadata.csv"'
         return response
