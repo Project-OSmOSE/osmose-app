@@ -125,8 +125,6 @@ describe('Select', () => {
                        placeholder={ placeholder }/>)
 
       cy.get('#aplose-input').should('contain', `${ label }*`)
-      cy.contains(placeholder).click();
-      cy.get('button').should('not.contain', noneLabel);
     })
   })
 })

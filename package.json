@@ -12,7 +12,7 @@
     "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
     "server:lint": "poetry run pylint backend",
-    "preaplose:test": "npm run server:seed",
+    "preaplose:test": "npm run server:migrate && npm run server:seed",
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",
     "osmose:run": "cd website && npm run start",
