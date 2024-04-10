@@ -57,7 +57,6 @@ jobs:
         env:
           CYPRESS_CI_ENV: true
         with:
-          browser: firefox
           component: true
           working-directory: frontend
           start: |
