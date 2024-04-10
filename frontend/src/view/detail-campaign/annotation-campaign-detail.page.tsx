@@ -115,7 +115,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         <div className="item">
           <IonIcon className="icon" icon={ pricetag }/>
           <p className="label">Label set:</p>
-          <p>{ annotationCampaign.annotation_set.name }</p>
+          <p>{ annotationCampaign.label_set.name }</p>
         </div>
 
         <div className="item">
