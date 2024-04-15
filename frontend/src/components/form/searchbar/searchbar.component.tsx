@@ -20,11 +20,7 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
     setSearchResult(
       props.values.filter(value => {
         const valueData = value.label.split(' ').filter(v => v).map(v => v.toLowerCase());
-        for (const s of searchData) {
-          if (valueData.find(v => v.includes(s))) continue;
-          return false;
-        }
-        return true;
+        return searchData.every(s => valueData.find(v => v.includes(s)))
       })
         .sort((a, b) => {
           const aShow = a.label.toLowerCase();

@@ -79,13 +79,13 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
                                         key={ o.value }>{ o.label }</option>) }
       </select>
 
-      <div id={ buttonId }
+      <button id={ buttonId }
            onClick={ () => !disabled && setIsOpen(!isOpen) }
-           className={ 'button' + (!value && !hasSelectedItem ? ' placeholder' : '') }>
+           className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
         <p>{ buttonLabel }</p>
         { !isOpen && <IonIcon icon={ caretDown }/> }
         { isOpen && <IonIcon icon={ caretUp }/> }
-      </div>
+      </button>
 
       { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>
         { getOptions().map(v => <div className="item" onClick={ () => {

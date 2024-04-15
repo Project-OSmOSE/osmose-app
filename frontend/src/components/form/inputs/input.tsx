@@ -19,10 +19,10 @@ export const Input: React.FC<InputProperties> = ({
   const className = [];
   if (startIcon) className.push('has-start-icon');
   return <div id="aplose-input" aria-disabled={ disabled }>
-    { label && <p id="label"
+    { label && <label id="label"
                   className={ required ? 'required' : '' }>
       { label }{ required ? '*' : '' }
-    </p> }
+    </label> }
 
     <div id="input">
       { startIcon && <IonIcon id="input-start-icon" icon={ startIcon }/> }
