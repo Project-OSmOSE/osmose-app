@@ -63,6 +63,24 @@ services:
       STAGE: "${HTTPS_PORTAL_STAGE:-production}"
     restart: always
 
+  # DEV only: Access to DB
+#  pgadmin:
+#    container_name: osmose_pgadmin
+#    image: dpage/pgadmin4:latest
+#    restart: unless-stopped
+#    ports:
+#      - 8080:80
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@osmose.fr
+#      PGADMIN_DEFAULT_PASSWORD: osmose29
+#    volumes:
+#      - pgadmin_data:/var/lib/pgadmin
+#    links:
+#      - db:pgsql-server
+#    depends_on:
+#      - db
+
 volumes:
   https-portal-data:
   static:
+#  pgadmin_data:
