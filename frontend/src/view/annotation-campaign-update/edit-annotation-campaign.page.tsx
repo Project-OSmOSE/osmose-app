@@ -14,7 +14,7 @@ export const EditAnnotationCampaign: React.FC = () => {
   const { id: campaignID } = useParams<{id: string}>()
   const history = useHistory();
   const [campaign, setCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
-  const [annotators, setAnnotators] = useState<UserList>([]);
+  const [newAnnotators, setNewAnnotators] = useState<UserList>([]);
   const [annotationGoal, setAnnotationGoal] = useState<number>(0);
   const [annotationMethod, setAnnotationMethod] = useState<AnnotationMethod>(AnnotationMethod.notSelected);
   const [users, setUsers] = useState<UserList>([]);
@@ -34,7 +34,7 @@ export const EditAnnotationCampaign: React.FC = () => {
     ]).then(([data, users]) => {
       const annotatorIds = [...new Set(data.tasks.map(t => t.annotator_id))];
       const annotatorList = annotatorIds.map(id => users.find(u => u.id === id)).filter(u => u !== undefined) as UserList;
-      setAnnotators(annotatorList);
+      setNewAnnotators([]);
       setCampaign(data.campaign);
       setUsers(users.filter(u => annotatorList.indexOf(u) < 0));
     }).catch(e => {
@@ -54,7 +54,7 @@ export const EditAnnotationCampaign: React.FC = () => {
     if (!campaign) return;
     try {
       await campaignService.addAnnotators(campaign.id, {
-        annotators: annotators.map(a => a.id),
+        annotators: newAnnotators.map(a => a.id),
         annotation_method: annotationMethod,
         annotation_goal: annotationGoal === 0 ? undefined : annotationGoal
       });
@@ -85,7 +85,7 @@ export const EditAnnotationCampaign: React.FC = () => {
     )
   }
 
-  if (users.length === 0) {
+  if (users.length === 0 && newAnnotators.length === 0) {
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">Edit Annotation Campaign</h1>
@@ -108,10 +108,10 @@ export const EditAnnotationCampaign: React.FC = () => {
       <form onSubmit={ handleSubmit }>
         <AnnotatorsSelectComponent users={users}
                                    setUsers={setUsers}
-                                   annotators={annotators}
-                                   setAnnotators={setAnnotators}
+                                   annotators={newAnnotators}
+                                   setAnnotators={setNewAnnotators}
                                    annotationGoal={annotationGoal}
-                                   setAnnotationGoal={setAnnotationGoal}/>
+                                   setAnnotationGoal={() => {}}/>
 
         <AnnotationGoalEditInputComponent annotationGoal={annotationGoal}
                                           setAnnotationGoal={setAnnotationGoal}/>
