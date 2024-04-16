@@ -86,7 +86,7 @@ class SpectroConfig(models.Model):
     zoom_level = models.IntegerField()
     spectro_normalization = models.CharField(max_length=255)
     data_normalization = models.CharField(max_length=255)
-    zscore_duration = models.CharField(max_length=255)
+    zscore_duration = models.CharField(max_length=255, null=True, blank=True)
     hp_filter_min_freq = models.IntegerField()
     colormap = models.CharField(max_length=255)
     dynamic_min = models.IntegerField()
@@ -95,9 +95,16 @@ class SpectroConfig(models.Model):
         WindowType, on_delete=models.CASCADE, blank=True, null=True
     )
     frequency_resolution = models.FloatField()
+    temporal_resolution = models.FloatField(null=True, blank=True)
     dataset = models.ForeignKey(
         Dataset, on_delete=models.CASCADE, related_name="spectro_configs"
     )
+    sensitivity_dB = models.FloatField(null=True, blank=True)
+    spectro_duration = models.FloatField(null=True, blank=True)
+    peak_voltage = models.FloatField(null=True, blank=True)
+    gain_dB = models.FloatField(null=True, blank=True)
+    number_spectra = models.FloatField(null=True, blank=True)
+    audio_file_dataset_overlap = models.FloatField(null=True, blank=True)
     time_resolution_zoom_0 = models.FloatField(default=0)
     time_resolution_zoom_1 = models.FloatField(default=0)
     time_resolution_zoom_2 = models.FloatField(default=0)

@@ -280,11 +280,49 @@ export const AnnotationCampaignDetail: React.FC = () => {
           </div>) }
           <div className="divider"/>
 
+          <div className="table-bloc-head first">Spectrogram duration</div>
+          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+            { c.spectro_duration }
+          </div>) }
+          <div className="divider"/>
+
           <div className="table-bloc-head first">Data normalization</div>
           { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
             { c.data_normalization }
           </div>) }
           <div className="divider"/>
+
+          { spectroConfigurations.some(c => c.data_normalization === 'zscore') && <Fragment>
+              <div className="table-bloc-head first">Zscore duration</div>
+            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+              { c.zscore_duration }
+            </div>) }
+              <div className="divider"/>
+          </Fragment> }
+
+          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
+              <div className="table-bloc-head first">Sensitivity (dB)</div>
+            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+              { c.sensitivity_dB }
+            </div>) }
+              <div className="divider"/>
+          </Fragment> }
+
+          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
+              <div className="table-bloc-head first">Gain (dB)</div>
+            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+              { c.gain_dB }
+            </div>) }
+              <div className="divider"/>
+          </Fragment> }
+
+          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
+              <div className="table-bloc-head first">Peak voltage</div>
+            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+              { c.peak_voltage }
+            </div>) }
+              <div className="divider"/>
+          </Fragment> }
 
           <div className="table-bloc-head first">High pass filter minimum frequency</div>
           { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
@@ -298,15 +336,23 @@ export const AnnotationCampaignDetail: React.FC = () => {
           </div>) }
           <div className="divider"/>
 
-          <div className="table-bloc-head first">Zscore duration</div>
+          <div className="table-bloc-head first">Resolution</div>
           { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.zscore_duration }
+            { c.frequency_resolution } Hz
+            <br/>
+            { c.temporal_resolution } s
           </div>) }
           <div className="divider"/>
 
-          <div className="table-bloc-head first">Frequency resolution</div>
+          <div className="table-bloc-head first">Audio file dataset overlap</div>
           { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.frequency_resolution } Hz
+            { c.audio_file_dataset_overlap }
+          </div>) }
+          <div className="divider"/>
+
+          <div className="table-bloc-head first">Number spectrum</div>
+          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
+            { c.number_spectra }
           </div>) }
         </div>
       </div>

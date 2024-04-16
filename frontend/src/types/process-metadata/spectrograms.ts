@@ -15,6 +15,13 @@ export interface SpectrogramConfiguration {
   dynamic_min: number;
   dynamic_max: number;
   frequency_resolution: number;
+  spectro_duration?: number;
+  sensitivity_dB?: number;
+  peak_voltage?: number;
+  gain_dB?: number;
+  number_spectra?: number;
+  temporal_resolution?: number;
+  audio_file_dataset_overlap?: number;
   time_resolution_zoom_0: number;
   time_resolution_zoom_1: number;
   time_resolution_zoom_2: number;
