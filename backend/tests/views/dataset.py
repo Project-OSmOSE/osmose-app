@@ -1,6 +1,7 @@
 """Dataset DRF-Viewset test file"""
 import unittest
 
+from django.http import HttpResponse
 from django.urls import reverse
 from django.test import override_settings
 from django.conf import settings
@@ -86,7 +87,8 @@ class DatasetViewSetTestCase(APITestCase):
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
         data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
-        response = self.client.post(url, data_send, format="json", follow=True)
+        response: HttpResponse = self.client.post(url, data_send, format="json", follow=True)
+        print(">>> response:", response.status_code, response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Dataset.objects.count(), old_count + 1)
         self.assertEqual(Dataset.objects.latest("id").files.count(), 10)

@@ -57,7 +57,25 @@ def check_new_spectro_config_errors():
                             spectro_needed = {
                                 key: value
                                 for (key, value) in spectro.items()
-                                if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
+                                if key
+                                in [
+                                    "nfft",
+                                    "window_size",
+                                    "overlap",
+                                    "zoom_level",
+                                    "spectro_normalization",
+                                    "data_normalization",
+                                    "hp_filter_min_freq",
+                                    "colormap",
+                                    "dynamic_min",
+                                    "dynamic_max",
+                                    "window_type",
+                                    "frequency_resolution",
+                                    "temporal_resolution",
+                                    "spectro_duration",
+                                    "number_spectra",
+                                    "audio_file_dataset_overlap",
+                                ]
                             }
                             dataset_spectros.append(
                                 SpectroConfig.objects.update_or_create(

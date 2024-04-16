@@ -32,7 +32,7 @@ def datawork_import(*, wanted_datasets, importer):
 
     # Check for new datasets
     with open(
-        settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+            settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
     ) as csvfile:
         for dataset in csv.DictReader(csvfile):
             dname = dataset["name"]
@@ -52,10 +52,10 @@ def datawork_import(*, wanted_datasets, importer):
 
         # Audio
         audio_folder = (
-            settings.DATASET_IMPORT_FOLDER
-            / dataset["folder_name"]
-            / settings.DATASET_FILES_FOLDER
-            / dataset["conf_folder"]
+                settings.DATASET_IMPORT_FOLDER
+                / dataset["folder_name"]
+                / settings.DATASET_FILES_FOLDER
+                / dataset["conf_folder"]
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
@@ -95,10 +95,10 @@ def datawork_import(*, wanted_datasets, importer):
         dataset_folder = dataset_path.split("datawork/dataset/")[1]
 
         conf_folder_path = (
-            settings.DATASET_IMPORT_FOLDER
-            / dataset_folder
-            / settings.DATASET_SPECTRO_FOLDER
-            / conf_folder
+                settings.DATASET_IMPORT_FOLDER
+                / dataset_folder
+                / settings.DATASET_SPECTRO_FOLDER
+                / conf_folder
         )
 
         # Search all sub folder, each sub folder have one metadata.csv
@@ -111,19 +111,51 @@ def datawork_import(*, wanted_datasets, importer):
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
                     name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
-                    window_type = WindowType.objects.filter(
-                        name=spectro["window_type"]
-                    ).first()
-                    spectro["window_type"] = window_type
 
-                    spectro_needed = {
-                        key: value
-                        for (key, value) in spectro.items()
-                        if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
-                    }
+                    is_instrument_normalization = (
+                            spectro["data_normalization"] == "instrument"
+                    )
+                    is_zscore_normalization = spectro["data_normalization"] == "zscore"
 
                     new_spectro = SpectroConfig.objects.update_or_create(
-                        name=name, defaults=spectro_needed, dataset=curr_dataset
+                        name=name,
+                        dataset=curr_dataset,
+                        nfft=spectro["nfft"],
+                        window_size=spectro["window_size"],
+                        overlap=spectro["overlap"],
+                        zoom_level=spectro["zoom_level"],
+                        spectro_normalization=spectro["spectro_normalization"],
+                        data_normalization=spectro["data_normalization"],
+                        hp_filter_min_freq=spectro["hp_filter_min_freq"],
+                        colormap=spectro["colormap"],
+                        dynamic_min=spectro["dynamic_min"],
+                        dynamic_max=spectro["dynamic_max"],
+                        window_type=WindowType.objects.get_or_create(
+                            name=spectro["window_type"]
+                        )[0],
+                        frequency_resolution=spectro["frequency_resolution"],
+                        temporal_resolution=spectro["temporal_resolution"]
+                        if "temporal_resolution" in spectro else None,
+                        spectro_duration=spectro["spectro_duration"]
+                        if "spectro_duration" in spectro else None,
+                        number_spectra=spectro["number_spectra"]
+                        if "number_spectra" in spectro else None,
+                        audio_file_dataset_overlap=spectro[
+                            "audio_file_dataset_overlap"
+                        ]
+                        if "audio_file_dataset_overlap" in spectro else None,
+                        zscore_duration=spectro["zscore_duration"]
+                        if is_zscore_normalization
+                        else None,
+                        sensitivity_dB=spectro["sensitivity_dB"]
+                        if is_instrument_normalization and "sensitivity_dB" in spectro
+                        else None,
+                        peak_voltage=spectro["peak_voltage"]
+                        if is_instrument_normalization and "peak_voltage" in spectro
+                        else None,
+                        gain_dB=spectro["gain_dB"]
+                        if is_instrument_normalization and "gain_dB" in spectro
+                        else None,
                     )[0]
                     new_spectro.save()
 
@@ -136,10 +168,10 @@ def datawork_import(*, wanted_datasets, importer):
                 audio_metadatum = AudioMetadatum.objects.create(
                     start=start,
                     end=(
-                        start
-                        + timedelta(
-                            seconds=float(audio_raw["audio_file_dataset_duration"])
-                        )
+                            start
+                            + timedelta(
+                        seconds=float(audio_raw["audio_file_dataset_duration"])
+                    )
                     ),
                 )
                 dataset_files.append(
@@ -147,8 +179,8 @@ def datawork_import(*, wanted_datasets, importer):
                         dataset=curr_dataset,
                         filename=timestamp_data["filename"],
                         filepath=settings.DATASET_FILES_FOLDER
-                        / dataset["conf_folder"]
-                        / timestamp_data["filename"],
+                                 / dataset["conf_folder"]
+                                 / timestamp_data["filename"],
                         size=0,
                         audio_metadatum=audio_metadatum,
                     )

@@ -480,23 +480,21 @@ TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,in
             "overlap",
             "colormap",
             "zoom_level",
-            # "number_adjustment_spectrogram",
             "dynamic_min",
             "dynamic_max",
-            # "spectro_duration",
-            # "audio_file_folder_name",
+            "spectro_duration",
             "data_normalization",
             "hp_filter_min_freq",
-            # "sensitivity_dB",
-            # "peak_voltage",
+            "sensitivity_dB",  # seulement pour normalisation instrument / vide pour zscore
+            "peak_voltage",  # seulement pour normalisation instrument / vide pour zscore
+            "gain_dB",  # seulement pour normalisation instrument / vide pour zscore
             "spectro_normalization",
-            # "gain_dB",
-            "zscore_duration",
+            "zscore_duration",  # seulement pour normalisation zscore / vide pour instrument
             "window_type",
-            # "number_spectra",
+            "number_spectra",
             "frequency_resolution",
-            # "temporal_resolution",
-            # "audio_file_dataset_overlap"
+            "temporal_resolution",
+            "audio_file_dataset_overlap",
         ]
         data = [header]
 
@@ -508,7 +506,12 @@ TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,in
                 elif label == "dataset_sr":
                     config_data.append(str(config.dataset.audio_metadatum.dataset_sr))
                 else:
-                    config_data.append(str(getattr(config, label)))
+                    value = getattr(config, label)
+                    if value is None:
+                        value = ""
+                    else:
+                        value = str(value)
+                    config_data.append(value)
             data.append(config_data)
 
         response = Response(data)
@@ -537,14 +540,11 @@ TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,in
         campaign = get_object_or_404(AnnotationCampaign, pk=pk)
         header = [
             "dataset",
-            # "origin_sr",
             "sample_bits",
             "channel_count",
-            # "audio_file_count",
+            "audio_file_count",
             "start_date",
             "end_date",
-            # "audio_file_origin_duration",
-            # "audio_file_origin_volume",
             # "dataset_origin_volume",
             # "dataset_origin_duration",
             # "is_built",
@@ -553,7 +553,7 @@ TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,in
             # "lon",
             # "depth",
             "dataset_sr",
-            # "audio_file_dataset_duration"
+            "audio_file_dataset_duration",
         ]
         data = [header]
 
