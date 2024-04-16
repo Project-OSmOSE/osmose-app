@@ -98,6 +98,7 @@ export const useImportAnnotations = () => {
       dispatch(importAnnotationsActions.setFilename(file.name));
 
       if (!ACCEPT_CSV_MIME_TYPE.includes(file.type)) {
+        console.warn('Load CSV', 'Unsupported MIME type:', file.type);
         dispatch(importAnnotationsActions.setErrors(['unrecognised file']))
         dispatch(importAnnotationsActions.setStatus('errors'));
         return;
@@ -107,6 +108,7 @@ export const useImportAnnotations = () => {
       reader.readAsText(file, 'UTF-8');
 
       reader.onerror = () => {
+        console.warn('Load CSV', 'Reading error');
         dispatch(importAnnotationsActions.setErrors(['unrecognised file']))
         dispatch(importAnnotationsActions.setStatus('errors'));
       }
@@ -114,6 +116,7 @@ export const useImportAnnotations = () => {
       reader.onload = (event) => {
         const result = event.target?.result;
         if (!result || typeof result !== 'string') {
+          console.warn('Load CSV', 'Unsupported read data', result);
           dispatch(importAnnotationsActions.setErrors(['unrecognised file']))
           dispatch(importAnnotationsActions.setStatus('errors'));
           return;
@@ -126,6 +129,7 @@ export const useImportAnnotations = () => {
             IMPORT_ANNOTATIONS_COLUMNS
           );
           if (!data) {
+            console.warn('Load CSV', 'Empty formatted data');
             dispatch(importAnnotationsActions.setErrors(['unrecognised file']))
             dispatch(importAnnotationsActions.setStatus('errors'));
             return;
@@ -152,6 +156,7 @@ export const useImportAnnotations = () => {
             })
           ));
         } catch (e) {
+          console.debug('unrecognized file', e)
           dispatch(importAnnotationsActions.setErrors(['unrecognised file']))
           dispatch(importAnnotationsActions.setStatus('errors'));
         }

@@ -13,8 +13,6 @@ export const IMPORT_ANNOTATIONS_COLUMNS = {
     'annotation',
     'annotator',
     'is_box',
-    'confidence_indicator_label',
-    'confidence_indicator_level'
   ],
   optional: [
     'confidence_indicator_label',

@@ -52,10 +52,10 @@ export function buildErrorMessage(e: any): string {
 export function formatCSV(content: string,
                           separator: string,
                           columns: CSVColumns) {
-  let lines = content.split('\n').map(l => [l]);
+  let lines = content.replace('\r', '').split('\n').map(l => [l]);
   lines = lines.map(l => l.flatMap(l => l.split(separator)));
 
-  const headers = lines.shift();
+  const headers = lines.shift()?.map(h => h.replace('\r', ''));
   if (!headers) throw new Error('Missing header line');
 
   const missingColumns = [];
