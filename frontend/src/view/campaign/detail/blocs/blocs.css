@@ -38,6 +38,39 @@
   grid-template-columns: 1fr minmax(auto, 192px);
 }
 
+#campaign-detail-status .table-aplose .table-head {
+  cursor: pointer;
+  transition: 300ms;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+  "title caret-up"
+  "title caret-down";
+  column-gap: 0.5rem;
+  align-items: center;
+  align-content: center;
+}
+#campaign-detail-status .table-aplose .table-head p {
+  grid-area: title;
+}
+#campaign-detail-status .table-aplose .table-head .up {
+  grid-area: caret-up;
+}
+#campaign-detail-status .table-aplose .table-head .down {
+  grid-area: caret-down;
+}
+#campaign-detail-status .table-aplose .table-head ion-icon {
+  color: rgba(var(--ion-color-medium-rgb), 0.5);
+}
+
+#campaign-detail-status .table-aplose .table-head ion-icon.active {
+  color: var(--ion-color-medium);
+}
+
+#campaign-detail-status .table-aplose .table-head:hover p {
+  font-weight: 500;
+}
+
 #campaign-detail-status .table-aplose .table-content {
   justify-items: start;
 }
