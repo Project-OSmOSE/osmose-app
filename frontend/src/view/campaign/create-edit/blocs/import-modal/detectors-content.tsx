@@ -1,7 +1,7 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonCheckbox, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
-import { useAppSelector } from "@/slices/app";
+import { useAppSelector } from "@/slices/app.ts";
 import { DetectorList } from "@/services/api";
 import { CSVDetectorItem } from "@/types/csv-import-annotations.ts";
 import { Select, Input, Textarea, FormBloc } from "@/components/form";

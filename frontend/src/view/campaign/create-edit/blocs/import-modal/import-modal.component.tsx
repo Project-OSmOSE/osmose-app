@@ -11,7 +11,7 @@ import { DetectorList } from "@/services/api";
 import { chevronForwardOutline } from "ionicons/icons";
 import { CSVImportContent } from "./csv-import-content.tsx";
 import { DetectorsContent } from "./detectors-content.tsx";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import './import-modal.component.css';
 import { createCampaignActions } from "@/slices/create-campaign";

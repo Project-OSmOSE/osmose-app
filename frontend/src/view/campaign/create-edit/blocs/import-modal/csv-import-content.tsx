@@ -1,8 +1,8 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonCheckbox, IonRadio, IonRadioGroup } from "@ionic/react";
-import { WarningMessage } from "@/components/warning/warning-message.component";
+import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { FormBloc, DragNDropFileInput, DragNDropState } from "@/components/form";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppSelector, useAppDispatch } from "@/slices/app.ts";
 import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
