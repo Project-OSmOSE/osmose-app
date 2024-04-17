@@ -7,6 +7,7 @@ import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
 export type AnnotatorSlice = {
   taskId?: number;
   campaignId?: number;
+  campaignName?: string;
   audioURL?: string;
   instructionsURL?: string;
   prevAndNextAnnotation?: {
@@ -32,6 +33,7 @@ export const annotatorSlice = createSlice({
         audioURL: action.payload.audioUrl,
         instructionsURL: action.payload.instructions_url,
         campaignId: action.payload.campaignId,
+        campaignName: action.payload.campaignName,
         audioRate: action.payload.audioRate,
         prevAndNextAnnotation: action.payload.prevAndNextAnnotation,
         mode: action.payload.mode,

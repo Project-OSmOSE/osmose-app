@@ -199,6 +199,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     # pylint: disable=invalid-name
     id = serializers.IntegerField()
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
+    campaignName = serializers.CharField(source="annotation_campaign.name")
     labels = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
     audioUrl = serializers.SerializerMethodField()
