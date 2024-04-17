@@ -24,13 +24,16 @@ export const Table: React.FC<TableProps> = ({
 interface CellProps {
   children: ReactNode;
   isFirstColumn?: boolean;
+  onClick?: () => void;
 }
 
 export const TableHead: React.FC<CellProps> = ({
                                                  children,
-                                                 isFirstColumn
+                                                 isFirstColumn,
+                                                 onClick,
                                                }) => (
-  <div className={ `table-head ${ isFirstColumn ? 'first' : '' }` }>
+  <div className={ `table-head ${ isFirstColumn ? 'first' : '' }` }
+       onClick={ onClick }>
     { children }
   </div>
 )
@@ -38,8 +41,10 @@ export const TableHead: React.FC<CellProps> = ({
 export const TableContent: React.FC<CellProps> = ({
                                                     children,
                                                     isFirstColumn,
+                                                    onClick,
                                                   }) => (
-  <div className={ `table-content ${ isFirstColumn ? 'first' : '' }` }>
+  <div className={ `table-content ${ isFirstColumn ? 'first' : '' }` }
+       onClick={ onClick }>
     { children }
   </div>
 )
