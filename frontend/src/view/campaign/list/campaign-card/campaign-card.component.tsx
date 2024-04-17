@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonBadge, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
 import { ListItem } from "@/services/api/annotation-campaign-api.service.tsx";
-import './campaign-card.component.css';
 import { crop } from "ionicons/icons";
+import './campaign-card.component.css';
 
 interface Props {
   campaign: ListItem
@@ -57,7 +57,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
         <p>{ campaign.usage }</p>
       </div>
 
-      <div className="progression">
+      { campaign.my_total > 0 && <div className="my progression">
         <p>
           <span className="progress-label">
             My progress:
@@ -67,7 +67,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
         </p>
         <IonProgressBar color={ color }
                         value={ campaign.my_progress / campaign.my_total }/>
-      </div>
+      </div>}
       <div className="progression">
         <p>
           <span className="progress-label">
