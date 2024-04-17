@@ -4,13 +4,13 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
-import { AnnotationCampaignList } from "@/view/list-campaign/annotation-campaign-list.page.tsx";
-import { AnnotationCampaignDetail } from "@/view/detail-campaign/annotation-campaign-detail.page.tsx";
-import { EditCampaign } from "@/view/create-campaign/edit-campaign.page.tsx";
+import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
+import { AnnotationCampaignDetail } from "@/view/campaign/detail/annotation-campaign-detail.page.tsx";
+import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";
+import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
 
 import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";

@@ -5,7 +5,7 @@ import { AnnotationCampaignList as List, useAnnotationCampaignAPI } from "@/serv
 import { useToast } from "@/services/utils/toast.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { searchFilter } from "@/services/utils/search.ts";
-import { CampaignCard } from "@/view/list-campaign/campaign-card/campaign-card.component.tsx";
+import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import './annotation-campaign-list.page.css'
 
 

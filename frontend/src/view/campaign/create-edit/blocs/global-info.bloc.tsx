@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { createCampaignActions } from "@/slices/create-campaign";
 import { FormBloc, Input, Textarea } from "@/components/form";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
 
 export const GlobalInfoBloc: React.FC = () => {
 

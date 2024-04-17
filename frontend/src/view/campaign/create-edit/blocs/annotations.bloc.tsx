@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { cloudUploadOutline, trashOutline } from "ionicons/icons";
 import { createCampaignActions, } from "@/slices/create-campaign";
-import { useBlur } from "@/services/utils/clic";
+import { useBlur } from "@/services/utils/clic.ts";
 import {
   ConfidenceSetList, DetectorList, useConfidenceSetAPI, useDetectorsAPI
 } from '@/services/api';
@@ -10,7 +10,7 @@ import { useLabelSetAPI } from '@/services/api/label-set-api.service.tsx';
 import { FormBloc, Select, ChipsInput } from "@/components/form";
 import { Usage } from "@/types/annotations.ts";
 import { ImportModal } from "./import-modal/import-modal.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppSelector, useAppDispatch } from "@/slices/app.ts";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import { LabelSet } from "@/types/label.ts";

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createCampaignActions } from "@/slices/create-campaign";
 import { DatasetList, useDatasetsAPI } from "@/services/api";
 import { FormBloc, Select, ChipsInput } from "@/components/form";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppSelector, useAppDispatch } from "@/slices/app.ts";
 import { useToast } from "@/services/utils/toast.ts";
 
 export const DatasetBloc: React.FC = () => {
