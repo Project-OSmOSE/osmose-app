@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonBadge, IonButton, IonProgressBar } from '@ionic/react';
+import { IonBadge, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
 import { ListItem } from "@/services/api/annotation-campaign-api.service.tsx";
 import './campaign-card.component.css';
+import { crop } from "ionicons/icons";
 
 interface Props {
   campaign: ListItem
@@ -48,6 +49,12 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
 
         <p id="campaign-name">{ campaign.name }</p>
         <p id="dataset-name">{ campaign.datasets_name }</p>
+      </div>
+
+      <div className="property">
+        <IonIcon className="icon" icon={ crop }/>
+        <p className="label">Mode:</p>
+        <p>{ campaign.usage }</p>
       </div>
 
       <div className="progression">

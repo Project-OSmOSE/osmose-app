@@ -3,7 +3,9 @@ from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationCampaign,
+    AnnotationCampaignUsage,
 )
+from backend.api.serializers.utils import EnumField
 
 AnnotationCampaignListFields = [
     "id",
@@ -16,6 +18,7 @@ AnnotationCampaignListFields = [
     "my_total",
     "progress",
     "total",
+    "usage",
 ]
 
 
@@ -29,6 +32,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     my_total = serializers.IntegerField()
     progress = serializers.IntegerField()
     total = serializers.IntegerField()
+    usage = EnumField(enum=AnnotationCampaignUsage)
 
     class Meta:
         model = AnnotationCampaign

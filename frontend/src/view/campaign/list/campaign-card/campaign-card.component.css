@@ -34,6 +34,23 @@
 }
 
 
+#campaign-card .property {
+  display: grid;
+  gap: 0.5rem;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: start;
+  font-weight: 500;
+}
+
+#campaign-card .property .icon {
+  opacity: 0.5;
+}
+
+#campaign-card .property .label {
+  font-weight: 300;
+}
+
 #campaign-card .progression {
   display: grid;
 }

@@ -20,6 +20,7 @@ export type ListItem = {
   my_total: number;
   progress: number;
   total: number;
+  usage: Usage;
 }
 export type Retrieve = {
   campaign: RetrieveCampaign;
