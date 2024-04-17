@@ -1,0 +1,47 @@
+#campaign-detail-global-info {
+  grid-template-columns: 1fr 1fr;
+  justify-items: start;
+}
+
+#campaign-detail-global-info h5 {
+  justify-self: center;
+  grid-column: 1 / 3;
+}
+
+#campaign-detail-global-info .item {
+  display: grid;
+  gap: 0.5rem;
+  grid-auto-flow: column;
+  align-items: center;
+  font-weight: 500;
+}
+
+#campaign-detail-global-info .item .icon {
+  opacity: 0.5;
+}
+
+#campaign-detail-global-info .item .label,
+#campaign-detail-global-info .description .label {
+  font-weight: 300;
+}
+
+#campaign-detail-global-info .description {
+  grid-column: 1 / 3;
+}
+
+#campaign-detail-global-info .buttons {
+  grid-column: 1 / 3;
+}
+
+
+#campaign-detail-status .table-aplose {
+  grid-template-columns: 1fr minmax(auto, 192px);
+}
+
+#campaign-detail-status .table-aplose .table-content {
+  justify-items: start;
+}
+
+#campaign-detail-status .table-aplose .table-content.first {
+  justify-items: center;
+}

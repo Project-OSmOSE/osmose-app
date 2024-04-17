@@ -71,61 +71,6 @@
   margin: 0;
 }
 
-
-#detail-campaign > #global-info {
-  grid-template-columns: 1fr 1fr;
-  justify-items: start;
-}
-
-#detail-campaign > #global-info h5 {
-  justify-self: center;
-  grid-column: 1 / 3;
-}
-
-
-#detail-campaign > #global-info .item {
-  display: grid;
-  gap: 0.5rem;
-  grid-auto-flow: column;
-  align-items: center;
-  font-weight: 500;
-}
-
-#detail-campaign > #global-info .item .icon {
-  opacity: 0.5;
-}
-
-#detail-campaign > #global-info .item .label,
-#detail-campaign > #global-info .description .label {
-  font-weight: 300;
-}
-
-#detail-campaign > #global-info .description {
-  grid-column: 1 / 3;
-}
-
-#detail-campaign > #global-info .buttons {
-  grid-column: 1 / 3;
-}
-
-#detail-campaign > #status.bloc .table-bloc {
-  grid-template-columns: 1fr minmax(auto, 192px);
-}
-#detail-campaign > #status.bloc .table-bloc .table-bloc-content {
-  justify-items: start;
-}
-#detail-campaign > #status.bloc .table-bloc .table-bloc-content.first {
-  justify-items: center;
-}
-#detail-campaign > #spectro-conf.bloc .table-bloc .first,
-#detail-campaign > #audio-meta.bloc .table-bloc .first {
-  border: none;
-  border-right: 1px solid rgba(var(--ion-color-medium-rgb), 0.5);
-  position: sticky;
-  left: 0;
-  background: white;
-}
-
 #detail-campaign .buttons {
   justify-self: end;
   display: grid;
