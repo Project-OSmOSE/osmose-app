@@ -1,23 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
-import { addOutline, closeCircle, helpBuoyOutline } from "ionicons/icons";
+import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionicons/icons";
 import { AnnotationCampaignList as List, useAnnotationCampaignAPI } from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import './annotation-campaign-list.page.css'
+import { Usage } from "@/types/annotations.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string | undefined>();
-  const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [showArchivedFilter, setShowArchivedFilter] = useState<boolean>(false);
+  const [modeFilter, setModeFilter] = useState<Usage | undefined>();
 
   // Memo
   const showCampaigns = useMemo(() => {
-    const baseCampaigns = annotationCampaigns.filter(c => c.is_archived === showArchived);
+    const baseCampaigns = annotationCampaigns
+      .filter(c => c.is_archived === showArchivedFilter)
+      .filter(c => !modeFilter || c.usage === modeFilter);
     if (!search) return baseCampaigns;
     const results = searchFilter(
       baseCampaigns.map(c => ({
@@ -27,7 +31,7 @@ export const AnnotationCampaignList: React.FC = () => {
       search
     );
     return baseCampaigns.filter(c => results.find(r => r.value === c.id));
-  }, [annotationCampaigns, search, showArchived]);
+  }, [annotationCampaigns, search, showArchivedFilter, modeFilter]);
   const canAccessArchive = useMemo(() => annotationCampaigns.filter(c => c.is_archived).length > 0, [annotationCampaigns]);
 
 
@@ -63,8 +67,22 @@ export const AnnotationCampaignList: React.FC = () => {
     window.open("/create-annotation-campaign", "_self")
   }
 
-  const toggleArchived = () => {
-    setShowArchived(!showArchived);
+  const toggleArchivedFilter = () => {
+    setShowArchivedFilter(!showArchivedFilter);
+  }
+
+  const toggleModeFilter = () => {
+    switch (modeFilter) {
+      case undefined:
+        setModeFilter(Usage.create);
+        break;
+      case Usage.create:
+        setModeFilter(Usage.check);
+        break;
+      case Usage.check:
+        setModeFilter(undefined);
+        break;
+    }
   }
 
   return (
@@ -78,10 +96,20 @@ export const AnnotationCampaignList: React.FC = () => {
                         value={ search }/>
 
           { canAccessArchive &&
-              <IonChip color={ showArchived ? 'dark' : 'medium' } outline={ showArchived } onClick={ toggleArchived }>
+              <IonChip className={ showArchivedFilter ? 'active' : 'inactive' }
+                       color="medium"
+                       onClick={ toggleArchivedFilter }>
                   Show archived
-                { showArchived && <IonIcon icon={ closeCircle }/> }
+                { showArchivedFilter && <IonIcon icon={ closeCircle }/> }
               </IonChip> }
+
+          <IonChip className={ modeFilter ? 'active' : 'inactive' }
+                   color="medium"
+                   onClick={ toggleModeFilter }>
+            Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
+            { modeFilter === Usage.create && <IonIcon icon={ swapHorizontal }/> }
+            { modeFilter === Usage.check && <IonIcon icon={ closeCircle }/> }
+          </IonChip>
         </div>
 
         <div id="actions">
