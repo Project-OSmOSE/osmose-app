@@ -22,10 +22,12 @@ class AudioMetadatum(models.Model):
     dataset_sr = models.FloatField(null=True, blank=True)
     total_samples = models.IntegerField(null=True, blank=True)
     sample_bits = models.IntegerField(null=True, blank=True)
+    audio_file_count = models.IntegerField(null=True, blank=True)
     gain_db = models.FloatField(null=True, blank=True)
     gain_rel = models.FloatField(null=True, blank=True)
     dutycycle_rdm = models.FloatField(null=True, blank=True)
     dutycycle_rim = models.FloatField(null=True, blank=True)
+    audio_file_dataset_duration = models.FloatField(null=True, blank=True)
 
 
 class GeoMetadatum(models.Model):
