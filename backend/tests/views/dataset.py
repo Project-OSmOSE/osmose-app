@@ -87,7 +87,9 @@ class DatasetViewSetTestCase(APITestCase):
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
         data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
-        response: HttpResponse = self.client.post(url, data_send, format="json", follow=True)
+        response: HttpResponse = self.client.post(
+            url, data_send, format="json", follow=True
+        )
         print(">>> response:", response.status_code, response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Dataset.objects.count(), old_count + 1)

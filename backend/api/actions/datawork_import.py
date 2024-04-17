@@ -32,7 +32,7 @@ def datawork_import(*, wanted_datasets, importer):
 
     # Check for new datasets
     with open(
-            settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+        settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
     ) as csvfile:
         for dataset in csv.DictReader(csvfile):
             dname = dataset["name"]
@@ -52,10 +52,10 @@ def datawork_import(*, wanted_datasets, importer):
 
         # Audio
         audio_folder = (
-                settings.DATASET_IMPORT_FOLDER
-                / dataset["folder_name"]
-                / settings.DATASET_FILES_FOLDER
-                / dataset["conf_folder"]
+            settings.DATASET_IMPORT_FOLDER
+            / dataset["folder_name"]
+            / settings.DATASET_FILES_FOLDER
+            / dataset["conf_folder"]
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
@@ -65,6 +65,12 @@ def datawork_import(*, wanted_datasets, importer):
             sample_bits=audio_raw["sample_bits"],
             start=parse_datetime(audio_raw["start_date"]),
             end=parse_datetime(audio_raw["end_date"]),
+            audio_file_count=audio_raw["audio_file_count"]
+            if "audio_file_count" in audio_raw
+            else None,
+            audio_file_dataset_duration=audio_raw["audio_file_dataset_duration"]
+            if "audio_file_dataset_duration" in audio_raw
+            else None,
         )
 
         # Geo Metadata
@@ -95,10 +101,10 @@ def datawork_import(*, wanted_datasets, importer):
         dataset_folder = dataset_path.split("datawork/dataset/")[1]
 
         conf_folder_path = (
-                settings.DATASET_IMPORT_FOLDER
-                / dataset_folder
-                / settings.DATASET_SPECTRO_FOLDER
-                / conf_folder
+            settings.DATASET_IMPORT_FOLDER
+            / dataset_folder
+            / settings.DATASET_SPECTRO_FOLDER
+            / conf_folder
         )
 
         # Search all sub folder, each sub folder have one metadata.csv
@@ -113,7 +119,7 @@ def datawork_import(*, wanted_datasets, importer):
                     name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
 
                     is_instrument_normalization = (
-                            spectro["data_normalization"] == "instrument"
+                        spectro["data_normalization"] == "instrument"
                     )
                     is_zscore_normalization = spectro["data_normalization"] == "zscore"
 
@@ -135,15 +141,17 @@ def datawork_import(*, wanted_datasets, importer):
                         )[0],
                         frequency_resolution=spectro["frequency_resolution"],
                         temporal_resolution=spectro["temporal_resolution"]
-                        if "temporal_resolution" in spectro else None,
+                        if "temporal_resolution" in spectro
+                        else None,
                         spectro_duration=spectro["spectro_duration"]
-                        if "spectro_duration" in spectro else None,
+                        if "spectro_duration" in spectro
+                        else None,
                         number_spectra=spectro["number_spectra"]
-                        if "number_spectra" in spectro else None,
-                        audio_file_dataset_overlap=spectro[
-                            "audio_file_dataset_overlap"
-                        ]
-                        if "audio_file_dataset_overlap" in spectro else None,
+                        if "number_spectra" in spectro
+                        else None,
+                        audio_file_dataset_overlap=spectro["audio_file_dataset_overlap"]
+                        if "audio_file_dataset_overlap" in spectro
+                        else None,
                         zscore_duration=spectro["zscore_duration"]
                         if is_zscore_normalization
                         else None,
@@ -168,10 +176,10 @@ def datawork_import(*, wanted_datasets, importer):
                 audio_metadatum = AudioMetadatum.objects.create(
                     start=start,
                     end=(
-                            start
-                            + timedelta(
-                        seconds=float(audio_raw["audio_file_dataset_duration"])
-                    )
+                        start
+                        + timedelta(
+                            seconds=float(audio_raw["audio_file_dataset_duration"])
+                        )
                     ),
                 )
                 dataset_files.append(
@@ -179,8 +187,8 @@ def datawork_import(*, wanted_datasets, importer):
                         dataset=curr_dataset,
                         filename=timestamp_data["filename"],
                         filepath=settings.DATASET_FILES_FOLDER
-                                 / dataset["conf_folder"]
-                                 / timestamp_data["filename"],
+                        / dataset["conf_folder"]
+                        / timestamp_data["filename"],
                         size=0,
                         audio_metadatum=audio_metadatum,
                     )
