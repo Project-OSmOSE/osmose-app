@@ -1,15 +1,16 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   AnnotationCampaignRetrieveCampaign,
   AnnotationTaskList as List,
   useAnnotationCampaignAPI,
   useAnnotationTaskAPI
-} from "../services/api";
+} from "@/services/api";
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpBuoyOutline, informationCircle } from "ionicons/icons";
+import './campaign-task-list.page.css';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -61,8 +62,12 @@ export const AnnotationTaskList: React.FC = () => {
   }
 
   return (
-    <Fragment>
-      <h1 className="text-center">Annotation Tasks</h1>
+    <div id="campaign-task-list">
+
+      <div className="head">
+        <h2>{ campaign?.name }</h2>
+        <p className="subtitle">Annotation Tasks</p>
+      </div>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
         <IonButton color="warning" shape="round" fill="outline" onClick={ openGuide }>
@@ -101,6 +106,6 @@ export const AnnotationTaskList: React.FC = () => {
         }) }
         </tbody>
       </table>
-    </Fragment>
+    </div>
   )
 }

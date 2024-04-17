@@ -7,7 +7,7 @@ import { DatasetList } from "@/view/dataset-list";
 import { AnnotationCampaignList } from "@/view/list-campaign/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "@/view/detail-campaign/annotation-campaign-detail.page.tsx";
 import { EditCampaign } from "@/view/create-campaign/edit-campaign.page.tsx";
-import { AnnotationTaskList } from "@/view/annotation-task-list.page.tsx";
+import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
 import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";

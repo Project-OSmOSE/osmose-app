@@ -17,6 +17,7 @@ export type ListItem = {
 export interface Retrieve {
   id: number;
   campaignId: number;
+  campaignName: number;
   labels: string[];
   boundaries: Boundaries,
   audioUrl: string;
