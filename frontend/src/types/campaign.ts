@@ -23,3 +23,9 @@ export interface AnnotationCampaignArchiveDTO {
   date: string;
   by_user: UserDTO;
 }
+
+export type AnnotationStatus = {
+  annotator: User;
+  finished: number;
+  total: number;
+}

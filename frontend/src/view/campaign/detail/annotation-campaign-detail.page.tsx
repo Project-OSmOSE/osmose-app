@@ -1,21 +1,18 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useIonAlert } from "@ionic/react";
 import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, useUsersAPI, } from "@/services/api";
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
-import { IonButton, IonIcon, IonProgressBar, useIonAlert } from "@ionic/react";
-import { archiveOutline, calendarClear, crop, documents, downloadOutline, people, pricetag } from "ionicons/icons";
-
-import { User } from '@/types/user.ts';
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { AudioMetadatum } from "@/types/process-metadata/audio.ts";
+import { AnnotationStatus } from "@/types/campaign.ts";
 
+import { DetailCampaignGlobalInformation } from "@/view/campaign/detail/blocs/global-information.component.tsx";
+import { DetailCampaignStatus } from "@/view/campaign/detail/blocs/status.component.tsx";
+import { DetailCampaignSpectroConfig } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
+import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
 import './annotation-campaign-detail.page.css';
 
-type AnnotationStatus = {
-  annotator: User;
-  finished: number;
-  total: number;
-}
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
@@ -32,7 +29,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();
   const [error, setError] = useState<any | undefined>(undefined);
-  const [presentAlert, dismissAlert] = useIonAlert();
+  const [_, dismissAlert] = useIonAlert();
 
   useEffect(() => {
     let isCancelled = false;
@@ -80,37 +77,6 @@ export const AnnotationCampaignDetail: React.FC = () => {
     }
   }, [campaignID])
 
-  const openEditCampaign = () => {
-    if (!annotationCampaign) return;
-    window.open(`/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
-  }
-
-  const archive = async () => {
-    if (!annotationCampaign) return;
-    if (annotationStatus.filter(s => s.finished < s.total).length > 0) {
-      // If annotators haven't finished yet, ask for confirmation
-      return await presentAlert({
-        header: 'Archive',
-        message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: 'Archive',
-            cssClass: 'ion-color-danger',
-            handler: async () => {
-              await campaignService.archive(annotationCampaign.id);
-              window.location.reload();
-            }
-          }
-        ]
-      });
-    } else {
-      await campaignService.archive(annotationCampaign.id);
-      window.location.reload();
-    }
-  }
-
   if (error) {
     return (
       <Fragment>
@@ -131,269 +97,18 @@ export const AnnotationCampaignDetail: React.FC = () => {
             on { annotationCampaign?.archive?.date.toLocaleDateString() } by { annotationCampaign?.archive?.by_user.display_name }</p> }
       </div>
 
-      <div id="global-info" className="bloc">
-        <h5>Global information</h5>
+      <DetailCampaignGlobalInformation campaign={ annotationCampaign }
+                                       isEditionAllowed={ isEditionAllowed }
+                                       annotationStatus={ annotationStatus }/>
 
-        <div className="item">
-          <IonIcon className="icon" icon={ pricetag }/>
-          <p className="label">Label set:</p>
-          <p>{ annotationCampaign.label_set.name }</p>
-        </div>
+      <DetailCampaignStatus campaign={ annotationCampaign }
+                            annotationStatus={ annotationStatus }/>
 
-        <div className="item">
-          { annotationCampaign.confidence_indicator_set && <Fragment>
-              <i className="icon fa fa-handshake"></i>
-              <p className="label">Confidence indicator set:</p>
-              <p>{ annotationCampaign.confidence_indicator_set.name }</p>
-          </Fragment> }
-        </div>
+      <DetailCampaignSpectroConfig campaign={ annotationCampaign }
+                                   spectroConfigurations={ spectroConfigurations }/>
 
-        <div className="item">
-          <IonIcon className="icon" icon={ documents }/>
-          <p className="label">Dataset:</p>
-          <p>{ annotationCampaign.datasets_name.join(', ') }</p>
-        </div>
-
-        <div className="item">
-          <IonIcon className="icon" icon={ people }/>
-          <p className="label">Annotators:</p>
-          <p>{ [...new Set(annotationStatus.map(s => s.annotator))].length }</p>
-        </div>
-
-        <div className="item">
-          <IonIcon className="icon" icon={ crop }/>
-          <p className="label">Mode:</p>
-          <p>{ annotationCampaign.usage }</p>
-        </div>
-
-        <div className="item">
-          { annotationCampaign.deadline && <Fragment>
-              <IonIcon className="icon" icon={ calendarClear }/>
-              <p className="label">Deadline:</p>
-              <p>{ annotationCampaign.deadline.toLocaleDateString() }</p>
-          </Fragment> }
-        </div>
-
-        { annotationCampaign.desc && <div className="description">
-            <p className="label">Description:</p>
-            <p>{ annotationCampaign.desc }</p>
-        </div> }
-
-        { isEditionAllowed && <div className="buttons">
-            <IonButton color={ "medium" }
-                       onClick={ archive }>
-                <IonIcon icon={ archiveOutline }/>
-                Archive
-            </IonButton>
-            <IonButton color={ "primary" }
-                       onClick={ openEditCampaign }>
-                Add annotators
-            </IonButton>
-        </div> }
-      </div>
-
-      <div id="status" className="bloc">
-        <div className="head-bloc">
-          <h5>Status</h5>
-
-          <div className="buttons">
-            <IonButton color="primary"
-                       onClick={ () => campaignService.downloadResults(annotationCampaign) }>
-              <IonIcon icon={ downloadOutline } slot="start"/>
-              Results (csv)
-            </IonButton>
-            <IonButton color="primary"
-                       onClick={ () => campaignService.downloadStatus(annotationCampaign) }>
-              <IonIcon icon={ downloadOutline } slot="start"/>
-              Task status (csv)
-            </IonButton>
-          </div>
-        </div>
-
-        <div className="table-bloc">
-          <div className="table-bloc-head first">
-            Annotator
-          </div>
-          <div className="table-bloc-head">
-            Progress
-          </div>
-          { annotationStatus.map(status => {
-            return (
-              <Fragment key={ status.annotator?.id }>
-                <div className="divider"/>
-                <div className="table-bloc-content first">{ status.annotator?.display_name }</div>
-                <div className="table-bloc-content">
-                  <p>{ status.finished } / { status.total }</p>
-                  <IonProgressBar color="medium" value={ status.finished / status.total }/>
-                </div>
-              </Fragment>
-            );
-          }) }
-        </div>
-      </div>
-
-      <div id="spectro-conf" className="bloc">
-        <div className="head-bloc">
-          <h5>Spectrogram configuration</h5>
-
-          <div className="buttons">
-            <IonButton color="primary"
-                       onClick={ () => campaignService.downloadSpectroConfig(annotationCampaign) }>
-              <IonIcon icon={ downloadOutline } slot="start"/>
-              Spectrogram configuration (csv)
-            </IonButton>
-          </div>
-        </div>
-
-        <div className="table-bloc"
-             style={ { "--content-columns": spectroConfigurations.length } as React.CSSProperties }>
-          <div className="table-bloc-head first">NFFT</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">{ c.nfft }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Window</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.window_size } { c.window_type && `(${ c.window_type.name })` }
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Overlap</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">{ c.overlap }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Dataset sample rate</div>
-          { spectroConfigurations.map(c => <div key={ c.id }
-                                                className="table-bloc-content">{ c.dataset_sr / 1000 } kHz</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Colormap</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">{ c.colormap }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Zoom level</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">{ c.zoom_level }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Dynamic (min/max)</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.dynamic_min } / { c.dynamic_max }
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Spectrogram duration</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.spectro_duration }
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Data normalization</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.data_normalization }
-          </div>) }
-          <div className="divider"/>
-
-          { spectroConfigurations.some(c => c.data_normalization === 'zscore') && <Fragment>
-              <div className="table-bloc-head first">Zscore duration</div>
-            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-              { c.zscore_duration }
-            </div>) }
-              <div className="divider"/>
-          </Fragment> }
-
-          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
-              <div className="table-bloc-head first">Sensitivity (dB)</div>
-            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-              { c.sensitivity_dB }
-            </div>) }
-              <div className="divider"/>
-          </Fragment> }
-
-          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
-              <div className="table-bloc-head first">Gain (dB)</div>
-            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-              { c.gain_dB }
-            </div>) }
-              <div className="divider"/>
-          </Fragment> }
-
-          { spectroConfigurations.some(c => c.data_normalization === 'instrument') && <Fragment>
-              <div className="table-bloc-head first">Peak voltage</div>
-            { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-              { c.peak_voltage }
-            </div>) }
-              <div className="divider"/>
-          </Fragment> }
-
-          <div className="table-bloc-head first">High pass filter minimum frequency</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.hp_filter_min_freq } kHz
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Spectrogram normalisation</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.spectro_normalization }
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Resolution</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.frequency_resolution } Hz
-            <br/>
-            { c.temporal_resolution } s
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Audio file dataset overlap</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.audio_file_dataset_overlap }
-          </div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Number spectrum</div>
-          { spectroConfigurations.map(c => <div key={ c.id } className="table-bloc-content">
-            { c.number_spectra }
-          </div>) }
-        </div>
-      </div>
-
-      <div id="audio-meta" className="bloc">
-        <div className="head-bloc">
-          <h5>Audio files metadata</h5>
-
-          <div className="buttons">
-            <IonButton color="primary"
-                       onClick={ () => campaignService.downloadAudioMeta(annotationCampaign) }>
-              <IonIcon icon={ downloadOutline } slot="start"/>
-              Audio files metadata (csv)
-            </IonButton>
-          </div>
-        </div>
-
-        <div className="table-bloc"
-             style={ { "--content-columns": audioMetadata.length } as React.CSSProperties }>
-          <div className="table-bloc-head first">Sample bits</div>
-          { audioMetadata.map(c => <div key={ c.id } className="table-bloc-content">{ c.sample_bits }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Channel count</div>
-          { audioMetadata.map(c => <div key={ c.id } className="table-bloc-content">{ c.channel_count }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Start</div>
-          { audioMetadata.map(c => <div key={ c.id }
-                                        className="table-bloc-content">{ c.start.toLocaleString() }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">End</div>
-          { audioMetadata.map(c => <div key={ c.id } className="table-bloc-content">{ c.end.toLocaleString() }</div>) }
-          <div className="divider"/>
-
-          <div className="table-bloc-head first">Dataset sample rate</div>
-          { audioMetadata.map(c => <div key={ c.id } className="table-bloc-content">{ c.dataset_sr }</div>) }
-          <div className="divider"/>
-        </div>
-      </div>
+      <DetailCampaignAudioMetadata campaign={ annotationCampaign }
+                                   audioMetadata={ audioMetadata }/>
 
     </div>
   )

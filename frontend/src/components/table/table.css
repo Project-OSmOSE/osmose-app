@@ -1,0 +1,38 @@
+.table-aplose {
+  text-align: center;
+  display: grid;
+  /*noinspection CssUnresolvedCustomProperty*/
+  grid-template-columns: 1fr repeat(calc(var(--content-columns, 1) - 1), auto);
+  gap: 0.5rem 0;
+  overflow-x: auto;
+}
+.table-aplose > .table-head {
+  font-weight: 300;
+}
+.table-aplose > .table-head,
+.table-aplose > .table-content {
+  padding: 0.25rem 1rem;
+  display: grid;
+  align-content: center;
+}
+.table-aplose > .table-head,
+.table-aplose > .table-content {
+  border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.5);
+}
+.table-aplose > .first {
+  border: none;
+}
+.table-aplose > .divider {
+  height: 1px;
+  background: rgba(var(--ion-color-medium-rgb), 0.5);
+  /*noinspection CssUnresolvedCustomProperty*/
+  grid-column: 1 / calc(var(--content-columns, 1) + 2);
+}
+
+.table-aplose.first-column-sticky > .first {
+  border: none;
+  border-right: 1px solid rgba(var(--ion-color-medium-rgb), 0.5);
+  position: sticky;
+  left: 0;
+  background: white;
+}
