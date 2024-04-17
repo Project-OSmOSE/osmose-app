@@ -77,6 +77,10 @@ export const AnnotationCampaignDetail: React.FC = () => {
     }
   }, [campaignID])
 
+  const reload = () => {
+    campaignService.retrieve(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
+  }
+
   if (error) {
     return (
       <Fragment>
@@ -99,7 +103,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
       <DetailCampaignGlobalInformation campaign={ annotationCampaign }
                                        isEditionAllowed={ isEditionAllowed }
-                                       annotationStatus={ annotationStatus }/>
+                                       annotationStatus={ annotationStatus }
+                                       reload={ reload }/>
 
       <DetailCampaignStatus campaign={ annotationCampaign }
                             annotationStatus={ annotationStatus }/>

@@ -7,15 +7,17 @@ import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI } from "@/
 import { AnnotationStatus } from "@/types/campaign.ts";
 
 interface Props {
-  campaign: AnnotationCampaignRetrieveCampaign;
-  isEditionAllowed: boolean;
-  annotationStatus: Array<AnnotationStatus>;
+  campaign: AnnotationCampaignRetrieveCampaign,
+  isEditionAllowed: boolean,
+  annotationStatus: Array<AnnotationStatus>,
+  reload: () => void
 }
 
 export const DetailCampaignGlobalInformation: React.FC<Props> = ({
                                                                    campaign,
                                                                    isEditionAllowed,
-                                                                   annotationStatus
+                                                                   annotationStatus,
+                                                                   reload,
                                                                  }) => {
   const history = useHistory();
   const [presentAlert] = useIonAlert();
@@ -36,14 +38,14 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
             cssClass: 'ion-color-danger',
             handler: async () => {
               await campaignService.archive(campaign.id);
-              window.location.reload();
+              reload()
             }
           }
         ]
       });
     } else {
       await campaignService.archive(campaign.id);
-      window.location.reload();
+      reload()
     }
   }
 
