@@ -1,5 +1,6 @@
 """Campaign admin model"""
 from django.contrib import admin
+from django.contrib import messages
 
 from backend.api.models import AnnotationCampaign, AnnotationCampaignArchive
 from ..__utils__ import get_many_to_many
@@ -56,14 +57,50 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     actions = [
         "archive",
+        "unarchive",
     ]
 
     @admin.action(description="Archive")
     # pylint: disable-next=unused-argument
     def archive(self, request, queryset):
         """Hide selected collaborators on HomePage"""
+        archived_campaigns = []
+        campaign: AnnotationCampaign
         for campaign in queryset:
-            campaign.do_archive(request.user)
+            if campaign.archive is None:
+                campaign.do_archive(request.user)
+            else:
+                archived_campaigns.append(campaign.name)
+        if len(archived_campaigns) > 0:
+            messages.warning(
+                request,
+                f"The following campaigns were already archived: {', '.join(archived_campaigns)}",
+            )
+
+    @admin.action(description="/!\ Unarchive /!\\")
+    # pylint: disable-next=unused-argument
+    def unarchive(self, request, queryset):
+        """Hide selected collaborators on HomePage"""
+        not_archived_campaigns = []
+        unarchived_campaigns = []
+        campaign: AnnotationCampaign
+        for campaign in queryset:
+            if campaign.archive is not None:
+                campaign.archive.delete()
+                unarchived_campaigns.append(campaign.name)
+            else:
+                not_archived_campaigns.append(campaign.name)
+        if len(unarchived_campaigns) > 0:
+            messages.error(
+                request,
+                f"Be careful, the dataset files of the unarchived campaigns may no longer exists:"
+                f" {', '.join(unarchived_campaigns)}",
+            )
+        if len(not_archived_campaigns) > 0:
+            messages.warning(
+                request,
+                f"The following campaigns were not archived: {', '.join(not_archived_campaigns)}",
+            )
 
     def show_spectro_configs(self, obj):
         """show_spectro_configs"""
