@@ -204,6 +204,14 @@ ion-chip {
   border-radius: 3rem;
   margin: 0;
   transition: 300ms;
+  user-select: none;
+}
+ion-chip ion-icon {
+  opacity: 0.5;
+}
+ion-chip[color].active {
+  background: var(--ion-color-base);
+  color: var(--ion-color-contrast);
 }
 ion-chip[color=dark]:not([outline=true]) {
   background: var(--ion-color-dark);
