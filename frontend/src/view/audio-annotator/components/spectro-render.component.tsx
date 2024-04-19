@@ -317,9 +317,14 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
           // Text
           const timeText: string = formatTimestamp(i, false);
           let xTxt: number = x;
-          if (xTxt > 0) {
+          if (xTxt === 0) {
+            context.textAlign = "left"
+          } else {
             // "Right align" all labels but first
-            xTxt -= Math.round(timeText.length * 5);
+            context.textAlign = "right"
+          }
+          if (xTxt > (timeAxis.width - timeText.length * 8)) {
+            xTxt -= 8;
           }
           context.fillText(timeText, xTxt, 25);
         } else {
