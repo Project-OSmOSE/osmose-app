@@ -18,7 +18,7 @@ import { useAnnotationTaskAPI } from "@/services/api";
 import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { Annotation, AnnotationComment } from "@/types/annotations.ts";
+import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
@@ -26,6 +26,7 @@ import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
+import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -238,7 +239,6 @@ export const AudioAnnotator: React.FC = () => {
       {/* Audio player (hidden) */ }
       <AudioPlayerComponent ref={ ref => {
         audioPlayerRef.current = ref;
-        console.debug()
         setCanChangePlaybackRate(!!ref?.canPreservePitch)
       } }/>
 
@@ -252,7 +252,7 @@ export const AudioAnnotator: React.FC = () => {
             overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>
             <IonButton color={ "primary" }
                        shape={ "round" }
-                       onClick={ () =>  playPause() }>
+                       onClick={ () => playPause() }>
               { isPaused && <IonIcon icon={ play } slot={ "icon-only" }/> }
               { !isPaused && <IonIcon icon={ pause } slot={ "icon-only" }/> }
             </IonButton>
@@ -298,7 +298,8 @@ export const AudioAnnotator: React.FC = () => {
 
 
       <div className="row justify-content-center">
-        <AnnotationList/>
+        { mode === Usage.create && <AnnotationList/> }
+        { mode === Usage.check && <DetectionList/> }
 
         <CommentBloc/>
       </div>

@@ -97,15 +97,12 @@ export const annotationsSlice = createSlice({
         results: action.payload.prevAnnotations.map(a => {
           const isBox = isBoxResult(a);
           return {
+            ...a,
             type: isBox ? AnnotationType.box : AnnotationType.tag,
-            id: a.id,
-            annotation: a.annotation,
-            confidenceIndicator: a.confidenceIndicator,
             startTime: isBox ? a.startTime ?? 0 : -1,
             endTime: isBox ? a.endTime ?? 0 : -1,
             startFrequency: isBox ? a.startFrequency ?? 0 : -1,
             endFrequency: isBox ? a.endFrequency ?? 0 : -1,
-            result_comments: a.result_comments,
             validation: action.payload.mode === 'Create' ? null : (a.validation === null ? true : !!a.validation)
           }
         }),

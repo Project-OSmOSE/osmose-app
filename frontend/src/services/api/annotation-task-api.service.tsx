@@ -61,7 +61,15 @@ export interface RetrieveAnnotation {
   endFrequency: number;
   confidenceIndicator: string;
   result_comments: Array<RetrieveComment>;
-  validation: boolean;
+  validation: boolean |null;
+  detector?: {
+    id: number;
+    name: string;
+    configurations: Array<{
+      id: number;
+      configuration: string;
+    }>
+  }
 }
 
 export interface RetrieveConfidenceIndicator {
