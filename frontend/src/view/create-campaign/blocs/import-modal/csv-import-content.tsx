@@ -1,11 +1,12 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonCheckbox, IonRadio, IonRadioGroup } from "@ionic/react";
 import { WarningMessage } from "@/components/warning/warning-message.component";
-import { FormBloc, DragNDropFileInput, DragNDropState } from "@/components/form";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { DragNDropFileInput, DragNDropState, FormBloc } from "@/components/form";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
+import { buildErrorMessage } from "@/services/utils/format.tsx";
 
 interface Props {
   cancelButton: ReactNode;
@@ -36,6 +37,8 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
       <div id="buttons">{ cancelButton }</div>
     </Fragment>
 
+
+  const errorsTypes = useMemo(() => errors.map(e => e.type), [errors]);
   switch (status) {
     case 'empty':
       return (
@@ -51,11 +54,15 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
     case 'loading':
       return loadingContent
     case 'errors':
-      if (errors.includes('unrecognised file'))
-        return <UnrecognizedCSVError dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>;
-      if (errors.includes('contains unrecognized dataset'))
+      if (errorsTypes.includes('unrecognised file')) {
+        const e = errors.find(e => e.type === 'unrecognised file')?.error ?? ''
+        return <UnrecognizedCSVError dragNDrop={ dragNDropLoaded }
+                                     cancelButton={ cancelButton }
+                                     error={ buildErrorMessage(e) }/>;
+      }
+      if (errorsTypes.includes('contains unrecognized dataset'))
         return <UnrecognizedDatasetWithButtons dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>
-      if (errors.includes('inconsistent max confidence'))
+      if (errorsTypes.includes('inconsistent max confidence'))
         return <InconsistentMaxConfidenceWithButtons dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>
       return;
     case 'edit-detectors':
@@ -68,12 +75,16 @@ interface ContentProps {
   cancelButton: ReactNode;
 }
 
-const UnrecognizedCSVError: React.FC<ContentProps> = ({ cancelButton, dragNDrop }) => (
+const UnrecognizedCSVError: React.FC<ContentProps & { error: string; }> = ({ cancelButton, dragNDrop, error }) => (
   <Fragment>
     <div id="content">
       { dragNDrop }
       <WarningMessage>
-        <p>Unrecognized file.<br/>Check the file is a CSV and has the correct format and separator</p>
+        <p>
+          Unrecognized file.
+          <br/>
+          { error }
+        </p>
       </WarningMessage>
 
       <p>

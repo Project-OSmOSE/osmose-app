@@ -3,7 +3,11 @@ import { AnnotationsCSVRow } from "@/types/csv-import-annotations.ts";
 import { createSlice } from "@reduxjs/toolkit";
 
 type Status = 'empty' | 'loading' | 'errors' | 'edit-detectors' | 'done';
-export type ImportAnnotationsErrors =
+export type ImportAnnotationsError = {
+  type: ImportAnnotationsErrorType;
+  error: Error | string | undefined;
+}
+export type ImportAnnotationsErrorType =
   'unrecognised file' |
   'contains unrecognized dataset' |
   'inconsistent max confidence';
@@ -11,7 +15,7 @@ export type ImportAnnotationsErrors =
 interface State {
   datasetName?: string;
   rows: Array<AnnotationsCSVRow>;
-  errors: Array<ImportAnnotationsErrors>;
+  errors: Array<ImportAnnotationsError>;
   status: Status;
   filename?: string;
 }
@@ -29,7 +33,7 @@ export const importAnnotationsSlice = createSlice({
     setStatus: (state, action: { payload: Status }) =>{
       state.status = action.payload
     },
-    setErrors: (state, action: { payload: Array<ImportAnnotationsErrors> }) =>{
+    setErrors: (state, action: { payload: Array<ImportAnnotationsError> }) =>{
       state.errors = action.payload
     },
     setRows: (state, action: { payload: Array<AnnotationsCSVRow> }) => {
