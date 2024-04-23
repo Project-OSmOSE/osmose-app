@@ -9,7 +9,9 @@ RUN pip install --no-cache-dir  poetry
 
 COPY pyproject.toml .
 COPY poetry.lock .
-COPY metadatax-0.1.0.tar.gz .
+
+# Copy external libraries folder
+COPY dependencies ./dependencies
 
 ENV POETRY_CACHE_DIR=/opt/.cache/pypoetry
 RUN poetry install --only main
