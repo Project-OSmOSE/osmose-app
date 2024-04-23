@@ -124,4 +124,8 @@ OSMOSE_DB_USER=     # database username
 OSMOSE_DB_PWD=      # database password
 HTTPS_PORTAL_STAGE= # see https://github.com/SteveLTN/https-portal, use "local" to test on your machine
 OSMOSE_SENTRY_URL=  # if you use https://sentry.io (more for staging and production)
+
+DJANGO_ADMIN_USERNAME=  # Username for your Django superadmin user
+DJANGO_ADMIN_EMAIL=     # Email address of your Django superadmin user (for now there is no real use of it)
+DJANGO_ADMIN_PASSWORD=  # Password for your Django superadmin user
 ```

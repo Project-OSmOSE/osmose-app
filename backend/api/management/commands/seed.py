@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from random import randint, choice
 
@@ -6,7 +7,6 @@ from django.contrib.auth.models import User
 from django.core import management
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from faker import Faker
 
 from backend.api.models import (
     DatasetType,
@@ -24,12 +24,14 @@ from backend.api.models import (
     AnnotationTask,
     SpectroConfig,
 )
-from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
+
+if os.environ.get("ENV") != "production":
+    from faker import Faker
+    from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
-    fake = Faker()
 
     data_nb = 5
     files_nb = 100
@@ -51,17 +53,41 @@ class Command(management.BaseCommand):
             default=100,
             help="Give the amount of files in dataset to create, useful to test request optimisations",
         )
+        parser.add_argument(
+            "--admin-name",
+            type=str,
+            default="admin",
+            help="Define superadmin username",
+        )
+        parser.add_argument(
+            "--admin-email",
+            type=str,
+            default="admin@osmose.xyz",
+            help="Define superadmin email address",
+        )
+        parser.add_argument(
+            "--admin-pwd",
+            type=str,
+            default="osmose29",
+            help="Define superadmin password",
+        )
 
     def handle(self, *args, **options):
         self.data_nb = options["data_nb"] or self.data_nb
         self.files_nb = options["files_nb"] or self.files_nb
 
         # Cleanup
-        print("# Cleanup")
-        management.call_command("flush", verbosity=0, interactive=False)
+        if os.environ.get("ENV") != "production":
+            print("# Cleanup")
+            management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         print("# Creation")
+
+        self._create_superadmin(**options)
+        if os.environ.get("ENV") == "production":
+            return
+        self.fake = Faker()
         self._create_users()
         self._create_metadata()
         self._create_datasets()
@@ -72,12 +98,23 @@ class Command(management.BaseCommand):
         self._create_comments()
         WebsiteCommand().handle(*args, **options)
 
+    def _create_superadmin(self, **options):
+        name = options["admin_name"] or "admin"
+        if User.objects.filter(is_superuser=True, username=name).count() > 0:
+            print(f" ###### _create_superadmin: {name} - already exists ######")
+            return
+        print(f" ###### _create_superadmin: {name} ######")
+        self.admin = User.objects.create_user(
+            name,
+            options["admin_email"] or f"{name}@osmose.xyz",
+            options["admin_pwd"] or "osmose29",
+            is_superuser=True,
+            is_staff=True
+        )
+
     def _create_users(self):
         print(" ###### _create_users ######")
         password = "osmose29"
-        self.admin = User.objects.create_user(
-            "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
-        )
         users = []
         # WARNING : names like TestUserX are used for Cypress tests, do not change or remove
         names = ["TestUser1", "TestUser2"] + [
