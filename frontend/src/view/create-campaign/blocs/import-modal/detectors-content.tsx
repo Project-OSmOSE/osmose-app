@@ -1,10 +1,10 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { IonButton, IonCheckbox, IonIcon } from "@ionic/react";
-import { checkmarkOutline } from "ionicons/icons";
+import { IonButton, IonCheckbox, IonIcon, IonNote } from "@ionic/react";
+import { alertOutline } from "ionicons/icons";
 import { useAppSelector } from "@/slices/app";
 import { DetectorList } from "@/services/api";
 import { CSVDetectorItem } from "@/types/csv-import-annotations.ts";
-import { Select, Input, Textarea, FormBloc } from "@/components/form";
+import { FormBloc, Select } from "@/components/form";
 import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
 
 interface Props {
@@ -19,12 +19,7 @@ export const DetectorsContent: React.FC<Props> = ({
                                                     cancelButton
                                                   }) => {
   const [detectors, setDetectors] = useState<Array<CSVDetectorItem>>([]);
-  const canValidate = useMemo(() => {
-    const selectedDetectors = detectors.filter(d => d.selected)
-    if (!selectedDetectors.length) return false;
-    return selectedDetectors.reduce((isValid, d) =>
-      isValid && (!!d.existingConfiguration || !!d.editConfiguration), true)
-  }, [detectors]);
+  const canValidate = useMemo(() => detectors.some(d => d.selected), [detectors]);
 
 
   // Form data
@@ -44,10 +39,6 @@ export const DetectorsContent: React.FC<Props> = ({
     setDetectors(detectors.map(d => d.initialName !== detector.initialName ? d : detector))
   }
 
-  const checkAll = (selected: boolean) => {
-    setDetectors(detectors.map(d => ({ ...d, selected })))
-  }
-
   const _save = () => {
     service.keepDetectors(detectors.filter(d => d.selected))
     save();
@@ -56,20 +47,12 @@ export const DetectorsContent: React.FC<Props> = ({
   return (
     <Fragment>
       <div id="content">
-        <p>File: <span className="bold">{ filename }</span></p>
-        <p>Dataset: <span className="bold">{ datasetName }</span></p>
+        <div className="basic-info">
+          <p>File: <span className="bold">{ filename }</span></p>
+          <p>Dataset: <span className="bold">{ datasetName }</span></p>
+        </div>
 
-
-        <FormBloc label="Detectors found">
-          { detectors.length > 1 && <div className="detector-entry all">
-              <IonCheckbox labelPlacement="end" justify="start"
-                           checked={ detectors.reduce((a, b) => a || b.selected, false) }
-                           onIonChange={ event => checkAll(event.detail.checked) }>
-                  <p>{ detectors.reduce((a, b) => a || b.selected, false) ? 'Unselect all' : 'Select all' }</p>
-              </IonCheckbox>
-          </div> }
-
-
+        <FormBloc label="Detectors from CSV">
           { detectors.map(d => (
             <DetectorEntry detector={ d }
                            allDetectors={ allDetectors }
@@ -84,8 +67,7 @@ export const DetectorsContent: React.FC<Props> = ({
         <IonButton disabled={ !canValidate }
                    aria-disabled={ !canValidate }
                    onClick={ _save }>
-          Import
-          <IonIcon icon={ checkmarkOutline } slot="end"/>
+          Confirm
         </IonButton>
       </div>
     </Fragment>
@@ -103,58 +85,43 @@ const DetectorEntry: React.FC<DetectorEntryProps> = ({
                                                        detector,
                                                        onUpdate
                                                      }) => {
+  const doesExists = useMemo(() => allDetectors.some(d => d.name === detector.initialName), [allDetectors, detector])
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
   return (
-    <div className="detector-entry">
+    <div className={ `detector-entry ${ !doesExists && 'unknown' }` }>
       <IonCheckbox labelPlacement="end" justify="start"
+                   color={ !doesExists && !isUpdated ? 'danger' : undefined }
                    checked={ detector.selected }
+                   disabled={ !doesExists && !isUpdated }
                    onIonChange={ event => onUpdate({
                      ...detector,
-                     selected: event.detail.checked
+                     selected: event.detail.checked,
+                     existingDetector: detector.existingDetector ?? allDetectors.find(d => d.name === detector.initialName)
                    }) }/>
+      { !doesExists && !isUpdated && <IonIcon className="exclamation" icon={ alertOutline } color="danger"/> }
 
-      { detector.initialName } as
+      { detector.initialName }
 
-      <Select value={ detector.existingDetector?.id }
-              onValueSelected={ value => onUpdate({
-                ...detector,
-                existingDetector: allDetectors.find(d => d.id == value)
-              }) }
-              options={ allDetectors.map(d => ({ value: d.id, label: d.name })) }
-              optionsContainer="popover"
-              noneLabel="unknown"
-              placeholder="unknown"></Select>
+      { doesExists && <IonNote color="medium">Already in database</IonNote> }
 
-      { !detector.existingDetector && <Input placeholder={ detector.initialName }
-                                             value={ detector.editName }
-                                             onChange={ e => onUpdate({
-                                               ...detector,
-                                               editName: e.target.value
-                                             }) }/> }
+      { !doesExists && <div className="unknown">
+          <IonNote color={ !doesExists && !isUpdated ? 'danger' : "medium" }>Unknown detector</IonNote>
 
-      {/* TODO: hide select instead of disable it but keep the label*/}
-      <Select className="config-select"
-              disabled={ !detector.existingDetector }
-              value={ detector.existingConfiguration?.id }
-              onValueSelected={ value => onUpdate({
-                ...detector,
-                existingConfiguration: detector.existingDetector?.configurations.find(c => c.id == value)
-              }) }
-              label="with configuration"
-              options={ detector.existingDetector?.configurations.map(c => ({
-                value: c.id,
-                label: c.configuration
-              })) ?? [] }
-              optionsContainer="popover"
-              noneLabel="Create new"
-              placeholder="Select known configuration"></Select>
-
-      <Textarea placeholder="Enter new configuration"
-                value={ detector.editConfiguration }
-                onChange={ e => onUpdate({
-                  ...detector,
-                  editConfiguration: e.target.value
-                }) }/>
+          <Select value={ detector.existingDetector?.id }
+                  onValueSelected={ value => {
+                    onUpdate({
+                      ...detector,
+                      existingDetector: allDetectors.find(d => d.id == value),
+                      selected: true
+                    })
+                    setIsUpdated(true);
+                  } }
+                  options={ allDetectors.map(d => ({ value: d.id, label: d.name })) }
+                  optionsContainer="popover"
+                  noneLabel={ `Create "${ detector.initialName }"` }
+                  placeholder="Assign to detector"/>
+      </div> }
 
       <div className="line"/>
     </div>

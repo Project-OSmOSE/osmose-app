@@ -44,7 +44,10 @@ export const useImportAnnotations = () => {
 
     dispatch(importAnnotationsActions.setErrors(errors));
     if (errors.length < 1)
-      dispatch(importAnnotationsActions.setStatus('edit-detectors'))
+      if (state.areDetectorsChosen)
+        dispatch(importAnnotationsActions.setStatus('edit-detectors-config'))
+      else
+        dispatch(importAnnotationsActions.setStatus('edit-detectors'))
     else
       dispatch(importAnnotationsActions.setStatus('errors'));
   }
@@ -179,7 +182,6 @@ export const useImportAnnotations = () => {
             })
           ));
         } catch (e) {
-          console.debug('unrecognized file', e)
           dispatch(importAnnotationsActions.setErrors([{
             type: 'unrecognised file',
             error: e as Error
@@ -217,6 +219,7 @@ export const useImportAnnotations = () => {
             detector_item: detectors.find(d => d.initialName === r.detector) ?? r.detector_item
           }))
       ));
+      dispatch(importAnnotationsActions.setAreDetectorsChosen(true));
     },
     validate: () => {
       dispatch(createCampaignActions.setDetectors(getDistinctDetectors()))

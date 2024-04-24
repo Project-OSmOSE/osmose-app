@@ -19,37 +19,74 @@
   display: grid;
   gap: 1rem;
   justify-self: stretch;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   align-content: baseline;
 }
+#import-annotations-modal #content .basic-info {
+  display: grid;
+}
+
 #import-annotations-modal #content.has-content {
   align-content: baseline;
 }
-#import-annotations-modal #content .detector-entry {
+
+#import-annotations-modal #content .detector-entry,
+#import-annotations-modal #content .detector-config-entry {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 0 1rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+  position: relative;
+}
+
+#import-annotations-modal #content .detector-config-entry {
+  grid-template-columns: auto 1fr;
+  row-gap: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+#import-annotations-modal #content .detector-entry.unknown {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+#import-annotations-modal #content .detector-entry .exclamation {
+  position: absolute;
+  z-index: 2;
+  margin-left: 0.05rem;
+  top: 0.25rem;
+}
+
+#import-annotations-modal #content .detector-entry ion-checkbox[color=danger] {
+  --border-color: var(--ion-color-danger);
+}
+
+#import-annotations-modal #content .detector-entry .unknown {
+  --border-color: var(--ion-color-danger);
+  grid-column: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.5rem 1rem;
-  flex-wrap: wrap;
-  max-width: 100%;
+  gap: 1rem;
 }
-#import-annotations-modal #content .detector-entry #aplose-input {
-  width: fit-content;
+
+#import-annotations-modal #content .detector-entry .line,
+#import-annotations-modal #content .detector-config-entry .line {
+  grid-column: 2 / 4;
+  justify-self: stretch;
+  border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.25);
+  margin-top: 0.5rem;
 }
-#import-annotations-modal #content .detector-entry .config-select,
-#import-annotations-modal #content .detector-entry #aplose-input.textarea {
-  width: 100% !important;
-  margin-right: 1rem;
-  margin-left: 2rem;
+
+#import-annotations-modal #content .detector-config-entry .line,
+#import-annotations-modal #content .detector-config-entry #aplose-input.textarea {
+  grid-column: 1/3;
+  margin: 0;
 }
-#import-annotations-modal #content .detector-entry ion-textarea {
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid red;
-  border-bottom: 1px solid rgba(var(--ion-color-secondary-rgb), 0.25);
-}
-#import-annotations-modal #content .detector-entry.all p {
-  opacity: 0.75;
-}
+
 
 #import-annotations-modal #buttons {
   display: grid;

@@ -2,7 +2,7 @@ import { createCampaignActions } from "@/slices/create-campaign/index.ts";
 import { AnnotationsCSVRow } from "@/types/csv-import-annotations.ts";
 import { createSlice } from "@reduxjs/toolkit";
 
-type Status = 'empty' | 'loading' | 'errors' | 'edit-detectors' | 'done';
+type Status = 'empty' | 'loading' | 'errors' | 'edit-detectors' | 'edit-detectors-config' | 'done';
 export type ImportAnnotationsError = {
   type: ImportAnnotationsErrorType;
   error: Error | string | undefined;
@@ -18,6 +18,7 @@ interface State {
   errors: Array<ImportAnnotationsError>;
   status: Status;
   filename?: string;
+  areDetectorsChosen: boolean;
 }
 
 export const importAnnotationsSlice = createSlice({
@@ -26,7 +27,8 @@ export const importAnnotationsSlice = createSlice({
   initialState: {
     rows: [],
     errors: [],
-    status: 'empty'
+    status: 'empty',
+    areDetectorsChosen: false,
   } as State,
 
   reducers: {
@@ -42,12 +44,16 @@ export const importAnnotationsSlice = createSlice({
     setFilename: (state, action: { payload: string }) => {
       state.filename = action.payload
     },
+    setAreDetectorsChosen: (state, action: { payload: boolean }) => {
+      state.areDetectorsChosen = action.payload
+    },
 
     clear: (state) => {
       state.status = 'empty';
       state.filename = undefined;
       state.errors = [];
       state.rows = [];
+      state.areDetectorsChosen = false;
     },
   },
 

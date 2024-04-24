@@ -15,6 +15,7 @@ interface Props {
   onValueSelected: (value: number | string | undefined) => void;
   children?: ReactNode,
   noneLabel?: string;
+  noneFirst?: boolean;
 }
 
 export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>> = ({
@@ -29,6 +30,7 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
                                                                                           noneLabel = 'None',
                                                                                           disabled,
                                                                                           className,
+                                                                                          noneFirst = false,
                                                                                           ...props
                                                                                         }) => {
   const blurUtil = useBlur();
@@ -45,11 +47,15 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
   }, [])
 
   const getOptions = (): Array<Item> => {
-    const values = [...parentOptions];
-    if (!required) values.push({
-      value: -1,
-      label: noneLabel
-    })
+    let values = [...parentOptions];
+    if (!required) {
+      const none = {
+        value: -1,
+        label: noneLabel
+      }
+      if (noneFirst) values = [none, ...values]
+      else values.push(none)
+    }
     return values;
   }
 

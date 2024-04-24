@@ -238,6 +238,7 @@ export const AudioAnnotator: React.FC = () => {
 
       {/* Audio player (hidden) */ }
       <AudioPlayerComponent ref={ ref => {
+        // @ts-ignore
         audioPlayerRef.current = ref;
         setCanChangePlaybackRate(!!ref?.canPreservePitch)
       } }/>

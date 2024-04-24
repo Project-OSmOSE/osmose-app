@@ -120,7 +120,7 @@ describe('create campaign', () => {
         cy.get('div.item').contains('Check annotations').click()
         cy.contains('Import annotations').click()
         cy.fixture('annotation_results.csv').as('annotation_results_csv')
-        cy.get('#drag-n-drop-zone').selectFile('@annotation_results_csv', { action: 'drag-drop' });
+        cy.get('#drag-n-drop-zone').selectFile('@annotation_results_csv', {action: 'drag-drop'});
         /// Inconsistent dataset name
         cy.get('ion-modal').should('include.text', 'The selected file contains unrecognized dataset')
         cy.contains('Use selected datasets as').click()
@@ -130,11 +130,19 @@ describe('create campaign', () => {
         cy.contains('Use 1 as maximum').click()
         /// Detectors
         for (const detector of data.detectors) {
-            cy.contains(detector.name).find('ion-checkbox').click();
-            cy.contains(detector.name).find('textarea').type(detector.configuration);
+            cy.get(`.detector-entry`).contains('Assign to detector').click();
+            cy.get(`.detector-entry`).get('.item').contains(`Create "${detector.name}"`).click();
+        }
+        cy.get('ion-modal ion-button').contains('Confirm').click()
+        /// Detectors configuration
+        for (const detector of data.detectors) {
+            const entry = cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible')
+            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').contains('Select configuration').click();
+            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').find('.item').contains(`Create new`).click();
+            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').find('textarea').type(detector.configuration)
         }
         cy.get('ion-modal ion-button').contains('Import').click()
-        cy.get('ion-button').should('not.include.text','Import annotations')
+        cy.get('ion-button').should('not.include.text', 'Import annotations')
 
         // Annotators
         for (const annotator of data.annotators) {
@@ -145,11 +153,9 @@ describe('create campaign', () => {
 
         // Submit
         cy.intercept('POST', '/api/annotation-campaign', (req) => {
-            console.debug('POST campaign', req)
             expect(req.body).to.deep.equal(expectedResult)
             try {
             } catch (e) {
-                console.debug(req.body.results, expectedResult.results)
                 req.reply(400, e.message)
                 throw e
             }

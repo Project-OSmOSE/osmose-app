@@ -1,12 +1,5 @@
 import React, { HTMLAttributes, ReactNode, useRef } from "react";
-import {
-  IonBreadcrumb,
-  IonBreadcrumbs,
-  IonButton,
-  IonContent,
-  IonIcon,
-  IonModal
-} from "@ionic/react";
+import { IonBreadcrumb, IonBreadcrumbs, IonButton, IonContent, IonIcon, IonModal } from "@ionic/react";
 import { DetectorList } from "@/services/api";
 import { chevronForwardOutline } from "ionicons/icons";
 import { CSVImportContent } from "./csv-import-content.tsx";
@@ -18,6 +11,7 @@ import { createCampaignActions } from "@/slices/create-campaign";
 import { IonModalCustomEvent } from "@ionic/core/dist/types/components";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
+import { DetectorsConfigContent } from "@/view/create-campaign/blocs/import-modal/detectors-config-content.tsx";
 
 type Props = {
   isOpen: boolean,
@@ -95,10 +89,16 @@ export const ImportModalContent: React.FC<ImportModalContentProps> = ({
     return <CSVImportContent cancelButton={ cancelButton }/>
 
   if (status === 'edit-detectors')
-    return <DetectorsContent cancelButton={ <IonButton color="medium"
-                                                       onClick={ () => dispatch(importAnnotationsActions.clear()) }>Back</IonButton> }
+    return <DetectorsContent cancelButton={ cancelButton }
                              allDetectors={ allDetectors }
-                             save={ onDone }/>
+                             save={ () => {
+                               dispatch(importAnnotationsActions.setStatus('edit-detectors-config'))
+                             } }/>
+
+  if (status === 'edit-detectors-config')
+    return <DetectorsConfigContent cancelButton={ cancelButton }
+                                   allDetectors={ allDetectors }
+                                   save={ onDone }/>
 
   return <div id="buttons">{ cancelButton }</div>
 }
