@@ -133,11 +133,6 @@ export const DetailCampaignSpectroConfig: React.FC<Props> = ({
           { c.audio_file_dataset_overlap }
         </TableContent>) }
         <TableDivider/>
-
-        <TableHead isFirstColumn={ true }>Number spectrum</TableHead>
-        { spectroConfigurations.map(c => <TableContent key={ c.id }>
-          { c.number_spectra }
-        </TableContent>) }
       </Table>
     </div>
   )
