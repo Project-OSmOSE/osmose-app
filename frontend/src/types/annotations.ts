@@ -40,6 +40,7 @@ export interface AnnotationComment {
   comment: string,
   annotation_task: number,
   annotation_result: number | null,
+  annotation_result_new_id?: number | null, // Used only in front side - used for new annotations not saved yet
 }
 export const DEFAULT_COMMENT: AnnotationComment = {
   comment: '',

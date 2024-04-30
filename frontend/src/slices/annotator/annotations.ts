@@ -169,7 +169,8 @@ export const annotationsSlice = createSlice({
       const focusedComment = state.focusedComment ?? {
         comment: action.payload,
         annotation_task: state.taskComment.annotation_task,
-        annotation_result: state.focusedResult?.id ?? null
+        annotation_result: state.focusedResult?.id ?? null,
+        annotation_result_new_id: state.focusedResult?.newId ?? null
       };
       focusedComment.comment = action.payload;
       const focusedResult = state.focusedResult;
@@ -178,7 +179,7 @@ export const annotationsSlice = createSlice({
         results: getUpdatedResults(state, focusedResult),
         focusedResult,
         focusedComment,
-        taskComment: focusedComment.annotation_result ? state.taskComment : focusedComment,
+        taskComment: focusedComment.annotation_result || focusedComment.annotation_result_new_id ? state.taskComment : focusedComment,
       });
     },
     removeFocusComment: (state) => {
