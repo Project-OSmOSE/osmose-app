@@ -3,7 +3,7 @@ import { useAnnotationCampaignAPI, useUsersAPI } from "@/services/api";
 import { IonButton } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
 import { ChipsInput, FormBloc, Input, Searchbar } from "@/components/form";
-import { User } from '@/types/user.ts';
+import { User } from '@/types/userInterface.ts';
 import { Item } from "@/types/item.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import './create-edit-campaign.css';

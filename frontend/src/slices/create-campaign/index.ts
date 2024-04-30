@@ -7,7 +7,7 @@ import {
 } from "@/services/api"
 import { Usage } from "@/types/annotations.ts";
 import { CSVDetectorItem, AnnotationsCSV } from "@/types/csv-import-annotations.ts";
-import { User } from '@/types/user.ts';
+import { User } from '@/types/userInterface.ts';
 
 
 

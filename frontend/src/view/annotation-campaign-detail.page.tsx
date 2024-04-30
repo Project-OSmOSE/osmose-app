@@ -6,7 +6,7 @@ import {
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { IonButton } from "@ionic/react";
 
-import { User } from '@/types/user';
+import { User } from '@/types/userInterface.ts';
 import { useUsersAPI } from '@/services/api';
 
 type AnnotationStatus = {

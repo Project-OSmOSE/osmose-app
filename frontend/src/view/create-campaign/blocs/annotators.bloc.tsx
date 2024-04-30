@@ -3,7 +3,7 @@ import { createCampaignActions } from "@/slices/create-campaign";
 import { useUsersAPI } from '@/services/api/user';
 import { FormBloc, Searchbar, ChipsInput, Input } from "@/components/form";
 import { Item } from "@/types/item";
-import { User } from '@/types/user';
+import { User } from '@/types/userInterface.ts';
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { useToast } from "@/services/utils/toast";
 
