@@ -73,7 +73,6 @@ def check_new_spectro_config_errors():
                                     "frequency_resolution",
                                     "temporal_resolution",
                                     "spectro_duration",
-                                    "number_spectra",
                                     "audio_file_dataset_overlap",
                                 ]
                             }

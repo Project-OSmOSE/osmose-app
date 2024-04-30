@@ -105,7 +105,6 @@ class SpectroConfig(models.Model):
     spectro_duration = models.FloatField(null=True, blank=True)
     peak_voltage = models.FloatField(null=True, blank=True)
     gain_dB = models.FloatField(null=True, blank=True)
-    number_spectra = models.FloatField(null=True, blank=True)
     audio_file_dataset_overlap = models.FloatField(null=True, blank=True)
     time_resolution_zoom_0 = models.FloatField(default=0)
     time_resolution_zoom_1 = models.FloatField(default=0)

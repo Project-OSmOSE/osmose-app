@@ -491,7 +491,6 @@ TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,in
             "spectro_normalization",
             "zscore_duration",  # seulement pour normalisation zscore / vide pour instrument
             "window_type",
-            "number_spectra",
             "frequency_resolution",
             "temporal_resolution",
             "audio_file_dataset_overlap",

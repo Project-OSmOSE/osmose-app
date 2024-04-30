@@ -77,7 +77,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
                 f"The following campaigns were already archived: {', '.join(archived_campaigns)}",
             )
 
-    @admin.action(description="/!\ Unarchive /!\\")
+    @admin.action(description="/!\\ Unarchive /!\\")
     # pylint: disable-next=unused-argument
     def unarchive(self, request, queryset):
         """Hide selected collaborators on HomePage"""

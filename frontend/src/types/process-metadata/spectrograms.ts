@@ -19,7 +19,6 @@ export interface SpectrogramConfiguration {
   sensitivity_dB?: number;
   peak_voltage?: number;
   gain_dB?: number;
-  number_spectra?: number;
   temporal_resolution?: number;
   audio_file_dataset_overlap?: number;
   time_resolution_zoom_0: number;

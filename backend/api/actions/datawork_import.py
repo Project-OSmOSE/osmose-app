@@ -146,9 +146,6 @@ def datawork_import(*, wanted_datasets, importer):
                         spectro_duration=spectro["spectro_duration"]
                         if "spectro_duration" in spectro
                         else None,
-                        number_spectra=spectro["number_spectra"]
-                        if "number_spectra" in spectro
-                        else None,
                         audio_file_dataset_overlap=spectro["audio_file_dataset_overlap"]
                         if "audio_file_dataset_overlap" in spectro
                         else None,
