@@ -1,5 +1,8 @@
 """Annotation campaign create DRF serializers file"""
 
+from datetime import timedelta, datetime
+
+from dateutil import parser
 from rest_framework import serializers
 
 from backend.api.models import (
@@ -148,38 +151,42 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             attrs["confidence_set_indicators"] = None
         return attrs
 
-    def get_annotation_set_name(self, target_name):
+    def get_annotation_set_name(self, target_name: str) -> str:
         """Create automatically new annotation set name"""
         if AnnotationSet.objects.filter(name=target_name):
             return self.get_annotation_set_name(target_name + "_1")
         return target_name
 
-    def get_confidence_set_name(self, target_name):
+    def get_confidence_set_name(self, target_name: str) -> str:
         """Create automatically new confidence set name"""
         if ConfidenceIndicatorSet.objects.filter(name=target_name):
             return self.get_confidence_set_name(target_name + "_1")
         return target_name
 
-    def create(self, validated_data):
-        """Create annotation set"""
+    def get_annotation_set(self, campaign_name: str, labels: [str]) -> AnnotationSet:
+        """Get annotation set for creating annotation campaign"""
         annotation_set = AnnotationSet.objects.create(
-            name=self.get_annotation_set_name(validated_data["name"] + "_set"),
-            desc="Annotation set for " + validated_data["name"] + " campaign",
+            name=self.get_annotation_set_name(f"{campaign_name}_set"),
+            desc=f"Annotation set for {campaign_name} campaign",
         )
-        for label in validated_data["annotation_set_labels"]:
+        for label in labels:
             tag = AnnotationTag.objects.get_or_create(name=label)
             annotation_set.tags.add(tag[0])
         annotation_set.save()
+        return annotation_set
 
-        # Create confidence set
+    def get_confidence_set(
+        self, campaign_name: str, indicators: list
+    ) -> ConfidenceIndicatorSet | None:
+        """Get confidence set for creating annotation campaign"""
         confidence_set = None
-        for data in validated_data["confidence_set_indicators"]:
+        for data in indicators:
             if data[0] is None or data[1] is None:
                 continue
             if confidence_set is None:
                 confidence_set = ConfidenceIndicatorSet.objects.create(
-                    name=self.get_confidence_set_name(validated_data["name"] + "_set"),
-                    desc="Confidence set for " + validated_data["name"] + " campaign",
+                    name=self.get_confidence_set_name(f"{campaign_name}_set"),
+                    desc=f"Confidence set for {campaign_name} campaign",
                 )
             confidence_set.confidence_indicators.get_or_create(
                 label=data[0],
@@ -187,20 +194,21 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             )
         if confidence_set is not None:
             confidence_set.save()
+        return confidence_set
 
-        # Create detectors
-        for detector in validated_data["detectors"]:
+    def manage_detectors(self, detectors_data: list):
+        """Manage detectors for creating annotation campaign"""
+        for detector in detectors_data:
             detector_name = detector.pop("detectorName")
             detector_id = None
             detector_config_id = None
             try:
                 detector_id = detector.pop("detectorId")
                 detector_config_id = detector.pop("configurationId")
-            except KeyError as error:
-                print("KeyError", error)
+            except KeyError as key:
+                print(f"No {key} provided for detector")
             detector_config = detector.pop("configuration")
             detector_obj = None
-            print(">> Will get detector", detector_name, detector_id, detector_obj)
             if detector_id is not None:
                 detector_obj = Detector.objects.get(pk=detector_id)
             if detector_obj is None:
@@ -208,7 +216,121 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             if detector_config_id is None:
                 detector_obj.configurations.get_or_create(configuration=detector_config)
             detector_obj.save()
-        print(">> Will create campaign")
+
+    def get_result_start(self, is_box: bool, result: any) -> datetime:
+        """Get result absolute start"""
+        start_delta = 0
+        if is_box and "min_time" in result:
+            start_delta = result["min_time"]
+        return parser.parse(result["start_datetime"]) + timedelta(seconds=start_delta)
+
+    def get_result_end(self, is_box: bool, result: any) -> datetime:
+        """Get result absolute end"""
+        if is_box and "max_time" in result:
+            return parser.parse(result["start_datetime"]) + timedelta(
+                seconds=result["max_time"]
+            )
+        return parser.parse(result["end_datetime"])
+
+    def get_dataset_files(self, dataset: Dataset, start: datetime, end: datetime):
+        """Get dataset files from absolute start and ends"""
+        dataset_files_start = dataset.files.filter(
+            audio_metadatum__start__lte=start,
+            audio_metadatum__end__gte=start,
+        )
+        dataset_files_while = dataset.files.filter(
+            audio_metadatum__start__gt=start,
+            audio_metadatum__end__lt=end,
+        )
+        dataset_files_end = dataset.files.filter(
+            audio_metadatum__start__lte=end,
+            audio_metadatum__end__gte=end,
+        )
+        return dataset_files_start | dataset_files_while | dataset_files_end
+
+    def create_results(
+        self,
+        campaign: AnnotationCampaign,
+        confidence_set: ConfidenceIndicatorSet | None,
+        results: list,
+    ):
+        """Create results objects"""
+        for result in results:
+            dataset = Dataset.objects.get(name=result["dataset"])
+            is_box = bool(result["is_box"])
+            start = self.get_result_start(is_box, result)
+            end = self.get_result_end(is_box, result)
+            dataset_files = self.get_dataset_files(dataset, start, end)
+            if not dataset_files:
+                raise serializers.ValidationError(
+                    {
+                        "dataset_file": f"Didn't find any corresponding file in dataset '{dataset.name}' "
+                        f"for timestamps: {start} - {end}"
+                    }
+                )
+            detector = Detector.objects.filter(name=result["detector"]).first()
+            detector_config = DetectorConfiguration.objects.filter(
+                detector=detector, configuration=result["detector_config"]
+            ).first()
+            confidence_indicator = None
+            if "confidence" in result:
+                confidence_indicator = ConfidenceIndicator.objects.get(
+                    label=result["confidence"],
+                    confidence_indicator_set=confidence_set,
+                )
+
+            print(
+                f"Found ({dataset_files.count()}) corresponding files in dataset '{dataset.name}' "
+                f"for timestamps: {start} - {end}"
+            )
+            if not is_box and dataset_files.count() == 1:
+                AnnotationResult.objects.create(
+                    annotation_campaign=campaign,
+                    detector_configuration=detector_config,
+                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    confidence_indicator=confidence_indicator,
+                    dataset_file=dataset_files.first(),
+                )
+                continue
+
+            for dataset_file in dataset_files:
+                if start < dataset_file.audio_metadatum.start:
+                    start_time = 0
+                else:
+                    start_time = (start - dataset_file.audio_metadatum.start).seconds
+                if end > dataset_file.audio_metadatum.end:
+                    end_time = (
+                        dataset_file.audio_metadatum.end
+                        - dataset_file.audio_metadatum.start
+                    ).seconds
+                else:
+                    end_time = (end - dataset_file.audio_metadatum.start).seconds
+                AnnotationResult.objects.create(
+                    annotation_campaign=campaign,
+                    detector_configuration=detector_config,
+                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    confidence_indicator=confidence_indicator,
+                    dataset_file=dataset_file,
+                    start_frequency=result["min_frequency"]
+                    if "min_frequency" in result and is_box
+                    else 0,
+                    end_frequency=result["max_frequency"]
+                    if "max_frequency" in result and is_box
+                    else dataset.audio_metadatum.dataset_sr / 2,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+
+    def create(self, validated_data):
+        """Create annotation campaign"""
+
+        annotation_set = self.get_annotation_set(
+            validated_data["name"], validated_data["annotation_set_labels"]
+        )
+        confidence_set = self.get_confidence_set(
+            validated_data["name"], validated_data["confidence_set_indicators"]
+        )
+        self.manage_detectors(validated_data["detectors"])
 
         campaign = AnnotationCampaign(
             name=validated_data["name"],
@@ -224,54 +346,17 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             owner_id=validated_data["owner_id"],
             instructions_url=validated_data.get("instructions_url"),
         )
-
         campaign.save()
         campaign.datasets.set(validated_data["datasets"])
         campaign.spectro_configs.set(validated_data["spectro_configs"])
 
         # Create results
-        for result in validated_data["results"]:
-            detector = Detector.objects.filter(name=result["detector"]).first()
-            detector_config = DetectorConfiguration.objects.filter(
-                detector=detector, configuration=result["detector_config"]
-            ).first()
-            dataset = Dataset.objects.get(name=result["dataset"])
-            filename = result["dataset_file"]
-            dataset_file = dataset.files.get(filename=filename)
-            if dataset_file is None:
-                raise serializers.ValidationError(
-                    {
-                        "dataset_file": f"'{filename}' doesn't exists in dataset '{dataset.name}'"
-                    }
-                )
+        self.create_results(
+            campaign,
+            confidence_set,
+            results=validated_data["results"],
+        )
 
-            is_box = bool(result["is_box"])
-            AnnotationResult.objects.create(
-                annotation_campaign=campaign,
-                detector_configuration=detector_config,
-                annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
-                confidence_indicator=ConfidenceIndicator.objects.get(
-                    label=result["confidence"],
-                    confidence_indicator_set=confidence_set,
-                )
-                if "confidence" in result
-                else None,
-                start_time=result["min_time"]
-                if is_box and "min_time" in result
-                else None,
-                end_time=result["max_time"]
-                if is_box and "max_time" in result
-                else None,
-                start_frequency=result["min_frequency"]
-                if is_box and "min_frequency" in result
-                else None,
-                end_frequency=result["max_frequency"]
-                if is_box and "max_frequency" in result
-                else None,
-                dataset_file=dataset_file,
-            )
-
-        print(">> Created", campaign.name, campaign.id)
         return create_campaign_with_annotators(
             campaign=campaign,
             goal=int(validated_data["annotation_goal"]),

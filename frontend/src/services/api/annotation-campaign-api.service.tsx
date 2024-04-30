@@ -97,6 +97,8 @@ export type CreateResultItem = {
   detector_config: string;
   dataset: string;
   dataset_file: string;
+  start_datetime: string;
+  end_datetime: string;
 }
 
 export type CreateResult = {

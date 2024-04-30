@@ -101,6 +101,8 @@ export const useImportAnnotations = () => {
         max_time: i.end_time,
         min_frequency: i.start_frequency,
         max_frequency: i.end_frequency,
+        start_datetime: i.start_datetime,
+        end_datetime: i.end_datetime,
         dataset_file: i.filename,
         dataset: i.dataset,
         detector: getDisplayNameForDetector(i.detector_item),
