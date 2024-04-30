@@ -18,15 +18,6 @@ class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    # def test_campaign_user_list_unauthenticated(self):
-    #     """AnnotationTask view 'campaign_user_list' returns 401 if no user is authenticated"""
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 1, "user_id": 1},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
     def test_retrieve_unauthenticated(self):
         """AnnotationTask view 'retrieve' returns 401 if no user is authenticated"""
         url = reverse("annotation-task-detail", kwargs={"pk": 1})
@@ -93,70 +84,6 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "status": 0,
             },
         )
-
-    # Testing 'campaign_user_list'
-
-    # def test_campaign_user_list_for_staff(self):
-    #     """AnnotationTask view 'campaign_user_list' returns list for staff"""
-    #     self.client.login(username="staff", password="osmose29")
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 1, "user_id": 1},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(response.data), 6)
-    #     self.assertEqual(
-    #         dict(response.data[0]),
-    #         {
-    #             "dataset_name": "SPM Aural A 2010",
-    #             "end": "2012-10-03T10:15:00Z",
-    #             "filename": "sound001.wav",
-    #             "id": 1,
-    #             "start": "2012-10-03T10:00:00Z",
-    #             "status": 0,
-    #         },
-    #     )
-
-    # def test_campaign_user_list_for_staff_plus_unknown_campaign(self):
-    #     """AnnotationTask view 'campaign_user_list' returns 404 for staff with unknown campaign"""
-    #     self.client.login(username="staff", password="osmose29")
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 42, "user_id": 1},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    # def test_campaign_user_list_for_owner(self):
-    #     """AnnotationTask view 'campaign_user_list' returns list for owner"""
-    #     self.client.login(username="user1", password="osmose29")
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 1, "user_id": 1},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(response.data), 6)
-
-    # def test_campaign_user_list_for_owner_plus_unknown_user(self):
-    #     """AnnotationTask view 'campaign_user_list' returns 404 for owner with unknown user"""
-    #     self.client.login(username="user1", password="osmose29")
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 1, "user_id": 42},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    # def test_campaign_user_list_for_user(self):
-    #     """AnnotationTask view 'campaign_user_list' forbidden for unauthorized user"""
-    #     url = reverse(
-    #         "annotation-task-campaign-user-list",
-    #         kwargs={"campaign_id": 1, "user_id": 1},
-    #     )
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Testing 'retrieve'
 
