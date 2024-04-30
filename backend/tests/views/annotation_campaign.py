@@ -301,25 +301,25 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "comments",
             ],
         )
-        # self.assertEqual(
-        #     response.data[1],
-        #     [
-        #         "SPM Aural A 2010",
-        #         "sound007.wav",
-        #         "119.63596249310535",
-        #         "278.48869277440707",
-        #         "6432.0",
-        #         "12864.0",
-        #         "Odoncetes",
-        #         "user2",
-        #         "2012-10-03T16:01:59.635+00:00",
-        #         "2012-10-03T16:04:38.488+00:00",
-        #         "1",
-        #         "confident",
-        #         "0/1",
-        #         "",
-        #     ],
-        # )
+        self.assertEqual(
+            response.data[1],
+            [  # annotationresult id=7 ; because ordered by dataset_file and not id
+                "SPM Aural A 2010",
+                "sound001.wav",
+                "108.21842250413678",
+                "224.87589630446772",
+                "7520.0",
+                "13696.0",
+                "Odoncetes",
+                'admin',
+                '1349258508218.4224',
+                '1349258624875.8962',
+                "1",
+                "confident",
+                "0/1",
+                "",
+            ],
+        )
 
     # Testing 'report_status'
 
