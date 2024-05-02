@@ -327,7 +327,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     def create(self, validated_data):
         """Create annotation campaign"""
 
-        label_set = self.get_annotation_set(
+        label_set = self.get_label_set(
             validated_data["name"], validated_data["label_set_labels"]
         )
         confidence_set = self.get_confidence_set(
