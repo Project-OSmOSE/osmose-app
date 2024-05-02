@@ -27,6 +27,7 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { Provider } from "react-redux";
 import { AppStore } from "@/slices/app.ts";
+import { Heatmap } from "@/view/heatmap.tsx";
 
 setupIonicReact({
   mode: 'md',
@@ -41,6 +42,7 @@ export const App: FC = () => {
         <Router basename='/app'>
           <Switch>
             <Route path="/login"><Login/></Route>
+            <Route path="/heat"><Heatmap/></Route>
 
             <AuthenticatedRoute path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
 
