@@ -6,7 +6,6 @@ import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
 import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
 import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
