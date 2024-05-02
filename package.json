@@ -2,7 +2,7 @@
   "name": "osmose",
   "scripts": {
     "database:remove": "docker stop devdb && docker rm devdb",
-    "database:create": "docker run --name devdb -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis",
+    "database:create": "docker run --name osmose_dev_db -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis",
     "database:run": "docker start devdb",
     "server:migrate": "poetry run manage.py migrate",
     "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add . && cd ../../osmosewebsite/migrations && git add .",
