@@ -83,11 +83,9 @@ export const Heatmap: React.FC = () => {
           // uirevision: 'true', // Prevent graph reload when react page reloads?
           xaxis: {
             tickformat: timeTicksFormat,
-            spikethickness: 1,
           },
           yaxis: {
             ticksuffix: 'Hz',
-            spikethickness: 1,
             type: yDisplay
           },
           dragmode: 'pan',
