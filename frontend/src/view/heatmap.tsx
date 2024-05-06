@@ -8,12 +8,15 @@ import { AxisType } from "plotly.js";
 export const Heatmap: React.FC = () => {
 
   const filename = "http://localhost:5173/backend/static/datawork/dataset/2023_02_05T10_51_29_1_0.npz"
+  // const filename = "http://localhost:5173/backend/static/datawork/dataset/2023_02_05T11_30_09_1_0.npz"
 
   const [data, setData] = useState<Array<number[]>>([]);
   const [time, setTime] = useState<Array<number>>([]);
   const [timeTicksFormat, setTimeTicksFormat] = useState<string>();
   const [frequency, setFrequency] = useState<Array<number>>([]);
   const [yDisplay, setYDisplay] = useState<AxisType>('linear');
+
+  const [colormap, setColormap] = useState<string>('Viridis');
 
   useEffect(() => {
     console.debug("Loading", new Date())
@@ -62,6 +65,7 @@ export const Heatmap: React.FC = () => {
       // Converted in seconds
       const maxTime = Math.max(...timeContent);
       let format = "%Ss";
+      if (maxTime <= 60) format = `${ format }.%s`;
       if (maxTime > 60) format = `%M:${ format }`;
       if (maxTime > 3600) format = `%H:${ format }`;
       setTimeTicksFormat(format);
@@ -76,7 +80,7 @@ export const Heatmap: React.FC = () => {
           x: time.map(t => new Date(t * 1000)),
           y: frequency,
           z: data,
-          colorscale: 'Viridis',
+          colorscale: colormap,
         }] }
         layout={ {
           title: filename,
@@ -100,11 +104,19 @@ export const Heatmap: React.FC = () => {
             'resetScale2d',
           ]
         } }
+        onClick={console.info}
       />
 
-      <select value={ yDisplay } onChange={e => setYDisplay(e.target.value)}>
+      <select value={ yDisplay } onChange={ e => setYDisplay(e.target.value) }>
         <option value="linear">Linear</option>
         <option value="log">Log</option>
+      </select>
+
+      <select value={ colormap } onChange={ e => setColormap(e.target.value) }>
+        <option value="Viridis">Viridis</option>
+        <option value="Greys">Greys</option>
+        <option value="Blackbody">Blackbody</option>
+        <option value="Hot">Hot</option>
       </select>
     </Fragment>
   );
