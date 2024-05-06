@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import npyjs from 'npyjs'
 import JSZip from 'jszip'
 import JSZipUtils from 'jszip-utils'
-import { newPlot } from 'plotly.js-dist'
+import Plot from 'react-plotly.js';
+import { AxisType } from "plotly.js";
 
 export const Heatmap: React.FC = () => {
 
   const filename = "http://localhost:5173/backend/static/datawork/dataset/2023_02_05T10_51_29_1_0.npz"
 
+  const [data, setData] = useState<Array<number[]>>([]);
+  const [time, setTime] = useState<Array<number>>([]);
+  const [timeTicksFormat, setTimeTicksFormat] = useState<string>();
+  const [frequency, setFrequency] = useState<Array<number>>([]);
+  const [yDisplay, setYDisplay] = useState<AxisType>('linear');
 
   useEffect(() => {
     console.debug("Loading", new Date())
@@ -49,24 +55,59 @@ export const Heatmap: React.FC = () => {
           return table
         });
 
-      draw(dataContent, timeContent, frequencyContent);
+      setData(dataContent);
+      setTime(timeContent);
+      setFrequency(frequencyContent);
+
+      // Converted in seconds
+      const maxTime = Math.max(...timeContent);
+      let format = "%Ss";
+      if (maxTime > 60) format = `%M:${ format }`;
+      if (maxTime > 3600) format = `%H:${ format }`;
+      setTimeTicksFormat(format);
     })
   }, []);
 
-  const draw = (data: number[][], time: number[], frequency: number[]) => {
-    console.debug('Draw', new Date())
-    newPlot('heatmap', [
-      {
-        z: data,
-        x: time,
-        y: frequency,
-        type: 'heatmap',
-        colorscale: 'Viridis'
-      }
-    ])
-  }
-
   return (
-    <div id="heatmap"></div>
+    <Fragment>
+      <Plot
+        data={ [{
+          type: 'heatmap',
+          x: time.map(t => new Date(t * 1000)),
+          y: frequency,
+          z: data,
+          colorscale: 'Viridis',
+        }] }
+        layout={ {
+          title: filename,
+          // uirevision: 'true', // Prevent graph reload when react page reloads?
+          xaxis: {
+            tickformat: timeTicksFormat,
+            spikethickness: 1,
+          },
+          yaxis: {
+            ticksuffix: 'Hz',
+            spikethickness: 1,
+            type: yDisplay
+          },
+          dragmode: 'pan',
+        } }
+        config={ {
+          scrollZoom: true,
+          displaylogo: false,
+          modeBarButtonsToAdd: [
+            "togglespikelines",
+          ],
+          modeBarButtonsToRemove: [
+            'resetScale2d',
+          ]
+        } }
+      />
+
+      <select value={ yDisplay } onChange={e => setYDisplay(e.target.value)}>
+        <option value="linear">Linear</option>
+        <option value="log">Log</option>
+      </select>
+    </Fragment>
   );
 };
