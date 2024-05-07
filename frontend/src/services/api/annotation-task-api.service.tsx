@@ -12,6 +12,7 @@ export type ListItem = {
   dataset_name: string;
   start: Date;
   end: Date;
+  results_count: number;
 }
 
 export interface Retrieve {

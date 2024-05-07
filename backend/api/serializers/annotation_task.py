@@ -37,10 +37,19 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
     dataset_name = serializers.CharField()
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
+    results_count = serializers.IntegerField()
 
     class Meta:
         model = AnnotationTask
-        fields = ["id", "status", "filename", "dataset_name", "start", "end"]
+        fields = [
+            "id",
+            "status",
+            "filename",
+            "dataset_name",
+            "start",
+            "end",
+            "results_count"
+        ]
 
 
 class AnnotationTaskBoundarySerializer(serializers.Serializer):
