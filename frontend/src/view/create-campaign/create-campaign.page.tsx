@@ -27,16 +27,19 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
-
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    submit()
+  }
+
+  const submit = async (force: boolean = false) => {
     try {
-      await service.submitCampaign();
+      await service.submitCampaign(force);
 
       history.push('/annotation-campaigns');
     } catch (e: any) {
-      toast.presentError(e);
+      const force = await toast.presentError(e, e.response?.body?.dataset_file_not_found);
+      if (force) await submit(force);
     }
   }
 

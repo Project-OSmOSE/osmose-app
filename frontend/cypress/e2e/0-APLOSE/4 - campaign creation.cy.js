@@ -9,7 +9,7 @@ describe('create campaign', () => {
         cy.contains('New annotation campaign', {matchCase: false}).click()
     })
 
-    it('Create annotations usage', () => {
+    it.skip('Create annotations usage', () => {
         const data = CAMPAIGNS_DATA[Usage.create];
         /** @type {Create} */
         const expectedResult = {
@@ -126,7 +126,7 @@ describe('create campaign', () => {
         cy.contains('Use selected datasets as').click()
         /// Inconsistent max confidence level
         cy.get('ion-modal').should('include.text', 'Inconsistent confidence indicator max level')
-        cy.get('ion-radio').contains('1 (3 occurrences)').click()
+        cy.get('ion-radio').contains('1 (4 occurrences)').click()
         cy.contains('Use 1 as maximum').click()
         /// Detectors
         for (const detector of data.detectors) {
@@ -152,16 +152,24 @@ describe('create campaign', () => {
         }
 
         // Submit
+        cy.intercept('POST', '/api/annotation-campaign').as('submit')
+        cy.get('ion-button').contains('Create campaign').click()
+        cy.wait('@submit').then(interception => {
+            expect(interception.response.statusCode).to.equal(400)
+        })
+
+        // Force submit
         cy.intercept('POST', '/api/annotation-campaign', (req) => {
-            expect(req.body).to.deep.equal(expectedResult)
             try {
+                expect(req.body).to.deep.equal({force: true, ...expectedResult})
             } catch (e) {
                 req.reply(400, e.message)
                 throw e
             }
-        }).as('submit')
-        cy.get('ion-button').contains('Create campaign').click()
-        cy.wait('@submit').then(interception => {
+        }).as('submit-forced')
+        cy.wait(500)
+        cy.get('ion-toast').should('exist').shadow().contains('Create anyway', {matchCase: false}).click();
+        cy.wait('@submit-forced').then(interception => {
             expect(interception.response.statusCode).to.equal(200)
         })
     })

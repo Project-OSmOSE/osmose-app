@@ -22,13 +22,14 @@ export const useCreateCampaign = () => {
   } = useAppSelector(state => state.createCampaignForm.global);
   const importedAnnotations = useImportAnnotations();
 
-  function submitCampaign() {
+  function submitCampaign(force?: boolean) {
     if (!usage) throw new Error('Missing required field: Annotation mode')
     if (!name) throw new Error('Missing required field: Campaign name')
     if (!dataset) throw new Error('Missing required field: Dataset')
     if (datasetSpectroConfigs.length === 0) throw new Error('Missing required field: Spectrogram configurations')
 
     const data = {
+      force,
       name: name.trim(),
       desc: description?.trim(),
       instructions_url: instructionURL?.trim(),

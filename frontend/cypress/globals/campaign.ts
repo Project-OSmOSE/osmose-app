@@ -111,6 +111,19 @@ export const CAMPAIGNS_DATA = {
         start_datetime: "2012-10-03T11:00:00.000000+00:00",
         end_datetime: "2012-10-03T12:15:00.000000+00:00"
       },
+      {
+        is_box: false,
+        dataset: DATASET.name,
+        dataset_file: 'sound003.wav',
+        confidence: 'not confident',
+        tag: 'Sri Lanka pygmy blue whale song',
+        min_time: 0, max_time: 3599,
+        min_frequency: 0, max_frequency: 120,
+        detector: DETECTOR_3.name,
+        detector_config: DETECTOR_3.configuration,
+        start_datetime: "2012-10-03T11:20:00.000000+00:00",
+        end_datetime: "2012-10-03T11:30:00.000000+00:00"
+      },
     ] as Array<CreateResultItem>
   },
 }

@@ -116,6 +116,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         child=serializers.IntegerField(),
         validators=[valid_model_ids(User)],
     )
+    force = serializers.BooleanField(required=False, allow_null=True)
 
     class Meta:
         model = AnnotationCampaign
@@ -138,6 +139,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             "confidence_set_indicators",
             "detectors",
             "results",
+            "force"
         ]
 
     def validate(self, attrs):
@@ -253,8 +255,10 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         campaign: AnnotationCampaign,
         confidence_set: ConfidenceIndicatorSet | None,
         results: list,
+        force: bool
     ):
         """Create results objects"""
+        missing_matches = 0
         for result in results:
             dataset = Dataset.objects.get(name=result["dataset"])
             is_box = bool(result["is_box"])
@@ -262,12 +266,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             end = self.get_result_end(is_box, result)
             dataset_files = self.get_dataset_files(dataset, start, end)
             if not dataset_files:
-                raise serializers.ValidationError(
-                    {
-                        "dataset_file": f"Didn't find any corresponding file in dataset '{dataset.name}' "
-                        f"for timestamps: {start} - {end}"
-                    }
-                )
+                missing_matches = missing_matches + 1
             detector = Detector.objects.filter(name=result["detector"]).first()
             detector_config = DetectorConfiguration.objects.filter(
                 detector=detector, configuration=result["detector_config"]
@@ -279,10 +278,6 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                     confidence_indicator_set=confidence_set,
                 )
 
-            print(
-                f"Found ({dataset_files.count()}) corresponding files in dataset '{dataset.name}' "
-                f"for timestamps: {start} - {end}"
-            )
             if not is_box and dataset_files.count() == 1:
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
@@ -321,6 +316,13 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                     end_time=end_time,
                 )
 
+        if missing_matches and not force:
+            raise serializers.ValidationError(
+                {
+                    "dataset_file_not_found": f"Didn't find any corresponding file for {missing_matches} result{'s' if missing_matches > 0 else ''}"
+                }
+            )
+
     def create(self, validated_data):
         """Create annotation campaign"""
 
@@ -355,6 +357,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             campaign,
             confidence_set,
             results=validated_data["results"],
+            force=validated_data["force"]
         )
 
         return create_campaign_with_annotators(
