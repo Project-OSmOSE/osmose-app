@@ -25,6 +25,8 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "@nivo/heatmap": "^0.86.0",
+    "echarts": "^5.5.0",
     "react-plotly.js": "^2.6.0"
   }
 }

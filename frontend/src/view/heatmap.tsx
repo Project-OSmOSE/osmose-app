@@ -1,123 +1,28 @@
 import React, { Fragment, useEffect, useState } from "react";
-import npyjs from 'npyjs'
-import JSZip from 'jszip'
-import JSZipUtils from 'jszip-utils'
-import Plot from 'react-plotly.js';
-import { AxisType } from "plotly.js";
+import { PlotlyHeatmap } from "@/view/heatmap/plotly-heatmap.tsx";
+import { getHeatmapData, HeatmapData } from "@/view/heatmap/utils.ts";
+import { EchartsHeatmap } from "@/view/heatmap/echarts-heatmap.tsx";
+import { HomemadeSvgHeatmap } from "@/view/heatmap/homemade-svg-heatmap.tsx";
+import { HomemadeCanvasHeatmap } from "@/view/heatmap/homemade-canvas-heatmap.tsx";
+import { NivoHeatmap } from "@/view/heatmap/nivo-heatmap.tsx";
 
 export const Heatmap: React.FC = () => {
 
   const filename = "http://localhost:5173/backend/static/datawork/dataset/2023_02_05T10_51_29_1_0.npz"
-  // const filename = "http://localhost:5173/backend/static/datawork/dataset/2023_02_05T11_30_09_1_0.npz"
+  const [data, setData] = useState<HeatmapData>();
 
-  const [data, setData] = useState<Array<number[]>>([]);
-  const [time, setTime] = useState<Array<number>>([]);
-  const [timeTicksFormat, setTimeTicksFormat] = useState<string>();
-  const [frequency, setFrequency] = useState<Array<number>>([]);
-  const [yDisplay, setYDisplay] = useState<AxisType>('linear');
-
-  const [colormap, setColormap] = useState<string>('Viridis');
 
   useEffect(() => {
-    console.debug("Loading", new Date())
-
-    JSZipUtils.getBinaryContent(filename, async (err: Error, data: ArrayBuffer) => {
-      if (err) throw err;
-      console.debug("JSZipUtils.getBinaryContent:", data)
-
-      const jsZip: JSZip = new JSZip()
-      const npzFiles = await jsZip.loadAsync(data)
-      console.debug("jsZip.loadAsync:", npzFiles)
-
-      const frequencyFile = npzFiles.files['Freq.npy'];
-      const timeFile = npzFiles.files['Time.npy'];
-      const dataFile = npzFiles.files['log_spectro.npy'];
-
-      if (!frequencyFile || !timeFile || !dataFile) throw new Error('Miss a file');
-
-      const _npyjs_ = new npyjs()
-      const frequencyContent: Array<number> = await frequencyFile.async("arraybuffer")
-        .then(buffer => _npyjs_.parse(buffer))
-        .then(parsedBuffer => parsedBuffer.data)
-        .then(data => [].slice.call(data));
-
-      const timeContent: Array<number> = await timeFile.async("arraybuffer")
-        .then(buffer => _npyjs_.parse(buffer))
-        .then(parsedBuffer => parsedBuffer.data)
-        .then(data => [].slice.call(data));
-
-      const dataContent: Array<number[]> = await dataFile.async("arraybuffer")
-        .then(buffer => _npyjs_.parse(buffer))
-        .then(parsedBuffer => parsedBuffer.data)
-        .then(data => [].slice.call(data))
-        .then(array => {
-          const table: number[][] = [];
-          for (const f in frequencyContent) {
-            table.push(array.slice(+f * timeContent.length, (+f + 1) * timeContent.length))
-          }
-          return table
-        });
-
-      setData(dataContent);
-      setTime(timeContent);
-      setFrequency(frequencyContent);
-
-      // Converted in seconds
-      const maxTime = Math.max(...timeContent);
-      let format = "%Ss";
-      if (maxTime <= 60) format = `${ format }.%s`;
-      if (maxTime > 60) format = `%M:${ format }`;
-      if (maxTime > 3600) format = `%H:${ format }`;
-      setTimeTicksFormat(format);
-    })
+    getHeatmapData(filename).then(setData);
   }, []);
 
   return (
     <Fragment>
-      <Plot
-        data={ [{
-          type: 'heatmap',
-          x: time.map(t => new Date(t * 1000)),
-          y: frequency,
-          z: data,
-          colorscale: colormap,
-        }] }
-        layout={ {
-          title: filename,
-          // uirevision: 'true', // Prevent graph reload when react page reloads?
-          xaxis: {
-            tickformat: timeTicksFormat,
-          },
-          yaxis: {
-            ticksuffix: 'Hz',
-            type: yDisplay
-          },
-          dragmode: 'pan',
-        } }
-        config={ {
-          scrollZoom: true,
-          displaylogo: false,
-          modeBarButtonsToAdd: [
-            "togglespikelines",
-          ],
-          modeBarButtonsToRemove: [
-            'resetScale2d',
-          ]
-        } }
-        onClick={console.info}
-      />
-
-      <select value={ yDisplay } onChange={ e => setYDisplay(e.target.value) }>
-        <option value="linear">Linear</option>
-        <option value="log">Log</option>
-      </select>
-
-      <select value={ colormap } onChange={ e => setColormap(e.target.value) }>
-        <option value="Viridis">Viridis</option>
-        <option value="Greys">Greys</option>
-        <option value="Blackbody">Blackbody</option>
-        <option value="Hot">Hot</option>
-      </select>
+      <PlotlyHeatmap title={ filename } data={ data }/>
+      {/*<EchartsHeatmap title={ filename } data={ data }/>*/}
+      {/*<HomemadeSvgHeatmap title={ filename } data={ data }/>*/}
+      {/*<HomemadeCanvasHeatmap title={ filename } data={ data }/>*/}
+      {/*<NivoHeatmap title={ filename } data={ data }/>*/}
     </Fragment>
   );
 };
