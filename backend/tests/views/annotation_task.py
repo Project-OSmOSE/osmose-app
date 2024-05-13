@@ -82,6 +82,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "id": 7,
                 "start": "2012-10-03T16:00:00Z",
                 "status": 0,
+                "results_count": 3,
             },
         )
 

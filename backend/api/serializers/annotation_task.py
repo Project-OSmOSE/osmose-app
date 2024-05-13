@@ -48,7 +48,7 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
             "dataset_name",
             "start",
             "end",
-            "results_count"
+            "results_count",
         ]
 
 

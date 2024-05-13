@@ -1,7 +1,7 @@
 """Annotation task DRF-Viewset file"""
 
 from django.db import transaction
-from django.db.models import Prefetch, F, Count, OuterRef, Subquery, Func
+from django.db.models import Prefetch, F, OuterRef, Subquery, Func
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -45,16 +45,16 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         """List tasks for given annotation campaign"""
         campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
         print(campaign.results.count())
-        queryset = campaign.tasks.annotate(
+        queryset = campaign.tasks.filter(annotator_id=request.user.id).annotate(
             filename=F("dataset_file__filename"),
             start=F("dataset_file__audio_metadatum__start"),
             end=F("dataset_file__audio_metadatum__end"),
             dataset_name=F("dataset_file__dataset__name"),
-            results_count=Subquery(campaign.results.filter(
-                dataset_file_id=OuterRef("dataset_file_id")
-            ).annotate(
-                count=Func(F('id'), function='Count')
-            ).values('count'))
+            results_count=Subquery(
+                campaign.results.filter(dataset_file_id=OuterRef("dataset_file_id"))
+                .annotate(count=Func(F("id"), function="Count"))
+                .values("count")
+            ),
         )
 
         serializer = self.serializer_class(queryset, many=True)

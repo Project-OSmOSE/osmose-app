@@ -139,7 +139,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             "confidence_set_indicators",
             "detectors",
             "results",
-            "force"
+            "force",
         ]
 
     def validate(self, attrs):
@@ -255,7 +255,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         campaign: AnnotationCampaign,
         confidence_set: ConfidenceIndicatorSet | None,
         results: list,
-        force: bool
+        force: bool,
     ):
         """Create results objects"""
         missing_matches = 0
@@ -319,7 +319,8 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         if missing_matches and not force:
             raise serializers.ValidationError(
                 {
-                    "dataset_file_not_found": f"Didn't find any corresponding file for {missing_matches} result{'s' if missing_matches > 0 else ''}"
+                    "dataset_file_not_found": f"Didn't find any corresponding file for {missing_matches} "
+                    f"result{'s' if missing_matches > 0 else ''}"
                 }
             )
 
@@ -357,7 +358,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             campaign,
             confidence_set,
             results=validated_data["results"],
-            force=validated_data["force"]
+            force=validated_data["force"],
         )
 
         return create_campaign_with_annotators(
