@@ -11,7 +11,7 @@ import { createCampaignActions } from "@/slices/create-campaign";
 import { IonModalCustomEvent } from "@ionic/core/dist/types/components";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
-import { DetectorsConfigContent } from "@/view/create-campaign/blocs/import-modal/detectors-config-content.tsx";
+import { DetectorsConfigContent } from "@/view/campaign/create-edit/blocs/import-modal/detectors-config-content.tsx";
 
 type Props = {
   isOpen: boolean,

@@ -116,7 +116,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound003.wav',
         confidence: 'not confident',
-        tag: 'Sri Lanka pygmy blue whale song',
+        label: 'Sri Lanka pygmy blue whale song',
         min_time: 0, max_time: 3599,
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_3.name,

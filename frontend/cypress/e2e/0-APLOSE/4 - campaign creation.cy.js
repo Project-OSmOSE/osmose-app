@@ -65,7 +65,7 @@ describe('create campaign', () => {
         // Submit
         cy.intercept('POST', '/api/annotation-campaign', (req) => {
             try {
-                expect(req.body).to.deep.equal(expectedResult)
+                expect(req.body).to.deep.equal({...expectedResult, force: false})
             } catch (e) {
                 console.warn(e);
                 req.destroy()

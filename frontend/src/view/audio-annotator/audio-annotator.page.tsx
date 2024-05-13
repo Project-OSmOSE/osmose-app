@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
 import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
-import { Annotation, AnnotationComment } from "@/types/annotations.ts";
+import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
@@ -30,6 +28,7 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
 
 import '../../css/annotator.css';
+import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 
 
 // Playback rates

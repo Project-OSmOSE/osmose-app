@@ -5,8 +5,13 @@ describe('campaigns page', () => {
         cy.session_login('admin', 'osmose29')
     })
 
-    it('displays 5 campaigns by default', () => {
-        cy.get('.campaign-card').should('have.length', 5)
+    it('displays 4 open campaigns by default', () => {
+        cy.get('.campaign-card').should('have.length', 4)
+    })
+
+    it('displays 1 archived campaigns', () => {
+        cy.contains("Show archived").click()
+        cy.get('.campaign-card').should('have.length', 1)
     })
 
     it('Has guide link', () => {

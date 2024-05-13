@@ -11,8 +11,28 @@ describe('Edit campaign', () => {
     })
 
     it('Add annotator', () => {
+        cy.contains('Add annotators').click();
+        cy.url().then(url => {
+            const split = url?.split('/')
+            split.pop()
+            let ID = split.pop();
+
+            console.debug(">>> ID", ID)
+            cy.intercept('POST', `/api/annotation-campaign/${ID}/add_annotators`, (req) => {
+                console.debug('IN')
+                try {
+                    expect(req.body).to.deep.equal({
+                        annotators: [USER_COMMON_2.id],
+                        annotation_goal: 30
+                    })
+                } catch (e) {
+                    console.warn(e);
+                    req.destroy()
+                }
+            }).as('submit')
+        });
+
         // Annotators
-        cy.contains('Add annotators').click()
         cy.get('#searchbar').type(USER_COMMON_2.displayName);
         cy.contains(USER_COMMON_2.displayName).click();
         cy.get('#searchbar').parent().should('contain', USER_COMMON_2.displayName)
@@ -21,17 +41,6 @@ describe('Edit campaign', () => {
         cy.contains('files to annotate').parent().find('input').clear().type(3)
 
         // Submit
-        cy.intercept('POST', `/api/annotation-campaign/${Campaign.id}/add_annotators`, (req) => {
-            try {
-                expect(req.body).to.deep.equal({
-                    annotators: [USER_COMMON_2.id],
-                    annotation_goal: 30
-                })
-            } catch (e) {
-                console.warn(e);
-                req.destroy()
-            }
-        }).as('submit')
         cy.get('ion-button').contains('Update campaign').click()
         cy.wait('@submit').then(interception => {
             expect(interception.response.statusCode).to.equal(200);
