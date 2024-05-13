@@ -1,6 +1,6 @@
-import React, { FormEvent, useEffect } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { IonButton } from "@ionic/react";
+import { IonButton, IonSpinner } from "@ionic/react";
 import { useCreateCampaign } from "@/services/create-campaign";
 import { useBlur } from "@/services/utils/clic";
 import { useToast } from "@/services/utils/toast";
@@ -11,6 +11,7 @@ import { AnnotationsBloc } from "./blocs/annotations.bloc.tsx";
 import './create-edit-campaign.css'
 
 export const CreateCampaign: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const service = useCreateCampaign();
   const blurUtil = useBlur();
@@ -29,7 +30,12 @@ export const CreateCampaign: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submit()
+    setIsLoading(true);
+    try {
+      await submit()
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const submit = async (force: boolean = false) => {
@@ -59,8 +65,9 @@ export const CreateCampaign: React.FC = () => {
       <AnnotatorsBloc/>
 
 
-      <IonButton color="primary" type="submit">
+      <IonButton color="primary" type="submit" disabled={ isLoading }>
         Create campaign
+        { isLoading && <IonSpinner/> }
       </IonButton>
     </form>
   )
