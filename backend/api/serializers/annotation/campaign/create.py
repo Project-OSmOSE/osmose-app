@@ -176,7 +176,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
 
     def get_confidence_set(
         self, campaign_name: str, indicators: list
-    ) -> ConfidenceIndicatorSet | None:
+    ):
         """Get confidence set for creating annotation campaign"""
         confidence_set = None
         for data in indicators:
