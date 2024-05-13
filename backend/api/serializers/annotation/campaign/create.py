@@ -250,7 +250,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     def create_results(
         self,
         campaign: AnnotationCampaign,
-        confidence_set: ConfidenceIndicatorSet | None,
+        confidence_set: ConfidenceIndicatorSet,
         results: list,
         force: bool,
     ):
