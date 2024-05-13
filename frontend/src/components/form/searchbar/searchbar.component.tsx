@@ -7,6 +7,7 @@ import { searchFilter } from "@/services/utils/search.ts";
 interface Props {
   values: Array<Item>;
   onValueSelected: (value: Item) => void;
+  placeholder: string;
 }
 
 export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>> = (props) => {
