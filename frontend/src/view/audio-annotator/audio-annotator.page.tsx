@@ -215,7 +215,7 @@ export const AudioAnnotator: React.FC = () => {
   }
 
   const goBack = () => {
-    window.open(`/annotation_tasks/${ campaignId }`, "_self")
+    window.open(`/app/annotation_tasks/${ campaignId }`, "_self")
   }
 
   const downloadAudio = () => {
