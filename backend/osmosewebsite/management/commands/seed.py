@@ -130,6 +130,7 @@ class Command(BaseCommand):
                 thumbnail=get_fake_image_url(),
                 url=fake.uri(),
                 show_on_home_page=True,
+                show_on_presentation_page=True,
             )
         for i in range(0, random.randint(5, 15)):
             Collaborator.objects.create(
@@ -137,6 +138,7 @@ class Command(BaseCommand):
                 thumbnail=get_fake_image_url(),
                 url=fake.uri(),
                 show_on_home_page=False,
+                show_on_presentation_page=False,
             )
 
     def _create_projects(self):
