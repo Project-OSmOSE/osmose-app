@@ -1,0 +1,162 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+
+#aplose-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.banner {
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.section-content {
+    max-width: 800px;
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+    text-align: justify;
+}
+
+.section-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.carousel-container {
+    width: 100%;
+    max-width: 750px;
+    position: relative;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+.carousel-wrapper {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.carousel-image {
+    max-width: 100%;
+    height: auto;
+    cursor: pointer;
+}
+
+.zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.zoomed-image {
+    max-width: 90%;
+    max-height: 90%;
+    transform: scale(1.0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 24px;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.carousel-control:hover {
+    background-color: #0056b3;
+    opacity: 1;
+}
+
+.carousel-control.left {
+    left: 10px;
+}
+
+.carousel-control.right {
+    right: 10px;
+}
+
+.video-section {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.video-section video {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.presentation_page, .collaborators-banner-component {
+    margin: var(--content-margin);
+}
+
+.carousel-container, .video-section, .presentation_page, .collaborators-banner-component {
+    max-width: 800px;
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 1200px) {
+    .carousel-container, .video-section, .section-content {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .carousel-container, .video-section, .section-content {
+        width: 100%;
+        padding: 0 10px;
+    }
+}
