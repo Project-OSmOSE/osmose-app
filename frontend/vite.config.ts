@@ -5,7 +5,11 @@ import { execSync } from 'child_process';
 
 // https://vitejs.dev/config/
 export default (_: ConfigEnv): UserConfig => {
-  process.env.VITE_GIT_TAG = execSync("git describe --tags").toString();
+  try {
+    process.env.VITE_GIT_TAG = execSync("git describe --tags").toString();
+  } catch (e) {
+    console.info('Could not get GIT version')
+  }
 
   return {
     base: './',
