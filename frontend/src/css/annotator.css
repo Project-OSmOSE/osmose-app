@@ -193,7 +193,7 @@ html {
 .workbench-pointer {
   position: absolute;
   top: 10px;
-  left: 50%;
+  left: 78%;
   transform: translateX(-50%);
   background-color: #ffffff;
   border-radius: 5px;
@@ -214,7 +214,6 @@ html {
 .workbench-info--intro{
   animation: workbench-info--intro 1s;
   box-shadow: 0 0 0 20em transparent;
-
 }
 
 @keyframes workbench-info--intro {

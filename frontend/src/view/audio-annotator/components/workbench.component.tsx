@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { formatTimestamp } from "../../../services/annotator/format/format.util.tsx";
 import { SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
@@ -7,6 +7,7 @@ import {
 } from "../../../services/annotator/spectro/spectro.context.tsx";
 import { AnnotationsContext } from "../../../services/annotator/annotations/annotations.context.tsx";
 import { AnnotatorContext } from "../../../services/annotator/annotator.context.tsx";
+import { Dropdown } from 'react-bootstrap';
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -76,7 +77,7 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
             })}>
               { spectroContext.availableColormaps.map((colormap, idx) => {
                 return (
-                  <option key={ `colormap-${idx}` } value={ colormap }>{ colormap !== '' ? colormap : 'No colormap' }</option>
+                  <option key={ `colormap-${idx}` } value={ colormap }>{ colormap !== 'none' ? colormap : 'No colormap' }</option>
                 );
               }) }
           </select>
@@ -90,6 +91,30 @@ export const Workbench: React.FC<Props> = ({ audioPlayer, }) => {
             }) }
           />
           <label htmlFor="invertColors">Inverted</label>
+          <Dropdown>
+            <Dropdown.Toggle>Colormap</Dropdown.Toggle>
+            <Dropdown.Menu>
+            { spectroContext.availableColormaps.map((colormap, idx) => {
+                return (
+                  <Dropdown.Item><img src={`/images/colormaps/${colormap}.png`} /></Dropdown.Item>
+                );
+              }) }
+            </Dropdown.Menu>
+          </Dropdown>
+          <input id="brightness" type="range" name="brightness" min="0" max="200" onChange={
+            e => spectroDispatch!({
+              type: 'updateBrightness',
+              brightness: e.target.valueAsNumber,
+            })
+          } />
+          <label htmlFor="brightness">{ spectroContext.currentBrightness } %</label>
+          <input id="contrast" type="range" name="contrast" min="0" max="200" onChange={
+            e => spectroDispatch!({
+              type: 'updateContrast',
+              contrast: e.target.valueAsNumber,
+            })
+          } />
+          <label htmlFor="contrast">{ spectroContext.currentContrast } %</label>
         </div>
       </div>
 

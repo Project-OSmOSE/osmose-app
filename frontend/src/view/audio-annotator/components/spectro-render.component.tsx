@@ -168,6 +168,13 @@ export const SpectroRenderComponent: React.FC<Props> = ({audioPlayer,}) => {
     loadSpectro();
   }, [ spectroContext.currentImages ])
 
+  useEffect(() => {
+    loadSpectro();
+  }, [spectroContext.currentBrightness]);
+  useEffect(() => {
+    loadSpectro();
+  }, [spectroContext.currentContrast]);
+
   // On current colormap changed
   useEffect(() => {
     loadSpectro();
@@ -351,6 +358,8 @@ export const SpectroRenderComponent: React.FC<Props> = ({audioPlayer,}) => {
     const newX: number = Math.floor(canvas.width * audioContext.time / resultContext.wholeFileBoundaries.duration);
     canvasContext.fillStyle = 'rgba(0, 0, 0)';
     canvasContext.fillRect(newX, 0, 1, canvas.height);
+
+    canvasContext.filter = `brightness(${spectroContext.currentBrightness}%) contrast(${spectroContext.currentContrast}%)`;
 
     // Render new annotation
     if (newAnnotation) {

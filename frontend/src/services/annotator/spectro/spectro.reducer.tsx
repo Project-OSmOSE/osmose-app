@@ -107,6 +107,18 @@ const spectroReducer: Reducer<SpectroCtx, SpectroCtxAction> = (currentContext: S
         currentZoomOrigin: undefined
       }
 
+    case 'updateBrightness':
+      return {
+        ...currentContext,
+        currentBrightness: action.brightness,
+      };
+    
+    case 'updateContrast':
+      return {
+        ...currentContext,
+        currentContrast: action.contrast,
+      };
+
     case 'updateColormap':
       return {
         ...currentContext,

@@ -47,7 +47,7 @@ export function createColormap(spec: ColorMapConfig): number[][] {
   nshades = (spec.nshades || 72) - 1;
 
   colormap = spec.colormap;
-  if (!colormap) colormap = '';
+  if (!colormap) colormap = 'none';
 
   if (typeof colormap === 'string') {
     colormap = colormap.toLowerCase();
@@ -143,7 +143,7 @@ export type ColorStep = {
 }
 
 export const colormaps: Record<string, ColorStep[]> = {
-  "":[{"index":0,"rgb":[0,0,0]},{"index":1,"rgb":[255,255,255]}],
+  "none":[{"index":0,"rgb":[0,0,0]},{"index":1,"rgb":[255,255,255]}],
 
   "jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
 

@@ -34,6 +34,9 @@ export interface SpectroCtx {
   currentParams?: SpectrogramParams;
   availableParams: Array<SpectrogramParams>
 
+  currentBrightness: number;
+  currentContrast: number;
+
   currentColormap: SpectrogramColormap;
   availableColormaps: Array<string>;
 
@@ -49,7 +52,9 @@ export const SpectroCtxInitialValue: SpectroCtx = {
   availableZoomLevels: [],
   currentImages: [],
   availableParams: [],
-  currentColormap: { colormap: '', invertColors: false },
+  currentBrightness: 100,
+  currentContrast: 100,
+  currentColormap: { colormap: 'none', invertColors: false },
   availableColormaps: [],
   currentZoom: 1,
 }
@@ -57,6 +62,8 @@ export const SpectroCtxInitialValue: SpectroCtx = {
 export type SpectroCtxAction =
   { type: 'init', task: Retrieve } |
   { type: 'updateColormap', params: SpectrogramColormap } |
+  { type: 'updateBrightness', brightness: number } |
+  { type: 'updateContrast', contrast: number } |
   { type: 'updateParams', params: SpectrogramParams, zoom: number } |
   { type: 'updatePointerPosition', position: { time: number, frequency: number } } |
   { type: 'leavePointer' } |
