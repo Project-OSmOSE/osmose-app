@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import './styles.css';
@@ -11,6 +11,7 @@ export interface CardProps {
   subtitle?: string;
   url?: string;
   urlDesc?: string;
+  children: ReactNode;
 }
 
 export const Card: React.FC<CardProps> = ({

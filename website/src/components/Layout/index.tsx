@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 
 import { Header } from './Header';
@@ -6,7 +6,7 @@ import { Footer } from './Footer';
 
 import './styles.css';
 
-export const Layout: React.FC = ({ children }) => {
+export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -14,11 +14,11 @@ export const Layout: React.FC = ({ children }) => {
 
   return (
     <div id="layout">
-      <Header />
+      <Header/>
       <main>
-        {children}
+        { children }
       </main>
-      <Footer />
+      <Footer/>
     </div>
   );
 }

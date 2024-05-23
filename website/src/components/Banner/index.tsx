@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import './styles.css';
 
-export const Banner: React.FC = ({
+export const Banner: React.FC<{children: ReactNode}> = ({
   children
 }) => {
   return (

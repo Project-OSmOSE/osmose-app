@@ -16,6 +16,18 @@ export const Publications: React.FC = () => {
 
           <ul>
             <li>
+              <a href="https://doi.org/10.1016/j.ecoinf.2024.102642" target="_blank" rel="noreferrer"><strong>Dubus, G., Cazau, D., Torterotot, M., Gros-Martial, A., Duc, P. N. H.</strong>, & Adam, O. (2024). From citizen science to AI models: Advancing cetacean vocalization automatic detection through multi-annotator campaigns. <em>Ecological Informatics</em>, 102642</a>
+            </li>
+            <li>
+              <a href="https://doi.org/10.1016/j.marpol.2023.105983" target="_blank" rel="noreferrer"><strong>Michel, M.</strong>, Guichard, B., <strong>Béesau, J., & Samaran, F.</strong> (2024). Passive acoustic monitoring for assessing marine mammals population in European waters: Workshop conclusions and perspectives. <em>Marine Policy</em>, 160, 105983</a>
+            </li>
+            <li>
+              <a href="https://doi.org/10.1121/10.0025545" target="_blank" rel="noreferrer"><strong>Michel, M., Torterotot, M.</strong>, Royer, J. Y., & <strong>Samaran, F</strong>. (2024). Effects of duty cycle on passive acoustic monitoring metrics: The case of blue whale songs. <em>The Journal of the Acoustical Society of America</em>, 155(4), 2538-2548</a>
+            </li>
+            <li>
+              <a href="https://doi.org/10.3390/rs15235604" target="_blank" rel="noreferrer">Martinez, M. M., Ruiz-Etcheverry, L. A., Saraceno, M., <strong>Gros-Martial, A.</strong>, Campagna, J., Picard, B., & Guinet, C. (2023). Satellite and High-Spatio-Temporal Resolution Data Collected by Southern Elephant Seals Allow an Unprecedented 3D View of the Argentine Continental Shelf. <em>Remote Sensing</em>, 15(23), 5604.</a>
+            </li>
+            <li>
               <strong>G. Dubus, M. Torterotot, P. N. H. Duc, J. Beesau, D. Cazau</strong> and O. Adam. Better quantifying inter-annotator variability: A step towards citizen science in underwater passive acoustics. <em>OCEANS 2023 - Limerick</em>, Limerick, Ireland, pp. 1-8.
             </li>
             <li>
