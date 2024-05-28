@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
-import { useAuthService } from "../../../services/auth";
+import { useAuthService } from "@/services/auth.ts";
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
 
