@@ -2,10 +2,10 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  display: grid;
-  align-content: center;
+  display: flex;
+  align-items: center;
   background: linear-gradient(90deg, rgba(var(--ion-color-secondary-rgb), 1), rgba(var(--ion-text-color-rgb), 0));
-  max-height: 12rem;
+  height: 200px; /* Ajuste la hauteur selon tes besoins */
 }
 
 #page-title img {
@@ -21,11 +21,16 @@
 }
 
 #page-title h1 {
-  color: var(--ion-background-color);
-  margin: var(--content-margin);
+  color: white;
+  margin: 0 150px;
   letter-spacing: 0.5rem;
-  max-width: 32rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 2rem; /* Ajuste la taille de la police selon tes besoins */
+  text-align: left; /* Aligner le texte à gauche */
 }
+
+
+
 
 /* img of 1920x446 px 4:30 */
 /*div.pagetitle img, */

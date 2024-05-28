@@ -16,6 +16,7 @@ export default (_: ConfigEnv): UserConfig => {
       },
     },
     plugins: [react()],
+    assetsInclude:['**/*.mp4','**/*gif'],
   }
 }
 

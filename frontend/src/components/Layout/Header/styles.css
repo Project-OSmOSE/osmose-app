@@ -1,0 +1,49 @@
+header#main-header nav {
+  font-size: 1.3rem;
+}
+
+header#main-header nav a.navigation-link {
+  position: relative;
+  color: black; /* Texte noir pour les liens */
+  transition: color 0.4s ease;
+}
+
+header#main-header nav a.navigation-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  background-color: black;
+  transition: width 0.4s ease;
+}
+
+header#main-header nav a.navigation-link:hover::after,
+header#main-header nav a.navigation-link:active::after,
+header#main-header nav a.navigation-link:focus::after {
+  width: 100%;
+}
+
+header#main-header nav a.navigation-link:hover,
+header#main-header nav a.navigation-link:active,
+header#main-header nav a.navigation-link:focus {
+  text-decoration: none;
+  color: black ;
+  transform: translateY(-15px);
+  transition: color 0.4s ease, transform 0.4s ease;
+}
+
+header#main-header nav a.navbar-brand {
+  padding: 0 0;
+}
+
+header#main-header nav a.logo img {
+  width: 50px;
+  height: 50px;
+}
+
+header#main-header ul.dropdown-menu {
+  padding: 0 0 ;
+  font-size: 1.2rem;
+}
