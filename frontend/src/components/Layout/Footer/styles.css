@@ -1,0 +1,69 @@
+footer {
+  background-color: var(--ion-color-step-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--content-margin);
+  font-size: 1rem;
+  color: var(--ion-text-color);
+  border-top: 1px solid #ccc; /* Ajoute une bordure supérieure */
+}
+
+@media screen and (max-width: 768px) {
+  footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+footer p {
+  font-size: 1rem;
+  color: var(--ion-text-color);
+  margin: 0;
+}
+
+footer img {
+  max-width: 8rem;
+}
+
+footer a {
+  color: var(--ion-color-primary) !important;
+  text-decoration: none;
+}
+
+footer ion-icon {
+  color: var(--ion-text-color);
+  margin-right: 0.5rem;
+}
+
+footer .ifremer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+footer .ifremer p {
+  margin: 0 0 0.5rem 0;
+}
+
+footer .links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+footer .links .link {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+footer .license {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+footer .license p {
+  margin: 0.25rem 0;
+}

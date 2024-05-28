@@ -1,8 +1,9 @@
 import { FC, ReactNode, useEffect } from 'react';
-import { BrowserRouter as Router, Link, Redirect, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
 
 
 import { Login } from "./view/login.page.tsx";
+
 import { DatasetList } from "./view/dataset-list";
 import { AnnotationCampaignList } from "./view/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "./view/annotation-campaign-detail.page.tsx";
@@ -10,6 +11,7 @@ import { CreateAnnotationCampaign, EditAnnotationCampaign } from "./view/annotat
 import { AnnotationTaskList } from "./view/annotation-task-list.page.tsx";
 import { AuthenticatedRoute } from "./view/global-components";
 import { ProvideAuth, useAuthService } from "./services/auth";
+
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
 import './css/fontawesome/css/regular.min.css'
@@ -20,6 +22,8 @@ import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
+import {Aplose} from "./view/Aplose_presentation/aplose.tsx";
+import {Layout} from "./components/Layout";
 import { IonApp, setupIonicReact } from '@ionic/react';
 
 setupIonicReact({
@@ -62,15 +66,16 @@ export const App: FC = () => {
   return (
     <ProvideAuth>
       <IonApp>
-        <Router basename='/app'>
-          <Switch>
-            <Route exact path="/login"><Login/></Route>
+      <Router basename='/app'>
+        <Switch>
+          <Route exact path="/login"><Login/></Route>
+          <Route exact path='/Aplose'> <Layout> <Aplose/> </Layout></Route>
 
-            <AuthenticatedRoute exact path='/audio-annotator/:id'>
-              <ProvideAnnotator>
-                <AudioAnnotator/>
-              </ProvideAnnotator>
-            </AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/audio-annotator/:id'>
+            <ProvideAnnotator>
+              <AudioAnnotator/>
+            </ProvideAnnotator>
+          </AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>
