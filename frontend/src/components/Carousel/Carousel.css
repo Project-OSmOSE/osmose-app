@@ -1,8 +1,0 @@
-div.carousel div.carousel-item div.card img.card-img {
-  max-height: 30vh;
-  object-fit: contain;
-}
-
-div.carousel button {
-  width: 3rem;
-}

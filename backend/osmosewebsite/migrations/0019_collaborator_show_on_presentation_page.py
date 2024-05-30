@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0018_alter_collaborator_options'),
+        ("osmosewebsite", "0018_alter_collaborator_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='collaborator',
-            name='show_on_presentation_page',
+            model_name="collaborator",
+            name="show_on_presentation_page",
             field=models.BooleanField(default=False),
         ),
     ]

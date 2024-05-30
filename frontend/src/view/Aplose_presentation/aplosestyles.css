@@ -1,11 +1,12 @@
-body, html {
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     overflow-x: hidden;
+    font-family: 'Exo 2', sans-serif;
 }
 
-/* Style principal pour la page APLOSE */
+/* Main style for the APLOSE page */
 #aplose-page {
     display: flex;
     flex-direction: column;
@@ -16,10 +17,11 @@ body, html {
     padding: 0;
     box-sizing: border-box;
     width: 100%;
+    font-family: 'Exo 2', sans-serif;
 }
 
-/* Style pour les bannières */
-.banner {
+/* Style for banners */
+#aplose-page .banner {
     width: 100vw;
     margin: 0;
     padding: 0;
@@ -30,41 +32,44 @@ body, html {
     align-items: center;
 }
 
-/* Style pour le contenu des sections */
-.section-content {
+/* Style for section content */
+#aplose-page .section-content {
     max-width: 800px;
     width: 100%;
     margin: 20px 0;
     padding: 0 20px;
     box-sizing: border-box;
     text-align: justify;
+    font-family: 'Exo 2', sans-serif;
+    font-style: normal;
 }
 
-/* Style pour les titres des sections */
-.section-content h2 {
+/* Style for section titles */
+#aplose-page .section-content h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #0074B7;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Exo 2', sans-serif;
 }
 
-/* Style pour les paragraphes et les listes */
+/* Style for paragraphs and lists */
 .section-content p, .section-content ul {
     color: #333;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Exo 2', sans-serif;
     line-height: 1.6;
 }
 
-/* Style pour les listes */
+/* Style for lists */
 .section-content ul {
     padding-left: 20px;
 }
 
 .section-content ul li {
     margin-bottom: 10px;
+    list-style-type: "-";
 }
 
-/* Style pour le conteneur du carousel */
+/* Style for the carousel container */
 .carousel-container {
     width: 100%;
     max-width: 750px;
@@ -73,27 +78,27 @@ body, html {
     overflow: hidden;
 }
 
-/* Style pour le wrapper du carousel */
+/* Style for the carousel wrapper */
 .carousel-wrapper {
     display: flex;
     transition: transform 0.5s ease;
 }
 
-/* Style pour les diapositives du carousel */
+/* Style for the carousel slides */
 .carousel-slide {
     min-width: 100%;
     display: flex;
     justify-content: center;
 }
 
-/* Style pour les images du carousel */
+/* Style for carousel images */
 .carousel-image {
     max-width: 100%;
     height: auto;
     cursor: pointer;
 }
 
-/* Style pour l'overlay de zoom */
+/* Style for the zoom overlay */
 .zoom-overlay {
     position: fixed;
     top: 0;
@@ -107,7 +112,7 @@ body, html {
     z-index: 1000;
 }
 
-/* Style pour l'image zoomée */
+/* Style for the zoomed image */
 .zoomed-image {
     max-width: 90%;
     max-height: 90%;
@@ -116,7 +121,7 @@ body, html {
     transition: transform 0.3s ease;
 }
 
-/* Style pour les boutons de contrôle du carousel */
+/* Style for the carousel control buttons */
 .carousel-control {
     position: absolute;
     top: 50%;
@@ -145,7 +150,7 @@ body, html {
     right: 10px;
 }
 
-/* Style pour la section vidéo */
+/* Style for the video section */
 .video-section {
     position: relative;
     width: 100%;
@@ -164,12 +169,12 @@ body, html {
     border-radius: 10px;
 }
 
-/* Style pour les pages de présentation et les bannières des collaborateurs */
+/* Style for presentation pages and collaborators banners */
 .presentation_page, .collaborators-banner-component {
     margin: var(--content-margin);
 }
 
-/* Style commun pour les conteneurs de carousel, section vidéo, page de présentation et bannière des collaborateurs */
+/* Common style for carousel containers, video sections, presentation pages, and collaborators banners */
 .carousel-container, .video-section, .presentation_page, .collaborators-banner-component {
     max-width: 800px;
     width: 100%;
@@ -178,7 +183,7 @@ body, html {
     box-sizing: border-box;
 }
 
-/* Media queries pour les écrans de taille moyenne */
+/* Media queries for medium-sized screens */
 @media screen and (max-width: 1200px) {
     .carousel-container, .video-section, .section-content {
         max-width: 100%;
@@ -186,7 +191,7 @@ body, html {
     }
 }
 
-/* Media queries pour les petits écrans */
+/* Media queries for small screens */
 @media screen and (max-width: 800px) {
     .carousel-container, .video-section, .section-content {
         width: 100%;
