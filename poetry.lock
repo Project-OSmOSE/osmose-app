@@ -509,7 +509,7 @@ description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "metadatax-0.2.0.tar.gz", hash = "sha256:6e78a3cedf01a5985656a6f80fa630d7f4f9387cffdf2d40bdd2f285c584c2fc"},
+    {file = "metadatax-0.2.0.tar.gz", hash = "sha256:751ba451c5537d39f3adfd40afb5c5761ccd3a110c3b987ba6f02c2fc2231c33"},
 ]
 
 [package.dependencies]
