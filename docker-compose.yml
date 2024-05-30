@@ -20,7 +20,9 @@ services:
       OSMOSE_DB_BASE: "${OSMOSE_DB_USER}"
       OSMOSE_SENTRY_URL: "${OSMOSE_SENTRY_URL}"
       OSMOSE_PROXY_URL: "${OSMOSE_PROXY_URL}"
-    read_only: true
+      DJANGO_ADMIN_USERNAME: "${DJANGO_ADMIN_USERNAME}"
+      DJANGO_ADMIN_EMAIL: "${DJANGO_ADMIN_EMAIL}"
+      DJANGO_ADMIN_PASSWORD: "${DJANGO_ADMIN_PASSWORD}"
     volumes:
       - static:/opt/staticfiles:ro
       - ./volumes/datawork:/opt/datawork:ro
