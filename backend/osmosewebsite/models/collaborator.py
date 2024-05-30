@@ -10,8 +10,7 @@ class Collaborator(models.Model):
     thumbnail = models.URLField()
     url = models.URLField(null=True, blank=True)
     show_on_home_page = models.BooleanField(default=False)
-    show_on_presentation_page = models.BooleanField(default=False)
-
+    show_on_aplose_home = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["level", "name"]

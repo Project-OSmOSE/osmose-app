@@ -13,7 +13,7 @@ export const Footer: React.FC = () => (
         </div>
 
         <div className="links">
-            <a className="link" href="https://github.com/Project-OSmOSE">
+            <a className="link" href="https://github.com/Project-OSmOSE/FrontApp">
                 <IonIcon icon={logoGithub}></IonIcon>
                 Github
             </a>

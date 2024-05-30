@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Redirect, Route, Switch } from 'react-router-dom';
 
 
 import { Login } from "./view/login.page.tsx";
@@ -22,8 +22,8 @@ import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
-import {Aplose} from "./view/Aplose_presentation/aplose.tsx";
-import {Layout} from "./components/Layout";
+import { Home } from "./view/Aplose_presentation/aplose.tsx";
+import { Layout } from "./components/Layout";
 import { IonApp, setupIonicReact } from '@ionic/react';
 
 setupIonicReact({
@@ -41,7 +41,7 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
       <div className="row text-left h-100 main">
         <div className="col-sm-2 border rounded">
           <ul>
-            <li><a href="/..">Back to main site</a></li>
+            <li><a href="/">Back to Home</a></li>
             <li><Link to="/datasets">Datasets</Link></li>
             <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
             <br/>
@@ -66,16 +66,15 @@ export const App: FC = () => {
   return (
     <ProvideAuth>
       <IonApp>
-      <Router basename='/app'>
-        <Switch>
-          <Route exact path="/login"><Login/></Route>
-          <Route exact path='/Aplose'> <Layout> <Aplose/> </Layout></Route>
-
-          <AuthenticatedRoute exact path='/audio-annotator/:id'>
-            <ProvideAnnotator>
-              <AudioAnnotator/>
-            </ProvideAnnotator>
-          </AuthenticatedRoute>
+        <Router basename='/app'>
+          <Switch>
+            <Route exact path="/login"><Login/></Route>
+            <Route exact path='/'> <Layout> <Home/> </Layout></Route>
+            <AuthenticatedRoute exact path='/audio-annotator/:id'>
+              <ProvideAnnotator>
+                <AudioAnnotator/>
+              </ProvideAnnotator>
+            </AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>

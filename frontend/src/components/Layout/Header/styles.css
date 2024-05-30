@@ -4,7 +4,7 @@ header#main-header nav {
 
 header#main-header nav a.navigation-link {
   position: relative;
-  color: black; /* Texte noir pour les liens */
+  color: black;
   transition: color 0.4s ease;
 }
 
@@ -29,8 +29,8 @@ header#main-header nav a.navigation-link:hover,
 header#main-header nav a.navigation-link:active,
 header#main-header nav a.navigation-link:focus {
   text-decoration: none;
-  color: black ;
-  transform: translateY(-15px);
+  color: black;
+  transform: translateY(-5px);
   transition: color 0.4s ease, transform 0.4s ease;
 }
 
@@ -43,7 +43,23 @@ header#main-header nav a.logo img {
   height: 50px;
 }
 
-header#main-header ul.dropdown-menu {
-  padding: 0 0 ;
-  font-size: 1.2rem;
+.navbar-collapse {
+  background-color: white;
+}
+
+.navbar-nav {
+  flex-direction: column;
+}
+
+.navbar-nav .nav-item {
+  margin: 10px 0;
+}
+
+@media (min-width: 768px) {
+  .navbar-nav {
+    flex-direction: row;
+  }
+  .navbar-nav .nav-item {
+    margin: 0 10px;
+  }
 }

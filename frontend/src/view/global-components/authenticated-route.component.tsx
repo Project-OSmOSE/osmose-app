@@ -7,13 +7,13 @@ export const AuthenticatedRoute: FC<{ children?: ReactNode } & any> = ({ childre
   const [canAccess, setCanAccess] = useState<boolean>(true);
 
   useEffect(() => {
-    setCanAccess(auth.isConnected())
-  }, [])
+    setCanAccess(auth.isConnected());
+  }, [auth]);
 
   return (
-    <Route { ...params }
-           render={ ({ location }) =>
-             canAccess ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
-           }/>
+      <Route { ...params }
+             render={ ({ location }) =>
+                 canAccess ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
+             }/>
   )
 }
