@@ -26,3 +26,4 @@ class CollaboratorViewSet(viewsets.ModelViewSet):
         queryset = Collaborator.objects.all().filter(show_on_aplose_home=True)
         serializer = self.serializer_class(queryset, many=True)
         return response.Response(serializer.data)
+
