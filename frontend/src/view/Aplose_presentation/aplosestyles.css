@@ -6,7 +6,6 @@ body {
     font-family: 'Exo 2', sans-serif;
 }
 
-/* Main style for the APLOSE page */
 #aplose-page {
     display: flex;
     flex-direction: column;
@@ -20,7 +19,6 @@ body {
     font-family: 'Exo 2', sans-serif;
 }
 
-/* Style for banners */
 #aplose-page .banner {
     width: 100vw;
     margin: 0;
@@ -32,7 +30,6 @@ body {
     align-items: center;
 }
 
-/* Style for section content */
 #aplose-page .section-content {
     max-width: 800px;
     width: 100%;
@@ -44,7 +41,6 @@ body {
     font-style: normal;
 }
 
-/* Style for section titles */
 #aplose-page .section-content h2 {
     text-align: center;
     margin-bottom: 20px;
@@ -52,25 +48,22 @@ body {
     font-family: 'Exo 2', sans-serif;
 }
 
-/* Style for paragraphs and lists */
-.section-content p, .section-content ul {
+#aplose-page .section-content p, #aplose-page.section-content ul {
     color: #333;
     font-family: 'Exo 2', sans-serif;
     line-height: 1.6;
 }
 
-/* Style for lists */
-.section-content ul {
+#aplose-page.section-content ul {
     padding-left: 20px;
 }
 
-.section-content ul li {
+#aplose-page .section-content ul li {
     margin-bottom: 10px;
     list-style-type: "-";
 }
 
-/* Style for the carousel container */
-.carousel-container {
+#aplose-page .carousel-container {
     width: 100%;
     max-width: 750px;
     position: relative;
@@ -78,28 +71,24 @@ body {
     overflow: hidden;
 }
 
-/* Style for the carousel wrapper */
-.carousel-wrapper {
+#aplose-page .carousel-wrapper {
     display: flex;
     transition: transform 0.5s ease;
 }
 
-/* Style for the carousel slides */
-.carousel-slide {
+#aplose-page .carousel-slide {
     min-width: 100%;
     display: flex;
     justify-content: center;
 }
 
-/* Style for carousel images */
-.carousel-image {
+#aplose-page .carousel-image {
     max-width: 100%;
     height: auto;
     cursor: pointer;
 }
 
-/* Style for the zoom overlay */
-.zoom-overlay {
+#aplose-page .zoom-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -112,8 +101,7 @@ body {
     z-index: 1000;
 }
 
-/* Style for the zoomed image */
-.zoomed-image {
+#aplose-page .zoomed-image {
     max-width: 90%;
     max-height: 90%;
     transform: scale(1.0);
@@ -121,8 +109,7 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Style for the carousel control buttons */
-.carousel-control {
+#aplose-page .carousel-control {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -137,21 +124,20 @@ body {
     opacity: 0.5;
 }
 
-.carousel-control:hover {
+#aplose-page .carousel-control:hover {
     background-color: #0056b3;
     opacity: 1;
 }
 
-.carousel-control.left {
+#aplose-page .carousel-control.left {
     left: 10px;
 }
 
-.carousel-control.right {
+#aplose-page .carousel-control.right {
     right: 10px;
 }
 
-/* Style for the video section */
-.video-section {
+#aplose-page .video-section {
     position: relative;
     width: 100%;
     max-width: 800px;
@@ -163,19 +149,22 @@ body {
     overflow: hidden;
 }
 
-.video-section video {
+#aplose-page .video-section video.video-full-width {
     width: 100%;
     height: auto;
     border-radius: 10px;
 }
 
-/* Style for presentation pages and collaborators banners */
-.presentation_page, .collaborators-banner-component {
+#aplose-page .full-width-margin-top {
+    width: 100%;
+    margin-top: 20px;
+}
+
+#aplose-page .presentation_page, #aplose-page .collaborators-banner-component {
     margin: var(--content-margin);
 }
 
-/* Common style for carousel containers, video sections, presentation pages, and collaborators banners */
-.carousel-container, .video-section, .presentation_page, .collaborators-banner-component {
+#aplose-page .carousel-container, #aplose-page .video-section, #aplose-page .presentation_page, #aplose-page .collaborators-banner-component {
     max-width: 800px;
     width: 100%;
     margin: 20px 0;
@@ -183,17 +172,15 @@ body {
     box-sizing: border-box;
 }
 
-/* Media queries for medium-sized screens */
 @media screen and (max-width: 1200px) {
-    .carousel-container, .video-section, .section-content {
+    #aplose-page .carousel-container,#aplose-page.video-section,#aplose-page .section-content {
         max-width: 100%;
         padding: 0 10px;
     }
 }
 
-/* Media queries for small screens */
 @media screen and (max-width: 800px) {
-    .carousel-container, .video-section, .section-content {
+    #aplose-page.carousel-container,#aplose-page.video-section, #aplose-page.section-content {
         width: 100%;
         padding: 0 10px;
     }

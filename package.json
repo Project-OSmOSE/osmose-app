@@ -24,8 +24,6 @@
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "^5.3.3",
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "html-to-react": "^1.7.0"
   }
+
 }

@@ -15,55 +15,41 @@ import etape7 from "../../img/illust/etape7.png";
 import imgGlider from "../../img/illust/GIF.gif";
 import video from "../../img/illust/démo_APLOSE.mp4";
 
-
 export const Home: React.FC = () => {
     const trainingImages = [etape1, etape2, etape3, etape4, etape5, etape6, etape7];
-    // State to keep track of the current image index in the carousel
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    // State to keep track of the zoomed image index (if any)
     const [zoomedImageIndex, setZoomedImageIndex] = useState<number | null>(null);
-    // State to store the list of collaborators
     const [collaborators, setCollaborators] = useState<Array<Collaborator> | undefined>();
 
-    // Custom hook to fetch the array of collaborators
     const fetchCollaborators = useFetchArray<Array<Collaborator>>('/api/collaborators/on_home/');
 
-    // Function to go to the next image in the carousel
     const nextSlide = () => {
-        // Only allow changing the image if no image is zoomed
         if (zoomedImageIndex === null) {
             setCurrentImageIndex((prevIndex) => (prevIndex + 1) % trainingImages.length);
         }
     };
 
-    // Function to go to the previous image in the carousel
     const prevSlide = () => {
-        // Only allow changing the image if no image is zoomed
         if (zoomedImageIndex === null) {
             setCurrentImageIndex((prevIndex) => (prevIndex - 1 + trainingImages.length) % trainingImages.length);
         }
     };
 
-    // Function to toggle zoom on an image
     const toggleZoom = (index: number) => {
-        // Zoom the image if not zoomed, otherwise unzoom it
         setZoomedImageIndex(zoomedImageIndex === index ? null : index);
     };
 
-    // Effect to fetch collaborators data when the component mounts
     useEffect(() => {
         let isMounted = true;
         fetchCollaborators().then(collaborators => isMounted && setCollaborators(collaborators));
 
-        // Cleanup function to set isMounted to false when the component unmounts
         return () => {
             isMounted = false;
         }
-    }, [fetchCollaborators]);
+    },[]);
 
     return (
         <div id="aplose-page">
-
             <PageTitle img={imgTitle} imgAlt="Aplose Page Banner">APLOSE</PageTitle>
             <div className="section-content">
                 <h2 className="title">Welcome to the overview page for APLOSE: Annotation Platform for Ocean Sound Explorers</h2>
@@ -72,14 +58,13 @@ export const Home: React.FC = () => {
                     Dive into our short video presentation to find out more about APLOSE.
                 </p>
                 <div className="video-section">
-                    <video controls style={{ width: "100%" }}>
+                    <video controls className="video-full-width">
                         <source src={video} type="video/mp4" />
                     </video>
                 </div>
             </div>
 
             <div className="section-content">
-
                 <h2>Manual annotation of marine sounds</h2>
                 <p>
                     Manual annotation is the action of assigning labels on spectrograms (time/frequency representation of the sound) of a dataset. A dataset is made of audio files that will be annotated by one or several annotators during an annotation campaign.
@@ -87,7 +72,7 @@ export const Home: React.FC = () => {
                     They can describe broad categories of sound (biophony, geophony, anthropophony), groups of species (odontocetes, black fish, etc) or more specific types of sound (air gun, blue whale D-calls, etc). Within an annotation campaign, each annotator is given a list of annotation tasks to accomplish. There are 2 classes of annotation: weak annotation,
                     the annotator annotates the whole spectrogram from the list of available labels ; and strong annotation, the annotator draws a labeled time-frequency box around the targeted sound event.
                 </p>
-                <img src={imgGlider} alt="Glider" style={{ width: '100%', marginTop: '20px' }} />
+                <img src={imgGlider} alt="Glider" className="full-width-margin-top" />
             </div>
 
             <div className="section-content">
@@ -149,8 +134,8 @@ export const Home: React.FC = () => {
             <div className="section-content">
                 <h2>Collaboration and open source</h2>
                 <p>
-                    APLOSE platform was used in several research projects involving citizen science with the Astrolabe Expeditions organization <a href="https://www.astrolabe-expeditions.org/ " target="_blank">Astrolabe</a>, the Sorbonne university and the Institut d’Alembert. It also helps with delphinidae monitoring along the French Mediterranean coast by the association <a href="https://miraceti.org/" target="_blank">MIRACETI</a>. The annotations made through APLOSE also enabled to evaluate automated detection algorithm performance and to create a geophony reference dataset.
-                    APLOSE relies on its open-source community, welcoming contributions from everywhere to enhance and develop the platform further. For example, the platform was deployed on the <a href="https://www.france-energies-marines.org/" target="_blank" >France Energies Marines</a> server to be managed and used by their team. They will also take part in the development of the future technological improvements of APLOSE, in collaboration with the OSmOSE team.
+                    APLOSE platform was used in several research projects involving citizen science with the Astrolabe Expeditions organization <a href="https://www.astrolabe-expeditions.org/" target="_blank">Astrolabe</a>, the Sorbonne university and the Institut d’Alembert. It also helps with delphinidae monitoring along the French Mediterranean coast by the association <a href="https://miraceti.org/" target="_blank">MIRACETI</a>. The annotations made through APLOSE also enabled to evaluate automated detection algorithm performance and to create a geophony reference dataset.
+                    APLOSE relies on its open-source community, welcoming contributions from everywhere to enhance and develop the platform further. For example, the platform was deployed on the <a href="https://www.france-energies-marines.org/" target="_blank">France Energies Marines</a> server to be managed and used by their team. They will also take part in the development of the future technological improvements of APLOSE, in collaboration with the OSmOSE team.
                     All the codes and associate documentations to collaborate can be found on our Github page.
                 </p>
             </div>

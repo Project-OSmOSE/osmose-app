@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="collaborator",
-            name="show_on_presentation_page",
+            name="show_on_aplose_home",
             field=models.BooleanField(default=False),
         ),
     ]
