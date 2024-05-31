@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Redirect, Route, Switch } from 'react-router-dom';
 
 
 import { Login } from "./view/login.page.tsx";
@@ -15,9 +15,17 @@ import './css/fontawesome/css/solid.min.css'
 import './css/fontawesome/css/regular.min.css'
 import './css/materialize.min.css';
 import './css/bootstrap-4.1.3.min.css';
+import '@ionic/react/css/core.css';
+import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
+import { IonApp, setupIonicReact } from '@ionic/react';
+
+setupIonicReact({
+  mode: 'md',
+  spinner: 'crescent',
+});
 
 const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
   const auth = useAuthService();
@@ -48,34 +56,39 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
 export const App: FC = () => {
 
   useEffect(() => {
-    console.info(`Version: ${import.meta.env.VITE_GIT_TAG}`)
+    console.info(`Version: ${ import.meta.env.VITE_GIT_TAG }`)
   }, []);
 
   return (
     <ProvideAuth>
-      <Router basename='/app'>
-        <Switch>
-          <Route exact path="/login"><Login/></Route>
+      <IonApp>
+        <Router basename='/app'>
+          <Switch>
+            <Route exact path="/login"><Login/></Route>
 
-          <AuthenticatedRoute exact path='/audio-annotator/:id'>
-            <ProvideAnnotator>
-              <AudioAnnotator/>
-            </ProvideAnnotator>
-          </AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/audio-annotator/:id'>
+              <ProvideAnnotator>
+                <AudioAnnotator/>
+              </ProvideAnnotator>
+            </AuthenticatedRoute>
 
-          <AploseSkeleton>
-            <Switch>
-              <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
-              <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
-            </Switch>
-          </AploseSkeleton>
-        </Switch>
-      </Router>
+            <AploseSkeleton>
+              <Switch>
+                <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+                <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+              </Switch>
+            </AploseSkeleton>
+          </Switch>
+        </Router>
+      </IonApp>
     </ProvideAuth>
   )
 }
