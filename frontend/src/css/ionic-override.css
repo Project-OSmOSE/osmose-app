@@ -1,0 +1,98 @@
+:root {
+  --ion-font-family: "Exo 2", Roboto, sans-serif;
+
+  --ion-color-primary: #238583;
+  --ion-color-primary-rgb: 35,133,131;
+  --ion-color-primary-contrast: #fff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1f7573;
+  --ion-color-primary-tint: #39918f;
+
+  --ion-color-secondary: #00B6D9;
+  --ion-color-secondary-rgb: 0,182,217;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #00a0bf;
+  --ion-color-secondary-tint: #1abddd;
+
+  --ion-color-success: #85B14D;
+  --ion-color-success-rgb: 133, 177, 77;
+  --ion-color-success-contrast: #fff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #759c44;
+  --ion-color-success-tint: #91b95f;
+
+  --ion-color-warning: #CC8229;
+  --ion-color-warning-rgb: 204,130,41;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #b47224;
+  --ion-color-warning-tint: #d18f3e;
+
+  --ion-color-danger: #D86045;
+  --ion-color-danger-rgb: 216, 96, 69;
+  --ion-color-danger-contrast: #fff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #be543d;
+  --ion-color-danger-tint: #dc7058;
+
+  --ion-color-light: #fff;
+  --ion-color-light-rgb: 255, 255, 255;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #F2F3F5;
+  --ion-color-light-tint: #ffffff;
+
+  --ion-color-medium: #6C757D;
+  --ion-color-medium-rgb: 108,117,125;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255,255,255;
+  --ion-color-medium-shade: #5f676e;
+  --ion-color-medium-tint: #7b838a;
+
+  --ion-color-dark: #061D38;
+  --ion-color-dark-rgb: 6, 29, 56;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #051a31;
+  --ion-color-dark-tint: #1f344c;
+
+  --aplose-border-color: rgba(var(--ion-color-medium-rgb), 0.5);
+  --aplose-box-shadow:
+          rgba(var(--ion-color-dark-rgb), 0.1) 0 1rem 50px,
+          rgba(var(--ion-color-dark-rgb), 0.2) 0 0.25rem 10px;
+}
+
+/* Page */
+ion-app {
+  display: unset !important;
+  position: unset !important;
+}
+
+/* Chips */
+ion-chip {
+  font-size: 1rem;
+  border-radius: 3rem;
+  margin: 0;
+  transition: 300ms;
+  user-select: none;
+}
+ion-chip ion-icon {
+  opacity: 0.75;
+}
+ion-chip[color].active {
+  background: var(--ion-color-base);
+  color: var(--ion-color-contrast);
+}
+ion-chip[color=dark]:not([outline=true]) {
+  background: var(--ion-color-dark);
+  color: var(--ion-color-dark-contrast);
+  border: 1px solid var(--ion-color-dark);
+}
+ion-chip[outline] {
+  /*border-width: 2px;*/
+  border-color: var(--ion-color-dark);
+}
+ion-chip[color=dark] ion-icon {
+  opacity: 0.75;
+}

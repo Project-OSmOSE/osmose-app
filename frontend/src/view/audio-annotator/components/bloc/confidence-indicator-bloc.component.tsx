@@ -5,6 +5,8 @@ import {
   AnnotationsContext,
   AnnotationsContextDispatch,
 } from "../../../../services/annotator/annotations/annotations.context.tsx";
+import { IonChip, IonIcon } from "@ionic/react";
+import { checkmarkOutline } from "ionicons/icons";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
@@ -27,21 +29,16 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
     <OverlayTrigger overlay={ <Tooltip>{ tooltip }</Tooltip> } placement="top">
       <div className="card">
         <h6 className="card-header text-center">Confidence indicator</h6>
-        <div className="card-body">
-          <div className=" d-flex justify-content-center">
-            <ul className="card-text annotation-tags">
-              { context.allConfidences.map((confidence, key) => (
-                <li key={ `tag-${ key }` }>
-                  <button id={ `tags_key_shortcuts_${ key }` }
-                          className={ context.focusedConfidence === confidence ? "btn btn--active" : "btn" }
-                          onClick={ () => dispatch!({ type: 'selectConfidence', confidence}) }
-                          type="button">
-                    { confidence }
-                  </button>
-                </li>
-              )) }
-            </ul>
-          </div>
+        <div className="card-body d-flex justify-content-center p-0 pb-2 pt-2">
+            { context.allConfidences.map((confidence, key) => (
+              <IonChip key={ key }
+                       color="primary"
+                       onClick={ () => dispatch!({ type: 'selectConfidence', confidence }) }
+                       className={ context.focusedConfidence === confidence ? 'active m-2' : 'm-2' }>
+                { confidence }
+                { context.focusedConfidence === confidence && <IonIcon src={ checkmarkOutline } color="light"/> }
+              </IonChip>
+            )) }
         </div>
       </div>
     </OverlayTrigger>
