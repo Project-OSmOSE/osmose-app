@@ -5,28 +5,27 @@ import ifremer from '../../../img/logo/logo_ifremer_blanc_267_250.webp';
 
 import './styles.css';
 
-
 export const Footer: React.FC = () => (
     <footer>
         <div className="ifremer">
             <p>Powered by</p>
-            <img src={ ifremer } alt="Ifremer"/>
+            <img src={ifremer} alt="Ifremer" />
         </div>
 
         <div className="links">
             <a className="link" href="https://github.com/Project-OSmOSE">
-                <IonIcon icon={ logoGithub }></IonIcon>
+                <IonIcon icon={logoGithub}></IonIcon>
                 Github
             </a>
             <a className="link" href="mailto:contact-osmose@ensta-bretagne.fr" title="Contact OSmOSE">
-                <IonIcon icon={ mailOutline }></IonIcon>
+                <IonIcon icon={mailOutline}></IonIcon>
                 contact-osmose@ensta-bretagne.fr
             </a>
         </div>
 
         <div className="license">
-            <p>OSmOSE <a href="/humans.txt" title="Full credits"> credits</a>,</p>
+            <p>OSmOSE <a href="/humans.txt" title="Full credits">credits</a>,</p>
             <p>GPL-3.0, 2021</p>
         </div>
     </footer>
-)
+);

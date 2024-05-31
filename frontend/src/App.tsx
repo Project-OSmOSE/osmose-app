@@ -20,7 +20,7 @@ import './css/bootstrap-4.1.3.min.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
-import {Home} from "./view/Aplose_presentation/aplose.tsx";
+import {Home} from "./view/Aplose_presentation/aplose-presentation.page.tsx";
 import {Layout} from "./components/Layout";
 
 const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
@@ -33,7 +33,7 @@ const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
         <div className="row text-left h-100 main">
           <div className="col-sm-2 border rounded">
             <ul>
-              <li><a href="/">Back to Home</a></li>
+              <li><a href="/app">Back to Home</a></li>
               <li><Link to="/datasets">Datasets</Link></li>
               <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
               <br/>

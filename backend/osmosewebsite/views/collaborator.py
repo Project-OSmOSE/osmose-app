@@ -23,6 +23,6 @@ class CollaboratorViewSet(viewsets.ModelViewSet):
     @decorators.action(detail=False)
     def on_presentation(self, request):
         """List collaborators to be shown on Aplose home page"""
-        queryset = Collaborator.objects.all().filter(show_on_presentation_page=True)
+        queryset = Collaborator.objects.all().filter(show_on_aplose_home=True)
         serializer = self.serializer_class(queryset, many=True)
         return response.Response(serializer.data)

@@ -43,10 +43,6 @@ header#main-header nav a.logo img {
   height: 50px;
 }
 
-.navbar-collapse {
-  background-color: white;
-}
-
 .navbar-nav {
   flex-direction: column;
 }
