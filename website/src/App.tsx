@@ -9,7 +9,6 @@ import { Publications } from './pages/Publications';
 import { NewsDetailPage } from './pages/News/NewsDetail/NewsDetailPage';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
 import { ProjectDetail } from "./pages/Projects/ProjectDetail/ProjectDetail";
-import {Aplose} from "./pages/Aplose_presentation/aplose";
 import { setupIonicReact } from "@ionic/react";
 import '@ionic/react/css/core.css';
 
@@ -26,12 +25,6 @@ const App: React.FC = () => {
         <Route exact path="/">
           <Layout>
             <HomePage/>
-          </Layout>
-        </Route>
-
-        <Route exact path="/aplose">
-          <Layout>
-            <Aplose/>
           </Layout>
         </Route>
 

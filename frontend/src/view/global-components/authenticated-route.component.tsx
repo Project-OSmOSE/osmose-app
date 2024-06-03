@@ -8,7 +8,7 @@ export const AuthenticatedRoute: FC<{ children?: ReactNode } & any> = ({ childre
 
   useEffect(() => {
     setCanAccess(auth.isConnected());
-  }, [auth]);
+  }, []);
 
   return (
       <Route { ...params }

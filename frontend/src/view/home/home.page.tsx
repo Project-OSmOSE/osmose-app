@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
-import './aplosestyles.css';
+import './home.page.css';
 import { PageTitle } from "../../components/PageTitle";
 import { CollaboratorsBanner } from "../../components/CollaboratorsBanner/CollaboratorsBanner";
 import { Collaborator } from "../../interface/collaborator";
 import { useFetchArray } from "../../services/api/utils";
 import imgTitle from "../../img/illust/Content_head.jpg";
-import etape1 from "../../img/illust/etape1.png";
-import etape2 from "../../img/illust/etape2.png";
-import etape3 from "../../img/illust/etape3.png";
-import etape4 from "../../img/illust/etape4.png";
-import etape5 from "../../img/illust/etape5.png";
-import etape6 from "../../img/illust/etape6.png";
-import etape7 from "../../img/illust/etape7.png";
+import step1 from "../../img/illust/etape1.png";
+import step2 from "../../img/illust/etape2.png";
+import step3 from "../../img/illust/etape3.png";
+import step4 from "../../img/illust/etape4.png";
+import step5 from "../../img/illust/etape5.png";
+import step6 from "../../img/illust/etape6.png";
+import step7 from "../../img/illust/etape7.png";
 import imgGlider from "../../img/illust/GIF.gif";
 import video from "../../img/illust/démo_APLOSE.mp4";
 
 export const Home: React.FC = () => {
-    const trainingImages = [etape1, etape2, etape3, etape4, etape5, etape6, etape7];
+    const trainingImages = [step1, step2, step3, step4, step5, step6, step7];
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [zoomedImageIndex, setZoomedImageIndex] = useState<number | null>(null);
     const [collaborators, setCollaborators] = useState<Array<Collaborator> | undefined>();
 
-    const fetchCollaborators = useFetchArray<Array<Collaborator>>('/api/collaborators/on_home/');
+    const fetchCollaborators = useFetchArray<Array<Collaborator>>('/api/collaborators/on_aplose_home/');
 
     const nextSlide = () => {
         if (zoomedImageIndex === null) {

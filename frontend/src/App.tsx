@@ -1,8 +1,9 @@
-// @ts-ignore
-import React, {FC, ReactNode, useEffect} from 'react';
-import {BrowserRouter as Router, Switch, Route, Redirect, Link} from 'react-router-dom';
+import React, { ReactNode, useEffect } from 'react';
+import { BrowserRouter as Router, Link, Redirect, Route, Switch } from 'react-router-dom';
+
 
 import { Login } from "./view/login.page.tsx";
+
 import { DatasetList } from "./view/dataset-list";
 import { AnnotationCampaignList } from "./view/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "./view/annotation-campaign-detail.page.tsx";
@@ -21,7 +22,7 @@ import './css/ionic-override.css';
 import './css/app.css';
 import { AudioAnnotator } from "./view/audio-annotator/audio-annotator.page.tsx";
 import { ProvideAnnotator } from "./services/annotator/annotator.provider.tsx";
-import { Home } from "./view/Aplose_presentation/aplose-presentation.page.tsx";
+import { Home } from "./view/home/home.page.tsx";
 import { Layout } from "./components/Layout";
 import { IonApp, setupIonicReact } from '@ionic/react';
 
@@ -30,33 +31,33 @@ setupIonicReact({
   spinner: 'crescent',
 });
 
-const AploseSkeleton: FC<{ children?: ReactNode }> = ({ children }) => {
+const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
   const auth = useAuthService();
   return (
-      <div className="px-5 mx-5">
-        <div className="row text-center">
-          <div className="col-sm-12"><h1>APLOSE</h1></div>
-        </div>
-        <div className="row text-left h-100 main">
-          <div className="col-sm-2 border rounded">
-            <ul>
-              <li><a href="/app">Back to Home</a></li>
-              <li><Link to="/datasets">Datasets</Link></li>
-              <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
-              <br/>
-              <li>
-                <button className="btn btn-secondary" onClick={ auth.logout.bind(auth) }>Logout</button>
-              </li>
-            </ul>
-          </div>
-
-          { children }
-        </div>
+    <div className="px-5 mx-5">
+      <div className="row text-center">
+        <div className="col-sm-12"><h1>APLOSE</h1></div>
       </div>
+      <div className="row text-left h-100 main">
+        <div className="col-sm-2 border rounded">
+          <ul>
+            <li><a href="/app">Back to Home</a></li>
+            <li><Link to="/datasets">Datasets</Link></li>
+            <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
+            <br/>
+            <li>
+              <button className="btn btn-secondary" onClick={ auth.logout.bind(auth) }>Logout</button>
+            </li>
+          </ul>
+        </div>
+
+        { children }
+      </div>
+    </div>
   )
 }
 
-export const App: FC = () => {
+export const App: React.FC = () => {
 
   useEffect(() => {
     console.info(`Version: ${ import.meta.env.VITE_GIT_TAG }`)
@@ -68,7 +69,7 @@ export const App: FC = () => {
         <Router basename='/app'>
           <Switch>
             <Route exact path="/login"><Login/></Route>
-            <Route exact path='/'><Layout><Home/> </Layout></Route>
+            <Route exact path='/'><Layout><Home/></Layout></Route>
             <AuthenticatedRoute exact path='/audio-annotator/:id'>
               <ProvideAnnotator>
                 <AudioAnnotator/>
@@ -79,9 +80,12 @@ export const App: FC = () => {
               <Switch>
                 <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
                 <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/create-annotation-campaign'><CreateAnnotationCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation_campaign/:id/edit'><EditAnnotationCampaign/></AuthenticatedRoute>
                 <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
                 <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
               </Switch>

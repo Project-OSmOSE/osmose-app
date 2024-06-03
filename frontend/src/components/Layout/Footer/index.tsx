@@ -24,7 +24,7 @@ export const Footer: React.FC = () => (
         </div>
 
         <div className="license">
-            <p>OSmOSE <a href="/humans.txt" title="Full credits">credits</a>,</p>
+            <p>OSmOSE <a href="/app/humans.txt" title="Full credits">credits</a>,</p>
             <p>GPL-3.0, 2021</p>
         </div>
     </footer>

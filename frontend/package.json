@@ -10,7 +10,20 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-
+  "dependencies": {
+    "@ionic/react": "^7.6.2",
+    "@types/node": "^20.12.7",
+    "bootstrap": "^5.3.2",
+    "ionicons": "^7.2.2",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.9.1",
+    "react-confirm": "^0.3.0-7",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^5.3.4",
+    "rxjs": "^7.8.1",
+    "superagent": "^8.1.2",
+    "uuid": "^9.0.1"
+  },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",

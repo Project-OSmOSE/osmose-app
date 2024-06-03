@@ -9,7 +9,7 @@ import logo from '../../../img/logo/logo_seul_couleur.png';
 export const Header: React.FC = () => {
   const auth = useAuthService();
   const isConnected = auth.isConnected();
-  let appUrl = 'https://' + window.location.hostname;
+  const appUrl = 'https://' + window.location.hostname;
 
   return (
       <header id="main-header" className='mb-5'>
@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
             <ul className="navbar-nav text-center">
               <li className="nav-item">
                 {isConnected ? (
-                    <Link to="/aplose" className="nav-link navigation-link">APLOSE</Link>
+                    <Link to="/annotation-campaign" className="nav-link navigation-link">APLOSE</Link>
                 ) : (
                     <Link to="/login" className="nav-link navigation-link">Login</Link>
                 )}

@@ -1,10 +1,11 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { ReactNode } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
 
 import './styles.css';
 
 export interface WorldMapProps {
   datasetList?: Array<object>;
+  children: ReactNode;
   // coord?: Array<number>;
   // metaData?: object;
   // description?: string;
@@ -29,11 +30,11 @@ var exampleSet = [
 ];
 
 export const WorldMap: React.FC<WorldMapProps> = ({
-  datasetList = exampleSet,
-  // coord,
-  // metaData,
-  // children
-}) => {
+                                                    datasetList = exampleSet,
+                                                    // coord,
+                                                    // metaData,
+                                                    // children
+                                                  }) => {
   // var exampleSet2 = [
   //   {
   //     name: 'dataset 1',
@@ -77,16 +78,16 @@ export const WorldMap: React.FC<WorldMapProps> = ({
   // }
   // var target = document.getElementsByClassName('leaflet-marker-pane')[0];
 
-    // function addAllMarkers(){
-    //   // let markers;
-    //   for (let i = 0; i < exampleSet2.length; i++) {
-    //     addMarker(exampleSet2[i]);
-    //     // addMarker(exampleSet2[i]);
-    //   }
-    //   // return markers;
-    // }
+  // function addAllMarkers(){
+  //   // let markers;
+  //   for (let i = 0; i < exampleSet2.length; i++) {
+  //     addMarker(exampleSet2[i]);
+  //     // addMarker(exampleSet2[i]);
+  //   }
+  //   // return markers;
+  // }
 
-    // Fonction callback ?
+  // Fonction callback ?
   // function addMarkers() {
   //   let newMarker;
   //   // let markers: JSX.Element = <> </>;
@@ -114,13 +115,13 @@ export const WorldMap: React.FC<WorldMapProps> = ({
 
       {/* <div className="container-fluid">
         <h3>Localisation</h3>
-      </div> */}
+      </div> */ }
 
       <div className="container-fluid my-3 myMap">
-        <MapContainer 
-        center={[0.0, 0.0]} 
-        zoom={2} 
-        scrollWheelZoom={false}
+        <MapContainer
+          center={ [0.0, 0.0] }
+          zoom={ 2 }
+          scrollWheelZoom={ false }
         >
           <TileLayer
             // pastel colours map with bathymetry
@@ -133,7 +134,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({
             // satellite map with bathymetry
             attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             url='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-          /> */}
+          /> */ }
 
           {/* <Marker 
           // position={coord}
@@ -160,13 +161,13 @@ export const WorldMap: React.FC<WorldMapProps> = ({
             <Popup>
               Description here.
             </Popup>
-          </Marker> */}
+          </Marker> */ }
 
-          {/* {addMarker()} */}
-          {/* {addAllMarkers()} */}
-          {/* {addMarkers()} */}
-          {/* {addMarker(exampleSet2[0])} */}
-          {/* {addAllMarkers()} */}
+          {/* {addMarker()} */ }
+          {/* {addAllMarkers()} */ }
+          {/* {addMarkers()} */ }
+          {/* {addMarker(exampleSet2[0])} */ }
+          {/* {addAllMarkers()} */ }
 
         </MapContainer>
 
@@ -188,7 +189,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({
           </div>
         </div> -->
 
-      </div> */}
+      </div> */ }
     </div>
   );
 }
