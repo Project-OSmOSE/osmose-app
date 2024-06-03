@@ -2,11 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
+import { useAuthService } from "../../../services/auth";
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
 
 export const Header: React.FC = () => {
+  const auth = useAuthService();
+  const isConnected = auth.isConnected();
   let appUrl = 'https://' + window.location.hostname;
+
   return (
       <header id="main-header" className='mb-5'>
         <nav className="navbar navbar-expand-md navbar-light bg-light py-0 fixed-top fw-normal" role="navigation">
@@ -23,7 +27,11 @@ export const Header: React.FC = () => {
           <div id="main-nav" className="collapse navbar-collapse justify-content-end align-self-stretch">
             <ul className="navbar-nav text-center">
               <li className="nav-item">
-                <Link to="/login" className="nav-link navigation-link">Login</Link>
+                {isConnected ? (
+                    <Link to="/aplose" className="nav-link navigation-link">APLOSE</Link>
+                ) : (
+                    <Link to="/login" className="nav-link navigation-link">Login</Link>
+                )}
               </li>
               <li className="nav-item">
                 <a href={appUrl} className="nav-link navigation-link">OSmOSE</a>
