@@ -5,7 +5,7 @@ import './styles.css';
 
 export interface WorldMapProps {
   datasetList?: Array<object>;
-  children: ReactNode;
+  children?: ReactNode;
   // coord?: Array<number>;
   // metaData?: object;
   // description?: string;
