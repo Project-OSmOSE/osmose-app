@@ -1,9 +1,8 @@
-import { FC, ReactNode, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
-
+// @ts-ignore
+import React, {FC, ReactNode, useEffect} from 'react';
+import {BrowserRouter as Router, Switch, Route, Redirect, Link} from 'react-router-dom';
 
 import { Login } from "./view/login.page.tsx";
-
 import { DatasetList } from "./view/dataset-list";
 import { AnnotationCampaignList } from "./view/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "./view/annotation-campaign-detail.page.tsx";
@@ -69,7 +68,7 @@ export const App: FC = () => {
         <Router basename='/app'>
           <Switch>
             <Route exact path="/login"><Login/></Route>
-            <Route exact path='/'> <Layout> <Home/> </Layout></Route>
+            <Route exact path='/'><Layout><Home/> </Layout></Route>
             <AuthenticatedRoute exact path='/audio-annotator/:id'>
               <ProvideAnnotator>
                 <AudioAnnotator/>
