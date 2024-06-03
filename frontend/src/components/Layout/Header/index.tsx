@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
             <ul className="navbar-nav text-center">
               <li className="nav-item">
                 {isConnected ? (
-                    <Link to="/annotation-campaign" className="nav-link navigation-link">APLOSE</Link>
+                    <Link to="/annotation-campaign" className="nav-link navigation-link">Access APLOSE</Link>
                 ) : (
                     <Link to="/login" className="nav-link navigation-link">Login</Link>
                 )}
