@@ -1,4 +1,5 @@
 describe('login page', () => {
+
     it('logs in with admin credentials', () => {
         cy.login('admin', 'osmose29')
 

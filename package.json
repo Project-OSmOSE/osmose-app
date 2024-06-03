@@ -7,7 +7,7 @@
     "server:migrate": "poetry run manage.py migrate",
     "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add . && cd ../../osmosewebsite/migrations && git add .",
     "server:seed": "poetry run manage.py seed",
-    "server:run": "poetry run manage.py runserver 8000",
+    "server:run": "python -m poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
     "server:lint": "poetry run pylint backend",
@@ -25,4 +25,5 @@
     "@types/react-router-dom": "^5.3.3",
     "concurrently": "^8.2.2"
   }
+
 }
