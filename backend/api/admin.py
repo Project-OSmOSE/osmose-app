@@ -34,7 +34,7 @@ class AploseAdminSite(admin.AdminSite):
 
     app_ordering = {"api": 1, "metadatax": 2, "auth": 2, "osmosewebsite": 2}
     metadatax_ordering = {
-        "> Map": 0,
+        # "> Map": 0,
         "Institutions": 1,
         "Projects": 2,
         "Deployments": 3,
@@ -46,13 +46,13 @@ class AploseAdminSite(admin.AdminSite):
 
     def _build_app_dict(self, request, label=None):
         # we create manually a dict to fake a model for our view 'map'
-        map_fake_model = {
-            "name": "> Map",
-            "admin_url": "/map/",
-            "object_name": "Map",
-            "perms": {"delete": False, "add": False, "change": False},
-            "add_url": "",
-        }
+        # map_fake_model = {
+        #     "name": "> Map",
+        #     "admin_url": "/map/",
+        #     "object_name": "Map",
+        #     "perms": {"delete": False, "add": False, "change": False},
+        #     "add_url": "",
+        # }
 
         # get the app dict from the parent method
         app_dict = super()._build_app_dict(request, label)
@@ -63,7 +63,7 @@ class AploseAdminSite(admin.AdminSite):
                 for m in app_dict["models"]
                 if m["name"] in list(self.metadatax_ordering)
             ]
-            app_dict["models"].append(map_fake_model)
+            # app_dict["models"].append(map_fake_model)
 
         # otherwise = home admin view with all apps
         else:
@@ -74,7 +74,7 @@ class AploseAdminSite(admin.AdminSite):
                     for m in app["models"]
                     if m["name"] in list(self.metadatax_ordering)
                 ]
-                app["models"].append(map_fake_model)
+                # app["models"].append(map_fake_model)
                 app["models"].sort(key=lambda x: self.metadatax_ordering[x["name"]])
         return app_dict
 

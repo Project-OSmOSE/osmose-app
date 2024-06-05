@@ -504,12 +504,12 @@ files = [
 
 [[package]]
 name = "metadatax"
-version = "0.2.1"
+version = "0.2.2"
 description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "metadatax-0.2.1.tar.gz", hash = "sha256:eaceb8eaa52324772155698a4c03ebd83511afed2b10971166ce8dcef8d21691"},
+    {file = "metadatax-0.2.2.tar.gz", hash = "sha256:4f8e488e81fa004763ba7660ac7010628755b6f427a5f69fd9e04c4c35555aca"},
 ]
 
 [package.dependencies]
@@ -521,7 +521,7 @@ python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
 type = "file"
-url = "metadatax-0.2.1.tar.gz"
+url = "metadatax-0.2.2.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1252,4 +1252,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "9ac3ae17ecce771387a5d879597a6a7da8326c275b3f9ea0136995d088a6f325"
+content-hash = "7789252762173c74bac44aa48a83bfd3561465da6ed0e94b0ae7d6dfb148af94"
