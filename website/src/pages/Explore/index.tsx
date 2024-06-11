@@ -71,8 +71,7 @@ export const Explore: React.FC = () => {
     <h2>Datasets</h2>
     <WorldMap
     // datasetList=""
-    >
-    </WorldMap>
+    />
   </div>
 
   <div className="container my-5">

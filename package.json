@@ -8,7 +8,7 @@
     "server:makemigrations": "poetry run manage.py makemigrations && cd backend/api/migrations && git add . && cd ../../osmosewebsite/migrations && git add .",
     "server:migrate & seed": "npm run server:migrate && npm run server:seed",
     "server:seed": "poetry run manage.py seed",
-    "server:run": "poetry run manage.py runserver 8000",
+    "server:run": "python -m poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
     "server:lint": "poetry run pylint backend",
@@ -16,12 +16,15 @@
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",
     "osmose:run": "cd website && npm run start",
-
     "reset data": "npm run database:remove && npm run database:create && npm run server:migrate && npm run server:seed",
     "launch": "concurrently --kill-others-on-fail \"npm run database:run && npm run server:migrate && npm run server:run\" \"npm run aplose:run\" \"npm run osmose:run\"",
     "beforeCommit": "npm run \"server:makemigrations\" && npm run \"server:format\" && npm run \"server:lint\""
   },
   "devDependencies": {
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-router-dom": "^5.3.3",
     "concurrently": "^8.2.2"
   }
+
 }
