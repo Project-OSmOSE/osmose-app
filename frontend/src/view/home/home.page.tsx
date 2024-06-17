@@ -127,7 +127,7 @@ export const Home: React.FC = () => {
                     To ensure all new users can effectively exploit APLOSE, we offer a range of tutorials and training documents. These resources are designed to help you quickly become proficient in navigating the interface and using the available tools.
                 </p>
                 <div className="section-content">
-                    <a href="https://github.com/Project-OSmOSE/osmose-app/wiki/Annotator-User-Guide" target="_blank">Annotator user guide</a> / <a href="/images/campagne.pdf" target="_blank" rel="noopener noreferrer">Annotation Campaign APOCADO</a>
+                    <a href="https://github.com/Project-OSmOSE/osmose-app/wiki/Annotator-User-Guide" target="_blank">Annotator user guide</a> / <a href="/app/images/campagne.pdf" target="_blank" rel="noopener noreferrer">Annotation Campaign APOCADO</a>
                 </div>
             </div>
 
