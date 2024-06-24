@@ -1,6 +1,13 @@
 """All Django models available"""
 
 from backend.api.models.annotation import (
+    Detector,
+    DetectorConfiguration,
+    AnnotationResult,
+    AnnotationResultValidation,
+)
+
+from backend.api.models.annotations import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
     AnnotationComment,
@@ -8,10 +15,6 @@ from backend.api.models.annotation import (
     AnnotationTask,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
-    Detector,
-    DetectorConfiguration,
-    AnnotationResult,
-    AnnotationResultValidation,
     Label,
     LabelSet,
 )

@@ -291,7 +291,7 @@ html {
   color: #ffffff;
 }
 
-.annotation-tags {
+.annotation-labels {
   display: flex;
   flex-wrap: wrap;
   justify-content: right;
@@ -304,7 +304,7 @@ html {
   gap: 1rem;
 }
 
-.annotation-tags li {
+.annotation-labels li {
   margin: 0.2em 1em;
 }
 

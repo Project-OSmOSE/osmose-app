@@ -6,7 +6,6 @@ import { useBlur } from "@/services/utils/clic";
 import {
   ConfidenceSetList,
   DetectorList,
-  useLabelSetAPI,
   useConfidenceSetAPI,
   useDetectorsAPI
 } from '@/services/api';
@@ -17,6 +16,7 @@ import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import { LabelSet } from "@/types/label.ts";
+import { useLabelSetAPI } from "@/services/api/label-set-api.service.tsx";
 
 
 export const AnnotationsBloc: React.FC = () => {

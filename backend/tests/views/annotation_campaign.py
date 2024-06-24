@@ -310,15 +310,15 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
         self.assertEqual(len(confidence_indicator_set["confidence_indicators"]), 2)
 
-        label_set = reponse_data.pop("label_set")
+        label_set = response_data.pop("label_set")
         self.assertEqual(label_set["name"], "Test SPM campaign")
         self.assertEqual(label_set["desc"], "Label set made for Test SPM campaign")
         self.assertEqual(len(label_set["labels"]), 5)
-        expected_reponse["usage"] = 0
-        expected_reponse["dataset_files_count"] = Dataset.objects.get(
+        expected_response["usage"] = 0
+        expected_response["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()
-        self.assertEqual(reponse_data, expected_reponse)
+        self.assertEqual(response_data, expected_response)
 
     def test_create_check(self):
         """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
