@@ -11,6 +11,10 @@ RUN npm install
 
 COPY frontend .
 
+# Used to get git version in React view
+RUN apk add --no-cache git
+COPY .git .
+
 RUN PUBLIC_URL=/app npm run build
 
 # Build website stage

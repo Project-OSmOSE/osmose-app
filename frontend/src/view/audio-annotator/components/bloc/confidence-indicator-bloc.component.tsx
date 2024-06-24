@@ -1,9 +1,10 @@
 import React, { Fragment } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { IonButton } from '@ionic/react';
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { selectConfidence } from "@/slices/annotator/annotations.ts";
+import { IonChip, IonIcon } from "@ionic/react";
+import { checkmarkOutline } from "ionicons/icons";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
@@ -29,18 +30,16 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
     <OverlayTrigger overlay={ <Tooltip>{ tooltip }</Tooltip> } placement="top">
       <div className="card">
         <h6 className="card-header text-center">Confidence indicator</h6>
-        <div className="card-body">
-          <div className=" d-flex justify-content-center">
-            <ul className="card-text confidence-tags">
-              { allConfidences.map((confidence, key) => (
-                <IonButton key={ key }
-                           fill={ focusedConfidence === confidence ? 'outline' : 'solid' }
-                           onClick={ () => dispatch(selectConfidence(confidence)) }>
+        <div className="card-body d-flex justify-content-center p-0 pb-2 pt-2">
+            { allConfidences.map((confidence, key) => (
+              <IonChip key={ key }
+                       color="primary"
+                       onClick={ () => dispatch(selectConfidence(confidence)) }
+                       className={ focusedConfidence === confidence ? 'active m-2' : 'm-2' }>
                   { confidence }
-                </IonButton>
-              )) }
-            </ul>
-          </div>
+                { focusedConfidence === confidence && <IonIcon src={ checkmarkOutline } color="light"/> }
+              </IonChip>
+            )) }
         </div>
       </div>
     </OverlayTrigger>

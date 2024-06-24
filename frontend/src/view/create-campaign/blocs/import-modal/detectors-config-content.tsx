@@ -94,13 +94,16 @@ const DetectorConfigEntry: React.FC<DetectorEntryProps> = ({
                                                              detector,
                                                              onUpdate
                                                            }) => {
-  const doesExists = useMemo(() => allDetectors.some(d => d.name === detector.initialName), [allDetectors, detector])
+  const doesExists = useMemo(() => allDetectors.some(d => d.name === detector.initialName), [allDetectors, detector.initialName])
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
   return (
     <div className={ `detector-config-entry ${ !doesExists && 'unknown' }` }>
 
-      <p><strong>{ detector.initialName }</strong> configuration</p>
+      <p>
+        <strong>{ detector.existingDetector?.name ?? detector.initialName }</strong>
+        { detector.existingDetector && detector.existingDetector.name !== detector.initialName ? ` (${ detector.initialName })`: '' } configuration
+      </p>
 
       <Select className="config-select"
               value={ detector.existingConfiguration?.id }

@@ -16,6 +16,7 @@ import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
 import { addResult } from "@/slices/annotator/annotations.ts";
 import { leavePointer, updatePointerPosition, zoom } from "@/slices/annotator/spectro.ts";
 import { SpectrogramImage } from "@/types/spectro.ts";
+import { Usage } from "@/types/annotations.ts";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -83,6 +84,9 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
     time,
   } = useAppSelector(state => state.annotator.audio);
   const {
+    mode,
+  } = useAppSelector(state => state.annotator.global);
+  const {
     currentZoom,
     currentZoomOrigin,
     currentImages
@@ -109,9 +113,9 @@ export const SpectroRenderComponent: React.FC<Props> = ({ audioPlayer, }) => {
   const xAxisRef = useRef<HTMLCanvasElement>(null);
 
   // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => currentMode === AnnotationMode.boxes || (
-    currentMode === AnnotationMode.wholeFile && !!focusedTag
-  ), [focusedTag, currentMode]);
+  const isDrawingEnabled = useMemo(() => mode === Usage.create && (currentMode === AnnotationMode.boxes || (
+    currentMode === AnnotationMode.wholeFile && !!focusedTag)
+  ), [focusedTag, currentMode, mode]);
 
   const frequencyRange = useMemo(
     () => wholeFileBoundaries.endFrequency - wholeFileBoundaries.startFrequency,
