@@ -13,7 +13,7 @@ export default (_: ConfigEnv): UserConfig => {
   }
 
   return {
-    base: './',
+    base: '/app/',
     server: {
       proxy: {
         "/api": "http://localhost:8000",
