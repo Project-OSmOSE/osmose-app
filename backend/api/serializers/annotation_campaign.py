@@ -3,56 +3,34 @@
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
 from django.db.models import Count
-
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from drf_spectacular.utils import extend_schema_field
 from backend.api.models import (
     AnnotationCampaign,
+    AnnotationCampaignArchive,
     AnnotationCampaignUsage,
+    AudioMetadatum,
 )
-from backend.api.serializers.confidence_indicator_set import (
+from .confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
-from backend.api.serializers.label_set import LabelSetSerializer
+from .dataset import SpectroConfigSerializer, AudioMetadatumSerializer
+from .label_set import LabelSetSerializer
+from .user import UserSerializer
 from .utils import EnumField
 
 
-class AnnotationCampaignListSerializer(serializers.ModelSerializer):
+class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
     """
-    Serializer meant to output list of AnnotationCampaigns augmented data
-
-    This serializer expects to be used on AnnotationCampaigns that have had prefetched data on tasks using the right
-    attr_names
+    Serializer meant to output AnnotationCampaignArchive basic data
     """
 
-    user_tasks_count = serializers.IntegerField()
-    complete_tasks_count = serializers.IntegerField()
-    user_complete_tasks_count = serializers.IntegerField()
-    files_count = serializers.IntegerField()
-    confidence_indicator_set_name = serializers.CharField()
-    label_set_name = serializers.CharField()
-    mode = EnumField(enum=AnnotationCampaignUsage, source="usage")
+    by_user = UserSerializer()
 
     class Meta:
-        model = AnnotationCampaign
-        # pylint:disable=duplicate-code
-        fields = [
-            "id",
-            "name",
-            "desc",
-            "instructions_url",
-            "start",
-            "end",
-            "label_set_name",
-            "confidence_indicator_set_name",
-            "user_tasks_count",
-            "complete_tasks_count",
-            "user_complete_tasks_count",
-            "files_count",
-            "mode",
-            "created_at",
-        ]
+        model = AnnotationCampaignArchive
+        fields = ["date", "by_user"]
 
 
 class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerializer):
@@ -63,23 +41,31 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     label_set = LabelSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
     dataset_files_count = serializers.SerializerMethodField()
+    datasets_name = serializers.SerializerMethodField()
+    archive = AnnotationCampaignArchiveSerializer()
+    usage = EnumField(enum=AnnotationCampaignUsage)
 
     class Meta:
         model = AnnotationCampaign
+        # pylint: disable=R0801
         fields = [
             "id",
             "name",
             "desc",
+            "archive",
             "instructions_url",
-            "start",
-            "end",
+            "deadline",
             "label_set",
             "confidence_indicator_set",
-            "datasets",
+            "datasets_name",
             "created_at",
             "usage",
             "dataset_files_count",
         ]
+
+    def get_datasets_name(self, campaign: AnnotationCampaign) -> list[str]:
+        """Get datasets name"""
+        return list(campaign.datasets.values_list("name", flat=True))
 
     @extend_schema_field(serializers.IntegerField)
     def get_dataset_files_count(self, campaign):
@@ -106,15 +92,29 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
+    is_campaign_owner = serializers.SerializerMethodField("_is_campaign_owner")
+    spectro_configs = SpectroConfigSerializer(many=True)
+    audio_metadata = serializers.SerializerMethodField()
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxCampaignSerializer)
-    def get_campaign(self, campaign):
+    def get_campaign(self, campaign: AnnotationCampaign):
         return AnnotationCampaignRetrieveAuxCampaignSerializer(campaign).data
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxTaskSerializer(many=True))
-    def get_tasks(self, campaign):
+    def get_tasks(self, campaign: AnnotationCampaign):
         return list(
             campaign.tasks.values("status", "annotator_id").annotate(
                 count=Count("status")
             )
         )
+
+    @extend_schema_field(AudioMetadatumSerializer(many=True))
+    def get_audio_metadata(self, campaign: AnnotationCampaign):
+        return AudioMetadatumSerializer(
+            AudioMetadatum.objects.filter(dataset__in=campaign.datasets.all()),
+            many=True,
+        ).data
+
+    def _is_campaign_owner(self, campaign: AnnotationCampaign):
+        """Get information about current user ownership of this campaign"""
+        return campaign.owner_id == self.context.get("user_id")

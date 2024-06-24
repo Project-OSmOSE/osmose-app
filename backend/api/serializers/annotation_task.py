@@ -103,8 +103,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     @extend_schema_field(DetectorSerializer(allow_null=True))
-    def get_detector(self, result):
-        # type: (AnnotationResult) -> any
+    def get_detector(self, result: AnnotationResult):
         if result.detector_configuration is None:
             return None
         return DetectorSerializer(
@@ -199,6 +198,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     # pylint: disable=invalid-name
     id = serializers.IntegerField()
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
+    campaignName = serializers.CharField(source="annotation_campaign.name")
     labels = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
     audioUrl = serializers.SerializerMethodField()

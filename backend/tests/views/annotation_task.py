@@ -100,6 +100,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             [
                 "id",
                 "campaignId",
+                "campaignName",
                 "labels",
                 "boundaries",
                 "audioUrl",

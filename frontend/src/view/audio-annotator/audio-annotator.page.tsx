@@ -1,19 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState, Fragment } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
 import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
 import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
+import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
-import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import { Toast } from "../global-components";
@@ -24,9 +23,10 @@ import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
 import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
+import { LabelListBloc } from "./components/bloc/label-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
-import { LabelListBloc } from "@/view/audio-annotator/components/bloc/label-list-bloc.component.tsx";
+import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 
 import '../../css/annotator.css';
 
@@ -267,14 +267,14 @@ export const AudioAnnotator: React.FC = () => {
 
         <div className="buttons">
           { isUserStaff && <Fragment>
-              <IonButton color="secondary"
+              <IonButton color="dark"
                          fill={ "outline" }
                          onClick={ downloadAudio }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
                   Download audio
               </IonButton>
 
-              <IonButton color="secondary"
+              <IonButton color="dark"
                          fill={ "outline" }
                          onClick={ downloadSpectro }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
@@ -283,14 +283,14 @@ export const AudioAnnotator: React.FC = () => {
               </IonButton>
           </Fragment> }
 
-          <IonButton color="secondary"
+          <IonButton color="dark"
                      fill={ "outline" }
                      onClick={ openGuide }>
             <IonIcon icon={ helpCircle } slot="start"/>
             Annotator user guide
           </IonButton>
 
-          { instructionsURL && <IonButton color="secondary"
+          { instructionsURL && <IonButton color="dark"
                                           fill={ "outline" }
                                           onClick={ openInstructions }>
               <IonIcon icon={ informationCircle } slot="start"/>
@@ -355,13 +355,13 @@ export const AudioAnnotator: React.FC = () => {
 
       {/* Label and annotations management */ }
       { mode === 'Create' && <div className="row justify-content-around m-2">
-        <CurrentAnnotationBloc/>
+          <CurrentAnnotationBloc/>
 
-        <div className="col-5 flex-shrink-2">
-          <LabelListBloc/>
+          <div className="col-5 flex-shrink-2">
+              <LabelListBloc/>
 
-          <ConfidenceIndicatorBloc/>
-        </div>
+              <ConfidenceIndicatorBloc/>
+          </div>
 
           <PresenceBloc ref={ labelsKeyPress }/>
       </div> }

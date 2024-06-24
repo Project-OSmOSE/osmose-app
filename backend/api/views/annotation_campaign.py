@@ -1,6 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 
 from django.db import transaction
+from django.db.models import Count, Q, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -35,68 +36,45 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     """
 
     queryset = AnnotationCampaign.objects.all()
-    serializer_class = AnnotationCampaignListSerializer
 
+    @extend_schema(responses=AnnotationCampaignListSerializer)
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.raw(
-            """
-                SELECT campaign.id,
-                       campaign.name,
-                       "desc",
-                       instructions_url,
-                       start,
-                       "end",
-                       usage,
-                       tasks.complete_count      as complete_tasks_count,
-                       tasks.user_count          as user_tasks_count,
-                       tasks.user_complete_count as user_complete_tasks_count,
-                       files.count               as files_count,
-                       confidence.name           as confidence_indicator_set_name,
-                       label_set.name           as label_set_name,
-                       created_at
-                FROM annotation_campaigns campaign
-                LEFT OUTER JOIN
-                     (SELECT annotation_campaign_id,
-                             count(*) filter(where status = 2) as complete_count,
-                             count(*) filter(where annotator_id = %s) as user_count,
-                             count(*) filter(where annotator_id = %s and status = 2) as user_complete_count
-                      FROM annotation_tasks
-                      WHERE %s or annotator_id = %s
-                      group by annotation_campaign_id) tasks
-                     on tasks.annotation_campaign_id = campaign.id
-                 LEFT OUTER JOIN
-                     (SELECT annotationcampaign_id, count(*)
-                      FROM dataset_files LEFT OUTER JOIN annotation_campaigns_datasets
-                          on dataset_files.dataset_id = annotation_campaigns_datasets.dataset_id
-                      group by annotationcampaign_id) files
-                     on files.annotationcampaign_id = campaign.id
-                 LEFT OUTER JOIN
-                     (SELECT id, name
-                      FROM confidence_sets) confidence
-                     on confidence.id = campaign.confidence_indicator_set_id
-                 LEFT OUTER JOIN
-                     (SELECT id, name
-                      FROM api_labelset) label_set
-                     on label_set.id = campaign.label_set_id
-                WHERE tasks.user_count is not null or %s
-                ORDER BY lower(campaign.name), created_at""",
-            (
-                request.user.id,
-                request.user.id,
-                request.user.is_staff,
-                request.user.id,
-                request.user.is_staff,
+        queryset = self.queryset.annotate(
+            my_progress=Count(
+                "tasks",
+                filter=Q(tasks__annotator_id=request.user.id) & Q(tasks__status=2),
             ),
+            my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
+            progress=Count("tasks", filter=Q(tasks__status=2)),
+            total=Count("tasks"),
         )
-        serializer = self.serializer_class(queryset, many=True)
+        if not request.user.is_staff:
+            queryset = queryset.filter(
+                Q(owner_id=request.user.id)
+                | (
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=OuterRef("pk"),
+                            annotator_id=request.user.id,
+                        )
+                    )
+                    & Q(archive__isnull=True)
+                )
+            )
+        queryset = queryset.prefetch_related("datasets")
+        serializer = AnnotationCampaignListSerializer(
+            queryset, many=True, context={"user_id": request.user.id}
+        )
         return Response(serializer.data)
 
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
     def retrieve(self, request, pk=None):
         """Show a specific annotation campaign"""
         annotation_campaign = get_object_or_404(self.queryset, pk=pk)
-        serializer = AnnotationCampaignRetrieveSerializer(annotation_campaign)
+        serializer = AnnotationCampaignRetrieveSerializer(
+            annotation_campaign, context={"user_id": request.user.id}
+        )
         return Response(serializer.data)
 
     @transaction.atomic
@@ -138,6 +116,19 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         campaign = add_annotators_serializer.save(campaign_id=pk)
         serializer = AnnotationCampaignRetrieveSerializer(campaign)
         return Response(serializer.data)
+
+    @extend_schema(responses={200: None})
+    @action(detail=True, methods=["post"])
+    def archive(self, request, pk):
+        """Archive a given annotation campaign"""
+        annotation_campaign: AnnotationCampaign = get_object_or_404(
+            self.queryset, pk=pk
+        )
+        if not request.user.is_staff and not request.user == annotation_campaign.owner:
+            return HttpResponse("Unauthorized", status=403)
+
+        annotation_campaign.do_archive(request.user)
+        return HttpResponse(status=200)
 
     @extend_schema(
         responses={(200, "text/csv"): str},
@@ -462,4 +453,124 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
         response[
             "Content-Disposition"
         ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_status.csv"'
+        return response
+
+    @extend_schema(
+        responses={(200, "text/csv"): str},
+        examples=[
+            OpenApiExample(
+                "Spectrogram configurations example",
+                # pylint:disable=C0301
+                value="""dataset_name,dataset_sr,nfft,window_size,overlap,colormap,zoom_level,number_adjustment_spectrogram,dynamic_min,dynamic_max,spectro_duration,audio_file_folder_name,data_normalization,hp_filter_min_freq,sensitivity_dB,peak_voltage,spectro_normalization,gain_dB,zscore_duration,window_type,number_spectra,frequency_resolution,temporal_resolution,audio_file_dataset_overlap
+TP_annotation_HF_CETIROISE,128000,1024,1024,80,viridis,2,1,10,80,10,10_128000,instrument,2,-170.0,2.5,density,0,original,hamming,1555,125.0,0.002,0""",
+                media_type="text/csv",
+            )
+        ],
+    )
+    @action(detail=True, renderer_classes=[CSVRenderer])
+    def spectro_config(self, request, pk=None):
+        """Returns the CSV of spectrogram configurations for the given campaign"""
+
+        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        header = [
+            "dataset_name",
+            "dataset_sr",
+            "nfft",
+            "window_size",
+            "overlap",
+            "colormap",
+            "zoom_level",
+            "dynamic_min",
+            "dynamic_max",
+            "spectro_duration",
+            "data_normalization",
+            "hp_filter_min_freq",
+            "sensitivity_dB",  # seulement pour normalisation instrument / vide pour zscore
+            "peak_voltage",  # seulement pour normalisation instrument / vide pour zscore
+            "gain_dB",  # seulement pour normalisation instrument / vide pour zscore
+            "spectro_normalization",
+            "zscore_duration",  # seulement pour normalisation zscore / vide pour instrument
+            "window_type",
+            "frequency_resolution",
+            "temporal_resolution",
+            "audio_file_dataset_overlap",
+        ]
+        data = [header]
+
+        for config in campaign.spectro_configs.all():
+            config_data = []
+            for label in header:
+                if label == "dataset_name":
+                    config_data.append(config.dataset.name)
+                elif label == "dataset_sr":
+                    config_data.append(str(config.dataset.audio_metadatum.dataset_sr))
+                else:
+                    value = getattr(config, label)
+                    if value is None:
+                        value = ""
+                    else:
+                        value = str(value)
+                    config_data.append(value)
+            data.append(config_data)
+
+        response = Response(data)
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_audio_metadata.csv"'
+        return response
+
+    @extend_schema(
+        responses={(200, "text/csv"): str},
+        examples=[
+            OpenApiExample(
+                "Spectrogram configurations example",
+                # pylint:disable=C0301
+                value="""origin_sr,sample_bits,channel_count,audio_file_count,start_date,end_date,audio_file_origin_duration,audio_file_origin_volume,dataset_origin_volume,dataset_origin_duration,is_built,audio_file_dataset_overlap,lat,lon,depth,dataset_sr,audio_file_dataset_duration
+128000,16,1,10,2022-07-17T00:25:46.000000+0200,2022-07-17T23:22:17.000000+0200,10,2.560036,25.6,100,True,0,48.5,-5.5,100,128000,10
+""",
+                media_type="text/csv",
+            )
+        ],
+    )
+    @action(detail=True, renderer_classes=[CSVRenderer])
+    def audio_metadata(self, request, pk=None):
+        """Returns the CSV of spectrogram configurations for the given campaign"""
+
+        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        header = [
+            "dataset",
+            "sample_bits",
+            "channel_count",
+            "audio_file_count",
+            "start_date",
+            "end_date",
+            # "dataset_origin_volume",
+            # "dataset_origin_duration",
+            # "is_built",
+            # "audio_file_dataset_overlap",
+            # "lat",
+            # "lon",
+            # "depth",
+            "dataset_sr",
+            "audio_file_dataset_duration",
+        ]
+        data = [header]
+
+        for dataset in campaign.datasets.all():
+            metadatum_data = []
+            for label in header:
+                if label == "dataset":
+                    metadatum_data.append(dataset.name)
+                elif label == "start_date":
+                    metadatum_data.append(str(dataset.audio_metadatum.start))
+                elif label == "end_date":
+                    metadatum_data.append(str(dataset.audio_metadatum.end))
+                else:
+                    metadatum_data.append(str(getattr(dataset.audio_metadatum, label)))
+            data.append(metadatum_data)
+
+        response = Response(data)
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_audio_metadata.csv"'
         return response

@@ -65,6 +65,12 @@ def datawork_import(*, wanted_datasets, importer):
             sample_bits=audio_raw["sample_bits"],
             start=parse_datetime(audio_raw["start_date"]),
             end=parse_datetime(audio_raw["end_date"]),
+            audio_file_count=audio_raw["audio_file_count"]
+            if "audio_file_count" in audio_raw
+            else None,
+            audio_file_dataset_duration=audio_raw["audio_file_dataset_duration"]
+            if "audio_file_dataset_duration" in audio_raw
+            else None,
         )
 
         # Geo Metadata
@@ -111,19 +117,50 @@ def datawork_import(*, wanted_datasets, importer):
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
                 for spectro in csv.DictReader(csvfile):
                     name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
-                    window_type = WindowType.objects.filter(
-                        name=spectro["window_type"]
-                    ).first()
-                    spectro["window_type"] = window_type
 
-                    spectro_needed = {
-                        key: value
-                        for (key, value) in spectro.items()
-                        if key in settings.FIELD_SPECTRO_CONFIG_NEEDED
-                    }
+                    is_instrument_normalization = (
+                        spectro["data_normalization"] == "instrument"
+                    )
+                    is_zscore_normalization = spectro["data_normalization"] == "zscore"
 
                     new_spectro = SpectroConfig.objects.update_or_create(
-                        name=name, defaults=spectro_needed, dataset=curr_dataset
+                        name=name,
+                        dataset=curr_dataset,
+                        nfft=spectro["nfft"],
+                        window_size=spectro["window_size"],
+                        overlap=spectro["overlap"],
+                        zoom_level=spectro["zoom_level"],
+                        spectro_normalization=spectro["spectro_normalization"],
+                        data_normalization=spectro["data_normalization"],
+                        hp_filter_min_freq=spectro["hp_filter_min_freq"],
+                        colormap=spectro["colormap"],
+                        dynamic_min=spectro["dynamic_min"],
+                        dynamic_max=spectro["dynamic_max"],
+                        window_type=WindowType.objects.get_or_create(
+                            name=spectro["window_type"]
+                        )[0],
+                        frequency_resolution=spectro["frequency_resolution"],
+                        temporal_resolution=spectro["temporal_resolution"]
+                        if "temporal_resolution" in spectro
+                        else None,
+                        spectro_duration=spectro["spectro_duration"]
+                        if "spectro_duration" in spectro
+                        else None,
+                        audio_file_dataset_overlap=spectro["audio_file_dataset_overlap"]
+                        if "audio_file_dataset_overlap" in spectro
+                        else None,
+                        zscore_duration=spectro["zscore_duration"]
+                        if is_zscore_normalization
+                        else None,
+                        sensitivity_dB=spectro["sensitivity_dB"]
+                        if is_instrument_normalization and "sensitivity_dB" in spectro
+                        else None,
+                        peak_voltage=spectro["peak_voltage"]
+                        if is_instrument_normalization and "peak_voltage" in spectro
+                        else None,
+                        gain_dB=spectro["gain_dB"]
+                        if is_instrument_normalization and "gain_dB" in spectro
+                        else None,
                     )[0]
                     new_spectro.save()
 

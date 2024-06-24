@@ -22,6 +22,7 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
   const {
     audioURL,
     audioRate,
+    campaignName
   } = useAppSelector(state => state.annotator.global);
   const {
     wholeFileBoundaries,
@@ -77,9 +78,12 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
       </p> }
 
       <p className="workbench-info workbench-info--intro">
-        File : <strong>{ audioURL?.split('/').pop() ?? '' }</strong> - Sampling
-        : <strong>{ audioRate ?? 0 } Hz</strong><br/>
-        Start date : <strong>{ new Date(wholeFileBoundaries.startTime).toUTCString() }</strong>
+        Campaign: <strong>{ campaignName }</strong>
+        <br/>
+        File: <strong>{ audioURL?.split('/').pop() ?? '' }</strong> -
+        Sampling: <strong>{ audioRate ?? 0 } Hz</strong>
+        <br/>
+        Start date: <strong>{ new Date(wholeFileBoundaries.startTime).toUTCString() }</strong>
       </p>
 
       <SpectroRenderComponent audioPlayer={ audioPlayer } ref={ spectrogramRender }/>

@@ -15,6 +15,15 @@ from backend.api.models.annotation import (
     AnnotationResult,
     AnnotationResultValidation,
 )
+from .campaign import AnnotationCampaignAdmin
+from .detector import (
+    DetectorAdmin,
+    DetectorConfigurationAdmin,
+)
+from .result import (
+    AnnotationResultAdmin,
+    AnnotationResultValidationAdmin,
+)
 
 admin.site.register(Detector, DetectorAdmin)
 admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)

@@ -1,27 +1,27 @@
 import { post, SuperAgentRequest } from "superagent";
 import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
-import { CampaignUsage } from "@/types/campaign.ts";
+import { AnnotationCampaignArchive, AnnotationCampaignArchiveDTO } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { LabelSet } from "@/types/label.ts";
+import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
+import { AudioMetadatum, AudioMetadatumDTO } from "@/types/process-metadata/audio.ts";
 
 
-export type List = Array<{
+export type List = Array<ListItem>
+export type ListItem = {
   id: number;
   name: string;
-  desc: string;
-  instructions_url: string;
-  start?: Date;
-  end?: Date;
-  label_set_name: string;
-  confidence_indicator_set_name: string;
-  user_tasks_count: number;
-  complete_tasks_count: number;
-  user_complete_tasks_count: number;
-  files_count: number;
-  mode: CampaignUsage;
-  created_at: Date;
-}>
+  deadline?: Date;
+  datasets_name: string;
+  is_mine: boolean;
+  is_archived: boolean;
+  my_progress: number;
+  my_total: number;
+  progress: number;
+  total: number;
+  usage: Usage;
+}
 export type Retrieve = {
   campaign: RetrieveCampaign;
   tasks: Array<{
@@ -29,14 +29,17 @@ export type Retrieve = {
     annotator_id: number;
     count: number;
   }>;
+  is_campaign_owner: boolean;
+  spectro_configs: Array<SpectrogramConfiguration>;
+  audio_metadata: Array<AudioMetadatum>;
 }
 export type RetrieveCampaign = {
   id: number;
   name: string;
   desc: string;
+  archive?: AnnotationCampaignArchive;
   instructions_url: string;
-  start?: Date;
-  end?: Date;
+  deadline?: Date;
   label_set: LabelSet;
   confidence_indicator_set?: {
     id: number;
@@ -49,8 +52,9 @@ export type RetrieveCampaign = {
       isDefault: boolean;
     }>
   };
-  datasets: Array<number>;
+  datasets_name: Array<string>;
   dataset_files_count: number;
+  usage: Usage;
   created_at: Date;
 }
 
@@ -58,8 +62,7 @@ export type Create = {
   name: string;
   desc?: string;
   instructions_url?: string;
-  start?: string;
-  end?: string;
+  deadline?: string;
   datasets: Array<number>;
   spectro_configs: Array<number>;
   annotation_scope: number;
@@ -131,8 +134,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
   list(): Promise<List> {
     return super.list().then(r => r.map((d: any) => ({
       ...d,
-      start: d.start ? new Date(d.start) : d.start,
-      end: d.end ? new Date(d.end) : d.end,
+      deadline: d.deadline ? new Date(d.deadline) : d.deadline,
       created_at: new Date(d.created_at),
     })));
   }
@@ -143,13 +145,14 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
 
   retrieve(id: string): Promise<Retrieve> {
     return super.retrieve(id).then(r => ({
+      ...r,
       campaign: {
         ...r.campaign,
-        start: r.campaign.start ? new Date(r.campaign.start) : r.campaign.start,
-        end: r.campaign.end ? new Date(r.campaign.end) : r.campaign.end,
+        archive: r.campaign.archive ? new AnnotationCampaignArchive(r.campaign.archive as unknown as AnnotationCampaignArchiveDTO) : undefined,
+        deadline: r.campaign.deadline ? new Date(r.campaign.deadline) : r.campaign.deadline,
         created_at: new Date(r.campaign.created_at)
       },
-      tasks: r.tasks
+      audio_metadata: r.audio_metadata.map(m => new AudioMetadatum(m as unknown as AudioMetadatumDTO))
     }));
   }
 
@@ -165,11 +168,29 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
     return this.download(url, filename);
   }
 
+  public downloadSpectroConfig(campaign: RetrieveCampaign): Promise<void> {
+    const filename = campaign.name.replace(' ', '_') + '_spectro_config.csv';
+    const url = `${ this.URI }/${ campaign.id }/spectro_config`;
+    return this.download(url, filename);
+  }
+
+  public downloadAudioMeta(campaign: RetrieveCampaign): Promise<void> {
+    const filename = campaign.name.replace(' ', '_') + '_audio_metadata.csv';
+    const url = `${ this.URI }/${ campaign.id }/audio_metadata`;
+    return this.download(url, filename);
+  }
+
   public addAnnotators(campaignId: number, data: AddAnnotators) {
     this.addAnnotatorsRequest = post(`${ this.URI }/${ campaignId }/add_annotators/`)
       .set("Authorization", this.auth.bearer)
       .send(data);
     return this.addAnnotatorsRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
+  }
+
+  public archive(campaignId: number) {
+    this.addAnnotatorsRequest = post(`${ this.URI }/${ campaignId }/archive/`)
+      .set("Authorization", this.auth.bearer);
+    return this.addAnnotatorsRequest.catch(this.auth.catch401.bind(this.auth))
   }
 
   abort() {

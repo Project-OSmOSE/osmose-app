@@ -20,8 +20,8 @@ export const DetectionList: React.FC = () => {
       // Need the spread to sort this readonly array
       return [...results].sort((a, b) => {
         if (currentMode === AnnotationMode.wholeFile) {
-          if (a.annotation !== b.annotation) {
-            return a.annotation.localeCompare(b.annotation);
+          if (a.label !== b.label) {
+            return a.label.localeCompare(b.label);
           }
         }
         return a.startTime - b.startTime;
@@ -76,7 +76,7 @@ const DetectionItem: React.FC<ItemProps> = ({ detection }) => {
           </td>
           <td className="p-1">
             <i className="fas fa-tag"></i>&nbsp;
-            { (detection.annotation !== '') ? detection.annotation : '-' }
+            { (detection.label !== '') ? detection.label : '-' }
           </td>
           <td className="p-1">
             <i className="fas fa-robot"></i>&nbsp;
@@ -112,7 +112,7 @@ const DetectionItem: React.FC<ItemProps> = ({ detection }) => {
           <td colSpan={ 3 }>
             <strong>
               <i className="fas fa-tag"></i>&nbsp;
-              { detection.annotation }
+              { detection.label }
             </strong>
           </td>
           <td className="pl-1">

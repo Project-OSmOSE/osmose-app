@@ -2,8 +2,8 @@
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
 
-from django.contrib import admin, messages
 from django import forms
+from django.contrib import admin, messages
 from django.db import IntegrityError, transaction
 from django.utils.html import format_html
 
@@ -12,7 +12,6 @@ from backend.api.models import (
     DatasetFile,
     LabelSet,
     Label,
-    AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
     AnnotationSession,
@@ -24,32 +23,13 @@ from backend.api.models import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
-from backend.api.admin.annotation import (
+from .__utils__ import get_many_to_many
+from .annotation import (
     DetectorAdmin,
     DetectorConfigurationAdmin,
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
 )
-
-
-def get_many_to_many(obj, field_name, related_field_name="name"):
-    """List all related field
-
-    Args:
-        obj (object): _description_
-        field_name (string): _description_
-        related_field_name (str, optional): _description_. Defaults to "name".
-
-    Returns:
-        string: _description_
-    """
-    field_name_attr = getattr(obj, field_name)
-    many_to_many_attributs = ""
-    for one_name_attr in field_name_attr.all().distinct():
-        name_field = getattr(one_name_attr, related_field_name)
-        many_to_many_attributs += f"{name_field}, "
-
-    return many_to_many_attributs[:-2]
 
 
 class NewItemsForm(forms.ModelForm):
@@ -181,42 +161,6 @@ class AnnotationCommentAdmin(admin.ModelAdmin):
     )
 
 
-class AnnotationCampaignAdmin(admin.ModelAdmin):
-    """AnnotationCampaign presentation in DjangoAdmin"""
-
-    list_display = (
-        "name",
-        "desc",
-        "created_at",
-        "instructions_url",
-        "start",
-        "end",
-        "label_set",
-        "annotation_scope",
-        "owner",
-        "show_spectro_configs",
-        "show_datasets",
-        "show_annotators",
-        "confidence_indicator_set",
-        "usage",
-    )
-    search_fields = ("name", "desc")
-
-    list_filter = ("datasets", "usage")
-
-    def show_spectro_configs(self, obj):
-        """show_spectro_configs"""
-        return get_many_to_many(obj, "spectro_configs", "name")
-
-    def show_datasets(self, obj):
-        """show_datasets"""
-        return get_many_to_many(obj, "datasets", "name")
-
-    def show_annotators(self, obj):
-        """show_annotators"""
-        return get_many_to_many(obj, "annotators", "username")
-
-
 class AnnotationTaskAdmin(admin.ModelAdmin):
     """AnnotationTask presentation in DjangoAdmin"""
 
@@ -336,7 +280,6 @@ admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)
 admin.site.register(Label, LabelAdmin)
 admin.site.register(LabelSet, LabelSetAdmin)
-admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)

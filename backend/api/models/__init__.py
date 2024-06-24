@@ -9,6 +9,7 @@ from backend.api.models.annotation import (
 
 from backend.api.models.annotations import (
     AnnotationCampaign,
+    AnnotationCampaignArchive,
     AnnotationCampaignUsage,
     AnnotationComment,
     AnnotationSession,

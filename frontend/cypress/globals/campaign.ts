@@ -18,14 +18,15 @@ export const DETECTOR_3 = {
   name: 'detector3',
   configuration: 'detector3 parameters'
 }
+
+export const DEFAULT_CAMPAIGN_NAME = 'Test Dataset campaign';
 export const CAMPAIGNS_DATA = {
   [Usage.create]: {
     id: 6,
     name: 'My create campaign test',
     description: 'My create campaign test description',
     instructionsURL: 'https://my-create-campaign-description.com',
-    start: '2024-02-17',
-    end: '2024-02-17',
+    deadline: '2024-02-17',
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
@@ -37,8 +38,7 @@ export const CAMPAIGNS_DATA = {
     name: 'My check campaign test',
     description: 'My check campaign test description',
     instructionsURL: 'https://my-check-campaign-description.com',
-    start: '2024-02-17',
-    end: '2024-02-17',
+    deadline: '2024-02-17',
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
@@ -116,7 +116,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound003.wav',
         confidence: 'not confident',
-        tag: 'Sri Lanka pygmy blue whale song',
+        label: 'Sri Lanka pygmy blue whale song',
         min_time: 0, max_time: 3599,
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_3.name,

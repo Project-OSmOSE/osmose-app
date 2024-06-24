@@ -12,6 +12,9 @@ from backend.api.models import (
     AnnotationTask,
     Dataset,
 )
+from backend.api.serializers.annotation.campaign.read import (
+    AnnotationCampaignListFields,
+)
 
 
 class AnnotationCampaignViewSetUnauthenticatedTestCase(APITestCase):
@@ -64,8 +67,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "name": "string",
         "desc": "string",
         "instructions_url": "string",
-        "start": "2022-01-25T10:42:15Z",
-        "end": "2022-01-30T10:42:15Z",
+        "deadline": "2022-01-30T10:42:15Z",
         "label_set": 1,
         "confidence_indicator_set": 1,
         "datasets": [1],
@@ -81,8 +83,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "name": "string",
         "desc": "string",
         "instructions_url": "string",
-        "start": "2022-01-25T10:42:15Z",
-        "end": "2022-01-30T10:42:15Z",
+        "deadline": "2022-01-30T10:42:15Z",
         "label_set": 1,
         "confidence_indicator_set": 1,
         "datasets": [1],
@@ -178,31 +179,16 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(
             list(response.data[0].keys()),
-            [
-                "id",
-                "name",
-                "desc",
-                "instructions_url",
-                "start",
-                "end",
-                "label_set_name",
-                "confidence_indicator_set_name",
-                "user_tasks_count",
-                "complete_tasks_count",
-                "user_complete_tasks_count",
-                "files_count",
-                "mode",
-                "created_at",
-            ],
+            AnnotationCampaignListFields,
         )
 
-        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[0]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
 
     def test_list_user_no_campaign(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
         url = reverse("annotation-campaign-list")
-        self.client.login(username="user1", password="osmose29")
+        self.client.login(username="user4", password="osmose29")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
@@ -216,26 +202,11 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), 2)
         self.assertEqual(
             list(response.data[0].keys()),
-            [
-                "id",
-                "name",
-                "desc",
-                "instructions_url",
-                "start",
-                "end",
-                "label_set_name",
-                "confidence_indicator_set_name",
-                "user_tasks_count",
-                "complete_tasks_count",
-                "user_complete_tasks_count",
-                "files_count",
-                "mode",
-                "created_at",
-            ],
+            AnnotationCampaignListFields,
         )
-        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[0]["user_tasks_count"], 1)
+        self.assertEqual(response.data[0]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["my_total"], 1)
 
     # Testing 'retrieve'
 
@@ -244,19 +215,28 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         url = reverse("annotation-campaign-detail", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data.keys()), ["campaign", "tasks"])
+        self.assertEqual(
+            list(response.data.keys()),
+            [
+                "campaign",
+                "tasks",
+                "is_campaign_owner",
+                "spectro_configs",
+                "audio_metadata",
+            ],
+        )
         self.assertEqual(
             list(response.data["campaign"].keys()),
             [
                 "id",
                 "name",
                 "desc",
+                "archive",
                 "instructions_url",
-                "start",
-                "end",
+                "deadline",
                 "label_set",
                 "confidence_indicator_set",
-                "datasets",
+                "datasets_name",
                 "created_at",
                 "usage",
                 "dataset_files_count",
@@ -269,6 +249,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             dict(response.data["tasks"][0]),
             {"annotator_id": 1, "count": 6, "status": 0},
         )
+        self.assertEqual(response.data["is_campaign_owner"], True)
 
     def test_retrieve_for_unknown_campaign(self):
         """AnnotationCampaign view 'retrieve' returns 404 for unknown campaign"""
@@ -294,14 +275,13 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "name",
                 "desc",
                 "instructions_url",
-                "start",
-                "end",
-                "datasets",
+                "deadline",
                 "created_at",
             ]
         }
 
         expected_response["id"] = AnnotationCampaign.objects.latest("id").id
+        expected_response["datasets_name"] = ["SPM Aural A 2010"]
         response_data = dict(response.data)
 
         confidence_indicator_set = response_data.pop("confidence_indicator_set")
@@ -313,10 +293,11 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(label_set["name"], "Test SPM campaign")
         self.assertEqual(label_set["desc"], "Label set made for Test SPM campaign")
         self.assertEqual(len(label_set["labels"]), 5)
-        expected_response["usage"] = 0
+        expected_response["usage"] = "Create"
         expected_response["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()
+        expected_response["archive"] = None
         self.assertEqual(response_data, expected_response)
 
     def test_create_check(self):
@@ -336,8 +317,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "name",
                 "desc",
                 "instructions_url",
-                "start",
-                "end",
+                "deadline",
                 "datasets",
                 "created_at",
             ]
