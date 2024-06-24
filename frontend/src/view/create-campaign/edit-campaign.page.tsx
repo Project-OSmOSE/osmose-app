@@ -22,6 +22,7 @@ export const EditCampaign: React.FC = () => {
   const [annotators, setAnnotators] = useState<Array<User>>([]);
   const [filesToAnnotate, setFilesToAnnotate] = useState<number>(1);
   useEffect(() => setFilesToAnnotate(campaignFilesCount), [campaignFilesCount]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Services
   const toast = useToast();
@@ -51,6 +52,7 @@ export const EditCampaign: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       await campaignAPI.addAnnotators(+campaignID, {
         annotators: annotators.map(a => a.id),
         annotation_goal: filesToAnnotate
@@ -59,6 +61,8 @@ export const EditCampaign: React.FC = () => {
       history.push(`/annotation_campaign/${ campaignID }`);
     } catch (e: any) {
       toast.presentError(e)
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -112,7 +116,9 @@ export const EditCampaign: React.FC = () => {
                note={ `Each new annotator will annotate ${ filesToAnnotate === 0 ? campaignFilesCount : filesToAnnotate } / ${ campaignFilesCount } files.` }/>
       </FormBloc>
 
-      <IonButton color="primary" type="submit">
+      <IonButton color="primary"
+                 disabled={ isSubmitting }
+                 type="submit">
         Update campaign
       </IonButton>
     </form>

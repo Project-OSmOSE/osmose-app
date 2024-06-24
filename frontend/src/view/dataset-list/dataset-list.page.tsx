@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from "react-dom";
-import { useDatasetsAPI, DatasetListToImport, DatasetList as List } from "@/services/api";
+import { DatasetList as List, DatasetListToImport, useDatasetsAPI } from "@/services/api";
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { useToast } from "@/services/utils/toast.ts";
@@ -46,9 +46,9 @@ export const DatasetList: React.FC = () => {
     setIsLoading(true);
     datasetService.importDatasets(datasets)
       .then(data => {
-        const remainingDatasets = datasetsToImport.filter(newDataset =>
+        const remainingDatasets = datasetsToImport.filter(newDataset => {
           data.some(importedDataset => importedDataset.name !== newDataset.name)
-        );
+        });
         setDatasetsToImport(remainingDatasets);
         toast.dismiss();
         setIsImportModalOpen(false);
@@ -63,8 +63,6 @@ export const DatasetList: React.FC = () => {
     <div className="col-sm-9 border rounded" id="content">
       <h1 className="text-center">Datasets</h1>
 
-      {/*<Toast toastMessage={ toastMsg }></Toast>*/}
-
       <div className="d-flex justify-content-center">
         <IonButton color={ "primary" }
                    disabled={ datasetsToImport.length === 0 }
@@ -75,6 +73,7 @@ export const DatasetList: React.FC = () => {
         { isImportModalOpen && ReactDOM.createPortal(
           <ModalNewDataset startImport={ (datasets) => importDatasets(datasets) }
                            onClose={ () => setIsImportModalOpen(false) }
+                           isLoading={ isLoading }
                            newData={ datasetsToImport }/>,
           document.body) }
       </div>

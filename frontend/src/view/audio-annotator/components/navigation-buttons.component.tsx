@@ -36,6 +36,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   const history = useHistory();
   const [siblings, setSiblings] = useState<{ prev?: number, next?: number } | undefined>()
   const taskAPI = useAnnotationTaskAPI();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const {
     prevAndNextAnnotation,
@@ -75,6 +76,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
 
   const submit = async () => {
     const now = new Date().getTime();
+    setIsSubmitting(true);
     const response = await taskAPI.update(taskId!, {
       annotations: results.map(r => {
         const isBox = r.type === AnnotationType.box;
@@ -99,8 +101,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       task_start_time: Math.floor((start.getTime() ?? now) / 1000),
       task_end_time: Math.floor(new Date().getTime() / 1000),
       task_comments: taskComment.comment ? [taskComment] : []
-    })
-
+    }).finally(() => setIsSubmitting(false))
 
     if (!response) return;
     if (siblings?.next) {
@@ -133,6 +134,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
                                                                     description="load previous recording"/></Tooltip> }>
         <IonButton color={ "primary" }
+                   disabled={ isSubmitting }
                    className="rounded-right-0"
                    onClick={ navPrevious }>
           <IonIcon icon={ caretBack } slot={ "icon-only" }/>
@@ -141,6 +143,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Enter"
                                                                     description="Submit & load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
+                   disabled={ isSubmitting }
                    className="rounded-0"
                    onClick={ submit }>
           Submit &amp; load next recording
@@ -149,6 +152,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
                                                                     description="load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
+                   disabled={ isSubmitting }
                    className="rounded-left-0"
                    onClick={ navNext }>
           <IonIcon icon={ caretForward } slot={ "icon-only" }/>

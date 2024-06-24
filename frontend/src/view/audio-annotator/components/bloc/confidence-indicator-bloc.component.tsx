@@ -36,7 +36,7 @@ export const ConfidenceIndicatorBloc: React.FC = () => {
                        color="primary"
                        onClick={ () => dispatch(selectConfidence(confidence)) }
                        className={ focusedConfidence === confidence ? 'active m-2' : 'm-2' }>
-                { confidence }
+                  { confidence }
                 { focusedConfidence === confidence && <IonIcon src={ checkmarkOutline } color="light"/> }
               </IonChip>
             )) }

@@ -16,7 +16,7 @@ import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
 import { addResult } from "@/slices/annotator/annotations.ts";
 import { leavePointer, updatePointerPosition, zoom } from "@/slices/annotator/spectro.ts";
 import { SpectrogramImage } from "@/types/spectro.ts";
-import { Usage } from "../../../types/annotations.ts";
+import { Usage } from "@/types/annotations.ts";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;

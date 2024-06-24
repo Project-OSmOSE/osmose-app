@@ -35,12 +35,6 @@ setupIonicReact({
   spinner: 'crescent',
 });
 
-
-setupIonicReact({
-  mode: 'md',
-  spinner: 'crescent',
-});
-
 const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
   const auth = useAuthService();
   return (
@@ -51,7 +45,7 @@ const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
       <div className="row text-left h-100 main">
         <div className="col-sm-2 border rounded">
           <ul>
-            <li><a href="/app">Back to Home</a></li>
+            <li><a href="/app/">Back to Home</a></li>
             <li><Link to="/datasets">Datasets</Link></li>
             <li><Link to="/annotation-campaigns">Annotation campaigns</Link></li>
             <br/>

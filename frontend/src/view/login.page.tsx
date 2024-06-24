@@ -10,6 +10,7 @@ export const Login: FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const auth = useAuthService();
   const history = useHistory();
@@ -41,10 +42,13 @@ export const Login: FC = () => {
     setError(undefined);
 
     try {
+      setIsSubmitting(true)
       await auth.login(username, password);
       history.replace(from);
     } catch (e: any) {
       setError(buildErrorMessage(e));
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -71,7 +75,9 @@ export const Login: FC = () => {
                      onChange={ handlePasswordChange }/>
             </div>
 
-            <IonButton color={ "primary" } type={ "submit" }>
+            <IonButton color={ "primary" }
+                       disabled={ isSubmitting }
+                       type={ "submit" }>
               Submit
             </IonButton>
           </form>
@@ -81,3 +87,4 @@ export const Login: FC = () => {
     </div>
   )
 }
+
