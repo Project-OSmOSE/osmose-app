@@ -86,6 +86,7 @@ export const Login: React.FC = () => {
       </div>
 
       <Link to="/">Back to Home</Link>
+
       <OsmoseBarComponent/>
     </div>
   )
