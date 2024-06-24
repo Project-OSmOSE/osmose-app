@@ -2,10 +2,10 @@ import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { createCampaignActions } from "@/slices/create-campaign";
 import { useUsersAPI } from '@/services/api/user.ts';
 import { FormBloc, Searchbar, ChipsInput, Input } from "@/components/form";
-import { Item } from "@/types/item.ts";
-import { User } from '@/types/user.ts';
-import { useAppSelector, useAppDispatch } from "@/slices/app.ts";
-import { useToast } from "@/services/utils/toast.ts";
+import { Item } from "@/types/item";
+import { User } from '@/types/user';
+import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useToast } from "@/services/utils/toast";
 
 
 export const AnnotatorsBloc: React.FC = () => {

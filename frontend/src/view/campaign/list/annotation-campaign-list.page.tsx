@@ -64,7 +64,7 @@ export const AnnotationCampaignList: React.FC = () => {
   }
 
   const openNewCampaign = () => {
-    window.open("/create-annotation-campaign", "_self")
+    window.open("/app/create-annotation-campaign", "_self")
   }
 
   const toggleArchivedFilter = () => {

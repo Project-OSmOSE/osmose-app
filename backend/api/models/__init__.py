@@ -6,27 +6,31 @@ from backend.api.models.annotation import (
     AnnotationResult,
     AnnotationResultValidation,
 )
+
 from backend.api.models.annotations import (
-    ConfidenceIndicator,
-    ConfidenceIndicatorSet,
     AnnotationCampaign,
     AnnotationCampaignArchive,
+    AnnotationCampaignUsage,
     AnnotationComment,
     AnnotationSession,
     AnnotationTask,
-    AnnotationCampaignUsage,
-    LabelSet,
+    ConfidenceIndicator,
+    ConfidenceIndicatorSet,
     Label,
+    LabelSet,
 )
+
 from backend.api.models.datasets import (
     DatasetType,
     Dataset,
     DatasetFile,
 )
+
 from backend.api.models.metadata import (
     AudioMetadatum,
     GeoMetadatum,
     SpectroConfig,
     WindowType,
 )
+
 from .user import User

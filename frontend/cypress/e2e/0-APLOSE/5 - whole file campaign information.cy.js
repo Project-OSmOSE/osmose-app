@@ -50,7 +50,7 @@ describe('Whole file campaign information', () => {
             })
 
             it('Check annotations', () => {
-                cy.contains(Campaign.name).parent().parent().contains("Annotate").click()
+                cy.contains(CAMPAIGNS_DATA[Usage.check].name).parent().parent().contains("Annotate").click()
                 cy.contains('Task link').click()
                 cy.get('.card').should('not.include.text', 'Presence / Absence');
             })
@@ -61,7 +61,7 @@ describe('Whole file campaign information', () => {
             cy.contains('Annotators').parent().should('include.text', Campaign.annotators.length)
 
             for (let user of Campaign.annotators) {
-                cy.get('.table-bloc-content').should('include.text', user.displayName)
+                cy.get('h5').contains('Status').parent().parent().should('include.text', user.displayName)
             }
         })
     })

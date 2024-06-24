@@ -12,7 +12,7 @@ export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children })
       <h1>APLOSE</h1>
 
       <div id="nav" className="border rounded">
-        <a href="/..">Back to main site</a>
+        <a href="/app/">Back to Home</a>
         <Link to="/datasets">Datasets</Link>
         <Link to="/annotation-campaigns">Annotation campaigns</Link>
         <br/>
@@ -25,6 +25,7 @@ export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children })
       <div id="content" className="border rounded">
         { children }
       </div>
+
       <OsmoseBarComponent/>
     </div>
   )

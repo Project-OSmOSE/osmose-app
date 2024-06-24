@@ -69,6 +69,8 @@ export const CAMPAIGNS_DATA = {
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_1.name,
         detector_config: DETECTOR_1.configuration,
+        start_datetime: "2012-10-03T11:00:00.000000+00:00",
+        end_datetime: "2012-10-03T11:15:00.000000+00:00"
       },
       {
         is_box: false,
@@ -76,10 +78,12 @@ export const CAMPAIGNS_DATA = {
         dataset_file: 'sound001.wav',
         confidence: 'confident',
         label: 'Antarctic blue whale song',
-        min_time: 0, max_time: 3599,
+        min_time: 0, max_time: 4499,
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_2.name,
         detector_config: DETECTOR_2.configuration,
+        start_datetime: "2012-10-03T11:00:00.000000+00:00",
+        end_datetime: "2012-10-03T12:15:00.000000+00:00"
       },
       {
         is_box: true,
@@ -87,10 +91,12 @@ export const CAMPAIGNS_DATA = {
         dataset_file: 'sound001.wav',
         confidence: 'confident',
         label: 'Antarctic blue whale song',
-        min_time: 1100, max_time: 2000,
-        min_frequency: 20, max_frequency: 80,
+        min_time: 500, max_time: 2000,
+        min_frequency: 2000, max_frequency: 8000,
         detector: DETECTOR_2.name,
         detector_config: DETECTOR_2.configuration,
+        start_datetime: "2012-10-03T11:00:00.000000+00:00",
+        end_datetime: "2012-10-03T11:15:00.000000+00:00"
       },
       {
         is_box: true,
@@ -98,10 +104,25 @@ export const CAMPAIGNS_DATA = {
         dataset_file: 'sound002.wav',
         confidence: 'not confident',
         label: 'Sri Lanka pygmy blue whale song',
-        min_time: 800, max_time: 1400,
-        min_frequency: 30, max_frequency: 70,
+        min_time: 800, max_time: 3800,
+        min_frequency: 300, max_frequency: 7000,
         detector: DETECTOR_3.name,
         detector_config: DETECTOR_3.configuration,
+        start_datetime: "2012-10-03T11:00:00.000000+00:00",
+        end_datetime: "2012-10-03T12:15:00.000000+00:00"
+      },
+      {
+        is_box: false,
+        dataset: DATASET.name,
+        dataset_file: 'sound003.wav',
+        confidence: 'not confident',
+        label: 'Sri Lanka pygmy blue whale song',
+        min_time: 0, max_time: 3599,
+        min_frequency: 0, max_frequency: 120,
+        detector: DETECTOR_3.name,
+        detector_config: DETECTOR_3.configuration,
+        start_datetime: "2012-10-03T11:20:00.000000+00:00",
+        end_datetime: "2012-10-03T11:30:00.000000+00:00"
       },
     ] as Array<CreateResultItem>
   },

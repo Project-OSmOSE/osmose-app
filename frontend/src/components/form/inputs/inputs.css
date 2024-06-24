@@ -36,6 +36,7 @@
   background: var(--ion-color-light-shade);
   padding: 0.5rem 1rem;
   outline-color: var(--ion-color-primary);
+  accent-color: var(--ion-color-primary);
 }
 #aplose-input #input > .hide-real-input {
   position: absolute;
@@ -61,7 +62,7 @@
 
 /* Select specific */
 
-#aplose-input.select #input .button {
+#aplose-input.select #input button {
   background-color: var(--ion-color-light-shade);
   padding: 0.5rem 1rem;
   border-radius: 1rem;
@@ -72,28 +73,29 @@
   width: fit-content;
   transition: 300ms;
   cursor: pointer;
+  border: none;
 }
-#aplose-input.select #input[aria-disabled=true] .button {
+#aplose-input.select #input[aria-disabled=true] button {
   cursor: default;
 }
 
-#aplose-input.select #input .button p {
+#aplose-input.select #input button p {
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 100%;
   overflow: hidden;
 }
 
-#aplose-input.select #input .button.placeholder,
-#aplose-input.select #input .button ion-icon {
+#aplose-input.select #input button.placeholder,
+#aplose-input.select #input button ion-icon {
   color: rgba(var(--ion-color-dark-rgb), 0.6);
 }
 
-#aplose-input.select #input .button ion-icon {
+#aplose-input.select #input button ion-icon {
   font-size: 1rem;
 }
 
-#aplose-input.select #input.open .button {
+#aplose-input.select #input.open button {
   box-shadow: var(--aplose-box-shadow);
 }
 

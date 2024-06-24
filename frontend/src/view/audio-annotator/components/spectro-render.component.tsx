@@ -17,6 +17,7 @@ import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
 import { addResult } from "@/slices/annotator/annotations.ts";
 import { leavePointer, updatePointerPosition, zoom } from "@/slices/annotator/spectro.ts";
 import { SpectrogramImage } from "@/types/spectro.ts";
+import { Usage } from "@/types/annotations.ts";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -86,6 +87,9 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const {
     time,
   } = useAppSelector(state => state.annotator.audio);
+  const {
+    mode,
+  } = useAppSelector(state => state.annotator.global);
   const {
     currentZoom,
     currentZoomOrigin,
@@ -317,9 +321,14 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
           // Text
           const timeText: string = formatTimestamp(i, false);
           let xTxt: number = x;
-          if (xTxt > 0) {
+          if (xTxt === 0) {
+            context.textAlign = "left"
+          } else {
             // "Right align" all labels but first
-            xTxt -= Math.round(timeText.length * 5);
+            context.textAlign = "right"
+          }
+          if (xTxt > (timeAxis.width - timeText.length * 8)) {
+            xTxt -= 8;
           }
           context.fillText(timeText, xTxt, 25);
         } else {

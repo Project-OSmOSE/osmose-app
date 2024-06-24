@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonNote, IonButton, IonIcon } from "@ionic/react";
 import { focusResult, invalidateResult, validateResult } from "@/slices/annotator/annotations.ts";
 import { formatTimestamp } from "@/services/utils/format.tsx";
 import { Annotation, AnnotationType, AnnotationMode } from "@/types/annotations.ts";
-import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { checkmarkOutline, closeOutline } from "ionicons/icons";
 
 
 export const AnnotationList: React.FC = () => {
@@ -44,6 +44,7 @@ export const AnnotationList: React.FC = () => {
           <AnnotationItem annotation={ annotation }
                           key={ idx }></AnnotationItem>
         )) }
+        { annotations.length === 0 && <IonNote color="medium">No annotations</IonNote> }
         </tbody>
       </table>
     </div>
@@ -56,13 +57,8 @@ interface ItemProps {
 
 const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
 
-  const {
-    mode,
-    focusedResult
-  } = useAppSelector(state => ({
-    ...state.annotator.global,
-    ...state.annotator.annotations
-  }));
+  const focusedResult = useAppSelector(state => state.annotator.annotations.focusedResult);
+  const mode = useAppSelector(state => state.annotator.annotations.global);
   const dispatch = useAppDispatch();
 
   switch (annotation.type) {

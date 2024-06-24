@@ -86,6 +86,7 @@ export const AnnotationTaskList: React.FC = () => {
           <th>Dataset</th>
           <th>Date</th>
           <th>Duration</th>
+          <th>Results</th>
           <th>Status</th>
           <th>Link</th>
         </tr>
@@ -100,6 +101,7 @@ export const AnnotationTaskList: React.FC = () => {
             <td>{ task.dataset_name }</td>
             <td>{ startDate.toLocaleDateString() }</td>
             <td>{ diffTime.toUTCString().split(' ')[4] }</td>
+            <td>{ task.results_count }</td>
             <td>{ task.status === AnnotationTaskStatus.finished ? 'Finished' : (task.status === AnnotationTaskStatus.started ? 'Started' : 'Created') }</td>
             <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
           </tr>)

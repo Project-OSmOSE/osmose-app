@@ -25,11 +25,15 @@ export type AnnotationsSlice = {
   taskComment: AnnotationComment;
 }
 
-function isBoxResult(a: any): boolean {
-  return (typeof a.startTime === 'number') &&
-    (typeof a.endTime === 'number') &&
-    (typeof a.startFrequency === 'number') &&
-    (typeof a.endFrequency === 'number');
+function isBoxResult(a: any, bounds: Boundaries): boolean {
+
+  if ((typeof a.startTime !== 'number') || (typeof a.endTime !== 'number') ||
+    (typeof a.startFrequency !== 'number') || (typeof a.endFrequency !== 'number')) return false;
+
+  const fileDuration = bounds.duration ??
+    (new Date(bounds.endTime).getTime() - new Date(bounds.startTime).getTime())/1000;
+  return (!(a.startTime === 0 && a.endTime === fileDuration
+    && a.startFrequency === bounds.startFrequency && a.endFrequency === bounds.endFrequency));
 }
 
 function getNewId(state: AnnotationsSlice): number {
@@ -95,17 +99,14 @@ export const annotationsSlice = createSlice({
         hasChanged: false,
         currentMode: action.payload.annotationScope,
         results: action.payload.prevAnnotations.map(a => {
-          const isBox = isBoxResult(a);
+          const isBox = isBoxResult(a, action.payload.boundaries);
           return {
+            ...a,
             type: isBox ? AnnotationType.box : AnnotationType.tag,
-            id: a.id,
-            label: a.label,
-            confidenceIndicator: a.confidenceIndicator,
             startTime: isBox ? a.startTime ?? 0 : -1,
             endTime: isBox ? a.endTime ?? 0 : -1,
             startFrequency: isBox ? a.startFrequency ?? 0 : -1,
             endFrequency: isBox ? a.endFrequency ?? 0 : -1,
-            result_comments: a.result_comments,
             validation: action.payload.mode === 'Create' ? null : (a.validation === null ? true : !!a.validation)
           }
         }),
@@ -169,8 +170,7 @@ export const annotationsSlice = createSlice({
       const focusedComment = state.focusedComment ?? {
         comment: action.payload,
         annotation_task: state.taskComment.annotation_task,
-        annotation_result: state.focusedResult?.id ?? null,
-        annotation_result_new_id: state.focusedResult?.newId ?? null
+        annotation_result: state.focusedResult?.id ?? null
       };
       focusedComment.comment = action.payload;
       const focusedResult = state.focusedResult;
@@ -179,7 +179,7 @@ export const annotationsSlice = createSlice({
         results: getUpdatedResults(state, focusedResult),
         focusedResult,
         focusedComment,
-        taskComment: focusedComment.annotation_result || focusedComment.annotation_result_new_id ? state.taskComment : focusedComment,
+        taskComment: focusedComment.annotation_result ? state.taskComment : focusedComment,
       });
     },
     removeFocusComment: (state) => {

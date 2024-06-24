@@ -26,6 +26,7 @@
 
 Cypress.Commands.add('login', (username, password) => {
   cy.visit(Cypress.env('aploseURL'))
+  cy.contains('login', {matchCase: false}).click();
   cy.get("#loginInput").type(username);
   cy.get("#passwordInput").type(password);
   cy.contains("Submit").click()
@@ -42,4 +43,5 @@ Cypress.Commands.add('session_login', (username, password) => {
     }
   })
   cy.visit(Cypress.env('aploseURL'))
+  cy.contains('access APLOSE', {matchCase: false}).click();
 })

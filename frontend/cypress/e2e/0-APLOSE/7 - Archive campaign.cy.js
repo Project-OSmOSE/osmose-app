@@ -26,6 +26,7 @@ describe('Archive campaign', () => {
         it('Can archive', () => {
             cy.contains(DEFAULT_CAMPAIGN_NAME).parent().parent().contains('Manage').click()
             cy.get("#content").contains('Archive').click()
+            cy.get("ion-alert button").contains('Archive').click()
         })
 
         it('Can see archived campaigns', () => {

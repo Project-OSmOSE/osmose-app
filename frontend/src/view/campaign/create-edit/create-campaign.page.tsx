@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { IonButton } from "@ionic/react";
+import { IonButton, IonSpinner } from "@ionic/react";
 import { useCreateCampaign } from "@/services/create-campaign";
 import { useBlur } from "@/services/utils/clic.ts";
 import { useToast } from "@/services/utils/toast.ts";
@@ -11,11 +11,11 @@ import { AnnotationsBloc } from "./blocs/annotations.bloc.tsx";
 import './create-edit-campaign.css'
 
 export const CreateCampaign: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const service = useCreateCampaign();
   const blurUtil = useBlur();
   const toast = useToast();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const history = useHistory();
 
@@ -28,18 +28,22 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    submit()
+  }
+
+  const submit = async (force: boolean = false) => {
     try {
-      setIsSubmitting(true);
-      await service.submitCampaign();
+      setIsLoading(true);
+      await service.submitCampaign(force);
 
       history.push('/annotation-campaigns');
     } catch (e: any) {
-      toast.presentError(e);
+      const force = await toast.presentError(e, e.response?.body?.dataset_file_not_found);
+      if (force) await submit(force);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   }
 
@@ -58,10 +62,9 @@ export const CreateCampaign: React.FC = () => {
       <AnnotatorsBloc/>
 
 
-      <IonButton color="primary"
-                 disabled={ isSubmitting }
-                 type="submit">
+      <IonButton color="primary" type="submit" disabled={ isLoading }>
         Create campaign
+        { isLoading && <IonSpinner/> }
       </IonButton>
     </form>
   )
