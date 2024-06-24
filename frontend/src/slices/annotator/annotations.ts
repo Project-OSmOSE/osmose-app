@@ -25,11 +25,15 @@ export type AnnotationsSlice = {
   taskComment: AnnotationComment;
 }
 
-function isBoxResult(a: any): boolean {
-  return (typeof a.startTime === 'number') &&
-    (typeof a.endTime === 'number') &&
-    (typeof a.startFrequency === 'number') &&
-    (typeof a.endFrequency === 'number');
+function isBoxResult(a: any, bounds: Boundaries): boolean {
+
+  if ((typeof a.startTime !== 'number') || (typeof a.endTime !== 'number') ||
+    (typeof a.startFrequency !== 'number') || (typeof a.endFrequency !== 'number')) return false;
+
+  const fileDuration = bounds.duration ??
+    (new Date(bounds.endTime).getTime() - new Date(bounds.startTime).getTime())/1000;
+  return (!(a.startTime === 0 && a.endTime === fileDuration
+    && a.startFrequency === bounds.startFrequency && a.endFrequency === bounds.endFrequency));
 }
 
 function getNewId(state: AnnotationsSlice): number {
@@ -95,7 +99,7 @@ export const annotationsSlice = createSlice({
         hasChanged: false,
         currentMode: action.payload.annotationScope,
         results: action.payload.prevAnnotations.map(a => {
-          const isBox = isBoxResult(a);
+          const isBox = isBoxResult(a, action.payload.boundaries);
           return {
             ...a,
             type: isBox ? AnnotationType.box : AnnotationType.tag,

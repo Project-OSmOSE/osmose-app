@@ -1,12 +1,15 @@
 """Annotation campaign DRF-Viewset test file"""
-from freezegun import freeze_time
-from django.urls import reverse
 from django.contrib.auth.models import User
-
+from django.urls import reverse
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.models import AnnotationCampaign, AnnotationTask, Dataset
+from backend.api.models import (
+    AnnotationCampaign,
+    AnnotationTask,
+    Dataset,
+)
 
 
 class AnnotationCampaignViewSetUnauthenticatedTestCase(APITestCase):
@@ -71,6 +74,83 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "annotation_scope": 1,
         "created_at": "2012-01-14T00:00:00Z",
         "usage": "Create",
+    }
+    check_creation_data = {
+        "name": "string",
+        "desc": "string",
+        "instructions_url": "string",
+        "start": "2022-01-25T10:42:15Z",
+        "end": "2022-01-30T10:42:15Z",
+        "annotation_set": 1,
+        "confidence_indicator_set": 1,
+        "datasets": [1],
+        "spectro_configs": [1],
+        "annotators": [1],
+        "annotation_goal": 1,
+        "annotation_scope": 2,
+        "created_at": "2012-01-14T00:00:00Z",
+        "usage": "Check",
+        "annotation_set_labels": ["click"],
+        "confidence_set_indicators": [],
+        "detectors": [{"detectorName": "nninni", "configuration": "test"}],
+        "results": [
+            {  # Weak annotation on a specific file
+                "is_box": False,
+                "dataset": "SPM Aural A 2010",
+                "dataset_file": "sound001.wav",
+                "detector": "nninni",
+                "detector_config": "test",
+                "start_datetime": "2012-10-03T10:00:00+00:00",
+                "end_datetime": "2012-10-03T10:15:00+00:00",
+                "min_time": 0,
+                "max_time": 0,
+                "min_frequency": 0,
+                "max_frequency": 64000,
+                "tag": "click",
+            },
+            {  # Weak annotation on 2 files
+                "is_box": False,
+                "dataset": "SPM Aural A 2010",
+                "dataset_file": "sound001.wav",
+                "detector": "nninni",
+                "detector_config": "test",
+                "start_datetime": "2012-10-03T10:00:00+00:00",
+                "end_datetime": "2012-10-03T11:10:00+00:00",
+                "min_time": 0,
+                "max_time": 0,
+                "min_frequency": 0,
+                "max_frequency": 64000,
+                "tag": "click",
+            },
+            {  # Strong annotation on a specific file
+                "is_box": True,
+                "dataset": "SPM Aural A 2010",
+                "dataset_file": "sound001.wav",
+                "detector": "nninni",
+                "detector_config": "test",
+                "start_datetime": "2012-10-03T10:00:00.800+00:00",
+                "end_datetime": "2012-10-03T10:00:01.800+00:00",
+                "min_time": 0.8,
+                "max_time": 1.8,
+                "min_frequency": 32416,
+                "max_frequency": 53916,
+                "tag": "click",
+            },
+            {  # Strong annotation on 2 files
+                "is_box": True,
+                "dataset": "SPM Aural A 2010",
+                "dataset_file": "sound001.wav",
+                "detector": "nninni",
+                "detector_config": "test",
+                "start_datetime": "2012-10-03T10:00:00.800+00:00",
+                "end_datetime": "2012-10-03T11:00:08+00:00",
+                "min_time": 0.8,
+                "max_time": 3608,
+                "min_frequency": 32416,
+                "max_frequency": 53916,
+                "tag": "click",
+            },
+        ],
     }
 
     add_annotators_data = {
@@ -206,7 +286,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
         self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
-        expected_reponse = {
+        expected_response = {
             key: self.creation_data[key]
             for key in [
                 "name",
@@ -219,25 +299,106 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             ]
         }
 
-        expected_reponse["id"] = AnnotationCampaign.objects.latest("id").id
-        reponse_data = dict(response.data)
+        expected_response["id"] = AnnotationCampaign.objects.latest("id").id
+        response_data = dict(response.data)
 
-        confidence_indicator_set = reponse_data.pop("confidence_indicator_set")
+        confidence_indicator_set = response_data.pop("confidence_indicator_set")
         self.assertEqual(confidence_indicator_set["name"], "Confidence/NoConfidence")
         self.assertEqual(confidence_indicator_set["desc"], "Lorem ipsum")
         self.assertEqual(len(confidence_indicator_set["confidence_indicators"]), 2)
 
-        annotation_set = reponse_data.pop("annotation_set")
+        annotation_set = response_data.pop("annotation_set")
         self.assertEqual(annotation_set["name"], "Test SPM campaign")
         self.assertEqual(
             annotation_set["desc"], "Annotation set made for Test SPM campaign"
         )
         self.assertEqual(len(annotation_set["tags"]), 5)
-        expected_reponse["usage"] = 0
-        expected_reponse["dataset_files_count"] = Dataset.objects.get(
+        expected_response["usage"] = 0
+        expected_response["dataset_files_count"] = Dataset.objects.get(
             pk=self.creation_data["datasets"][0]
         ).files.count()
-        self.assertEqual(reponse_data, expected_reponse)
+        self.assertEqual(response_data, expected_response)
+
+    def test_create_check(self):
+        """AnnotationCampaign view 'create' adds new campaign to DB and returns campaign info"""
+        self.maxDiff = None  # this is to avoid diff truncation in test error log
+        old_count = AnnotationCampaign.objects.count()
+        old_tasks_count = AnnotationTask.objects.count()
+        url = reverse("annotation-campaign-list")
+        response = self.client.post(url, self.check_creation_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(AnnotationCampaign.objects.count(), old_count + 1)
+        self.assertEqual(AnnotationTask.objects.count(), old_tasks_count + 11)
+        expected_response = {
+            key: self.creation_data[key]
+            for key in [
+                "name",
+                "desc",
+                "instructions_url",
+                "start",
+                "end",
+                "datasets",
+                "created_at",
+            ]
+        }
+
+        expected_response["id"] = AnnotationCampaign.objects.latest("id").id
+        response_data = dict(response.data)
+
+        self.assertEqual(response_data.pop("id"), expected_response["id"])
+        self.assertEqual(response_data.pop("confidence_indicator_set"), None)
+
+        annotation_set = response_data.pop("annotation_set")
+        self.assertEqual(len(annotation_set["tags"]), 1)
+        expected_response["usage"] = 1
+
+        campaign: AnnotationCampaign = AnnotationCampaign.objects.get(
+            pk=expected_response["id"]
+        )
+        self.assertEqual(campaign.results.all().count(), 6)
+
+        # Result n°0 == Weak annotation on a specific file
+        self.assertEqual(campaign.results.all()[0].start_time, None)
+        self.assertEqual(campaign.results.all()[0].end_time, None)
+        self.assertEqual(campaign.results.all()[0].start_frequency, None)
+        self.assertEqual(campaign.results.all()[0].end_frequency, None)
+        self.assertEqual(campaign.results.all()[0].dataset_file.id, 1)
+
+        # Result n°1 == Weak annotation on 2 files | part 1
+        self.assertEqual(campaign.results.all()[1].start_time, 0)
+        self.assertEqual(campaign.results.all()[1].end_time, 15 * 60)
+        self.assertEqual(campaign.results.all()[1].start_frequency, 0)
+        self.assertEqual(campaign.results.all()[1].end_frequency, 64000)
+        self.assertEqual(campaign.results.all()[1].dataset_file.id, 1)
+
+        # Result n°2 == Weak annotation on 2 files | part 2
+        self.assertEqual(campaign.results.all()[2].start_time, 0)
+        self.assertEqual(campaign.results.all()[2].end_time, 10 * 60)
+        self.assertEqual(campaign.results.all()[2].start_frequency, 0)
+        self.assertEqual(campaign.results.all()[2].end_frequency, 64000)
+        self.assertEqual(campaign.results.all()[2].dataset_file.id, 2)
+
+        # Result n°3 == Strong annotation on a specific file
+        self.assertEqual(campaign.results.all()[3].start_time, 0.8)
+        self.assertEqual(campaign.results.all()[3].end_time, 1.8)
+        self.assertEqual(campaign.results.all()[3].start_frequency, 32416)
+        self.assertEqual(campaign.results.all()[3].end_frequency, 53916)
+        self.assertEqual(campaign.results.all()[3].dataset_file.id, 1)
+
+        # Result n°4 == Strong annotation on 2 files | part 1
+        self.assertEqual(campaign.results.all()[4].start_time, 0.8)
+        self.assertEqual(campaign.results.all()[4].end_time, 15 * 60)
+        self.assertEqual(campaign.results.all()[4].start_frequency, 32416)
+        self.assertEqual(campaign.results.all()[4].end_frequency, 53916)
+        self.assertEqual(campaign.results.all()[4].dataset_file.id, 1)
+
+        # Result n°51 == Strong annotation on 2 files | part 2
+        self.assertEqual(campaign.results.all()[5].start_time, 0)
+        self.assertEqual(campaign.results.all()[5].end_time, 8)
+        self.assertEqual(campaign.results.all()[5].start_frequency, 32416)
+        self.assertEqual(campaign.results.all()[5].end_frequency, 53916)
+        self.assertEqual(campaign.results.all()[5].dataset_file.id, 2)
 
     # Testing 'add_annotators'
 

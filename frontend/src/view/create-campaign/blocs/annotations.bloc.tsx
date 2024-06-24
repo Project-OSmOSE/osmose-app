@@ -5,12 +5,16 @@ import { createCampaignActions, } from "@/slices/create-campaign";
 import { useBlur } from "@/services/utils/clic";
 import {
   AnnotationSetList,
-  ConfidenceSetList, DetectorList, useAnnotationSetAPI, useConfidenceSetAPI, useDetectorsAPI
+  ConfidenceSetList,
+  DetectorList,
+  useAnnotationSetAPI,
+  useConfidenceSetAPI,
+  useDetectorsAPI
 } from '@/services/api';
-import { FormBloc, Select, ChipsInput } from "@/components/form";
+import { ChipsInput, FormBloc, Select } from "@/components/form";
 import { Usage } from "@/types/annotations.ts";
 import { ImportModal } from "./import-modal/import-modal.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import { useToast } from "@/services/utils/toast.ts";
 
@@ -194,7 +198,14 @@ const CheckAnnotationsInputs: React.FC<CheckAnnotationsProps> = ({
       { detectors.length > 0 && <div id="detector-import-results">
           <ChipsInput label="Detectors"
                       required={ true }
-                      items={ detectors.map(d => ({ value: d.initialName, label: d.display_name })) }
+                      items={ detectors.map(d => {
+                        const name = d.existingDetector?.name ?? d.initialName;
+                        const oldName = d.existingDetector && d.existingDetector.name !== d.initialName ? ` (${d.initialName})` : '';
+                        return {
+                          value: d.initialName,
+                          label: name + oldName
+                        }
+                      }) }
                       activeItemsValues={ detectors.map(d => d.initialName) }
                       setActiveItemsValues={ onDetectorsChange }/>
 

@@ -84,7 +84,8 @@ export const EditCampaign: React.FC = () => {
 
   return (
     <form id="create-campaign-form"
-          onSubmit={ handleSubmit }>
+          onSubmit={ handleSubmit }
+          className="col-sm-9 border rounded">
       <h1>Edit Annotation Campaign</h1>
 
       <FormBloc label="Annotators">

@@ -16,7 +16,6 @@ export const CreateCampaign: React.FC = () => {
   const service = useCreateCampaign();
   const blurUtil = useBlur();
   const toast = useToast();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const history = useHistory();
 
@@ -29,29 +28,32 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submit()
+    setIsLoading(true);
+    try {
+      await submit()
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const submit = async (force: boolean = false) => {
     try {
-      setIsLoading(true);
       await service.submitCampaign(force);
 
       history.push('/annotation-campaigns');
     } catch (e: any) {
       const force = await toast.presentError(e, e.response?.body?.dataset_file_not_found);
       if (force) await submit(force);
-    } finally {
-      setIsLoading(false);
     }
   }
 
 
   return (
     <form id="create-campaign-form"
-          onSubmit={ handleSubmit }>
+          onSubmit={ handleSubmit }
+          className="col-sm-9 border rounded">
       <h1>Create Annotation Campaign</h1>
 
       <GlobalInfoBloc/>
