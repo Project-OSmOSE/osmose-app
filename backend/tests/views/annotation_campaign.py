@@ -1,6 +1,5 @@
 """Annotation campaign DRF-Viewset test file"""
-from django.contrib.auth.models import User
-from django.urls import reverse
+
 from freezegun import freeze_time
 from django.urls import reverse
 from django.contrib.auth.models import User
