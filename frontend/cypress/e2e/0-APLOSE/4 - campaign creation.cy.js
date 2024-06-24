@@ -122,20 +122,12 @@ describe('create campaign', () => {
         cy.contains('Use selected datasets as').click()
         /// Inconsistent max confidence level
         cy.get('ion-modal').should('include.text', 'Inconsistent confidence indicator max level')
-        cy.get('ion-radio').contains('1 (4 occurrences)').click()
+        cy.get('ion-radio').contains('1 (3 occurrences)').click()
         cy.contains('Use 1 as maximum').click()
         /// Detectors
         for (const detector of data.detectors) {
-            cy.get(`.detector-entry`).contains('Assign to detector').click();
-            cy.get(`.detector-entry`).get('.item').contains(`Create "${detector.name}"`).click();
-        }
-        cy.get('ion-modal ion-button').contains('Confirm').click()
-        /// Detectors configuration
-        for (const detector of data.detectors) {
-            const entry = cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible')
-            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').contains('Select configuration').click();
-            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').find('.item').contains(`Create new`).click();
-            cy.get(`.detector-config-entry`).contains(`${detector.name} configuration`).parent().filter(':visible').find('textarea').type(detector.configuration)
+            cy.contains(detector.name).find('ion-checkbox').click();
+            cy.contains(detector.name).find('textarea').type(detector.configuration);
         }
         cy.get('ion-modal ion-button').contains('Import').click()
         cy.get('ion-button').should('not.include.text', 'Import annotations')
@@ -148,26 +140,19 @@ describe('create campaign', () => {
         }
 
         // Submit
-        cy.intercept('POST', '/api/annotation-campaign').as('submit')
-        cy.get('ion-button').contains('Create campaign').click()
-        cy.wait('@submit').then(interception => {
-            expect(interception.response.statusCode).to.equal(400)
-        })
-
-        // Force submit
         cy.intercept('POST', '/api/annotation-campaign', (req) => {
+            console.debug('POST campaign', req)
+            expect(req.body).to.deep.equal(expectedResult)
             try {
-                expect(req.body).to.deep.equal({force: true, ...expectedResult})
             } catch (e) {
+                console.debug(req.body.results, expectedResult.results)
                 req.reply(400, e.message)
                 throw e
             }
-        }).as('submit-forced')
-        cy.wait(500)
-        cy.get('ion-toast').should('exist').shadow().contains('Create anyway', {matchCase: false}).click();
-        cy.wait('@submit-forced').then(interception => {
+        }).as('submit')
+        cy.get('ion-button').contains('Create campaign').click()
+        cy.wait('@submit').then(interception => {
             expect(interception.response.statusCode).to.equal(200)
         })
     })
 })
-

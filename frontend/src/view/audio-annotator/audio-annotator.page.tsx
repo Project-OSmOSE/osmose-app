@@ -281,7 +281,7 @@ export const AudioAnnotator: React.FC = () => {
                   Download spectrogram (zoom x{ zoom })
                 { isLoadingSpectroDL && <IonSpinner/> }
               </IonButton>
-          </Fragment> }
+          </Fragment>}
 
           <IonButton color="dark"
                      fill={ "outline" }

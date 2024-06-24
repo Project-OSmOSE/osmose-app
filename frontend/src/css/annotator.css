@@ -291,20 +291,13 @@ html {
   color: #ffffff;
 }
 
-.annotation-labels {
+.annotation-tags {
   display: flex;
   flex-wrap: wrap;
   justify-content: right;
 }
 
-.confidence-labels {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: right;
-  gap: 1rem;
-}
-
-.annotation-labels li {
+.annotation-tags li {
   margin: 0.2em 1em;
 }
 
