@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { IonNote, IonButton, IonIcon } from "@ionic/react";
 import { focusResult, invalidateResult, validateResult } from "@/slices/annotator/annotations.ts";
 import { formatTimestamp } from "@/services/utils/format.tsx";
-import { Annotation, AnnotationType, AnnotationMode } from "@/types/annotations.ts";
+import { Annotation, AnnotationType, AnnotationMode, Usage } from "@/types/annotations.ts";
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 
@@ -58,7 +58,7 @@ interface ItemProps {
 const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
 
   const focusedResult = useAppSelector(state => state.annotator.annotations.focusedResult);
-  const mode = useAppSelector(state => state.annotator.annotations.global);
+  const mode = useAppSelector(state => state.annotator.global.mode);
   const dispatch = useAppDispatch();
 
   switch (annotation.type) {
@@ -89,7 +89,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
             { annotation.result_comments.filter(c => c.comment).length > 0 ? <i className="fas fa-comment mr-2"></i> :
               <i className="far fa-comment mr-2"></i> }
           </td>
-          { mode === 'Check' && <td className="p-1 validation-buttons">
+          { mode === Usage.check && <td className="p-1 validation-buttons">
               <IonButton color={ annotation.validation ? 'success' : 'medium' }
                          fill={ annotation.validation ? 'solid' : 'outline' }
                          onClick={ () => dispatch(validateResult(annotation)) }>
@@ -103,7 +103,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
           </td> }
         </tr>
       );
-    case AnnotationType.label:
+    case AnnotationType.tag:
       return (
         <tr
           className={ annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId ? "isActive" : "" }
