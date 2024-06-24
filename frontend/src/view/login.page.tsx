@@ -4,6 +4,7 @@ import { IonButton } from "@ionic/react";
 import { useAuthService } from "@/services/auth";
 import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { Input } from "@/components/form/inputs/input.tsx";
+import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 
 export const Login: FC = () => {
@@ -84,6 +85,8 @@ export const Login: FC = () => {
         </div>
       </div>
       <Link to="/">Back to Home</Link>
+
+      <OsmoseBarComponent/>
     </div>
   )
 }

@@ -27,6 +27,7 @@ import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
 import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
+import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -313,6 +314,10 @@ export const AudioAnnotator: React.FC = () => {
         { mode === Usage.check && <DetectionList/> }
 
         <CommentBloc/>
+      </div>
+
+      <div className="row justify-content-center">
+        <OsmoseBarComponent/>
       </div>
     </div>
   );
