@@ -8,7 +8,7 @@ import React, {
   WheelEvent,
   useImperativeHandle,
 } from "react";
-import { Annotation, AnnotationMode, AnnotationType } from "@/types/annotations.ts";
+import { Annotation, AnnotationMode, AnnotationType, Usage } from "@/types/annotations.ts";
 import { Region } from "./region.component.tsx";
 import { formatTimestamp } from "@/services/utils/format.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
@@ -17,7 +17,6 @@ import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
 import { addResult } from "@/slices/annotator/annotations.ts";
 import { leavePointer, updatePointerPosition, zoom } from "@/slices/annotator/spectro.ts";
 import { SpectrogramImage } from "@/types/spectro.ts";
-import { Usage } from "@/types/annotations.ts";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -117,9 +116,9 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const xAxisRef = useRef<HTMLCanvasElement>(null);
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => currentMode === AnnotationMode.boxes || (
+  const isDrawingEnabled = useMemo(() => mode === Usage.create &&  currentMode === AnnotationMode.boxes || (
     currentMode === AnnotationMode.wholeFile && !!focusedLabel
-  ), [focusedLabel, currentMode]);
+  ), [focusedLabel, currentMode, mode]);
 
   const frequencyRange = useMemo(
     () => wholeFileBoundaries.endFrequency - wholeFileBoundaries.startFrequency,
