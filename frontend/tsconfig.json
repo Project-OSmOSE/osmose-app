@@ -5,9 +5,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "paths": {
-        "/": ["./public/*"]
-    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -26,6 +23,7 @@
     /* Absolute imports */
     "baseUrl": ".",
     "paths": {
+      "/": ["./public/*"],
       "@/components/*": ["src/components/*"],
       "@/consts/*": ["src/consts/*"],
       "@/routes/*": ["src/routes/*"],
