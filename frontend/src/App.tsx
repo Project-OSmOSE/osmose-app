@@ -3,10 +3,8 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
-import { EditCampaign } from "@/view/create-campaign/edit-campaign.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";
 import { Home } from "@/view/home/home.page.tsx";
 import { Layout } from "@/components/Layout";
 import { StaffOnlyRoute } from "@/routes/staff-only";
@@ -27,6 +25,8 @@ import { AppStore } from "@/slices/app.ts";
 import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "@/view/campaign/detail/annotation-campaign-detail.page.tsx";
 import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";
+import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
+import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 
 setupIonicReact({
   mode: 'md',
