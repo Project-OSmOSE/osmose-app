@@ -85,7 +85,7 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
                                         key={ o.value }>{ o.label }</option>) }
       </select>
 
-      <button id={ buttonId }
+      <button id={ buttonId } type="button"
            onClick={ () => !disabled && setIsOpen(!isOpen) }
            className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
         <p>{ buttonLabel }</p>

@@ -55,8 +55,7 @@ export const Ontology: React.FC = () => {
 
     <WorldMap
     // datasetList=""
-    >
-    </WorldMap>
+    />
   </div>
 
 </div>
