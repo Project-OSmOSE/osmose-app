@@ -26,7 +26,23 @@ import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
 import { LabelListBloc } from "./components/bloc/label-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
+import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
+import { Toast } from "../global-components";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
+import { useAnnotationTaskAPI } from "@/services/api";
+import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
+import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
+import { IonButton, IonIcon } from "@ionic/react";
+import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
+import { initAnnotations } from "@/slices/annotator/annotations.ts";
+import { initSpectro } from "@/slices/annotator/spectro.ts";
+import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
+import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import '../../css/annotator.css';
 
@@ -105,8 +121,6 @@ export const AudioAnnotator: React.FC = () => {
   const labelsKeyPress = useRef<KeypressHandler | null>(null);
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
-  const _areShortcutsEnabled = useRef<boolean>(false);
-
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
@@ -114,6 +128,10 @@ export const AudioAnnotator: React.FC = () => {
   const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
+
+  const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
+  const localIsPaused = useRef<boolean>(true);
+  const localAreShortcutsEnabled = useRef<boolean>(true);
 
   const taskAPI = useAnnotationTaskAPI();
   const userAPI = useUsersAPI();
@@ -134,7 +152,7 @@ export const AudioAnnotator: React.FC = () => {
   const {
     time,
     playbackRate,
-    isPaused,
+    isPaused
   } = useAppSelector(state => state.annotator.audio);
   const zoom = useAppSelector(state => state.annotator.spectro.currentZoom);
   const dispatch = useAppDispatch();
@@ -142,7 +160,7 @@ export const AudioAnnotator: React.FC = () => {
   const audioPlayerRef = useRef<AudioPlayer>(null);
 
   useEffect(() => {
-    document.addEventListener("keydown", e => handleKeyPressed(e));
+    document.addEventListener("keydown", handleKeyPressed);
 
     return () => {
       document.removeEventListener("keydown", handleKeyPressed);
@@ -181,11 +199,15 @@ export const AudioAnnotator: React.FC = () => {
   }, [taskID])
 
   useEffect(() => {
-    _areShortcutsEnabled.current = areShortcutsEnabled
+    localAreShortcutsEnabled.current = areShortcutsEnabled;
   }, [areShortcutsEnabled])
 
+  useEffect(() => {
+    localIsPaused.current = isPaused;
+  }, [isPaused])
+
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!_areShortcutsEnabled.current) return;
+    if (!localAreShortcutsEnabled.current) return;
 
     switch (event.code) {
       case 'Space':
@@ -198,7 +220,7 @@ export const AudioAnnotator: React.FC = () => {
 
   const playPause = (annotation?: Annotation) => {
     try {
-      if (isPaused) audioPlayerRef.current?.play(annotation);
+      if (localIsPaused.current) audioPlayerRef.current?.play(annotation);
       else audioPlayerRef.current?.pause();
     } catch (e) {
       console.warn(e);
@@ -215,7 +237,7 @@ export const AudioAnnotator: React.FC = () => {
   }
 
   const goBack = () => {
-    window.open(`/annotation_tasks/${ campaignId }`, "_self")
+    window.open(`/app/annotation_tasks/${ campaignId }`, "_self")
   }
 
   const downloadAudio = () => {
@@ -277,7 +299,7 @@ export const AudioAnnotator: React.FC = () => {
                   Download spectrogram (zoom x{ zoom })
                 { isLoadingSpectroDL && <IonSpinner/> }
               </IonButton>
-          </Fragment>}
+          </Fragment> }
 
           <IonButton color="secondary"
                      fill={ "outline" }
@@ -351,17 +373,16 @@ export const AudioAnnotator: React.FC = () => {
 
       {/* Label and annotations management */ }
       { mode === 'Create' && <div className="row justify-content-around m-2">
-          <CurrentAnnotationBloc/>
+        <CurrentAnnotationBloc/>
 
-          <div className="col-5 flex-shrink-2">
-              <LabelListBloc/>
+        <div className="col-5 flex-shrink-2">
+          <LabelListBloc/>
 
-              <ConfidenceIndicatorBloc/>
-          </div>
+          <ConfidenceIndicatorBloc/>
+        </div>
 
           <PresenceBloc ref={ labelsKeyPress }/>
       </div> }
-
 
       <div className="row justify-content-center">
         { mode === Usage.create && <AnnotationList/> }

@@ -69,7 +69,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
   const openEditCampaign = () => {
     if (!annotationCampaign) return;
-    window.open(`/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
+    window.open(`/app/annotation_campaign/${ annotationCampaign?.id }/edit`, "_self")
   }
 
   if (error) {

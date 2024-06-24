@@ -1,6 +1,7 @@
 import React from "react";
 import { TeamMember } from "../../models/team";
 import { Link } from "react-router-dom";
+import './ContactList.css';
 
 interface ContactListProps {
   label?: string;

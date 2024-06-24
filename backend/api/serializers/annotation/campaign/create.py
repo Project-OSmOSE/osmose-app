@@ -1,6 +1,7 @@
 """Annotation campaign create DRF serializers file"""
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+from typing import Optional
 
 from dateutil import parser
 from rest_framework import serializers
@@ -68,10 +69,10 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
         return attrs
 
     def create(self, validated_data):
-        label_set = validated_data["label_set"]  # type: LabelSet
-        confidence_indicator_set = validated_data[
+        label_set: LabelSet = validated_data["label_set"]
+        confidence_indicator_set: Optional[ConfidenceIndicatorSet] = validated_data[
             "confidence_indicator_set"
-        ]  # type: ConfidenceIndicatorSet | None
+        ]
 
         campaign = AnnotationCampaign(
             name=validated_data["name"],
@@ -98,6 +99,11 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
             goal=int(validated_data["annotation_goal"]),
             annotators=validated_data["annotators"],
         )
+
+
+def to_seconds(delta: timedelta) -> float:
+    """Format seconds timedelta as float"""
+    return delta.seconds + delta.microseconds / 1000000
 
 
 class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerializer):
@@ -179,10 +185,10 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
 
     def get_confidence_set(
         self, campaign_name: str, indicators: list
-    ) -> ConfidenceIndicatorSet | None:
+    ) -> Optional[ConfidenceIndicatorSet]:
         """Get confidence set for creating annotation campaign"""
         confidence_set = None
-        for data in indicators:
+        for data in indicators or []:
             if data[0] is None or data[1] is None:
                 continue
             if confidence_set is None:
@@ -219,21 +225,6 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 detector_obj.configurations.get_or_create(configuration=detector_config)
             detector_obj.save()
 
-    def get_result_start(self, is_box: bool, result: any) -> datetime:
-        """Get result absolute start"""
-        start_delta = 0
-        if is_box and "min_time" in result:
-            start_delta = result["min_time"]
-        return parser.parse(result["start_datetime"]) + timedelta(seconds=start_delta)
-
-    def get_result_end(self, is_box: bool, result: any) -> datetime:
-        """Get result absolute end"""
-        if is_box and "max_time" in result:
-            return parser.parse(result["start_datetime"]) + timedelta(
-                seconds=result["max_time"]
-            )
-        return parser.parse(result["end_datetime"])
-
     def get_dataset_files(self, dataset: Dataset, start: datetime, end: datetime):
         """Get dataset files from absolute start and ends"""
         dataset_files_start = dataset.files.filter(
@@ -253,7 +244,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     def create_results(
         self,
         campaign: AnnotationCampaign,
-        confidence_set: ConfidenceIndicatorSet | None,
+        confidence_set: Optional[ConfidenceIndicatorSet],
         results: list,
         force: bool,
     ):
@@ -262,8 +253,8 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
         for result in results:
             dataset = Dataset.objects.get(name=result["dataset"])
             is_box = bool(result["is_box"])
-            start = self.get_result_start(is_box, result)
-            end = self.get_result_end(is_box, result)
+            start = parser.parse(result["start_datetime"])
+            end = parser.parse(result["end_datetime"])
             dataset_files = self.get_dataset_files(dataset, start, end)
             if not dataset_files:
                 missing_matches = missing_matches + 1
@@ -292,14 +283,15 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 if start < dataset_file.audio_metadatum.start:
                     start_time = 0
                 else:
-                    start_time = (start - dataset_file.audio_metadatum.start).seconds
+                    start_time = to_seconds(start - dataset_file.audio_metadatum.start)
                 if end > dataset_file.audio_metadatum.end:
-                    end_time = (
+                    end_time = to_seconds(
                         dataset_file.audio_metadatum.end
                         - dataset_file.audio_metadatum.start
-                    ).seconds
+                    )
                 else:
-                    end_time = (end - dataset_file.audio_metadatum.start).seconds
+                    end_time = to_seconds(end - dataset_file.audio_metadatum.start)
+
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
                     detector_configuration=detector_config,
@@ -358,7 +350,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             campaign,
             confidence_set,
             results=validated_data["results"],
-            force=validated_data["force"],
+            force=validated_data["force"] if "force" in validated_data else False,
         )
 
         return create_campaign_with_annotators(

@@ -6,6 +6,7 @@ import './searchbar.component.css';
 interface Props {
   values: Array<Item>;
   onValueSelected: (value: Item) => void;
+  placeholder: string;
 }
 
 export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>> = (props) => {

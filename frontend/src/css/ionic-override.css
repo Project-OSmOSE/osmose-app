@@ -190,6 +190,10 @@ ion-chip {
   margin: 0;
   transition: 300ms;
 }
+ion-chip[color].active {
+  background: var(--ion-color-base);
+  color: var(--ion-color-contrast);
+}
 ion-chip[color=secondary]:not([outline=true]) {
   background: var(--ion-color-secondary);
   color: var(--ion-color-secondary-contrast);

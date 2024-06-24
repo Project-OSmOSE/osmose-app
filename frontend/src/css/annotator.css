@@ -58,6 +58,16 @@ html {
     border-top-right-radius: 0.30em;
     border-top-left-radius: 0.30em;
 }
+/* Annotator */
+
+.annotator-nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.annotator-nav > span, .annotator-nav > li {
+  padding: 10px 10px 0 10px;
+}
 
 /* Generic elements */
 

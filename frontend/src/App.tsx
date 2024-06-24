@@ -1,6 +1,5 @@
-import { FC } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
@@ -11,6 +10,8 @@ import { AnnotationTaskList } from "@/view/annotation-task-list.page.tsx";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
 import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";
+import { Home } from "@/view/home/home.page.tsx";
+import { Layout } from "@/components/Layout";
 
 import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
@@ -34,15 +35,16 @@ setupIonicReact({
 });
 
 
-export const App: FC = () => {
+export const App: React.FC = () => {
   return (
     <Provider store={ AppStore }>
       <IonApp>
         <Router basename='/app'>
           <Switch>
-            <Route path="/login"><Login/></Route>
+            <Route exact path="/login"><Login/></Route>
+            <Route exact path='/'><Layout><Home/></Layout></Route>
 
-            <AuthenticatedRoute path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>

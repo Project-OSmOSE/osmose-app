@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir  poetry
 
 COPY pyproject.toml .
 COPY poetry.lock .
+COPY metadatax-0.2.2.tar.gz .
 
 ENV POETRY_CACHE_DIR=/opt/.cache/pypoetry
 RUN poetry install --only main
