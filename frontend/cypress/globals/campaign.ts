@@ -1,7 +1,7 @@
 import { AnnotationMode, Usage } from "../../src/types/annotations";
 import { DATASET } from "./dataset";
 import { USERS } from "./users";
-import { ANNOTATION_SET } from "./annotation-set";
+import { LABEL_SET } from "./label-set";
 import { CONFIDENCE_SET } from "./confidence-set";
 import { CreateResultItem } from "../../src/services/api/annotation-campaign-api.service";
 
@@ -29,7 +29,7 @@ export const CAMPAIGNS_DATA = {
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
-    annotationSet: ANNOTATION_SET,
+    labelSet: LABEL_SET,
     confidenceSet: CONFIDENCE_SET,
   },
   [Usage.check]: {
@@ -42,7 +42,7 @@ export const CAMPAIGNS_DATA = {
     dataset: DATASET,
     annotationScope: AnnotationMode.wholeFile,
     annotators: USERS,
-    annotationSetLabels: [
+    labelSetLabels: [
       "Madagascan pygmy blue whale song",
       "Antarctic blue whale song",
       "Sri Lanka pygmy blue whale song"
@@ -64,7 +64,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound001.wav',
         confidence: 'not confident',
-        tag: 'Madagascan pygmy blue whale song',
+        label: 'Madagascan pygmy blue whale song',
         min_time: 0, max_time: 3599,
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_1.name,
@@ -77,7 +77,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound001.wav',
         confidence: 'confident',
-        tag: 'Antarctic blue whale song',
+        label: 'Antarctic blue whale song',
         min_time: 0, max_time: 4499,
         min_frequency: 0, max_frequency: 120,
         detector: DETECTOR_2.name,
@@ -90,7 +90,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound001.wav',
         confidence: 'confident',
-        tag: 'Antarctic blue whale song',
+        label: 'Antarctic blue whale song',
         min_time: 500, max_time: 2000,
         min_frequency: 2000, max_frequency: 8000,
         detector: DETECTOR_2.name,
@@ -103,7 +103,7 @@ export const CAMPAIGNS_DATA = {
         dataset: DATASET.name,
         dataset_file: 'sound002.wav',
         confidence: 'not confident',
-        tag: 'Sri Lanka pygmy blue whale song',
+        label: 'Sri Lanka pygmy blue whale song',
         min_time: 800, max_time: 3800,
         min_frequency: 300, max_frequency: 7000,
         detector: DETECTOR_3.name,

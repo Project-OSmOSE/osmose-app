@@ -1,5 +1,5 @@
 import React from "react";
-import { AlphanumericKeys } from "../../../consts/shorcuts.const.tsx";
+import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 
 export const TooltipComponent: React.FC<{ id: number }> = ({ id }) => (
   <div className="card">
@@ -13,7 +13,7 @@ export const TooltipComponent: React.FC<{ id: number }> = ({ id }) => (
         <span className="font-italic">
             { AlphanumericKeys[0][id] }
           </span>
-        { " : choose this tag" }
+        { " : choose this label" }
 
         <br/>
 
@@ -24,7 +24,7 @@ export const TooltipComponent: React.FC<{ id: number }> = ({ id }) => (
         <span className="font-italic">
             { `${ AlphanumericKeys[0][id] } + ${ AlphanumericKeys[0][id] }` }
           </span>
-        { " : delete all annotations of this tag" }
+        { " : delete all annotations of this label" }
       </p>
     </div>
   </div>

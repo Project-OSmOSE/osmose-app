@@ -1,8 +1,8 @@
-import { formatTimestamp } from "@/services/utils/format.tsx";
 import React, { useImperativeHandle, useRef } from 'react';
+import { formatTimestamp } from "@/services/utils/format.tsx";
 import { SpectrogramRender, SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { updateParams, zoom } from "@/slices/annotator/spectro.ts";
 
 // Component dimensions constants

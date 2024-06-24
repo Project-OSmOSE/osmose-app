@@ -4,29 +4,29 @@ import { TooltipComponent } from "../tooltip.component.tsx";
 import { AnnotationMode } from "@/types/annotations.ts";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
-import { focusTag } from "@/slices/annotator/annotations.ts";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { focusLabel } from "@/slices/annotator/annotations.ts";
 
 
-export const TagListBloc: React.FC = () => {
+export const LabelListBloc: React.FC = () => {
 
   const {
-    allTags,
-    presenceTags,
-    focusedTag
+    allLabels,
+    presenceLabels,
+    focusedLabel
   } = useAppSelector(state => state.annotator.annotations);
 
   return (
     <div className="card">
-      <h6 className="card-header text-center">Tags list</h6>
+      <h6 className="card-header text-center">Labels list</h6>
       <div className="card-body d-flex justify-content-between">
-        <ul className="card-text annotation-tags">
-          { allTags.map((tag, key) => (
-            <TagItem tag={ tag }
-                     key={ key }
-                     id={ key }
-                     isEnabled={ presenceTags.includes(tag) }
-                     isActive={ focusedTag === tag }></TagItem>
+        <ul className="card-text annotation-labels">
+          { allLabels.map((label, key) => (
+            <LabelItem label={ label }
+                       key={ key }
+                       id={ key }
+                       isEnabled={ presenceLabels.includes(label) }
+                       isActive={ focusedLabel === label }></LabelItem>
           )) }
         </ul>
       </div>
@@ -35,26 +35,26 @@ export const TagListBloc: React.FC = () => {
 }
 
 interface ItemProps {
-  tag: string,
+  label: string,
   id: number,
   isEnabled: boolean,
   isActive: boolean,
 }
 
-const TagItem: React.FC<ItemProps> = ({
-                                        tag,
-                                        id,
-                                        isEnabled,
-                                        isActive,
-                                      }) => {
+const LabelItem: React.FC<ItemProps> = ({
+                                          label,
+                                          id,
+                                          isEnabled,
+                                          isActive,
+                                        }) => {
 
   const {
-    tagColors,
+    labelColors,
     currentMode
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
 
-  const color = tagColors[tag] ?? DEFAULT_COLOR;
+  const color = labelColors[label] ?? DEFAULT_COLOR;
   const style = {
     inactive: {
       backgroundColor: color,
@@ -72,11 +72,11 @@ const TagItem: React.FC<ItemProps> = ({
     <OverlayTrigger overlay={ <Tooltip hidden={ !isEnabled }><TooltipComponent id={ id }/></Tooltip> } placement="top">
       <li>
         <button className={ isEnabled ? `btn pulse__${ id }--active` : 'btn' }
-                style={ isActive ? style.active : style.inactive }
-                onClick={ () => dispatch(focusTag(tag)) }
+                style={ isActive ? style.active : (isEnabled ? style.inactive : {}) }
+                onClick={ () => dispatch(focusLabel(label)) }
                 type="button"
                 disabled={ currentMode === AnnotationMode.wholeFile ? !isEnabled : false }>
-          { tag }
+          { label }
         </button>
       </li>
     </OverlayTrigger>

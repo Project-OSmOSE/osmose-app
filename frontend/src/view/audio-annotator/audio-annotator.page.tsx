@@ -24,9 +24,9 @@ import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
 import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
-import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
+import { LabelListBloc } from "@/view/audio-annotator/components/bloc/label-list-bloc.component.tsx";
 
 import '../../css/annotator.css';
 
@@ -69,7 +69,7 @@ export type ConfidenceIndicatorSet = {
 
 export type AnnotationTask = {
   id: number,
-  annotationTags: Array<string>,
+  labels: Array<string>,
   confidenceIndicatorSet?: ConfidenceIndicatorSet,
   taskComment: Array<AnnotationComment>,
   boundaries: TaskBoundaries,
@@ -102,7 +102,7 @@ export const AudioAnnotator: React.FC = () => {
   const { id: taskID } = useParams<{ id: string }>();
 
   const navKeyPress = useRef<KeypressHandler | null>(null);
-  const tagsKeyPress = useRef<KeypressHandler | null>(null);
+  const labelsKeyPress = useRef<KeypressHandler | null>(null);
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>();
@@ -161,7 +161,7 @@ export const AudioAnnotator: React.FC = () => {
     ])
       .then(([task, isStaff]) => {
         if (isCancelled) return;
-        if (task.annotationTags.length < 1) return setError('Annotation set is empty');
+        if (task.labels.length < 1) return setError('Label set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
 
         dispatch(initSpectro(task))
@@ -197,7 +197,7 @@ export const AudioAnnotator: React.FC = () => {
         playPause(focusedResult);
     }
     navKeyPress.current?.handleKeyPressed(event);
-    tagsKeyPress.current?.handleKeyPressed(event);
+    labelsKeyPress.current?.handleKeyPressed(event);
   }
 
   const playPause = (annotation?: Annotation) => {
@@ -281,7 +281,7 @@ export const AudioAnnotator: React.FC = () => {
                   Download spectrogram (zoom x{ zoom })
                 { isLoadingSpectroDL && <IonSpinner/> }
               </IonButton>
-          </Fragment>}
+          </Fragment> }
 
           <IonButton color="secondary"
                      fill={ "outline" }
@@ -353,19 +353,18 @@ export const AudioAnnotator: React.FC = () => {
         </p>
       </div>
 
-      {/* Tag and annotations management */ }
+      {/* Label and annotations management */ }
       { mode === 'Create' && <div className="row justify-content-around m-2">
-          <CurrentAnnotationBloc/>
+        <CurrentAnnotationBloc/>
 
-          <div className="col-5 flex-shrink-2">
-              <TagListBloc/>
+        <div className="col-5 flex-shrink-2">
+          <LabelListBloc/>
 
-              <ConfidenceIndicatorBloc/>
-          </div>
+          <ConfidenceIndicatorBloc/>
+        </div>
 
-          <PresenceBloc ref={ tagsKeyPress }/>
+          <PresenceBloc ref={ labelsKeyPress }/>
       </div> }
-
 
       <div className="row justify-content-center">
         { mode === Usage.create && <AnnotationList/> }

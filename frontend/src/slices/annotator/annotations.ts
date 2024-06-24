@@ -12,10 +12,10 @@ export type AnnotationsSlice = {
   results: Array<Annotation>;
   focusedResult?: Annotation;
 
-  allTags: Array<string>;
-  tagColors: { [key: string]: string };
-  presenceTags: Array<string>;
-  focusedTag?: string;
+  allLabels: Array<string>;
+  labelColors: { [key: string]: string };
+  presenceLabels: Array<string>;
+  focusedLabel?: string;
 
   allConfidences: Array<string>;
   confidenceDescription?: string;
@@ -47,12 +47,12 @@ function getUpdatedResults(state: AnnotationsSlice, newFocus?: Annotation): Arra
   return [...new Set([...state.results.map(r => (r.id === newFocus.id && r.newId === newFocus.newId) ? newFocus : r)])]
 }
 
-function createTagResult(state: AnnotationsSlice, tag: string): Annotation {
+function createLabelResult(state: AnnotationsSlice, label: string): Annotation {
   const currentNewIds: Array<number> = state.results.map(a => a.newId)
     .filter(r => typeof r === 'number') as Array<number>;
-  return state.results.find(r => r.type === AnnotationType.tag && r.annotation === tag) ?? {
+  return state.results.find(r => r.type === AnnotationType.tag && r.label === label) ?? {
     newId: Math.max(...currentNewIds, 0) + 1,
-    annotation: tag,
+    label: label,
     result_comments: [],
     startTime: -1,
     endTime: -1,
@@ -79,10 +79,10 @@ export const annotationsSlice = createSlice({
     },
     results: [],
     taskComment: DEFAULT_COMMENT,
-    allTags: [],
-    presenceTags: [],
+    allLabels: [],
+    presenceLabels: [],
     allConfidences: [],
-    tagColors: {},
+    labelColors: {},
   } as AnnotationsSlice,
   reducers: {
     initAnnotations: (state, action: { payload: Retrieve }) => {
@@ -91,9 +91,9 @@ export const annotationsSlice = createSlice({
         annotation_task: action.payload.id,
         annotation_result: null
       }
-      const tagColors = {};
-      for (const tag of action.payload.annotationTags) {
-        Object.assign(tagColors, {[tag]: COLORS[action.payload.annotationTags.indexOf(tag) % COLORS.length]})
+      const labelColors = {};
+      for (const label of action.payload.labels) {
+        Object.assign(labelColors, {[label]: COLORS[action.payload.labels.indexOf(label) % COLORS.length]})
       }
       Object.assign(state, {
         hasChanged: false,
@@ -113,10 +113,10 @@ export const annotationsSlice = createSlice({
         focusedResult: undefined,
         focusedComment: taskComment,
         taskComment,
-        allTags: action.payload.annotationTags,
-        presenceTags: action.payload.prevAnnotations.map(a => a.annotation),
-        tagColors,
-        focusedTag: undefined,
+        allLabels: action.payload.labels,
+        presenceLabels: action.payload.prevAnnotations.map(a => a.label),
+        labelColors,
+        focusedLabel: undefined,
         allConfidences: action.payload.confidenceIndicatorSet?.confidence_indicators.map(c => c.label) ?? [],
         confidenceDescription: action.payload.confidenceIndicatorSet?.desc,
         focusedConfidence: action.payload.confidenceIndicatorSet?.confidence_indicators.find(c => c.isDefault)?.label
@@ -129,7 +129,7 @@ export const annotationsSlice = createSlice({
       Object.assign(state, {
         focusedResult: action.payload,
         focusedComment: action.payload.result_comments.length > 0 ? action.payload.result_comments[0] : undefined,
-        focusedTag: action.payload.annotation,
+        focusedLabel: action.payload.label,
         focusedConfidence: action.payload.confidenceIndicator
       });
     },
@@ -140,22 +140,22 @@ export const annotationsSlice = createSlice({
         results: [...state.results, focusedResult],
         focusedResult,
         focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceTags: [...new Set([...state.presenceTags, focusedResult.annotation])].filter(t => !!t),
-        focusedTag: focusedResult.annotation
+        presenceLabels: [...new Set([...state.presenceLabels, focusedResult.label])].filter(t => !!t),
+        focusedLabel: focusedResult.label
       });
     },
     removeResult: (state, action: { payload: Annotation }) => {
       const results = state.results.filter(r => !(r.id === action.payload.id && r.newId === action.payload.newId));
       let focusedResult = state.focusedResult;
       if (action.payload.type === AnnotationType.box) {
-        focusedResult = state.results.find(r => r.annotation === action.payload.annotation && r.type === AnnotationType.tag)
+        focusedResult = state.results.find(r => r.label === action.payload.label && r.type === AnnotationType.tag)
       }
       Object.assign(state, {
         results,
         focusedResult,
         focusedComment: focusedResult?.result_comments && focusedResult.result_comments.length > 0 ? focusedResult?.result_comments[0] : undefined,
-        presenceTags: action.payload.type === AnnotationType.box ? state.presenceTags : state.presenceTags.filter(t => t !== action.payload.annotation),
-        focusedTag: focusedResult?.annotation,
+        presenceLabels: action.payload.type === AnnotationType.box ? state.presenceLabels : state.presenceLabels.filter(t => t !== action.payload.label),
+        focusedLabel: focusedResult?.label,
         focusedConfidence: focusedResult?.confidenceIndicator
       });
     },
@@ -201,34 +201,34 @@ export const annotationsSlice = createSlice({
     },
 
     addPresence: (state, action: { payload: string }) => {
-      const focusedResult = createTagResult(state, action.payload);
+      const focusedResult = createLabelResult(state, action.payload);
       const results = state.results;
       results.push(focusedResult);
       Object.assign(state, {
         results: [...new Set([...results])],
         focusedResult,
         focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceTags: [...new Set([...state.presenceTags, action.payload])],
-        focusedTag: action.payload
+        presenceLabels: [...new Set([...state.presenceLabels, action.payload])],
+        focusedLabel: action.payload
       });
     },
-    focusTag: (state, action: { payload: string }) => {
+    focusLabel: (state, action: { payload: string }) => {
       let focusedResult = state.focusedResult;
-      if (focusedResult && focusedResult.type === AnnotationType.box) focusedResult.annotation = action.payload
+      if (focusedResult && focusedResult.type === AnnotationType.box) focusedResult.label = action.payload
       else focusedResult = undefined
       Object.assign(state, {
         results: getUpdatedResults(state, focusedResult),
         focusedResult,
-        focusedTag: action.payload
+        focusedLabel: action.payload
       });
     },
     removePresence: (state, action: { payload: string }) => {
       Object.assign(state, {
-        results: state.results.filter(r => r.annotation !== action.payload),
+        results: state.results.filter(r => r.label !== action.payload),
         focusedResult: undefined,
         focusedComment: state.taskComment,
-        presenceTags: state.presenceTags.filter(t => t !== action.payload),
-        focusedTag: undefined
+        presenceLabels: state.presenceLabels.filter(t => t !== action.payload),
+        focusedLabel: undefined
       });
     },
 
@@ -239,7 +239,7 @@ export const annotationsSlice = createSlice({
       if (focusedResult?.type === AnnotationType.box) {
         results = results.map(r => {
           if (r.type === AnnotationType.box) return r;
-          if (r.annotation !== focusedResult?.annotation) return r;
+          if (r.label !== focusedResult?.label) return r;
           return {
             ...r,
             validation: true
@@ -255,7 +255,7 @@ export const annotationsSlice = createSlice({
       if (focusedResult?.type === AnnotationType.tag) {
         results = results.map(r => {
           if (r.type === AnnotationType.tag) return r;
-          if (r.annotation !== focusedResult?.annotation) return r;
+          if (r.label !== focusedResult?.label) return r;
           return {
             ...r,
             validation: false
@@ -286,7 +286,7 @@ export const {
   updateFocusComment,
   removeFocusComment,
   addPresence,
-  focusTag,
+  focusLabel,
   removePresence,
   validateResult,
   invalidateResult,

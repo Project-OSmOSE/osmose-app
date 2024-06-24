@@ -11,7 +11,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_time",
         "start_frequency",
         "end_frequency",
-        "annotation_tag",
+        "label",
         "confidence_indicator",
         "annotation_campaign",
         "dataset_file",
@@ -19,7 +19,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "detector_configuration",
     )
     search_fields = (
-        "annotation_tag__name",
+        "label__name",
         "confidence_indicator__label",
         "annotator__username",
         "annotator__first_name",

@@ -14,7 +14,7 @@ from backend.api.models import (
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
-from backend.api.serializers.annotation_set import AnnotationSetSerializer
+from backend.api.serializers.label_set import LabelSetSerializer
 from .utils import EnumField
 
 
@@ -31,7 +31,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     user_complete_tasks_count = serializers.IntegerField()
     files_count = serializers.IntegerField()
     confidence_indicator_set_name = serializers.CharField()
-    annotation_set_name = serializers.CharField()
+    label_set_name = serializers.CharField()
     mode = EnumField(enum=AnnotationCampaignUsage, source="usage")
 
     class Meta:
@@ -44,7 +44,7 @@ class AnnotationCampaignListSerializer(serializers.ModelSerializer):
             "instructions_url",
             "start",
             "end",
-            "annotation_set_name",
+            "label_set_name",
             "confidence_indicator_set_name",
             "user_tasks_count",
             "complete_tasks_count",
@@ -60,7 +60,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     Serializer meant to output AnnotationCampaign basic data used in AnnotationCampaignRetrieveSerializer
     """
 
-    annotation_set = AnnotationSetSerializer()
+    label_set = LabelSetSerializer()
     confidence_indicator_set = ConfidenceIndicatorSetSerializer()
     dataset_files_count = serializers.SerializerMethodField()
 
@@ -73,7 +73,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "instructions_url",
             "start",
             "end",
-            "annotation_set",
+            "label_set",
             "confidence_indicator_set",
             "datasets",
             "created_at",

@@ -79,7 +79,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   const {
     currentMode,
-    focusedTag,
+    focusedLabel,
     wholeFileBoundaries,
     focusedConfidence,
     results,
@@ -116,10 +116,10 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const yAxisRef = useRef<HTMLCanvasElement>(null);
   const xAxisRef = useRef<HTMLCanvasElement>(null);
 
-  // Is drawing enabled? (always in box mode, when a tag is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => mode === Usage.create && (currentMode === AnnotationMode.boxes || (
-    currentMode === AnnotationMode.wholeFile && !!focusedTag)
-  ), [focusedTag, currentMode, mode]);
+  // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
+  const isDrawingEnabled = useMemo(() => currentMode === AnnotationMode.boxes || (
+    currentMode === AnnotationMode.wholeFile && !!focusedLabel
+  ), [focusedLabel, currentMode]);
 
   const frequencyRange = useMemo(
     () => wholeFileBoundaries.endFrequency - wholeFileBoundaries.startFrequency,
@@ -474,7 +474,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
       if (width > 2 && height > 2) {
         dispatch(addResult({
           type: AnnotationType.box,
-          annotation: focusedTag ?? '',
+          label: focusedLabel ?? '',
           confidenceIndicator: focusedConfidence,
           startTime: newAnnotation.startTime,
           endTime: newAnnotation.endTime,

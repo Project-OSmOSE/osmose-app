@@ -23,7 +23,7 @@
     /* Absolute imports */
     "baseUrl": ".",
     "paths": {
-      "/": ["./public/*"],
+      "/app/*": ["./public/*"],
       "@/components/*": ["src/components/*"],
       "@/consts/*": ["src/consts/*"],
       "@/routes/*": ["src/routes/*"],

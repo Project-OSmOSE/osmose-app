@@ -2,7 +2,7 @@ import { get, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 
 import { APIService } from "./api-service.util.tsx";
-import { User } from '@/types/userInterface.ts';
+import { User } from '@/types/user.ts';
 
 class UserAPIService extends APIService<any, never, never> {
   private isStaffRequest?: SuperAgentRequest;

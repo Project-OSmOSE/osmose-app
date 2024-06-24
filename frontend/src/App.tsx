@@ -13,6 +13,7 @@ import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";
 import { Home } from "@/view/home/home.page.tsx";
 import { Layout } from "@/components/Layout";
 import { StaffOnlyRoute } from "@/routes/staff-only";
+import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
@@ -26,7 +27,6 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { Provider } from "react-redux";
 import { AppStore } from "@/slices/app.ts";
-import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
 
 setupIonicReact({
   mode: 'md',

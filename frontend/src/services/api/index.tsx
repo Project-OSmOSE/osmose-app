@@ -27,12 +27,6 @@ import {
 } from './confidence-set-api.service.tsx'
 
 import {
-  List as AnnotationSetList,
-  ListItem as AnnotationSetListItem,
-  useAnnotationSetAPI
-} from './annotation-set-api.service.tsx'
-
-import {
   AnnotationTaskDto,
   List as AnnotationTaskList,
   Retrieve as AnnotationTaskRetrieve,
@@ -62,9 +56,6 @@ export {
   type ConfidenceSetList,
   type ConfidenceSetListItem,
   useConfidenceSetAPI,
-  type AnnotationSetList,
-  type AnnotationSetListItem,
-  useAnnotationSetAPI,
   type AnnotationTaskDto,
   type AnnotationTaskList,
   type AnnotationTaskRetrieve,

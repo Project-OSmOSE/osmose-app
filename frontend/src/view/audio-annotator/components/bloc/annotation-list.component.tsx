@@ -18,8 +18,8 @@ export const AnnotationList: React.FC = () => {
       // Need the spread to sort this readonly array
       return [...results].sort((a, b) => {
         if (currentMode === AnnotationMode.wholeFile) {
-          if (a.annotation !== b.annotation) {
-            return a.annotation.localeCompare(b.annotation);
+          if (a.label !== b.label) {
+            return a.label.localeCompare(b.label);
           }
         }
         return a.startTime - b.startTime;
@@ -74,7 +74,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
           </td>
           <td className="p-1">
             <i className="fas fa-tag"></i>&nbsp;
-            { (annotation.annotation !== '') ? annotation.annotation : '-' }
+            { (annotation.label !== '') ? annotation.label : '-' }
           </td>
           <td className="p-1">
             <i className="fa fa-handshake"></i>&nbsp;
@@ -86,7 +86,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
           </td>
         </tr>
       );
-    case AnnotationType.tag:
+    case AnnotationType.label:
       return (
         <tr
           className={ annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId ? "isActive" : "" }
@@ -94,7 +94,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
           <td colSpan={ 3 }>
             <strong>
               <i className="fas fa-tag"></i>&nbsp;
-              { annotation.annotation }
+              { annotation.label }
             </strong>
           </td>
           <td className="pl-1">

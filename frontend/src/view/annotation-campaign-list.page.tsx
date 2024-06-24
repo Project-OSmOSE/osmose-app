@@ -64,7 +64,7 @@ export const AnnotationCampaignList: React.FC = () => {
           <tr>
             <th>Name</th>
             <th>Created at</th>
-            <th>Annotation Set</th>
+            <th>Label Set</th>
             <th>Confidence indicator Set</th>
             <th>Number of files</th>
             <th>Start Date</th>
@@ -79,7 +79,7 @@ export const AnnotationCampaignList: React.FC = () => {
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
               <td>{ campaign.created_at.toDateString() }</td>
-              <td>{ campaign.annotation_set_name ?? "-" }</td>
+              <td>{ campaign.label_set_name ?? "-" }</td>
               <td>{ campaign.confidence_indicator_set_name ?? "-" }</td>
               <td>{ campaign.files_count }</td>
               <td>{ campaign.start?.toDateString() ?? 'N/A' }</td>

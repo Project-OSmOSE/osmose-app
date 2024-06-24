@@ -6,7 +6,7 @@ import {
 import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { IonButton } from "@ionic/react";
 
-import { User } from '@/types/userInterface.ts';
+import { User } from '@/types/user.ts';
 import { useUsersAPI } from '@/services/api';
 
 type AnnotationStatus = {
@@ -89,7 +89,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       <div className="row justify-content-around">
         <div>
           <div>
-            <b>Annotation set:</b> { annotationCampaign.annotation_set.name }
+            <b>Label set:</b> { annotationCampaign.label_set.name }
           </div>
           <div>
             <b>Confidence Indicator

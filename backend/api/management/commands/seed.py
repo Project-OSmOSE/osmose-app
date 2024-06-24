@@ -13,7 +13,7 @@ from backend.api.models import (
     GeoMetadatum,
     AudioMetadatum,
     Dataset,
-    AnnotationSet,
+    LabelSet,
     AnnotationCampaign,
     WindowType,
     ConfidenceIndicator,
@@ -65,7 +65,7 @@ class Command(management.BaseCommand):
         self._create_users()
         self._create_metadata()
         self._create_datasets()
-        self._create_annotation_sets()
+        self._create_label_sets()
         self._create_confidence_sets()
         self._create_annotation_campaigns()
         self._create_annotation_results()
@@ -195,33 +195,33 @@ class Command(management.BaseCommand):
         DatasetFile.objects.bulk_create(files)
         SpectroConfig.objects.bulk_create(configs)
 
-    def _create_annotation_sets(self):
-        print(" ###### _create_annotation_sets ######")
+    def _create_label_sets(self):
+        print(" ###### _create_label_set ######")
         sets = [
             {
                 "name": "Test SPM campaign",
-                "desc": "Annotation set made for Test SPM campaign",
-                "tags": ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
+                "desc": "Label set made for Test SPM campaign",
+                "labels": ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
             },
             {
                 "name": "Test DCLDE LF campaign",
-                "desc": "Test annotation set DCLDE LF 2015",
-                "tags": ["Dcall", "40-Hz"],
+                "desc": "Test label set DCLDE LF 2015",
+                "labels": ["Dcall", "40-Hz"],
             },
             {
-                "name": "Big tag set",
-                "desc": "Test annotation set with lots of tags",
-                "tags": set([self.fake.color_name() for _ in range(0, 20)]),
+                "name": "Big label set",
+                "desc": "Test label set with lots of labels",
+                "labels": set([self.fake.color_name() for _ in range(0, 20)]),
             },
         ]
-        self.annotation_sets = []
+        self.label_sets = []
         for seed_set in sets:
-            annotation_set = AnnotationSet.objects.create(
+            label_set = LabelSet.objects.create(
                 name=seed_set["name"], desc=seed_set["desc"]
             )
-            for tag in seed_set["tags"]:
-                annotation_set.tags.create(name=tag)
-            self.annotation_sets.append(annotation_set)
+            for label in seed_set["labels"]:
+                label_set.labels.create(name=label)
+            self.label_sets.append(label_set)
 
     def _create_confidence_sets(self):
         self.confidence_indicator_set = ConfidenceIndicatorSet.objects.create(
@@ -254,7 +254,7 @@ class Command(management.BaseCommand):
                 end=timezone.make_aware(datetime.strptime("2010-11-02", "%Y-%m-%d")),
                 instructions_url=self.fake.uri(),
                 annotation_scope=2,
-                annotation_set=AnnotationSet.objects.first(),
+                label_set=LabelSet.objects.first(),
                 confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,
             )
@@ -277,7 +277,7 @@ class Command(management.BaseCommand):
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
-        tags = self.annotation_sets[0].tags.values_list("id", flat=True)
+        labels = self.label_sets[0].labels.values_list("id", flat=True)
         for user in self.users:
             done_files = randint(5, max(self.files_nb - 5, 5))
             tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
@@ -296,7 +296,7 @@ class Command(management.BaseCommand):
                         end_time=start_time + randint(30, 300),
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
-                        annotation_tag_id=choice(tags),
+                        label_id=choice(labels),
                         confidence_indicator=choice(self.confidences_indicators),
                         dataset_file_id=task.dataset_file_id,
                         annotator_id=task.annotator_id,
@@ -313,7 +313,7 @@ class Command(management.BaseCommand):
             if randint(1, 3) >= 2:
                 comments.append(
                     AnnotationComment(
-                        comment=f"a comment : {result.annotation_tag.name}",
+                        comment=f"a comment : {result.label.name}",
                         annotation_task=AnnotationTask.objects.filter(
                             annotation_campaign_id=result.annotation_campaign_id,
                             dataset_file_id=result.dataset_file_id,

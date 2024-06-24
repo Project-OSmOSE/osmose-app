@@ -70,7 +70,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     """
 
     id = serializers.IntegerField(allow_null=True)
-    annotation = serializers.CharField(source="annotation_tag.name")
+    label = serializers.CharField(source="label.name")
     startTime = serializers.FloatField(source="start_time", allow_null=True)
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
@@ -86,7 +86,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         model = AnnotationResult
         fields = [
             "id",
-            "annotation",
+            "label",
             "startTime",
             "endTime",
             "startFrequency",
@@ -113,7 +113,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         ).data
 
     @extend_schema_field(serializers.BooleanField(allow_null=True))
-    def get_validation(self, result: AnnotationResult) -> Optional[bool]:
+    def get_validation(self, result) -> Optional[bool]:
         if result.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
             return None
         if self.user_id is None:
@@ -132,7 +132,7 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
     """
 
     id = serializers.IntegerField(allow_null=True, required=False)
-    annotation = serializers.CharField(source="annotation_tag.name")
+    label = serializers.CharField(source="label.name")
     startTime = serializers.FloatField(source="start_time", allow_null=True)
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
@@ -147,7 +147,7 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
         model = AnnotationResult
         fields = [
             "id",
-            "annotation",
+            "label",
             "startTime",
             "endTime",
             "startFrequency",
@@ -199,7 +199,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     # pylint: disable=invalid-name
     id = serializers.IntegerField()
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
-    annotationTags = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
     audioUrl = serializers.SerializerMethodField()
     audioRate = serializers.SerializerMethodField()
@@ -224,10 +224,9 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_annotationTags(self, task):
-        # type:(AnnotationTask) -> list[str]
+    def get_labels(self, task: AnnotationTask) -> list[str]:
         return list(
-            task.annotation_campaign.annotation_set.tags.values_list("name", flat=True)
+            task.annotation_campaign.label_set.labels.values_list("name", flat=True)
         )
 
     @extend_schema_field(ConfidenceIndicatorSetSerializer)
@@ -269,8 +268,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         ).data
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
-    def get_prevAnnotations(self, task):
-        # type:(AnnotationTask) -> any
+    def get_prevAnnotations(self, task: AnnotationTask):
         queryset = AnnotationResult.objects.filter(
             annotation_campaign_id=task.annotation_campaign_id,
             dataset_file_id=task.dataset_file_id,
@@ -281,7 +279,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             )
 
         queryset = queryset.prefetch_related(
-            "annotation_tag",
+            "label",
             "confidence_indicator",
             "result_comments",
             "validations",
@@ -327,23 +325,23 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
     task_end_time = serializers.IntegerField()
 
     def validate_annotations(self, annotations):
-        """Validates that annotations correspond to annotation set tags and set confidence indicator"""
+        """Validates that annotations correspond to label set labels and set confidence indicator"""
         print("validation in progress", annotations)
-        set_tags = set(
-            self.instance.annotation_campaign.annotation_set.tags.values_list(
+        set_labels = set(
+            self.instance.annotation_campaign.label_set.labels.values_list(
                 "name", flat=True
             )
         )
 
         if isinstance(annotations, list):
-            update_tags = set(ann["annotation_tag"]["name"] for ann in annotations)
+            update_labels = set(ann["label"]["name"] for ann in annotations)
         else:
-            update_tags = {annotations["annotation_tag"]["name"]}
+            update_labels = {annotations["label"]["name"]}
 
-        unknown_tags = update_tags - set_tags
-        if unknown_tags:
+        unknown_labels = update_labels - set_labels
+        if unknown_labels:
             raise serializers.ValidationError(
-                f"{unknown_tags} not valid tags from annotation set {set_tags}."
+                f"{unknown_labels} not valid labels from label set {set_labels}."
             )
 
         if self.instance.annotation_campaign.confidence_indicator_set:
@@ -383,12 +381,10 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
         # type:(AnnotationTask, any) -> AnnotationTask
         """The update of an AnnotationTask will delete previous results and add new ones (new annotations)."""
 
-        tags = dict(
+        labels = dict(
             map(
                 reversed,
-                instance.annotation_campaign.annotation_set.tags.values_list(
-                    "id", "name"
-                ),
+                instance.annotation_campaign.label_set.labels.values_list("id", "name"),
             )
         )
 
@@ -405,9 +401,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
 
         for annotation in validated_data["annotations"]:
             comments_data = annotation.pop("result_comments")
-            annotation["annotation_tag_id"] = tags[
-                annotation.pop("annotation_tag")["name"]
-            ]
+            annotation["label_id"] = labels[annotation.pop("label")["name"]]
 
             # We don't necessarily have confidence indicators so here let's just use "get"
             annotation["confidence_indicator_id"] = confidence_indicators.get(

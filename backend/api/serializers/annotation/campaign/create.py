@@ -10,11 +10,11 @@ from backend.api.models import (
     User,
     AnnotationCampaign,
     Dataset,
-    AnnotationSet,
+    LabelSet,
     SpectroConfig,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
-    AnnotationTag,
+    Label,
     ConfidenceIndicator,
     Detector,
     DetectorConfiguration,
@@ -49,7 +49,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
             "end",
             "datasets",
             "spectro_configs",
-            "annotation_set",
+            "label_set",
             "confidence_indicator_set",
             "annotators",
             "annotation_goal",
@@ -69,7 +69,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
         return attrs
 
     def create(self, validated_data):
-        annotation_set: AnnotationSet = validated_data["annotation_set"]
+        label_set: LabelSet = validated_data["label_set"]
         confidence_indicator_set: Optional[ConfidenceIndicatorSet] = validated_data[
             "confidence_indicator_set"
         ]
@@ -79,7 +79,7 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
             desc=validated_data.get("desc"),
             start=validated_data.get("start"),
             end=validated_data.get("end"),
-            annotation_set=annotation_set,
+            label_set=label_set,
             confidence_indicator_set=confidence_indicator_set,
             annotation_scope=validated_data["annotation_scope"],
             usage=validated_data["usage"],
@@ -110,7 +110,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     """Serializer meant for AnnotationCampaign creation with corresponding tasks"""
 
     annotation_goal = serializers.IntegerField(min_value=1)
-    annotation_set_labels = serializers.ListField(child=serializers.CharField())
+    label_set_labels = serializers.ListField(child=serializers.CharField())
     confidence_set_indicators = serializers.ListField(
         allow_empty=True,
         required=False,
@@ -141,7 +141,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             "annotation_goal",
             "annotation_scope",
             "usage",
-            "annotation_set_labels",
+            "label_set_labels",
             "confidence_set_indicators",
             "detectors",
             "results",
@@ -159,10 +159,10 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             attrs["confidence_set_indicators"] = None
         return attrs
 
-    def get_annotation_set_name(self, target_name: str) -> str:
-        """Create automatically new annotation set name"""
-        if AnnotationSet.objects.filter(name=target_name):
-            return self.get_annotation_set_name(target_name + "_1")
+    def get_label_set_name(self, target_name):
+        """Create automatically new label set name"""
+        if LabelSet.objects.filter(name=target_name):
+            return self.get_label_set_name(target_name + "_1")
         return target_name
 
     def get_confidence_set_name(self, target_name: str) -> str:
@@ -171,17 +171,17 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             return self.get_confidence_set_name(target_name + "_1")
         return target_name
 
-    def get_annotation_set(self, campaign_name: str, labels: [str]) -> AnnotationSet:
-        """Get annotation set for creating annotation campaign"""
-        annotation_set = AnnotationSet.objects.create(
-            name=self.get_annotation_set_name(f"{campaign_name}_set"),
-            desc=f"Annotation set for {campaign_name} campaign",
+    def get_label_set(self, campaign_name: str, labels: [str]) -> LabelSet:
+        """Get label set for creating annotation campaign"""
+        label_set = LabelSet.objects.create(
+            name=self.get_label_set_name(f"{campaign_name}_set"),
+            desc=f"Label set for {campaign_name} campaign",
         )
-        for label in labels:
-            tag = AnnotationTag.objects.get_or_create(name=label)
-            annotation_set.tags.add(tag[0])
-        annotation_set.save()
-        return annotation_set
+        for label_name in labels:
+            label = Label.objects.get_or_create(name=label_name)
+            label_set.labels.add(label[0])
+        label_set.save()
+        return label_set
 
     def get_confidence_set(
         self, campaign_name: str, indicators: list
@@ -273,7 +273,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
                     detector_configuration=detector_config,
-                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    label=Label.objects.get(name=result["label"]),
                     confidence_indicator=confidence_indicator,
                     dataset_file=dataset_files.first(),
                 )
@@ -295,7 +295,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,
                     detector_configuration=detector_config,
-                    annotation_tag=AnnotationTag.objects.get(name=result["tag"]),
+                    label=Label.objects.get(name=result["label"]),
                     confidence_indicator=confidence_indicator,
                     dataset_file=dataset_file,
                     start_frequency=result["min_frequency"]
@@ -319,8 +319,8 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     def create(self, validated_data):
         """Create annotation campaign"""
 
-        annotation_set = self.get_annotation_set(
-            validated_data["name"], validated_data["annotation_set_labels"]
+        label_set = self.get_label_set(
+            validated_data["name"], validated_data["label_set_labels"]
         )
         confidence_set = self.get_confidence_set(
             validated_data["name"], validated_data["confidence_set_indicators"]
@@ -332,7 +332,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             desc=validated_data.get("desc"),
             start=validated_data.get("start"),
             end=validated_data.get("end"),
-            annotation_set_id=annotation_set.id,
+            label_set_id=label_set.id,
             confidence_indicator_set_id=confidence_set.id
             if confidence_set is not None
             else None,

@@ -24,7 +24,7 @@ describe('create campaign', () => {
             annotators: data.annotators.map(a => a.id),
             annotation_goal: data.annotators.length,
             annotation_scope: data.annotationScope,
-            annotation_set: data.annotationSet.id,
+            label_set: data.labelSet.id,
             confidence_indicator_set: data.confidenceSet.id
         }
 
@@ -43,11 +43,11 @@ describe('create campaign', () => {
         // Annotations
         cy.contains('Select an annotation mode').click();
         cy.get('div.item').contains('Create annotations').click()
-        cy.contains('Select an annotation set').click();
-        cy.get('button').contains(data.annotationSet.name).click();
+        cy.contains('Select a label set').click();
+        cy.get('button').contains(data.labelSet.name).click();
         cy.get('ion-alert .alert-button').filter(':visible').contains('OK').click();
-        for (const tag of data.annotationSet.tags) {
-            cy.contains('Tags:').parent().should('contain', tag)
+        for (const label of data.labelSet.labels) {
+            cy.contains('Labels:').parent().should('contain', label)
         }
         cy.contains('Select a confidence set').click();
         cy.get('button').contains(data.confidenceSet.name).click();
@@ -94,7 +94,7 @@ describe('create campaign', () => {
             annotators: data.annotators.map(a => a.id),
             annotation_goal: data.annotators.length,
             annotation_scope: data.annotationScope,
-            annotation_set_labels: data.annotationSetLabels,
+            label_set_labels: data.labelSetLabels,
             confidence_set_indicators: data.confidenceSetIndicators.map(i => [i.label, i.level]),
             detectors: data.detectors.map(d => ({
                 detectorName: d.name,

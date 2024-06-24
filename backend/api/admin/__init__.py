@@ -10,8 +10,8 @@ from django.utils.html import format_html
 from backend.api.models import (
     Dataset,
     DatasetFile,
-    AnnotationSet,
-    AnnotationTag,
+    LabelSet,
+    Label,
     AnnotationCampaign,
     AnnotationTask,
     AnnotationComment,
@@ -59,7 +59,7 @@ class NewItemsForm(forms.ModelForm):
 
 
 class ConfidenceIndicatorAdmin(admin.ModelAdmin):
-    """ConfidenceIndicatorAdmin presentation in DjangoAdmin"""
+    """ConfidenceIndicator presentation in DjangoAdmin"""
 
     list_display = (
         "id",
@@ -152,28 +152,28 @@ class DatasetFileAdmin(admin.ModelAdmin):
     )
 
 
-class AnnotationTagAdmin(admin.ModelAdmin):
-    """AnnotationTag presentation in DjangoAdmin"""
+class LabelAdmin(admin.ModelAdmin):
+    """Label presentation in DjangoAdmin"""
 
     list_display = ["name"]
 
 
-class AnnotationSetAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin"""
+class LabelSetAdmin(admin.ModelAdmin):
+    """LabelSet presentation in DjangoAdmin"""
 
     list_display = (
         "name",
         "desc",
-        "show_tags",
+        "show_labels",
     )
 
-    def show_tags(self, obj):
-        """show_tags"""
-        return get_many_to_many(obj, "tags", "name")
+    def show_labels(self, obj):
+        """show_labels"""
+        return get_many_to_many(obj, "labels", "name")
 
 
 class AnnotationCommentAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin"""
+    """AnnotationComment presentation in DjangoAdmin"""
 
     list_display = (
         "id",
@@ -191,7 +191,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "instructions_url",
         "start",
         "end",
-        "annotation_set",
+        "label_set",
         "annotation_scope",
         "owner",
         "show_spectro_configs",
@@ -334,8 +334,8 @@ admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)
-admin.site.register(AnnotationTag, AnnotationTagAdmin)
-admin.site.register(AnnotationSet, AnnotationSetAdmin)
+admin.site.register(Label, LabelAdmin)
+admin.site.register(LabelSet, LabelSetAdmin)
 admin.site.register(AnnotationCampaign, AnnotationCampaignAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)
 admin.site.register(AnnotationTask, AnnotationTaskAdmin)

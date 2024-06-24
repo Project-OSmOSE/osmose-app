@@ -38,7 +38,7 @@ export const CurrentAnnotationBloc: React.FC = () => {
           { focusedResult.startFrequency === -1 ? wholeFileBoundaries.startFrequency : focusedResult.startFrequency.toFixed(2) }&nbsp;&gt;&nbsp;
           { focusedResult.endFrequency === -1 ? wholeFileBoundaries.endFrequency : focusedResult.endFrequency.toFixed(2) } Hz<br/>
           <i
-            className="fa fa-tag"></i> :&nbsp;{ focusedResult.annotation ? focusedResult.annotation : "None" }<br/>
+            className="fa fa-tag"></i> :&nbsp;{ focusedResult.label ? focusedResult.label : "None" }<br/>
           { focusedResult.confidenceIndicator && <span><i
               className="fa fa-handshake"></i> :&nbsp; { focusedResult.confidenceIndicator }<br/></span> }
         </p>

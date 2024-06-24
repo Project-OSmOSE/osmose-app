@@ -37,7 +37,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
     fixtures = [
         "users",
         "datasets",
-        "annotation_sets",
+        "label_sets",
         "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
@@ -100,7 +100,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             [
                 "id",
                 "campaignId",
-                "annotationTags",
+                "labels",
                 "boundaries",
                 "audioUrl",
                 "audioRate",
@@ -115,7 +115,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             ],
         )
         self.assertEqual(
-            response.data["annotationTags"],
+            response.data["labels"],
             ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
         )
         self.assertEqual(
@@ -162,7 +162,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             {
                 "annotations": [
                     {
-                        "annotation": "Boat",
+                        "label": "Boat",
                         "startTime": 10,
                         "endTime": 50,
                         "startFrequency": 100,
