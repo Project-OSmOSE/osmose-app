@@ -1,33 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
-import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
-import { Workbench } from './components/workbench.component.tsx';
-
-import '../../css/annotator.css';
-import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
-import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
-import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
-import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
-import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
-import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
-import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Toast } from "../global-components";
-import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
-import { useAnnotationTaskAPI } from "@/services/api";
-import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
+
+import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
 import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
+import { useAnnotationTaskAPI, useUsersAPI } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
-import { IonButton, IonIcon } from "@ionic/react";
-import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
 import { initAnnotations } from "@/slices/annotator/annotations.ts";
 import { initSpectro } from "@/slices/annotator/spectro.ts";
 import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
+
+import { Toast } from "../global-components";
+import { AudioPlayer, AudioPlayerComponent } from './components/audio-player.component.tsx';
+import { SpectrogramRender } from "./components/spectro-render.component.tsx";
+import { Workbench } from './components/workbench.component.tsx';
+import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
+import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
+import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
+import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
+import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
+import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
+import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
+
+import '../../css/annotator.css';
+
 
 // Playback rates
 const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
@@ -101,16 +103,20 @@ export const AudioAnnotator: React.FC = () => {
 
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const tagsKeyPress = useRef<KeypressHandler | null>(null);
+  const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
+  const [isUserStaff, setIsUserStaff] = useState<boolean>(false);
+  const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
   const localIsPaused = useRef<boolean>(true);
   const localAreShortcutsEnabled = useRef<boolean>(true);
 
   const taskAPI = useAnnotationTaskAPI();
+  const userAPI = useUsersAPI();
 
   const {
     areShortcutsEnabled,
@@ -119,6 +125,7 @@ export const AudioAnnotator: React.FC = () => {
     taskId,
     mode,
     toast,
+    audioURL,
   } = useAppSelector(state => state.annotator.global);
   const {
     focusedResult,
@@ -129,6 +136,7 @@ export const AudioAnnotator: React.FC = () => {
     playbackRate,
     isPaused
   } = useAppSelector(state => state.annotator.audio);
+  const zoom = useAppSelector(state => state.annotator.spectro.currentZoom);
   const dispatch = useAppDispatch();
 
   const audioPlayerRef = useRef<AudioPlayer>(null);
@@ -147,8 +155,11 @@ export const AudioAnnotator: React.FC = () => {
     setStart(new Date());
     setError(undefined);
 
-    taskAPI.retrieve(taskID)
-      .then((task: Retrieve) => {
+    Promise.all([
+      taskAPI.retrieve(taskID),
+      userAPI.isStaff()
+    ])
+      .then(([task, isStaff]) => {
         if (isCancelled) return;
         if (task.annotationTags.length < 1) return setError('Annotation set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -158,6 +169,7 @@ export const AudioAnnotator: React.FC = () => {
         dispatch(initAnnotator(task))
 
         setError(undefined);
+        setIsUserStaff(isStaff);
       })
       .catch((e: any) => !isCancelled && setError(buildErrorMessage(e)))
       .finally(() => !isCancelled && setIsLoading(false))
@@ -210,18 +222,67 @@ export const AudioAnnotator: React.FC = () => {
     window.open(`/app/annotation_tasks/${ campaignId }`, "_self")
   }
 
+  const downloadAudio = () => {
+    if (!audioURL) return;
+    const link = document.createElement('a');
+    link.href = audioURL;
+    link.target = '_blank';
+    const pathSplit = audioURL.split('/')
+    link.download = pathSplit[pathSplit.length - 1];
+    link.click();
+  }
+
+  const downloadSpectro = async () => {
+    if (!audioURL) return;
+    const link = document.createElement('a');
+    setIsLoadingSpectroDL(true);
+    console.debug('downloadSpectro', spectrogramRender.current)
+    const data = await spectrogramRender.current?.getCanvasData().catch(e => {
+      console.warn(e);
+      setIsLoadingSpectroDL(false)
+    });
+    if (!data) return;
+    link.href = data;
+    link.target = '_blank';
+    let pathSplit = audioURL.split('/')
+    pathSplit = pathSplit[pathSplit.length - 1].split('.');
+    pathSplit.pop(); // Remove audio file extension
+    const filename = pathSplit.join('.');
+    link.download = `${ filename }-x${ zoom }.png`;
+    link.click();
+    setIsLoadingSpectroDL(false);
+  }
+
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!taskId) return <p>Unknown error while loading task.</p>
 
   // Rendering
   return (
-    <div className="annotator container-fluid ps-0">
+    <div id="aplose-annotator" className="annotator container-fluid ps-0">
 
       {/* Header */ }
-      <div className="row">
-        <h1 className="col-sm-6">APLOSE</h1>
-        <div className="col-sm-4 annotator-nav align-items-center gap-1">
+      <div id="header">
+        <h1>APLOSE</h1>
+
+        <div className="buttons">
+          { isUserStaff && <Fragment>
+              <IonButton color="secondary"
+                         fill={ "outline" }
+                         onClick={ downloadAudio }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Download audio
+              </IonButton>
+
+              <IonButton color="secondary"
+                         fill={ "outline" }
+                         onClick={ downloadSpectro }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Download spectrogram (zoom x{ zoom })
+                { isLoadingSpectroDL && <IonSpinner/> }
+              </IonButton>
+          </Fragment>}
+
           <IonButton color="secondary"
                      fill={ "outline" }
                      onClick={ openGuide }>
@@ -236,15 +297,12 @@ export const AudioAnnotator: React.FC = () => {
               Campaign instructions
           </IonButton> }
         </div>
-        <ul className="col-sm-2 annotator-nav">
-          <li>
-            <IonButton color="danger"
-                       onClick={ goBack }
-                       title="Go back to annotation campaign tasks">
-              Back to campaign
-            </IonButton>
-          </li>
-        </ul>
+
+        <IonButton color="danger"
+                   onClick={ goBack }
+                   title="Go back to annotation campaign tasks">
+          Back to campaign
+        </IonButton>
       </div>
 
       {/* Audio player (hidden) */ }
@@ -255,7 +313,7 @@ export const AudioAnnotator: React.FC = () => {
       } }/>
 
       {/* Workbench (spectrogram viz, box drawing) */ }
-      <Workbench audioPlayer={ audioPlayerRef.current }/>
+      <Workbench audioPlayer={ audioPlayerRef.current } ref={ spectrogramRender }/>
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
       <div className="row annotator-controls">
