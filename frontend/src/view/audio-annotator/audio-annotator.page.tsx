@@ -101,13 +101,13 @@ export const AudioAnnotator: React.FC = () => {
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const tagsKeyPress = useRef<KeypressHandler | null>(null);
 
-  const _areShortcutsEnabled = useRef<boolean>(false);
-
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
+  const localIsPaused = useRef<boolean>(true);
+  const localAreShortcutsEnabled = useRef<boolean>(true);
 
   const taskAPI = useAnnotationTaskAPI();
 
@@ -133,7 +133,7 @@ export const AudioAnnotator: React.FC = () => {
   const audioPlayerRef = useRef<AudioPlayer>(null);
 
   useEffect(() => {
-    document.addEventListener("keydown", e => handleKeyPressed(e));
+    document.addEventListener("keydown", handleKeyPressed);
 
     return () => {
       document.removeEventListener("keydown", handleKeyPressed);
@@ -168,11 +168,15 @@ export const AudioAnnotator: React.FC = () => {
   }, [taskID])
 
   useEffect(() => {
-    _areShortcutsEnabled.current = areShortcutsEnabled
+    localAreShortcutsEnabled.current = areShortcutsEnabled;
   }, [areShortcutsEnabled])
 
+  useEffect(() => {
+    localIsPaused.current = isPaused;
+  }, [isPaused])
+
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!_areShortcutsEnabled.current) return;
+    if (!localAreShortcutsEnabled.current) return;
 
     switch (event.code) {
       case 'Space':
@@ -185,7 +189,7 @@ export const AudioAnnotator: React.FC = () => {
 
   const playPause = (annotation?: Annotation) => {
     try {
-      if (isPaused) audioPlayerRef.current?.play(annotation);
+      if (localIsPaused.current) audioPlayerRef.current?.play(annotation);
       else audioPlayerRef.current?.pause();
     } catch (e) {
       console.warn(e);
@@ -202,7 +206,7 @@ export const AudioAnnotator: React.FC = () => {
   }
 
   const goBack = () => {
-    window.open(`/annotation_tasks/${ campaignId }`, "_self")
+    window.open(`/app/annotation_tasks/${ campaignId }`, "_self")
   }
 
   if (isLoading) return <p>Loading...</p>;

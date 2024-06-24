@@ -129,7 +129,7 @@
     start: null
     end: null
     channel_count: 1
-    dataset_sr: 32768.0
+    dataset_sr: 128000.0
     total_samples: 88473600
     sample_bits: 16
     gain_db: 22.0
@@ -142,7 +142,7 @@
     start: 2012-10-03 10:00:00+00:00
     end: 2012-10-03 10:15:00+00:00
     channel_count: null
-    dataset_sr: null
+    dataset_sr: 128000
     total_samples: null
     sample_bits: null
     gain_db: null
@@ -155,7 +155,7 @@
     start: 2012-10-03 11:00:00+00:00
     end: 2012-10-03 11:15:00+00:00
     channel_count: null
-    dataset_sr: null
+    dataset_sr: 128000
     total_samples: null
     sample_bits: null
     gain_db: null

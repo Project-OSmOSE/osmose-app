@@ -1,5 +1,5 @@
 import { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from 'react';
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
 import { useAuthService } from "@/services/auth";
 import { buildErrorMessage } from "@/services/utils/format.tsx";
@@ -15,18 +15,18 @@ export const Login: FC = () => {
   const auth = useAuthService();
   const history = useHistory();
   const location = useLocation<any>();
-  const { from } = location.state || { from: { pathname: '/' } };
+  const { from } = location.state || { from: { pathname: '/annotation-campaigns' } };
 
   useEffect(() => {
     if (auth.isConnected()) history.replace(from);
 
     // Abort calls on view leave
-    return () => auth.abort()
+    return () => auth.abort();
   }, []);
 
   useCallback(() => {
     if (auth.isConnected()) history.replace(from);
-  }, [auth.bearer])
+  }, [auth.bearer]);
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.currentTarget.value.trim());
@@ -46,7 +46,7 @@ export const Login: FC = () => {
       await auth.login(username, password);
       history.replace(from);
     } catch (e: any) {
-      setError(buildErrorMessage(e))
+      setError(buildErrorMessage(e));
     } finally {
       setIsSubmitting(false)
     }
@@ -83,7 +83,7 @@ export const Login: FC = () => {
           </form>
         </div>
       </div>
-      <a href="/..">Back to main site</a>
+      <Link to="/">Back to Home</Link>
     </div>
   )
 }

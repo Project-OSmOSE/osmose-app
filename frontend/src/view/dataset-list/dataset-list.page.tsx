@@ -47,7 +47,7 @@ export const DatasetList: React.FC = () => {
     datasetService.importDatasets(datasets)
       .then(data => {
         const remainingDatasets = datasetsToImport.filter(newDataset => {
-          return !data.find(d => d.name === newDataset.name)
+          data.some(importedDataset => importedDataset.name !== newDataset.name)
         });
         setDatasetsToImport(remainingDatasets);
         toast.dismiss();

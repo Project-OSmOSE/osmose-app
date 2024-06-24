@@ -4,6 +4,7 @@
 # pylint: disable=missing-function-docstring, abstract-method
 
 from datetime import datetime
+from typing import Optional
 
 from django.conf import settings
 from django.utils.http import urlquote
@@ -112,8 +113,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         ).data
 
     @extend_schema_field(serializers.BooleanField(allow_null=True))
-    def get_validation(self, result):
-        # type: (AnnotationResult) -> bool | None
+    def get_validation(self, result: AnnotationResult) -> Optional[bool]:
         if result.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
             return None
         if self.user_id is None:
