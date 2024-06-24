@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
 import { useAuthService } from "@/services/auth";
@@ -7,7 +7,7 @@ import { Input } from "@/components/form/inputs/input.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 
-export const Login: FC = () => {
+export const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>();
@@ -49,7 +49,7 @@ export const Login: FC = () => {
     } catch (e: any) {
       setError(buildErrorMessage(e));
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -84,6 +84,7 @@ export const Login: FC = () => {
           </form>
         </div>
       </div>
+
       <Link to="/">Back to Home</Link>
 
       <OsmoseBarComponent/>

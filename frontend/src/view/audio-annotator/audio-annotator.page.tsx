@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline, helpCircle, informationCircle, pause, play } from "ionicons/icons";
 
@@ -24,25 +24,9 @@ import { CommentBloc } from "./components/bloc/comment-bloc.component.tsx";
 import { AnnotationList } from "./components/bloc/annotation-list.component.tsx";
 import { PresenceBloc } from "./components/bloc/presence-bloc.component.tsx";
 import { ConfidenceIndicatorBloc } from "./components/bloc/confidence-indicator-bloc.component.tsx";
-import { LabelListBloc } from "./components/bloc/label-list-bloc.component.tsx";
+import { TagListBloc } from "./components/bloc/tag-list-bloc.component.tsx";
 import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc.component.tsx";
-import { buildErrorMessage, formatTimestamp } from "@/services/utils/format.tsx";
-import { Toast } from "../global-components";
 import { NavigationButtons, NavigationShortcutOverlay } from "./components/navigation-buttons.component.tsx";
-import { useAnnotationTaskAPI } from "@/services/api";
-import { Retrieve } from "../../services/api/annotation-task-api.service.tsx";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
-import { Annotation, AnnotationComment, Usage } from "@/types/annotations.ts";
-import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
-import { IonButton, IonIcon } from "@ionic/react";
-import { helpCircle, informationCircle, pause, play } from "ionicons/icons";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { initAnnotator } from "@/slices/annotator/global-annotator.ts";
-import { initAnnotations } from "@/slices/annotator/annotations.ts";
-import { initSpectro } from "@/slices/annotator/spectro.ts";
-import { DetectionList } from "@/view/audio-annotator/components/bloc/detection-list.component.tsx";
-import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import '../../css/annotator.css';
 
@@ -126,8 +110,6 @@ export const AudioAnnotator: React.FC = () => {
   const [start, setStart] = useState<Date>(new Date());
   const [isUserStaff, setIsUserStaff] = useState<boolean>(false);
   const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
-
-  const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
 
   const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
   const localIsPaused = useRef<boolean>(true);

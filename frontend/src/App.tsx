@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Login } from "@/view/login.page.tsx";
@@ -12,7 +12,6 @@ import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx"
 import { CreateCampaign } from "@/view/create-campaign/create-campaign.page";
 import { Home } from "@/view/home/home.page.tsx";
 import { Layout } from "@/components/Layout";
-
 import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
 
@@ -34,8 +33,12 @@ setupIonicReact({
   spinner: 'crescent',
 });
 
-
 export const App: React.FC = () => {
+
+  useEffect(() => {
+    console.info(`Version: ${ import.meta.env.VITE_GIT_TAG }`)
+  }, []);
+
   return (
     <Provider store={ AppStore }>
       <IonApp>
