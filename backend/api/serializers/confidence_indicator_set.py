@@ -25,9 +25,7 @@ class ConfidenceIndicatorSerializer(serializers.ModelSerializer):
 class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic ConfidenceIndicatorSet data"""
 
-    confidenceIndicators = ConfidenceIndicatorSerializer(
-        many=True, source="confidence_indicators"
-    )
+    confidence_indicators = ConfidenceIndicatorSerializer(many=True)
 
     class Meta:
         model = ConfidenceIndicatorSet
@@ -35,11 +33,5 @@ class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "desc",
-            "confidenceIndicators",
+            "confidence_indicators",
         ]
-
-    def __init__(self, *args, **kwargs):
-        with_indicators = kwargs.pop("with_indicators", True)
-        super().__init__(*args, **kwargs)
-        if not with_indicators:
-            self.fields.pop("confidenceIndicators")

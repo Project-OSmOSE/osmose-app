@@ -1,29 +1,30 @@
 """Annotation campaign DRF-Viewset file"""
 
-from datetime import timedelta
-
 from django.db import transaction
-from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationResult,
+    AnnotationResultValidation,
     AnnotationTask,
     AnnotationComment,
+    AnnotationCampaignUsage,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveSerializer,
-    AnnotationCampaignCreateSerializer,
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
+    AnnotationCampaignCreateCheckAnnotationsSerializer,
+    AnnotationCampaignCreateCreateAnnotationsSerializer,
 )
 from backend.utils.renderers import CSVRenderer
 
@@ -40,22 +41,23 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         """List annotation campaigns"""
         queryset = self.queryset.raw(
             """
-                SELECT id,
-                       name,
+                SELECT campaign.id,
+                       campaign.name,
                        "desc",
                        instructions_url,
                        start,
                        "end",
-                       tasks.count               as tasks_count,
+                       usage,
                        tasks.complete_count      as complete_tasks_count,
                        tasks.user_count          as user_tasks_count,
                        tasks.user_complete_count as user_complete_tasks_count,
                        files.count               as files_count,
+                       confidence.name           as confidence_indicator_set_name,
+                       annotation.name           as annotation_set_name,
                        created_at
                 FROM annotation_campaigns campaign
-                        LEFT OUTER JOIN
+                LEFT OUTER JOIN
                      (SELECT annotation_campaign_id,
-                             count(*),
                              count(*) filter(where status = 2) as complete_count,
                              count(*) filter(where annotator_id = %s) as user_count,
                              count(*) filter(where annotator_id = %s and status = 2) as user_complete_count
@@ -63,14 +65,22 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                       WHERE %s or annotator_id = %s
                       group by annotation_campaign_id) tasks
                      on tasks.annotation_campaign_id = campaign.id
-                         LEFT OUTER JOIN
+                 LEFT OUTER JOIN
                      (SELECT annotationcampaign_id, count(*)
                       FROM dataset_files LEFT OUTER JOIN annotation_campaigns_datasets
                           on dataset_files.dataset_id = annotation_campaigns_datasets.dataset_id
                       group by annotationcampaign_id) files
                      on files.annotationcampaign_id = campaign.id
+                 LEFT OUTER JOIN
+                     (SELECT id, name
+                      FROM confidence_sets) confidence
+                     on confidence.id = campaign.confidence_indicator_set_id
+                 LEFT OUTER JOIN
+                     (SELECT id, name
+                      FROM annotation_sets) annotation
+                     on annotation.id = campaign.annotation_set_id
                 WHERE tasks.user_count is not null or %s
-                ORDER BY lower(name), created_at""",
+                ORDER BY lower(campaign.name), created_at""",
             (
                 request.user.id,
                 request.user.id,
@@ -91,12 +101,20 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     @transaction.atomic
     @extend_schema(
-        request=AnnotationCampaignCreateSerializer,
         responses=AnnotationCampaignRetrieveAuxCampaignSerializer,
     )
     def create(self, request):
+        # type: (Request) -> Response
         """Create a new annotation campaign"""
-        create_serializer = AnnotationCampaignCreateSerializer(data=request.data)
+        create_serializer = None
+        if request.data["usage"] == AnnotationCampaignUsage.CREATE.label:
+            create_serializer = AnnotationCampaignCreateCreateAnnotationsSerializer(
+                data=request.data
+            )
+        elif request.data["usage"] == AnnotationCampaignUsage.CHECK.label:
+            create_serializer = AnnotationCampaignCreateCheckAnnotationsSerializer(
+                data=request.data
+            )
         create_serializer.is_valid(raise_exception=True)
         campaign = create_serializer.save(owner_id=request.user.id)
         serializer = AnnotationCampaignRetrieveAuxCampaignSerializer(campaign)
@@ -139,6 +157,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     )
     @action(detail=True, renderer_classes=[CSVRenderer])
     def report(self, request, pk=None):
+        # type: (any, int) -> Response
         """Returns the CSV report for the given campaign"""
         # pylint: disable=too-many-locals
         campaign = get_object_or_404(
@@ -147,8 +166,133 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             ),
             pk=pk,
         )
+
+        results = AnnotationResult.objects.raw(
+            """
+        SELECT dataset_name,
+               filename,
+               COALESCE(start_time, 0)                                           as start_time,
+               COALESCE(end_time, duration)                                      as end_time,
+               COALESCE(start_frequency, 0)                                      as start_frequency,
+               COALESCE(end_frequency, sample_rate / 2)                          as end_frequency,
+               tag.name                                                          as annotation,
+               username                                                          as annotator_name,
+               detector.name                                                     as detector_name,
+               (extract(EPOCH FROM start) + COALESCE(start_time, 0)) * 1000      as start_date,
+               (extract(EPOCH FROM start) + COALESCE(end_time, duration)) * 1000 as end_date,
+               CASE
+                   WHEN campaign.annotation_scope = 1 or
+                        not (start_time is null or end_time is null or start_frequency is null or end_frequency is null)
+                       THEN 1
+                   else 0 end                                                as is_box,
+               CASE
+                   WHEN confidence.label is null then ''
+                   else confidence.label end                                     as confidence_label,
+               CASE
+                   WHEN confidence_indicator_id is null then ''
+                   else CONCAT(confidence.level, '/', max_confidence_level) end  as confidence_level,
+               CASE
+                   WHEN comment is null then ''
+                   else concat(comment, ' |- ', username) end                    as comment,
+               concat(comment, ' |- ', username)                    as comment_content,
+               result.id
+        FROM annotation_results result
+
+                 LEFT OUTER JOIN (SELECT f.id,
+                                         filename,
+                                         d.name                               as dataset_name,
+                                         start,
+                                         "end",
+                                         duration,
+                                         COALESCE(m.dataset_sr, d.dataset_sr) as sample_rate
+                                  FROM dataset_files f
+
+                                           LEFT OUTER JOIN (SELECT datasets.id, name, dataset_sr
+                                                            FROM datasets
+                                                            LEFT OUTER JOIN audio_metadata am
+                                                            on datasets.audio_metadatum_id = am.id) d
+                                                           on d.id = f.dataset_id
+
+                                           LEFT OUTER JOIN (SELECT id,
+                                                                   start,
+                                                                   "end",
+                                                                   dataset_sr,
+                                                                   extract(EPOCH FROM ("end" - start)) as duration
+                                                            FROM audio_metadata) m on m.id = f.audio_metadatum_id) file
+                                 on file.id = result.dataset_file_id
+
+                 LEFT OUTER JOIN (SELECT id, name
+                                  FROM annotation_tags) tag on tag.id = result.annotation_tag_id
+
+                 LEFT OUTER JOIN (SELECT id, username
+                                  FROM auth_user) annotator on annotator.id = result.annotator_id
+
+                 LEFT OUTER JOIN (SELECT id, detector_id
+                                  FROM api_detectorconfiguration) detector_config
+                                   on detector_config.id = result.detector_configuration_id
+
+                 LEFT OUTER JOIN (SELECT id, name
+                                  FROM api_detector) detector on detector.id = detector_config.detector_id
+
+                 LEFT OUTER JOIN (SELECT indicator.id, label, level
+                                  FROM confidence_indicator indicator) confidence
+                                 on confidence.id = result.confidence_indicator_id
+
+                 LEFT OUTER JOIN (SELECT campaign.id,
+                                         annotation_scope,
+                                         max_confidence_level
+                                  FROM annotation_campaigns campaign
+                                           LEFT OUTER JOIN (SELECT confidence_indicator_set_id,
+                                                                   max(level) as max_confidence_level
+                                                            FROM confidence_indicator indicator
+                                                            GROUP BY confidence_indicator_set_id) confidence
+                                                           on confidence.confidence_indicator_set_id =
+                                                              campaign.confidence_indicator_set_id) campaign
+                                 on campaign.id = result.annotation_campaign_id
+
+                 LEFT OUTER JOIN (SELECT annotation_result_id, comment
+                                  FROM annotation_comment) comments
+                                  on comments.annotation_result_id = result.id
+        WHERE annotation_campaign_id = %s
+        """,
+            (pk,),
+        )
+        comments = AnnotationComment.objects.raw(
+            """
+        SELECT name                              as dataset_name,
+               filename,
+               ''                                as start_time,
+               ''                                as end_time,
+               ''                                as start_frequency,
+               ''                                as end_frequency,
+               ''                                as annotation,
+               username                          as annotator_name,
+               ''                                as start_date,
+               ''                                as end_date,
+               ''                                as is_box,
+               ''                                as confidence_label,
+               ''                                as confidence_level,
+               concat(comment, ' |- ', username) as comment,
+               concat(comment, ' |- ', username) as comment_content,
+               annotation_comment.id
+        FROM annotation_comment
+                 LEFT OUTER JOIN (select id, dataset_file_id, annotator_id, annotation_campaign_id
+                                  FROM annotation_tasks) t on t.id = annotation_comment.annotation_task_id
+
+                 LEFT OUTER JOIN (select id, dataset_id, filename
+                                  FROM dataset_files) f on f.id = t.dataset_file_id
+
+                 LEFT OUTER JOIN (select id, name
+                                  FROM datasets) d on d.id = f.dataset_id
+
+                 LEFT OUTER JOIN (select id, username
+                                  FROM auth_user) u on u.id = t.annotator_id
+        WHERE annotation_result_id is null and t.annotation_campaign_id = %s
+        """,
+            (pk,),
+        )
         data = [
-            [
+            [  # headers
                 "dataset",
                 "filename",
                 "start_time",
@@ -165,106 +309,92 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "comments",
             ]
         ]
-
-        results = AnnotationResult.objects.prefetch_related(
-            "annotation_task",
-            "confidence_indicator",
-            "annotation_task__annotator",
-            "annotation_task__dataset_file",
-            "annotation_task__dataset_file__dataset",
-            "annotation_task__dataset_file__audio_metadatum",
-            "annotation_tag",
-            "result_comments",
-        ).filter(annotation_task__annotation_campaign_id=pk)
-
-        task_comments = AnnotationComment.objects.prefetch_related(
-            "annotation_task"
-        ).filter(
-            Q(annotation_task__annotation_campaign_id=pk)
-            & Q(annotation_result__isnull=True)
-        )
-
-        for result in results:
-            confidence_indicator_and_lvl_max = ""
-            if (
-                campaign.confidence_indicator_set is not None
-                and result.confidence_indicator is not None
-            ):
-                max_level = campaign.confidence_indicator_set.max_level
-                confidence_indicator_and_lvl_max = (
-                    f"{result.confidence_indicator.level}/{max_level}"
+        if campaign.usage == AnnotationCampaignUsage.CREATE:
+            for row in list(results) + list(comments):
+                data.append(
+                    [
+                        row.dataset_name,
+                        row.filename,
+                        str(row.start_time),
+                        str(row.end_time),
+                        str(row.start_frequency),
+                        str(row.end_frequency),
+                        row.annotation,
+                        row.annotator_name,
+                        str(row.start_date),
+                        str(row.end_date),
+                        str(row.is_box),
+                        str(row.confidence_label),
+                        str(row.confidence_level),
+                        str(row.comment),
+                    ]
                 )
-            confidence_indicator_label = ""
-            if result.confidence_indicator is not None:
-                confidence_indicator_label = result.confidence_indicator.label
-
-            audio_meta = result.annotation_task.dataset_file.audio_metadatum
-            max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
-            max_time = (audio_meta.end - audio_meta.start).seconds
-            is_box = (
-                campaign.annotation_scope
-                == AnnotationCampaign.AnnotationScope.RECTANGLE
-                or (
-                    result.start_time is not None
-                    and result.end_time is not None
-                    and result.start_frequency is not None
-                    and result.end_frequency is not None
+        if campaign.usage == AnnotationCampaignUsage.CHECK:
+            validations = (
+                AnnotationResultValidation.objects.filter(
+                    result__annotation_campaign=campaign
                 )
+                .prefetch_related("annotator")
+                .order_by("annotator__username")
             )
-            result_comments = result.result_comments.all()
-            if result_comments:
-                task = result.annotation_task
-                comment = f"{result_comments[0].comment} |- {task.annotator.username}"
-            else:
-                comment = ""
-
-            data.append(
-                [
-                    result.annotation_task.dataset_file.dataset.name,
-                    result.annotation_task.dataset_file.filename,
-                    str(result.start_time or "0"),
-                    str(result.end_time or str(max_time)),
-                    str(result.start_frequency or "0"),
-                    str(result.end_frequency or max_frequency),
-                    result.annotation_tag.name,
-                    result.annotation_task.annotator.username,
-                    (
-                        audio_meta.start + timedelta(seconds=(result.start_time or 0))
-                    ).isoformat(timespec="milliseconds"),
-                    (
-                        audio_meta.start
-                        + timedelta(seconds=(result.end_time or max_time))
-                    ).isoformat(timespec="milliseconds"),
-                    "1" if is_box else "0",
-                    confidence_indicator_label,
-                    confidence_indicator_and_lvl_max,
-                    comment,
+            print(
+                ">>> ",
+                list(
+                    validations.values_list("annotator__username", flat=True).distinct()
+                ),
+            )
+            data[0] = data[0] + list(
+                validations.values_list("annotator__username", flat=True).distinct()
+            )
+            print(">>> ", data)
+            for row in list(results):
+                val_data = validations.filter(result__id=row.id)
+                r_data = [
+                    row.dataset_name,
+                    row.filename,
+                    str(row.start_time),
+                    str(row.end_time),
+                    str(row.start_frequency),
+                    str(row.end_frequency),
+                    row.annotation,
+                    row.detector_name,
+                    str(row.start_date),
+                    str(row.end_date),
+                    str(row.is_box),
+                    str(row.confidence_label),
+                    str(row.confidence_level),
+                    str(row.comment),
                 ]
-            )
+                for user_val in val_data:
+                    print(
+                        ">>> ",
+                        user_val.annotator.username,
+                        user_val.is_valid,
+                        "'" + str(user_val.is_valid) + "'",
+                    )
+                    r_data.append(str(user_val.is_valid))
+                data.append(r_data)
+            for row in list(comments):
+                data.append(
+                    [
+                        row.dataset_name,
+                        row.filename,
+                        str(row.start_time),
+                        str(row.end_time),
+                        str(row.start_frequency),
+                        str(row.end_frequency),
+                        row.annotation,
+                        row.annotator_name,
+                        str(row.start_date),
+                        str(row.end_date),
+                        str(row.is_box),
+                        str(row.confidence_label),
+                        str(row.confidence_level),
+                        str(row.comment),
+                    ]
+                )
 
-        for task_comment in task_comments:
-            task = task_comment.annotation_task
-            comment = f"{task_comment.comment} |- {task.annotator.username} : {task.annotator.email}"
-
-            data.append(
-                [
-                    task_comment.annotation_task.dataset_file.dataset.name,
-                    task_comment.annotation_task.dataset_file.filename,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    task_comment.annotation_task.annotator.username,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    comment,
-                ]
-            )
-
+        print(">>> ", data)
         response = Response(data)
         response[
             "Content-Disposition"

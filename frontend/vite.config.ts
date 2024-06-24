@@ -2,6 +2,7 @@ import { ConfigEnv, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { execSync } from 'child_process';
 
+import { resolve } from 'node:path'
 
 // https://vitejs.dev/config/
 export default (_: ConfigEnv): UserConfig => {
@@ -12,7 +13,7 @@ export default (_: ConfigEnv): UserConfig => {
   }
 
   return {
-    base: './',
+    base: '/app/',
     server: {
       proxy: {
         "/api": "http://localhost:8000",
@@ -20,17 +21,8 @@ export default (_: ConfigEnv): UserConfig => {
       },
     },
     plugins: [react()],
-    assetsInclude:['**/*.mp4','**/*gif'],
+    resolve: {
+      alias: [{ find: '@', replacement: resolve(__dirname, "./src") }]
+    }
   }
-}
-
-// export default defineConfig({
-//   base: './',
-//   server: {
-//     proxy: {
-//       "/api": "http://localhost:8000",
-//       "/backend": "http://localhost:8000",
-//     },
-//   },
-//   plugins: [react()],
-// });
+};

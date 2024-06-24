@@ -1,6 +1,7 @@
 import { post, SuperAgentRequest } from "superagent";
+import { AnnotationTaskStatus, Usage } from "@/types/annotations.ts";
+import { CampaignUsage } from "@/types/campaign.ts";
 import { useAuthService } from "../auth";
-import { AnnotationMethod, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
 import { APIService } from "./api-service.util.tsx";
 
 
@@ -11,24 +12,15 @@ export type List = Array<{
   instructions_url: string;
   start?: Date;
   end?: Date;
-  annotation_set: {
-    id: number;
-    name: string;
-    desc: string;
-  };
-  confidence_indicator_set?: {
-    id: number;
-    name: string;
-    desc: string;
-  };
-  tasks_count: number;
+  annotation_set_name: string;
+  confidence_indicator_set_name: string;
   user_tasks_count: number;
   complete_tasks_count: number;
   user_complete_tasks_count: number;
   files_count: number;
+  mode: CampaignUsage;
   created_at: Date;
 }>
-
 export type Retrieve = {
   campaign: RetrieveCampaign;
   tasks: Array<{
@@ -54,7 +46,7 @@ export type RetrieveCampaign = {
     id: number;
     name: string;
     desc: string;
-    confidenceIndicators: Array<{
+    confidence_indicators: Array<{
       id: number;
       label: string;
       level: number;
@@ -62,23 +54,51 @@ export type RetrieveCampaign = {
     }>
   };
   datasets: Array<number>;
+  dataset_files_count: number;
   created_at: Date;
 }
 
 export type Create = {
   name: string;
   desc?: string;
+  instructions_url?: string;
   start?: string;
   end?: string;
   datasets: Array<number>;
   spectro_configs: Array<number>;
-  annotation_set_id?: number;
-  confidence_indicator_set_id?: number;
   annotation_scope: number;
   annotators: Array<number>;
   annotation_goal: number;
-  annotation_method: number;
-  instructions_url?: string;
+} & ({
+  usage: Usage.create;
+  annotation_set: number;
+  confidence_indicator_set?: number;
+} | {
+  usage: Usage.check;
+  annotation_set_labels: Array<string>;
+  confidence_set_indicators: Array<[string, number]>,
+  detectors: Array<{
+    detectorId?: number;
+    detectorName: string;
+    configurationId?: number;
+    configuration: string
+  }>;
+  results: Array<CreateResultItem>;
+})
+export type CreateResultItem = {
+  is_box: boolean
+  confidence?: string;
+  tag: string;
+  min_time: number;
+  max_time: number;
+  min_frequency: number;
+  max_frequency: number;
+  detector: string;
+  detector_config: string;
+  dataset: string;
+  dataset_file: string;
+  start_datetime: string;
+  end_datetime: string;
 }
 
 export type CreateResult = {
@@ -99,7 +119,7 @@ export type CreateResult = {
     id: number;
     name: string;
     desc: string;
-    confidenceIndicators: Array<{
+    confidence_indicators: Array<{
       id: number;
       label: string;
       level: number;
@@ -111,7 +131,6 @@ export type CreateResult = {
 
 export type AddAnnotators = {
   annotators: Array<number>,
-  annotation_method: AnnotationMethod,
   annotation_goal?: number
 }
 

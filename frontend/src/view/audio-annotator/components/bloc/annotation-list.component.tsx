@@ -1,27 +1,31 @@
-import React, { useContext, useMemo } from "react";
-import { Annotation } from "../../../../interface/annotation.interface.tsx";
-import { formatTimestamp } from "../../../../services/annotator/format/format.util.tsx";
-import { AnnotationType, AnnotationMode } from "../../../../enum/annotation.enum.tsx";
-import {
-  AnnotationsContext,
-  AnnotationsContextDispatch,
-} from "../../../../services/annotator/annotations/annotations.context.tsx";
+import React, { useMemo } from "react";
+import { IonNote } from "@ionic/react";
+import { focusResult } from "@/slices/annotator/annotations.ts";
+import { formatTimestamp } from "@/services/utils/format.tsx";
+import { Annotation, AnnotationType, AnnotationMode } from "@/types/annotations.ts";
+import { useAppSelector, useAppDispatch } from "@/slices/app";
 
 
 export const AnnotationList: React.FC = () => {
 
-  const context = useContext(AnnotationsContext);
+  const {
+    results,
+    currentMode
+  } = useAppSelector(state => state.annotator.annotations);
 
   const annotations: Array<Annotation> = useMemo(
-    () => context.results.sort((a, b) => {
-      if (context.currentMode === AnnotationMode.wholeFile) {
-        if (a.annotation !== b.annotation) {
-          return a.annotation.localeCompare(b.annotation);
+    () => {
+      // Need the spread to sort this readonly array
+      return [...results].sort((a, b) => {
+        if (currentMode === AnnotationMode.wholeFile) {
+          if (a.annotation !== b.annotation) {
+            return a.annotation.localeCompare(b.annotation);
+          }
         }
-      }
-      return a.startTime - b.startTime;
-    }),
-    [context.results, context.currentMode])
+        return a.startTime - b.startTime;
+      })
+    },
+    [results, currentMode])
 
   return (
     <div className='mt-2 table__rounded shadow-double border__black--125'>
@@ -36,6 +40,7 @@ export const AnnotationList: React.FC = () => {
           <AnnotationItem annotation={ annotation }
                           key={ idx }></AnnotationItem>
         )) }
+        { annotations.length === 0 && <IonNote color="medium">No annotations</IonNote>}
         </tbody>
       </table>
     </div>
@@ -48,14 +53,15 @@ interface ItemProps {
 
 const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
 
-  const context = useContext(AnnotationsContext);
-  const dispatch = useContext(AnnotationsContextDispatch);
+  const focusedResult = useAppSelector(state => state.annotator.annotations.focusedResult);
+  const dispatch = useAppDispatch();
 
   switch (annotation.type) {
     case AnnotationType.box:
       return (
-        <tr className={ annotation.id === context.focusedResult?.id && annotation.newId === context.focusedResult?.newId ? "isActive p-1" : "p-1" }
-            onClick={ () => dispatch!({ type: 'focusResult', result: annotation }) }>
+        <tr
+          className={ annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId ? "isActive p-1" : "p-1" }
+          onClick={ () => dispatch(focusResult(annotation)) }>
           <td className="p-1">
             <i className="fas fa-clock-o"></i>&nbsp;
             { formatTimestamp(annotation.startTime) }&nbsp;&gt;&nbsp;
@@ -82,15 +88,16 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
       );
     case AnnotationType.tag:
       return (
-          <tr className={ annotation.id === context.focusedResult?.id && annotation.newId === context.focusedResult?.newId ? "isActive" : "" }
-            onClick={ () => dispatch!({ type: 'focusResult', result: annotation }) }>
+        <tr
+          className={ annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId ? "isActive" : "" }
+          onClick={ () => dispatch(focusResult(annotation)) }>
           <td colSpan={ 3 }>
             <strong>
               <i className="fas fa-tag"></i>&nbsp;
               { annotation.annotation }
             </strong>
           </td>
-          <td>
+          <td className="pl-1">
             <i className="fa fa-handshake"></i>&nbsp;
             { (annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-' }
           </td>

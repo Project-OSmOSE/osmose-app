@@ -1,47 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "../services/api";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { addOutline, helpCircle } from "ionicons/icons";
+import { useAnnotationCampaignAPI, AnnotationCampaignList as List } from "@/services/api";
+import { useToast } from "@/services/utils/toast";
+import { ANNOTATOR_GUIDE_URL } from "@/consts/links";
 
 
 export const AnnotationCampaignList: React.FC = () => {
   const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Services
   const campaignService = useAnnotationCampaignAPI();
-  const [error, setError] = useState<any | undefined>(undefined);
+  const toast = useToast();
 
   useEffect(() => {
-    let isCanceled = false;
+    let isCancelled = false;
+    setIsLoading(true);
 
-    setError(undefined);
-    campaignService.list().then(setAnnotationCampaigns).catch(e => {
-      if (isCanceled) return;
-      setError(e);
-      throw e
-    })
+    campaignService.list()
+      .then(setAnnotationCampaigns)
+      .catch(e => {
+        if (isCancelled) return;
+        toast.presentError(e);
+      })
+      .finally(() => !isCancelled && setIsLoading(false))
 
     return () => {
-      isCanceled = true;
+      isCancelled = true;
       campaignService.abort();
+      setIsLoading(false);
+      toast.dismiss();
     }
   }, []);
 
-  if (error) return (
-    <div className="col-sm-10 border rounded">
-      <h1>Annotation Campaigns</h1>
-      <p className="error-message">{ error.message }</p>
-    </div>
-  )
+  const openGuide = () => {
+    window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
+  }
+
+  const openNewCampaign = () => {
+    window.open("/app/create-annotation-campaign", "_self")
+  }
 
   return (
     <div className="col-sm-10 border rounded">
       <h1 className="text-center">Annotation Campaigns</h1>
-      <p className="text-center">
-        <a className="btn btn-warning"
-           href="https://github.com/Project-ODE/FrontApp/blob/master/docs/user_guide_annotator.md"
-           rel="noopener noreferrer"
-           target="_blank">
-          <span className="fa fa-question-circle"></span>&nbsp;Annotator User Guide</a>
-      </p>
+
+      <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonButton color="primary" onClick={ openNewCampaign }>
+          <IonIcon icon={ addOutline } slot="start"/>
+          New annotation campaign
+        </IonButton>
+        <IonButton color="warning" onClick={ openGuide }>
+          <IonIcon icon={ helpCircle } slot="start"/>
+          Annotator user guide
+        </IonButton>
+      </div>
 
       <div className="table-responsive">
         <table className="table table-bordered">
@@ -55,7 +70,7 @@ export const AnnotationCampaignList: React.FC = () => {
             <th>Start Date</th>
             <th>End Date</th>
             <th>Progress</th>
-            <th>Campaign instructions</th>
+            <th>Mode</th>
             <th>Annotation Link</th>
           </tr>
           </thead>
@@ -64,18 +79,13 @@ export const AnnotationCampaignList: React.FC = () => {
             <tr key={ campaign.id }>
               <td><Link to={ `/annotation_campaign/${ campaign.id }` }>{ campaign.name }</Link></td>
               <td>{ campaign.created_at.toDateString() }</td>
-              <td>{ campaign.annotation_set.name ?? "-" }</td>
-              <td>{ campaign.confidence_indicator_set?.name ?? "-" }</td>
+              <td>{ campaign.annotation_set_name ?? "-" }</td>
+              <td>{ campaign.confidence_indicator_set_name ?? "-" }</td>
               <td>{ campaign.files_count }</td>
               <td>{ campaign.start?.toDateString() ?? 'N/A' }</td>
               <td>{ campaign.end?.toDateString() ?? 'N/A' }</td>
               <td>{ campaign.user_complete_tasks_count } / { campaign.user_tasks_count }</td>
-              <td>{ campaign.instructions_url ?
-                (<a href={ campaign.instructions_url }
-                    title="Instructions on how to annotate tasks for this campaign"
-                    rel="noopener noreferrer"
-                    target="_blank">Instructions</a>)
-                : "-" }</td>
+              <td>{ campaign.mode }</td>
               <td><Link to={ `/annotation_tasks/${ campaign.id }` }>My tasks</Link></td>
             </tr>
           )) }
@@ -83,12 +93,7 @@ export const AnnotationCampaignList: React.FC = () => {
         </table>
       </div>
 
-      <p className="text-center">
-        <Link to="/create-annotation-campaign"
-              className="btn btn-primary">
-          New annotation campaign
-        </Link>
-      </p>
+      { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
     </div>
   )
 }

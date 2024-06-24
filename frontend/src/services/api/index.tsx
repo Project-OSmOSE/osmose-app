@@ -14,10 +14,11 @@ import {
 } from './annotation-campaign-api.service.tsx'
 
 import {
-  List as UserList,
-  ListItem as UserListItem,
-  useUsersAPI
-} from './user-api.service.tsx'
+  List as DetectorList,
+  ListItem as DetectorListItem,
+  ListItemConfiguration as DetectorListItemConfiguration,
+  useDetectorsAPI
+} from './detector-api.service.tsx'
 
 import {
   List as ConfidenceSetList,
@@ -46,6 +47,8 @@ import {
   useAnnotationCommentAPI
 } from "./annotation-comment-api.service.tsx";
 
+import { useUsersAPI } from "./user.ts";
+
 export {
   type DatasetList,
   type DatasetListItem,
@@ -56,9 +59,6 @@ export {
   type AnnotationCampaignList,
   type AnnotationCampaignRetrieveCampaign,
   useAnnotationCampaignAPI,
-  type UserList,
-  type UserListItem,
-  useUsersAPI,
   type ConfidenceSetList,
   type ConfidenceSetListItem,
   useConfidenceSetAPI,
@@ -73,5 +73,10 @@ export {
   type AnnotationTaskRetrieveConfidenceIndicator,
   AnnotationTaskAPIService,
   useAnnotationTaskAPI,
-  useAnnotationCommentAPI
+  useAnnotationCommentAPI,
+  type DetectorList,
+  type DetectorListItem,
+  type DetectorListItemConfiguration,
+  useDetectorsAPI,
+  useUsersAPI
 }

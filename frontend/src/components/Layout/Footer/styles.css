@@ -1,6 +1,6 @@
 footer {
   background-color: var(--ion-color-step-100);
-  display: grid;
+  display: grid !important;
   grid-template-areas: "ifremer links license";
   gap: 1rem;
   padding: var(--content-margin);

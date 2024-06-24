@@ -2,14 +2,11 @@
 
 from django.contrib.auth import get_user_model
 
-from backend.api.models.datasets import Collection, DatasetType, Dataset, DatasetFile
+from backend.api.models.datasets import DatasetType, Dataset, DatasetFile
 from backend.api.models.metadata import (
     AudioMetadatum,
     GeoMetadatum,
     SpectroConfig,
-    TabularMetadatum,
-    TabularMetadataVariable,
-    TabularMetadataShape,
     WindowType,
 )
 from backend.api.models.annotations import (
@@ -19,9 +16,15 @@ from backend.api.models.annotations import (
     AnnotationSet,
     AnnotationCampaign,
     AnnotationComment,
-    AnnotationResult,
     AnnotationSession,
     AnnotationTask,
+    AnnotationCampaignUsage,
+)
+from backend.api.models.annotation import (
+    Detector,
+    DetectorConfiguration,
+    AnnotationResult,
+    AnnotationResultValidation,
 )
 
-User = get_user_model()
+from .user import User

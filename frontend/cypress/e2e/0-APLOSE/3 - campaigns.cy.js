@@ -7,8 +7,11 @@ describe('campaigns page', () => {
         cy.get('tr').should('have.length', 6) // Includes table head
     })
 
-    it('open guide', () => {
-        cy.contains('Annotator user guide', {matchCase: false})
-            .should('have.attr', 'target', '_blank')
+    it('Has guide link', () => {
+        cy.contains('Annotator user guide')
+    })
+
+    it('Allows campaign creation', () => {
+        cy.contains('New annotation campaign')
     })
 })

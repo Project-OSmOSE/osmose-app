@@ -1,8 +1,8 @@
 import { put, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
-import { AnnotationComment } from "../../interface/annotation-comment.interface.tsx";
-import { AnnotationMode, AnnotationTaskStatus } from "../../enum/annotation.enum.tsx";
+import { AnnotationMode, AnnotationTaskStatus, AnnotationComment } from "@/types/annotations.ts";
+import { CampaignUsage } from "@/types/campaign.ts";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -12,6 +12,7 @@ export type ListItem = {
   dataset_name: string;
   start: Date;
   end: Date;
+  results_count: number;
 }
 
 export interface Retrieve {
@@ -39,13 +40,14 @@ export interface Retrieve {
     id: number;
     name: string;
     desc: string;
-    confidenceIndicators: Array<RetrieveConfidenceIndicator>;
-  }
+    confidence_indicators: Array<RetrieveConfidenceIndicator>;
+  },
+  mode: CampaignUsage
 }
 
 export interface Boundaries {
-  startTime: Date,
-  endTime: Date,
+  startTime: string,
+  endTime: string,
   startFrequency: number,
   endFrequency: number,
   duration: number,
@@ -60,6 +62,15 @@ export interface RetrieveAnnotation {
   endFrequency: number;
   confidenceIndicator: string;
   result_comments: Array<RetrieveComment>;
+  validation: boolean |null;
+  detector?: {
+    id: number;
+    name: string;
+    configurations: Array<{
+      id: number;
+      configuration: string;
+    }>
+  }
 }
 
 export interface RetrieveConfidenceIndicator {
@@ -85,6 +96,7 @@ export type AnnotationTaskDto = {
   endFrequency: number | null,
   confidenceIndicator: string | null,
   result_comments: Array<AnnotationComment>,
+  validation?: boolean;
 };
 
 interface AddAnnotation {
@@ -125,7 +137,6 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
         ...r,
         boundaries: {
           ...r.boundaries,
-          startTime, endTime,
           duration: (endTime.getTime() - startTime.getTime()) / 1000
         }
       }

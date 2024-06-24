@@ -6,7 +6,7 @@ from django.utils.dateparse import parse_datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.models import AnnotationTask
+from backend.api.models import AnnotationTask, AnnotationResult
 
 
 class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):
@@ -15,15 +15,6 @@ class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):
     def test_campaign_list_unauthenticated(self):
         """AnnotationTask view 'campaign_list' returns 401 if no user is authenticated"""
         url = reverse("annotation-task-campaign-list", kwargs={"campaign_id": 1})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_campaign_user_list_unauthenticated(self):
-        """AnnotationTask view 'campaign_user_list' returns 401 if no user is authenticated"""
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 1, "user_id": 1},
-        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -91,72 +82,9 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "id": 7,
                 "start": "2012-10-03T16:00:00Z",
                 "status": 0,
+                "results_count": 3,
             },
         )
-
-    # Testing 'campaign_user_list'
-
-    def test_campaign_user_list_for_staff(self):
-        """AnnotationTask view 'campaign_user_list' returns list for staff"""
-        self.client.login(username="staff", password="osmose29")
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 1, "user_id": 1},
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
-        self.assertEqual(
-            dict(response.data[0]),
-            {
-                "dataset_name": "SPM Aural A 2010",
-                "end": "2012-10-03T10:15:00Z",
-                "filename": "sound001.wav",
-                "id": 1,
-                "start": "2012-10-03T10:00:00Z",
-                "status": 0,
-            },
-        )
-
-    def test_campaign_user_list_for_staff_plus_unknown_campaign(self):
-        """AnnotationTask view 'campaign_user_list' returns 404 for staff with unknown campaign"""
-        self.client.login(username="staff", password="osmose29")
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 42, "user_id": 1},
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_campaign_user_list_for_owner(self):
-        """AnnotationTask view 'campaign_user_list' returns list for owner"""
-        self.client.login(username="user1", password="osmose29")
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 1, "user_id": 1},
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
-
-    def test_campaign_user_list_for_owner_plus_unknown_user(self):
-        """AnnotationTask view 'campaign_user_list' returns 404 for owner with unknown user"""
-        self.client.login(username="user1", password="osmose29")
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 1, "user_id": 42},
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_campaign_user_list_for_user(self):
-        """AnnotationTask view 'campaign_user_list' forbidden for unauthorized user"""
-        url = reverse(
-            "annotation-task-campaign-user-list",
-            kwargs={"campaign_id": 1, "user_id": 1},
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Testing 'retrieve'
 
@@ -181,6 +109,8 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "prevAndNextAnnotation",
                 "taskComment",
                 "confidenceIndicatorSet",
+                "mode",
+                "instructions_url",
             ],
         )
         self.assertEqual(
@@ -190,7 +120,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(
             dict(response.data["boundaries"]),
             {
-                "endFrequency": 16384.0,
+                "endFrequency": 64000.0,
                 "endTime": parse_datetime("2012-10-03T10:15:00Z"),
                 "startFrequency": 0,
                 "startTime": parse_datetime("2012-10-03T10:00:00Z"),
@@ -219,7 +149,12 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         """AnnotationTask view 'update' returns next task info and updates task results"""
         task = AnnotationTask.objects.get(id=9)
         self.assertEqual(task.status, 0)
-        self.assertEqual(task.results.count(), 0)
+        results_count = AnnotationResult.objects.filter(
+            annotation_campaign_id=task.annotation_campaign_id,
+            annotator_id=task.annotator_id,
+            dataset_file_id=task.dataset_file_id,
+        ).count()
+        self.assertEqual(results_count, 0)
         url = reverse("annotation-task-detail", kwargs={"pk": 9})
         response = self.client.put(
             url,
@@ -245,7 +180,12 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(dict(response.data), {"next_task": 10, "campaign_id": None})
         task.refresh_from_db()
         self.assertEqual(task.status, 2)
-        self.assertEqual(task.results.count(), 1)
+        results_count = AnnotationResult.objects.filter(
+            annotation_campaign_id=task.annotation_campaign_id,
+            annotator_id=task.annotator_id,
+            dataset_file_id=task.dataset_file_id,
+        ).count()
+        self.assertEqual(results_count, 1)
 
     def test_update_unknown(self):
         """AnnotationTask view 'update' returns 404 for unknown task"""

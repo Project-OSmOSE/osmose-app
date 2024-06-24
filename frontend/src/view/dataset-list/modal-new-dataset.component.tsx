@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, Fragment, useEffect, useState } from "react";
 import { DatasetListToImport, DatasetListToImportItem } from "../../services/api";
+import { IonButton } from "@ionic/react";
 
 
 const NewDataItem: FC<{
@@ -118,17 +119,15 @@ export const ModalNewDataset: FC<{
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button"
-                      className="btn btn-secondary"
-                      data-dismiss="modal"
-                      onClick={ onClose }>
+              <IonButton color={"medium"}
+                         data-dismiss="modal"
+                         onClick={ onClose }>
                 Close
-              </button>
-              <button type="button"
-                      className="btn btn-primary"
-                      onClick={ onSave }>
+              </IonButton>
+              <IonButton color={"primary"}
+                         onClick={ onSave }>
                 Save changes
-              </button>
+              </IonButton>
             </div>
           </div>
         </div>
