@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
 import { useAuthService } from "@/services/auth";
 import { buildErrorMessage } from "@/services/utils/format.tsx";
