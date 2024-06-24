@@ -6,6 +6,7 @@
     thumbnail: picture1
     url: http://www.user1.com/
     show_on_home_page: true
+    show_on_aplose_home: true
 - model: osmosewebsite.collaborator
   pk: 2
   fields:
@@ -14,6 +15,7 @@
     thumbnail: picture2
     url: http://www.user2.com/
     show_on_home_page: false
+    show_on_aplose_home: true
 - model: osmosewebsite.collaborator
   pk: 3
   fields:
@@ -21,4 +23,5 @@
     level: 2
     thumbnail: picture3
     url: http://www.user3.com/
+    show_on_aplose_home: false
     show_on_home_page: true

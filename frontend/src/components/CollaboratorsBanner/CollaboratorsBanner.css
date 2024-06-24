@@ -1,0 +1,29 @@
+#collaborators-banner-component {
+  min-width: 0;
+  max-width: 100%;
+  color: #0056b3;
+  margin-bottom: 60px;
+}
+
+#collaborators-banner-component h2 {
+  text-align: center;
+}
+
+#collaborators-banner-component .logo-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#collaborators-banner-component .logo-container img {
+  max-width: 100%;
+  height: 6rem;
+  object-fit: contain;
+}
+
+@media screen and (max-width: 800px) {
+  #collaborators-banner-component .logo-container img {
+    height: 4rem;
+  }
+}

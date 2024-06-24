@@ -1,6 +1,14 @@
 """ Annotation admin management """
 from django.contrib import admin
 
+from backend.api.admin.annotation.detector import (
+    DetectorAdmin,
+    DetectorConfigurationAdmin,
+)
+from backend.api.admin.annotation.result import (
+    AnnotationResultAdmin,
+    AnnotationResultValidationAdmin,
+)
 from backend.api.models.annotation import (
     Detector,
     DetectorConfiguration,

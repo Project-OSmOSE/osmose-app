@@ -124,19 +124,33 @@ class Command(BaseCommand):
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")
         for i in range(0, random.randint(5, 15)):
+            # OSmOSE Website Home page
             Collaborator.objects.create(
                 name=fake.name(),
                 level=random.randint(0, 5),
                 thumbnail=get_fake_image_url(),
                 url=fake.uri(),
                 show_on_home_page=True,
+                show_on_aplose_home=False,
+            )
+        for i in range(0, random.randint(0, 5)):
+            # APLOSE Home page
+            Collaborator.objects.create(
+                name=fake.name(),
+                level=random.randint(0, 5),
+                thumbnail=get_fake_image_url(),
+                url=fake.uri(),
+                show_on_home_page=False,
+                show_on_aplose_home=True,
             )
         for i in range(0, random.randint(5, 15)):
+            # Other ones
             Collaborator.objects.create(
                 name=fake.name(),
                 thumbnail=get_fake_image_url(),
                 url=fake.uri(),
                 show_on_home_page=False,
+                show_on_aplose_home=False,
             )
 
     def _create_projects(self):

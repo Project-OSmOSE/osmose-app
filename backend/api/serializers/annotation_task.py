@@ -4,6 +4,7 @@
 # pylint: disable=missing-function-docstring, abstract-method
 
 from datetime import datetime
+from typing import Optional
 
 from django.conf import settings
 from django.utils.http import urlquote
@@ -102,8 +103,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     @extend_schema_field(DetectorSerializer(allow_null=True))
-    def get_detector(self, result):
-        # type: (AnnotationResult) -> any
+    def get_detector(self, result: AnnotationResult):
         if result.detector_configuration is None:
             return None
         return DetectorSerializer(
@@ -112,8 +112,7 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
         ).data
 
     @extend_schema_field(serializers.BooleanField(allow_null=True))
-    def get_validation(self, result):
-        # type: (AnnotationResult) -> bool | None
+    def get_validation(self, result) -> Optional[bool]:
         if result.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
             return None
         if self.user_id is None:
@@ -225,8 +224,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_labels(self, task):
-        # type:(AnnotationTask) -> list[str]
+    def get_labels(self, task: AnnotationTask) -> list[str]:
         return list(
             task.annotation_campaign.label_set.labels.values_list("name", flat=True)
         )
@@ -270,8 +268,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         ).data
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
-    def get_prevAnnotations(self, task):
-        # type:(AnnotationTask) -> any
+    def get_prevAnnotations(self, task: AnnotationTask):
         queryset = AnnotationResult.objects.filter(
             annotation_campaign_id=task.annotation_campaign_id,
             dataset_file_id=task.dataset_file_id,

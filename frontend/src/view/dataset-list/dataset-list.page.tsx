@@ -47,7 +47,7 @@ export const DatasetList: React.FC = () => {
     datasetService.importDatasets(datasets)
       .then(data => {
         const remainingDatasets = datasetsToImport.filter(newDataset => {
-          return !data.find(d => d.name === newDataset.name)
+          return data.some(importedDataset => importedDataset.name !== newDataset.name)
         });
         setDatasetsToImport(remainingDatasets);
         toast.dismiss();
@@ -62,8 +62,6 @@ export const DatasetList: React.FC = () => {
   return (
     <Fragment>
       <h1 className="text-center">Datasets</h1>
-
-      {/*<Toast toastMessage={ toastMsg }></Toast>*/ }
 
       <div className="d-flex justify-content-center">
         <IonButton color={ "primary" }

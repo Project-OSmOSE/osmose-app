@@ -20,7 +20,7 @@ export const LabelListBloc: React.FC = () => {
     <div className="card">
       <h6 className="card-header text-center">Labels list</h6>
       <div className="card-body d-flex justify-content-between">
-        <ul className="card-text annotation-tags">
+        <ul className="card-text annotation-labels">
           { allLabels.map((label, key) => (
             <LabelItem label={ label }
                        key={ key }

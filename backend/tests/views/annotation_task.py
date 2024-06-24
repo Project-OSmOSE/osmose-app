@@ -122,7 +122,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(
             dict(response.data["boundaries"]),
             {
-                "endFrequency": 16384.0,
+                "endFrequency": 64000.0,
                 "endTime": parse_datetime("2012-10-03T10:15:00Z"),
                 "startFrequency": 0,
                 "startTime": parse_datetime("2012-10-03T10:00:00Z"),
