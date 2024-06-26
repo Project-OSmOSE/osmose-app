@@ -126,7 +126,7 @@ export const AnnotationCampaignList: React.FC = () => {
       </div>
 
       <div id="content">
-        { showCampaigns.map(c => <CampaignCard campaign={ c } key={ c.id }/>) }
+        { showCampaigns.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map(c => <CampaignCard campaign={ c } key={ c.id }/>) }
         { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
 
