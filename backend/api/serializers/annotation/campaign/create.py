@@ -261,7 +261,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             ).first()
             confidence_indicator = None
             if "confidence" in result:
-                confidence_indicator = ConfidenceIndicator.objects.get(
+                confidence_indicator = ConfidenceIndicator.objects.get_or_create(
                     label=result["confidence"],
                     confidence_indicator_set=confidence_set,
                 )
@@ -309,7 +309,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             raise serializers.ValidationError(
                 {
                     "dataset_file_not_found": f"Didn't find any corresponding file for {missing_matches} "
-                    f"result{'s' if missing_matches > 0 else ''}"
+                    f"result{'s' if missing_matches > 1 else ''} (/{len(results)} results)"
                 }
             )
 
