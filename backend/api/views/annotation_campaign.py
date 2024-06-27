@@ -2,8 +2,9 @@
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import Count, Q, Exists, OuterRef, F, Max, BooleanField, ExpressionWrapper, Value
-from django.db.models.functions import Lower
+from django.db.models import Count, Q, Exists, OuterRef, F, Max, BooleanField, ExpressionWrapper, Value, FloatField, \
+    BigIntegerField, DurationField
+from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiExample
@@ -159,13 +160,24 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             pk=pk,
         )
 
+        file_duration = Cast(Extract(ExpressionWrapper(
+            F("dataset_file__audio_metadatum__end") - F("dataset_file__audio_metadatum__start"),
+            output_field=DurationField()
+        ), "epoch"), FloatField())
+        file_max_frequency = ExpressionWrapper(
+            F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
+            output_field=FloatField()
+        )
         results = AnnotationResult.objects.filter(
             annotation_campaign_id=pk
         ).select_related(
-            "dataset_file", "dataset_file__dataset", "dataset_file__audio_metadatum",
+            "dataset_file", "dataset_file__audio_metadatum",
+            "dataset_file__dataset", "dataset_file__dataset__audio_metadatum",
             "label", "confidence_indicator",
             "annotator", "detector_configuration__detector",
         ).annotate(
+            file_duration=file_duration,
+            file_max_frequency=file_max_frequency,
             file_name=F("dataset_file__filename"),
             dataset_name=F("dataset_file__dataset__name"),
             file_start=F("dataset_file__audio_metadatum__start"),
@@ -177,9 +189,12 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             comment_author=F("result_comments__annotation_task__annotator__username"),
             confidence_label=F("confidence_indicator__label"),
             confidence_level=F("confidence_indicator__level"),
-            is_weak=ExpressionWrapper(Q(start_time__isnull=True) | Q(end_time__isnull=True)
-                                      | Q(start_frequency__isnull=True) | Q(end_frequency__isnull=True),
-                                      output_field=BooleanField())
+            is_weak=ExpressionWrapper(
+                (Q(start_time__isnull=True) | Q(start_time=0))
+                & (Q(end_time__isnull=True) | Q(end_time=file_duration))
+                & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
+                & (Q(end_frequency__isnull=True) | Q(end_frequency=file_max_frequency)),
+                output_field=BooleanField()),
         )
         comments = AnnotationComment.objects.filter(
             annotation_task__annotation_campaign_id=pk,
@@ -203,6 +218,15 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             is_weak=Value(""),
             file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
             file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
+            file_duration=ExpressionWrapper(
+                F("annotation_task__dataset_file__audio_metadatum__end")
+                - F("annotation_task__dataset_file__audio_metadatum__start"),
+                output_field=BigIntegerField()
+            ),
+            file_max_frequency=ExpressionWrapper(
+                F("annotation_task__dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
+                output_field=FloatField()
+            ),
         )
         validations = AnnotationResultValidation.objects.filter(
             result__annotation_campaign=campaign
@@ -227,15 +251,14 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "comments",
             ]
         ]
-
         def map_result(row):
             return [
                 row.dataset_name,
                 row.file_name,
-                str(row.start_time),
-                str(row.end_time),
-                str(row.start_frequency),
-                str(row.end_frequency),
+                str(row.start_time) if row.start_time else "0",
+                str(row.end_time) if row.end_time else str(row.file_duration),
+                str(row.start_frequency) if row.start_frequency else "0",
+                str(row.end_frequency) if row.end_frequency else str(row.file_max_frequency),
                 row.label_name,
                 row.annotator_name if row.annotator_name else row.detector_name,
                 (row.file_start + timedelta(seconds=row.start_time or 0)).isoformat(
@@ -266,6 +289,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             data[0] = data[0] + validate_users
             data.extend(map(map_result_check, list(results) + list(comments)))
 
+        print(data)
         response = Response(data)
         response[
             "Content-Disposition"
