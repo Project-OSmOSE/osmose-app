@@ -255,7 +255,6 @@ export const annotationsSlice = createSlice({
       let results = getUpdatedResults(state, focusedResult);
       if (focusedResult?.type === AnnotationType.tag) {
         results = results.map(r => {
-          if (r.type === AnnotationType.tag) return r;
           if (r.label !== focusedResult?.label) return r;
           return {
             ...r,
