@@ -32,7 +32,7 @@ def datawork_import(*, wanted_datasets, importer):
 
     # Check for new datasets
     with open(
-        settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+        settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
     ) as csvfile:
         for dataset in csv.DictReader(csvfile):
             dname = dataset["name"]
@@ -43,19 +43,17 @@ def datawork_import(*, wanted_datasets, importer):
     created_datasets = []
     for dataset in new_datasets:
         # Create dataset metadata
-        ## defaults : value to update
-        datatype, _ = DatasetType.objects.update_or_create(
-            name=dataset["dataset_type_name"],
-            defaults={"desc": dataset["dataset_type_desc"]},
-        )
-        dataset_folder = dataset["folder_name"]
+        conf_folder = f"{dataset['spectro_duration']}_{dataset['sample_rate']}"
+        dataset_folder = dataset["dataset"]
+        if dataset["campaign"]:
+            dataset_folder = f"{dataset['campaign']}/{dataset_folder}"
 
         # Audio
         audio_folder = (
             settings.DATASET_IMPORT_FOLDER
-            / dataset["folder_name"]
+            / dataset_folder
             / settings.DATASET_FILES_FOLDER
-            / dataset["conf_folder"]
+            / conf_folder
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
@@ -73,12 +71,6 @@ def datawork_import(*, wanted_datasets, importer):
             else None,
         )
 
-        # Geo Metadata
-        geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
-            name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
-        )
-
-        conf_folder = dataset["conf_folder"] or ""
         dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
         dataset_path = dataset_path.as_posix()
         # Create dataset
@@ -86,13 +78,11 @@ def datawork_import(*, wanted_datasets, importer):
             name=dataset["name"],
             dataset_path=dataset_path,
             status=1,
-            files_type=dataset["files_type"],
-            dataset_type=datatype,
+            files_type=dataset["file_type"],
             dataset_conf=conf_folder,
             start_date=audio_metadatum.start.date(),
             end_date=audio_metadatum.end.date(),
             audio_metadatum=audio_metadatum,
-            geo_metadatum=geo_metadatum,
             owner=importer,
         )
         created_datasets.append(curr_dataset.id)
@@ -184,7 +174,7 @@ def datawork_import(*, wanted_datasets, importer):
                         dataset=curr_dataset,
                         filename=timestamp_data["filename"],
                         filepath=settings.DATASET_FILES_FOLDER
-                        / dataset["conf_folder"]
+                        / conf_folder
                         / timestamp_data["filename"],
                         size=0,
                         audio_metadatum=audio_metadatum,

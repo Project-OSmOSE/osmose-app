@@ -109,7 +109,7 @@ DATASET_IMPORT_FOLDER = Path("/opt/datawork/dataset")
 DATASET_EXPORT_PATH = Path("datawork/dataset")  # linked to nginx conf
 DATASET_FILES_FOLDER = Path("data/audio")
 DATASET_SPECTRO_FOLDER = Path("processed/spectrogram")
-
+DATASET_FILE = "datasets.csv"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
