@@ -31,7 +31,7 @@ function isBoxResult(a: any, bounds: Boundaries): boolean {
     (typeof a.startFrequency !== 'number') || (typeof a.endFrequency !== 'number')) return false;
 
   const fileDuration = bounds.duration ??
-    (new Date(bounds.endTime).getTime() - new Date(bounds.startTime).getTime())/1000;
+    (new Date(bounds.endTime).getTime() - new Date(bounds.startTime).getTime()) / 1000;
   return (!(a.startTime === 0 && a.endTime === fileDuration
     && a.startFrequency === bounds.startFrequency && a.endFrequency === bounds.endFrequency));
 }
@@ -93,7 +93,7 @@ export const annotationsSlice = createSlice({
       }
       const labelColors = {};
       for (const label of action.payload.labels) {
-        Object.assign(labelColors, {[label]: COLORS[action.payload.labels.indexOf(label) % COLORS.length]})
+        Object.assign(labelColors, { [label]: COLORS[action.payload.labels.indexOf(label) % COLORS.length] })
       }
       Object.assign(state, {
         hasChanged: false,
@@ -237,17 +237,15 @@ export const annotationsSlice = createSlice({
       const focusedResult = state.results.find(r => r.id === action.payload.id && r.newId === action.payload.newId);
       focusedResult!.validation = true;
       let results = getUpdatedResults(state, focusedResult);
-      if (focusedResult?.type === AnnotationType.box) {
-        results = results.map(r => {
-          if (r.type === AnnotationType.box) return r;
-          if (r.label !== focusedResult?.label) return r;
-          return {
-            ...r,
-            validation: true
-          }
-        })
-      }
-      Object.assign(state, {results, focusedResult});
+      results = results.map(r => {
+        if (r.type === AnnotationType.box) return r;
+        if (r.label !== focusedResult?.label) return r;
+        return {
+          ...r,
+          validation: true
+        }
+      })
+      Object.assign(state, { results, focusedResult });
     },
     invalidateResult: (state, action: { payload: Annotation }) => {
       const focusedResult = state.results.find(r => r.id === action.payload.id && r.newId === action.payload.newId);
@@ -262,10 +260,10 @@ export const annotationsSlice = createSlice({
           }
         })
       }
-      Object.assign(state, {results, focusedResult});
+      Object.assign(state, { results, focusedResult });
     },
 
-    selectConfidence: (state, action: {payload: string}) => {
+    selectConfidence: (state, action: { payload: string }) => {
       const focusedResult = state.focusedResult
       if (focusedResult) focusedResult.confidenceIndicator = action.payload;
       Object.assign(state, {

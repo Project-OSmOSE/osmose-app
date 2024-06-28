@@ -23,6 +23,7 @@ FROM node:16-alpine3.13 as build-website
 WORKDIR /opt
 
 COPY website/package.json .
+COPY website/package-lock.json .
 
 RUN npm install
 
