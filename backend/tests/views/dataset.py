@@ -90,7 +90,6 @@ class DatasetViewSetTestCase(APITestCase):
         response: HttpResponse = self.client.post(
             url, data_send, format="json", follow=True
         )
-        print(">>> response:", response.status_code, response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Dataset.objects.count(), old_count + 1)
         self.assertEqual(Dataset.objects.latest("id").files.count(), 10)

@@ -183,7 +183,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         )
 
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[1]["name"], "Test RTF campaign")
 
     def test_list_user_no_campaign(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
@@ -204,9 +204,9 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             list(response.data[0].keys()),
             AnnotationCampaignListFields,
         )
-        self.assertEqual(response.data[0]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["my_total"], 1)
+        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[1]["my_total"], 5)
 
     # Testing 'retrieve'
 
