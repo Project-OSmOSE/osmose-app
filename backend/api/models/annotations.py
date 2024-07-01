@@ -131,7 +131,7 @@ class AnnotationCampaign(models.Model):
 
     class Meta:
         db_table = "annotation_campaigns"
-        ordering = ["name", "created_at"]
+        ordering = ["name"]
 
     def __str__(self):
         return str(self.name)
