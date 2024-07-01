@@ -181,6 +181,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             list(response.data[0].keys()),
             AnnotationCampaignListFields,
         )
+        print(">>>", response.data)
 
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[1]["name"], "Test SPM campaign")
