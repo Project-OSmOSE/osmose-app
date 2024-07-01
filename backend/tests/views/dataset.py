@@ -86,11 +86,10 @@ class DatasetViewSetTestCase(APITestCase):
         old_count = Dataset.objects.count()
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo_2 (600_400)"}]}
         response: HttpResponse = self.client.post(
             url, data_send, format="json", follow=True
         )
-        print(">>> response:", response.status_code, response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Dataset.objects.count(), old_count + 1)
         self.assertEqual(Dataset.objects.latest("id").files.count(), 10)
@@ -109,7 +108,7 @@ class DatasetViewSetTestCase(APITestCase):
                 "created_at",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo (600_400)")
+        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo_2 (600_400)")
         self.assertEqual(len(response.data[0]["spectros"]), 1)
 
     # TODO :  : fix
@@ -119,7 +118,9 @@ class DatasetViewSetTestCase(APITestCase):
         """Dataset view 'datawork_import' returns 'Permission denied' when there is a permission issue"""
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        data_send = {"wanted_datasets": [
+            {"name": "gliderSPAmsDemo (600_400)"}
+        ]}
         response = self.client.post(url, data_send, format="json", follow=True)
         original_permissions = settings.DATASET_IMPORT_FOLDER.stat().st_mode
         settings.DATASET_IMPORT_FOLDER.chmod(0o444)  # removing open-folder permission
@@ -140,6 +141,6 @@ class DatasetViewSetTestCase(APITestCase):
         response = self.client.post(url, data_send, format="json", follow=True)
         self.assertContains(
             response,
-            "One of the import CSV is missing the following column : 'dataset_type_name'",
+            "One of the import CSV is missing the following column : 'name'",
             status_code=400,
         )
