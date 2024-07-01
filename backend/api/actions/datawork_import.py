@@ -11,9 +11,7 @@ from django.conf import settings
 
 from backend.api.models import (
     Dataset,
-    DatasetType,
     AudioMetadatum,
-    GeoMetadatum,
     DatasetFile,
     SpectroConfig,
     WindowType,

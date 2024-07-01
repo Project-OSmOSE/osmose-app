@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0043_remove_spectroconfig_number_spectra'),
+        ("api", "0043_remove_spectroconfig_number_spectra"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='dataset',
-            name='dataset_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.datasettype'),
+            model_name="dataset",
+            name="dataset_type",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.datasettype",
+            ),
         ),
     ]

@@ -118,9 +118,7 @@ class DatasetViewSetTestCase(APITestCase):
         """Dataset view 'datawork_import' returns 'Permission denied' when there is a permission issue"""
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        data_send = {"wanted_datasets": [
-            {"name": "gliderSPAmsDemo (600_400)"}
-        ]}
+        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
         response = self.client.post(url, data_send, format="json", follow=True)
         original_permissions = settings.DATASET_IMPORT_FOLDER.stat().st_mode
         settings.DATASET_IMPORT_FOLDER.chmod(0o444)  # removing open-folder permission
