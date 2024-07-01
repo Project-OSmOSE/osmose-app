@@ -265,10 +265,10 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     timespec="milliseconds"),
                 (row.file_start + timedelta(seconds=row.end_time)).isoformat(timespec="milliseconds")
                 if row.end_time else row.file_end.isoformat(timespec="milliseconds"),
-                str(True if campaign.annotation_scope == 1 or not row.is_weak else False) if type(
+                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0) if type(
                     row.is_weak) == bool else "",
                 row.confidence_label if row.confidence_label else "",
-                f"{row.confidence_level} / {campaign.max_confidence}" if row.confidence_level else "",
+                f"{row.confidence_level}/{campaign.max_confidence}" if type(row.confidence_level) == int else "",
                 f"{row.comment_content} |- {row.comment_author}" if row.comment_content else ""
             ]
 

@@ -182,8 +182,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
             AnnotationCampaignListFields,
         )
 
-        self.assertEqual(response.data[0]["name"], "Test RTF campaign")
-        self.assertEqual(response.data[1]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
+        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
 
     def test_list_user_no_campaign(self):
         """AnnotationCampaign view 'list' returns list of campaigns"""
@@ -453,8 +453,8 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "13696.0",
                 "Odoncetes",
                 "admin",
-                "1349258508218.4224",
-                "1349258624875.8962",
+                "2012-10-03T10:01:48.218+00:00",
+                "2012-10-03T10:03:44.875+00:00",
                 "1",
                 "confident",
                 "0/1",
