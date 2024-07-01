@@ -2,8 +2,20 @@
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import Count, Q, Exists, OuterRef, F, Max, BooleanField, ExpressionWrapper, Value, FloatField, \
-    BigIntegerField, DurationField
+from django.db.models import (
+    Count,
+    Q,
+    Exists,
+    OuterRef,
+    F,
+    Max,
+    BooleanField,
+    ExpressionWrapper,
+    Value,
+    FloatField,
+    BigIntegerField,
+    DurationField,
+)
 from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -19,7 +31,8 @@ from backend.api.models import (
     AnnotationResultValidation,
     AnnotationTask,
     AnnotationComment,
-    AnnotationCampaignUsage, )
+    AnnotationCampaignUsage,
+)
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
     AnnotationCampaignRetrieveSerializer,
@@ -54,16 +67,16 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
             queryset = queryset.filter(
                 Q(owner_id=request.user.id)
                 | (
-                        Exists(
-                            AnnotationTask.objects.filter(
-                                annotation_campaign_id=OuterRef("pk"),
-                                annotator_id=request.user.id,
-                            )
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=OuterRef("pk"),
+                            annotator_id=request.user.id,
                         )
-                        & Q(archive__isnull=True)
+                    )
+                    & Q(archive__isnull=True)
                 )
             )
-        queryset = queryset.prefetch_related("datasets")
+        queryset = queryset.prefetch_related("datasets").order_by("name")
         serializer = AnnotationCampaignListSerializer(
             queryset, many=True, context={"user_id": request.user.id}
         )
@@ -155,83 +168,119 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             AnnotationCampaign.objects.prefetch_related(
                 "confidence_indicator_set__confidence_indicators"
             ).annotate(
-                max_confidence=Max("confidence_indicator_set__confidence_indicators__level")
+                max_confidence=Max(
+                    "confidence_indicator_set__confidence_indicators__level"
+                )
             ),
             pk=pk,
         )
 
-        file_duration = Cast(Extract(ExpressionWrapper(
-            F("dataset_file__audio_metadatum__end") - F("dataset_file__audio_metadatum__start"),
-            output_field=DurationField()
-        ), "epoch"), FloatField())
+        file_duration = Cast(
+            Extract(
+                ExpressionWrapper(
+                    F("dataset_file__audio_metadatum__end")
+                    - F("dataset_file__audio_metadatum__start"),
+                    output_field=DurationField(),
+                ),
+                "epoch",
+            ),
+            FloatField(),
+        )
         file_max_frequency = ExpressionWrapper(
             F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
-            output_field=FloatField()
+            output_field=FloatField(),
         )
-        results = AnnotationResult.objects.filter(
-            annotation_campaign_id=pk
-        ).select_related(
-            "dataset_file", "dataset_file__audio_metadatum",
-            "dataset_file__dataset", "dataset_file__dataset__audio_metadatum",
-            "label", "confidence_indicator",
-            "annotator", "detector_configuration__detector",
-        ).annotate(
-            file_duration=file_duration,
-            file_max_frequency=file_max_frequency,
-            file_name=F("dataset_file__filename"),
-            dataset_name=F("dataset_file__dataset__name"),
-            file_start=F("dataset_file__audio_metadatum__start"),
-            file_end=F("dataset_file__audio_metadatum__end"),
-            label_name=F("label__name"),
-            annotator_name=F("annotator__username"),
-            detector_name=F("detector_configuration__detector__name"),
-            comment_content=F("result_comments__comment"),
-            comment_author=F("result_comments__annotation_task__annotator__username"),
-            confidence_label=F("confidence_indicator__label"),
-            confidence_level=F("confidence_indicator__level"),
-            is_weak=ExpressionWrapper(
-                (Q(start_time__isnull=True) | Q(start_time=0))
-                & (Q(end_time__isnull=True) | Q(end_time=file_duration))
-                & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
-                & (Q(end_frequency__isnull=True) | Q(end_frequency=file_max_frequency)),
-                output_field=BooleanField()),
+        results = (
+            AnnotationResult.objects.filter(annotation_campaign_id=pk)
+            .select_related(
+                "dataset_file",
+                "dataset_file__audio_metadatum",
+                "dataset_file__dataset",
+                "dataset_file__dataset__audio_metadatum",
+                "label",
+                "confidence_indicator",
+                "annotator",
+                "detector_configuration__detector",
+            )
+            .annotate(
+                file_duration=file_duration,
+                file_max_frequency=file_max_frequency,
+                file_name=F("dataset_file__filename"),
+                dataset_name=F("dataset_file__dataset__name"),
+                file_start=F("dataset_file__audio_metadatum__start"),
+                file_end=F("dataset_file__audio_metadatum__end"),
+                label_name=F("label__name"),
+                annotator_name=F("annotator__username"),
+                detector_name=F("detector_configuration__detector__name"),
+                comment_content=F("result_comments__comment"),
+                comment_author=F(
+                    "result_comments__annotation_task__annotator__username"
+                ),
+                confidence_label=F("confidence_indicator__label"),
+                confidence_level=F("confidence_indicator__level"),
+                is_weak=ExpressionWrapper(
+                    (Q(start_time__isnull=True) | Q(start_time=0))
+                    & (Q(end_time__isnull=True) | Q(end_time=file_duration))
+                    & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
+                    & (
+                        Q(end_frequency__isnull=True)
+                        | Q(end_frequency=file_max_frequency)
+                    ),
+                    output_field=BooleanField(),
+                ),
+            )
         )
-        comments = AnnotationComment.objects.filter(
-            annotation_task__annotation_campaign_id=pk,
-            annotation_result__isnull=True
-        ).select_related(
-            "annotation_task__dataset_file", "annotation_task__dataset_file__dataset",
-            "annotation_task__dataset_file__audio_metadatum", "annotation_task__annotator",
-        ).annotate(
-            file_name=F("annotation_task__dataset_file__filename"),
-            dataset_name=F("annotation_task__dataset_file__dataset__name"),
-            annotator_name=F("annotation_task__annotator__username"),
-            comment_content=F("comment"),
-            comment_author=F("annotation_task__annotator__username"),
-            start_time=Value(""),
-            end_time=Value(""),
-            start_frequency=Value(""),
-            end_frequency=Value(""),
-            label_name=Value(""),
-            confidence_label=Value(""),
-            confidence_level=Value(""),
-            is_weak=Value(""),
-            file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
-            file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
-            file_duration=ExpressionWrapper(
-                F("annotation_task__dataset_file__audio_metadatum__end")
-                - F("annotation_task__dataset_file__audio_metadatum__start"),
-                output_field=BigIntegerField()
-            ),
-            file_max_frequency=ExpressionWrapper(
-                F("annotation_task__dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
-                output_field=FloatField()
-            ),
+        comments = (
+            AnnotationComment.objects.filter(
+                annotation_task__annotation_campaign_id=pk,
+                annotation_result__isnull=True,
+            )
+            .select_related(
+                "annotation_task__dataset_file",
+                "annotation_task__dataset_file__dataset",
+                "annotation_task__dataset_file__audio_metadatum",
+                "annotation_task__annotator",
+            )
+            .annotate(
+                file_name=F("annotation_task__dataset_file__filename"),
+                dataset_name=F("annotation_task__dataset_file__dataset__name"),
+                annotator_name=F("annotation_task__annotator__username"),
+                comment_content=F("comment"),
+                comment_author=F("annotation_task__annotator__username"),
+                start_time=Value(""),
+                end_time=Value(""),
+                start_frequency=Value(""),
+                end_frequency=Value(""),
+                label_name=Value(""),
+                confidence_label=Value(""),
+                confidence_level=Value(""),
+                is_weak=Value(""),
+                file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
+                file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
+                file_duration=ExpressionWrapper(
+                    F("annotation_task__dataset_file__audio_metadatum__end")
+                    - F("annotation_task__dataset_file__audio_metadatum__start"),
+                    output_field=BigIntegerField(),
+                ),
+                file_max_frequency=ExpressionWrapper(
+                    F(
+                        "annotation_task__dataset_file__dataset__audio_metadatum__dataset_sr"
+                    )
+                    / 2,
+                    output_field=FloatField(),
+                ),
+            )
         )
-        validations = AnnotationResultValidation.objects.filter(
-            result__annotation_campaign=campaign
-        ).prefetch_related("annotator").order_by("annotator__username")
-        validate_users = list(validations.values_list("annotator__username", flat=True).distinct())
+        validations = (
+            AnnotationResultValidation.objects.filter(
+                result__annotation_campaign=campaign
+            )
+            .prefetch_related("annotator")
+            .order_by("annotator__username")
+        )
+        validate_users = list(
+            validations.values_list("annotator__username", flat=True).distinct()
+        )
 
         data = [
             [  # headers
@@ -251,6 +300,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "comments",
             ]
         ]
+
         def map_result(row):
             return [
                 row.dataset_name,
@@ -258,28 +308,40 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 str(row.start_time) if row.start_time else "0",
                 str(row.end_time) if row.end_time else str(row.file_duration),
                 str(row.start_frequency) if row.start_frequency else "0",
-                str(row.end_frequency) if row.end_frequency else str(row.file_max_frequency),
+                str(row.end_frequency)
+                if row.end_frequency
+                else str(row.file_max_frequency),
                 row.label_name,
                 row.annotator_name if row.annotator_name else row.detector_name,
                 (row.file_start + timedelta(seconds=row.start_time or 0)).isoformat(
-                    timespec="milliseconds"),
-                (row.file_start + timedelta(seconds=row.end_time)).isoformat(timespec="milliseconds")
-                if row.end_time else row.file_end.isoformat(timespec="milliseconds"),
-                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0) if type(
-                    row.is_weak) == bool else "",
+                    timespec="milliseconds"
+                ),
+                (row.file_start + timedelta(seconds=row.end_time)).isoformat(
+                    timespec="milliseconds"
+                )
+                if row.end_time
+                else row.file_end.isoformat(timespec="milliseconds"),
+                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0)
+                if type(row.is_weak) == bool
+                else "",
                 row.confidence_label if row.confidence_label else "",
-                f"{row.confidence_level}/{campaign.max_confidence}" if type(row.confidence_level) == int else "",
-                f"{row.comment_content} |- {row.comment_author}" if row.comment_content else ""
+                f"{row.confidence_level}/{campaign.max_confidence}"
+                if type(row.confidence_level) == int
+                else "",
+                f"{row.comment_content} |- {row.comment_author}"
+                if row.comment_content
+                else "",
             ]
 
         def map_result_check(row):
             check_data = map_result(row)
             for user in validate_users:
                 validation = validations.filter(
-                    result__id=row.id,
-                    annotator__username=user
+                    result__id=row.id, annotator__username=user
                 )
-                check_data.append(str(validation.first().is_valid) if validation.count() > 0 else "")
+                check_data.append(
+                    str(validation.first().is_valid) if validation.count() > 0 else ""
+                )
             return check_data
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
