@@ -21,7 +21,7 @@ def check_new_spectro_config_errors():
         csv_dataset_names = []
         # Check for new datasets
         with open(
-            settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+            settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
         ) as csvfile:
             for dataset in csv.DictReader(csvfile):
                 dname = dataset["name"]

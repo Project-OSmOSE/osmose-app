@@ -86,7 +86,7 @@ class DatasetViewSetTestCase(APITestCase):
         old_count = Dataset.objects.count()
         self.client.login(username="staff", password="osmose29")
         url = reverse("dataset-datawork-import")
-        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
+        data_send = {"wanted_datasets": [{"name": "gliderSPAmsDemo_2 (600_400)"}]}
         response: HttpResponse = self.client.post(
             url, data_send, format="json", follow=True
         )
@@ -108,7 +108,7 @@ class DatasetViewSetTestCase(APITestCase):
                 "created_at",
             ],
         )
-        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo (600_400)")
+        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo_2 (600_400)")
         self.assertEqual(len(response.data[0]["spectros"]), 1)
 
     # TODO :  : fix
@@ -139,6 +139,6 @@ class DatasetViewSetTestCase(APITestCase):
         response = self.client.post(url, data_send, format="json", follow=True)
         self.assertContains(
             response,
-            "One of the import CSV is missing the following column : 'dataset_type_name'",
+            "One of the import CSV is missing the following column : 'name'",
             status_code=400,
         )

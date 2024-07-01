@@ -18,7 +18,7 @@ const NewDataItem: FC<{
         <label className="form-check-label"
                htmlFor={ `${ data.name }-${ index }` }>
           { data.name }
-          <p>Folder name : { data.folder_name }</p>
+          <p>Folder name : { data.campaign && `${data.campaign} /`} { data.dataset }</p>
         </label>
       </div>
     </li>
@@ -107,12 +107,12 @@ export const ModalNewDataset: FC<{
                   { searchInputFilter.length > 1
                     ? filteredResults.map((data, index) => (
                       <NewDataItem
-                        key={ `${ data.id }` }
+                        key={ `${ data.name }` }
                         data={ data }
                         index={ index }
                       />))
                     : newData.map((data, index) => (
-                      <NewDataItem key={ data.id }
+                      <NewDataItem key={ data.name }
                                    data={ data }
                                    index={ index }/>)) }
                   { " " }
