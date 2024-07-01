@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0043_remove_spectroconfig_number_spectra'),
+        ("api", "0043_remove_spectroconfig_number_spectra"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='annotationcampaign',
-            options={'ordering': ['name']},
+            name="annotationcampaign",
+            options={"ordering": ["name"]},
         ),
     ]
