@@ -1,6 +1,5 @@
 export interface TeamMember {
     id: string;
-
     firstname: string;
     lastname: string;
     position: string;
@@ -15,4 +14,6 @@ export interface TeamMember {
     linkedin_url?: string;
 
     is_former_member?: boolean;
+
+
 }

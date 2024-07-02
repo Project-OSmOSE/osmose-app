@@ -1,0 +1,15 @@
+"""OSmOSE Website - Trap"""
+from django.contrib.admin import ModelAdmin
+
+
+class TrapAdmin(ModelAdmin):
+    """Trap presentation in DjangoAdmin"""
+
+    list_display = [
+        "title",
+        "intro",
+        "date",
+        "thumbnail",
+    ]
+
+    search_fields = ["title"]

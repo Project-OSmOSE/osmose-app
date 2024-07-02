@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home/HomePage';
 import { NewsPage } from './pages/News/NewsPage';
+import { TrapPage } from './pages/Trap/TrapPage';
 import { People } from './pages/People/People';
 import { Projects } from './pages/Projects/Projects';
 import { Publications } from './pages/Publications';
@@ -27,14 +28,6 @@ const App: React.FC = () => {
             <HomePage/>
           </Layout>
         </Route>
-
-        {/*
-        <Route path="/explore">
-          <Layout>
-            <Explore />
-          </Layout>
-        </Route>
-        */ }
 
         <Route exact path="/people">
           <Layout>
@@ -78,11 +71,11 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        {/* <Route path="/ontology">
+        <Route exact path="/trap">
           <Layout>
-            <Ontology />
+            <TrapPage/>
           </Layout>
-        </Route> */ }
+        </Route>
 
         <Route path="*">
           <Redirect to="/"></Redirect>
