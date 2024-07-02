@@ -4,19 +4,23 @@ import csv
 import os
 
 from datetime import timedelta
+from typing import Optional
 
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
 from django.conf import settings
 
+from backend.api.actions.frequency_scales import get_frequency_scales
 from backend.api.models import (
     Dataset,
     DatasetType,
     AudioMetadatum,
     GeoMetadatum,
     DatasetFile,
-    SpectroConfig,
+    SpectrogramConfiguration,
     WindowType,
+    MultiLinearScale,
+    LinearScale,
 )
 
 
@@ -123,7 +127,16 @@ def datawork_import(*, wanted_datasets, importer):
                     )
                     is_zscore_normalization = spectro["data_normalization"] == "zscore"
 
-                    new_spectro = SpectroConfig.objects.update_or_create(
+                    custom_frequency_scale: (
+                        Optional[LinearScale],
+                        Optional[MultiLinearScale],
+                    ) = (None, None)
+                    if "custom_frequency_scale" in spectro:
+                        custom_frequency_scale = get_frequency_scales(
+                            spectro["custom_frequency_scale"],
+                            int(audio_metadatum.dataset_sr),
+                        )
+                    new_spectro = SpectrogramConfiguration.objects.update_or_create(
                         name=name,
                         dataset=curr_dataset,
                         nfft=spectro["nfft"],
@@ -161,6 +174,8 @@ def datawork_import(*, wanted_datasets, importer):
                         gain_dB=spectro["gain_dB"]
                         if is_instrument_normalization and "gain_dB" in spectro
                         else None,
+                        linear_frequency_scale=custom_frequency_scale[0],
+                        multi_linear_frequency_scale=custom_frequency_scale[1],
                     )[0]
                     new_spectro.save()
 

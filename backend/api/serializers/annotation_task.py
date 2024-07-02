@@ -14,7 +14,7 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationTask,
     AnnotationResult,
-    SpectroConfig,
+    SpectrogramConfiguration,
     AnnotationComment,
     AnnotationCampaignUsage,
     AnnotationResultValidation,
@@ -159,7 +159,7 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
 
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     """
-    Serializer meant to output basic SpectroConfig data
+    Serializer meant to output basic SpectrogramConfiguration data
 
     It is used for spectroUrls field AnnotationTaskRetrieveSerializer
     """
@@ -173,7 +173,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        model = SpectroConfig
+        model = SpectrogramConfiguration
         fields = ["nfft", "winsize", "overlap", "urls"]
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))

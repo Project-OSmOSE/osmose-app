@@ -145,6 +145,7 @@ SPECTACULAR_SETTINGS = {
 # Fixtures location for testing
 FIXTURE_DIRS = (
     BASE_DIR / "backend/tests/fixtures",
+    BASE_DIR / "backend/api/tests/fixtures",
     BASE_DIR / "backend/osmosewebsite/tests/fixtures",
 )
 

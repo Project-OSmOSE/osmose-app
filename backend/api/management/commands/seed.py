@@ -23,7 +23,7 @@ from backend.api.models import (
     AnnotationResult,
     DatasetFile,
     AnnotationTask,
-    SpectroConfig,
+    SpectrogramConfiguration,
 )
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
@@ -174,7 +174,7 @@ class Command(management.BaseCommand):
                     )
                 )
             configs.append(
-                SpectroConfig(
+                SpectrogramConfiguration(
                     name="4096_4096_90",
                     nfft=4096,
                     window_size=4096,
@@ -195,7 +195,7 @@ class Command(management.BaseCommand):
         Dataset.objects.bulk_create(self.datasets)
         AudioMetadatum.objects.bulk_create(audio_metadata)
         DatasetFile.objects.bulk_create(files)
-        SpectroConfig.objects.bulk_create(configs)
+        SpectrogramConfiguration.objects.bulk_create(configs)
 
     def _create_label_sets(self):
         print(" ###### _create_label_set ######")

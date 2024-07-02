@@ -290,7 +290,7 @@
   pk: 1
   fields:
     name: "Hamming"
-- model: api.spectroconfig
+- model: api.spectrogramconfiguration
   pk: 1
   fields:
     name: spectro_config1
@@ -309,7 +309,7 @@
     window_type: 1
     frequency_resolution: 0
     dataset: 1
-- model: api.spectroconfig
+- model: api.spectrogramconfiguration
   pk: 2
   fields:
     name: spectro_config2
@@ -328,7 +328,7 @@
     window_type: 1
     frequency_resolution: 0
     dataset: 1
-- model: api.spectroconfig
+- model: api.spectrogramconfiguration
   pk: 3
   fields:
     name: spectro_config2

@@ -8,7 +8,7 @@ from django.conf import settings
 
 from backend.api.models import (
     Dataset,
-    SpectroConfig,
+    SpectrogramConfiguration,
     WindowType,
 )
 
@@ -77,7 +77,7 @@ def check_new_spectro_config_errors():
                                 ]
                             }
                             dataset_spectros.append(
-                                SpectroConfig.objects.update_or_create(
+                                SpectrogramConfiguration.objects.update_or_create(
                                     name=name, defaults=spectro_needed, dataset=dataset
                                 )[0]
                             )

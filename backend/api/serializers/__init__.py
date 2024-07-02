@@ -2,21 +2,14 @@
 DRF serializers module to be used in viewsets
 """
 
-from backend.api.serializers.dataset import DatasetSerializer, SpectroConfigSerializer
-from backend.api.serializers.user import UserSerializer, UserCreateSerializer
-from backend.api.serializers.label_set import LabelSetSerializer
-from backend.api.serializers.confidence_indicator_set import (
-    ConfidenceIndicatorSerializer,
-    ConfidenceIndicatorSetSerializer,
-)
-from backend.api.serializers.annotation_comment import (
-    AnnotationCommentSerializer,
-    AnnotationCommentCreateSerializer,
-)
 from backend.api.serializers.annotation_campaign import (
     AnnotationCampaignRetrieveAuxCampaignSerializer,
     AnnotationCampaignRetrieveAuxTaskSerializer,
     AnnotationCampaignRetrieveSerializer,
+)
+from backend.api.serializers.annotation_comment import (
+    AnnotationCommentSerializer,
+    AnnotationCommentCreateSerializer,
 )
 from backend.api.serializers.annotation_task import (
     AnnotationTaskSerializer,
@@ -28,6 +21,15 @@ from backend.api.serializers.annotation_task import (
     AnnotationTaskOneResultUpdateSerializer,
     AnnotationTaskUpdateOutputCampaignSerializer,
 )
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSerializer,
+    ConfidenceIndicatorSetSerializer,
+)
+from backend.api.serializers.dataset import (
+    DatasetSerializer,
+)
+from backend.api.serializers.label_set import LabelSetSerializer
+from backend.api.serializers.user import UserSerializer, UserCreateSerializer
 from .annotation import (
     DetectorSerializer,
     DetectorConfigurationSerializer,
@@ -35,4 +37,7 @@ from .annotation import (
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignAddAnnotatorsSerializer,
     AnnotationCampaignListSerializer,
+)
+from .spectrogram import (
+    SpectrogramConfigurationSerializer,
 )
