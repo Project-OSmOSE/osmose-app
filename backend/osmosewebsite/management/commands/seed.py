@@ -9,8 +9,8 @@ from faker import Faker
 from django.core.management.base import BaseCommand
 
 from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project
-from backend.osmosewebsite.models import TeamMember, trap, Collaborator, Project
-from backend.osmosewebsite.models.trap import Trap
+from backend.osmosewebsite.models import TeamMember, Trap, Collaborator, Project
+
 
 fake = Faker()
 random = Random()
@@ -127,11 +127,16 @@ class Command(BaseCommand):
     def _create_trap(self):
         print(" ###### _create_trap ######")
         for _ in range(0, random.randint(5, 15)):
+            profile = fake.profile()
+            websites = profile["website"]
             trap = Trap.objects.create(
                 title=fake.sentence(nb_words=10)[:255],
                 intro=fake.paragraph(nb_sentences=5)[:255],
                 date=fake.date_time_between(start_date="-1y", end_date="now"),
                 thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
+                linkedin_url=websites[3] if len(websites) > 3 else None,
+                mail_address=profile["mail"] if random.randint(0, 1) > 0 else None,
+                research_gate_url=websites[0] if len(websites) > 0 else None,
             )
             for i in range(1, random.randint(2, 5)):
                 trap.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())

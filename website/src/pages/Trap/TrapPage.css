@@ -1,0 +1,44 @@
+#trap-page .content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: var(--content-margin);
+    gap: 4rem;
+}
+
+.social-links {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    color: #007bff;
+}
+
+.social-links a {
+    color: #007bff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.social-links a:hover {
+    text-decoration: underline;
+}
+
+
+@media screen and (max-width: 1200px) {
+    #trap-page .content {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 2rem;
+        gap: 1rem;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    #trap-page .content {
+        grid-template-columns: none;
+        margin: 1rem;
+        gap: 1rem;
+    }
+}

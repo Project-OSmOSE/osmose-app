@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home/HomePage';
 import { NewsPage } from './pages/News/NewsPage';
+import { TrapPage } from './pages/Trap/TrapPage';
 import { People } from './pages/People/People';
 import { Projects } from './pages/Projects/Projects';
 import { Publications } from './pages/Publications';
 import { NewsDetailPage } from './pages/News/NewsDetail/NewsDetailPage';
 import { PeopleDetail } from "./pages/People/PeopleDetail/PeopleDetail";
 import { ProjectDetail } from "./pages/Projects/ProjectDetail/ProjectDetail";
-import {Aplose} from "./pages/Aplose_presentation/aplose";
 import { setupIonicReact } from "@ionic/react";
 import '@ionic/react/css/core.css';
 
@@ -29,19 +29,6 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        <Route exact path="/aplose">
-          <Layout>
-            <Aplose/>
-          </Layout>
-        </Route>
-
-        {/*
-        <Route path="/explore">
-          <Layout>
-            <Explore />
-          </Layout>
-        </Route>
-        */ }
 
         <Route exact path="/people">
           <Layout>
@@ -85,11 +72,12 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        {/* <Route path="/ontology">
+        <Route exact path="/Trap">
           <Layout>
-            <Ontology />
+            <TrapPage/>
           </Layout>
-        </Route> */ }
+        </Route>
+
 
         <Route path="*">
           <Redirect to="/"></Redirect>
