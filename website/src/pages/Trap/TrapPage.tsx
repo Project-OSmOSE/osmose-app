@@ -35,8 +35,7 @@ export const TrapPage: React.FC = () => {
     return (
         <div id="trap-page">
             <PageTitle img={ imgTitle } imgAlt="Trap Banner">
-                <ul>Table Ronde </ul> <ul>Acoustique Passive</ul>
-
+              Table Ronde Acoustique Passive
             </PageTitle>
 
             <div className="content">
@@ -65,7 +64,6 @@ export const TrapPage: React.FC = () => {
                                 )}
                             </div>
                         </IonCardHeader>
-
                         <IonCardContent>
                             { data.intro }
                         </IonCardContent>
