@@ -68,7 +68,6 @@ export const TrapPage: React.FC = () => {
 
                         <IonCardContent>
                             { data.intro }
-
                         </IonCardContent>
                     </IonCard>
                 )) }
