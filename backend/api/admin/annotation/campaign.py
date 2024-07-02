@@ -21,7 +21,6 @@ class IsArchivedFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         for campaign in queryset:
-            print(campaign, campaign.archive)
         if value == "Yes":
             return queryset.filter(archive__isnull=False)
         if value == "No":
@@ -116,8 +115,4 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
     def is_archived(self, campaign: AnnotationCampaign) -> bool:
         """is_archived"""
-        print(
-            campaign.archive,
-            AnnotationCampaignArchive.objects.filter(campaign=campaign),
-        )
         return campaign.archive is not None

@@ -44,7 +44,6 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     def campaign_list(self, request, campaign_id):
         """List tasks for given annotation campaign"""
         campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
-        print(campaign.results.count())
         queryset = campaign.tasks.filter(annotator_id=request.user.id).annotate(
             filename=F("dataset_file__filename"),
             start=F("dataset_file__audio_metadatum__start"),

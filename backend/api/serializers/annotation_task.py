@@ -313,7 +313,6 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
-        print("get_taskComment", task.task_comment)
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 
@@ -326,7 +325,6 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
 
     def validate_annotations(self, annotations):
         """Validates that annotations correspond to label set labels and set confidence indicator"""
-        print("validation in progress", annotations)
         set_labels = set(
             self.instance.annotation_campaign.label_set.labels.values_list(
                 "name", flat=True
@@ -436,9 +434,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 result__annotation_campaign_id=instance.annotation_campaign_id,
                 result__dataset_file_id=instance.dataset_file_id,
             ).delete()
-            print(validated_data["annotations"])
             for annotation in validated_data["annotations"]:
-                print(annotation)
                 result = AnnotationResult.objects.get(pk=int(annotation.pop("id")))
                 AnnotationResultValidation.objects.create(
                     is_valid=bool(annotation.pop("validation")),

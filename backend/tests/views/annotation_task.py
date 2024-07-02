@@ -93,7 +93,6 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         url = reverse("annotation-task-detail", kwargs={"pk": 1})
         response = self.client.get(url)
 
-        print("list1", list(response.data.keys()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             list(response.data.keys()),
