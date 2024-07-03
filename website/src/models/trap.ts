@@ -1,5 +1,7 @@
 export interface Trap {
     id: number;
+    firstname: string;
+    lastname: string;
     title: string;
     date: string;
     intro: string;

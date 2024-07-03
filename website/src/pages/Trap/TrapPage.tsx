@@ -10,12 +10,12 @@ import { Trap } from "../../models/trap";
 import './TrapPage.css';
 
 export const TrapPage: React.FC = () => {
-    const pageSize = 6;
-    const location = useLocation();
-    const currentPage: number = +(new URLSearchParams(location.search).get('page') ?? 1);
-    const [trapTotal, setTrapTotal] = useState<number>(0);
-    const [trap, setTrap] = useState<Array<Trap>>([]);
-    const fetchTrap = useFetchArray<{ count: number, results: Array<Trap> }>('/api/trap');
+    const pageSize = 6;// Define page size for pagination
+    const location = useLocation(); // Get the current URL location
+    const currentPage: number = +(new URLSearchParams(location.search).get('page') ?? 1);// Get the current page number from URL parameters
+    const [trapTotal, setTrapTotal] = useState<number>(0); // State to hold the total number of traps
+    const [trap, setTrap] = useState<Array<Trap>>([]); // State to hold the list of traps
+    const fetchTrap = useFetchArray<{ count: number, results: Array<Trap> }>('/api/trap'); // Function to fetch trap data
 
     useEffect(() => {
         let isMounted = true;
@@ -29,13 +29,12 @@ export const TrapPage: React.FC = () => {
         return () => {
             isMounted = false;
         };
-    }, [currentPage, pageSize]);// Effect dependencies: current page number and page size
-
+    }, [currentPage, pageSize]); // Effect dependencies: currentPage and pagesize
 
     return (
         <div id="trap-page">
             <PageTitle img={ imgTitle } imgAlt="Trap Banner">
-              Table Ronde Acoustique Passive
+                Table Ronde Acoustique Passive
             </PageTitle>
 
             <div className="content">
@@ -45,25 +44,29 @@ export const TrapPage: React.FC = () => {
 
                         <IonCardHeader>
                             <IonCardTitle>{ data.title }</IonCardTitle>
+                            {data.firstname && data.lastname && (  // Display Firstname and Lastname link if available
+                                <div className="card-name">{ data.firstname } { data.lastname }</div>
+                            )}
                             <IonCardSubtitle>{ getFormattedDate(data.date) }</IonCardSubtitle>
                             <div className="social-links">
-                                { data.research_gate_url && (
+                                { data.research_gate_url && (  // Display Research gate link if available
                                     <a href={data.research_gate_url} target="_blank" rel="noreferrer">
                                         ResearchGate
                                     </a>
                                 )}
-                                { data.mail_address && (
+                                { data.mail_address && (  // Display Mail link if available
                                     <a href={`mailto:${data.mail_address}`} target="_blank" rel="noreferrer">
                                         <IonIcon icon={mailOutline} /> Mail
                                     </a>
                                 )}
-                                { data.linkedin_url && (
+                                { data.linkedin_url && (  // Display LinkedIn link if available
                                     <a href={data.linkedin_url} target="_blank" rel="noreferrer">
                                         <IonIcon icon={logoLinkedin} /> LinkedIn
                                     </a>
                                 )}
                             </div>
                         </IonCardHeader>
+
                         <IonCardContent>
                             { data.intro }
                         </IonCardContent>

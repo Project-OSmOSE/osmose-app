@@ -4,6 +4,11 @@
     margin: var(--content-margin);
     gap: 4rem;
 }
+.card-name {
+    font-size: 1.25rem;
+    text-align: center;
+    margin: 0.5rem 0;
+}
 
 .social-links {
     margin-top: 0.5rem;

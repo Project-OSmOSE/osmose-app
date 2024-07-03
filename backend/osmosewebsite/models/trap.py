@@ -11,6 +11,8 @@ class Trap(models.Model):
     Table containing Trap will be used on the website
     """
 
+    firstname = models.CharField(max_length=100, default="DefaultFirstName")
+    lastname = models.CharField(max_length=100, blank=True, null=True)
     title = models.CharField(max_length=255, unique=True)
     intro = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
