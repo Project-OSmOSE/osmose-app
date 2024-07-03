@@ -36,7 +36,7 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_datawork_import_for_staff(self):
-        """Dataset view 'datawork_import' is forbidden for non-staff"""
+        """Dataset view 'datawork_import' is allowed for staff"""
         self.basic_import_test()
 
     @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "missing_file")
