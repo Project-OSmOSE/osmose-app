@@ -174,16 +174,29 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpectrogramConfiguration
-        fields = ["nfft", "winsize", "overlap", "urls"]
+        fields = [
+            "nfft",
+            "winsize",
+            "overlap",
+            "urls",
+            "linear_frequency_scale",
+            "multi_linear_frequency_scale",
+        ]
+        depth = 2
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_urls(self, spectro_config):
+    def get_urls(self, spectro_config: SpectrogramConfiguration):
         """This returns urls for spectrogram zoom tiles"""
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
+        spectro_name = spectro_config.name
+        if spectro_config.linear_frequency_scale:
+            spectro_name += f"_{spectro_config.linear_frequency_scale.name}"
+        if spectro_config.multi_linear_frequency_scale:
+            spectro_name += f"_{spectro_config.multi_linear_frequency_scale.name}"
         spectro_path = (
-            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
+                settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_name
         )
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
@@ -353,7 +366,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 ann["confidence_indicator"] for ann in annotations
             )
             unknown_confidence_indicators = (
-                update_confidence_indicators - set_confidence_indicators
+                    update_confidence_indicators - set_confidence_indicators
             )
             if unknown_confidence_indicators:
                 raise serializers.ValidationError(

@@ -5,6 +5,7 @@
 from django import forms
 from django.contrib import admin, messages
 from django.db import IntegrityError, transaction
+from django.urls import reverse
 from django.utils.html import format_html
 
 from backend.api.models import (
@@ -111,10 +112,16 @@ class DatasetAdmin(admin.ModelAdmin):
         "owner",
     )
 
-    def show_spectro_configs(self, obj):
+    @admin.display(description="Spectrogram configurations")
+    def show_spectro_configs(self, dataset: Dataset) -> str:
         """show_spectro_configs"""
-        return get_many_to_many(obj, "spectro_configs")
+        links = []
+        for spectro in dataset.spectro_configs.all():
+            link = reverse("admin:api_spectrogramconfiguration_change", args=[spectro.id])
+            links.append(format_html('<a href="{}">{}</a>', link, spectro))
+        return format_html("<br>".join(links))
 
+    @admin.display(description="Audio metadata")
     def show_audio_metadatum_url(self, obj):
         """show_audio_metadatum_url"""
         return format_html(

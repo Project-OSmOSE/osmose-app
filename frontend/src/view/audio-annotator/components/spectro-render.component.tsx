@@ -2,21 +2,23 @@ import React, {
   Fragment,
   PointerEvent,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
   WheelEvent,
-  useImperativeHandle,
 } from "react";
 import { Annotation, AnnotationMode, AnnotationType, Usage } from "@/types/annotations.ts";
 import { Region } from "./region.component.tsx";
 import { formatTimestamp } from "@/services/utils/format.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { setDangerToast } from "@/slices/annotator/global-annotator.ts";
 import { addResult } from "@/slices/annotator/annotations.ts";
 import { leavePointer, updatePointerPosition, zoom } from "@/slices/annotator/spectro.ts";
 import { SpectrogramImage } from "@/types/spectro.ts";
+import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
+import { YAxis } from "@/components/spectrogram/y-axis.component.tsx";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -74,6 +76,7 @@ class EditAnnotation {
 export interface SpectrogramRender {
   getCanvasData: () => Promise<string>;
 }
+
 export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
 
   const {
@@ -92,7 +95,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const {
     currentZoom,
     currentZoomOrigin,
-    currentImages
+    currentImages,
+    retrieve
   } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
 
@@ -112,21 +116,15 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
    * @property { RefObject<HTMLCanvasElement>} spectroRef React reference to the canvas
    */
   const spectroRef = useRef<HTMLCanvasElement>(null);
-  const yAxisRef = useRef<HTMLCanvasElement>(null);
   const xAxisRef = useRef<HTMLCanvasElement>(null);
+  const yAxis = useRef<ScaleMapping | null>(null);
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => mode === Usage.create &&  currentMode === AnnotationMode.boxes || (
+  const isDrawingEnabled = useMemo(() => mode === Usage.create && currentMode === AnnotationMode.boxes || (
     currentMode === AnnotationMode.wholeFile && !!focusedLabel
   ), [focusedLabel, currentMode, mode]);
 
-  const frequencyRange = useMemo(
-    () => wholeFileBoundaries.endFrequency - wholeFileBoundaries.startFrequency,
-    [wholeFileBoundaries.endFrequency, wholeFileBoundaries.startFrequency]
-  );
-
   const timePixelRatio = useMemo(() => SPECTRO_WIDTH * currentZoom / wholeFileBoundaries.duration, [wholeFileBoundaries.duration, currentZoom]);
-  const frequencyPixelRatio = useMemo(() => SPECTRO_HEIGHT / frequencyRange, [wholeFileBoundaries]);
 
   const isInCanvas = (event: PointerEvent<HTMLDivElement>) => {
     const bounds = spectroRef.current?.getBoundingClientRect();
@@ -139,7 +137,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // Component loads
   useEffect(() => {
-    loadY();
     loadX();
   }, [])
 
@@ -215,7 +212,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
       const spectroImg = new Image();
 
       // Get frequency scale
-      const freqDataURL = yAxisRef.current?.toDataURL('image/png');
+      const freqDataURL = yAxis.current?.canvas?.toDataURL('image/png');
       if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
       const freqImg = new Image();
 
@@ -265,7 +262,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     }
   }))
 
-
   const getTimeFromClientX = (clientX: number): number => {
     const canvas = spectroRef.current;
     if (!canvas) return 0;
@@ -273,15 +269,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
     const pixel = Math.min(Math.max(clientX, bounds.left), bounds.right) - bounds.left;
     return pixel / timePixelRatio;
-  }
-
-  const getFrequencyFromClientY = (clientY: number): number => {
-    const canvas = spectroRef.current;
-    if (!canvas) return 0;
-    const bounds = canvas.getBoundingClientRect();
-
-    const pixel = Math.min(Math.max(clientY, bounds.top), bounds.bottom);
-    return (wholeFileBoundaries.startFrequency + bounds.bottom - pixel) / frequencyPixelRatio;
   }
 
   const getXSteps = (duration: number) => {
@@ -338,52 +325,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     }
   }
 
-  const getYSteps = () => {
-    if (frequencyRange <= 200) return { step: 5, bigStep: 20 }
-    else if (frequencyRange > 200 && frequencyRange <= 500) return { step: 10, bigStep: 100 }
-    else if (frequencyRange > 500 && frequencyRange <= 2000) return { step: 20, bigStep: 100 }
-    else if (frequencyRange > 2000 && frequencyRange <= 20000) return { step: 500, bigStep: 2000 }
-    else return { step: 2000, bigStep: 10000 }
-  }
-
-  const loadY = (): void => {
-    const freqAxis = yAxisRef.current;
-    const canvasContext = freqAxis?.getContext('2d');
-    if (!freqAxis || !canvasContext) return;
-
-    canvasContext.clearRect(0, 0, freqAxis.width, freqAxis.height);
-
-    const bounds: DOMRect = freqAxis.getBoundingClientRect();
-    const startFreq: number = Math.ceil(wholeFileBoundaries.startFrequency ?? 0);
-    const endFreq: number = Math.floor((wholeFileBoundaries.startFrequency ?? 0) + frequencyRange);
-
-    canvasContext.fillStyle = 'rgba(0, 0, 0)';
-    canvasContext.font = '10px Arial';
-
-    const steps = getYSteps();
-    for (let i = startFreq; i <= endFreq; i += 5) {
-      if (i % steps.step === 0) {
-        const y: number = SPECTRO_HEIGHT - (i - startFreq) * frequencyPixelRatio - 2;
-
-        if (i % steps.bigStep === 0) {
-          // Bar
-          canvasContext.fillRect(Y_WIDTH - 15, y, 15, 2);
-
-          // Text
-          let yTxt: number = y;
-          if (yTxt < (bounds.height - 5)) {
-            // "Top align" all labels but first
-            yTxt += 12;
-          }
-          canvasContext.fillText(i.toString(), 0, yTxt);
-        } else {
-          // Bar only
-          canvasContext.fillRect(Y_WIDTH - 10, y, 10, 1);
-        }
-      }
-    }
-  }
-
   const loadSpectroImages = (): Promise<void> => {
     if (!currentImages.length) throw 'no images to load';
     const promises = [];
@@ -408,7 +349,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const loadSpectro = async (withProgressBar: boolean = true): Promise<void> => {
     const canvas = spectroRef.current;
     const canvasContext = canvas?.getContext('2d', { alpha: false });
-    if (!canvas || !canvasContext) return;
+    if (!canvas || !canvasContext || !yAxis.current) return;
 
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -430,21 +371,24 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     }
 
     // Render new annotation
-    if (newAnnotation) {
+    if (newAnnotation && yAxis.current) {
       const a = newAnnotation;
       const x: number = Math.floor(a.startTime * timePixelRatio);
-      const freqOffset: number = (a.startFrequency - (wholeFileBoundaries.startFrequency ?? 0)) * frequencyPixelRatio;
-      const y: number = Math.floor(canvas.height - freqOffset);
       const width: number = Math.floor((a.endTime - a.startTime) * timePixelRatio);
-      const height: number = -Math.floor((a.endFrequency - a.startFrequency) * frequencyPixelRatio);
       canvasContext.strokeStyle = 'blue';
-      canvasContext.strokeRect(x, y, width, height);
+      canvasContext.strokeRect(
+        x,
+        yAxis.current!.valueToPosition(a.startFrequency),
+        width,
+        yAxis.current!.valuesToHeight(a.startFrequency, a.endFrequency)
+      );
     }
   }
 
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    if (!yAxis.current) return;
     const time = getTimeFromClientX(e.clientX);
-    const frequency = getFrequencyFromClientY(e.clientY)
+    const frequency = yAxis.current.positionToValue(e.clientY)
 
     if (isInCanvas(e)) {
       dispatch(updatePointerPosition({ time, frequency }))
@@ -453,23 +397,24 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
-    if (!isDrawingEnabled || !isInCanvas(e)) return;
+    if (!isDrawingEnabled || !isInCanvas(e) || !yAxis.current) return;
 
     const newAnnotation = new EditAnnotation(
       getTimeFromClientX(e.clientX),
-      getFrequencyFromClientY(e.clientY)
+      yAxis.current.positionToValue(e.clientY)
     );
     setNewAnnotation(newAnnotation);
   }
 
   const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    if (!yAxis.current) return;
     if (newAnnotation) {
       newAnnotation.update(
         getTimeFromClientX(e.clientX),
-        getFrequencyFromClientY(e.clientY)
+        yAxis.current.positionToValue(e.clientY)
       )
       const width = Math.abs(newAnnotation.startTime - newAnnotation.endTime) * timePixelRatio
-      const height = Math.abs(newAnnotation.startFrequency - newAnnotation.endFrequency) * frequencyPixelRatio
+      const height = yAxis.current?.valuesToHeight(newAnnotation.startFrequency, newAnnotation.endFrequency);
       if (width > 2 && height > 2) {
         dispatch(addResult({
           type: AnnotationType.box,
@@ -503,18 +448,21 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   return (
     <Fragment>
-      <canvas className="freq-axis"
-              ref={ yAxisRef }
-              height={ SPECTRO_HEIGHT }
-              width={ Y_WIDTH }
-              style={ { top: `${ CONTROLS_AREA_SIZE }px` } }></canvas>
+
+      <YAxis width={ Y_WIDTH }
+             height={ SPECTRO_HEIGHT }
+             ref={ yAxis }
+             linear_scale={ retrieve?.linear_frequency_scale }
+             multi_linear_scale={ retrieve?.multi_linear_frequency_scale }
+             max_value={ wholeFileBoundaries.endFrequency }
+             style={ { position: 'absolute', top: `${ CONTROLS_AREA_SIZE }px` } }></YAxis>
 
 
       <div className="canvas-wrapper"
            ref={ wrapperRef }
            onPointerDown={ onStartNewAnnotation }
            onPointerMove={ onUpdateNewAnnotation }
-           onPointerLeave={ () => dispatch(leavePointer())}
+           onPointerLeave={ () => dispatch(leavePointer()) }
            onPointerUp={ onEndNewAnnotation }
            style={ {
              width: `${ SPECTRO_WIDTH }px`,
@@ -539,10 +487,9 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
           .filter(a => a.type === AnnotationType.box)
           .map((annotation: Annotation, key: number) => (
             <Region key={ key }
-                    canvasWrapperRef={ wrapperRef }
                     annotation={ annotation }
                     timePxRatio={ timePixelRatio }
-                    freqPxRatio={ frequencyPixelRatio }
+                    yAxis={ yAxis.current }
                     audioPlayer={ audioPlayer }></Region>
           )) }
       </div>

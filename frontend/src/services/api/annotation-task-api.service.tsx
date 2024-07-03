@@ -3,6 +3,7 @@ import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
 import { AnnotationMode, AnnotationTaskStatus, AnnotationComment } from "@/types/annotations.ts";
 import { CampaignUsage } from "@/types/campaign.ts";
+import { LinearScale } from "@/services/spectrogram/scale/linear.scale.ts";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -24,12 +25,7 @@ export interface Retrieve {
   audioUrl: string;
   instructions_url?: string;
   audioRate: number;
-  spectroUrls: Array<{
-    nfft: number;
-    winsize: number;
-    overlap: number;
-    urls: string[];
-  }>;
+  spectroUrls: Array<RetrieveSpectroURL>;
   prevAnnotations: Array<RetrieveAnnotation>;
   annotationScope: AnnotationMode;
   prevAndNextAnnotation: {
@@ -44,6 +40,19 @@ export interface Retrieve {
     confidence_indicators: Array<RetrieveConfidenceIndicator>;
   },
   mode: CampaignUsage
+}
+export interface RetrieveSpectroURL {
+  nfft: number;
+  winsize: number;
+  overlap: number;
+  urls: string[];
+  linear_frequency_scale: LinearScale | null;
+  multi_linear_frequency_scale: MultiLinearScale | null;
+}
+
+export interface MultiLinearScale {
+  name?: string;
+  inner_scales: Array<LinearScale>;
 }
 
 export interface Boundaries {
@@ -134,6 +143,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
     return super.retrieve(id).then(r => {
       const startTime = new Date(r.boundaries.startTime);
       const endTime = new Date(r.boundaries.endTime);
+      console.debug(r)
       return {
         ...r,
         boundaries: {

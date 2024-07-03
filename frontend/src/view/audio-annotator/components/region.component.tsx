@@ -1,10 +1,11 @@
-import React, { RefObject } from 'react'
+import React from 'react'
 import { Annotation } from "@/types/annotations.ts";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { focusResult, removeResult } from "@/slices/annotator/annotations.ts";
+import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -13,41 +14,37 @@ const HEADER_MARGIN: number = 3;
 type RegionProps = {
   annotation: Annotation,
   timePxRatio: number,
-  freqPxRatio: number,
-  canvasWrapperRef: RefObject<HTMLDivElement>,
   audioPlayer: AudioPlayer | null;
+  yAxis: ScaleMapping | null;
 };
 
 
 export const Region: React.FC<RegionProps> = ({
                                                 annotation,
-                                                // canvasWrapperRef,
-                                                freqPxRatio,
                                                 timePxRatio,
                                                 audioPlayer,
+                                                yAxis
                                               }) => {
 
   const {
     mode,
   } = useAppSelector(state => state.annotator.global);
   const {
-    wholeFileBoundaries,
     labelColors,
     focusedResult,
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
 
   const offsetLeft = annotation.startTime * timePxRatio;
-  const freqOffset: number = (annotation.endFrequency - (wholeFileBoundaries.startFrequency ?? 0)) * freqPxRatio;
-  const offsetTop: number = SPECTRO_HEIGHT - freqOffset;
-
-  // const distanceToMarginLeft: number = (+(canvasWrapperRef.current?.style.width ?? 0) * spectroContext.currentZoom) - Math.floor(offsetLeft);
+  const offsetTop: number = SPECTRO_HEIGHT - Math.max(
+    yAxis?.valueToPosition(annotation.startFrequency) ?? 0,
+    yAxis?.valueToPosition(annotation.endFrequency) ?? 0,
+  );
 
   const duration: number = annotation.endTime - annotation.startTime;
-  const freqRange: number = annotation.endFrequency - annotation.startFrequency;
 
   const width: number = Math.floor(timePxRatio * duration);
-  const height: number = Math.floor(freqPxRatio * freqRange) + HEADER_HEIGHT + HEADER_MARGIN;
+  const height: number = (yAxis?.valuesToHeight(annotation.startFrequency, annotation.endFrequency) ?? 0)+ HEADER_HEIGHT + HEADER_MARGIN;
 
   const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 

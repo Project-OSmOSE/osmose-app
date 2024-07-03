@@ -89,3 +89,5 @@ dist-ssr
 
 # asdf
 .tool-versions
+
+venv

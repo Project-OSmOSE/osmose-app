@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from faker import Faker
 
+from backend.api.actions.frequency_scales import get_frequency_scales
 from backend.api.models import (
     DatasetType,
     GeoMetadatum,
@@ -137,7 +138,10 @@ class Command(management.BaseCommand):
             "Test Dataset",
             "Test archived",
         ]  # WARNING : This name is used for Cypress tests, do not change or remove
-        dataset_names += [self.fake.unique.city() for _ in range(self.data_nb - 1)]
+        dataset_names += [self.fake.unique.city() for _ in range(max(0, self.data_nb - 5))]
+        dataset_names.append("porp_delph")
+        dataset_names.append("Dual_LF_HF")
+        dataset_names.append("Audible")
         for name in dataset_names:
             dataset = Dataset(
                 name=name,
@@ -173,6 +177,7 @@ class Command(management.BaseCommand):
                         dataset=dataset,
                     )
                 )
+            linear_scale, multi_linear_scale = get_frequency_scales(name=name, sample_rate=self.audio_metadatum.dataset_sr)
             configs.append(
                 SpectrogramConfiguration(
                     name="4096_4096_90",
@@ -190,6 +195,8 @@ class Command(management.BaseCommand):
                     window_type=self.window_type,
                     frequency_resolution=0,
                     dataset=dataset,
+                    linear_frequency_scale=linear_scale,
+                    multi_linear_frequency_scale=multi_linear_scale
                 )
             )
         Dataset.objects.bulk_create(self.datasets)
@@ -247,8 +254,7 @@ class Command(management.BaseCommand):
     def _create_annotation_campaigns(self):
         print(" ###### _create_annotation_campaigns ######")
         self.campaigns = []
-        for i in range(0, self.data_nb):
-            dataset = self.datasets[i]
+        for dataset in self.datasets:
             campaign = AnnotationCampaign.objects.create(
                 name=f"{dataset.name} campaign",
                 desc=self.fake.sentence(),
@@ -266,7 +272,6 @@ class Command(management.BaseCommand):
                 archive = AnnotationCampaignArchive.objects.create(by_user=self.admin)
                 campaign.archive = archive
                 campaign.save()
-            # dataset = self.datasets[i - 1]
             campaign.datasets.add(dataset)
             campaign.spectro_configs.add(dataset.spectro_configs.first())
             tasks = []

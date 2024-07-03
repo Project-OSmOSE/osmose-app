@@ -89,15 +89,15 @@ class DatasetViewSet(viewsets.ViewSet):
                 importer=request.user,
             )
         except FileNotFoundError as error:
-            print('[datawork_import] > FileNotFoundError')
+            print("[datawork_import] > FileNotFoundError")
             capture_exception(error)
             return HttpResponse(error, status=400)
         except PermissionError as error:
-            print('[datawork_import] > PermissionError')
+            print("[datawork_import] > PermissionError")
             capture_exception(error)
             return HttpResponse(error, status=400)
         except KeyError as error:
-            print('[datawork_import] > KeyError')
+            print("[datawork_import] > KeyError")
             capture_exception(error)
             return HttpResponse(
                 f"One of the import CSV is missing the following column : {error}",

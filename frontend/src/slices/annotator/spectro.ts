@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { SpectrogramData, SpectrogramImage, SpectrogramParams } from "@/types/spectro.ts";
-import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
+import { Retrieve, RetrieveSpectroURL } from "@/services/api/annotation-task-api.service.tsx";
 
 const baseUrlRegexp = /(.*\/)(.*)_\d*_\d*(\..*)/;
 
@@ -17,6 +17,8 @@ export type SpectroSlice = {
   currentZoomOrigin?: { x: number, y: number };
 
   pointerPosition?: { time: number, frequency: number };
+
+  retrieve?: RetrieveSpectroURL;
 }
 
 function getSpectrogramForParams(allSpectrograms: Array<SpectrogramData>,
@@ -105,7 +107,8 @@ export const spectroSlice = createSlice({
           winsize: currentSpectro.winsize
         } : undefined,
         currentZoom: 1,
-        currentZoomOrigin: undefined
+        currentZoomOrigin: undefined,
+        retrieve: action.payload.spectroUrls,
       })
     },
 
