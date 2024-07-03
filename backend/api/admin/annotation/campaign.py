@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib import messages
 
-from backend.api.models import AnnotationCampaign, AnnotationCampaignArchive
+from backend.api.models import AnnotationCampaign
 from ..__utils__ import get_many_to_many
 
 
@@ -21,10 +21,10 @@ class IsArchivedFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         for campaign in queryset:
-        if value == "Yes":
-            return queryset.filter(archive__isnull=False)
-        if value == "No":
-            return queryset.filter(archive__isnull=True)
+            if value == "Yes":
+                return queryset.filter(archive__isnull=False)
+            if value == "No":
+                return queryset.filter(archive__isnull=True)
         return queryset
 
 
