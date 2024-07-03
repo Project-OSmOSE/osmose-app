@@ -20,11 +20,10 @@ class IsArchivedFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        for campaign in queryset:
-            if value == "Yes":
-                return queryset.filter(archive__isnull=False)
-            if value == "No":
-                return queryset.filter(archive__isnull=True)
+        if value == "Yes":
+            return queryset.filter(archive__isnull=False)
+        if value == "No":
+            return queryset.filter(archive__isnull=True)
         return queryset
 
 
