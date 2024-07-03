@@ -1,5 +1,4 @@
-import { MultiLinearScale } from "@/services/api/annotation-task-api.service.tsx";
-import { LinearScale } from "@/services/spectrogram/scale/linear.scale.ts";
+import { LinearScale, MultiLinearScale } from "@/services/spectrogram";
 
 export interface AxisProps {
   height: number,

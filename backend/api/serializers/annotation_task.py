@@ -175,6 +175,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpectrogramConfiguration
         fields = [
+            "id",
             "nfft",
             "winsize",
             "overlap",

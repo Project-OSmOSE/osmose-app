@@ -18,7 +18,8 @@ export type SpectroSlice = {
 
   pointerPosition?: { time: number, frequency: number };
 
-  retrieve?: RetrieveSpectroURL;
+  retrieve: Array<RetrieveSpectroURL>;
+  selectedSpectroId: number;
 }
 
 function getSpectrogramForParams(allSpectrograms: Array<SpectrogramData>,
@@ -85,9 +86,12 @@ export const spectroSlice = createSlice({
     currentImages: [],
     availableParams: [],
     currentZoom: 1,
+    retrieve: [],
+    selectedSpectroId: 0
   } as SpectroSlice,
   reducers: {
     initSpectro: (state, action: { payload: Retrieve }) => {
+      console.debug('[initSpectro]', action.payload.spectroUrls)
       const allSpectrograms = getAllSpectrograms(action.payload);
       const currentSpectro = getSpectrogramForParams(allSpectrograms, 1);
       let availableParams = allSpectrograms.map(c => ({
@@ -116,7 +120,8 @@ export const spectroSlice = createSlice({
       Object.assign(state, {
         currentImages: getSpectrogramForParams(state.allSpectrograms, action.payload.zoom, action.payload)?.images ?? [],
         currentParams: action.payload,
-        currentZoomOrigin: undefined
+        currentZoomOrigin: undefined,
+        selectedSpectroId: state.retrieve.find(s => s.nfft === action.payload.nfft && s.winsize === action.payload.winsize && s.overlap === action.payload.overlap)!.id
       })
     },
 

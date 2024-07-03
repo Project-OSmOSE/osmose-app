@@ -44,7 +44,11 @@ export const AnnotationList: React.FC = () => {
           <AnnotationItem annotation={ annotation }
                           key={ idx }></AnnotationItem>
         )) }
-        { annotations.length === 0 && <IonNote color="medium">No annotations</IonNote> }
+        { annotations.length === 0 && <tr>
+            <td colSpan={ mode === 'Create' ? 5 : 7 }>
+                <IonNote color="medium">No annotations</IonNote>
+            </td>
+        </tr> }
         </tbody>
       </table>
     </div>

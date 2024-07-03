@@ -1,4 +1,4 @@
-import { AbstractScale, Steps } from "@/services/spectrogram/scale/abstract.scale.ts";
+import { AbstractScale, Steps } from "./abstract.scale.ts";
 
 export interface LinearScale {
   name?: string;
@@ -9,16 +9,16 @@ export interface LinearScale {
 
 export class LinearScaleService implements AbstractScale {
 
-  MIN_SMALL_STEPS_RANGE_PX = 8;
-  MIN_BIG_STEPS_RANGE_PX = 30;
+  private MIN_SMALL_STEPS_RANGE_PX = 8;
+  private MIN_BIG_STEPS_RANGE_PX = 30;
 
   get range(): number {
     return this.maxValue - this.minValue;
   }
 
-  constructor(public pixelHeight: number,
+  constructor(private pixelHeight: number,
               private maxValue: number,
-              public minValue: number = 0) {
+              private minValue: number = 0) {
   }
 
   valueToPosition(value: number): number {

@@ -4,6 +4,7 @@ import { APIService } from "./api-service.util.tsx";
 import { AnnotationMode, AnnotationTaskStatus, AnnotationComment } from "@/types/annotations.ts";
 import { CampaignUsage } from "@/types/campaign.ts";
 import { LinearScale } from "@/services/spectrogram/scale/linear.scale.ts";
+import { MultiLinearScale } from "@/services/spectrogram/scale/multi-linear.scale.ts";
 
 export type List = Array<ListItem>
 export type ListItem = {
@@ -42,17 +43,13 @@ export interface Retrieve {
   mode: CampaignUsage
 }
 export interface RetrieveSpectroURL {
+  id: number;
   nfft: number;
   winsize: number;
   overlap: number;
   urls: string[];
   linear_frequency_scale: LinearScale | null;
   multi_linear_frequency_scale: MultiLinearScale | null;
-}
-
-export interface MultiLinearScale {
-  name?: string;
-  inner_scales: Array<LinearScale>;
 }
 
 export interface Boundaries {

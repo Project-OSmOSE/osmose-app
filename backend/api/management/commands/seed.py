@@ -116,7 +116,7 @@ class Command(management.BaseCommand):
         self.dataset_type = DatasetType.objects.create(name="Coastal audio recordings")
         self.audio_metadatum = AudioMetadatum.objects.create(
             channel_count=1,
-            dataset_sr=32768,
+            dataset_sr=327680,
             total_samples=88473600,
             sample_bits=16,
             gain_db=22,

@@ -96,7 +96,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     currentZoom,
     currentZoomOrigin,
     currentImages,
-    retrieve
+    retrieve,
+    selectedSpectroId
   } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
 
@@ -451,9 +452,9 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
       <YAxis width={ Y_WIDTH }
              height={ SPECTRO_HEIGHT }
-             ref={ yAxis }
-             linear_scale={ retrieve?.linear_frequency_scale }
-             multi_linear_scale={ retrieve?.multi_linear_frequency_scale }
+             // ref={ yAxis }
+             linear_scale={ retrieve[selectedSpectroId]?.linear_frequency_scale }
+             multi_linear_scale={ retrieve[selectedSpectroId]?.multi_linear_frequency_scale }
              max_value={ wholeFileBoundaries.endFrequency }
              style={ { position: 'absolute', top: `${ CONTROLS_AREA_SIZE }px` } }></YAxis>
 

@@ -22,4 +22,9 @@ export interface Steps {
    * Map <position to value>
    */
   bigSteps: Map<number, number>;
+
+  /**
+   * Map <position to value>
+   */
+  dualBigSteps?: Map<number, { n1: number, n2: number }>;
 }
