@@ -23,11 +23,13 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         """Logout when tests ends"""
         self.client.logout()
 
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
     def test_request_unauthenticated(self):
         """Test unauthenticated request, supposed to be unauthorized"""
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
     def test_datawork_import_for_user(self):
         """Dataset view 'datawork_import' is forbidden for non-staff"""
         self.client.login(username="user1", password="osmose29")
@@ -35,6 +37,7 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         response = self.client.post(url, DATA_SEND, format="json", follow=True)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "good")
     def test_datawork_import_for_staff(self):
         """Dataset view 'datawork_import' is allowed for staff"""
         self.basic_import_test()
