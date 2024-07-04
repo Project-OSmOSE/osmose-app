@@ -1,12 +1,13 @@
 import React, {
   Fragment,
+  MouseEvent,
+  PointerEvent,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
-  PointerEvent,
-  WheelEvent,
-  useImperativeHandle
+  WheelEvent
 } from "react";
 import { Annotation, AnnotationMode, AnnotationType, Usage } from "@/types/annotations.ts";
 import { Region } from "./region.component.tsx";
@@ -145,7 +146,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     loadSpectro()
   }, [currentImages, canvasRef.current])
 
-  const isInCanvas = (event: PointerEvent<HTMLDivElement>) => {
+  const isInCanvas = (event: PointerEvent<HTMLDivElement> | MouseEvent) => {
     const bounds = canvasRef.current?.getBoundingClientRect();
     if (!bounds) return false;
     if (event.clientX < bounds.x) return false;
@@ -336,34 +337,51 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     }
   }
 
-  const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
-    if (!yAxis.current || !xAxis.current) return;
-    const time = xAxis.current.positionToValue(e.clientX)
-    const frequency = yAxis.current.positionToValue(e.clientY)
+  const getCoordsFromPointer = (e: PointerEvent | WheelEvent | MouseEvent): { x: number, y: number } | undefined => {
+    if (!canvasRef.current) return;
+    const bounds = canvasRef.current.getBoundingClientRect();
+    return {
+      y: e.pageY - bounds.y,
+      x: e.pageX - bounds.x,
+    }
+  }
 
-    if (isInCanvas(e)) {
-      dispatch(updatePointerPosition({ time, frequency }))
-      newAnnotation?.update(time, frequency);
+  const getFreqTimeFromPointer = (e: PointerEvent<HTMLDivElement> | MouseEvent): {
+    frequency: number,
+    time: number
+  } | undefined => {
+    if (!isInCanvas(e)) return;
+    if (!yAxis.current || !xAxis.current || !wrapperRef.current) return;
+    const coords = getCoordsFromPointer(e);
+    if (!coords) return;
+    return {
+      frequency: yAxis.current.positionToValue(coords.y),
+      time: xAxis.current.positionToValue(coords.x),
+    }
+  }
+
+  const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    const data = getFreqTimeFromPointer(e);
+    if (data) {
+      dispatch(updatePointerPosition(data))
+      newAnnotation?.update(data.time, data.frequency);
     } else dispatch(leavePointer())
   }
 
   const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
-    if (!isDrawingEnabled || !isInCanvas(e) || !yAxis.current || !xAxis.current) return;
+    if (!isDrawingEnabled) return;
+    const data = getFreqTimeFromPointer(e);
+    if (!data) return;
 
-    const newAnnotation = new EditAnnotation(
-      xAxis.current.positionToValue(e.clientX),
-      yAxis.current.positionToValue(e.clientY)
-    );
+    const newAnnotation = new EditAnnotation(data!.time, data!.frequency);
     setNewAnnotation(newAnnotation);
   }
 
   const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
     if (!yAxis.current || !xAxis.current) return;
     if (newAnnotation) {
-      newAnnotation.update(
-        xAxis.current.positionToValue(e.clientX),
-        yAxis.current.positionToValue(e.clientY)
-      )
+      const data = getFreqTimeFromPointer(e);
+      if (data) newAnnotation.update(data.time, data.frequency)
       const width = xAxis.current?.valuesToPositionRange(newAnnotation.startTime, newAnnotation.endTime);
       const height = yAxis.current?.valuesToPositionRange(newAnnotation.startFrequency, newAnnotation.endFrequency);
       if (width > 2 && height > 2) {
@@ -387,11 +405,9 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     // Prevent page scrolling
     event.stopPropagation(); // TODO: make it work!
 
-    const origin = {
-      x: event.clientX,
-      y: event.clientY
-    }
+    const origin = getCoordsFromPointer(event);
 
+    if (!origin) return;
     if (event.deltaY < 0) dispatch(zoom({ direction: 'in', origin }))
     else if (event.deltaY > 0) dispatch(zoom({ direction: 'out', origin }))
   }
@@ -424,7 +440,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
                 ref={ canvasRef }
                 height={ SPECTRO_HEIGHT }
                 width={ SPECTRO_WIDTH }
-                onClick={ e => audioPlayer?.seek(xAxis.current?.positionToValue(e.clientX) ?? 0) }
+                onClick={ e => audioPlayer?.seek(getFreqTimeFromPointer(e)?.time ?? 0) }
                 onWheel={ onWheel }></canvas>
 
         <XAxis width={ timeWidth }
