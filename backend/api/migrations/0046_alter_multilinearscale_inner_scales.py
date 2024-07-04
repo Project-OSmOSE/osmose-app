@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0045_custom_scale'),
+        ("api", "0045_custom_scale"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='multilinearscale',
-            name='inner_scales',
-            field=models.ManyToManyField(related_name='outer_scales', to='api.LinearScale'),
+            model_name="multilinearscale",
+            name="inner_scales",
+            field=models.ManyToManyField(
+                related_name="outer_scales", to="api.LinearScale"
+            ),
         ),
     ]

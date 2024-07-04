@@ -117,7 +117,9 @@ class DatasetAdmin(admin.ModelAdmin):
         """show_spectro_configs"""
         links = []
         for spectro in dataset.spectro_configs.all():
-            link = reverse("admin:api_spectrogramconfiguration_change", args=[spectro.id])
+            link = reverse(
+                "admin:api_spectrogramconfiguration_change", args=[spectro.id]
+            )
             links.append(format_html('<a href="{}">{}</a>', link, spectro))
         return format_html("<br>".join(links))
 

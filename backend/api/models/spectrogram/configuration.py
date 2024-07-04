@@ -25,7 +25,12 @@ class SpectrogramConfiguration(models.Model):
         constraints = [
             models.UniqueConstraint(
                 name="api_spectrogramconfiguration_name_dataset_unicity_constraint",
-                fields=["name", "dataset_id", "linear_frequency_scale_id", "multi_linear_frequency_scale_id"],
+                fields=[
+                    "name",
+                    "dataset_id",
+                    "linear_frequency_scale_id",
+                    "multi_linear_frequency_scale_id",
+                ],
             ),
             models.CheckConstraint(
                 name="spectrogramconfiguration_max_one_scale",

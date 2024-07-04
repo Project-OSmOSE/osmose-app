@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import AnnotationTask, AnnotationResult
+from backend.api.serializers.annotation_task import AnnotationTaskSpectroSerializerFields
 
 
 class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):
@@ -134,7 +135,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data["spectroUrls"]), 1)
         self.assertEqual(
             list(response.data["spectroUrls"][0].keys()),
-            ["nfft", "winsize", "overlap", "urls"],
+            AnnotationTaskSpectroSerializerFields,
         )
         self.assertEqual(len(response.data["spectroUrls"][0]["urls"]), 15)
 

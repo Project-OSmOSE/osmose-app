@@ -156,6 +156,15 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
             "validation",
         ]
 
+AnnotationTaskSpectroSerializerFields = [
+    "id",
+    "nfft",
+    "winsize",
+    "overlap",
+    "urls",
+    "linear_frequency_scale",
+    "multi_linear_frequency_scale",
+]
 
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     """
@@ -174,15 +183,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpectrogramConfiguration
-        fields = [
-            "id",
-            "nfft",
-            "winsize",
-            "overlap",
-            "urls",
-            "linear_frequency_scale",
-            "multi_linear_frequency_scale",
-        ]
+        fields = AnnotationTaskSpectroSerializerFields
         depth = 2
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
@@ -196,9 +197,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
             spectro_name += f"_{spectro_config.linear_frequency_scale.name}"
         if spectro_config.multi_linear_frequency_scale:
             spectro_name += f"_{spectro_config.multi_linear_frequency_scale.name}"
-        spectro_path = (
-                settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_name
-        )
+        spectro_path = settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_name
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
             for tile in spectro_config.zoom_tiles(sound_name)
@@ -367,7 +366,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 ann["confidence_indicator"] for ann in annotations
             )
             unknown_confidence_indicators = (
-                    update_confidence_indicators - set_confidence_indicators
+                update_confidence_indicators - set_confidence_indicators
             )
             if unknown_confidence_indicators:
                 raise serializers.ValidationError(

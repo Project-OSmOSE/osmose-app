@@ -136,7 +136,9 @@ class Command(management.BaseCommand):
             "Test Dataset",
             "Test archived",
         ]  # WARNING : This name is used for Cypress tests, do not change or remove
-        dataset_names += [self.fake.unique.city() for _ in range(max(0, self.data_nb - 5))]
+        dataset_names += [
+            self.fake.unique.city() for _ in range(max(0, self.data_nb - 5))
+        ]
         dataset_names.append("porp_delph")
         dataset_names.append("Dual_LF_HF")
         dataset_names.append("Audible")
@@ -175,7 +177,9 @@ class Command(management.BaseCommand):
                         dataset=dataset,
                     )
                 )
-            linear_scale, multi_linear_scale = get_frequency_scales(name=name, sample_rate=self.audio_metadatum.dataset_sr)
+            linear_scale, multi_linear_scale = get_frequency_scales(
+                name=name, sample_rate=self.audio_metadatum.dataset_sr
+            )
             configs.append(
                 SpectrogramConfiguration(
                     name="4096_4096_90",
@@ -194,12 +198,13 @@ class Command(management.BaseCommand):
                     frequency_resolution=0,
                     dataset=dataset,
                     linear_frequency_scale=linear_scale,
-                    multi_linear_frequency_scale=multi_linear_scale
+                    multi_linear_frequency_scale=multi_linear_scale,
                 )
             )
             if name == "Test Dataset":
-                linear_scale, multi_linear_scale = get_frequency_scales(name="porp_delph",
-                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                linear_scale, multi_linear_scale = get_frequency_scales(
+                    name="porp_delph", sample_rate=self.audio_metadatum.dataset_sr
+                )
                 configs.append(
                     SpectrogramConfiguration(
                         name="4096_4096_90",
@@ -218,11 +223,12 @@ class Command(management.BaseCommand):
                         frequency_resolution=0,
                         dataset=dataset,
                         linear_frequency_scale=linear_scale,
-                        multi_linear_frequency_scale=multi_linear_scale
+                        multi_linear_frequency_scale=multi_linear_scale,
                     )
                 )
-                linear_scale, multi_linear_scale = get_frequency_scales(name="Dual_LF_HF",
-                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                linear_scale, multi_linear_scale = get_frequency_scales(
+                    name="Dual_LF_HF", sample_rate=self.audio_metadatum.dataset_sr
+                )
                 configs.append(
                     SpectrogramConfiguration(
                         name="4096_4096_90",
@@ -241,11 +247,12 @@ class Command(management.BaseCommand):
                         frequency_resolution=0,
                         dataset=dataset,
                         linear_frequency_scale=linear_scale,
-                        multi_linear_frequency_scale=multi_linear_scale
+                        multi_linear_frequency_scale=multi_linear_scale,
                     )
                 )
-                linear_scale, multi_linear_scale = get_frequency_scales(name="Audible",
-                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                linear_scale, multi_linear_scale = get_frequency_scales(
+                    name="Audible", sample_rate=self.audio_metadatum.dataset_sr
+                )
                 configs.append(
                     SpectrogramConfiguration(
                         name="4096_4096_90",
@@ -264,7 +271,7 @@ class Command(management.BaseCommand):
                         frequency_resolution=0,
                         dataset=dataset,
                         linear_frequency_scale=linear_scale,
-                        multi_linear_frequency_scale=multi_linear_scale
+                        multi_linear_frequency_scale=multi_linear_scale,
                     )
                 )
 
