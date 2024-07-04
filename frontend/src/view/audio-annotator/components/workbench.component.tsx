@@ -3,7 +3,8 @@ import { formatTimestamp } from "@/services/utils/format.tsx";
 import { SpectrogramRender, SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { updateParams, zoom } from "@/slices/annotator/spectro.ts";
+import { selectSpectro, zoom } from "@/slices/annotator/spectro.ts";
+import { RetrieveSpectroURL } from "@/services/api/annotation-task-api.service.tsx";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -20,18 +21,15 @@ type Props = {
 export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
 
   const {
-    audioURL,
-    audioRate,
-    campaignName
+    task
   } = useAppSelector(state => state.annotator.global);
   const {
     wholeFileBoundaries,
   } = useAppSelector(state => state.annotator.annotations);
   const {
-    currentParams,
-    availableParams,
     currentZoom,
-    pointerPosition
+    pointerPosition,
+    selectedSpectroId
   } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
 
@@ -45,26 +43,30 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
   useImperativeHandle(ref, () => ({
     getCanvasData: async () => {
-      console.debug('[getCanvasData - workbench] init')
       if (!spectrogramRender.current) throw new Error('no renderer');
       return spectrogramRender.current.getCanvasData();
     }
   }))
+
+  const getScaleNameFor = (spectro: RetrieveSpectroURL) => {
+    if (spectro.linear_frequency_scale) return spectro.linear_frequency_scale.name ?? 'Linear';
+    if (spectro.multi_linear_frequency_scale) return spectro.multi_linear_frequency_scale.name ?? 'Multi-linear';
+    return 'Default'
+  }
 
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
       <p className="workbench-controls">
         <select
-          defaultValue={ currentParams ? availableParams.indexOf(currentParams) : 0 }
-          onChange={ e => dispatch(updateParams({ ...availableParams[+e.target.value], zoom: 1 })) }>
-          { availableParams.map((params, idx) => {
-            return (
-              <option key={ `params-${ idx }` } value={ idx }>
-                { `nfft: ${ params.nfft } / winsize: ${ params.winsize } / overlap: ${ params.overlap }` }
-              </option>
-            );
-          }) }
+          defaultValue={ selectedSpectroId }
+          onChange={ e => dispatch(selectSpectro(+e.target.value)) }>
+          { task.spectroUrls.map(spectro => (
+            <option key={ spectro.id } value={ spectro.id }>
+              nfft: { spectro.nfft } | winsize: { spectro.winsize } | overlap: { spectro.overlap } | scale: { getScaleNameFor(spectro) }
+            </option>
+          ))
+          }
         </select>
         <button className="btn-simple fa fa-search-plus"
                 onClick={ () => dispatch(zoom({ direction: 'in' })) }></button>
@@ -78,10 +80,10 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
       </p> }
 
       <p className="workbench-info workbench-info--intro">
-        Campaign: <strong>{ campaignName }</strong>
+        Campaign: <strong>{ task.campaignName }</strong>
         <br/>
-        File: <strong>{ audioURL?.split('/').pop() ?? '' }</strong> -
-        Sampling: <strong>{ audioRate ?? 0 } Hz</strong>
+        File: <strong>{ task.audioUrl?.split('/').pop() ?? '' }</strong> -
+        Sampling: <strong>{ task.audioRate ?? 0 } Hz</strong>
         <br/>
         Start date: <strong>{ new Date(wholeFileBoundaries.startTime).toUTCString() }</strong>
       </p>

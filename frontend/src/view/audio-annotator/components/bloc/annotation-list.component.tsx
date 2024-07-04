@@ -10,7 +10,7 @@ import { checkmarkOutline, closeOutline } from "ionicons/icons";
 export const AnnotationList: React.FC = () => {
 
   const {
-    mode,
+    task,
   } = useAppSelector(state => state.annotator.global);
   const {
     results,
@@ -36,7 +36,7 @@ export const AnnotationList: React.FC = () => {
       <table className="table table-hover rounded">
         <thead className="">
         <tr className="text-center bg__black--003">
-          <th colSpan={ mode === 'Create' ? 5 : 7 }>Annotations</th>
+          <th colSpan={ task.mode === 'Create' ? 5 : 7 }>Annotations</th>
         </tr>
         </thead>
         <tbody>
@@ -45,7 +45,7 @@ export const AnnotationList: React.FC = () => {
                           key={ idx }></AnnotationItem>
         )) }
         { annotations.length === 0 && <tr>
-            <td colSpan={ mode === 'Create' ? 5 : 7 }>
+            <td colSpan={ task.mode === 'Create' ? 5 : 7 }>
                 <IonNote color="medium">No annotations</IonNote>
             </td>
         </tr> }
@@ -62,7 +62,7 @@ interface ItemProps {
 const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
 
   const focusedResult = useAppSelector(state => state.annotator.annotations.focusedResult);
-  const mode = useAppSelector(state => state.annotator.global.mode);
+  const { task } = useAppSelector(state => state.annotator.global);
   const dispatch = useAppDispatch();
 
   switch (annotation.type) {
@@ -93,7 +93,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
             { annotation.result_comments.filter(c => c.comment).length > 0 ? <i className="fas fa-comment mr-2"></i> :
               <i className="far fa-comment mr-2"></i> }
           </td>
-          { mode === Usage.check && <td className="p-1 validation-buttons">
+          { task.mode === Usage.check && <td className="p-1 validation-buttons">
               <IonButton color={ annotation.validation ? 'success' : 'medium' }
                          fill={ annotation.validation ? 'solid' : 'outline' }
                          onClick={ () => dispatch(validateResult(annotation)) }>
@@ -126,7 +126,7 @@ const AnnotationItem: React.FC<ItemProps> = ({ annotation }) => {
             { annotation.result_comments.filter(c => c.comment).length > 0 ? <i className="fas fa-comment mr-2"></i> :
               <i className="far fa-comment mr-2"></i> }
           </td>
-          { mode === 'Check' && <td className="p-1 validation-buttons">
+          { task.mode === 'Check' && <td className="p-1 validation-buttons">
               <IonButton color={ annotation.validation ? 'success' : 'medium' }
                          fill={ annotation.validation ? 'solid' : 'outline' }
                          onClick={ () => dispatch(validateResult(annotation)) }>

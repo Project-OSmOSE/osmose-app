@@ -119,13 +119,9 @@ export const AudioAnnotator: React.FC = () => {
   const userAPI = useUsersAPI();
 
   const {
+    task,
     areShortcutsEnabled,
-    instructionsURL,
-    campaignId,
-    taskId,
-    mode,
     toast,
-    audioURL,
   } = useAppSelector(state => state.annotator.global);
   const {
     focusedResult,
@@ -214,29 +210,28 @@ export const AudioAnnotator: React.FC = () => {
   }
 
   const openInstructions = () => {
-    if (!instructionsURL) return;
-    window.open(instructionsURL, "_blank", "noopener, noreferrer")
+    if (!task.instructions_url) return;
+    window.open(task.instructions_url, "_blank", "noopener, noreferrer")
   }
 
   const goBack = () => {
-    window.open(`/app/annotation_tasks/${ campaignId }`, "_self")
+    window.open(`/app/annotation_tasks/${ task.campaignId }`, "_self")
   }
 
   const downloadAudio = () => {
-    if (!audioURL) return;
+    if (!task.audioUrl) return;
     const link = document.createElement('a');
-    link.href = audioURL;
+    link.href = task.audioUrl;
     link.target = '_blank';
-    const pathSplit = audioURL.split('/')
+    const pathSplit = task.audioUrl.split('/')
     link.download = pathSplit[pathSplit.length - 1];
     link.click();
   }
 
   const downloadSpectro = async () => {
-    if (!audioURL) return;
+    if (!task.audioUrl) return;
     const link = document.createElement('a');
     setIsLoadingSpectroDL(true);
-    console.debug('downloadSpectro', spectrogramRender.current)
     const data = await spectrogramRender.current?.getCanvasData().catch(e => {
       console.warn(e);
       setIsLoadingSpectroDL(false)
@@ -244,7 +239,7 @@ export const AudioAnnotator: React.FC = () => {
     if (!data) return;
     link.href = data;
     link.target = '_blank';
-    let pathSplit = audioURL.split('/')
+    let pathSplit = task.audioUrl.split('/')
     pathSplit = pathSplit[pathSplit.length - 1].split('.');
     pathSplit.pop(); // Remove audio file extension
     const filename = pathSplit.join('.');
@@ -255,7 +250,7 @@ export const AudioAnnotator: React.FC = () => {
 
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
-  else if (!taskId) return <p>Unknown error while loading task.</p>
+  else if (!task?.id) return <p>Unknown error while loading task.</p>
 
   // Rendering
   return (
@@ -290,7 +285,7 @@ export const AudioAnnotator: React.FC = () => {
             Annotator user guide
           </IonButton>
 
-          { instructionsURL && <IonButton color="dark"
+          { task.instructions_url && <IonButton color="dark"
                                           fill={ "outline" }
                                           onClick={ openInstructions }>
               <IonIcon icon={ informationCircle } slot="start"/>
@@ -354,7 +349,7 @@ export const AudioAnnotator: React.FC = () => {
       </div>
 
       {/* Label and annotations management */ }
-      { mode === 'Create' && <div className="row justify-content-around m-2">
+      { task.mode === 'Create' && <div className="row justify-content-around m-2">
           <CurrentAnnotationBloc/>
 
           <div className="col-5 flex-shrink-2">
@@ -367,8 +362,8 @@ export const AudioAnnotator: React.FC = () => {
       </div> }
 
       <div className="row justify-content-center">
-        { mode === Usage.create && <AnnotationList/> }
-        { mode === Usage.check && <DetectionList/> }
+        { task.mode === Usage.create && <AnnotationList/> }
+        { task.mode === Usage.check && <DetectionList/> }
 
         <CommentBloc/>
       </div>

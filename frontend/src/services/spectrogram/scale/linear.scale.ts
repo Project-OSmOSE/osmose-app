@@ -18,14 +18,14 @@ export class LinearScaleService implements AbstractScale {
 
   constructor(private pixelHeight: number,
               private maxValue: number,
-              private minValue: number = 0) {
+              private minValue: number = 0,) {
   }
 
   valueToPosition(value: number): number {
     return this.crossProduct(value - this.minValue, this.range, this.pixelHeight);
   }
 
-  valuesToHeight(min: number, max: number): number {
+  valuesToPositionRange(min: number, max: number): number {
     return Math.abs(this.valueToPosition(max) - this.valueToPosition(min));
   }
 

@@ -41,14 +41,12 @@ class Command(management.BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--data-nb",
-            # action="store_true",
             type=int,
             default=5,
             help="Give the amount of dataset/campaigns to create, useful to test request optimisations",
         )
         parser.add_argument(
             "--files-nb",
-            # action="store_true",
             type=int,
             default=100,
             help="Give the amount of files in dataset to create, useful to test request optimisations",
@@ -199,6 +197,77 @@ class Command(management.BaseCommand):
                     multi_linear_frequency_scale=multi_linear_scale
                 )
             )
+            if name == "Test Dataset":
+                linear_scale, multi_linear_scale = get_frequency_scales(name="porp_delph",
+                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                configs.append(
+                    SpectrogramConfiguration(
+                        name="4096_4096_90",
+                        nfft=4096,
+                        window_size=4096,
+                        overlap=90,
+                        zoom_level=3,
+                        spectro_normalization="density",
+                        data_normalization="0",
+                        zscore_duration="0",
+                        hp_filter_min_freq=0,
+                        colormap="Blues",
+                        dynamic_min=0,
+                        dynamic_max=0,
+                        window_type=self.window_type,
+                        frequency_resolution=0,
+                        dataset=dataset,
+                        linear_frequency_scale=linear_scale,
+                        multi_linear_frequency_scale=multi_linear_scale
+                    )
+                )
+                linear_scale, multi_linear_scale = get_frequency_scales(name="Dual_LF_HF",
+                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                configs.append(
+                    SpectrogramConfiguration(
+                        name="4096_4096_90",
+                        nfft=4096,
+                        window_size=4096,
+                        overlap=90,
+                        zoom_level=3,
+                        spectro_normalization="density",
+                        data_normalization="0",
+                        zscore_duration="0",
+                        hp_filter_min_freq=0,
+                        colormap="Blues",
+                        dynamic_min=0,
+                        dynamic_max=0,
+                        window_type=self.window_type,
+                        frequency_resolution=0,
+                        dataset=dataset,
+                        linear_frequency_scale=linear_scale,
+                        multi_linear_frequency_scale=multi_linear_scale
+                    )
+                )
+                linear_scale, multi_linear_scale = get_frequency_scales(name="Audible",
+                                                                        sample_rate=self.audio_metadatum.dataset_sr)
+                configs.append(
+                    SpectrogramConfiguration(
+                        name="4096_4096_90",
+                        nfft=4096,
+                        window_size=4096,
+                        overlap=90,
+                        zoom_level=3,
+                        spectro_normalization="density",
+                        data_normalization="0",
+                        zscore_duration="0",
+                        hp_filter_min_freq=0,
+                        colormap="Blues",
+                        dynamic_min=0,
+                        dynamic_max=0,
+                        window_type=self.window_type,
+                        frequency_resolution=0,
+                        dataset=dataset,
+                        linear_frequency_scale=linear_scale,
+                        multi_linear_frequency_scale=multi_linear_scale
+                    )
+                )
+
         Dataset.objects.bulk_create(self.datasets)
         AudioMetadatum.objects.bulk_create(audio_metadata)
         DatasetFile.objects.bulk_create(files)
@@ -273,7 +342,8 @@ class Command(management.BaseCommand):
                 campaign.archive = archive
                 campaign.save()
             campaign.datasets.add(dataset)
-            campaign.spectro_configs.add(dataset.spectro_configs.first())
+            for config in dataset.spectro_configs.all():
+                campaign.spectro_configs.add(config)
             tasks = []
             for file in dataset.files.all().order_by("?"):
                 for user in self.users:

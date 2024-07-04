@@ -1,7 +1,7 @@
 export interface ScaleMapping {
 
   valueToPosition(value: number): number;
-  valuesToHeight(min: number, max: number): number;
+  valuesToPositionRange(min: number, max: number): number;
 
   positionToValue(position: number): number;
   positionsToRange(min: number, max: number): number;

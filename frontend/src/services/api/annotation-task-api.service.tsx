@@ -129,7 +129,7 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   private updateRequest?: SuperAgentRequest;
 
   list(campaignID: string): Promise<List> {
-    return super.list(`${ this.URI }/campaign/${ campaignID }`).then(r => r.map((d: any) => ({
+    return super.list(`${ this.URI }/campaign/${ campaignID }/`).then(r => r.map((d: any) => ({
       ...d,
       start: new Date(d.start),
       end: new Date(d.end),
@@ -140,7 +140,6 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
     return super.retrieve(id).then(r => {
       const startTime = new Date(r.boundaries.startTime);
       const endTime = new Date(r.boundaries.endTime);
-      console.debug(r)
       return {
         ...r,
         boundaries: {

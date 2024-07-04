@@ -1,128 +1,60 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { SpectrogramData, SpectrogramImage, SpectrogramParams } from "@/types/spectro.ts";
 import { Retrieve, RetrieveSpectroURL } from "@/services/api/annotation-task-api.service.tsx";
-
-const baseUrlRegexp = /(.*\/)(.*)_\d*_\d*(\..*)/;
 
 
 export type SpectroSlice = {
-  allSpectrograms: Array<SpectrogramData>;
-  currentImages: Array<SpectrogramImage>;
-
-  currentParams?: SpectrogramParams;
-  availableParams: Array<SpectrogramParams>
-
-  availableZoomLevels: Array<number>;
-  currentZoom: number;
-  currentZoomOrigin?: { x: number, y: number };
-
   pointerPosition?: { time: number, frequency: number };
 
-  retrieve: Array<RetrieveSpectroURL>;
   selectedSpectroId: number;
+  spectros: Array<RetrieveSpectroURL>;
+
+  currentZoom: number;
+  currentZoomOrigin?: { x: number, y: number };
+  maxZoom: number;
 }
 
-function getSpectrogramForParams(allSpectrograms: Array<SpectrogramData>,
-                                 zoom: number,
-                                 params?: SpectrogramParams): SpectrogramData | undefined {
-  if (allSpectrograms.length === 0) return;
-  if (!params) return allSpectrograms.find(d => d.zoom === zoom)
-  return allSpectrograms.filter(d =>
-    d.nfft === params.nfft &&
-    d.winsize === params.winsize &&
-    d.overlap === params.overlap
-  ).find(d => d.zoom === zoom)
+export function getZoomFromPath(path: string): { zoom: number, id: number } {
+  const pathSplit = path.split('.')
+  pathSplit.pop(); // pop file extension
+  const filename = pathSplit.pop()!
+  const filenameSplit = filename.split('_')
+  const id = +filenameSplit.pop()! // pop id of the image for zoom level
+  const zoom = +filenameSplit.pop()! // pop zoom level
+  return { zoom, id };
 }
 
-function getNewZoomLevel(state: SpectroSlice, direction: 'in' | 'out'): number {
-  const oldZoomId: number = state.availableZoomLevels.findIndex(z => z === state.currentZoom);
-  // When zoom will be free: if (direction > 0 && oldZoomIdx < zoomLevels.length - 1)
-  if (direction === 'in' && (oldZoomId + 1) < state.availableZoomLevels.length) {
-    // Zoom in
-    return state.availableZoomLevels[oldZoomId + 1];
-  } else if (direction === 'out' && oldZoomId > 0) {
-    // Zoom out
-    return state.availableZoomLevels[oldZoomId - 1];
-  } else return state.currentZoom;
-}
-
-function getAllSpectrograms(task: Retrieve): Array<SpectrogramData> {
-  return task.spectroUrls.map(configuration => {
-    const urlParts = configuration.urls[0].match(baseUrlRegexp);
-    const nbZooms = Math.log2(configuration.urls.length + 1);
-    return {
-      ...configuration,
-      nfft: configuration.nfft,
-      winsize: configuration.winsize,
-      overlap: configuration.overlap,
-      zoomLevels: [...Array(nbZooms)].map((_, i) => Math.pow(2, i)),
-      urlPrefix: urlParts ? urlParts[1] : '',
-      urlFileName: urlParts ? urlParts[2] : '',
-      urlFileExtension: urlParts ? urlParts[3] : '',
-    }
-  }).flatMap(info => {
-    return info.zoomLevels.map(zoom => {
-      const step: number = task.boundaries.duration / zoom;
-      return {
-        nfft: info.nfft,
-        winsize: info.winsize,
-        overlap: info.overlap,
-        zoom,
-        images: [...Array(zoom)].map((_, i) => ({
-          start: i * step,
-          end: (i + 1) * step,
-          src: `${ info.urlPrefix }${ info.urlFileName }_${ zoom }_${ i }${ info.urlFileExtension }`
-        }))
-      }
-    })
-  })
+function getMaxZoom(state: SpectroSlice): number {
+  let max = 1
+  const spectro = state.spectros.find(s => s.id === state.selectedSpectroId);
+  if (!spectro) return max
+  for (const url of spectro.urls) {
+    max = Math.max(max, getZoomFromPath(url).zoom)
+  }
+  return max
 }
 
 export const spectroSlice = createSlice({
   name: 'Spectro',
   initialState: {
-    allSpectrograms: [],
-    availableZoomLevels: [],
-    currentImages: [],
-    availableParams: [],
+    selectedSpectroId: 0,
+    spectros: [],
     currentZoom: 1,
-    retrieve: [],
-    selectedSpectroId: 0
+    maxZoom: 1,
   } as SpectroSlice,
   reducers: {
     initSpectro: (state, action: { payload: Retrieve }) => {
-      console.debug('[initSpectro]', action.payload.spectroUrls)
-      const allSpectrograms = getAllSpectrograms(action.payload);
-      const currentSpectro = getSpectrogramForParams(allSpectrograms, 1);
-      let availableParams = allSpectrograms.map(c => ({
-        nfft: c.nfft,
-        overlap: c.overlap,
-        winsize: c.winsize
-      }))
-      availableParams = availableParams.filter((p, i) => availableParams.findIndex(a => a.winsize === p.winsize && a.nfft === p.nfft && a.overlap === p.overlap) === i)
-      Object.assign(state, {
-        allSpectrograms,
-        availableZoomLevels: [...new Set(allSpectrograms.map(c => c.zoom))].sort((a, b) => a - b),
-        availableParams,
-        currentImages: currentSpectro?.images ?? [],
-        currentParams: currentSpectro ? {
-          nfft: currentSpectro.nfft,
-          overlap: currentSpectro.overlap,
-          winsize: currentSpectro.winsize
-        } : undefined,
-        currentZoom: 1,
-        currentZoomOrigin: undefined,
-        retrieve: action.payload.spectroUrls,
-      })
+      state.currentZoom = 1;
+      state.currentZoomOrigin = undefined;
+      state.selectedSpectroId = Math.min(...action.payload.spectroUrls.map(s => s.id));
+      state.spectros = action.payload.spectroUrls;
+      state.maxZoom = getMaxZoom(state);
     },
 
-    updateParams: (state, action: { payload: SpectrogramParams & { zoom: number } }) => {
-      Object.assign(state, {
-        currentImages: getSpectrogramForParams(state.allSpectrograms, action.payload.zoom, action.payload)?.images ?? [],
-        currentParams: action.payload,
-        currentZoomOrigin: undefined,
-        selectedSpectroId: state.retrieve.find(s => s.nfft === action.payload.nfft && s.winsize === action.payload.winsize && s.overlap === action.payload.overlap)!.id
-      })
+    selectSpectro: (state, action: { payload: number }) => {
+      if (state.selectedSpectroId === action.payload) return;
+      state.selectedSpectroId = action.payload
+      state.currentZoom = 1
+      state.maxZoom = getMaxZoom(state);
     },
 
     updatePointerPosition: (state, action: { payload: { time: number, frequency: number } }) => {
@@ -136,22 +68,25 @@ export const spectroSlice = createSlice({
     zoom: (state, action: {
       payload: { direction: 'in' | 'out', origin?: { x: number; y: number } }
     }) => {
-      const zoom = getNewZoomLevel(state, action.payload.direction);
-      Object.assign(state, {
-        currentImages: getSpectrogramForParams(state.allSpectrograms, zoom, state.currentParams)?.images ?? [],
-        currentZoom: zoom,
-        currentZoomOrigin: action.payload.origin
-      })
+      state.currentZoomOrigin = action.payload.origin;
+      switch (action.payload.direction) {
+        case "in":
+          state.currentZoom = Math.min(state.currentZoom * 2, state.maxZoom);
+          break;
+        case "out":
+          state.currentZoom = Math.max(state.currentZoom / 2, 1);
+          break;
+      }
     },
   }
 })
 
 export const {
   initSpectro,
-  updateParams,
   updatePointerPosition,
   leavePointer,
   zoom,
+  selectSpectro
 } = spectroSlice.actions;
 
 export default spectroSlice.reducer;

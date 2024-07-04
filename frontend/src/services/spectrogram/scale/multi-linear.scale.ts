@@ -68,7 +68,7 @@ export class MultiLinearScaleService implements AbstractScale {
     return this.getScaleForValue(value).valueToPosition(value);
   }
 
-  valuesToHeight(min: number, max: number): number {
+  valuesToPositionRange(min: number, max: number): number {
     return Math.abs(
       this.getScaleForValue(min).valueToPosition(min)
       - this.getScaleForValue(max).valueToPosition(max)

@@ -18,8 +18,7 @@ export interface AudioPlayer {
 export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: React.ForwardedRef<AudioPlayer>) => {
 
   const {
-    taskId,
-    audioURL,
+    task,
   } = useAppSelector(state => state.annotator.global);
   const {
     playbackRate
@@ -40,7 +39,7 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
-  }, [ taskId ]);
+  }, [ task.id ]);
 
   useEffect(() => {
     dispatch(onPause())
@@ -93,8 +92,8 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
            onPause={ () => dispatch(onPause()) }
            onPlay={ () => dispatch(onPlay()) }
            preload="auto"
-           src={ audioURL }
-           title={ audioURL }>
+           src={ task.audioUrl }
+           title={ task.audioUrl }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );

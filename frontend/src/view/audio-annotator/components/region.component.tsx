@@ -13,21 +13,20 @@ const HEADER_MARGIN: number = 3;
 
 type RegionProps = {
   annotation: Annotation,
-  timePxRatio: number,
   audioPlayer: AudioPlayer | null;
   yAxis: ScaleMapping | null;
+  xAxis: ScaleMapping | null;
 };
 
 
 export const Region: React.FC<RegionProps> = ({
                                                 annotation,
-                                                timePxRatio,
                                                 audioPlayer,
-                                                yAxis
+                                                yAxis, xAxis
                                               }) => {
 
   const {
-    mode,
+    task,
   } = useAppSelector(state => state.annotator.global);
   const {
     labelColors,
@@ -35,16 +34,14 @@ export const Region: React.FC<RegionProps> = ({
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
 
-  const offsetLeft = annotation.startTime * timePxRatio;
+  const offsetLeft = xAxis?.valueToPosition(annotation.startTime) ?? 0;
   const offsetTop: number = SPECTRO_HEIGHT - Math.max(
     yAxis?.valueToPosition(annotation.startFrequency) ?? 0,
     yAxis?.valueToPosition(annotation.endFrequency) ?? 0,
   );
 
-  const duration: number = annotation.endTime - annotation.startTime;
-
-  const width: number = Math.floor(timePxRatio * duration);
-  const height: number = (yAxis?.valuesToHeight(annotation.startFrequency, annotation.endFrequency) ?? 0)+ HEADER_HEIGHT + HEADER_MARGIN;
+  const width: number = xAxis?.valuesToPositionRange(annotation.startTime, annotation.endTime) ?? 0;
+  const height: number = (yAxis?.valuesToPositionRange(annotation.startFrequency, annotation.endFrequency) ?? 0)+ HEADER_HEIGHT + HEADER_MARGIN;
 
   const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 
@@ -100,7 +97,7 @@ export const Region: React.FC<RegionProps> = ({
           <i className="fas fa-comment mr-2"></i> :
           <i className="far fa-comment mr-2"></i> }
 
-        { mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
+        { task.mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
                                        onClick={ () => dispatch(removeResult(annotation)) }></button> }
       </p>
 

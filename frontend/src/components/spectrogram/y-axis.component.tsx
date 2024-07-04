@@ -15,7 +15,6 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const scaleService: AbstractScale = useMemo(() => {
-    console.debug('[scaleService]', linear_scale, multi_linear_scale, max_value)
     if (linear_scale) {
       return new LinearScaleService(
         height,
@@ -52,7 +51,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     return Math.floor(scaleService.positionToValue(height - position));
   }
 
-  const valuesToHeight = (min: number, max: number): number => {
+  const valuesToPositionRange = (min: number, max: number): number => {
     return Math.abs(valueToPosition(max) - valueToPosition(min));
   }
 
@@ -62,19 +61,18 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
 
   useImperativeHandle(ref, (): ScaleMapping => ({
     valueToPosition,
-    valuesToHeight,
+    valuesToPositionRange,
     positionToValue,
     positionsToRange,
     canvas: canvasRef.current ?? undefined
   }))
 
   useEffect(() => {
-    console.debug('[useEffect]')
+    console.debug('[useEffect]', linear_scale?.name, multi_linear_scale?.name)
     display()
-  }, [canvasRef]); // TODO: check height change or scale change does display correct scale
+  }, [canvasRef, scaleService]);
 
   const display = (): void => {
-    console.debug('>> display')
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !height) return;
