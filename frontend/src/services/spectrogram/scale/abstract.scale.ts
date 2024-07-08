@@ -9,7 +9,7 @@ export interface ScaleMapping {
   canvas?: HTMLCanvasElement;
 }
 export interface AbstractScale extends ScaleMapping{
-  getSteps(): Steps;
+  getSteps(): Array<Step>;
 }
 
 export interface Steps {
@@ -27,4 +27,13 @@ export interface Steps {
    * Map <position to value>
    */
   dualBigSteps?: Map<number, { n1: number, n2: number }>;
+}
+
+
+export interface Step {
+  position: number;
+  importance: 'small' | 'big';
+  value: number;
+  additionalValue?: number;
+  correspondingRatio?: number;
 }

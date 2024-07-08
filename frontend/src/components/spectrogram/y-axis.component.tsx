@@ -23,17 +23,9 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
       )
     }
     if (multi_linear_scale) {
-      const annotatedScales = multi_linear_scale.inner_scales.map(s => ({
-        ...s,
-        rangeRatio: s.ratio - Math.max(0, ...multi_linear_scale.inner_scales.filter(o => o.ratio < s.ratio).map(s => s.ratio))
-      }))
       return new MultiLinearScaleService(
         height,
-        multi_linear_scale.inner_scales.map(s => ({
-          ...s,
-          ratio: annotatedScales.find(a => a.ratio === s.ratio)!.rangeRatio
-            + annotatedScales.filter(o => o.ratio > s.ratio).map(o => o.rangeRatio).reduce((a, b) => a + b, 0)
-        }))
+        multi_linear_scale.inner_scales
       )
     }
     return new LinearScaleService(
@@ -68,7 +60,6 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }))
 
   useEffect(() => {
-    console.debug('[useEffect]', linear_scale?.name, multi_linear_scale?.name)
     display()
   }, [canvasRef, scaleService]);
 
@@ -81,42 +72,51 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     context.fillStyle = 'rgba(0, 0, 0)';
     context.font = "500 10px 'Exo 2'";
 
-    const steps = scaleService.getSteps();
-    for (let [y, _] of steps.smallSteps) {
-      context.fillRect(canvas.width - 10, height - y, 10, 1);
-    }
-    for (let [y, value] of steps.bigSteps) {
-      y = height - y;
-      const yBarWidth = getBigTickWidth(value);
-      const yBar = y >= canvas.height - yBarWidth ? canvas.height - yBarWidth : y;
-      context.fillRect(canvas.width - 15, yBar - yBarWidth / 2, 15, yBarWidth);
+    let previousRatio = 0;
+    let offset = 0;
+    const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
+    const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
+    for (const step of steps) {
+      if (step.correspondingRatio) {
+        if (step.correspondingRatio !== previousRatio) {
+          offset = previousRatio / maxRatio * height;
+          previousRatio = step.correspondingRatio
+        }
+      }
+      const y = height - (offset + step.position);
 
-      // "Top align" all labels but first
-      if (y < (height - 5)) context.textBaseline = 'top'
-      else context.textBaseline = 'bottom'
+      // Tick
+      let tickWidth = 10;
+      let tickHeight = 1;
+      if (step.importance === 'big') {
+        tickWidth = 15;
+        tickHeight = 2;
+      }
+      const allBorders = multi_linear_scale?.inner_scales.flatMap(s => [s.min_value, s.max_value]) ?? []
+      if (allBorders.includes(step.value)) {
+        tickHeight = 4;
+        tickWidth = 15;
+      }
+      let yTick = y;
+      if (height - tickHeight < yTick) yTick = height - tickHeight
+      context.fillRect(canvas.width - tickWidth, yTick, tickWidth, tickHeight);
 
-      context.fillText(frequencyToString(value), 0, y);
-    }
-    if (!steps.dualBigSteps) return;
-    for (let [y, { n1, n2 }] of steps.dualBigSteps) {
-      y = height - y;
-      const yBarWidth = Math.max(getBigTickWidth(n1), getBigTickWidth(n2));
-      const yBar = y >= canvas.height - yBarWidth ? canvas.height - yBarWidth : y;
-      context.fillRect(canvas.width - 15, yBar - yBarWidth / 2, 15, yBarWidth);
-
-      context.textBaseline = 'top'
-      context.fillText(frequencyToString(Math.min(n1, n2)), 0, y);
-      context.textBaseline = 'bottom'
-      context.fillText(frequencyToString(Math.max(n1, n2)), 0, y);
+      // Text
+      if (step.additionalValue) {
+        context.textBaseline = 'top'
+        context.fillText(frequencyToString(Math.min(step.value, step.additionalValue)), 0, y);
+        context.textBaseline = 'bottom'
+        context.fillText(frequencyToString(Math.max(step.value, step.additionalValue)), 0, y);
+      } else {
+        // "Top align" all labels but first
+        if (y < (height - 5)) context.textBaseline = 'top'
+        else context.textBaseline = 'bottom'
+        context.fillText(frequencyToString(step.value), 0, y);
+      }
     }
   }
 
-  const getBigTickWidth = (value: number): number => {
-    const allBorders = multi_linear_scale?.inner_scales.flatMap(s => [s.min_value, s.max_value]) ?? []
-    return allBorders.includes(value) ? 4 : 2;
-  }
-
-  const frequencyToString = (value: number): string =>  {
+  const frequencyToString = (value: number): string => {
     if (value < 1000) return value.toString()
     let newValue: string | number = value / 1000;
     if (newValue % 1 > 0) newValue = newValue.toFixed(1)

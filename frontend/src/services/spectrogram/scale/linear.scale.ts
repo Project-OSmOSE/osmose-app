@@ -1,4 +1,4 @@
-import { AbstractScale, Steps } from "./abstract.scale.ts";
+import { AbstractScale, Step } from "./abstract.scale.ts";
 
 export interface LinearScale {
   name?: string;
@@ -9,11 +9,16 @@ export interface LinearScale {
 
 export class LinearScaleService implements AbstractScale {
 
-  private MIN_SMALL_STEPS_RANGE_PX = 8;
+  // private MIN_SMALL_STEPS_RANGE_PX = 8;
+  private MIN_SMALL_STEPS_RANGE_PX = 14;
   private MIN_BIG_STEPS_RANGE_PX = 30;
 
   get range(): number {
     return this.maxValue - this.minValue;
+  }
+
+  public get height(): number {
+    return this.pixelHeight;
   }
 
   constructor(private pixelHeight: number,
@@ -37,12 +42,11 @@ export class LinearScaleService implements AbstractScale {
     return Math.abs(this.positionToValue(max) - this.positionToValue(min));
   }
 
-  getSteps(): Steps {
+  getSteps(): Array<Step> {
     const bigStepsRange = this.getMinBigStepsRange();
     const smallStepsRange = this.getMinSmallStepsRange(bigStepsRange);
 
-    const smallSteps = new Map<number, number>();
-    const bigSteps = new Map<number, number>();
+    const array = new Array<Step>();
 
     const innerSteps = Math.max(1, this.getNumber(1, smallStepsRange.toString().length))
     for (let value = Math.floor(this.minValue / innerSteps) * innerSteps;
@@ -50,23 +54,25 @@ export class LinearScaleService implements AbstractScale {
       if (value < this.minValue || value > this.maxValue) continue;
       const position: number = Math.floor(this.valueToPosition(value));
       if (value % bigStepsRange === 0)
-        bigSteps.set(position, value)
+        array.push({ position, value, importance: 'big' })
       else if (smallStepsRange > 0 && value % smallStepsRange === 0)
-        smallSteps.set(position, value)
+        array.push({ position, value, importance: 'small' })
     }
-    if (!Array.from(bigSteps.values()).includes(this.minValue)) {
-      bigSteps.set(
-        Math.floor(this.valueToPosition(this.minValue)),
-        this.minValue
-      )
+    if (!array.filter(s => s.importance === 'big').some(s => s.value === this.minValue)) {
+      array.push({
+        position: Math.floor(this.valueToPosition(this.minValue)),
+        value: this.minValue,
+        importance: 'big'
+      })
     }
-    if (!Array.from(bigSteps.values()).includes(this.maxValue)) {
-      bigSteps.set(
-        Math.floor(this.valueToPosition(this.maxValue)),
-        this.maxValue
-      )
+    if (!array.filter(s => s.importance === 'big').some(s => s.value === this.maxValue)) {
+      array.push({
+        position: Math.floor(this.valueToPosition(this.maxValue)),
+        value: this.maxValue,
+        importance: 'big'
+      })
     }
-    return { smallSteps, bigSteps }
+    return array
   }
 
   private getMinBigStepsRange(): number {

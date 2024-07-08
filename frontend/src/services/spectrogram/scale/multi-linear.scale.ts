@@ -1,4 +1,4 @@
-import { AbstractScale, Steps } from "./abstract.scale.ts";
+import { AbstractScale, Step } from "./abstract.scale.ts";
 import { LinearScale, LinearScaleService } from "./linear.scale.ts";
 
 
@@ -36,7 +36,7 @@ export class MultiLinearScaleService implements AbstractScale {
     }
   }
 
-  private getScaleForValue(value: number): LinearScaleService {
+  private getScaleForValue(value: number): { service: LinearScaleService, scale: LinearScale } {
     // Scale including value
     let correspondingScale = this.innerScales.find(s => s.scale.min_value <= value && s.scale.max_value >= value);
 
@@ -55,76 +55,68 @@ export class MultiLinearScaleService implements AbstractScale {
       }
     }
 
-    return correspondingScale!.service;
+    return correspondingScale!;
   }
 
-  private getScaleForPosition(position: number): LinearScaleService {
+  private getScaleForPosition(position: number): { service: LinearScaleService, scale: LinearScale } {
     const ratio = position / this.pixelHeight;
     const minUpperRatio = Math.min(...this.innerScales.filter(s => s.scale.ratio > ratio).map(s => s.scale.ratio))
-    return this.innerScales.find(s => s.scale.ratio === minUpperRatio)!.service;
+    return this.innerScales.find(s => s.scale.ratio === minUpperRatio)!;
+  }
+
+  private getPreviousScalesHeight(scale: LinearScale): number {
+    return this.innerScales.filter(s => s.scale.ratio < scale.ratio)
+      .reduce((total, s) => s.service.height + total, 0)
   }
 
   valueToPosition(value: number): number {
-    return this.getScaleForValue(value).valueToPosition(value);
+    const scale = this.getScaleForValue(value);
+    return scale.service.valueToPosition(value) + this.getPreviousScalesHeight(scale.scale);
   }
 
   valuesToPositionRange(min: number, max: number): number {
-    return Math.abs(
-      this.getScaleForValue(min).valueToPosition(min)
-      - this.getScaleForValue(max).valueToPosition(max)
-    )
+    return Math.abs(this.valueToPosition(min) - this.valueToPosition(max))
   }
 
   positionToValue(position: number): number {
-    return this.getScaleForPosition(position).positionToValue(position);
+    const scale = this.getScaleForPosition(position);
+    return scale.service.positionToValue(position - this.getPreviousScalesHeight(scale.scale));
   }
 
   positionsToRange(min: number, max: number): number {
-    return Math.abs(
-      this.getScaleForPosition(min).positionToValue(min)
-      - this.getScaleForPosition(max).positionToValue(max)
-    )
+    return Math.abs(this.positionToValue(min) - this.positionToValue(max))
   }
 
-  getSteps(): Steps {
-    const steps: Steps = {
-      bigSteps: new Map<number, number>(),
-      smallSteps: new Map<number, number>(),
-      dualBigSteps: new Map<number, {n1: number; n2: number}>()
-    }
+  getSteps(): Array<Step> {
+    const array = new Array<Step>()
     for (const scale of this.innerScales.sort(s => s.scale.ratio)) {
       const scaleSteps = scale.service.getSteps();
-      for (const [y, value] of scaleSteps.bigSteps) {
-        if (Array.from(steps.bigSteps.values()).includes(value)) continue;
-        const realY = y + (1 - scale.scale.ratio) * this.pixelHeight;
 
-        if (value === scale.scale.max_value && this.innerScales.some(s => s.scale.min_value === scale.scale.max_value)) {
-          steps.dualBigSteps!.set(realY, {n1: value, n2: value})
+      for (const step of scaleSteps) {
+        if (array.find(s => s.value === step.value)) continue;
+        if (step.value === scale.scale.max_value
+          && this.innerScales.some(s => s.scale.min_value === scale.scale.max_value)) {
+          array.push({
+            ...step,
+            additionalValue: step.value,
+            correspondingRatio: scale.scale.ratio
+          })
           continue;
         }
-        if (value === scale.scale.min_value && this.innerScales.some(s => s.scale.max_value === scale.scale.min_value)) continue;
-        if (steps.bigSteps.has(realY)) {
-          steps.dualBigSteps!.set(realY, {
-            n1: steps.bigSteps.get(realY)!,
-            n2: value
-          })
-          steps.bigSteps.delete(realY)
+        if (step.value === scale.scale.min_value
+          && this.innerScales.some(s => s.scale.max_value === scale.scale.min_value))
+          continue;
+        const existingPosition = array.find(s => s.position === step.position && s.correspondingRatio === step.correspondingRatio);
+        if (existingPosition) {
+          existingPosition.additionalValue = step.value;
         } else {
-          steps.bigSteps.set(
-            realY,
-            value
-          )
+          array.push({
+            ...step,
+            correspondingRatio: scale.scale.ratio
+          })
         }
       }
-      console.debug(steps.bigSteps)
-      for (const [y, value] of scaleSteps.smallSteps) {
-        if (Array.from(steps.smallSteps.values()).includes(value)) continue;
-        steps.smallSteps.set(
-          y + (1 - scale.scale.ratio) * this.pixelHeight,
-          value
-        )
-      }
     }
-    return steps;
+    return array;
   }
 }
