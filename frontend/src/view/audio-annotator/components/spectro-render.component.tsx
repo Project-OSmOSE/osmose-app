@@ -115,7 +115,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
    * Ref to canvases are used to get their context.
    * @property { RefObject<HTMLCanvasElement>} canvasRef React reference to the canvas
    */
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const xAxis = useRef<ScaleMapping | null>(null);
   const yAxis = useRef<ScaleMapping | null>(null);
 
@@ -206,7 +206,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   // On current newAnnotation changed
   useEffect(() => {
     loadSpectro();
-  }, [newAnnotation?.currentTime, newAnnotation?.currentFrequency])
+  }, [newAnnotation?.currentTime, newAnnotation?.currentFrequency, newAnnotation])
 
   useImperativeHandle(ref, () => ({
     getCanvasData: async () => {
@@ -270,7 +270,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
       return canvas.toDataURL('image/png')
     }
-  }))
+  }), [canvasRef.current, xAxis.current, yAxis.current])
 
   const loadSpectroImages = (): Promise<void> => {
     if (!currentImages.length) throw 'no images to load';
@@ -304,6 +304,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
 
     context.clearRect(0, 0, canvas.width, canvas.height);
+    if (!yAxis.current || !xAxis.current) return;
 
     // Draw spectro images
     for (const [spectro, image] of images.entries()) {
@@ -329,8 +330,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
       const a = newAnnotation;
       context.strokeStyle = 'blue';
       context.strokeRect(
-        xAxis.current!.valueToPosition(a.startTime),
-        yAxis.current!.valueToPosition(a.startFrequency),
+        xAxis.current!.valueToPosition(Math.min(a.startTime, a.endTime)),
+        yAxis.current!.valueToPosition(Math.max(a.startFrequency, a.endFrequency)),
         Math.floor(xAxis.current!.valuesToPositionRange(a.startTime, a.endTime)),
         yAxis.current!.valuesToPositionRange(a.startFrequency, a.endFrequency)
       );
@@ -341,8 +342,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     if (!canvasRef.current) return;
     const bounds = canvasRef.current.getBoundingClientRect();
     return {
-      y: e.pageY - bounds.y,
-      x: e.pageX - bounds.x,
+      y: e.clientY - bounds.y,
+      x: e.clientX - bounds.x,
     }
   }
 

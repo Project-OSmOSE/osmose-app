@@ -1,8 +1,7 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import { AxisProps } from "@/components/spectrogram/axis.interface.ts";
+import { AxisProps, TimeAxis } from "@/components/spectrogram/axis.utils.ts";
 import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
-import { formatTimestamp } from "@/services/utils/format.tsx";
 
 export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linear_scale' | 'linear_scale'>>(({
                                                                                                                width,
@@ -19,29 +18,13 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
     )
   }, [max_value, width]);
 
-  const valueToPosition = (value: number): number => {
-    return scaleService.valueToPosition(value);
-  }
-
-  const positionToValue = (position: number): number => {
-    return scaleService.positionToValue(position);
-  }
-
-  const valuesToPositionRange = (min: number, max: number): number => {
-    return scaleService.valuesToPositionRange(min, max);
-  }
-
-  const positionsToRange = (min: number, max: number): number => {
-    return scaleService.positionsToRange(min, max);
-  }
-
   useImperativeHandle(ref, (): ScaleMapping => ({
-    valueToPosition,
-    valuesToPositionRange,
-    positionToValue,
-    positionsToRange,
+    valueToPosition: scaleService.valueToPosition.bind(scaleService),
+    valuesToPositionRange: scaleService.valuesToPositionRange.bind(scaleService),
+    positionToValue: scaleService.positionToValue.bind(scaleService),
+    positionsToRange: scaleService.positionsToRange.bind(scaleService),
     canvas: canvasRef.current ?? undefined
-  }))
+  }), [scaleService, canvasRef])
 
   useEffect(() => {
     display()
@@ -69,14 +52,14 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
 
     for (let i = 0; i <= max_value; i++) {
       if (i % steps.step === 0) {
-        const x: number = valueToPosition(i);
+        const x: number = scaleService.valueToPosition(i);
 
         if (i % steps.bigStep === 0) {
           // Bar
           context.fillRect(x <= canvas.width - 2 ? x : canvas.width - 2, 0, 2, 15);
 
           // Text
-          const timeText: string = formatTimestamp(i, false);
+          const timeText: string = TimeAxis.formatTime(i, false);
           let xTxt: number = x;
           if (xTxt === 0) {
             context.textAlign = "left"

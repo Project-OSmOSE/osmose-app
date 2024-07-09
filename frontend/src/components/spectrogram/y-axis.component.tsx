@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import { AxisProps } from "@/components/spectrogram/axis.interface.ts";
+import { AxisProps } from "@/components/spectrogram/axis.utils.ts";
 import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
 import { MultiLinearScaleService } from "@/services/spectrogram";
@@ -57,7 +57,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     positionToValue,
     positionsToRange,
     canvas: canvasRef.current ?? undefined
-  }))
+  }), [scaleService, canvasRef.current])
 
   useEffect(() => {
     display()

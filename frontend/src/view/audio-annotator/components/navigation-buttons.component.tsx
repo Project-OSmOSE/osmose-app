@@ -69,7 +69,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     }
   }
 
-  useImperativeHandle(ref, () => ({ handleKeyPressed }))
+  useImperativeHandle(ref, () => ({ handleKeyPressed }), [areShortcutsEnabled])
 
   const submit = async () => {
     const now = new Date().getTime();

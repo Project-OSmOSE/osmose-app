@@ -36,11 +36,11 @@ export class MultiLinearScaleService implements AbstractScale {
     }
   }
 
-  private getScaleForValue(value: number): { service: LinearScaleService, scale: LinearScale } {
+  private getScaleForValue(value: number, force: boolean=true): { service: LinearScaleService, scale: LinearScale } | undefined {
     // Scale including value
     let correspondingScale = this.innerScales.find(s => s.scale.min_value <= value && s.scale.max_value >= value);
 
-    if (!correspondingScale) {
+    if (!correspondingScale && force) {
       // Search out of the scale
       const absoluteMin = Math.min(...this.innerScales.map(s => s.scale.min_value))
       const absoluteMax = Math.max(...this.innerScales.map(s => s.scale.max_value))
@@ -51,11 +51,11 @@ export class MultiLinearScaleService implements AbstractScale {
       else {
         // Value between 2 scales
         const directUp = Math.min(...this.innerScales.filter(s => s.scale.min_value > value).map(s => s.scale.min_value))
-        correspondingScale = this.innerScales.find(s => s.scale.max_value === directUp);
+        correspondingScale = this.innerScales.find(s => s.scale.min_value === directUp);
       }
     }
 
-    return correspondingScale!;
+    return correspondingScale;
   }
 
   private getScaleForPosition(position: number): { service: LinearScaleService, scale: LinearScale } {
@@ -70,7 +70,7 @@ export class MultiLinearScaleService implements AbstractScale {
   }
 
   valueToPosition(value: number): number {
-    const scale = this.getScaleForValue(value);
+    const scale = this.getScaleForValue(value)!;
     return scale.service.valueToPosition(value) + this.getPreviousScalesHeight(scale.scale);
   }
 

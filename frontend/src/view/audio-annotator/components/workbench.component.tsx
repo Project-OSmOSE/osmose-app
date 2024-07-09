@@ -46,7 +46,7 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
       if (!spectrogramRender.current) throw new Error('no renderer');
       return spectrogramRender.current.getCanvasData();
     }
-  }))
+  }), [spectrogramRender.current])
 
   const getScaleNameFor = (spectro: RetrieveSpectroURL) => {
     if (spectro.linear_frequency_scale) return spectro.linear_frequency_scale.name ?? 'Linear';

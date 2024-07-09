@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Annotation } from "@/types/annotations.ts";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
-import { SPECTRO_HEIGHT } from "./spectro-render.component.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { focusResult, removeResult } from "@/slices/annotator/annotations.ts";
 import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
@@ -34,62 +33,56 @@ export const Region: React.FC<RegionProps> = ({
   } = useAppSelector(state => state.annotator.annotations);
   const dispatch = useAppDispatch()
 
-  const offsetLeft = xAxis?.valueToPosition(annotation.startTime) ?? 0;
-  const offsetTop: number = SPECTRO_HEIGHT - Math.max(
-    yAxis?.valueToPosition(annotation.startFrequency) ?? 0,
-    yAxis?.valueToPosition(annotation.endFrequency) ?? 0,
-  );
+  const left = useMemo(() => {
+    return xAxis?.valueToPosition(Math.min(annotation.startTime, annotation.endTime)) ?? 0
+  }, [xAxis, annotation.startTime, annotation.endTime]);
+  const top = useMemo(() => {
+    return yAxis?.valueToPosition(Math.max(annotation.startFrequency, annotation.endFrequency)) ?? 0
+  }, [yAxis, annotation.startFrequency, annotation.endFrequency])
+  const width = useMemo(() => {
+    return xAxis?.valuesToPositionRange(annotation.startTime, annotation.endTime) ?? 0
+  }, [xAxis, annotation.startTime, annotation.endTime])
+  const height = useMemo(() => {
+    return yAxis?.valuesToPositionRange(annotation.startFrequency, annotation.endFrequency) ?? 0
+  }, [yAxis, annotation.startFrequency, annotation.endFrequency])
+  const headerPositionIsTop = useMemo(() => top > HEADER_HEIGHT + HEADER_MARGIN, [top]);
 
-  const width: number = xAxis?.valuesToPositionRange(annotation.startTime, annotation.endTime) ?? 0;
-  const height: number = (yAxis?.valuesToPositionRange(annotation.startFrequency, annotation.endFrequency) ?? 0)+ HEADER_HEIGHT + HEADER_MARGIN;
+  const color = useMemo(() => labelColors[annotation.label] ?? DEFAULT_COLOR, [labelColors, annotation.label])
+  const isActive = useMemo(() => annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId, [annotation.id, focusedResult?.id, annotation.newId, focusedResult?.newId])
 
-  const headerPositionIsTop = offsetTop > HEADER_HEIGHT + HEADER_MARGIN;
 
-  const color = labelColors[annotation.label] ?? DEFAULT_COLOR;
-  const isActive = annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId;
-  const currentColor = isActive ? color : `${ color }88`;
-  const styles = {
-    header: {
-      height: HEADER_HEIGHT,
-      marginTop: (headerPositionIsTop ? 0 : HEADER_MARGIN),
-      marginBottom: (headerPositionIsTop ? HEADER_MARGIN : 0),
-      backgroundColor: currentColor,
-      border: `2px solid ${ currentColor }`,
-    },
-    headerSpan: {
-      height: `${ HEADER_HEIGHT }px`,
-    },
-    body: {
-      border: `2px solid ${ currentColor }`,
-      height: height - HEADER_HEIGHT - HEADER_MARGIN,
-    },
-  };
-
-  const regionBody = (
-    <div className="region-body"
-         style={ styles.body }></div>
-  )
+  const bodyRegion = useMemo(() => <div className="region-body"
+                                        style={ {
+                                          borderColor: color,
+                                          height
+                                        } }></div>, [color, height])
 
   return (
-    <div className="region"
+    <div className={ "region " + (isActive ? 'active' : '') }
          style={ {
-           left: Math.floor(offsetLeft),
-           top: Math.floor(offsetTop) - (headerPositionIsTop ? HEADER_HEIGHT : 0) - HEADER_MARGIN,
-           width: width,
-           height: height,
+           left,
+           top: top - (headerPositionIsTop ? HEADER_HEIGHT - HEADER_MARGIN : 0),
+           width,
+           height: height + HEADER_HEIGHT + HEADER_MARGIN,
          } }>
 
-      { !headerPositionIsTop && regionBody }
+      { !headerPositionIsTop && bodyRegion }
 
       <p className="d-flex region-header"
-         style={ styles.header }>
+         style={ {
+           borderColor: color,
+           height: HEADER_HEIGHT,
+           marginTop: (headerPositionIsTop ? 0 : HEADER_MARGIN),
+           marginBottom: (headerPositionIsTop ? HEADER_MARGIN : 0),
+           backgroundColor: color,
+         } }>
 
         <button className="btn-simple fa fa-play-circle text-white"
                 onClick={ () => audioPlayer?.play(annotation) }></button>
 
         <span className="flex-fill text-center"
               onClick={ () => dispatch(focusResult(annotation)) }
-              style={ styles.headerSpan }>
+              style={ { height: HEADER_HEIGHT } }>
           { annotation.label }
         </span>
 
@@ -98,10 +91,10 @@ export const Region: React.FC<RegionProps> = ({
           <i className="far fa-comment mr-2"></i> }
 
         { task.mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
-                                       onClick={ () => dispatch(removeResult(annotation)) }></button> }
+                                            onClick={ () => dispatch(removeResult(annotation)) }></button> }
       </p>
 
-      { headerPositionIsTop && regionBody }
+      { headerPositionIsTop && bodyRegion }
 
     </div>
   );

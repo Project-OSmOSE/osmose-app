@@ -45,7 +45,10 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
     }
   }
 
-  useImperativeHandle(ref, () => ({ handleKeyPressed }));
+  useImperativeHandle(ref,
+    () => ({ handleKeyPressed }),
+    [areShortcutsEnabled, allLabels]
+  );
 
   const toggle = async (label: string) => {
     if (presenceLabels.includes(label)) {

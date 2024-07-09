@@ -76,7 +76,10 @@ export const AudioPlayerComponent = React.forwardRef<AudioPlayer, any>((_, ref: 
     }
   }
 
-  useImperativeHandle(ref, (): AudioPlayer => player)
+  useImperativeHandle(ref,
+    (): AudioPlayer => player,
+    [elementRef.current]
+  );
 
   // title property used to set lockscreen / process audio title on devices
   return (
