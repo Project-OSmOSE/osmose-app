@@ -7,7 +7,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import AnnotationTask, AnnotationResult
-from backend.api.serializers.annotation_task import AnnotationTaskSpectroSerializerFields
+from backend.api.serializers.annotation_task import (
+    AnnotationTaskSpectroSerializerFields,
+)
 
 
 class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):

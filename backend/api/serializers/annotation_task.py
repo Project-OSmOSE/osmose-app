@@ -156,6 +156,7 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
             "validation",
         ]
 
+
 AnnotationTaskSpectroSerializerFields = [
     "id",
     "nfft",
@@ -165,6 +166,7 @@ AnnotationTaskSpectroSerializerFields = [
     "linear_frequency_scale",
     "multi_linear_frequency_scale",
 ]
+
 
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     """
