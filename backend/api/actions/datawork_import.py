@@ -2,13 +2,12 @@
 
 import csv
 import os
-
 from datetime import timedelta
 from typing import Optional
 
-from django.utils.dateparse import parse_datetime
-from django.db import transaction
 from django.conf import settings
+from django.db import transaction
+from django.utils.dateparse import parse_datetime
 
 from backend.api.actions.frequency_scales import get_frequency_scales
 from backend.api.models import (
@@ -136,6 +135,7 @@ def datawork_import(*, wanted_datasets, importer):
                             spectro["custom_frequency_scale"],
                             int(audio_metadatum.dataset_sr),
                         )
+                        name = f"{name}_{spectro['custom_frequency_scale']}"
                     new_spectro = SpectrogramConfiguration.objects.update_or_create(
                         name=name,
                         dataset=curr_dataset,

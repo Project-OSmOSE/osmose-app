@@ -194,12 +194,9 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
         sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
-        spectro_name = spectro_config.name
-        if spectro_config.linear_frequency_scale:
-            spectro_name += f"_{spectro_config.linear_frequency_scale.name}"
-        if spectro_config.multi_linear_frequency_scale:
-            spectro_name += f"_{spectro_config.multi_linear_frequency_scale.name}"
-        spectro_path = settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_name
+        spectro_path = (
+            settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
+        )
         return [
             urlquote(f"{root_url}/{spectro_path}/image/{tile}")
             for tile in spectro_config.zoom_tiles(sound_name)
