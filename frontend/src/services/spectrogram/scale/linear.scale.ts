@@ -75,6 +75,11 @@ export class LinearScaleService implements AbstractScale {
     return array
   }
 
+  isRangeContinuouslyOnScale(min: number, max: number): boolean {
+    return min > this.minValue && max > this.minValue
+      && min < this.maxValue && max < this.maxValue
+  }
+
   private getMinBigStepsRange(): number {
     const maxFrequencyStr = Math.ceil(this.range).toString();
     let bigStepsRange = this.getNumber(1, maxFrequencyStr.length - 2);
@@ -84,7 +89,7 @@ export class LinearScaleService implements AbstractScale {
           bigStepsRange *= 2
           break;
         case 2:
-          bigStepsRange *=  5
+          bigStepsRange *= 5
           break;
       }
     }
@@ -109,7 +114,7 @@ export class LinearScaleService implements AbstractScale {
           range *= 2.5
           break;
         case 5:
-          range *=  4
+          range *= 4
           break;
       }
     }

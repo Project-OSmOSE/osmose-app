@@ -311,7 +311,7 @@ export const AudioAnnotator: React.FC = () => {
       <Workbench audioPlayer={ audioPlayerRef.current } ref={ spectrogramRender }/>
 
       {/* Toolbar (play button, play speed, submit button, timer) */ }
-      <div className="row annotator-controls">
+      <div className="row align-items-start annotator-controls">
         <div className="col-sm-1 d-flex justify-content-end">
           <OverlayTrigger
             overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Space" description="Play/Pause audio"/></Tooltip> }>

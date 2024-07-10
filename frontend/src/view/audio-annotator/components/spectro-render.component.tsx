@@ -383,6 +383,12 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     if (newAnnotation) {
       const data = getFreqTimeFromPointer(e);
       if (data) newAnnotation.update(data.time, data.frequency)
+      if (!yAxis.current.isRangeContinuouslyOnScale(newAnnotation.startFrequency, newAnnotation.endFrequency)) {
+        const minFreq = Math.min(newAnnotation.startFrequency, newAnnotation.endFrequency);
+        const maxFreq = Math.max(newAnnotation.startFrequency, newAnnotation.endFrequency);
+        dispatch(setDangerToast(`Be careful, your annotation overlaps a void in the frequency scale.
+         Are you sure your annotation goes from ${ minFreq.toFixed(0) }Hz to ${ maxFreq.toFixed(0) }Hz?`))
+      }
       const width = xAxis.current?.valuesToPositionRange(newAnnotation.startTime, newAnnotation.endTime);
       const height = yAxis.current?.valuesToPositionRange(newAnnotation.startFrequency, newAnnotation.endFrequency);
       if (width > 2 && height > 2) {

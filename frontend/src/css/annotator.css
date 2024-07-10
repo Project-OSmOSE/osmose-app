@@ -209,6 +209,7 @@ html {
   position: absolute;
   right: 0;
   overflow-x: scroll;
+  user-select: none;
 }
 
 .canvas {

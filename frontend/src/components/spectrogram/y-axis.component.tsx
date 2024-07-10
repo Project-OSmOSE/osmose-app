@@ -56,6 +56,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     valuesToPositionRange,
     positionToValue,
     positionsToRange,
+    isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
     canvas: canvasRef.current ?? undefined
   }), [scaleService, canvasRef.current])
 

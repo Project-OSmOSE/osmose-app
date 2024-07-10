@@ -36,39 +36,6 @@ export class MultiLinearScaleService implements AbstractScale {
     }
   }
 
-  private getScaleForValue(value: number, force: boolean=true): { service: LinearScaleService, scale: LinearScale } | undefined {
-    // Scale including value
-    let correspondingScale = this.innerScales.find(s => s.scale.min_value <= value && s.scale.max_value >= value);
-
-    if (!correspondingScale && force) {
-      // Search out of the scale
-      const absoluteMin = Math.min(...this.innerScales.map(s => s.scale.min_value))
-      const absoluteMax = Math.max(...this.innerScales.map(s => s.scale.max_value))
-      if (value < absoluteMin) {
-        correspondingScale = this.innerScales.find(s => s.scale.min_value === absoluteMin);
-      } else if (value > absoluteMax)
-        correspondingScale = this.innerScales.find(s => s.scale.max_value === absoluteMax);
-      else {
-        // Value between 2 scales
-        const directUp = Math.min(...this.innerScales.filter(s => s.scale.min_value > value).map(s => s.scale.min_value))
-        correspondingScale = this.innerScales.find(s => s.scale.min_value === directUp);
-      }
-    }
-
-    return correspondingScale;
-  }
-
-  private getScaleForPosition(position: number): { service: LinearScaleService, scale: LinearScale } {
-    const ratio = position / this.pixelHeight;
-    const minUpperRatio = Math.min(...this.innerScales.filter(s => s.scale.ratio > ratio).map(s => s.scale.ratio))
-    return this.innerScales.find(s => s.scale.ratio === minUpperRatio)!;
-  }
-
-  private getPreviousScalesHeight(scale: LinearScale): number {
-    return this.innerScales.filter(s => s.scale.ratio < scale.ratio)
-      .reduce((total, s) => s.service.height + total, 0)
-  }
-
   valueToPosition(value: number): number {
     const scale = this.getScaleForValue(value)!;
     return scale.service.valueToPosition(value) + this.getPreviousScalesHeight(scale.scale);
@@ -118,5 +85,58 @@ export class MultiLinearScaleService implements AbstractScale {
       }
     }
     return array;
+  }
+
+  isRangeContinuouslyOnScale(min: number, max: number): boolean {
+    const minScale = this.getScaleForValue(Math.min(min, max))?.scale;
+    const maxScale = this.getScaleForValue(Math.max(min, max))?.scale;
+    if (!minScale || !maxScale) return false; // Values are out of given scales
+
+    // Check if range is over a void in the scale
+    if (minScale.ratio === maxScale?.ratio) return true; // On same linear scale
+    const scalesBetween = this.innerScales
+      .map(s => s.scale)
+      .filter(s => s.ratio >= minScale.ratio && s.ratio <= maxScale.ratio)
+      .sort((a, b) => a.ratio - b.ratio);
+    let previousMax = minScale.max_value;
+    for (const scale of scalesBetween) {
+      if (scale.max_value === previousMax) continue;
+      if (scale.min_value !== previousMax) return false;
+      previousMax = scale.max_value;
+    }
+    return true;
+  }
+
+  private getScaleForValue(value: number, force: boolean=true): { service: LinearScaleService, scale: LinearScale } | undefined {
+    // Scale including value
+    let correspondingScale = this.innerScales.find(s => s.scale.min_value <= value && s.scale.max_value >= value);
+
+    if (!correspondingScale && force) {
+      // Search out of the scale
+      const absoluteMin = Math.min(...this.innerScales.map(s => s.scale.min_value))
+      const absoluteMax = Math.max(...this.innerScales.map(s => s.scale.max_value))
+      if (value < absoluteMin) {
+        correspondingScale = this.innerScales.find(s => s.scale.min_value === absoluteMin);
+      } else if (value > absoluteMax)
+        correspondingScale = this.innerScales.find(s => s.scale.max_value === absoluteMax);
+      else {
+        // Value between 2 scales
+        const directUp = Math.min(...this.innerScales.filter(s => s.scale.min_value > value).map(s => s.scale.min_value))
+        correspondingScale = this.innerScales.find(s => s.scale.min_value === directUp);
+      }
+    }
+
+    return correspondingScale;
+  }
+
+  private getScaleForPosition(position: number): { service: LinearScaleService, scale: LinearScale } {
+    const ratio = position / this.pixelHeight;
+    const minUpperRatio = Math.min(...this.innerScales.filter(s => s.scale.ratio > ratio).map(s => s.scale.ratio))
+    return this.innerScales.find(s => s.scale.ratio === minUpperRatio)!;
+  }
+
+  private getPreviousScalesHeight(scale: LinearScale): number {
+    return this.innerScales.filter(s => s.scale.ratio < scale.ratio)
+      .reduce((total, s) => s.service.height + total, 0)
   }
 }

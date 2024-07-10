@@ -23,6 +23,7 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
     valuesToPositionRange: scaleService.valuesToPositionRange.bind(scaleService),
     positionToValue: scaleService.positionToValue.bind(scaleService),
     positionsToRange: scaleService.positionsToRange.bind(scaleService),
+    isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
     canvas: canvasRef.current ?? undefined
   }), [scaleService, canvasRef])
 

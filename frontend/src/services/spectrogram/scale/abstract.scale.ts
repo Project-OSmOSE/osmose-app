@@ -6,6 +6,8 @@ export interface ScaleMapping {
   positionToValue(position: number): number;
   positionsToRange(min: number, max: number): number;
 
+  isRangeContinuouslyOnScale(min: number, max: number): boolean;
+
   canvas?: HTMLCanvasElement;
 }
 export interface AbstractScale extends ScaleMapping{
