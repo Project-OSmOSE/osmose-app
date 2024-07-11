@@ -12,8 +12,8 @@ def get_frequency_scales(
         scale, _ = MultiLinearScale.objects.get_or_create(
             name="porp_delph",
         )
-        scale.inner_scales.get_or_create(ratio=0.5, min_value=0, max_value=22_000)
-        scale.inner_scales.get_or_create(ratio=0.7, min_value=22_000, max_value=100_000)
+        scale.inner_scales.get_or_create(ratio=0.5, min_value=0, max_value=30_000)
+        scale.inner_scales.get_or_create(ratio=0.7, min_value=30_000, max_value=80_000)
         scale.inner_scales.get_or_create(
             ratio=1, min_value=100_000, max_value=sample_rate / 2
         )
