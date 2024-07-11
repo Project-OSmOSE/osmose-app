@@ -1,10 +1,10 @@
 import React, { useImperativeHandle, useRef } from 'react';
-import { formatTimestamp } from "@/services/utils/format.tsx";
 import { SpectrogramRender, SpectroRenderComponent } from "./spectro-render.component.tsx";
 import { AudioPlayer } from "./audio-player.component.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { selectSpectro, zoom } from "@/slices/annotator/spectro.ts";
 import { RetrieveSpectroURL } from "@/services/api/annotation-task-api.service.tsx";
+import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-position.component.tsx";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -28,7 +28,6 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
   } = useAppSelector(state => state.annotator.annotations);
   const {
     currentZoom,
-    pointerPosition,
     selectedSpectroId
   } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
@@ -54,6 +53,7 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
     return 'Default'
   }
 
+  console.debug('[WORKBENCH] render', task.campaignName, task.audioUrl, task.audioRate, task.spectroUrls)
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
@@ -75,9 +75,7 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
         <span>{ currentZoom }x</span>
       </p>
 
-      { pointerPosition && <p className="workbench-pointer">
-        { pointerPosition.frequency.toFixed(2) }Hz / { formatTimestamp(pointerPosition.time, false) }
-      </p> }
+      <PointerPosition/>
 
       <p className="workbench-info workbench-info--intro">
         Campaign: <strong>{ task.campaignName }</strong>
