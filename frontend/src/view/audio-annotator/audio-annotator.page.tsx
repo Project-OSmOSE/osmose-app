@@ -264,10 +264,12 @@ export const AudioAnnotator: React.FC = () => {
 
   console.debug('>>> [Audio annotator render]', isLoading)
   if (isLoading) return <p>Loading...</p>;
-  else if (error) return <p>Error while loading task: <code>{ error }</code></p>
+  console.debug('>>> [Audio annotator render] after isLoading', error, task?.id)
+  if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!task?.id) return <p>Unknown error while loading task.</p>
 
   // Rendering
+  console.debug('>>> [Audio annotator render] will real render')
   return (
     <div id="aplose-annotator" className="annotator container-fluid ps-0">
 
