@@ -53,7 +53,7 @@ export const Workbench = React.forwardRef<SpectrogramRender, Props>(({ audioPlay
     return 'Default'
   }
 
-  console.debug('[WORKBENCH] render', task.campaignName, task.audioUrl, task.audioRate, task.spectroUrls)
+  console.debug('[WORKBENCH] render', task.campaignName, task.audioUrl, task.audioRate, JSON.stringify(task.spectroUrls))
   return (
     <div className="workbench rounded"
          style={ style.workbench }>
