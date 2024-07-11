@@ -24,7 +24,7 @@ export class LinearScaleService implements AbstractScale {
   constructor(private pixelHeight: number,
               private maxValue: number,
               private minValue: number = 0,) {
-    if (this.minValue > this.maxValue) throw 'Incorrect scale range'
+    if (minValue > maxValue) throw `Incorrect scale range: min=${ minValue } and max=${ maxValue }`;
   }
 
   valueToPosition(value: number): number {

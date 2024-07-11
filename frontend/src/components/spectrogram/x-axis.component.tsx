@@ -18,14 +18,16 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
     )
   }, [max_value, width]);
 
-  useImperativeHandle(ref, (): ScaleMapping => ({
+  const scale: ScaleMapping = useMemo(() => ({
     valueToPosition: scaleService.valueToPosition.bind(scaleService),
     valuesToPositionRange: scaleService.valuesToPositionRange.bind(scaleService),
     positionToValue: scaleService.positionToValue.bind(scaleService),
     positionsToRange: scaleService.positionsToRange.bind(scaleService),
     isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
     canvas: canvasRef.current ?? undefined
-  }), [scaleService, canvasRef])
+  }), [scaleService, canvasRef.current])
+
+  useImperativeHandle(ref, (): ScaleMapping => scale)
 
   useEffect(() => {
     display()

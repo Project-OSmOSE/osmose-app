@@ -461,8 +461,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
           .map((annotation: Annotation, key: number) => (
             <Region key={ key }
                     annotation={ annotation }
-                    yAxis={ yAxis.current }
-                    xAxis={ xAxis.current }
+                    yAxis={ yAxis }
+                    xAxis={ xAxis }
                     audioPlayer={ audioPlayer }></Region>
           )) }
       </div>

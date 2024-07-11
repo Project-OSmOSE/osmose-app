@@ -35,7 +35,10 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }, [linear_scale, multi_linear_scale, max_value, height]);
 
   const valueToPosition = (value: number): number => {
-    return height - scaleService.valueToPosition(value);
+    let position = height - scaleService.valueToPosition(value);
+    if (position > height) position = height
+    if (position < 0) position = 0
+    return position
   }
 
   const positionToValue = (position: number): number => {
@@ -51,7 +54,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     return Math.abs(positionToValue(max) - positionToValue(min));
   }
 
-  useImperativeHandle(ref, (): ScaleMapping => ({
+  const scale: ScaleMapping = useMemo(() => ({
     valueToPosition,
     valuesToPositionRange,
     positionToValue,
@@ -59,6 +62,8 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
     canvas: canvasRef.current ?? undefined
   }), [scaleService, canvasRef.current])
+
+  useImperativeHandle(ref, (): ScaleMapping => scale)
 
   useEffect(() => {
     display()
