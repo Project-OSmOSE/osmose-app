@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { AxisProps } from "@/components/spectrogram/axis.utils.ts";
 import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
@@ -118,12 +118,12 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     // }
   }
 
-  const frequencyToString = (value: number): string => {
-    if (value < 1000) return value.toString()
-    let newValue: string | number = value / 1000;
-    if (newValue % 1 > 0) newValue = newValue.toFixed(1)
-    return `${ newValue }k`;
-  }
+  // const frequencyToString = (value: number): string => {
+  //   if (value < 1000) return value.toString()
+  //   let newValue: string | number = value / 1000;
+  //   if (newValue % 1 > 0) newValue = newValue.toFixed(1)
+  //   return `${ newValue }k`;
+  // }
 
   return (
     <canvas ref={ canvasRef }
