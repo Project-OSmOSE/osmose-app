@@ -150,14 +150,12 @@ export const AudioAnnotator: React.FC = () => {
     setIsLoading(true);
     setStart(new Date());
     setError(undefined);
-    console.debug('>>> [Audio annotator load]: starts')
 
     Promise.all([
       taskAPI.retrieve(taskID),
       userAPI.isStaff()
     ])
       .then(([task, isStaff]) => {
-        console.debug('>>> [Audio annotator load]: got tasks', isCancelled)
         if (isCancelled) return;
         if (task.labels.length < 1) return setError('Label set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -168,17 +166,9 @@ export const AudioAnnotator: React.FC = () => {
 
         setError(undefined);
         setIsUserStaff(isStaff);
-        console.debug('>>> [Audio annotator load]: done processing tasks', isCancelled)
       })
-      .catch((e: any) => {
-        console.debug('>>> [Audio annotator load]: got error', e, isCancelled)
-        !isCancelled && setError(buildErrorMessage(e))
-      })
-      .finally(() => {
-        if (isCancelled) return;
-        setIsLoading(false)
-        console.debug('>>> [Audio annotator load]: done')
-      })
+      .catch((e: any) => !isCancelled && setError(buildErrorMessage(e)))
+      .finally(() => !isCancelled && setIsLoading(false))
 
     return () => {
       isCancelled = true;
@@ -193,10 +183,6 @@ export const AudioAnnotator: React.FC = () => {
   useEffect(() => {
     localIsPaused.current = isPaused;
   }, [isPaused])
-
-  useEffect(() => {
-    console.debug('>>> [Audio annotator on loading updated]:', isLoading)
-  }, [isLoading])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!localAreShortcutsEnabled.current) return;
@@ -262,13 +248,11 @@ export const AudioAnnotator: React.FC = () => {
     setIsLoadingSpectroDL(false);
   }
 
-  console.debug('>>> [Audio annotator render]', isLoading)
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!task?.id) return <p>Unknown error while loading task.</p>
 
   // Rendering
-  console.debug('>>> [Audio annotator render] will real render', task.instructions_url, task.mode)
   return (
     <div id="aplose-annotator" className="annotator container-fluid ps-0">
 
