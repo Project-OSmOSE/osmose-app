@@ -135,7 +135,8 @@ def datawork_import(*, wanted_datasets, importer):
                             spectro["custom_frequency_scale"],
                             int(audio_metadatum.dataset_sr),
                         )
-                        name = f"{name}_{spectro['custom_frequency_scale']}"
+                        if spectro['custom_frequency_scale']:
+                            name = f"{name}_{spectro['custom_frequency_scale']}"
                     new_spectro = SpectrogramConfiguration.objects.update_or_create(
                         name=name,
                         dataset=curr_dataset,
