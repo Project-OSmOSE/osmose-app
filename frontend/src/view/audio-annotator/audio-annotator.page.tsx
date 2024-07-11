@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useParams } from 'react-router-dom';
@@ -150,12 +150,14 @@ export const AudioAnnotator: React.FC = () => {
     setIsLoading(true);
     setStart(new Date());
     setError(undefined);
+    console.debug('>>> [Audio annotator load]: starts')
 
     Promise.all([
       taskAPI.retrieve(taskID),
       userAPI.isStaff()
     ])
       .then(([task, isStaff]) => {
+        console.debug('>>> [Audio annotator load]: got tasks', isCancelled)
         if (isCancelled) return;
         if (task.labels.length < 1) return setError('Label set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -166,8 +168,12 @@ export const AudioAnnotator: React.FC = () => {
 
         setError(undefined);
         setIsUserStaff(isStaff);
+        console.debug('>>> [Audio annotator load]: done', isCancelled)
       })
-      .catch((e: any) => !isCancelled && setError(buildErrorMessage(e)))
+      .catch((e: any) => {
+        console.debug('>>> [Audio annotator load]: got error', e, isCancelled)
+        !isCancelled && setError(buildErrorMessage(e))
+      })
       .finally(() => !isCancelled && setIsLoading(false))
 
     return () => {
@@ -276,7 +282,7 @@ export const AudioAnnotator: React.FC = () => {
                   Download spectrogram (zoom x{ zoom })
                 { isLoadingSpectroDL && <IonSpinner/> }
               </IonButton>
-          </Fragment>}
+          </Fragment> }
 
           <IonButton color="dark"
                      fill={ "outline" }
@@ -286,8 +292,8 @@ export const AudioAnnotator: React.FC = () => {
           </IonButton>
 
           { task.instructions_url && <IonButton color="dark"
-                                          fill={ "outline" }
-                                          onClick={ openInstructions }>
+                                                fill={ "outline" }
+                                                onClick={ openInstructions }>
               <IonIcon icon={ informationCircle } slot="start"/>
               Campaign instructions
           </IonButton> }
@@ -338,7 +344,6 @@ export const AudioAnnotator: React.FC = () => {
         <NavigationButtons ref={ navKeyPress } start={ start }/>
 
         <div className="col-sm-3">
-          {/* FIXME: avoid line expansion due to toasts -> absolute IonToast*/ }
           <Toast toastMessage={ toast }/>
         </div>
         <p className="col-sm-2 text-right">
