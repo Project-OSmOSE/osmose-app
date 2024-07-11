@@ -66,56 +66,56 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
 
   const display = (): void => {
     return;
-    const canvas = canvasRef.current
-    const context = canvas?.getContext('2d');
-    if (!canvas || !context || !height) return;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = 'rgba(0, 0, 0)';
-    context.font = "500 10px 'Exo 2'";
-
-    let previousRatio = 0;
-    let offset = 0;
-    const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
-    const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
-    for (const step of steps) {
-      if (step.correspondingRatio) {
-        if (step.correspondingRatio !== previousRatio) {
-          offset = previousRatio / maxRatio * height;
-          previousRatio = step.correspondingRatio
-        }
-      }
-      const y = height - (offset + step.position);
-
-      // Tick
-      let tickWidth = 10;
-      let tickHeight = 1;
-      if (step.importance === 'big') {
-        tickWidth = 15;
-        tickHeight = 2;
-      }
-      const allBorders = multi_linear_scale?.inner_scales.flatMap(s => [s.min_value, s.max_value]) ?? []
-      if (allBorders.includes(step.value)) {
-        tickHeight = 4;
-        tickWidth = 15;
-      }
-      let yTick = y;
-      if (height - tickHeight < yTick) yTick = height - tickHeight
-      context.fillRect(canvas.width - tickWidth, yTick, tickWidth, tickHeight);
-
-      // Text
-      if (step.additionalValue) {
-        context.textBaseline = 'top'
-        context.fillText(frequencyToString(Math.min(step.value, step.additionalValue)), 0, y);
-        context.textBaseline = 'bottom'
-        context.fillText(frequencyToString(Math.max(step.value, step.additionalValue)), 0, y);
-      } else {
-        // "Top align" all labels but first
-        if (y < (height - 5)) context.textBaseline = 'top'
-        else context.textBaseline = 'bottom'
-        context.fillText(frequencyToString(step.value), 0, y);
-      }
-    }
+    // const canvas = canvasRef.current
+    // const context = canvas?.getContext('2d');
+    // if (!canvas || !context || !height) return;
+    //
+    // context.clearRect(0, 0, canvas.width, canvas.height);
+    // context.fillStyle = 'rgba(0, 0, 0)';
+    // context.font = "500 10px 'Exo 2'";
+    //
+    // let previousRatio = 0;
+    // let offset = 0;
+    // const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
+    // const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
+    // for (const step of steps) {
+    //   if (step.correspondingRatio) {
+    //     if (step.correspondingRatio !== previousRatio) {
+    //       offset = previousRatio / maxRatio * height;
+    //       previousRatio = step.correspondingRatio
+    //     }
+    //   }
+    //   const y = height - (offset + step.position);
+    //
+    //   // Tick
+    //   let tickWidth = 10;
+    //   let tickHeight = 1;
+    //   if (step.importance === 'big') {
+    //     tickWidth = 15;
+    //     tickHeight = 2;
+    //   }
+    //   const allBorders = multi_linear_scale?.inner_scales.flatMap(s => [s.min_value, s.max_value]) ?? []
+    //   if (allBorders.includes(step.value)) {
+    //     tickHeight = 4;
+    //     tickWidth = 15;
+    //   }
+    //   let yTick = y;
+    //   if (height - tickHeight < yTick) yTick = height - tickHeight
+    //   context.fillRect(canvas.width - tickWidth, yTick, tickWidth, tickHeight);
+    //
+    //   // Text
+    //   if (step.additionalValue) {
+    //     context.textBaseline = 'top'
+    //     context.fillText(frequencyToString(Math.min(step.value, step.additionalValue)), 0, y);
+    //     context.textBaseline = 'bottom'
+    //     context.fillText(frequencyToString(Math.max(step.value, step.additionalValue)), 0, y);
+    //   } else {
+    //     // "Top align" all labels but first
+    //     if (y < (height - 5)) context.textBaseline = 'top'
+    //     else context.textBaseline = 'bottom'
+    //     context.fillText(frequencyToString(step.value), 0, y);
+    //   }
+    // }
   }
 
   const frequencyToString = (value: number): string => {
