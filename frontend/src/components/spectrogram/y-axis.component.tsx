@@ -65,6 +65,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }, [canvasRef, scaleService]);
 
   const display = (): void => {
+    return;
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !height) return;
@@ -123,8 +124,6 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
     if (newValue % 1 > 0) newValue = newValue.toFixed(1)
     return `${ newValue }k`;
   }
-
-  return <Fragment/>
 
   return (
     <canvas ref={ canvasRef }
