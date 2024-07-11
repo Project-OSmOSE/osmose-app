@@ -31,7 +31,7 @@ def get_frequency_scales(
         return None, scale
     if name == "Audible":
         scale, _ = LinearScale.objects.get_or_create(
-            name="Audible", min_value=22_000, max_value=100_000
+            name="Audible", min_value=0, max_value=22_000
         )
         return scale, None
     return None, None
