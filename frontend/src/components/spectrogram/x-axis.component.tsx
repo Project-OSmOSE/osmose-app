@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { AxisProps, TimeAxis } from "@/components/spectrogram/axis.utils.ts";
 import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
@@ -78,8 +78,6 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
       }
     }
   }
-
-  return <Fragment/>
 
   return (
     <canvas ref={ canvasRef }
