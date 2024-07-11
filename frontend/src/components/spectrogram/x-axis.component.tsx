@@ -40,6 +40,7 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
   }
 
   const display = (): void => {
+    console.debug('[Display X]')
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !width) return;

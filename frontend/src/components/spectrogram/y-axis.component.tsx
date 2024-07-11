@@ -65,6 +65,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }, [canvasRef, scaleService]);
 
   const display = (): void => {
+    console.debug('[Display Y]')
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !height) return;

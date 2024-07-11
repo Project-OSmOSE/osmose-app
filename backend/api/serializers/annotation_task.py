@@ -192,7 +192,7 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     def get_urls(self, spectro_config: SpectrogramConfiguration):
         """This returns urls for spectrogram zoom tiles"""
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
-        sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
+        sound_name = self.dataset_file.filepath.replace("\\", "/").split("/")[-1].replace(".wav", "")
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
         spectro_path = (
             settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name

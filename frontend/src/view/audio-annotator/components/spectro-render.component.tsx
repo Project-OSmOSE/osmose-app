@@ -120,15 +120,24 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const yAxis = useRef<ScaleMapping | null>(null);
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => task.mode === Usage.create && currentMode === AnnotationMode.boxes || (
-    currentMode === AnnotationMode.wholeFile && !!focusedLabel
-  ), [focusedLabel, currentMode, task.mode]);
+  const isDrawingEnabled = useMemo(() => {
+    console.debug('isDrawingEnabled')
+    if (task.mode === Usage.create && currentMode === AnnotationMode.boxes) return true;
+    return currentMode === AnnotationMode.wholeFile && !!focusedLabel
+  }, [focusedLabel, currentMode, task.mode]);
 
-  const timeWidth = useMemo(() => SPECTRO_WIDTH * currentZoom, [currentZoom]);
-  const currentSpectro = useMemo(() => task.spectroUrls.find(s => s.id === selectedSpectroId), [task.spectroUrls, selectedSpectroId]);
+  const timeWidth = useMemo(() => {
+    console.debug('timeWidth')
+    return SPECTRO_WIDTH * currentZoom
+  }, [currentZoom]);
+  const currentSpectro = useMemo(() => {
+    console.debug('currentSpectro')
+    return task.spectroUrls.find(s => s.id === selectedSpectroId)
+  }, [task.spectroUrls, selectedSpectroId]);
 
   // Handle current images list
   const currentImages = useMemo(() => {
+    console.debug('currentImages')
     setImages(new Map());
     const list: Array<SpectrogramImage> = []
     for (const path of currentSpectro?.urls ?? []) {
@@ -143,6 +152,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }, [currentSpectro?.urls, currentZoom])
 
   useEffect(() => {
+    console.debug('[useEffect]', 'loadSpectro')
     loadSpectro()
   }, [currentImages, canvasRef.current])
 
@@ -157,6 +167,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // On zoom updated
   useEffect(() => {
+    console.debug('[useEffect]', 'on zoom updated')
     const canvas = canvasRef.current;
     const timeAxis = xAxis.current;
     const wrapper = wrapperRef.current;
@@ -188,6 +199,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // On current audio time changed
   useEffect(() => {
+    console.debug('[useEffect]', 'on audio time updated')
     loadSpectro();
 
     // Scroll if progress bar reach the right edge of the screen
@@ -205,72 +217,76 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // On current newAnnotation changed
   useEffect(() => {
+    console.debug('[useEffect]', 'on newAnnotation change')
     loadSpectro();
   }, [newAnnotation?.currentTime, newAnnotation?.currentFrequency, newAnnotation])
 
-  useImperativeHandle(ref, () => ({
-    getCanvasData: async () => {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error('Cannot get fake canvas 2D context');
+  useImperativeHandle(ref, () => {
+    console.debug('[useImperativeHandle]')
+    return {
+      getCanvasData: async () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Cannot get fake canvas 2D context');
 
-      // Get spectro images
-      await loadSpectro(false)
-      const spectroDataURL = canvasRef.current?.toDataURL('image/png');
-      if (!spectroDataURL) throw new Error('Cannot recover spectro dataURL');
-      loadSpectro();
-      const spectroImg = new Image();
+        // Get spectro images
+        await loadSpectro(false)
+        const spectroDataURL = canvasRef.current?.toDataURL('image/png');
+        if (!spectroDataURL) throw new Error('Cannot recover spectro dataURL');
+        loadSpectro();
+        const spectroImg = new Image();
 
-      // Get frequency scale
-      const freqDataURL = yAxis.current?.canvas?.toDataURL('image/png');
-      if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
-      const freqImg = new Image();
+        // Get frequency scale
+        const freqDataURL = yAxis.current?.canvas?.toDataURL('image/png');
+        if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
+        const freqImg = new Image();
 
-      // Get time scale
-      const timeDataURL = xAxis.current?.canvas?.toDataURL('image/png');
-      if (!timeDataURL) throw new Error('Cannot recover time dataURL');
-      const timeImg = new Image();
+        // Get time scale
+        const timeDataURL = xAxis.current?.canvas?.toDataURL('image/png');
+        if (!timeDataURL) throw new Error('Cannot recover time dataURL');
+        const timeImg = new Image();
 
-      // Compute global canvas
-      /// Load images
-      await new Promise((resolve, reject) => {
-        let isSpectroLoaded = false;
-        let isFreqLoaded = false;
-        let isTimeLoaded = false;
-        spectroImg.onerror = e => reject(e)
-        freqImg.onerror = e => reject(e)
-        timeImg.onerror = e => reject(e)
+        // Compute global canvas
+        /// Load images
+        await new Promise((resolve, reject) => {
+          let isSpectroLoaded = false;
+          let isFreqLoaded = false;
+          let isTimeLoaded = false;
+          spectroImg.onerror = e => reject(e)
+          freqImg.onerror = e => reject(e)
+          timeImg.onerror = e => reject(e)
 
-        spectroImg.onload = () => {
-          isSpectroLoaded = true;
-          if (isFreqLoaded && isTimeLoaded) resolve(true);
-        }
-        freqImg.onload = () => {
-          isFreqLoaded = true;
-          if (isSpectroLoaded && isTimeLoaded) resolve(true);
-        }
-        timeImg.onload = () => {
-          isTimeLoaded = true;
-          if (isSpectroLoaded && isFreqLoaded) resolve(true);
-        }
+          spectroImg.onload = () => {
+            isSpectroLoaded = true;
+            if (isFreqLoaded && isTimeLoaded) resolve(true);
+          }
+          freqImg.onload = () => {
+            isFreqLoaded = true;
+            if (isSpectroLoaded && isTimeLoaded) resolve(true);
+          }
+          timeImg.onload = () => {
+            isTimeLoaded = true;
+            if (isSpectroLoaded && isFreqLoaded) resolve(true);
+          }
 
-        spectroImg.src = spectroDataURL;
-        freqImg.src = freqDataURL;
-        timeImg.src = timeDataURL;
-      });
-      canvas.height = timeImg.height + spectroImg.height;
-      canvas.width = freqImg.width + spectroImg.width;
+          spectroImg.src = spectroDataURL;
+          freqImg.src = freqDataURL;
+          timeImg.src = timeDataURL;
+        });
+        canvas.height = timeImg.height + spectroImg.height;
+        canvas.width = freqImg.width + spectroImg.width;
 
-      context.fillStyle = "white";
-      context.fillRect(0, 0, canvas.width, canvas.height)
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height)
 
-      context.drawImage(spectroImg, Y_WIDTH, 0, spectroImg.width, spectroImg.height);
-      context.drawImage(freqImg, 0, 0, freqImg.width, freqImg.height);
-      context.drawImage(timeImg, Y_WIDTH, SPECTRO_HEIGHT, timeImg.width, timeImg.height);
+        context.drawImage(spectroImg, Y_WIDTH, 0, spectroImg.width, spectroImg.height);
+        context.drawImage(freqImg, 0, 0, freqImg.width, freqImg.height);
+        context.drawImage(timeImg, Y_WIDTH, SPECTRO_HEIGHT, timeImg.width, timeImg.height);
 
-      return canvas.toDataURL('image/png')
+        return canvas.toDataURL('image/png')
+      }
     }
-  }), [canvasRef.current, xAxis.current, yAxis.current])
+  }, [canvasRef.current, xAxis.current, yAxis.current])
 
   const loadSpectroImages = (): Promise<void> => {
     if (!currentImages.length) throw 'no images to load';
@@ -278,7 +294,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     for (const data of currentImages) {
       if (data.image) continue;
       const image = new Image();
-      image.src = data.path;
+      image.src = data.path
       promises.push(new Promise<void>((resolve, reject) => {
         image.onload = () => {
           images.set(data, image);
@@ -295,6 +311,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const loadSpectro = async (withProgressBar: boolean = true): Promise<void> => {
+    console.debug('[loadSpectro]')
     const canvas = canvasRef.current;
     const context = canvas?.getContext('2d', { alpha: false });
     if (!canvas || !context || currentImages.length < 0 || !yAxis.current || !xAxis.current) return;
@@ -362,6 +379,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    console.debug('[onUpdateNewAnnotation]')
     const data = getFreqTimeFromPointer(e);
     if (data) {
       dispatch(updatePointerPosition(data))
@@ -370,6 +388,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    console.debug('[onStartNewAnnotation]')
     if (!isDrawingEnabled) return;
     const data = getFreqTimeFromPointer(e);
     if (!data) return;
@@ -379,6 +398,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    console.debug('[onEndNewAnnotation]')
     if (!yAxis.current || !xAxis.current) return;
     if (newAnnotation) {
       const data = getFreqTimeFromPointer(e);
@@ -409,6 +429,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }
 
   const onWheel = (event: WheelEvent) => {
+    console.debug('[onWheel]')
     // Prevent page scrolling
     event.stopPropagation(); // TODO: make it work!
 
