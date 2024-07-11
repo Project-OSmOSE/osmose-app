@@ -45,8 +45,10 @@ export const spectroSlice = createSlice({
     initSpectro: (state, action: { payload: Retrieve }) => {
       state.currentZoom = 1;
       state.currentZoomOrigin = undefined;
-      if (!action.payload.spectroUrls.some(s => s.id === state.selectedSpectroId))
-        state.selectedSpectroId = Math.min(...action.payload.spectroUrls.map(s => s.id));
+      if (!action.payload.spectroUrls.some(s => s.id === state.selectedSpectroId)) {
+        const simpleSpectroID = action.payload.spectroUrls.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
+        state.selectedSpectroId = simpleSpectroID ?? Math.min(...action.payload.spectroUrls.map(s => s.id));
+      }
       state.spectros = action.payload.spectroUrls;
       state.maxZoom = getMaxZoom(state);
     },
