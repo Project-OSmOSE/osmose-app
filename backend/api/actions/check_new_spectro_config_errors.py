@@ -48,7 +48,11 @@ def check_new_spectro_config_errors():
                     with open(spectro_csv_path, encoding="utf-8") as csvfile:
                         for spectro in csv.DictReader(csvfile):
                             name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
-                            if "custom_frequency_scale" in spectro and spectro['custom_frequency_scale']:
+                            if (
+                                "custom_frequency_scale" in spectro
+                                and spectro["custom_frequency_scale"]
+                                and spectro["custom_frequency_scale"] != "linear"
+                            ):
                                 name = f"{name}_{spectro['custom_frequency_scale']}"
 
                             window_type = WindowType.objects.filter(
