@@ -105,7 +105,7 @@ export const AudioAnnotator: React.FC = () => {
   const labelsKeyPress = useRef<KeypressHandler | null>(null);
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
-  const [isLoading, setIsLoading] = useState<boolean>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>();
   const [start, setStart] = useState<Date>(new Date());
   const [isUserStaff, setIsUserStaff] = useState<boolean>(false);
@@ -168,13 +168,17 @@ export const AudioAnnotator: React.FC = () => {
 
         setError(undefined);
         setIsUserStaff(isStaff);
-        console.debug('>>> [Audio annotator load]: done', isCancelled)
+        console.debug('>>> [Audio annotator load]: done processing tasks', isCancelled)
       })
       .catch((e: any) => {
         console.debug('>>> [Audio annotator load]: got error', e, isCancelled)
         !isCancelled && setError(buildErrorMessage(e))
       })
-      .finally(() => !isCancelled && setIsLoading(false))
+      .finally(() => {
+        if (isCancelled) return;
+        setIsLoading(false)
+        console.debug('>>> [Audio annotator load]: done')
+      })
 
     return () => {
       isCancelled = true;
@@ -189,6 +193,10 @@ export const AudioAnnotator: React.FC = () => {
   useEffect(() => {
     localIsPaused.current = isPaused;
   }, [isPaused])
+
+  useEffect(() => {
+    console.debug('>>> [Audio annotator on loading updated]:', isLoading)
+  }, [isLoading])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!localAreShortcutsEnabled.current) return;
@@ -254,6 +262,7 @@ export const AudioAnnotator: React.FC = () => {
     setIsLoadingSpectroDL(false);
   }
 
+  console.debug('>>> [Audio annotator render]', isLoading)
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!task?.id) return <p>Unknown error while loading task.</p>
