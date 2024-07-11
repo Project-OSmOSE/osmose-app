@@ -65,19 +65,21 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }, [canvasRef, scaleService]);
 
   const display = (): void => {
+    const canvas = canvasRef.current
+    const context = canvas?.getContext('2d');
+    if (!canvas || !context || !height) return;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'rgba(0, 0, 0)';
+    context.font = "500 10px 'Exo 2'";
+
+    console.debug('[DISPLAY Y]')
+    let previousRatio = 0;
+    let offset = 0;
+    const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
+    const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
+    console.debug('[DISPLAY Y]', JSON.stringify(steps), maxRatio)
     return;
-    // const canvas = canvasRef.current
-    // const context = canvas?.getContext('2d');
-    // if (!canvas || !context || !height) return;
-    //
-    // context.clearRect(0, 0, canvas.width, canvas.height);
-    // context.fillStyle = 'rgba(0, 0, 0)';
-    // context.font = "500 10px 'Exo 2'";
-    //
-    // let previousRatio = 0;
-    // let offset = 0;
-    // const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
-    // const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
     // for (const step of steps) {
     //   if (step.correspondingRatio) {
     //     if (step.correspondingRatio !== previousRatio) {
