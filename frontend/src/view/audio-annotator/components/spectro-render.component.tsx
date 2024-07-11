@@ -440,6 +440,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     else if (event.deltaY > 0) dispatch(zoom({ direction: 'out', origin }))
   }
 
+  return <Fragment/>
+
   return (
     <Fragment>
 
