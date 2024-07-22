@@ -210,6 +210,7 @@ html {
   right: 0;
   overflow-x: scroll;
   user-select: none;
+  touch-action: none;
 }
 
 .canvas {
