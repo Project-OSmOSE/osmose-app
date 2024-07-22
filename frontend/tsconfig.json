@@ -34,7 +34,8 @@
       "@/slices/*": ["src/slices/*"],
       "@/types/*": ["src/types/*"],
       "@/view/*": ["src/view/*"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -23,6 +23,11 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@ionic/react": "^8.2.5",
+    "bootstrap": "^5.3.3",
+    "ionicons": "^7.4.0",
+    "react-router-dom": "^6.24.1"
   }
-
 }

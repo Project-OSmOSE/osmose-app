@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { History, LocationState } from "history";
 
-import { AuthSlice, login, logout } from "@/slices/auth.ts";
+import { AuthSlice, login, logout } from "@/slices/auth";
 import { useAppSelector, useAppDispatch, AppDispatch } from "@/slices/app";
 
 export class AuthAPIService {
