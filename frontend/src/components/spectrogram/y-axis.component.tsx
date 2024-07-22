@@ -1,6 +1,6 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { AxisProps } from "@/components/spectrogram/axis.utils.ts";
-import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
+import { AbstractScale, ScaleMapping, Step } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
 import { MultiLinearScaleService } from "@/services/spectrogram";
 
@@ -80,16 +80,29 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
 
     let previousRatio = 0;
     let offset = 0;
-    const steps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
-    const maxRatio = Math.max(...steps.map(s => s.correspondingRatio ?? 0));
-    for (const step of steps) {
+    const scaleSteps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
+    const maxRatio = Math.max(...scaleSteps.map(s => s.correspondingRatio ?? 0));
+    const realSteps = new Array<Step>();
+    for (const step of scaleSteps) {
       if (step.correspondingRatio) {
         if (step.correspondingRatio !== previousRatio) {
           offset = previousRatio / maxRatio * height;
           previousRatio = step.correspondingRatio
         }
       }
-      const y = height - (offset + step.position);
+      const y = Math.round(height - (offset + step.position));
+      const existingStep = realSteps.find(s => s.position === y)
+      if (existingStep) {
+        existingStep.additionalValue = step.value;
+      } else {
+        realSteps.push({
+          ...step,
+          position: y
+        })
+      }
+    }
+    for (const step of realSteps) {
+      const y = step.position;
 
       // Tick
       let tickWidth = 10;
@@ -109,10 +122,13 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
 
       // Text
       if (step.additionalValue) {
+        const min = Math.min(step.value, step.additionalValue)
+        const max = step.value === min ? step.additionalValue : step.value;
+        console.debug(`${min} < ${max}`)
         context.textBaseline = 'top'
-        context.fillText(frequencyToString(Math.min(step.value, step.additionalValue)), 0, y);
+        context.fillText(frequencyToString(min), 0, y);
         context.textBaseline = 'bottom'
-        context.fillText(frequencyToString(Math.max(step.value, step.additionalValue)), 0, y);
+        context.fillText(frequencyToString(max), 0, y);
       } else {
         // "Top align" all labels but first
         if (y < (height - 5)) context.textBaseline = 'top'

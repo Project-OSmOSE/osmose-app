@@ -131,7 +131,7 @@ export class MultiLinearScaleService implements AbstractScale {
 
   private getScaleForPosition(position: number): { service: LinearScaleService, scale: LinearScale } {
     const ratio = position / this.pixelHeight;
-    const minUpperRatio = Math.min(...this.innerScales.filter(s => s.scale.ratio > ratio).map(s => s.scale.ratio))
+    const minUpperRatio = Math.min(...this.innerScales.filter(s => s.scale.ratio >= ratio).map(s => s.scale.ratio))
     return this.innerScales.find(s => s.scale.ratio === minUpperRatio)!;
   }
 
