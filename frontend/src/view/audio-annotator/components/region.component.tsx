@@ -31,6 +31,9 @@ export const Region: React.FC<RegionProps> = ({
     labelColors,
     focusedResult,
   } = useAppSelector(state => state.annotator.annotations);
+  const {
+    selectedSpectroId
+  } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
 
   const [left, setLeft] = useState<number>(0);
@@ -51,7 +54,7 @@ export const Region: React.FC<RegionProps> = ({
     setTop(top);
     setHeight(yAxis.current?.valuesToPositionRange(annotation.startFrequency, annotation.endFrequency) ?? 0);
     setHeaderIsOnTop(top > HEADER_HEIGHT + HEADER_MARGIN)
-  }, [yAxis.current, annotation.startFrequency, annotation.endFrequency])
+  }, [yAxis.current, annotation.startFrequency, annotation.endFrequency, selectedSpectroId,])
 
   const color = useMemo(() => labelColors[annotation.label] ?? DEFAULT_COLOR, [labelColors, annotation.label])
   const isActive = useMemo(() => annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId, [annotation.id, focusedResult?.id, annotation.newId, focusedResult?.newId])

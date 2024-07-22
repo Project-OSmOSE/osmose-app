@@ -124,7 +124,6 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
       if (step.additionalValue) {
         const min = Math.min(step.value, step.additionalValue)
         const max = step.value === min ? step.additionalValue : step.value;
-        console.debug(`${min} < ${max}`)
         context.textBaseline = 'top'
         context.fillText(frequencyToString(min), 0, y);
         context.textBaseline = 'bottom'
