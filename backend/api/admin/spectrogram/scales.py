@@ -34,4 +34,4 @@ class MultiLinearScaleAdmin(admin.ModelAdmin):
         for scale in obj.inner_scales.all():
             link = reverse("admin:api_linearscale_change", args=[scale.id])
             links.append(format_html('<a href="{}">{}</a>', link, scale))
-        return "<br>".join(links)
+        return format_html("<br>".join(links))
