@@ -8,7 +8,7 @@ def get_frequency_scales(
     name: str, sample_rate: int
 ) -> (Optional[LinearScale], Optional[MultiLinearScale]):
     """return scale type, min freq, max freq and parameters for multiscale"""
-    if name == "porp_delph":
+    if name.lower() == "porp_delph":
         scale, _ = MultiLinearScale.objects.get_or_create(
             name="porp_delph",
         )
@@ -19,9 +19,9 @@ def get_frequency_scales(
         )
         scale.save()
         return None, scale
-    if name == "Dual_LF_HF":
+    if name.lower() == "dual_lf_hf":
         scale, _ = MultiLinearScale.objects.get_or_create(
-            name="Dual_LF_HF",
+            name="dual_lf_hf",
         )
         scale.inner_scales.get_or_create(ratio=0.5, min_value=0, max_value=22_000)
         scale.inner_scales.get_or_create(
@@ -29,9 +29,9 @@ def get_frequency_scales(
         )
         scale.save()
         return None, scale
-    if name == "Audible":
+    if name.lower() == "audible":
         scale, _ = LinearScale.objects.get_or_create(
-            name="Audible", min_value=0, max_value=22_000
+            name="audible", min_value=0, max_value=22_000
         )
         return scale, None
     return None, None
