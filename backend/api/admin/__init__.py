@@ -5,6 +5,7 @@
 from django import forms
 from django.contrib import admin, messages
 from django.db import IntegrityError, transaction
+from django.urls import reverse
 from django.utils.html import format_html
 
 from backend.api.models import (
@@ -15,11 +16,9 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationComment,
     AnnotationSession,
-    SpectroConfig,
     DatasetType,
     AudioMetadatum,
     GeoMetadatum,
-    WindowType,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
@@ -29,6 +28,12 @@ from .annotation import (
     DetectorConfigurationAdmin,
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
+)
+from .spectrogram import (
+    MultiLinearScaleAdmin,
+    LinearScaleAdmin,
+    SpectrogramConfigurationAdmin,
+    WindowTypeAdmin,
 )
 
 
@@ -107,10 +112,18 @@ class DatasetAdmin(admin.ModelAdmin):
         "owner",
     )
 
-    def show_spectro_configs(self, obj):
+    @admin.display(description="Spectrogram configurations")
+    def show_spectro_configs(self, dataset: Dataset) -> str:
         """show_spectro_configs"""
-        return get_many_to_many(obj, "spectro_configs")
+        links = []
+        for spectro in dataset.spectro_configs.all():
+            link = reverse(
+                "admin:api_spectrogramconfiguration_change", args=[spectro.id]
+            )
+            links.append(format_html('<a href="{}">{}</a>', link, spectro))
+        return format_html("<br>".join(links))
 
+    @admin.display(description="Audio metadata")
     def show_audio_metadatum_url(self, obj):
         """show_audio_metadatum_url"""
         return format_html(
@@ -234,45 +247,6 @@ class GeoMetadatumAdmin(admin.ModelAdmin):
     )
 
 
-class WindowTypeAdmin(admin.ModelAdmin):
-    """WindowType presentation in DjangoAdmin"""
-
-    list_display = ("name",)
-
-
-class SpectroConfigAdmin(admin.ModelAdmin):
-    """SpectroConfig presentation in DjangoAdmin"""
-
-    list_display = (
-        "name",
-        "dataset",
-        "desc",
-        "nfft",
-        "window_size",
-        "overlap",
-        "zoom_level",
-        "desc",
-        "spectro_normalization",
-        "data_normalization",
-        "zscore_duration",
-        "hp_filter_min_freq",
-        "colormap",
-        "dynamic_min",
-        "dynamic_max",
-        "window_type",
-        "frequency_resolution",
-        "time_resolution_zoom_0",
-        "time_resolution_zoom_1",
-        "time_resolution_zoom_2",
-        "time_resolution_zoom_3",
-        "time_resolution_zoom_4",
-        "time_resolution_zoom_5",
-        "time_resolution_zoom_6",
-        "time_resolution_zoom_7",
-        "time_resolution_zoom_8",
-    )
-
-
 admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
 admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
@@ -285,5 +259,3 @@ admin.site.register(AnnotationTask, AnnotationTaskAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)
 admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)
-admin.site.register(SpectroConfig, SpectroConfigAdmin)
-admin.site.register(WindowType, WindowTypeAdmin)

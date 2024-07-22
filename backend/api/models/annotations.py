@@ -145,7 +145,7 @@ class AnnotationCampaign(models.Model):
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset")
     spectro_configs = models.ManyToManyField(
-        "SpectroConfig", related_name="annotation_campaigns"
+        "SpectrogramConfiguration", related_name="annotation_campaigns"
     )
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.RECTANGLE

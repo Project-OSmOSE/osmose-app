@@ -1,43 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { ToastMessage } from "@/types/toast.ts";
-import { CampaignUsage } from "@/types/campaign.ts";
 import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
 
 export type AnnotatorSlice = {
-  taskId?: number;
-  campaignId?: number;
-  campaignName?: string;
-  audioURL?: string;
-  instructionsURL?: string;
-  prevAndNextAnnotation?: {
-    prev: number;
-    next: number;
-  };
-  audioRate?: number;
+  task: Retrieve;
+
   toast?: ToastMessage;
   areShortcutsEnabled: boolean;
-  mode: CampaignUsage;
 }
 
 export const annotatorSlice = createSlice({
   name: 'Annotator',
   initialState: {
     areShortcutsEnabled: true,
-    mode: "Create"
   } as AnnotatorSlice,
   reducers: {
     initAnnotator: (state, action: { payload: Retrieve }) => {
-      Object.assign(state, {
-        taskId: action.payload.id,
-        audioURL: action.payload.audioUrl,
-        instructionsURL: action.payload.instructions_url,
-        campaignId: action.payload.campaignId,
-        campaignName: action.payload.campaignName,
-        audioRate: action.payload.audioRate,
-        prevAndNextAnnotation: action.payload.prevAndNextAnnotation,
-        mode: action.payload.mode,
-      });
+      state.task = action.payload
     },
 
     setDangerToast: (state, action: { payload: string }) => {

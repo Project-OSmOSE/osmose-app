@@ -11,7 +11,7 @@ from backend.api.models import (
     AnnotationCampaign,
     Dataset,
     LabelSet,
-    SpectroConfig,
+    SpectrogramConfiguration,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
     Label,
@@ -85,8 +85,10 @@ class AnnotationCampaignCreateCreateAnnotationsSerializer(serializers.ModelSeria
             instructions_url=validated_data.get("instructions_url"),
         )
 
-        spectro_configs = validated_data["spectro_configs"]  # type: list[SpectroConfig]
-        datasets = validated_data["datasets"]  # type: list[Dataset]
+        spectro_configs: list[SpectrogramConfiguration] = validated_data[
+            "spectro_configs"
+        ]
+        datasets: list[Dataset] = validated_data["datasets"]
 
         campaign.save()
         campaign.datasets.set(datasets)

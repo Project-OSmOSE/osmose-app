@@ -5,7 +5,11 @@
 
 from rest_framework import serializers
 
-from backend.api.models import Dataset, SpectroConfig, WindowType, AudioMetadatum
+from backend.api.models import (
+    Dataset,
+    AudioMetadatum,
+)
+from .spectrogram import SpectrogramConfigurationSerializer
 
 
 class AudioMetadatumSerializer(serializers.ModelSerializer):
@@ -16,28 +20,17 @@ class AudioMetadatumSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class WindowTypeSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic WindowType data"""
-
-    class Meta:
-        model = WindowType
-        fields = "__all__"
-
-
-class SpectroConfigSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic SpectroConfig data"""
-
-    window_type = WindowTypeSerializer()
-    dataset_sr = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SpectroConfig
-        # fields = "__all__"
-        exclude = ("dataset",)
-
-    def get_dataset_sr(self, config: SpectroConfig) -> float:
-        """Get dataset sample rate"""
-        return config.dataset.audio_metadatum.dataset_sr
+DATASET_FIELDS = [
+    "id",
+    "name",
+    "files_type",
+    "start_date",
+    "end_date",
+    "files_count",
+    "type",
+    "spectros",
+    "created_at",
+]
 
 
 class DatasetSerializer(serializers.ModelSerializer):
@@ -45,19 +38,9 @@ class DatasetSerializer(serializers.ModelSerializer):
 
     files_count = serializers.IntegerField()
     type = serializers.CharField()
-    spectros = SpectroConfigSerializer(many=True, source="spectro_configs")
+    spectros = SpectrogramConfigurationSerializer(many=True, source="spectro_configs")
 
     class Meta:
         model = Dataset
-        fields = [
-            "id",
-            "name",
-            "files_type",
-            "start_date",
-            "end_date",
-            "files_count",
-            "type",
-            "spectros",
-            "created_at",
-        ]
+        fields = DATASET_FIELDS
         depth = 1

@@ -58,7 +58,7 @@ class AnnotationCampaignCreateSerializerTestCase(TestCase):
         self.assertEqual(new_campaign.tasks.count(), 11)
 
     def test_with_wrong_spectros(self):
-        """Fails validation when given a SpectroConfig not used in campaign"""
+        """Fails validation when given a SpectrogramConfiguration not used in campaign"""
         campaign = AnnotationCampaign.objects.first()
         update_data = deepcopy(self.creation_data)
         update_data["spectro_configs"] = [3]

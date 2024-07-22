@@ -351,7 +351,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             data[0] = data[0] + validate_users
             data.extend(map(map_result_check, list(results) + list(comments)))
 
-        print(data)
         response = Response(data)
         response[
             "Content-Disposition"
