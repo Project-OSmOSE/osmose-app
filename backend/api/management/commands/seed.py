@@ -140,8 +140,8 @@ class Command(management.BaseCommand):
             self.fake.unique.city() for _ in range(max(0, self.data_nb - 5))
         ]
         dataset_names.append("porp_delph")
-        dataset_names.append("Dual_LF_HF")
-        dataset_names.append("Audible")
+        dataset_names.append("dual_lf_hf")
+        dataset_names.append("audible")
         for name in dataset_names:
             dataset = Dataset(
                 name=name,
@@ -227,7 +227,7 @@ class Command(management.BaseCommand):
                     )
                 )
                 linear_scale, multi_linear_scale = get_frequency_scales(
-                    name="Dual_LF_HF", sample_rate=self.audio_metadatum.dataset_sr
+                    name="dual_lf_hf", sample_rate=self.audio_metadatum.dataset_sr
                 )
                 configs.append(
                     SpectrogramConfiguration(
@@ -251,7 +251,7 @@ class Command(management.BaseCommand):
                     )
                 )
                 linear_scale, multi_linear_scale = get_frequency_scales(
-                    name="Audible", sample_rate=self.audio_metadatum.dataset_sr
+                    name="audible", sample_rate=self.audio_metadatum.dataset_sr
                 )
                 configs.append(
                     SpectrogramConfiguration(

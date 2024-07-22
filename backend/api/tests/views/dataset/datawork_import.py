@@ -87,7 +87,7 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         response = self.basic_import_test()
         self.assertEqual(
             response.data[0]["spectros"][0]["multi_linear_frequency_scale"]["name"],
-            "Dual_LF_HF",
+            "dual_lf_hf",
         )
         self.assertEqual(
             len(
@@ -104,7 +104,7 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         response = self.basic_import_test()
         self.assertEqual(
             response.data[0]["spectros"][0]["linear_frequency_scale"]["name"],
-            "Audible",
+            "audible",
         )
 
     def basic_import_test(self) -> HttpResponse:
