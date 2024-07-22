@@ -67,7 +67,7 @@ export const Region: React.FC<RegionProps> = ({
     <div className={ "region " + (isActive ? 'active' : '') }
          style={ {
            left,
-           top: top - (headerIsOnTop ? HEADER_HEIGHT - HEADER_MARGIN : 0),
+           top: top - (headerIsOnTop ? (HEADER_HEIGHT + HEADER_MARGIN) : 0),
            width,
            height: height + HEADER_HEIGHT + HEADER_MARGIN,
          } }>
