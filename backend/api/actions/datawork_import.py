@@ -35,16 +35,18 @@ def datawork_import(*, wanted_datasets, importer):
     with open(
         settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
     ) as csvfile:
+        dataset: dict
         for dataset in csv.DictReader(csvfile):
-            dname = dataset["name"]
-            csv_dataset_names.append(dname)
-            if dname in wanted_dataset_names and dname not in current_dataset_names:
+            dataset["name"] = f"{dataset['dataset']} ({dataset['spectro_duration']}_{dataset['dataset_sr']})"
+            dataset_name = dataset["name"]
+            csv_dataset_names.append(dataset_name)
+            if dataset_name in wanted_dataset_names and dataset_name not in current_dataset_names:
                 new_datasets.append(dataset)
 
     created_datasets = []
     for dataset in new_datasets:
         # Create dataset metadata
-        conf_folder = f"{dataset['spectro_duration']}_{dataset['sample_rate']}"
+        conf_folder = f"{dataset['spectro_duration']}_{dataset['dataset_sr']}"
         dataset_folder = dataset["dataset"]
         if dataset["campaign"]:
             dataset_folder = f"{dataset['campaign']}/{dataset_folder}"
@@ -106,6 +108,7 @@ def datawork_import(*, wanted_datasets, importer):
                 continue
 
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
+                spectro: dict
                 for spectro in csv.DictReader(csvfile):
                     name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
 
@@ -174,6 +177,7 @@ def datawork_import(*, wanted_datasets, importer):
         dataset_files = []
         # Create dataset_files
         with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
+            timestamp_data: dict
             for timestamp_data in csv.DictReader(csvfile):
                 start = parse_datetime(timestamp_data["timestamp"])
                 # TODO we should first bulk create AudioMetadatum and then bulk create DatasetFiles

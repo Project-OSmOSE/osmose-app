@@ -23,12 +23,14 @@ def check_new_spectro_config_errors():
         with open(
             settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
         ) as csvfile:
-            for dataset in csv.DictReader(csvfile):
-                dname = dataset["name"]
+            new_dataset: dict
+            for new_dataset in csv.DictReader(csvfile):
+                new_dataset["name"] = f"{new_dataset['dataset']} ({new_dataset['spectro_duration']}_{new_dataset['dataset_sr']})"
+                dname = new_dataset["name"]
                 csv_dataset_names.append(dname)
 
         # Check for new spectro configs on all datasets present in CSV
-        datasets_to_check = Dataset.objects.filter(name__in=csv_dataset_names)
+        datasets_to_check: list[Dataset] = Dataset.objects.filter(name__in=csv_dataset_names)
 
         for dataset in datasets_to_check:
             dataset_spectros = []
@@ -46,6 +48,7 @@ def check_new_spectro_config_errors():
                 if one_spectro_folder.is_dir():
                     spectro_csv_path = f"{one_spectro_folder.path}/metadata.csv"
                     with open(spectro_csv_path, encoding="utf-8") as csvfile:
+                        spectro: dict
                         for spectro in csv.DictReader(csvfile):
                             name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
                             if (
