@@ -5,9 +5,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "paths": {
-        "/": ["./public/*"]
-    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -22,6 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Absolute imports */
     "baseUrl": ".",
@@ -34,8 +32,7 @@
       "@/slices/*": ["src/slices/*"],
       "@/types/*": ["src/types/*"],
       "@/view/*": ["src/view/*"]
-    },
-    "allowSyntheticDefaultImports": true
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
