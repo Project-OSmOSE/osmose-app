@@ -39,11 +39,8 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const {
-    prevAndNextAnnotation,
     areShortcutsEnabled,
-    taskId,
-    mode,
-    campaignId,
+    task,
   } = useAppSelector(state => state.annotator.global);
   const {
     results,
@@ -52,8 +49,8 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   } = useAppSelector(state => state.annotator.annotations);
 
   useEffect(() => {
-    setSiblings(prevAndNextAnnotation);
-  }, [prevAndNextAnnotation])
+    setSiblings(task.prevAndNextAnnotation);
+  }, [task.prevAndNextAnnotation])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!areShortcutsEnabled) return;
@@ -72,12 +69,12 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     }
   }
 
-  useImperativeHandle(ref, () => ({ handleKeyPressed }))
+  useImperativeHandle(ref, () => ({ handleKeyPressed }), [areShortcutsEnabled])
 
   const submit = async () => {
     const now = new Date().getTime();
     setIsSubmitting(true);
-    const response = await taskAPI.update(taskId!, {
+    const response = await taskAPI.update(task.id!, {
       annotations: results.map(r => {
         const isBox = r.type === AnnotationType.box;
         const startTime = isBox ? r.startTime : null;
@@ -95,7 +92,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
           confidenceIndicator: r.confidenceIndicator ?? null,
           result_comments: result_comments,
         }
-        if (mode === 'Check') result.validation = !!r.validation;
+        if (task.mode === 'Check') result.validation = !!r.validation;
         return result;
       }),
       task_start_time: Math.floor((start.getTime() ?? now) / 1000),
@@ -107,7 +104,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     if (siblings?.next) {
       history.push(`/audio-annotator/${ siblings.next }`);
     } else {
-      history.push(`/annotation_tasks/${ campaignId }`)
+      history.push(`/annotation_tasks/${ task.campaignId }`)
     }
   }
 
@@ -134,7 +131,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
                                                                     description="load previous recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting }
+                   disabled={ isSubmitting || !siblings?.prev }
                    className="rounded-right-0"
                    onClick={ navPrevious }>
           <IonIcon icon={ caretBack } slot={ "icon-only" }/>
@@ -152,7 +149,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
                                                                     description="load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting }
+                   disabled={ isSubmitting || !siblings?.next }
                    className="rounded-left-0"
                    onClick={ navNext }>
           <IonIcon icon={ caretForward } slot={ "icon-only" }/>

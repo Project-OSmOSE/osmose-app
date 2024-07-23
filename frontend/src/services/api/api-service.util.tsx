@@ -19,7 +19,7 @@ export class APIService<List, Retrieve, Create> {
   }
 
   public retrieve(id: string): Promise<Retrieve> {
-    this.retrieveRequest = get(`${ this.URI }/${ id }`).set("Authorization", this.auth.bearer);
+    this.retrieveRequest = get(`${ this.URI }/${ id }/`).set("Authorization", this.auth.bearer);
     return this.retrieveRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 

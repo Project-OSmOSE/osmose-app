@@ -6,6 +6,8 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationCampaign,
     User,
+    SpectrogramConfiguration,
+    Dataset,
 )
 
 
@@ -39,8 +41,8 @@ def check_annotation_goal(attrs: dict) -> None:
 
 def check_spectro_configs_in_datasets(attrs: dict) -> None:
     """Validates that chosen spectros correspond to chosen datasets"""
-    spectro_configs = attrs["spectro_configs"]  # type: list[SpectroConfig]
-    datasets = attrs["datasets"]  # type: list[Dataset]
+    spectro_configs: list[SpectrogramConfiguration] = attrs["spectro_configs"]
+    datasets: list[Dataset] = attrs["datasets"]
     bad_vals = []
     for spectro in spectro_configs:
         if spectro.dataset not in datasets:

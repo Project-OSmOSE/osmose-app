@@ -89,12 +89,15 @@ class DatasetViewSet(viewsets.ViewSet):
                 importer=request.user,
             )
         except FileNotFoundError as error:
+            print("[datawork_import] > FileNotFoundError")
             capture_exception(error)
             return HttpResponse(error, status=400)
         except PermissionError as error:
+            print("[datawork_import] > PermissionError")
             capture_exception(error)
             return HttpResponse(error, status=400)
         except KeyError as error:
+            print("[datawork_import] > KeyError")
             capture_exception(error)
             return HttpResponse(
                 f"One of the import CSV is missing the following column : {error}",
@@ -107,7 +110,6 @@ class DatasetViewSet(viewsets.ViewSet):
                 new_datasets.filter(pk=OuterRef("pk")).values("dataset_type__name")[:1]
             ),
         )
-        print(queryset)
         serializer = self.serializer_class(queryset, many=True)
 
         errors = check_new_spectro_config_errors()

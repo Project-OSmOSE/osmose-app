@@ -1,7 +1,6 @@
 """Metadata-related models"""
 
 from django.db import models
-from backend.api.models.datasets import Dataset
 
 
 class AudioMetadatum(models.Model):
@@ -48,77 +47,3 @@ class GeoMetadatum(models.Model):
     # TODO : move to PostGIS-aware fields, see https://docs.djangoproject.com/en/3.2/ref/contrib/gis/
     location = models.TextField()
     region = models.TextField()
-
-
-class WindowType(models.Model):
-    """
-    This table contains window_type which are in spectrogram configuration
-    """
-
-    class Meta:
-        db_table = "window_type"
-
-    def __str__(self):
-        return str(self.name)
-
-    name = models.CharField(max_length=255, unique=True)
-
-
-class SpectroConfig(models.Model):
-    """
-    Table containing spectrogram configuration used for datasets and annotation campaigns.
-    """
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name="api_spectroconfig_name_dataset_unicity_constraint",
-                fields=["name", "dataset_id"],
-            ),
-        ]
-
-    def __str__(self):
-        return f"{self.name} - {self.dataset}"
-
-    name = models.CharField(max_length=255)
-    desc = models.TextField(null=True, blank=True)
-    nfft = models.IntegerField()
-    window_size = models.IntegerField()
-    overlap = models.FloatField()
-    zoom_level = models.IntegerField()
-    spectro_normalization = models.CharField(max_length=255)
-    data_normalization = models.CharField(max_length=255)
-    zscore_duration = models.CharField(max_length=255, null=True, blank=True)
-    hp_filter_min_freq = models.IntegerField()
-    colormap = models.CharField(max_length=255)
-    dynamic_min = models.IntegerField()
-    dynamic_max = models.IntegerField()
-    window_type = models.ForeignKey(
-        WindowType, on_delete=models.CASCADE, blank=True, null=True
-    )
-    frequency_resolution = models.FloatField()
-    temporal_resolution = models.FloatField(null=True, blank=True)
-    dataset = models.ForeignKey(
-        Dataset, on_delete=models.CASCADE, related_name="spectro_configs"
-    )
-    sensitivity_dB = models.FloatField(null=True, blank=True)
-    spectro_duration = models.FloatField(null=True, blank=True)
-    peak_voltage = models.FloatField(null=True, blank=True)
-    gain_dB = models.FloatField(null=True, blank=True)
-    audio_file_dataset_overlap = models.FloatField(null=True, blank=True)
-    time_resolution_zoom_0 = models.FloatField(default=0)
-    time_resolution_zoom_1 = models.FloatField(default=0)
-    time_resolution_zoom_2 = models.FloatField(default=0)
-    time_resolution_zoom_3 = models.FloatField(default=0)
-    time_resolution_zoom_4 = models.FloatField(default=0)
-    time_resolution_zoom_5 = models.FloatField(default=0)
-    time_resolution_zoom_6 = models.FloatField(default=0)
-    time_resolution_zoom_7 = models.FloatField(default=0)
-    time_resolution_zoom_8 = models.FloatField(default=0)
-
-    def zoom_tiles(self, tile_name):
-        """Generate zoom tile filenames for SpectroConfig"""
-        for zoom_power in range(0, self.zoom_level + 1):
-            zoom_level = 2**zoom_power
-            for zoom_tile in range(0, zoom_level):
-                yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"

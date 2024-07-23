@@ -15,7 +15,7 @@ from backend.api.models import (
 from .confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
-from .dataset import SpectroConfigSerializer, AudioMetadatumSerializer
+from .dataset import SpectrogramConfigurationSerializer, AudioMetadatumSerializer
 from .label_set import LabelSetSerializer
 from .user import UserSerializer
 from .utils import EnumField
@@ -93,7 +93,7 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
     campaign = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
     is_campaign_owner = serializers.SerializerMethodField("_is_campaign_owner")
-    spectro_configs = SpectroConfigSerializer(many=True)
+    spectro_configs = SpectrogramConfigurationSerializer(many=True)
     audio_metadata = serializers.SerializerMethodField()
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxCampaignSerializer)

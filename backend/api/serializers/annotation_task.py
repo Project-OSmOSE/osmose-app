@@ -14,7 +14,7 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationTask,
     AnnotationResult,
-    SpectroConfig,
+    SpectrogramConfiguration,
     AnnotationComment,
     AnnotationCampaignUsage,
     AnnotationResultValidation,
@@ -157,9 +157,20 @@ class AnnotationTaskUpdateResultSerializer(serializers.ModelSerializer):
         ]
 
 
+AnnotationTaskSpectroSerializerFields = [
+    "id",
+    "nfft",
+    "winsize",
+    "overlap",
+    "urls",
+    "linear_frequency_scale",
+    "multi_linear_frequency_scale",
+]
+
+
 class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
     """
-    Serializer meant to output basic SpectroConfig data
+    Serializer meant to output basic SpectrogramConfiguration data
 
     It is used for spectroUrls field AnnotationTaskRetrieveSerializer
     """
@@ -173,14 +184,19 @@ class AnnotationTaskSpectroSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        model = SpectroConfig
-        fields = ["nfft", "winsize", "overlap", "urls"]
+        model = SpectrogramConfiguration
+        fields = AnnotationTaskSpectroSerializerFields
+        depth = 2
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_urls(self, spectro_config):
+    def get_urls(self, spectro_config: SpectrogramConfiguration):
         """This returns urls for spectrogram zoom tiles"""
         root_url = settings.STATIC_URL + self.dataset_file.dataset.dataset_path
-        sound_name = self.dataset_file.filepath.split("/")[-1].replace(".wav", "")
+        sound_name = (
+            self.dataset_file.filepath.replace("\\", "/")
+            .split("/")[-1]
+            .replace(".wav", "")
+        )
         dataset_conf = self.dataset_file.dataset.dataset_conf or ""
         spectro_path = (
             settings.DATASET_SPECTRO_FOLDER / dataset_conf / spectro_config.name
@@ -313,7 +329,6 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
-        print("get_taskComment", task.task_comment)
         return AnnotationCommentSerializer(task.task_comment, many=True).data
 
 
@@ -326,7 +341,6 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
 
     def validate_annotations(self, annotations):
         """Validates that annotations correspond to label set labels and set confidence indicator"""
-        print("validation in progress", annotations)
         set_labels = set(
             self.instance.annotation_campaign.label_set.labels.values_list(
                 "name", flat=True
@@ -436,9 +450,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
                 result__annotation_campaign_id=instance.annotation_campaign_id,
                 result__dataset_file_id=instance.dataset_file_id,
             ).delete()
-            print(validated_data["annotations"])
             for annotation in validated_data["annotations"]:
-                print(annotation)
                 result = AnnotationResult.objects.get(pk=int(annotation.pop("id")))
                 AnnotationResultValidation.objects.create(
                     is_valid=bool(annotation.pop("validation")),

@@ -42,7 +42,11 @@ export const DetectionList: React.FC = () => {
           <DetectionItem detection={ annotation }
                           key={ idx }></DetectionItem>
         )) }
-        { annotations.length === 0 && <IonNote color="medium">No detections</IonNote>}
+        { annotations.length === 0 && <tr>
+            <td colSpan={ 8 }>
+                <IonNote color="medium">No detections</IonNote>
+            </td>
+        </tr> }
         </tbody>
       </table>
     </div>
