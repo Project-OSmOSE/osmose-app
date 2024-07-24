@@ -12,9 +12,7 @@ from django.utils.dateparse import parse_datetime
 from backend.api.actions.frequency_scales import get_frequency_scales
 from backend.api.models import (
     Dataset,
-    DatasetType,
     AudioMetadatum,
-    GeoMetadatum,
     DatasetFile,
     SpectrogramConfiguration,
     WindowType,
@@ -35,30 +33,29 @@ def datawork_import(*, wanted_datasets, importer):
 
     # Check for new datasets
     with open(
-        settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+        settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
     ) as csvfile:
+        dataset: dict
         for dataset in csv.DictReader(csvfile):
-            dname = dataset["name"]
-            csv_dataset_names.append(dname)
-            if dname in wanted_dataset_names and dname not in current_dataset_names:
+            dataset["name"] = dataset["dataset"]
+            csv_dataset_names.append(dataset["name"])
+            if (
+                dataset["name"] in wanted_dataset_names
+                and dataset["name"] not in current_dataset_names
+            ):
                 new_datasets.append(dataset)
 
     created_datasets = []
     for dataset in new_datasets:
         # Create dataset metadata
-        ## defaults : value to update
-        datatype, _ = DatasetType.objects.update_or_create(
-            name=dataset["dataset_type_name"],
-            defaults={"desc": dataset["dataset_type_desc"]},
-        )
-        dataset_folder = dataset["folder_name"]
+        conf_folder = f"{dataset['spectro_duration']}_{dataset['dataset_sr']}"
 
         # Audio
         audio_folder = (
             settings.DATASET_IMPORT_FOLDER
-            / dataset["folder_name"]
+            / dataset["path"]
             / settings.DATASET_FILES_FOLDER
-            / dataset["conf_folder"]
+            / conf_folder
         )
         with open(audio_folder / "metadata.csv", encoding="utf-8") as csvfile:
             audio_raw = list(csv.DictReader(csvfile))[0]
@@ -76,26 +73,18 @@ def datawork_import(*, wanted_datasets, importer):
             else None,
         )
 
-        # Geo Metadata
-        geo_metadatum, _ = GeoMetadatum.objects.update_or_create(
-            name=dataset["location_name"], defaults={"desc": dataset["location_desc"]}
-        )
-
-        conf_folder = dataset["conf_folder"] or ""
-        dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
+        dataset_path = settings.DATASET_EXPORT_PATH / dataset["path"]
         dataset_path = dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
             name=dataset["name"],
             dataset_path=dataset_path,
             status=1,
-            files_type=dataset["files_type"],
-            dataset_type=datatype,
+            files_type=dataset["file_type"],
             dataset_conf=conf_folder,
             start_date=audio_metadatum.start.date(),
             end_date=audio_metadatum.end.date(),
             audio_metadatum=audio_metadatum,
-            geo_metadatum=geo_metadatum,
             owner=importer,
         )
         created_datasets.append(curr_dataset.id)
@@ -118,6 +107,7 @@ def datawork_import(*, wanted_datasets, importer):
                 continue
 
             with open(spectro_csv_path, encoding="utf-8") as csvfile:
+                spectro: dict
                 for spectro in csv.DictReader(csvfile):
                     name = f"{spectro['nfft']}_{spectro['window_size']}_{spectro['overlap']}"
 
@@ -186,6 +176,7 @@ def datawork_import(*, wanted_datasets, importer):
         dataset_files = []
         # Create dataset_files
         with open(audio_folder / "timestamp.csv", encoding="utf-8") as csvfile:
+            timestamp_data: dict
             for timestamp_data in csv.DictReader(csvfile):
                 start = parse_datetime(timestamp_data["timestamp"])
                 # TODO we should first bulk create AudioMetadatum and then bulk create DatasetFiles
@@ -203,7 +194,7 @@ def datawork_import(*, wanted_datasets, importer):
                         dataset=curr_dataset,
                         filename=timestamp_data["filename"],
                         filepath=settings.DATASET_FILES_FOLDER
-                        / dataset["conf_folder"]
+                        / conf_folder
                         / timestamp_data["filename"],
                         size=0,
                         audio_metadatum=audio_metadatum,

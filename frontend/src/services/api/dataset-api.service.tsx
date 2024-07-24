@@ -18,18 +18,12 @@ export type ListItem = {
 }
 export type ListToImport = Array<ListToImportItem>
 export type ListToImportItem = {
-  id: string;
   name: string;
-  folder_name: string;
-  conf_folder: string;
-  dataset_type_name: string;
-  dataset_type_desc: string;
-  files_type: string;
-  location_name: string;
-  location_desc: string;
-  location_lat: string;
-  location_lon: string;
-  audio_file_dataset_duration: string;
+  campaign: string;
+  dataset: string;
+  spectro_duration: string;
+  sample_rate: string;
+  file_type: string;
 }
 
 class DatasetAPIService extends APIService<List, never, never> {

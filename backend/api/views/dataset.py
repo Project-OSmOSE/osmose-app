@@ -59,9 +59,11 @@ class DatasetViewSet(viewsets.ViewSet):
         # Check for new datasets
         try:
             with open(
-                settings.DATASET_IMPORT_FOLDER / "datasets.csv", encoding="utf-8"
+                settings.DATASET_IMPORT_FOLDER / settings.DATASET_FILE, encoding="utf-8"
             ) as csvfile:
+                dataset: dict
                 for dataset in csv.DictReader(csvfile):
+                    dataset["name"] = dataset["dataset"]
                     if dataset["name"] not in dataset_names:
                         new_datasets.append(dataset)
         except FileNotFoundError as error:
