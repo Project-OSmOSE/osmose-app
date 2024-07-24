@@ -47,7 +47,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 
 
 class SimpleSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic Dataset data"""
+    """Serializer meant to output basic data"""
 
     class Meta:
         model = None
