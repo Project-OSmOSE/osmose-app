@@ -140,10 +140,7 @@ class Command(BaseCommand):
                 mail_address=profile["mail"] if random.randint(0, 1) > 0 else None,
                 research_gate_url=websites[0] if len(websites) > 0 else None,
             )
-            for i in range(1, random.randint(2, 5)):
-                trap.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())
-                trap.save()
-            trap.save()
+
 
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")

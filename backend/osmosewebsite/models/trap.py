@@ -15,7 +15,6 @@ class Trap(models.Model):
     intro = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")
-    osmose_member_authors = models.ManyToManyField(TeamMember, blank=True)
     linkedin_url = models.URLField(blank=True, null=True)
     mail_address = models.EmailField(blank=True, null=True)
     research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)

@@ -10,7 +10,6 @@ TrapFields = [
     "linkedin_url",
     "mail_address",
     "research_gate_url",
-    "osmose_member_authors",
     "lastname",
     "firstname",
 ]
