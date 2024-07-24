@@ -31,29 +31,14 @@ export const Header: React.FC = () => {
             <ul className="dropdown-menu bg-light">
               <Link to="/projects" className="nav-link navigation-link text-center text-secondary">Projects</Link>
               <Link to="/publications" className="nav-link navigation-link text-center text-secondary">Publications</Link>
-              <li className="mx-5 mx-md-4 nav-item">
-                <Link to="/trap" className="nav-link navigation-link">Trap</Link>
-              </li>
             </ul>
         </li>
-        {/*<li className="mx-5 mx-md-4 nav-item dropdown">
-          <p className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Science
-          </p>
-              <ul className="dropdown-menu">
-                THIS ONE IS A VALID COMMENT
-                <Link to="/explore" className="nav-link navigation-link">Datasets</Link>
-                <Link to="/explore" className="nav-link navigation-link">Sounds</Link>
-                <a href={appUrl} className="nav-link navigation-link">Annotator</a>
-            </ul>
-        </li>*/}
         <li className="mx-5 mx-md-4 nav-item">
           <a href={appUrl} className="nav-link navigation-link">Annotator</a>
         </li>
         <li className="mx-5 mx-md-4 nav-item">
           <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
-
       </ul>
     </div>
 
