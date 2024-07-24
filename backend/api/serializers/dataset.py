@@ -44,3 +44,11 @@ class DatasetSerializer(serializers.ModelSerializer):
         model = Dataset
         fields = DATASET_FIELDS
         depth = 1
+
+
+class SimpleSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic Dataset data"""
+
+    class Meta:
+        model = None
+        fields = "__all__"

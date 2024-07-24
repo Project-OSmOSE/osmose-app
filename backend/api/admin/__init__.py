@@ -1,10 +1,14 @@
 """Python module for Django admin interface"""
+
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
 
 from django import forms
 from django.contrib import admin, messages
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
+from django.db.models import QuerySet
+from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -35,6 +39,7 @@ from .spectrogram import (
     SpectrogramConfigurationAdmin,
     WindowTypeAdmin,
 )
+from ..serializers.dataset import SimpleSerializer
 
 
 class NewItemsForm(forms.ModelForm):
@@ -112,6 +117,10 @@ class DatasetAdmin(admin.ModelAdmin):
         "owner",
     )
 
+    actions = [
+        "export",
+    ]
+
     @admin.display(description="Spectrogram configurations")
     def show_spectro_configs(self, dataset: Dataset) -> str:
         """show_spectro_configs"""
@@ -131,6 +140,16 @@ class DatasetAdmin(admin.ModelAdmin):
             id=obj.audio_metadatum.id,
             metadatum=obj.audio_metadatum,
         )
+
+    @admin.action(description="Download data as JSON")
+    def export(self, request: WSGIRequest, queryset: QuerySet[Dataset]):
+        """WIP"""
+        SimpleSerializer.Meta.model = Dataset
+        serializer = SimpleSerializer(data=queryset, many=True)
+        serializer.is_valid()
+        response = JsonResponse(data=serializer.data, safe=False)
+        response["Content-Disposition"] = 'attachment; filename="APLOSE_datasets.json"'
+        return response
 
 
 class DatasetFileAdmin(admin.ModelAdmin):
