@@ -31,6 +31,7 @@ export const Header: React.FC = () => {
             <ul className="dropdown-menu bg-light">
               <Link to="/projects" className="nav-link navigation-link text-center text-secondary">Projects</Link>
               <Link to="/publications" className="nav-link navigation-link text-center text-secondary">Publications</Link>
+              <Link to="/trap" className="nav-link navigation-link">Trap</Link>
             </ul>
         </li>
         <li className="mx-5 mx-md-4 nav-item">
@@ -39,6 +40,7 @@ export const Header: React.FC = () => {
         <li className="mx-5 mx-md-4 nav-item">
           <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
+
       </ul>
     </div>
 
