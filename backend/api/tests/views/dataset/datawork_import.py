@@ -11,7 +11,7 @@ from backend.api.serializers.dataset import DATASET_FIELDS
 
 IMPORT_FIXTURES = settings.FIXTURE_DIRS[1] / "dataset" / "list_to_import"
 URL = reverse("dataset-datawork-import")
-DATA_SEND = {"wanted_datasets": [{"name": "gliderSPAmsDemo (600_400)"}]}
+DATA_SEND = {"wanted_datasets": [{"name": "gliderSPAmsDemo"}]}
 
 
 class DatasetViewSetDataworkImportTestcase(APITestCase):
@@ -60,7 +60,7 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         )
         self.assertContains(
             response,
-            "One of the import CSV is missing the following column : 'dataset_type_name'",
+            "One of the import CSV is missing the following column : 'dataset'",
             status_code=400,
         )
 
@@ -107,6 +107,11 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
             "audible",
         )
 
+    @override_settings(DATASET_IMPORT_FOLDER=IMPORT_FIXTURES / "path")
+    def test_datawork_import_for_staff_path(self):
+        """Check correct import of Audible scale"""
+        self.basic_import_test()
+
     def basic_import_test(self) -> HttpResponse:
         """Basic test for dataset import for authorized user"""
         old_count = Dataset.objects.count()
@@ -119,6 +124,6 @@ class DatasetViewSetDataworkImportTestcase(APITestCase):
         self.assertEqual(Dataset.objects.latest("id").files.count(), 10)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(list(response.data[0].keys()), DATASET_FIELDS)
-        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo (600_400)")
+        self.assertEqual(response.data[0]["name"], "gliderSPAmsDemo")
         self.assertEqual(len(response.data[0]["spectros"]), 1)
         return response

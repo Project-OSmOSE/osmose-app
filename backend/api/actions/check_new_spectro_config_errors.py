@@ -25,12 +25,16 @@ def check_new_spectro_config_errors():
         ) as csvfile:
             new_dataset: dict
             for new_dataset in csv.DictReader(csvfile):
-                new_dataset["name"] = f"{new_dataset['dataset']} ({new_dataset['spectro_duration']}_{new_dataset['dataset_sr']})"
+                new_dataset[
+                    "name"
+                ] = f"{new_dataset['dataset']} ({new_dataset['spectro_duration']}_{new_dataset['dataset_sr']})"
                 dname = new_dataset["name"]
                 csv_dataset_names.append(dname)
 
         # Check for new spectro configs on all datasets present in CSV
-        datasets_to_check: list[Dataset] = Dataset.objects.filter(name__in=csv_dataset_names)
+        datasets_to_check: list[Dataset] = Dataset.objects.filter(
+            name__in=csv_dataset_names
+        )
 
         for dataset in datasets_to_check:
             dataset_spectros = []

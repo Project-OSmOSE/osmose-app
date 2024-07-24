@@ -37,24 +37,23 @@ def datawork_import(*, wanted_datasets, importer):
     ) as csvfile:
         dataset: dict
         for dataset in csv.DictReader(csvfile):
-            dataset["name"] = f"{dataset['dataset']} ({dataset['spectro_duration']}_{dataset['dataset_sr']})"
-            dataset_name = dataset["name"]
-            csv_dataset_names.append(dataset_name)
-            if dataset_name in wanted_dataset_names and dataset_name not in current_dataset_names:
+            dataset["name"] = dataset['dataset']
+            csv_dataset_names.append(dataset["name"])
+            if (
+                    dataset["name"] in wanted_dataset_names
+                and dataset["name"] not in current_dataset_names
+            ):
                 new_datasets.append(dataset)
 
     created_datasets = []
     for dataset in new_datasets:
         # Create dataset metadata
         conf_folder = f"{dataset['spectro_duration']}_{dataset['dataset_sr']}"
-        dataset_folder = dataset["dataset"]
-        if dataset["campaign"]:
-            dataset_folder = f"{dataset['campaign']}/{dataset_folder}"
 
         # Audio
         audio_folder = (
             settings.DATASET_IMPORT_FOLDER
-            / dataset_folder
+            / dataset['path']
             / settings.DATASET_FILES_FOLDER
             / conf_folder
         )
@@ -74,7 +73,7 @@ def datawork_import(*, wanted_datasets, importer):
             else None,
         )
 
-        dataset_path = settings.DATASET_EXPORT_PATH / dataset_folder
+        dataset_path = settings.DATASET_EXPORT_PATH / dataset['path']
         dataset_path = dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
