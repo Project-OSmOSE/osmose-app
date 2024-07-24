@@ -54,9 +54,6 @@ export const Header: React.FC = () => {
           <Link to="/news" className="nav-link navigation-link">News</Link>
         </li>
 
-        <li className="mx-5 mx-md-4 nav-item">
-          <Link to="/aplose" className="nav-link navigation-link">Aplose</Link>
-        </li>
       </ul>
     </div>
 

@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from backend.osmosewebsite.models import Trap
-from .team_member import TeamMemberSerializer
 
 TrapFields = [
     "id",

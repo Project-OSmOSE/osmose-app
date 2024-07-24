@@ -6,12 +6,12 @@ class TrapAdmin(ModelAdmin):
     """Trap presentation in DjangoAdmin"""
 
     list_display = [
+        "title",
         "lastname",
         "firstname",
-        "title",
         "intro",
         "date",
         "thumbnail",
     ]
 
-    search_fields = ["title"]
+    search_fields = ["title", "firstname", "lastname"]

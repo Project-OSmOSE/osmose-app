@@ -143,10 +143,6 @@ class Command(BaseCommand):
             for i in range(1, random.randint(2, 5)):
                 trap.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())
                 trap.save()
-            other_authors = []
-            for i in range(1, random.randint(2, 5)):
-                other_authors.append(fake.name())
-            trap.other_authors = "{" + ",".join(other_authors) + "}"
             trap.save()
 
     def _create_collaborators(self):
