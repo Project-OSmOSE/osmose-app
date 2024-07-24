@@ -63,7 +63,7 @@ class DatasetViewSet(viewsets.ViewSet):
             ) as csvfile:
                 dataset: dict
                 for dataset in csv.DictReader(csvfile):
-                    dataset["name"] = dataset['dataset']
+                    dataset["name"] = dataset["dataset"]
                     if dataset["name"] not in dataset_names:
                         new_datasets.append(dataset)
         except FileNotFoundError as error:

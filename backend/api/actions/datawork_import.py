@@ -37,10 +37,10 @@ def datawork_import(*, wanted_datasets, importer):
     ) as csvfile:
         dataset: dict
         for dataset in csv.DictReader(csvfile):
-            dataset["name"] = dataset['dataset']
+            dataset["name"] = dataset["dataset"]
             csv_dataset_names.append(dataset["name"])
             if (
-                    dataset["name"] in wanted_dataset_names
+                dataset["name"] in wanted_dataset_names
                 and dataset["name"] not in current_dataset_names
             ):
                 new_datasets.append(dataset)
@@ -53,7 +53,7 @@ def datawork_import(*, wanted_datasets, importer):
         # Audio
         audio_folder = (
             settings.DATASET_IMPORT_FOLDER
-            / dataset['path']
+            / dataset["path"]
             / settings.DATASET_FILES_FOLDER
             / conf_folder
         )
@@ -73,7 +73,7 @@ def datawork_import(*, wanted_datasets, importer):
             else None,
         )
 
-        dataset_path = settings.DATASET_EXPORT_PATH / dataset['path']
+        dataset_path = settings.DATASET_EXPORT_PATH / dataset["path"]
         dataset_path = dataset_path.as_posix()
         # Create dataset
         curr_dataset = Dataset.objects.create(
