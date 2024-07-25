@@ -9,5 +9,4 @@ export interface Trap {
     presenter_mail_address?: string;
     presenter_linkedin_url?: string;
     presenter_research_gate_url?: string;
-
 }

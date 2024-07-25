@@ -8,6 +8,7 @@ CollaboratorFields = [
     "thumbnail",
     "url",
     "show_on_home_page",
+    "show_on_aplose_home",
 ]
 
 

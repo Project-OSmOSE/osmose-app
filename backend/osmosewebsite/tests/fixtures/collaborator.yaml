@@ -1,7 +1,7 @@
 - model: osmosewebsite.collaborator
   pk: 1
   fields:
-    name: user1
+    name: collaborator1
     level: 5
     thumbnail: picture1
     url: http://www.user1.com/
@@ -10,7 +10,7 @@
 - model: osmosewebsite.collaborator
   pk: 2
   fields:
-    name: user2
+    name: collaborator2
     level: 1
     thumbnail: picture2
     url: http://www.user2.com/
@@ -19,7 +19,7 @@
 - model: osmosewebsite.collaborator
   pk: 3
   fields:
-    name: user3
+    name: collaborator3
     level: 2
     thumbnail: picture3
     url: http://www.user3.com/
