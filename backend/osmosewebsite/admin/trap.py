@@ -7,11 +7,11 @@ class TrapAdmin(ModelAdmin):
 
     list_display = [
         "title",
-        "lastname",
-        "firstname",
+        "presenter_lastname",
+        "presenter_firstname",
         "intro",
         "date",
         "thumbnail",
     ]
 
-    search_fields = ["title", "firstname", "lastname"]
+    search_fields = ["title", "presenter_firstname", "presenter_lastname"]

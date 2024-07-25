@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0026_alter_trap_lastname'),
+        ("osmosewebsite", "0026_alter_trap_lastname"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='trap',
-            name='osmose_member_authors',
+            model_name="trap",
+            name="osmose_member_authors",
         ),
     ]

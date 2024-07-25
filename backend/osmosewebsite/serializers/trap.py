@@ -7,11 +7,11 @@ TrapFields = [
     "intro",
     "date",
     "thumbnail",
-    "linkedin_url",
+    "presenter_linkedin_url",
     "mail_address",
     "research_gate_url",
-    "lastname",
-    "firstname",
+    "presenter_lastname",
+    "presenter_firstname",
 ]
 
 

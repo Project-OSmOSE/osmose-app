@@ -128,17 +128,16 @@ class Command(BaseCommand):
             profile = fake.profile()
             websites = profile["website"]
             trap = Trap.objects.create(
-                firstname=fake.first_name(),
-                lastname=fake.last_name(),
+                presenter_firstname=fake.first_name(),
+                presenter_lastname=fake.last_name(),
                 title=fake.sentence(nb_words=10)[:255],
                 intro=fake.paragraph(nb_sentences=5)[:255],
                 date=fake.date_time_between(start_date="-1y", end_date="now"),
                 thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
-                linkedin_url=websites[3] if len(websites) > 3 else None,
+                presenter_linkedin_url=websites[3] if len(websites) > 3 else None,
                 mail_address=profile["mail"] if random.randint(0, 1) > 0 else None,
                 research_gate_url=websites[0] if len(websites) > 0 else None,
             )
-
 
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")

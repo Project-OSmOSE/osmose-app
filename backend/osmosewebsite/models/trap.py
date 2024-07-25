@@ -10,11 +10,16 @@ class Trap(models.Model):
     """
 
     title = models.CharField(max_length=255, unique=True)
-    firstname = models.CharField(max_length=100, default="DefaultFirstName")
-    lastname = models.CharField(max_length=100, blank=True, null=True)
+    presenter_firstname = models.CharField(max_length=100, default="DefaultFirstName")
+    presenter_lastname = models.CharField(max_length=100, blank=True, null=True)
     intro = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")
-    linkedin_url = models.URLField(blank=True, null=True)
+    presenter_linkedin_url = models.URLField(blank=True, null=True)
     mail_address = models.EmailField(blank=True, null=True)
     research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
+
+
+class Meta:
+    verbose_name_plural = "trap"
+    ordering = ["-date"]

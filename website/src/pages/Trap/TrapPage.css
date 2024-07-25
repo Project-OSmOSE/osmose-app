@@ -4,13 +4,13 @@
     margin: var(--content-margin);
     gap: 4rem;
 }
-.card-name {
+#trap-page.card-name {
     font-size: 1.25rem;
     text-align: center;
     margin: 0.5rem 0;
 }
 
-.social-links {
+#trap-page.social-links {
     margin-top: 0.5rem;
     display: flex;
     gap: 1rem;
@@ -19,7 +19,7 @@
     color: #007bff;
 }
 
-.social-links a {
+#trap-page.social-links a {
     color: #007bff;
     text-decoration: none;
     display: flex;
@@ -27,7 +27,7 @@
     gap: 0.5rem;
 }
 
-.social-links a:hover {
+#trap-page.social-links a:hover {
     text-decoration: underline;
 }
 
