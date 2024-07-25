@@ -6,22 +6,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0029_auto_20240725_1150'),
+        ("osmosewebsite", "0029_auto_20240725_1150"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='trap',
-            options={'ordering': ['-date'], 'verbose_name_plural': 'trap'},
+            name="trap",
+            options={"ordering": ["-date"], "verbose_name_plural": "trap"},
         ),
         migrations.RenameField(
-            model_name='trap',
-            old_name='mail_address',
-            new_name='presenter_mail_address',
+            model_name="trap",
+            old_name="mail_address",
+            new_name="presenter_mail_address",
         ),
         migrations.RenameField(
-            model_name='trap',
-            old_name='research_gate_url',
-            new_name='presenter_research_gate_url',
+            model_name="trap",
+            old_name="research_gate_url",
+            new_name="presenter_research_gate_url",
         ),
     ]

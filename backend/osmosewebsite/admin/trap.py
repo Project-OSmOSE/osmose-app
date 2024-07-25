@@ -1,6 +1,7 @@
 """OSmOSE Website - Trap"""
 from django.contrib.admin import ModelAdmin
 
+
 class TrapAdmin(ModelAdmin):
     """Trap presentation in DjangoAdmin"""
 

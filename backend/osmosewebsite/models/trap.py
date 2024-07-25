@@ -1,7 +1,6 @@
 """Trap-related models"""
 
 from django.db import models
-from .team_member import TeamMember
 
 
 class Trap(models.Model):
@@ -17,7 +16,9 @@ class Trap(models.Model):
     thumbnail = models.URLField(default="")
     presenter_linkedin_url = models.URLField(blank=True, null=True)
     presenter_mail_address = models.EmailField(blank=True, null=True)
-    presenter_research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
+    presenter_research_gate_url = models.URLField(
+        "Research Gate URL", blank=True, null=True
+    )
 
     class Meta:
         verbose_name_plural = "trap"

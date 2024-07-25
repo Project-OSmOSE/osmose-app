@@ -1,3 +1,4 @@
+"""TRAP DRF serializers file"""
 from rest_framework import serializers
 from backend.osmosewebsite.models import Trap
 

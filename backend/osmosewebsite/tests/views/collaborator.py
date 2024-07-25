@@ -40,7 +40,6 @@ class CollaboratorViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(list(response.data[0].keys()), CollaboratorFields)
-        print(response.data)
         self.assertEqual(response.data[0]["show_on_aplose_home"], True)
         self.assertEqual(response.data[1]["show_on_aplose_home"], True)
 

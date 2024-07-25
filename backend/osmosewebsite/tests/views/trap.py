@@ -1,3 +1,4 @@
+"""TRAP tests"""
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -11,9 +12,8 @@ class TrapViewSetTestCase(APITestCase):
     creation_data = {
         "presenter_lastname": "string",
         "presenter_firstname": "string",
-        "title": "string",
+        "title": "trap",
         "intro": "string",
-        "body": "string",
         "date": "2022-01-25T10:42:15Z",
         "thumbnail": "string",
     }
@@ -31,10 +31,6 @@ class TrapViewSetTestCase(APITestCase):
             response.data[1]["title"], "ECS 2023 Presentation et retour de conference"
         )
 
-
-
-
-
     def test_retrieve(self):
         """TrapViewSet 'retrieve' returns trap details"""
         url = reverse("trap-detail", kwargs={"pk": 1})
@@ -48,6 +44,6 @@ class TrapViewSetTestCase(APITestCase):
         )
         self.assertEqual(
             response.data["intro"],
-            "Her order another who company step office. Garden space various suddenly. Character large standard attention. Pass time special according role carry base.",
+            "Her order another who company step office. Garden space various suddenly. "
+            "Character large standard attention. Pass time special according role carry base.",
         )
-
