@@ -1,4 +1,4 @@
-"""Annotation task DRF serializers file"""
+"""News DRF serializers file"""
 
 from rest_framework import serializers
 

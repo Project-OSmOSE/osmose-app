@@ -8,7 +8,7 @@ from faker import Faker
 
 from django.core.management.base import BaseCommand
 
-from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project
+from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project, Trap
 
 fake = Faker()
 random = Random()
@@ -47,6 +47,7 @@ class Command(BaseCommand):
         # Creation
         self._create_team_members()
         self._create_news()
+        self._create_trap()
         self._create_collaborators()
         self._create_projects()
 
@@ -120,6 +121,25 @@ class Command(BaseCommand):
                 other_authors.append(fake.name())
             news.other_authors = "{" + ",".join(other_authors) + "}"
             news.save()
+
+    def _create_trap(self):
+        print(" ###### _create_trap ######")
+        for _ in range(0, random.randint(5, 15)):
+            profile = fake.profile()
+            websites = profile["website"]
+            trap = Trap.objects.create(
+                presenter_firstname=fake.first_name(),
+                presenter_lastname=fake.last_name(),
+                title=fake.sentence(nb_words=10)[:255],
+                intro=fake.paragraph(nb_sentences=5)[:255],
+                date=fake.date_time_between(start_date="-1y", end_date="now"),
+                thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
+                presenter_linkedin_url=websites[3] if len(websites) > 3 else None,
+                presenter_mail_address=profile["mail"]
+                if random.randint(0, 1) > 0
+                else None,
+                presenter_research_gate_url=websites[0] if len(websites) > 0 else None,
+            )
 
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")

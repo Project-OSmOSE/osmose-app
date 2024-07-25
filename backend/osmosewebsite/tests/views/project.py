@@ -25,7 +25,7 @@ class ProjectViewSetTestCase(APITestCase):
 
     def test_retrieve(self):
         """ProjectViewSet 'retrieve' returns Project details"""
-        url = reverse("Project-detail", kwargs={"pk": 1})
+        url = reverse("projects-detail", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(list(response.data), ProjectFields)
