@@ -107,8 +107,6 @@ class Command(BaseCommand):
         print(" ###### _create_news ######")
         for _ in range(0, random.randint(5, 15)):
             news = News.objects.create(
-                firstname=fake.first_name(),
-                lastname=fake.last_name(),
                 title=fake.sentence(nb_words=10)[:255],
                 intro=fake.paragraph(nb_sentences=5)[:255],
                 body=self._generate_html_body(),
