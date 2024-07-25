@@ -44,23 +44,23 @@ export const TrapPage: React.FC = () => {
 
                         <IonCardHeader>
                             <IonCardTitle>{ data.title }</IonCardTitle>
-                            {data.firstname && data.lastname && (  // Display Firstname and Lastname link if available
-                                <div className="card-name">{ data.firstname } { data.lastname }</div>
+                            {data.presenter_firstname && data.presenter_lastname && (  // Display Firstname and Lastname link if available
+                                <div className="card-name">{ data.presenter_firstname } { data.presenter_lastname }</div>
                             )}
                             <IonCardSubtitle>{ getFormattedDate(data.date) }</IonCardSubtitle>
                             <div className="social-links">
-                                { data.research_gate_url && (  // Display Research gate link if available
-                                    <a href={data.research_gate_url} target="_blank" rel="noreferrer">
+                                { data.presenter_research_gate_url && (  // Display Research gate link if available
+                                    <a href={data.presenter_research_gate_url} target="_blank" rel="noreferrer">
                                         ResearchGate
                                     </a>
                                 )}
-                                { data.mail_address && (  // Display Mail link if available
-                                    <a href={`mailto:${data.mail_address}`} target="_blank" rel="noreferrer">
+                                { data.presenter_mail_address && (  // Display Mail link if available
+                                    <a href={`mailto:${data.presenter_mail_address}`} target="_blank" rel="noreferrer">
                                         <IonIcon icon={mailOutline} /> Mail
                                     </a>
                                 )}
-                                { data.linkedin_url && (  // Display LinkedIn link if available
-                                    <a href={data.linkedin_url} target="_blank" rel="noreferrer">
+                                { data.presenter_linkedin_url && (  // Display LinkedIn link if available
+                                    <a href={data.presenter_linkedin_url} target="_blank" rel="noreferrer">
                                         <IonIcon icon={logoLinkedin} /> LinkedIn
                                     </a>
                                 )}

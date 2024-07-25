@@ -18,7 +18,6 @@ class TrapViewSetTestCase(APITestCase):
         "thumbnail": "string",
     }
 
-
     def test_list(self):
         """TrapViewSet 'list' returns list of trap"""
         url = reverse("trap-list")
@@ -26,11 +25,13 @@ class TrapViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(list(response.data[0].keys()), TrapFields)
-        self.assertEqual(response.data[0]["firstname"], "user2")
-
+        self.assertEqual(response.data[0]["presenter_firstname"], "user1")
+        self.assertEqual(response.data[1]["presenter_firstname"], "user2")
         self.assertEqual(
-            response.data[1]["title"], "Themselves determine story far film one."
+            response.data[1]["title"], "ECS 2023 Presentation et retour de conference"
         )
+
+
 
 
 
@@ -39,16 +40,14 @@ class TrapViewSetTestCase(APITestCase):
         url = reverse("trap-detail", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data), TrapFields)
-
-        self.assertEqual(response.data["firstname"], "user3")
-
+        self.assertEqual(list(response.data.keys()), TrapFields)
+        self.assertEqual(response.data["presenter_firstname"], "user1")
         self.assertEqual(
             response.data["title"],
-            "Open between political past despite management bill hand live capital service.",
+            "Assessing marine mammal diversity in remote Indian Ocean regions, using an acoustic glider",
         )
         self.assertEqual(
             response.data["intro"],
-            "Her order another who company step office. Garden space various suddenly. Character large standard "
-            "attention. Pass time special according role carry base.",
+            "Her order another who company step office. Garden space various suddenly. Character large standard attention. Pass time special according role carry base.",
         )
+

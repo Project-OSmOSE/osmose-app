@@ -1,13 +1,13 @@
 export interface Trap {
     id: number;
-    firstname: string;
-    lastname: string;
+    presenter_firstname: string;
+    presenter_lastname: string;
     title: string;
     date: string;
     intro: string;
     thumbnail?: string;
-    mail_address?: string;
-    linkedin_url?: string;
-    research_gate_url?: string;
+    presenter_mail_address?: string;
+    presenter_linkedin_url?: string;
+    presenter_research_gate_url?: string;
 
 }
