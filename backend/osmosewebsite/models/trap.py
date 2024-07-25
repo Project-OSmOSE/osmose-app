@@ -16,10 +16,9 @@ class Trap(models.Model):
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")
     presenter_linkedin_url = models.URLField(blank=True, null=True)
-    mail_address = models.EmailField(blank=True, null=True)
-    research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
+    presenter_mail_address = models.EmailField(blank=True, null=True)
+    presenter_research_gate_url = models.URLField("Research Gate URL", blank=True, null=True)
 
-
-class Meta:
-    verbose_name_plural = "trap"
-    ordering = ["-date"]
+    class Meta:
+        verbose_name_plural = "trap"
+        ordering = ["-date"]

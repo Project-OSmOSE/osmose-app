@@ -8,8 +8,8 @@ TrapFields = [
     "date",
     "thumbnail",
     "presenter_linkedin_url",
-    "mail_address",
-    "research_gate_url",
+    "presenter_mail_address",
+    "presenter_research_gate_url",
     "presenter_lastname",
     "presenter_firstname",
 ]

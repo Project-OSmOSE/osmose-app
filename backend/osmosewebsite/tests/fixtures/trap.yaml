@@ -1,8 +1,8 @@
 - model: osmosewebsite.trap
   pk: 1
   fields:
-    firstname: user1
-    lastname: user1
+    presenter_firstname: user1
+    presenter_lastname: user1
     title: Assessing marine mammal diversity in remote Indian Ocean regions, using an acoustic glider
     intro: Her order another who company step office. Garden space various suddenly. Character large standard attention. Pass time special according role carry base.
     date: 2023-12-02 00:00:00+00:00
@@ -10,8 +10,8 @@
 - model: osmosewebsite.trap
   pk: 2
   fields:
-    firstname: user2
-    lastname: user2
+    presenter_firstname: user2
+    presenter_lastname: user2
     title: ECS 2023 Presentation et retour de conference
     intro: Remember plant such. Above phone create food ability. Number inside add past. When family enjoy vote situation offer size. Summer their organization weight for expert.
     date: 2023-11-02 00:00:00+00:00

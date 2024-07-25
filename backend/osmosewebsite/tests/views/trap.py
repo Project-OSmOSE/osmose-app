@@ -9,8 +9,8 @@ class TrapViewSetTestCase(APITestCase):
 
     fixtures = ["users", "trap"]
     creation_data = {
-        "lastname": "string",
-        "firstname": "string",
+        "presenter_lastname": "string",
+        "presenter_firstname": "string",
         "title": "string",
         "intro": "string",
         "body": "string",
