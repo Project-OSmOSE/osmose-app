@@ -1,31 +1,25 @@
 import React from 'react';
 import { IonIcon } from "@ionic/react";
 import { logoGithub, mailOutline } from "ionicons/icons";
-import ifremer from '../../../img/logo/logo_ifremer_blanc_267_250.webp';
 
-import './styles.css';
+import styles from './styles.module.scss';
 
 export const Footer: React.FC = () => (
-    <footer>
-        <div className="ifremer">
-            <p>Powered by</p>
-            <img src={ifremer} alt="Ifremer" />
-        </div>
+  <footer className={ styles.footer }>
+    <div className={ styles.linksGroup }>
+      <a className={ styles.link } href="https://github.com/Project-OSmOSE">
+        <IonIcon icon={ logoGithub }></IonIcon>
+        Github
+      </a>
+      <a className={ styles.link } href="mailto:contact-osmose@ensta-bretagne.fr" title="Contact OSmOSE">
+        <IonIcon icon={ mailOutline }></IonIcon>
+        contact-osmose@ensta-bretagne.fr
+      </a>
+    </div>
 
-        <div className="links">
-            <a className="link" href="https://github.com/Project-OSmOSE">
-                <IonIcon icon={logoGithub}></IonIcon>
-                Github
-            </a>
-            <a className="link" href="mailto:contact-osmose@ensta-bretagne.fr" title="Contact OSmOSE">
-                <IonIcon icon={mailOutline}></IonIcon>
-                contact-osmose@ensta-bretagne.fr
-            </a>
-        </div>
-
-        <div className="license">
-            <p>OSmOSE <a href="/humans.txt" title="Full credits">credits</a>,</p>
-            <p>GPL-3.0, 2021</p>
-        </div>
-    </footer>
+    <div className={ styles.license }>
+      <p>OSmOSE <a href="/humans.txt" title="Full credits">credits</a>,</p>
+      <p>GPL-3.0, 2021</p>
+    </div>
+  </footer>
 );
