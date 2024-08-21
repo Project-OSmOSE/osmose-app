@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Project } from "../../../models/project";
+import { useParams } from "react-router-dom";
 import { getYear, useFetchDetail } from "../../../utils";
-import { IonIcon } from "@ionic/react";
-import { chevronBackOutline } from "ionicons/icons";
+import { Project } from "../../../models/project";
+import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/CollaboratorsBanner";
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
+import { Back } from "../../../components/Back/Back";
 import './ProjectDetail.css';
-import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/CollaboratorsBanner";
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
@@ -27,10 +26,7 @@ export const ProjectDetail: React.FC = () => {
 
   return (
     <div id="project-detail">
-      <Link to="/projects" className="back">
-        <IonIcon icon={ chevronBackOutline }></IonIcon>
-        Back to Project
-      </Link>
+      <Back path="/projects" pageName="Projects"/>
 
       { project && (
         <div id="project">

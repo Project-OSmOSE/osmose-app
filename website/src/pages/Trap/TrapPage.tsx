@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
-import { SiLinkedin, SiMaildotru, SiResearchgate } from "react-icons/si";
+import { SiLinkedin, SiResearchgate } from "react-icons/si";
+import { IoMailOutline } from "react-icons/io5";
 import { getFormattedDate, useFetchArray } from "../../utils";
 import { PageTitle } from "../../components/PageTitle";
 import { Pagination } from "../../components/Pagination/Pagination";
@@ -60,7 +61,7 @@ export const TrapPage: React.FC = () => {
                 ) }
                 { data.presenter_mail_address && (  // Display Mail link if available
                   <a href={ `mailto:${ data.presenter_mail_address }` } target="_blank" rel="noreferrer">
-                    <SiMaildotru/>
+                    <IoMailOutline/>
                   </a>
                 ) }
                 { data.presenter_linkedin_url && (  // Display LinkedIn link if available

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-import { TeamMember } from "../../../models/team";
-import './PeopleDetail.css';
+import { SiGithub, SiLinkedin } from "react-icons/si";
+import { IoMailOutline } from "react-icons/io5";
 import { useFetchDetail } from "../../../utils";
-import { IonIcon } from "@ionic/react";
-import { logoGithub, logoLinkedin, mailOutline } from "ionicons/icons";
+import { TeamMember } from "../../../models/team";
 import { Back } from "../../../components/Back/Back";
 import './PeopleDetail.css';
 
@@ -48,21 +46,21 @@ export const PeopleDetail: React.FC = () => {
         <div className="socials">
           { member?.github_url &&
               <a href={ member.github_url } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ logoGithub }></IonIcon>
+                  <SiGithub/>
                   Github
               </a>
           }
 
           { member?.mail_address &&
               <a href={ `mailto:${ member.mail_address }` } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ mailOutline }></IonIcon>
+                  <IoMailOutline/>
                   Mail
               </a>
           }
 
           { member?.linkedin_url &&
               <a href={ member.linkedin_url } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ logoLinkedin }></IonIcon>
+                  <SiLinkedin/>
                   LinkedIn
               </a>
           }

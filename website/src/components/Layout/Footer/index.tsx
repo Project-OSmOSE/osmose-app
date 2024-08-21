@@ -1,8 +1,7 @@
 import React from 'react';
-import { IonIcon } from "@ionic/react";
-import { logoGithub, mailOutline } from "ionicons/icons";
+import { SiGithub } from "react-icons/si";
+import { IoMailOutline } from "react-icons/io5";
 import ifremer from '../../../img/logo/logo_ifremer_blanc_267_250.webp';
-
 import './styles.css';
 
 export const Footer: React.FC = () => (
@@ -14,11 +13,11 @@ export const Footer: React.FC = () => (
 
         <div className="links">
             <a className="link" href="https://github.com/Project-OSmOSE">
-                <IonIcon icon={logoGithub}></IonIcon>
+                <SiGithub/>
                 Github
             </a>
             <a className="link" href="mailto:contact-osmose@ensta-bretagne.fr" title="Contact OSmOSE">
-                <IonIcon icon={mailOutline}></IonIcon>
+                <IoMailOutline/>
                 contact-osmose@ensta-bretagne.fr
             </a>
         </div>

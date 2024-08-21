@@ -27,7 +27,7 @@ footer a {
   color: var(--ion-color-primary) !important;
 }
 
-footer ion-icon {
+footer .link svg {
   color: var(--ion-text-color);
 }
 
