@@ -5,6 +5,7 @@ import { AnnotationStatus } from "@/types/campaign.ts";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
+import { getDisplayName } from "@/types/user.ts";
 
 interface Props {
   campaign: AnnotationCampaignRetrieveCampaign;
@@ -28,7 +29,7 @@ export const DetailCampaignStatus: React.FC<Props> = ({
       let comparison = 0;
       switch (sort.entry) {
         case "Annotator":
-          comparison = a.annotator.display_name.localeCompare(b.annotator.display_name);
+          comparison = getDisplayName(a.annotator).localeCompare(getDisplayName(b.annotator));
           break;
         case "Progress":
           comparison = a.finished - b.finished;
@@ -96,7 +97,7 @@ export const DetailCampaignStatus: React.FC<Props> = ({
           return (
             <Fragment key={ status.annotator?.id }>
               <TableDivider/>
-              <TableContent isFirstColumn={ true }>{ status.annotator?.display_name }</TableContent>
+              <TableContent isFirstColumn={ true }>{ getDisplayName(status.annotator) }</TableContent>
               <TableContent>
                 <p>{ status.finished } / { status.total }</p>
                 <IonProgressBar color="medium" value={ status.finished / status.total }/>

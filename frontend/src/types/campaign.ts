@@ -1,4 +1,4 @@
-import { User, UserDTO } from "@/types/user.ts";
+import { User } from "@/types/user.ts";
 
 export type CampaignUsage = 'Create' | 'Check';
 
@@ -8,20 +8,20 @@ export class AnnotationCampaignArchive {
 
   constructor(data: AnnotationCampaignArchiveDTO) {
     this.date = new Date(data.date);
-    this.by_user = new User(data.by_user);
+    this.by_user = data.by_user;
   }
 
   public get DTO(): AnnotationCampaignArchiveDTO {
     return {
       date: this.date.toISOString(),
-      by_user: this.by_user.DTO
+      by_user: this.by_user
     }
   }
 }
 
 export interface AnnotationCampaignArchiveDTO {
   date: string;
-  by_user: UserDTO;
+  by_user: User;
 }
 
 export type AnnotationStatus = {

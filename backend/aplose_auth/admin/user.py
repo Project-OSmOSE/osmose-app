@@ -39,7 +39,7 @@ class UserAdmin(BaseUserAdmin):
     @admin.display(description="Expertise level")
     def expertise_level(self, obj: User) -> str:
         """Display expertise level"""
-        return ExpertiseLevel(obj.aplose.expertise_level).name
+        return ExpertiseLevel(obj.aplose.expertise_level).label
 
 
 admin.site.unregister(User)

@@ -12,7 +12,7 @@
     "server:run": "python -m poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
-    "server:lint": "poetry run pylint backend",
+    "server:lint": "poetry run pylint backend --ignore migrations",
     "preaplose:test": "npm run server:migrate && npm run server:seed",
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",
