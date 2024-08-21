@@ -15,3 +15,25 @@ class TrapAdmin(ModelAdmin):
     ]
 
     search_fields = ["title", "presenter_firstname", "presenter_lastname"]
+
+    fieldsets = [
+        (None,
+         {
+             "fields": [
+                 "title",
+                 "date",
+                 "intro",
+                 "thumbnail",
+             ]
+         }),
+        ("Presenter",
+         {
+             "fields": [
+                 "presenter_firstname",
+                 "presenter_lastname",
+                 "presenter_linkedin_url",
+                 "presenter_mail_address",
+                 "presenter_research_gate_url",
+             ]
+         })
+    ]
