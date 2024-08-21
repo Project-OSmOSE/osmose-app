@@ -1,7 +1,6 @@
 export interface Trap {
     id: number;
-    presenter_firstname: string;
-    presenter_lastname: string;
+    presenter_name: string;
     title: string;
     date: string;
     intro: string;

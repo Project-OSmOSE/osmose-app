@@ -9,8 +9,7 @@ class Trap(models.Model):
     """
 
     title = models.CharField(max_length=255, unique=True)
-    presenter_firstname = models.CharField(max_length=100, default="DefaultFirstName")
-    presenter_lastname = models.CharField(max_length=100, blank=True, null=True)
+    presenter_name = models.CharField(max_length=255)
     intro = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")

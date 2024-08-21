@@ -7,14 +7,13 @@ class TrapAdmin(ModelAdmin):
 
     list_display = [
         "title",
-        "presenter_lastname",
-        "presenter_firstname",
+        "presenter_name",
         "intro",
         "date",
         "thumbnail",
     ]
 
-    search_fields = ["title", "presenter_firstname", "presenter_lastname"]
+    search_fields = ["title", "presenter_name"]
 
     fieldsets = [
         (
@@ -32,8 +31,7 @@ class TrapAdmin(ModelAdmin):
             "Presenter",
             {
                 "fields": [
-                    "presenter_firstname",
-                    "presenter_lastname",
+                    "presenter_name",
                     "presenter_linkedin_url",
                     "presenter_mail_address",
                     "presenter_research_gate_url",

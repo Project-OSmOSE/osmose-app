@@ -10,8 +10,7 @@ class TrapViewSetTestCase(APITestCase):
 
     fixtures = ["users", "trap"]
     creation_data = {
-        "presenter_lastname": "string",
-        "presenter_firstname": "string",
+        "presenter_name": "string",
         "title": "trap",
         "intro": "string",
         "date": "2022-01-25T10:42:15Z",
@@ -25,8 +24,8 @@ class TrapViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(list(response.data[0].keys()), TrapFields)
-        self.assertEqual(response.data[0]["presenter_firstname"], "user1")
-        self.assertEqual(response.data[1]["presenter_firstname"], "user2")
+        self.assertEqual(response.data[0]["presenter_name"], "user1")
+        self.assertEqual(response.data[1]["presenter_name"], "user2")
         self.assertEqual(
             response.data[1]["title"], "ECS 2023 Presentation et retour de conference"
         )
@@ -37,7 +36,7 @@ class TrapViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(list(response.data.keys()), TrapFields)
-        self.assertEqual(response.data["presenter_firstname"], "user1")
+        self.assertEqual(response.data["presenter_name"], "user1")
         self.assertEqual(
             response.data["title"],
             "Assessing marine mammal diversity in remote Indian Ocean regions, using an acoustic glider",

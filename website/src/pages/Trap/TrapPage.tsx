@@ -52,7 +52,7 @@ export const TrapPage: React.FC = () => {
 
             <IonCardHeader className={ styles.presenterInfo }>
               <IonCardSubtitle className={ styles.presenter }>
-                { data.presenter_firstname } { data.presenter_lastname }
+                { data.presenter_name }
               </IonCardSubtitle>
               <IonCardSubtitle className={ styles.cardLinks }>
                 { data.presenter_research_gate_url && (  // Display Research gate link if available
