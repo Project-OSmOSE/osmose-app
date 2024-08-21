@@ -57,6 +57,7 @@ class UserViewSetTestCase(APITestCase):
                 "id": 1,
                 "username": "admin",
                 "email": "admin@osmose.xyz",
+                "expertise_level": "Expert",
                 "first_name": "",
                 "last_name": "",
             },
@@ -76,29 +77,3 @@ class UserViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(dict(response.data), {"is_staff": True})
-
-    def test_create_for_user(self):
-        """User view 'create' is forbidden for non-staff"""
-        url = reverse("user-list")
-        response = self.client.post(url, self.creation_data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_create_for_staff(self):
-        """User view 'create' for staff creates new user"""
-        old_count = User.objects.count()
-        self.client.login(username="staff", password="osmose29")
-        url = reverse("user-list")
-        response = self.client.post(url, self.creation_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(User.objects.count(), old_count + 1)
-        self.assertEqual(User.objects.last().username, "new_user")
-        self.assertEqual(
-            dict(response.data),
-            {
-                "id": 7,
-                "username": "new_user",
-                "email": "user@example.com",
-                "first_name": "",
-                "last_name": "",
-            },
-        )

@@ -2,7 +2,6 @@
 from rest_framework import routers
 from backend.api.views import (
     DatasetViewSet,
-    UserViewSet,
     LabelSetViewSet,
     AnnotationTaskViewSet,
     AnnotationCampaignViewSet,
@@ -10,6 +9,7 @@ from backend.api.views import (
     ConfidenceIndicatorSetViewSet,
     DetectorViewSet,
 )
+from backend.aplose_auth.views import UserViewSet
 
 # API urls are meant to be used by our React frontend
 api_router = routers.DefaultRouter()

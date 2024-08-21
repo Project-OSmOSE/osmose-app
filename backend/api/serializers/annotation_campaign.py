@@ -12,13 +12,13 @@ from backend.api.models import (
     AnnotationCampaignUsage,
     AudioMetadatum,
 )
+from backend.utils.serializers import EnumField
 from .confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
 from .dataset import SpectrogramConfigurationSerializer, AudioMetadatumSerializer
 from .label_set import LabelSetSerializer
-from .user import UserSerializer
-from .utils import EnumField
+from ...aplose_auth.serializers import UserSerializer
 
 
 class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):

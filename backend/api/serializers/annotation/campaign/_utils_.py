@@ -5,10 +5,10 @@ from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationCampaign,
-    User,
     SpectrogramConfiguration,
     Dataset,
 )
+from backend.aplose_auth.models import User
 
 
 def create_campaign_with_annotators(

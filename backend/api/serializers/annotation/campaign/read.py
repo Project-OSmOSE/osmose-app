@@ -5,7 +5,7 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
 )
-from backend.api.serializers.utils import EnumField
+from backend.utils.serializers import EnumField
 
 AnnotationCampaignListFields = [
     "id",
