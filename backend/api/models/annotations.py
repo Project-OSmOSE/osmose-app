@@ -7,8 +7,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from backend.aplose_auth.models import User
 from .annotation import AnnotationResult
-from .user import User
 
 
 class ConfidenceIndicatorSet(models.Model):

@@ -28,7 +28,7 @@ from backend.api.serializers.annotation_comment import (
 from backend.api.serializers.confidence_indicator_set import (
     ConfidenceIndicatorSetSerializer,
 )
-from .utils import EnumField
+from backend.utils.serializers import EnumField
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):

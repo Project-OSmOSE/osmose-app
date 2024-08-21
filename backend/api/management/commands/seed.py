@@ -26,6 +26,8 @@ from backend.api.models import (
     AnnotationTask,
     SpectrogramConfiguration,
 )
+from backend.aplose_auth.models import AploseUser
+from backend.aplose_auth.models.user import ExpertiseLevel
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
@@ -75,38 +77,50 @@ class Command(management.BaseCommand):
     def _create_users(self):
         print(" ###### _create_users ######")
         password = "osmose29"
-        self.admin = User.objects.create_user(
-            "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
-        )
+        self.admin = AploseUser.objects.create(
+            user=User.objects.create_user(
+                "admin", "admin@osmose.xyz", password, is_superuser=True, is_staff=True
+            ),
+            expertise_level=ExpertiseLevel.EXPERT,
+        ).user
         # WARNING : names like TestUserX are used for Cypress tests, do not change or remove
         users = [
-            User(
-                username="TestUser1",
-                email="TestUser1@osmose.xyz",
-                password=make_password(password),
-                first_name="User1",
-                last_name="Test",
+            AploseUser(
+                user=User.objects.create(
+                    username="TestUser1",
+                    email="TestUser1@osmose.xyz",
+                    password=make_password(password),
+                    first_name="User1",
+                    last_name="Test",
+                ),
+                expertise_level=ExpertiseLevel.EXPERT,
             ),
-            User(
-                username="TestUser2",
-                email="TestUser2@osmose.xyz",
-                password=make_password(password),
-                first_name="User2",
-                last_name="Test",
+            AploseUser(
+                user=User.objects.create(
+                    username="TestUser2",
+                    email="TestUser2@osmose.xyz",
+                    password=make_password(password),
+                    first_name="User2",
+                    last_name="Test",
+                ),
+                expertise_level=ExpertiseLevel.NOVICE,
             ),
         ]
         names = [self.fake.unique.first_name() for _ in range(40)]
         for name in names:
             users.append(
-                User(
-                    username=name,
-                    email=f"{name}@osmose.xyz",
-                    password=make_password(password),
-                    first_name=name,
-                    last_name=self.fake.last_name(),
-                )
+                AploseUser(
+                    user=User.objects.create(
+                        username=name,
+                        email=f"{name}@osmose.xyz",
+                        password=make_password(password),
+                        first_name=name,
+                        last_name=self.fake.last_name(),
+                    ),
+                    expertise_level=ExpertiseLevel.NOVICE,
+                ),
             )
-        User.objects.bulk_create(users)
+        AploseUser.objects.bulk_create(users)
         self.users = list(User.objects.all())
 
     def _create_metadata(self):

@@ -29,7 +29,6 @@ from backend.api.serializers.dataset import (
     DatasetSerializer,
 )
 from backend.api.serializers.label_set import LabelSetSerializer
-from backend.api.serializers.user import UserSerializer, UserCreateSerializer
 from .annotation import (
     DetectorSerializer,
     DetectorConfigurationSerializer,

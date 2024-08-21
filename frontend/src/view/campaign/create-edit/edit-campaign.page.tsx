@@ -3,7 +3,7 @@ import { useAnnotationCampaignAPI, useUsersAPI } from "@/services/api";
 import { IonButton } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
 import { ChipsInput, FormBloc, Input, Searchbar } from "@/components/form";
-import { User } from '@/types/user.ts';
+import { getDisplayName, User } from '@/types/user.ts';
 import { Item } from "@/types/item.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import './create-edit-campaign.css';
@@ -92,11 +92,11 @@ export const EditCampaign: React.FC = () => {
         <Searchbar placeholder="Search annotator..."
                    values={
                      users.filter(u => !annotators.find(annotator => annotator.id === u.id))
-                       .map(a => ({ value: a.id, label: a.display_name }))
+                       .map(a => ({ value: a.id, label: getDisplayName(a, true) }))
                    }
                    onValueSelected={ onAddAnnotator }/>
 
-        <ChipsInput items={ annotators.map(a => ({ value: a.id, label: a.display_name })) }
+        <ChipsInput items={ annotators.map(a => ({ value: a.id, label: getDisplayName(a, true) })) }
                     required={ true }
                     activeItemsValues={ annotators.map(a => a.id) }
                     onInvalid={ handleChipsSubmission }

@@ -3,7 +3,7 @@
 from django.db.models import Count
 from rest_framework import serializers
 
-from backend.api.models import User
+from backend.aplose_auth.models import User
 from backend.utils.validators import valid_model_ids
 
 
