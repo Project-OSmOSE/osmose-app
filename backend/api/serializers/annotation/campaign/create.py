@@ -263,7 +263,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             ).first()
             confidence_indicator = None
             if "confidence" in result:
-                confidence_indicator = ConfidenceIndicator.objects.get_or_create(
+                confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
                     label=result["confidence"],
                     confidence_indicator_set=confidence_set,
                 )
