@@ -6,6 +6,7 @@ map $http_referer $webroot {
 server {
   listen 8080;
   server_name osmose;
+  client_max_body_size 5M;
 
   location /app {
     root /usr/share/nginx/;
