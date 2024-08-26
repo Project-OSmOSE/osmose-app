@@ -12,6 +12,7 @@ import { DetailCampaignStatus } from "@/view/campaign/detail/blocs/status.compon
 import { DetailCampaignSpectroConfig } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
 import './annotation-campaign-detail.page.css';
+import { getDisplayName } from "@/types/user.ts";
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
@@ -98,7 +99,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       <div id="head">
         <h2>{ annotationCampaign.name }</h2>
         { isArchived && <p className="archive-description">Archived
-            on { annotationCampaign?.archive?.date.toLocaleDateString() } by { annotationCampaign?.archive?.by_user.display_name }</p> }
+            on { annotationCampaign?.archive?.date.toLocaleDateString() } by { getDisplayName(annotationCampaign?.archive?.by_user) }</p> }
       </div>
 
       <DetailCampaignGlobalInformation campaign={ annotationCampaign }
