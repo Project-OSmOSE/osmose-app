@@ -138,12 +138,12 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             """
-            UPDATE annotation_results
-            SET
-                annotation_campaign_id=t.annotation_campaign_id,
-                annotator_id=t.annotator_id,
-                dataset_file_id=t.dataset_file_id
-            FROM annotation_results r LEFT JOIN annotation_tasks t on t.id = r.annotation_task_id
+                UPDATE annotation_results r
+                SET annotation_campaign_id=t.annotation_campaign_id,
+                    annotator_id=t.annotator_id,
+                    dataset_file_id=t.dataset_file_id
+                FROM annotation_tasks t
+                WHERE t.id = r.annotation_task_id;
             """
         ),
         migrations.AlterField(
