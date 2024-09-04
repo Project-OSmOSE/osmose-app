@@ -2,7 +2,7 @@ import { get, SuperAgentRequest } from "superagent";
 import { useAuthService } from "../auth";
 
 import { APIService } from "./api-service.util.tsx";
-import { User, UserDTO } from '@/types/user';
+import { User } from '@/types/user';
 
 class UserAPIService extends APIService<any, never, never> {
   private isStaffRequest?: SuperAgentRequest;
@@ -19,8 +19,7 @@ class UserAPIService extends APIService<any, never, never> {
   }
 
   async list(): Promise<Array<User>> {
-    const results = await super.list();
-    return results.map((r: UserDTO) => new User(r))
+    return await super.list()
   }
 
   retrieve(): Promise<never> {

@@ -1,6 +1,6 @@
 {
   "name": "osmose",
-  "version": "1.10.5",
+  "version": "1.10.8",
   "scripts": {
     "database:remove": "docker stop devdb && docker rm devdb",
     "database:create": "docker run --name osmose_dev_db -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgis/postgis",
@@ -12,7 +12,7 @@
     "server:run": "python -m poetry run manage.py runserver 8000",
     "server:test": "poetry run manage.py test",
     "server:format": "poetry run black backend",
-    "server:lint": "poetry run pylint backend",
+    "server:lint": "poetry run pylint backend --ignore migrations",
     "preaplose:test": "npm run server:migrate && npm run server:seed",
     "aplose:test": "cd frontend && npx cypress open",
     "aplose:run": "cd frontend && npm run dev",

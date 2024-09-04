@@ -33,4 +33,3 @@ from .spectrogram import (
     SpectrogramConfiguration,
     WindowType,
 )
-from .user import User

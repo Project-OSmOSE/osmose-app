@@ -1,35 +1,20 @@
-export class User {
-  readonly id: number;
-  readonly username: string;
-  readonly email: string;
-  readonly first_name: string;
-  readonly last_name: string;
-  readonly display_name: string;
+export type ExpertiseLevel =
+  "Expert" |
+  "Average" |
+  "Novice";
 
-  constructor(data: UserDTO) {
-    this.id = data.id;
-    this.username = data.username;
-    this.email = data.email;
-    this.first_name = data.first_name;
-    this.last_name = data.last_name;
-    this.display_name = (data.first_name && data.last_name) ? `${ data.first_name } ${ data.last_name }` : data.username;
-  }
-
-  public get DTO(): UserDTO {
-    return {
-      id: this.id,
-      username: this.username,
-      email: this.email,
-      first_name: this.first_name,
-      last_name: this.last_name
-    }
-  }
-}
-
-export interface UserDTO {
+export type User = {
   id: number,
   username: string,
   email: string,
   first_name: string,
-  last_name: string
+  last_name: string,
+  expertise_level: ExpertiseLevel,
+}
+
+export const getDisplayName = (user?: User, withExpertise: boolean = false) => {
+  if (!user) return '';
+  const displayName = (user.first_name && user.last_name) ? `${ user.first_name } ${ user.last_name }` : user.username;
+  if (withExpertise && user.expertise_level) return `${ displayName } (${ user.expertise_level })`
+  return displayName;
 }

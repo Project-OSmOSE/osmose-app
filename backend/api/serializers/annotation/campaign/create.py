@@ -7,7 +7,6 @@ from dateutil import parser
 from rest_framework import serializers
 
 from backend.api.models import (
-    User,
     AnnotationCampaign,
     Dataset,
     LabelSet,
@@ -20,7 +19,8 @@ from backend.api.models import (
     DetectorConfiguration,
     AnnotationResult,
 )
-from backend.api.serializers.utils import EnumField
+from backend.utils.serializers import EnumField
+from backend.aplose_auth.models import User
 from backend.utils.validators import valid_model_ids
 from ._utils_ import (
     create_campaign_with_annotators,
@@ -263,7 +263,7 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
             ).first()
             confidence_indicator = None
             if "confidence" in result:
-                confidence_indicator = ConfidenceIndicator.objects.get_or_create(
+                confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
                     label=result["confidence"],
                     confidence_indicator_set=confidence_set,
                 )

@@ -6,12 +6,14 @@ map $http_referer $webroot {
 server {
   listen 8080;
   server_name osmose;
+  client_max_body_size 10M;
 
   location /app {
     root /usr/share/nginx/;
     proxy_intercept_errors on;
     error_page 404 = /app/index.html;
     proxy_no_cache 1;
+    client_max_body_size 10M;
   }
 
   location / {

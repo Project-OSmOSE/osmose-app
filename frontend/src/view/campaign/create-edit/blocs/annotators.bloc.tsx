@@ -3,7 +3,7 @@ import { createCampaignActions } from "@/slices/create-campaign";
 import { useUsersAPI } from '@/services/api/user.ts';
 import { FormBloc, Searchbar, ChipsInput, Input } from "@/components/form";
 import { Item } from "@/types/item";
-import { User } from '@/types/user';
+import { getDisplayName, User } from '@/types/user';
 import { useAppSelector, useAppDispatch } from "@/slices/app";
 import { useToast } from "@/services/utils/toast";
 
@@ -69,11 +69,11 @@ export const AnnotatorsBloc: React.FC = () => {
       <Searchbar placeholder="Search annotator..."
                  values={
                    users.filter(u => !annotators.find(annotator => annotator.id === u.id))
-                     .map(a => ({ value: a.id, label: a.display_name }))
+                     .map(a => ({ value: a.id, label: getDisplayName(a, true) }))
                  }
                  onValueSelected={ onAddAnnotator }/>
 
-      <ChipsInput items={ annotators.map(a => ({ value: a.id, label: a.display_name })) }
+      <ChipsInput items={ annotators.map(a => ({ value: a.id, label: getDisplayName(a, true) })) }
                   required={ true }
                   activeItemsValues={ annotators.map(a => a.id) }
                   setActiveItemsValues={ onAnnotatorsChange }/>

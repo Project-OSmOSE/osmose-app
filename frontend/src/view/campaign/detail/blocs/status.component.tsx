@@ -5,6 +5,7 @@ import { AnnotationStatus } from "@/types/campaign.ts";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
+import { getDisplayName } from "@/types/user.ts";
 
 interface Props {
   campaign: AnnotationCampaignRetrieveCampaign;
@@ -21,14 +22,14 @@ export const DetailCampaignStatus: React.FC<Props> = ({
                                                         annotationStatus
                                                       }) => {
   const campaignService = useAnnotationCampaignAPI();
-  const [sort, setSort] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC'});
+  const [sort, setSort] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
   const status = useMemo(() => {
     if (!sort) return annotationStatus;
     return annotationStatus.sort((a, b) => {
       let comparison = 0;
       switch (sort.entry) {
         case "Annotator":
-          comparison = a.annotator.display_name.localeCompare(b.annotator.display_name);
+          comparison = getDisplayName(a.annotator).localeCompare(getDisplayName(b.annotator));
           break;
         case "Progress":
           comparison = a.finished - b.finished;
@@ -40,9 +41,9 @@ export const DetailCampaignStatus: React.FC<Props> = ({
 
   const toggleAnnotatorSort = () => {
     if (!sort || sort.entry !== 'Annotator') {
-      setSort({ entry: 'Annotator', sort: 'ASC'})
+      setSort({ entry: 'Annotator', sort: 'ASC' })
     } else if (sort.sort === 'ASC') {
-      setSort({ entry: 'Annotator', sort: 'DESC'})
+      setSort({ entry: 'Annotator', sort: 'DESC' })
     } else {
       setSort(undefined)
     }
@@ -50,9 +51,9 @@ export const DetailCampaignStatus: React.FC<Props> = ({
 
   const toggleProgressSort = () => {
     if (!sort || sort.entry !== 'Progress') {
-      setSort({ entry: 'Progress', sort: 'DESC'})
+      setSort({ entry: 'Progress', sort: 'DESC' })
     } else if (sort.sort === 'DESC') {
-      setSort({ entry: 'Progress', sort: 'ASC'})
+      setSort({ entry: 'Progress', sort: 'ASC' })
     } else {
       setSort(undefined)
     }
@@ -96,7 +97,8 @@ export const DetailCampaignStatus: React.FC<Props> = ({
           return (
             <Fragment key={ status.annotator?.id }>
               <TableDivider/>
-              <TableContent isFirstColumn={ true }>{ status.annotator?.display_name }</TableContent>
+              <TableContent
+                isFirstColumn={ true }>{ `${ getDisplayName(status.annotator) } (${ status.annotator.expertise_level })` }</TableContent>
               <TableContent>
                 <p>{ status.finished } / { status.total }</p>
                 <IonProgressBar color="medium" value={ status.finished / status.total }/>
