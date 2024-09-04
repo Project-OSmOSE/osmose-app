@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
             <ul className="dropdown-menu bg-light">
               <Link to="/projects" className="nav-link navigation-link text-center text-secondary">Projects</Link>
               <Link to="/publications" className="nav-link navigation-link text-center text-secondary">Publications</Link>
-              <Link to="/trap" className="nav-link navigation-link text-center text-secondary">Trap</Link>
+              <Link to="/scientific-talks" className="nav-link navigation-link text-center text-secondary">Scientific talks</Link>
             </ul>
         </li>
         <li className="mx-5 mx-md-4 nav-item">

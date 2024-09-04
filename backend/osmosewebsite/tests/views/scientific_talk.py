@@ -1,29 +1,29 @@
-"""TRAP tests"""
+"""ScientificTalk tests"""
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from backend.osmosewebsite.serializers.trap import TrapFields
+from backend.osmosewebsite.serializers.scientific_talk import ScientificTalkFields
 
 
-class TrapViewSetTestCase(APITestCase):
-    """Test TrapViewSetTestCase when list or detail trap are request"""
+class ScientificTalkViewSetTestCase(APITestCase):
+    """Test ScientificTalk when list or detail trap are request"""
 
-    fixtures = ["users", "trap"]
+    fixtures = ["users", "scientific_talk"]
     creation_data = {
         "presenter_name": "string",
-        "title": "trap",
+        "title": "ScientificTalk",
         "intro": "string",
         "date": "2022-01-25T10:42:15Z",
         "thumbnail": "string",
     }
 
     def test_list(self):
-        """TrapViewSet 'list' returns list of trap"""
-        url = reverse("trap-list")
+        """ScientificTalkViewSet 'list' returns list of ScientificTalk"""
+        url = reverse("scientific-talk-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        self.assertEqual(list(response.data[0].keys()), TrapFields)
+        self.assertEqual(list(response.data[0].keys()), ScientificTalkFields)
         self.assertEqual(response.data[0]["presenter_name"], "user1")
         self.assertEqual(response.data[1]["presenter_name"], "user2")
         self.assertEqual(
@@ -31,11 +31,11 @@ class TrapViewSetTestCase(APITestCase):
         )
 
     def test_retrieve(self):
-        """TrapViewSet 'retrieve' returns trap details"""
-        url = reverse("trap-detail", kwargs={"pk": 1})
+        """ScientificTalkViewSet 'retrieve' returns ScientificTalk details"""
+        url = reverse("scientific-talk-detail", kwargs={"pk": 1})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data.keys()), TrapFields)
+        self.assertEqual(list(response.data.keys()), ScientificTalkFields)
         self.assertEqual(response.data["presenter_name"], "user1")
         self.assertEqual(
             response.data["title"],

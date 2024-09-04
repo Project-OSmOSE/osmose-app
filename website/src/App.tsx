@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home/HomePage';
 import { NewsPage } from './pages/News/NewsPage';
-import { TrapPage } from './pages/Trap/TrapPage';
+import { ScientificTalksPage } from './pages/ScientificTalks/ScientificTalksPage';
 import { People } from './pages/People/People';
 import { Projects } from './pages/Projects/Projects';
 import { Publications } from './pages/Publications';
@@ -71,9 +71,9 @@ const App: React.FC = () => {
           </Layout>
         </Route>
 
-        <Route exact path="/trap">
+        <Route exact path="/scientific-talks">
           <Layout>
-            <TrapPage/>
+            <ScientificTalksPage/>
           </Layout>
         </Route>
 

@@ -6,24 +6,24 @@ import { IoMailOutline } from "react-icons/io5";
 import { getFormattedDate, useFetchArray } from "../../utils";
 import { PageTitle } from "../../components/PageTitle";
 import { Pagination } from "../../components/Pagination/Pagination";
-import { Trap } from "../../models/trap";
+import { ScientificTalk } from "../../models/scientificTalk";
 import imgTitle from '../../img/illust/pexels-berend-de-kort-1452701_1920_thin.webp';
-import styles from './TrapPage.module.scss';
+import styles from './ScientificTalksPage.module.scss';
 
-export const TrapPage: React.FC = () => {
+export const ScientificTalksPage: React.FC = () => {
   const pageSize = 6;// Define page size for pagination
   const location = useLocation(); // Get the current URL location
   const currentPage: number = +(new URLSearchParams(location.search).get('page') ?? 1);// Get the current page number from URL parameters
-  const [trapTotal, setTrapTotal] = useState<number>(0); // State to hold the total number of traps
-  const [trap, setTrap] = useState<Array<Trap>>([]); // State to hold the list of traps
-  const fetchTrap = useFetchArray<{ count: number, results: Array<Trap> }>('/api/trap'); // Function to fetch trap data
+  const [talksTotal, setTalksTotal] = useState<number>(0); // State to hold the total number of talks
+  const [talks, setTalks] = useState<Array<ScientificTalk>>([]); // State to hold the list of talks
+  const fetchTalks = useFetchArray<{ count: number, results: Array<ScientificTalk> }>('/api/scientific-talk'); // Function to fetch talks data
 
   useEffect(() => {
     let isMounted = true;
-    fetchTrap({ currentPage, pageSize }).then(data => {
+    fetchTalks({ currentPage, pageSize }).then(data => {
       if (isMounted) {
-        setTrapTotal(data?.count ?? 0);
-        setTrap(data?.results ?? []);
+        setTalksTotal(data?.count ?? 0);
+        setTalks(data?.results ?? []);
       }
     });
 
@@ -34,12 +34,12 @@ export const TrapPage: React.FC = () => {
 
   return (
     <div>
-      <PageTitle img={ imgTitle } imgAlt="Trap Banner">
-        Table Ronde Acoustique Passive
+      <PageTitle img={ imgTitle } imgAlt="Scientific talks Banner">
+        Scientific talks
       </PageTitle>
 
       <div className={ styles.content }>
-        { trap.map(data => (
+        { talks.map(data => (
           <IonCard key={ data.id } className={ styles.card }>
             { data.thumbnail && <img src={ data.thumbnail } alt={ data.title }/> }
 
@@ -75,10 +75,10 @@ export const TrapPage: React.FC = () => {
         )) }
       </div>
 
-      <Pagination totalCount={ trapTotal }
+      <Pagination totalCount={ talksTotal }
                   currentPage={ currentPage }
                   pageSize={ pageSize }
-                  path="/trap"/>
+                  path="/scientific-talks"/>
     </div>
   );
 };

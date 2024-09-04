@@ -1,9 +1,13 @@
-"""OSmOSE Website - Trap"""
+"""OSmOSE Website - ScientificTalk"""
 from django.contrib.admin import ModelAdmin
 
+from backend.api import admin
+from backend.osmosewebsite.models import ScientificTalk
 
-class TrapAdmin(ModelAdmin):
-    """Trap presentation in DjangoAdmin"""
+
+@admin.register(ScientificTalk)
+class ScientificTalkAdmin(ModelAdmin):
+    """ScientificTalk presentation in DjangoAdmin"""
 
     list_display = [
         "title",

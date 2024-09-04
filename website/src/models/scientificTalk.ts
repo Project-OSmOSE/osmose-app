@@ -1,4 +1,4 @@
-export interface Trap {
+export interface ScientificTalk {
     id: number;
     presenter_name: string;
     title: string;

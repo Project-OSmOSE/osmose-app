@@ -1,6 +1,6 @@
 """OSmOSE Website API Routing"""
 from rest_framework import routers
-from backend.osmosewebsite.views.trap import TrapViewSet
+from backend.osmosewebsite.views.scientific_talk import ScientificTalkViewSet
 from backend.osmosewebsite.views import (
     TeamMemberViewSet,
     CollaboratorViewSet,
@@ -14,5 +14,7 @@ website_router = routers.DefaultRouter()
 website_router.register(r"members", TeamMemberViewSet, basename="members")
 website_router.register(r"collaborators", CollaboratorViewSet, basename="collaborators")
 website_router.register(r"news", NewsViewSet, basename="news")
-website_router.register(r"trap", TrapViewSet, basename="trap")
+website_router.register(
+    r"scientific-talk", ScientificTalkViewSet, basename="scientific-talk"
+)
 website_router.register(r"projects", ProjectViewSet, basename="projects")

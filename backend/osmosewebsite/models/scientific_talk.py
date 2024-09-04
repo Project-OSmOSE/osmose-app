@@ -1,11 +1,11 @@
-"""Trap-related models"""
+"""ScientificTalk-related models"""
 
 from django.db import models
 
 
-class Trap(models.Model):
+class ScientificTalk(models.Model):
     """
-    Table containing Trap will be used on the website
+    Table containing ScientificTalk will be used on the website
     """
 
     title = models.CharField(max_length=255, unique=True)
@@ -20,5 +20,4 @@ class Trap(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "trap"
         ordering = ["-date"]

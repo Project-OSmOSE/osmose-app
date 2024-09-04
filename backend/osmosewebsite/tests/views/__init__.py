@@ -3,4 +3,4 @@ from .collaborator import *
 from .news import *
 from .project import *
 from .team_member import *
-from .trap import *
+from .scientific_talk import *

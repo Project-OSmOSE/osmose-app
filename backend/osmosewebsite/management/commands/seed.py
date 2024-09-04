@@ -8,7 +8,13 @@ from faker import Faker
 
 from django.core.management.base import BaseCommand
 
-from backend.osmosewebsite.models import TeamMember, News, Collaborator, Project, Trap
+from backend.osmosewebsite.models import (
+    TeamMember,
+    News,
+    Collaborator,
+    Project,
+    ScientificTalk,
+)
 
 fake = Faker()
 random = Random()
@@ -47,7 +53,7 @@ class Command(BaseCommand):
         # Creation
         self._create_team_members()
         self._create_news()
-        self._create_trap()
+        self._create_scientific_talk()
         self._create_collaborators()
         self._create_projects()
 
@@ -122,14 +128,14 @@ class Command(BaseCommand):
             news.other_authors = "{" + ",".join(other_authors) + "}"
             news.save()
 
-    def _create_trap(self):
-        print(" ###### _create_trap ######")
-        traps = []
+    def _create_scientific_talk(self):
+        print(" ###### _create_scientific_talk ######")
+        talks = []
         for _ in range(0, random.randint(5, 15)):
             profile = fake.profile()
             websites = profile["website"]
-            traps.append(
-                Trap(
+            talks.append(
+                ScientificTalk(
                     presenter_name=f"{fake.first_name()} {fake.last_name()}",
                     title=fake.sentence(nb_words=10)[:255],
                     intro=fake.paragraph(nb_sentences=5)[:255],
@@ -144,7 +150,7 @@ class Command(BaseCommand):
                     else None,
                 )
             )
-        Trap.objects.bulk_create(traps)
+        ScientificTalk.objects.bulk_create(talks)
 
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")

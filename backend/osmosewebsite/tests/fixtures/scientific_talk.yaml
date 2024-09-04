@@ -1,4 +1,4 @@
-- model: osmosewebsite.trap
+- model: osmosewebsite.scientifictalk
   pk: 1
   fields:
     presenter_name: user1
@@ -6,7 +6,7 @@
     intro: Her order another who company step office. Garden space various suddenly. Character large standard attention. Pass time special according role carry base.
     date: 2023-12-02 00:00:00+00:00
     thumbnail: https://api.dicebear.com/7.x/identicon/svg?seed=especially
-- model: osmosewebsite.trap
+- model: osmosewebsite.scientifictalk
   pk: 2
   fields:
     presenter_name: user2
