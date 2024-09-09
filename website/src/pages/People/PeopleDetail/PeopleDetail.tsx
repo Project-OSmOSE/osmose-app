@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { SiGithub, SiLinkedin } from "react-icons/si";
+import { SiGithub, SiLinkedin, SiResearchgate } from "react-icons/si";
 import { IoMailOutline } from "react-icons/io5";
 import { useFetchDetail } from "../../../utils";
 import { TeamMember } from "../../../models/team";
@@ -37,11 +37,15 @@ export const PeopleDetail: React.FC = () => {
       { member?.biography && <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote> }
 
       <div className="links">
-        { member?.research_gate_url &&
-            <a href={ member.research_gate_url } target="_blank" rel="noreferrer">ResearchGate</a> }
 
         { member?.personal_website_url &&
             <a href={ member.personal_website_url } target="_blank" rel="noreferrer">Personal website</a> }
+
+        { member?.research_gate_url &&
+            <a href={ member.research_gate_url } target="_blank" rel="noreferrer">
+                <SiResearchgate/>
+                ResearchGate
+            </a> }
 
         <div className="socials">
           { member?.github_url &&

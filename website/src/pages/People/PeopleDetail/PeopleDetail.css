@@ -44,6 +44,7 @@
     grid-auto-flow: column;
 }
 
+#member-page .links > *:not(.socials),
 #member-page .links .socials > * {
     display: grid;
     grid-template-columns: auto auto;
@@ -67,8 +68,6 @@
 
     #member-page .links,
     #member-page .links .socials {
-        display: grid;
         gap: 0.5rem 1rem;
-        justify-items: center;
     }
 }
