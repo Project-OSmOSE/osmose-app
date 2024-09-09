@@ -1,12 +1,11 @@
 """OSmOSE Website - ScientificTalk"""
-from django.contrib.admin import ModelAdmin
+from django.contrib import admin
 
-from backend.api import admin
 from backend.osmosewebsite.models import ScientificTalk
 
 
 @admin.register(ScientificTalk)
-class ScientificTalkAdmin(ModelAdmin):
+class ScientificTalkAdmin(admin.ModelAdmin):
     """ScientificTalk presentation in DjangoAdmin"""
 
     list_display = [
