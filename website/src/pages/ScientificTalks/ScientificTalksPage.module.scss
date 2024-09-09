@@ -4,6 +4,12 @@
   margin: var(--content-margin);
   gap: 4rem;
 
+  .presentation {
+    grid-column: 1 / -1;
+    padding: 0 1rem;
+    text-align: justify;
+  }
+
   @media screen and (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
     margin: 2rem;
