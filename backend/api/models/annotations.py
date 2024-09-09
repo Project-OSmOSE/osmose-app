@@ -227,6 +227,7 @@ class AnnotationTask(models.Model):
 
     class Meta:
         db_table = "annotation_tasks"
+        ordering = ["dataset_file__audio_metadatum__start"]
 
     status = models.IntegerField(
         choices=StatusChoices.choices, default=StatusChoices.CREATED

@@ -1,4 +1,4 @@
-import React, { Fragment, ReactNode, useEffect, useImperativeHandle, useState } from "react";
+import React, {Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState} from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
@@ -34,7 +34,7 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
 
 export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date }>(({ start }, ref) => {
   const history = useHistory();
-  const [siblings, setSiblings] = useState<{ prev?: number, next?: number } | undefined>()
+  const siblings = useRef<{ prev?: number, next?: number } | undefined>(undefined)
   const taskAPI = useAnnotationTaskAPI();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -49,7 +49,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
   } = useAppSelector(state => state.annotator.annotations);
 
   useEffect(() => {
-    setSiblings(task.prevAndNextAnnotation);
+    siblings.current = task.prevAndNextAnnotation;
   }, [task.prevAndNextAnnotation])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
@@ -101,28 +101,31 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     }).finally(() => setIsSubmitting(false))
 
     if (!response) return;
-    if (siblings?.next) {
-      history.push(`/audio-annotator/${ siblings.next }`);
+    console.debug(siblings)
+    if (siblings.current?.next) {
+      history.push(`/audio-annotator/${ siblings.current.next }`);
+      console.debug("go next")
     } else {
       history.push(`/annotation_tasks/${ task.campaignId }`)
+      console.debug("go tasks")
     }
   }
 
   const navPrevious = async () => {
-    if (!siblings?.prev) return;
+    if (!siblings.current?.prev) return;
     if (hasChanged) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/audio-annotator/${ siblings.prev }`)
+    history.push(`/audio-annotator/${ siblings.current.prev }`)
   }
   const navNext = async () => {
-    if (!siblings?.next) return;
+    if (!siblings.current?.next) return;
     if (hasChanged) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/audio-annotator/${ siblings.next }`)
+    history.push(`/audio-annotator/${ siblings.current.next }`)
   }
 
   if (!siblings) return <Fragment/>;
@@ -131,7 +134,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
                                                                     description="load previous recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting || !siblings?.prev }
+                   disabled={ isSubmitting || !siblings.current?.prev }
                    className="rounded-right-0"
                    onClick={ navPrevious }>
           <IonIcon icon={ caretBack } slot={ "icon-only" }/>
@@ -149,7 +152,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
                                                                     description="load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting || !siblings?.next }
+                   disabled={ isSubmitting || !siblings.current?.next }
                    className="rounded-left-0"
                    onClick={ navNext }>
           <IonIcon icon={ caretForward } slot={ "icon-only" }/>

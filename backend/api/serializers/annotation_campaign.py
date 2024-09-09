@@ -103,9 +103,9 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
     @extend_schema_field(AnnotationCampaignRetrieveAuxTaskSerializer(many=True))
     def get_tasks(self, campaign: AnnotationCampaign):
         return list(
-            campaign.tasks.values("status", "annotator_id").annotate(
-                count=Count("status")
-            )
+            campaign.tasks.values("status", "annotator_id")
+            .annotate(count=Count("status"))
+            .order_by("status")  # will group by status
         )
 
     @extend_schema_field(AudioMetadatumSerializer(many=True))
