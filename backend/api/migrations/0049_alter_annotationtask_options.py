@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0048_merge_20240723_1122'),
+        ("api", "0048_merge_20240723_1122"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='annotationtask',
-            options={'ordering': ['dataset_file__audio_metadatum__start']},
+            name="annotationtask",
+            options={"ordering": ["dataset_file__audio_metadatum__start"]},
         ),
     ]
