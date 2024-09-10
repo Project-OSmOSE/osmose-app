@@ -22,7 +22,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
     if (campaign.is_archived) return State.archived;
     if (campaign.deadline && (campaign.deadline.getTime() - 7 * 24 * 60 * 60 * 1000) <= Date.now()) return State.dueDate;
     return State.open;
-  }, [campaign.deadline, campaign.is_archived]);
+  }, [ campaign.deadline, campaign.is_archived ]);
 
   const color = useMemo(() => {
     switch (state) {
@@ -33,7 +33,7 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
       case State.archived:
         return 'medium';
     }
-  }, [state]);
+  }, [ state ]);
 
   const manage = () => history.push(`/annotation_campaign/${ campaign.id }`);
   const annotate = () => history.push(`/annotation_tasks/${ campaign.id }`);
@@ -58,16 +58,16 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
       </div>
 
       { campaign.my_total > 0 && <div className="my progression">
-        <p>
+          <p>
           <span className="progress-label">
             My progress:
           </span> <span className={ "progress-value ion-color-" + color }>
             { campaign.my_progress }&nbsp;/&nbsp;{ campaign.my_total }
           </span>
-        </p>
-        <IonProgressBar color={ color }
-                        value={ campaign.my_progress / campaign.my_total }/>
-      </div>}
+          </p>
+          <IonProgressBar color={ color }
+                          value={ campaign.my_progress / campaign.my_total }/>
+      </div> }
       <div className="progression">
         <p>
           <span className="progress-label">
@@ -78,11 +78,12 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
                         value={ campaign.progress / campaign.total }/>
       </div>
 
-      <div id="buttons">
+      <div id="buttons" className={campaign.my_total > 0 ? '' : 'fill' }>
         <IonButton fill="outline" onClick={ manage }>
           { campaign.is_archived ? "Info" : "Manage" }
         </IonButton>
-        { !campaign.is_archived && <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton> }
+        { !campaign.is_archived && campaign.my_total > 0 &&
+            <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton> }
       </div>
     </div>
   );
