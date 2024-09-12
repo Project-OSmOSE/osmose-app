@@ -24,27 +24,16 @@ interface Feature {
   }
 }
 
-export const DeploymentsMap: React.FC<{ projectID?: number }> = ({ projectID }) => {
+export const DeploymentsMap: React.FC<{
+  projectID?: number;
+  deployments: Array<DeploymentAPI>;
+  selectedDeployment: DeploymentAPI | undefined;
+  setSelectedDeployment: (deployment: DeploymentAPI | undefined) => void;
+}> = ({ projectID, deployments, selectedDeployment, setSelectedDeployment }) => {
   const map = useRef<LeafletMap | null>(null);
   const mapID: string = useMemo(() => "map" + projectID ? '-' + projectID : '', [ projectID ]);
   const projectColorMap = useRef<Map<number, string>>(new Map());
   const deploymentsMarkers = useRef<Map<number, CircleMarker>>(new Map());
-
-  const [ deployments, setDeployments ] = useState<Array<DeploymentAPI>>([]);
-  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentAPI | undefined>();
-
-  useEffect(() => {
-    let isMounted = true;
-    DeploymentService.list(`/api/projects/${ projectID ? projectID + '/' : '' }deployments`)
-      .then(deployments => {
-        if (!isMounted) return;
-        setDeployments(deployments)
-      });
-
-    return () => {
-      isMounted = false;
-    }
-  }, [ projectID ]);
 
   useEffect(() => {
     if (map.current) clearMap(map.current);
