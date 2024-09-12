@@ -10,6 +10,7 @@ import { getYear, useFetchArray } from "../../utils";
 import { Project } from "../../models/project";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { Pagination } from "../../components/Pagination/Pagination";
+import { DeploymentsMap } from "../../components/DeploymentsMap";
 
 
 export const Projects: React.FC = () => {
@@ -18,8 +19,8 @@ export const Projects: React.FC = () => {
   const location = useLocation();
   const currentPage: number = +(new URLSearchParams(location.search).get('page') ?? 1);
 
-  const [projectsTotal, setProjectsTotal] = useState<number>(0);
-  const [projects, setProjects] = useState<Array<Project>>([]);
+  const [ projectsTotal, setProjectsTotal ] = useState<number>(0);
+  const [ projects, setProjects ] = useState<Array<Project>>([]);
 
   const fetchProjects = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
 
@@ -30,11 +31,10 @@ export const Projects: React.FC = () => {
       setProjectsTotal(data?.count ?? 0);
       setProjects(data?.results ?? []);
     });
-
     return () => {
       isMounted = false;
     }
-  }, [currentPage]);
+  }, [ currentPage ]);
 
   return (
     <div id="projects-page">
@@ -43,6 +43,9 @@ export const Projects: React.FC = () => {
       </PageTitle>
 
       <div className="content">
+
+        <DeploymentsMap/>
+
         { projects.map(data => (
           <IonCard key={ data.id } href={ `/projects/${ data.id }` }>
             { data.thumbnail && <img src={ data.thumbnail } alt={ data.title }/> }

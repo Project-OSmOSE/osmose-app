@@ -8,6 +8,8 @@
   "license": "MIT",
   "dependencies": {
     "@ionic/react": "^7.5.6",
+    "@pam-standardization/metadatax-ts": "npm:@PAM-Standardization/metadatax-ts@^1.0.3",
+    "@react-leaflet/core": "^1.1.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -16,11 +18,13 @@
     "html-to-react": "^1.7.0",
     "ionicons": "^7.2.1",
     "leaflet": "^1.7.1",
+    "leaflet.markercluster": "^1.5.3",
     "postcss": "^8.4.12",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^5.3.0",
     "react-leaflet": "^3.2.5",
+    "react-leaflet-markercluster": "^2.0.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "^5.0.1",
     "sass": "^1.77.8",
@@ -69,6 +73,7 @@
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
     "@types/react-leaflet": "^3.0.0",
+    "@types/react-leaflet-markercluster": "^3.0.4",
     "@types/react-router-dom": "^5.3.3"
   }
 }

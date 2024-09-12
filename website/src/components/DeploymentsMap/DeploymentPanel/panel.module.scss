@@ -1,0 +1,73 @@
+.panel {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1rem;
+  z-index: 1000;
+
+  transition: 300ms;
+
+  width: 30%;
+  overflow: hidden;
+  display: grid;
+  gap: 0.5rem;
+
+  &.empty {
+    padding: 0;
+    width: 0;
+  }
+
+  .head {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: space-between;
+
+    button, a {
+      border: none;
+      color: var(--ion-color-primary) !important;
+    }
+
+    .downloadButton {
+      border: 1px solid var(--ion-color-primary);
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      text-decoration: none;
+      transition: 300ms;
+
+      &:hover{
+        opacity: 0.75;
+      }
+    }
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 0;
+    align-items: stretch;
+    align-content: baseline;
+    overflow: auto;
+
+    > * {
+      padding: 0.25rem 0.5rem;
+    }
+    > *:nth-child(4n - 1) {
+      background: #DDD;
+      border-top-left-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+    }
+    > *:nth-child(4n) {
+      background: #DDD;
+      border-top-right-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+
+    a {
+      border: none;
+      text-decoration: none;
+    }
+  }
+}

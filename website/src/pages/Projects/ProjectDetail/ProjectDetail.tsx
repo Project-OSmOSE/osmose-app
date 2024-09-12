@@ -6,12 +6,13 @@ import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/Col
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import { Back } from "../../../components/Back/Back";
+import { DeploymentsMap } from "../../../components/DeploymentsMap";
 import './ProjectDetail.css';
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
 
-  const [project, setProject] = useState<Project>();
+  const [ project, setProject ] = useState<Project>();
 
   const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
 
@@ -22,7 +23,7 @@ export const ProjectDetail: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [projectID]);
+  }, [ projectID ]);
 
   return (
     <div id="project-detail">
@@ -46,7 +47,9 @@ export const ProjectDetail: React.FC = () => {
         </div>
       ) }
 
-      { project?.collaborators && <CollaboratorsBanner collaborators={ project.collaborators }></CollaboratorsBanner>}
+      <DeploymentsMap projectID={ +projectID }/>
+
+      { project?.collaborators && <CollaboratorsBanner collaborators={ project.collaborators }></CollaboratorsBanner> }
     </div>
   )
 }
