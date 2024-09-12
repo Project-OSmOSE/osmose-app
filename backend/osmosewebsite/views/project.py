@@ -1,7 +1,9 @@
 """ project DRF-Viewset file"""
+from metadatax.models import Deployment, Accessibility
 from rest_framework import viewsets, permissions, decorators, response
 from metadatax.view.acquisition import DeploymentViewSet
 
+from backend.api.models import AnnotationCampaign
 from backend.osmosewebsite.models import Project
 from backend.osmosewebsite.serializers import ProjectSerializer, DeploymentSerializer
 
@@ -20,7 +22,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     )
     def all_deployments(self, request):
         """List all deployments"""
-        queryset = DeploymentViewSet.queryset.select_related("project__website_project")
+        queryset = DeploymentViewSet.queryset.filter(
+            project__accessibility__in=[Accessibility.REQUEST, Accessibility.OPEN]
+        ).select_related("project__website_project")
         serializer = DeploymentSerializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -29,8 +33,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """List all deployments"""
         project: Project = self.get_object()
         queryset = DeploymentViewSet.queryset.filter(
-            project_id=project.metadatax_project_id
+            project__accessibility__in=[Accessibility.REQUEST, Accessibility.OPEN],
+            project_id=project.metadatax_project_id,
         ).select_related("project__website_project")
-        print(queryset.first())
         serializer = DeploymentSerializer(queryset, many=True)
         return response.Response(serializer.data)

@@ -1,6 +1,6 @@
 import React, { Fragment, useMemo } from "react";
 import { DeploymentAPI, Institution } from "@PAM-Standardization/metadatax-ts";
-import { IoClose, IoDownloadOutline, IoOpenOutline } from "react-icons/io5";
+import { IoClose, IoDownloadOutline, IoMailOutline, IoOpenOutline } from "react-icons/io5";
 import styles from './panel.module.scss'
 
 export const DeploymentPanel: React.FC<{
@@ -16,13 +16,19 @@ export const DeploymentPanel: React.FC<{
     return `data:text/json;charset=utf-8,${ encodeURIComponent(JSON.stringify(deployment)) }`
   }, [ deployment ])
 
+  const isOpenAccess = useMemo(() => deployment?.project.accessibility === 'Open access', [ deployment ]);
+
   const websiteProject: number = useMemo(() => (deployment?.project as any)?.website_project, [ deployment ]);
   if (!deployment) return <div className={ [ styles.panel, styles.empty ].join(' ') }/>
   return <div className={ styles.panel }>
     <div className={ styles.head }>
       <button onClick={ onClose }><IoClose/></button>
-      <a download={ `${ deployment.name }.json` } className={ styles.downloadButton }
-         href={ downloadData }>Download <IoDownloadOutline/></a>
+      { isOpenAccess && <a download={ `${ deployment.name }.json` } className={ styles.downloadButton }
+                           href={ downloadData }>Download <IoDownloadOutline/></a> }
+      { !isOpenAccess && deployment.project.responsible_parties.find(p => p.contact)
+        && <a download={ `${ deployment.name }.json` } className={ styles.downloadButton }
+              href={ `mailto:${ deployment.project.responsible_parties.map(p => p.contact).join(';') }` }>Request
+              access <IoMailOutline/></a> }
     </div>
     <div className={ styles.content }>
       <small>Project</small>
@@ -60,12 +66,18 @@ export const DeploymentPanel: React.FC<{
 
       { (deployment.deployment_date || deployment.deployment_vessel) && <Fragment>
           <small>Launch</small>
-          <p>{ [ deployment.deployment_date, deployment.deployment_vessel ].join(' - ') }</p>
+          <p>
+            { deployment.deployment_date }
+            { isOpenAccess && ` - ${ deployment.deployment_vessel }` }
+          </p>
       </Fragment> }
 
       { (deployment.recovery_date || deployment.recovery_vessel) && <Fragment>
           <small>Recovery</small>
-          <p>{ [ deployment.recovery_date, deployment.recovery_vessel ].join(' - ') }</p>
+          <p>
+            { deployment.recovery_date }
+            { isOpenAccess && ` - ${ deployment.recovery_vessel }` }
+          </p>
       </Fragment> }
 
       <small>Coordinates</small>
@@ -78,14 +90,14 @@ export const DeploymentPanel: React.FC<{
         { deployment.bathymetric_depth }
       </p>
 
-      { deployment.platform && <Fragment>
+      { isOpenAccess && deployment.platform && <Fragment>
           <small>Platform</small>
           <p>
             { deployment.platform?.name }
           </p>
       </Fragment> }
 
-      { deployment.description && <Fragment>
+      { isOpenAccess && deployment.description && <Fragment>
           <small>Description</small>
           <p dangerouslySetInnerHTML={ { __html: deployment.description.split(/[\n\r]/g).filter(e => !!e).join("<br/>") } }/>
       </Fragment> }

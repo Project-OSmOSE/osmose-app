@@ -13,6 +13,7 @@
   width: 30%;
   overflow: hidden;
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 0.5rem;
   @media screen and (max-width: 1200px) {
     width: 40%;
