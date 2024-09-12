@@ -2,6 +2,7 @@
 
 from django.db import models
 from tinymce.models import HTMLField
+from metadatax.models import Project as MetadataxProject
 from .team_member import TeamMember
 from .collaborator import Collaborator
 
@@ -23,3 +24,11 @@ class Project(models.Model):
 
     contact = models.ManyToManyField(TeamMember, blank=True)
     collaborators = models.ManyToManyField(Collaborator, blank=True)
+
+    metadatax_project = models.OneToOneField(
+        MetadataxProject,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="website_project",
+    )
