@@ -1,7 +1,10 @@
 """Project DRF serializers file"""
 
 from rest_framework import serializers
-
+from metadatax.serializers.acquisition import (
+    DeploymentSerializerWithChannel,
+    ProjectSerializer as SourceMetadataxProjectSerializer,
+)
 from backend.osmosewebsite.models import Project
 from .team_member import TeamMemberSerializer
 from .collaborator import CollaboratorSerializer
@@ -28,3 +31,11 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ProjectFields
+
+
+class MetadataxProjectSerializer(SourceMetadataxProjectSerializer):
+    website_project = serializers.PrimaryKeyRelatedField(read_only=True)
+
+
+class DeploymentSerializer(DeploymentSerializerWithChannel):
+    project = MetadataxProjectSerializer()

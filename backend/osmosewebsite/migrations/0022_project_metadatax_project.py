@@ -7,14 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metadatax', '0022_auto_20240911_1902'),
-        ('osmosewebsite', '0021_auto_20240909_0918'),
+        ("metadatax", "0022_auto_20240911_1902"),
+        ("osmosewebsite", "0021_auto_20240909_0918"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='metadatax_project',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='website_project', to='metadatax.project'),
+            model_name="project",
+            name="metadatax_project",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="website_project",
+                to="metadatax.project",
+            ),
         ),
     ]
