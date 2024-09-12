@@ -14,10 +14,23 @@
   overflow: hidden;
   display: grid;
   gap: 0.5rem;
+  @media screen and (max-width: 1200px) {
+    width: 40%;
+  }
+  @media screen and (max-width: 800px) {
+    width: unset;
+    left: 1rem;
+    top: unset;
+    height: 50%;
+  }
 
   &.empty {
     padding: 0;
     width: 0;
+    @media screen and (max-width: 800px) {
+      width: unset;
+      height: 0;
+    }
   }
 
   .head {
@@ -28,6 +41,7 @@
     button, a {
       border: none;
       color: var(--ion-color-primary) !important;
+      background: none;
     }
 
     .downloadButton {
