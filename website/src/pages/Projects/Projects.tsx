@@ -55,7 +55,7 @@ export const Projects: React.FC = () => {
 
       <div className="content">
 
-        <DeploymentsMap deployments={ deployments }
+        <DeploymentsMap allDeployments={ deployments }
                         selectedDeployment={ selectedDeployment }
                         setSelectedDeployment={ setSelectedDeployment }/>
 

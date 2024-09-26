@@ -59,7 +59,7 @@ export const ProjectDetail: React.FC = () => {
       ) }
 
       <DeploymentsMap projectID={ +projectID }
-                      deployments={ deployments }
+                      allDeployments={ deployments }
                       selectedDeployment={ selectedDeployment }
                       setSelectedDeployment={ setSelectedDeployment }/>
 

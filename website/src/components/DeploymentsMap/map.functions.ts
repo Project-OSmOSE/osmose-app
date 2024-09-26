@@ -30,7 +30,6 @@ export function initMap(id: string): LeafletMap {
       "bounds": [ [ -90, -180 ], [ 90, 180 ] ],
     }).addTo(map);
   control.scale().addTo(map)
-  control.zoom({ position: 'topleft' }).addTo(map)
   return map
 }
 

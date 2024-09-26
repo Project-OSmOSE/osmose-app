@@ -11,12 +11,12 @@ import {
   MarkerCluster,
   MarkerClusterGroup
 } from 'leaflet';
-import { DeploymentAPI, DeploymentService } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
 import { ClusterTooltip, MarkerTooltip } from './Tooltips';
 import { clearMap, initMap, setMapView } from './map.functions';
 import './DeploymentsMap.css'
 import { getColorLuma, getRandomColor } from "./utils.functions";
-import { DeploymentPanel } from "./DeploymentPanel";
+import { DeploymentPanel, FilterPanel } from "./Panels";
 
 interface Feature {
   properties: {
@@ -26,25 +26,28 @@ interface Feature {
 
 export const DeploymentsMap: React.FC<{
   projectID?: number;
-  deployments: Array<DeploymentAPI>;
+  allDeployments: Array<DeploymentAPI>;
   selectedDeployment: DeploymentAPI | undefined;
   setSelectedDeployment: (deployment: DeploymentAPI | undefined) => void;
-}> = ({ projectID, deployments, selectedDeployment, setSelectedDeployment }) => {
+}> = ({ projectID, allDeployments, selectedDeployment, setSelectedDeployment }) => {
   const map = useRef<LeafletMap | null>(null);
   const mapID: string = useMemo(() => "map" + projectID ? '-' + projectID : '', [ projectID ]);
   const projectColorMap = useRef<Map<number, string>>(new Map());
   const deploymentsMarkers = useRef<Map<number, CircleMarker>>(new Map());
+
+  const [ filteredDeployments, setFilteredDeployments ] = useState<Array<DeploymentAPI>>([]);
 
   useEffect(() => {
     if (map.current) clearMap(map.current);
     map.current = initMap(mapID);
     setDeploymentsToMap(
       map.current,
-      deployments,
+      allDeployments,
       projectColorMap.current,
     );
-    setMapView(map.current, deployments)
-  }, [ mapID, deployments ]);
+    setMapView(map.current, allDeployments);
+    setFilteredDeployments(allDeployments);
+  }, [ mapID, allDeployments ]);
 
   useEffect(() => {
     for (const [ deploymentID, marker ] of deploymentsMarkers.current.entries()) {
@@ -109,6 +112,7 @@ export const DeploymentsMap: React.FC<{
 
   return <div id="map-container">
     <div id={ mapID } className="map"/>
+    <FilterPanel allDeployments={ allDeployments } onFilter={ setFilteredDeployments }/>
     <DeploymentPanel deployment={ selectedDeployment }
                      disableProjectLink={ !!projectID }
                      onClose={ () => setSelectedDeployment(undefined) }/>

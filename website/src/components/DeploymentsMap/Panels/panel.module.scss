@@ -1,7 +1,6 @@
 .panel {
   position: absolute;
   top: 1rem;
-  right: 1rem;
   bottom: 1rem;
   border-radius: 1rem;
   background-color: rgba(255, 255, 255, 0.85);
@@ -12,9 +11,10 @@
 
   width: 30%;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+
   @media screen and (max-width: 1200px) {
     width: 40%;
   }
@@ -25,9 +25,25 @@
     height: 50%;
   }
 
+  &.deployment {
+    right: 1rem;
+  }
+
+  &.filter {
+    left: 1rem;
+  }
+
   &.empty {
-    padding: 0;
     width: 0;
+
+    &.deployment {
+      padding: 0;
+    }
+    &.filter {
+      width: unset;
+      height: unset;
+      bottom: unset;
+    }
     @media screen and (max-width: 800px) {
       width: unset;
       height: 0;
@@ -52,7 +68,7 @@
       text-decoration: none;
       transition: 300ms;
 
-      &:hover{
+      &:hover {
         opacity: 0.75;
       }
     }
@@ -69,11 +85,13 @@
     > * {
       padding: 0.25rem 0.5rem;
     }
+
     > *:nth-child(4n - 1) {
       background: #DDD;
       border-top-left-radius: 0.5rem;
       border-bottom-left-radius: 0.5rem;
     }
+
     > *:nth-child(4n) {
       background: #DDD;
       border-top-right-radius: 0.5rem;
