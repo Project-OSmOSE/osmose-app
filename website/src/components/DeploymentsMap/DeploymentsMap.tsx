@@ -31,6 +31,7 @@ export const DeploymentsMap: React.FC<{
   setSelectedDeployment: (deployment: DeploymentAPI | undefined) => void;
 }> = ({ projectID, allDeployments, selectedDeployment, setSelectedDeployment }) => {
   const map = useRef<LeafletMap | null>(null);
+  const clusterGroup = useRef<MarkerClusterGroup | null>(null);
   const mapID: string = useMemo(() => "map" + projectID ? '-' + projectID : '', [ projectID ]);
   const projectColorMap = useRef<Map<number, string>>(new Map());
   const deploymentsMarkers = useRef<Map<number, CircleMarker>>(new Map());
@@ -40,11 +41,6 @@ export const DeploymentsMap: React.FC<{
   useEffect(() => {
     if (map.current) clearMap(map.current);
     map.current = initMap(mapID);
-    setDeploymentsToMap(
-      map.current,
-      allDeployments,
-      projectColorMap.current,
-    );
     setMapView(map.current, allDeployments);
     setFilteredDeployments(allDeployments);
   }, [ mapID, allDeployments ]);
@@ -56,6 +52,18 @@ export const DeploymentsMap: React.FC<{
     }
   }, [ selectedDeployment ]);
 
+  useEffect(() => {
+    if (!map.current) return;
+    // TODO: remove only those that are filtered?
+    clusterGroup.current?.remove();
+    // TODO: redraw only missing
+    setDeploymentsToMap(
+      map.current,
+      filteredDeployments,
+      projectColorMap.current,
+    );
+  }, [ allDeployments, filteredDeployments ]);
+
   const setDeploymentsToMap = (map: LeafletMap,
                                deployments: Array<DeploymentAPI>,
                                projectColorMap: Map<number, string>): void => {
@@ -64,10 +72,10 @@ export const DeploymentsMap: React.FC<{
       projectColorMap.set(project.id, getRandomColor());
     }
 
-    const clusterGroup: MarkerClusterGroup = new MarkerClusterGroup({
+    clusterGroup.current = new MarkerClusterGroup({
       maxClusterRadius: 40,
       iconCreateFunction: (cluster: MarkerCluster) => {
-        const icon: Icon | DivIcon = (clusterGroup as any)._defaultIconCreateFunction(cluster);
+        const icon: Icon | DivIcon = (clusterGroup.current as any)._defaultIconCreateFunction(cluster);
         const allDeployments: Array<DeploymentAPI> = cluster.getAllChildMarkers().map(child => {
           return child.feature?.properties.deployment;
         }).filter(element => !!element);
@@ -82,7 +90,7 @@ export const DeploymentsMap: React.FC<{
         });
       },
     });
-    clusterGroup.addLayer(new GeoJSON(deployments.map(deployment => ({
+    clusterGroup.current.addLayer(new GeoJSON(deployments.map(deployment => ({
       type: 'Feature',
       properties: {
         deployment,
@@ -107,7 +115,7 @@ export const DeploymentsMap: React.FC<{
         layer.on({ click: () => setSelectedDeployment(feature.properties.deployment) })
       }
     }))
-    map.addLayer(clusterGroup);
+    map.addLayer(clusterGroup.current);
   }
 
   return <div id="map-container">
