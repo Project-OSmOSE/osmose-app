@@ -101,7 +101,6 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     }).finally(() => setIsSubmitting(false))
 
     if (!response) return;
-    console.debug(siblings)
     if (siblings.current?.next) {
       history.push(`/audio-annotator/${ siblings.current.next }`);
       console.debug("go next")

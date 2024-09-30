@@ -25,7 +25,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const [audioMetadata, setAudioMetadata] = useState<Array<AudioMetadatum>>([]);
 
   const isArchived = useMemo(() => !!annotationCampaign?.archive, [annotationCampaign?.archive]);
-  const isEditionAllowed = useMemo(() => isStaff && isCampaignOwner && !isArchived, [isStaff, isCampaignOwner, isArchived]);
+  const isEditionAllowed = useMemo(() => (isStaff || isCampaignOwner) && !isArchived, [isStaff, isCampaignOwner, isArchived]);
 
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();

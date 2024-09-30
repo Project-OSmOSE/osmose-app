@@ -6,7 +6,7 @@
   background: var(--ion-color-light);
   box-shadow: 0 0 8px rgba(var(--ion-color-dark-rgb), 0.25),
   0 0 32px rgba(var(--ion-color-dark-rgb), 0.08);
-  font-family: var(--ion-font-family);
+  font-family: var(--ion-font-family), sans-serif;
   grid-template-areas: "head"
                         "property"
                         "my-progression"
@@ -88,4 +88,8 @@
   grid-auto-flow: column;
   margin-top: 0.5rem;
   grid-area: buttons;
+}
+
+#campaign-card #buttons.fill {
+  justify-content: stretch;
 }

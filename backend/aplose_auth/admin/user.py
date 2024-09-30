@@ -1,4 +1,5 @@
 """User-related admin"""
+from typing import Optional
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -37,9 +38,11 @@ class UserAdmin(BaseUserAdmin):
     )
 
     @admin.display(description="Expertise level")
-    def expertise_level(self, obj: User) -> str:
+    def expertise_level(self, obj: User) -> Optional[str]:
         """Display expertise level"""
-        return ExpertiseLevel(obj.aplose.expertise_level).label
+        if obj.aplose.expertise_level:
+            return ExpertiseLevel(obj.aplose.expertise_level).label
+        return None
 
 
 admin.site.unregister(User)

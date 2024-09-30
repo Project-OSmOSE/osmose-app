@@ -98,7 +98,7 @@ export const DetailCampaignStatus: React.FC<Props> = ({
             <Fragment key={ status.annotator?.id }>
               <TableDivider/>
               <TableContent
-                isFirstColumn={ true }>{ `${ getDisplayName(status.annotator) } (${ status.annotator.expertise_level })` }</TableContent>
+                isFirstColumn={ true }>{ getDisplayName(status.annotator) }</TableContent>
               <TableContent>
                 <p>{ status.finished } / { status.total }</p>
                 <IonProgressBar color="medium" value={ status.finished / status.total }/>

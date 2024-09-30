@@ -47,7 +47,7 @@ osmose_front:
   rules:
     - if: $CI_COMMIT_TAG
   tags:
-    - devops-docker-runner 
+    - dind 
   variables:
     APP_NAME: osmose_front
     APP_VERSION: $CI_COMMIT_TAG
@@ -63,7 +63,7 @@ osmose_back:
   rules:
     - if: $CI_COMMIT_TAG
   tags:
-    - devops-docker-runner 
+    - dind 
   variables:
     APP_NAME: osmose_back
     APP_VERSION: $CI_COMMIT_TAG

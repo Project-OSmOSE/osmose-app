@@ -101,7 +101,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const dispatch = useAppDispatch()
 
   const [_zoom, _setZoom] = useState<number>(1);
-  const [currentTime, setCurrentTime] = useState<number>(0);
+  const currentTime = useRef<number>(0)
   const [newAnnotation, setNewAnnotation] = useState<EditAnnotation | undefined>(undefined);
   const [images, setImages] = useState<Map<SpectrogramImage, HTMLImageElement>>(new Map());
 
@@ -178,7 +178,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
       newCenter = (currentZoomOrigin.x - bounds.left) * currentZoom / _zoom;
     } else {
       // If no x-coordinate: center on currentTime
-      newCenter = time * newTimePxRatio;
+      newCenter = currentTime.current * newTimePxRatio;
     }
     wrapper.scrollLeft = Math.floor(newCenter - SPECTRO_WIDTH / 2);
     _setZoom(currentZoom);
@@ -188,19 +188,19 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // On current audio time changed
   useEffect(() => {
-    loadSpectro();
-
     // Scroll if progress bar reach the right edge of the screen
     const wrapper = wrapperRef.current;
     const canvas = canvasRef.current;
     if (!wrapper || !canvas) return;
-    const oldX: number = Math.floor(canvas.width * currentTime / wholeFileBoundaries.duration);
+    const oldX: number = Math.floor(canvas.width * currentTime.current / wholeFileBoundaries.duration);
     const newX: number = Math.floor(canvas.width * time / wholeFileBoundaries.duration);
 
     if ((oldX - wrapper.scrollLeft) < SPECTRO_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_WIDTH) {
       wrapper.scrollLeft += SPECTRO_WIDTH;
     }
-    setCurrentTime(time);
+    currentTime.current = time;
+
+    loadSpectro();
   }, [time])
 
   // On current newAnnotation changed
@@ -322,7 +322,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     // Progress bar
     if (withProgressBar) {
       context.fillStyle = 'rgba(0, 0, 0)';
-      context.fillRect(xAxis.current!.valueToPosition(time), 0, 1, canvas.height);
+      context.fillRect(xAxis.current!.valueToPosition(currentTime.current), 0, 1, canvas.height);
     }
 
     // Render new annotation
