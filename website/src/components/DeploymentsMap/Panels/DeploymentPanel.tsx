@@ -1,8 +1,8 @@
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
-import { IoClose, IoDownloadOutline, IoMailOutline, IoOpenOutline } from "react-icons/io5";
-import styles from './panel.module.scss'
+import { IoCaretUp, IoClose, IoDownloadOutline, IoMailOutline, IoOpenOutline } from "react-icons/io5";
 import { InstitutionLink } from "../InstitutionLink";
+import styles from './panel.module.scss'
 
 export const DeploymentPanel: React.FC<{
   deployment: DeploymentAPI | undefined,
@@ -22,7 +22,7 @@ export const DeploymentPanel: React.FC<{
     <div className={ styles.head }>
       <button onClick={ onClose }><IoClose/></button>
       { isOpenAccess && <DownloadAction deployment={ deployment }/> }
-      { !isOpenAccess && <ContactAction parties={ deployment.project.responsible_parties }/> }
+      <ContactAction project={ deployment.project }/>
     </div>
     <div className={ styles.content }>
       <Project project={ deployment.project }
@@ -67,16 +67,25 @@ const DownloadAction: React.FC<{ deployment: DeploymentAPI }> = ({ deployment })
   </a>
 }
 
-const ContactAction: React.FC<{ parties: DeploymentAPI['project']['responsible_parties'] }> = ({ parties }) => {
+const ContactAction: React.FC<{ project: DeploymentAPI['project'] }> = ({ project }) => {
   const href: string | null = useMemo(() => {
-    const contacts = parties.filter(p => p.contact).map(p => p.contact);
+    const contacts = project.responsible_parties.filter(p => p.contact).map(p => p.contact);
     if (contacts.length === 0) return null;
-    return `mailto:${ contacts.join(';') }`
-  }, [ parties ])
+    const subject = `Request information for ${ project.name }`;
+    const message = `Dear OSmOSE team,
+    
+    I am reaching out to request specific information regarding the ${ project.name } project.
+    
+    Thank you for your help!
+    
+    [Your name]
+    [Your institution]`;
+    return `mailto:${ contacts.join(';') }?subject=${ subject }&body=${ encodeURIComponent(message) }`;
+  }, [ project.name, project.responsible_parties ])
   if (!href) return <Fragment/>;
   return <a className={ styles.downloadButton }
             href={ href }>
-    Request access <IoMailOutline/>
+    Contact <IoMailOutline/>
   </a>
 }
 
@@ -161,9 +170,15 @@ const Platform: React.FC<{ platform: DeploymentAPI['platform'] }> = ({ platform 
 }
 
 const Description: React.FC<{ description: DeploymentAPI['description'] }> = ({ description }) => {
+  const [ isOpen, setIsOpen ] = useState<boolean>(false);
   if (!description) return <Fragment/>
   return <Fragment>
-    <small>Description</small>
-    <p dangerouslySetInnerHTML={ { __html: description.split(/[\n\r]/g).filter(e => !!e).join("<br/>") } }/>
+    <small onClick={ _ => setIsOpen(!isOpen) }>
+      Description
+      <IoCaretUp className={ isOpen ? '' : styles.dropDownClosed }/>
+    </small>
+    <p onClick={ _ => isOpen ? null : setIsOpen(true) }
+       className={ isOpen ? '' : styles.dropDownClosed }
+       dangerouslySetInnerHTML={ { __html: description.split(/[\n\r]/g).filter(e => !!e).join("<br/>") } }/>
   </Fragment>
 }

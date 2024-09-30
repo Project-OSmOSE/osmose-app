@@ -91,6 +91,7 @@
       border: none;
       color: var(--ion-color-primary) !important;
       background: none;
+      font-size: 0.8rem;
     }
 
     .downloadButton {
@@ -112,15 +113,28 @@
     align-items: stretch;
     align-content: baseline;
     overflow: auto;
-    min-height: 100%;
 
     > * {
       padding: 0.25rem 0.5rem;
     }
 
+    * {
+      transition: 300ms;
+    }
+
     a {
       border: none;
       text-decoration: none;
+    }
+
+    .dropDownClosed {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    svg.dropDownClosed {
+      transform: rotate(180deg);
     }
   }
 }

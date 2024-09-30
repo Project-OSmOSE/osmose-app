@@ -18,7 +18,6 @@ export function initMap(id: string): LeafletMap {
     zoomControl: false,
     preferCanvas: true,
   }).setMaxBounds([ [ -200, -200 ], [ 200, 200 ] ]);
-  // new TileLayer.WMS("https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?",
   new TileLayer.WMS("https://wms.gebco.net/mapserv?",
     {
       "attribution": "",
