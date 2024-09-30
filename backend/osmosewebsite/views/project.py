@@ -28,8 +28,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return response.Response(serializer.data)
 
     @decorators.action(detail=True)
-    def deployments(self, request, _):
+    def deployments(self, request, pk):
         """List all deployments"""
+        # pylint: disable=unused-argument
         project: Project = self.get_object()
         queryset = DeploymentViewSet.queryset.filter(
             project__accessibility__in=[Accessibility.REQUEST, Accessibility.OPEN],
