@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
-import { useAuthService } from "../../../services/auth";
+import { useAuthService } from "@/services/auth.ts";
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
 
@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
             <ul className="navbar-nav text-center">
               <li className="nav-item">
                 {isConnected ? (
-                    <Link to="/annotation-campaign" className="nav-link navigation-link">Access APLOSE</Link>
+                    <Link to="/aplose" className="nav-link navigation-link">APLOSE</Link>
                 ) : (
                     <Link to="/login" className="nav-link navigation-link">Login</Link>
                 )}

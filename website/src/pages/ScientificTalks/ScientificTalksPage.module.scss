@@ -1,0 +1,48 @@
+.content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: var(--content-margin);
+  gap: 4rem;
+
+  .presentation {
+    grid-column: 1 / -1;
+    padding: 0 1rem;
+    text-align: justify;
+  }
+
+  @media screen and (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+    margin: 2rem;
+    gap: 1rem;
+  }
+
+  @media screen and (max-width: 800px) {
+    grid-template-columns: none;
+    margin: 1rem;
+    gap: 1rem;
+  }
+}
+
+.card {
+  display: grid;
+grid-template-rows: auto auto 1fr auto;
+
+  .presenterInfo {
+    .presenter {
+      font-weight: 500;
+    }
+    .cardLinks {
+      display: grid;
+      gap: 0.5rem;
+      grid-auto-flow: column;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+
+      svg {
+        height: 1.2rem;
+        width: 1.2rem;
+      }
+    }
+  }
+}

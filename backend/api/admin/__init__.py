@@ -1,5 +1,4 @@
 """Python module for Django admin interface"""
-
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
 

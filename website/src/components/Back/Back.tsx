@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { IonIcon } from "@ionic/react";
-import { chevronBackOutline } from "ionicons/icons";
+import { IoChevronBackOutline } from "react-icons/io5";
 import './Back.css';
 
 interface BackProps {
@@ -11,7 +10,7 @@ interface BackProps {
 
 export const Back: React.FC<BackProps> = ({ path, pageName }) => (
   <Link to={ path } id="back-component">
-    <IonIcon icon={ chevronBackOutline }></IonIcon>
+    <IoChevronBackOutline/>
     Back { pageName && `to ${ pageName }` }
   </Link>
 )

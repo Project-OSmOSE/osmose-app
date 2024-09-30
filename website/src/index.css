@@ -137,13 +137,9 @@ a:visited {
   color: #42bed6;
 }
 
-a:hover {
+a:hover,
+a.active {
   color: #00d5ff;
-  text-decoration: underline solid;
-}
-
-a:active {
-  color: orangered;
   text-decoration: underline solid;
 }
 

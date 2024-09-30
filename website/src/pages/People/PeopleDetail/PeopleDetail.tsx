@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-import { TeamMember } from "../../../models/team";
-import './PeopleDetail.css';
+import { SiGithub, SiLinkedin, SiResearchgate } from "react-icons/si";
+import { IoMailOutline } from "react-icons/io5";
 import { useFetchDetail } from "../../../utils";
-import { IonIcon } from "@ionic/react";
-import { logoGithub, logoLinkedin, mailOutline } from "ionicons/icons";
+import { TeamMember } from "../../../models/team";
 import { Back } from "../../../components/Back/Back";
 import './PeopleDetail.css';
 
@@ -39,30 +37,34 @@ export const PeopleDetail: React.FC = () => {
       { member?.biography && <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote> }
 
       <div className="links">
-        { member?.research_gate_url &&
-            <a href={ member.research_gate_url } target="_blank" rel="noreferrer">ResearchGate</a> }
 
         { member?.personal_website_url &&
             <a href={ member.personal_website_url } target="_blank" rel="noreferrer">Personal website</a> }
 
+        { member?.research_gate_url &&
+            <a href={ member.research_gate_url } target="_blank" rel="noreferrer">
+                <SiResearchgate/>
+                ResearchGate
+            </a> }
+
         <div className="socials">
           { member?.github_url &&
               <a href={ member.github_url } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ logoGithub }></IonIcon>
+                  <SiGithub/>
                   Github
               </a>
           }
 
           { member?.mail_address &&
               <a href={ `mailto:${ member.mail_address }` } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ mailOutline }></IonIcon>
+                  <IoMailOutline/>
                   Mail
               </a>
           }
 
           { member?.linkedin_url &&
               <a href={ member.linkedin_url } target="_blank" rel="noreferrer">
-                  <IonIcon icon={ logoLinkedin }></IonIcon>
+                  <SiLinkedin/>
                   LinkedIn
               </a>
           }
