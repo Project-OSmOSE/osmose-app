@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getYear, useFetchDetail } from "../../../utils";
 import { Project } from "../../../models/project";
@@ -58,14 +58,16 @@ export const ProjectDetail: React.FC = () => {
         </div>
       ) }
 
-      <DeploymentsMap projectID={ +projectID }
-                      allDeployments={ deployments }
-                      selectedDeployment={ selectedDeployment }
-                      setSelectedDeployment={ setSelectedDeployment }/>
+      { deployments.length > 0 && <Fragment>
+          <DeploymentsMap projectID={ +projectID }
+                          allDeployments={ deployments }
+                          selectedDeployment={ selectedDeployment }
+                          setSelectedDeployment={ setSelectedDeployment }/>
 
-      <DeploymentsTimeline deployments={ deployments }
-                           selectedDeployment={ selectedDeployment }
-                           setSelectedDeployment={ setSelectedDeployment }/>
+          <DeploymentsTimeline deployments={ deployments }
+                               selectedDeployment={ selectedDeployment }
+                               setSelectedDeployment={ setSelectedDeployment }/>
+      </Fragment> }
 
       { project?.collaborators && <CollaboratorsBanner collaborators={ project.collaborators }></CollaboratorsBanner> }
     </div>

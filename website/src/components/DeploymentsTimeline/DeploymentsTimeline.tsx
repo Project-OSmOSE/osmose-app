@@ -22,7 +22,7 @@ export const DeploymentsTimeline: React.FC<{
     return campaigns.map(c => ({
       name: c?.name,
       data: deployments.filter(d => d.campaign?.id === c?.id && d.deployment_date && d.recovery_date).map(d => ({
-        x: d.site?.name ?? "None",
+        x: d.site?.name ?? "No site",
         y: [
           new Date(d.deployment_date!).getTime(),
           new Date(d.recovery_date!).getTime(),
@@ -79,7 +79,7 @@ export const DeploymentsTimeline: React.FC<{
     legend: {
       position: "bottom"
     }
-  }), [ height ])
+  }), [ deployments, height ])
 
   return (
     <ReactApexChart ref={ chart }
