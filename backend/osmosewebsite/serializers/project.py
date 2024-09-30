@@ -34,8 +34,12 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class MetadataxProjectSerializer(SourceMetadataxProjectSerializer):
+    """Override Serializer for Metadatax Project"""
+
     website_project = serializers.PrimaryKeyRelatedField(read_only=True)
 
 
 class DeploymentSerializer(DeploymentSerializerWithChannel):
+    """Add project to basic Deployment serializer"""
+
     project = MetadataxProjectSerializer()

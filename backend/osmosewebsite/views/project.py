@@ -1,9 +1,8 @@
 """ project DRF-Viewset file"""
-from metadatax.models import Deployment, Accessibility
-from rest_framework import viewsets, permissions, decorators, response
+from metadatax.models import Accessibility
 from metadatax.view.acquisition import DeploymentViewSet
+from rest_framework import viewsets, permissions, decorators, response
 
-from backend.api.models import AnnotationCampaign
 from backend.osmosewebsite.models import Project
 from backend.osmosewebsite.serializers import ProjectSerializer, DeploymentSerializer
 
@@ -29,7 +28,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return response.Response(serializer.data)
 
     @decorators.action(detail=True)
-    def deployments(self, request, pk: int = None):
+    def deployments(self, request, _):
         """List all deployments"""
         project: Project = self.get_object()
         queryset = DeploymentViewSet.queryset.filter(
