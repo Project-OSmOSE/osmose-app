@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getYear, useFetchDetail } from "../../../utils";
 import { Project } from "../../../models/project";
@@ -6,12 +6,18 @@ import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/Col
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import { Back } from "../../../components/Back/Back";
+import { DeploymentsMap } from "../../../components/DeploymentsMap";
+import { DeploymentAPI, DeploymentService } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
 
-  const [project, setProject] = useState<Project>();
+  const [ project, setProject ] = useState<Project>();
+
+  const [ deployments, setDeployments ] = useState<Array<DeploymentAPI>>([]);
+  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentAPI | undefined>();
 
   const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
 
@@ -19,10 +25,16 @@ export const ProjectDetail: React.FC = () => {
     let isMounted = true;
     fetchDetail(projectID).then(project => isMounted && setProject(project));
 
+    DeploymentService.list(`/api/projects/${ projectID }/deployments`)
+      .then(deployments => {
+        if (!isMounted) return;
+        setDeployments(deployments)
+      });
+
     return () => {
       isMounted = false;
     }
-  }, [projectID]);
+  }, [ projectID ]);
 
   return (
     <div id="project-detail">
@@ -46,7 +58,18 @@ export const ProjectDetail: React.FC = () => {
         </div>
       ) }
 
-      { project?.collaborators && <CollaboratorsBanner collaborators={ project.collaborators }></CollaboratorsBanner>}
+      { deployments.length > 0 && <Fragment>
+          <DeploymentsMap projectID={ +projectID }
+                          allDeployments={ deployments }
+                          selectedDeployment={ selectedDeployment }
+                          setSelectedDeployment={ setSelectedDeployment }/>
+
+          <DeploymentsTimeline deployments={ deployments }
+                               selectedDeployment={ selectedDeployment }
+                               setSelectedDeployment={ setSelectedDeployment }/>
+      </Fragment> }
+
+      { project?.collaborators && <CollaboratorsBanner collaborators={ project.collaborators }></CollaboratorsBanner> }
     </div>
   )
 }

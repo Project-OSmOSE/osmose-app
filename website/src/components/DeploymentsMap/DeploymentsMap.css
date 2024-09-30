@@ -1,0 +1,14 @@
+.cluster-icon {
+    background: none;
+}
+
+#map-container {
+    position: relative;
+    height: 30rem;
+    width: 100%;
+}
+
+#map-container .map {
+    height: 30rem;
+    width: 100%;
+}

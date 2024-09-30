@@ -5,6 +5,10 @@
     gap: 4rem;
 }
 
+#projects-page .content > *:first-child {
+    grid-column: 1 / -1;
+}
+
 @media screen and (max-width: 1200px) {
     #projects-page .content {
         grid-template-columns: repeat(2, 1fr);
@@ -12,6 +16,7 @@
         gap: 1rem;
     }
 }
+
 @media screen and (max-width: 800px) {
     #projects-page .content {
         grid-template-columns: none;

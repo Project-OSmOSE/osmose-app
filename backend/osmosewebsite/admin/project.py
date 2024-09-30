@@ -5,7 +5,7 @@ from django.contrib.admin import ModelAdmin
 class ProjectAdmin(ModelAdmin):
     """Projects presentation in DjangoAdmin"""
 
-    list_display = ("title", "intro", "start", "end")
+    list_display = ("title", "intro", "start", "end", "metadatax_project")
     search_fields = ["title"]
     fields = [
         "title",
@@ -16,4 +16,5 @@ class ProjectAdmin(ModelAdmin):
         "contact",
         "collaborators",
         "thumbnail",
+        "metadatax_project",
     ]
