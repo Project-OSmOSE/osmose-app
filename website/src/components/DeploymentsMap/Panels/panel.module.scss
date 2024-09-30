@@ -19,10 +19,13 @@
     width: 40%;
   }
   @media screen and (max-width: 800px) {
-    width: unset;
     left: 1rem;
-    top: unset;
-    height: 50%;
+    height: calc(50% - 2rem);
+    width: calc(100% - 2rem);
+
+    &.deployment {
+      top: unset;
+    }
   }
 
   &.deployment {
@@ -67,8 +70,15 @@
     }
 
     @media screen and (max-width: 800px) {
-      width: unset;
-      height: 0;
+      &.deployment {
+        width: unset;
+        height: 0;
+      }
+
+      &.filter {
+        width: 3rem;
+        height: 3rem;
+      }
     }
   }
 
