@@ -84,7 +84,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
                 "filename": "sound007.wav",
                 "id": 7,
                 "start": "2012-10-03T16:00:00Z",
-                "status": 0,
+                "status": "Created",
                 "results_count": 3,
             },
         )
@@ -152,7 +152,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
     def test_update(self):
         """AnnotationTask view 'update' returns next task info and updates task results"""
         task = AnnotationTask.objects.get(id=9)
-        self.assertEqual(task.status, 0)
+        self.assertEqual(task.status, "C")
         results_count = AnnotationResult.objects.filter(
             annotation_campaign_id=task.annotation_campaign_id,
             annotator_id=task.annotator_id,
@@ -183,7 +183,7 @@ class AnnotationTaskViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(dict(response.data), {"next_task": 10, "campaign_id": None})
         task.refresh_from_db()
-        self.assertEqual(task.status, 2)
+        self.assertEqual(task.status, "F")
         results_count = AnnotationResult.objects.filter(
             annotation_campaign_id=task.annotation_campaign_id,
             annotator_id=task.annotator_id,

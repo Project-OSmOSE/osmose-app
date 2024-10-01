@@ -371,7 +371,7 @@ class Command(management.BaseCommand):
                     task = AnnotationTask(
                         dataset_file=file,
                         annotator=user,
-                        status=0,
+                        status=AnnotationTask.Status.CREATED,
                         annotation_campaign=campaign,
                     )
                     tasks.append(task)
@@ -404,7 +404,7 @@ class Command(management.BaseCommand):
                         dataset_file_id=task.dataset_file_id,
                         annotator_id=task.annotator_id,
                     )
-                task.status = 2
+                task.status = AnnotationTask.Status.FINISHED
                 task.save()
 
     def _create_comments(self):

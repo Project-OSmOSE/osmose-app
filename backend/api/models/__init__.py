@@ -26,6 +26,7 @@ from .annotation import (
     DetectorConfiguration,
     AnnotationResult,
     AnnotationResultValidation,
+    AnnotationTask,
 )
 from .spectrogram import (
     LinearScale,

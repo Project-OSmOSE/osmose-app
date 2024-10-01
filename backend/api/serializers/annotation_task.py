@@ -39,6 +39,7 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
     results_count = serializers.IntegerField()
+    status = EnumField(enum=AnnotationTask.Status)
 
     class Meta:
         model = AnnotationTask
@@ -468,7 +469,7 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             session_output=validated_data,
         )
 
-        instance.status = 2
+        instance.status = AnnotationTask.Status.FINISHED
         instance.save()
 
         return instance

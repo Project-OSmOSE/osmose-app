@@ -16,77 +16,77 @@
 - model: api.annotationtask
   pk: 1
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 1
 - model: api.annotationtask
   pk: 2
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 2
 - model: api.annotationtask
   pk: 3
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 3
 - model: api.annotationtask
   pk: 4
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 4
 - model: api.annotationtask
   pk: 5
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 5
 - model: api.annotationtask
   pk: 6
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 1
     dataset_file: 6
 - model: api.annotationtask
   pk: 7
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 4
     dataset_file: 7
 - model: api.annotationtask
   pk: 8
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 4
     dataset_file: 8
 - model: api.annotationtask
   pk: 9
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 4
     dataset_file: 9
 - model: api.annotationtask
   pk: 10
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 4
     dataset_file: 10
 - model: api.annotationtask
   pk: 11
   fields:
-    status: 0
+    status: C
     annotation_campaign: 1
     annotator: 4
     dataset_file: 11
@@ -107,21 +107,21 @@
 - model: api.annotationtask
   pk: 12
   fields:
-    status: 0
+    status: C
     annotation_campaign: 2
     annotator: 1
     dataset_file: 1
 - model: api.annotationtask
   pk: 13
   fields:
-    status: 0
+    status: C
     annotation_campaign: 2
     annotator: 1
     dataset_file: 2
 - model: api.annotationtask
   pk: 14
   fields:
-    status: 0
+    status: C
     annotation_campaign: 2
     annotator: 4
     dataset_file: 3

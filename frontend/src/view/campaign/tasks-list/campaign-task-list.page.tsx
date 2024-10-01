@@ -6,7 +6,6 @@ import {
   useAnnotationCampaignAPI,
   useAnnotationTaskAPI
 } from "@/services/api";
-import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpBuoyOutline, informationCircle } from "ionicons/icons";
@@ -95,14 +94,14 @@ export const AnnotationTaskList: React.FC = () => {
         { tasks?.map(task => {
           const startDate = new Date(task.start);
           const diffTime = new Date(new Date(task.end).getTime() - startDate.getTime());
-          return (<tr className={ task.status === AnnotationTaskStatus.finished ? 'table-success' : 'table-warning' }
+          return (<tr className={ task.status === 'Finished' ? 'table-success' : 'table-warning' }
                       key={ task.id }>
             <td>{ task.filename }</td>
             <td>{ task.dataset_name }</td>
             <td>{ startDate.toLocaleDateString() }</td>
             <td>{ diffTime.toUTCString().split(' ')[4] }</td>
             <td>{ task.results_count }</td>
-            <td>{ task.status === AnnotationTaskStatus.finished ? 'Finished' : (task.status === AnnotationTaskStatus.started ? 'Started' : 'Created') }</td>
+            <td>{ task.status }</td>
             <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
           </tr>)
         }) }

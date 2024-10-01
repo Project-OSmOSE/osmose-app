@@ -247,7 +247,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data["tasks"]), 2)
         self.assertEqual(
             dict(response.data["tasks"][0]),
-            {"annotator_id": 1, "count": 6, "status": 0},
+            {"annotator_id": 1, "count": 6, "status": "Created"},
         )
         self.assertEqual(response.data["is_campaign_owner"], True)
 

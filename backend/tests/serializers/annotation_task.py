@@ -38,7 +38,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
     def test_with_valid_data(self):
         """Updates correctly the DB when serializer saves with correct data"""
         task = AnnotationTask.objects.first()  # type: AnnotationTask
-        self.assertEqual(task.status, 0)
+        self.assertEqual(task.status, "C")
         results_count = AnnotationResult.objects.filter(
             annotation_campaign_id=task.annotation_campaign_id,
             dataset_file_id=task.dataset_file_id,
@@ -54,7 +54,7 @@ class AnnotationTaskUpdateSerializerTestCase(TestCase):
             dataset_file_id=task.dataset_file_id,
             annotator_id=task.annotator_id,
         ).count()
-        self.assertEqual(task.status, 2)
+        self.assertEqual(task.status, "F")
         self.assertEqual(results_count, 1)
 
     def test_with_unknown_labels(self):

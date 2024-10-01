@@ -57,10 +57,13 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         queryset = self.queryset.annotate(
             my_progress=Count(
                 "tasks",
-                filter=Q(tasks__annotator_id=request.user.id) & Q(tasks__status=2),
+                filter=Q(tasks__annotator_id=request.user.id)
+                & Q(tasks__status=AnnotationTask.Status.FINISHED),
             ),
             my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
-            progress=Count("tasks", filter=Q(tasks__status=2)),
+            progress=Count(
+                "tasks", filter=Q(tasks__status=AnnotationTask.Status.FINISHED)
+            ),
             total=Count("tasks"),
         )
         if not request.user.is_staff:
@@ -408,7 +411,7 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
             for annotator in annotators:
                 status_string = "UNASSIGNED"  # Default status that will only be kept if no task was given
                 if annotator in annotator_status:
-                    status_string = AnnotationTask.StatusChoices(
+                    status_string = AnnotationTask.Status(
                         annotator_status[annotator]
                     ).name
                 status_per_annotator.append(status_string)

@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useIonAlert } from "@ionic/react";
 import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, useUsersAPI, } from "@/services/api";
-import { AnnotationTaskStatus } from "@/types/annotations.ts";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { AudioMetadatum } from "@/types/process-metadata/audio.ts";
 import { AnnotationStatus } from "@/types/campaign.ts";
@@ -21,7 +20,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
   const [isCampaignOwner, setIsCampaignOwner] = useState<boolean>(false);
-  const [spectroConfigurations, setSpectroConfigurations] = useState<Array<SpectrogramConfiguration>>([]);
+  const [ spectrogramConfigurations, setSpectrogramConfigurations ] = useState<Array<SpectrogramConfiguration>>([]);
   const [audioMetadata, setAudioMetadata] = useState<Array<AudioMetadatum>>([]);
 
   const isArchived = useMemo(() => !!annotationCampaign?.archive, [annotationCampaign?.archive]);
@@ -30,6 +29,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();
   const [error, setError] = useState<any | undefined>(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, dismissAlert] = useIonAlert();
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         .filter(task => task.annotator_id)
         .reduce((array: Array<AnnotationStatus>, value) => {
           const annotator = users.find(u => u.id === value.annotator_id);
-          const finished = value.status === AnnotationTaskStatus.finished ? value.count : 0;
+          const finished = value.status === 'Finished' ? value.count : 0;
           const total = value.count;
           if (!annotator) return array;
           const currentStatus = array.find(s => s.annotator.id === value.annotator_id);
@@ -63,7 +63,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
         }, [])
       setAnnotationStatus(status);
       setIsCampaignOwner(data.is_campaign_owner);
-      setSpectroConfigurations(data.spectro_configs);
+      setSpectrogramConfigurations(data.spectro_configs);
       setAudioMetadata(data.audio_metadata);
     }).catch(e => {
       if (isCancelled) return;
@@ -111,7 +111,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
                             annotationStatus={ annotationStatus }/>
 
       <DetailCampaignSpectroConfig campaign={ annotationCampaign }
-                                   spectroConfigurations={ spectroConfigurations }/>
+                                   spectroConfigurations={ spectrogramConfigurations }/>
 
       <DetailCampaignAudioMetadata campaign={ annotationCampaign }
                                    audioMetadata={ audioMetadata }/>

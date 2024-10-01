@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from backend.aplose_auth.models import User
-from .annotation import AnnotationResult
+from .annotation import AnnotationResult, AnnotationTask
 
 
 class ConfidenceIndicatorSet(models.Model):
@@ -198,7 +198,7 @@ class AnnotationCampaign(models.Model):
         AnnotationTask.objects.bulk_create(
             [
                 AnnotationTask(
-                    status=0,
+                    status=AnnotationTask.Status.CREATED,
                     annotator_id=annotator.id,
                     dataset_file_id=dataset_file_id,
                     annotation_campaign_id=self.id,
@@ -213,37 +213,6 @@ class AnnotationCampaign(models.Model):
             return
         self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
         self.save()
-
-
-class AnnotationTask(models.Model):
-    """
-    This table represents the need to annotate a specific dataset_file by a specific user in the course of an annotation
-    campaign and is linked to by the resulting annotation results.
-    """
-
-    StatusChoices = models.IntegerChoices(
-        "StatusChoices", "CREATED STARTED FINISHED", start=0
-    )
-
-    class Meta:
-        db_table = "annotation_tasks"
-        ordering = ["dataset_file__audio_metadatum__start"]
-
-    status = models.IntegerField(
-        choices=StatusChoices.choices, default=StatusChoices.CREATED
-    )
-
-    annotation_campaign = models.ForeignKey(
-        AnnotationCampaign, on_delete=models.CASCADE, related_name="tasks"
-    )
-    annotator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="annotation_tasks",
-    )
-    dataset_file = models.ForeignKey(
-        "DatasetFile", on_delete=models.CASCADE, related_name="annotation_tasks"
-    )
 
 
 class AnnotationComment(models.Model):

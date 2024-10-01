@@ -34,7 +34,8 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         .prefetch_related("dataset_file__audio_metadatum")
         .order_by("dataset_file__audio_metadatum__start", "id")
     )
-    serializer_class = AnnotationTaskSerializer
+
+    # serializer_class = AnnotationTaskSerializer
 
     @extend_schema(
         parameters=[OpenApiParameter("campaign_id", int, OpenApiParameter.PATH)],
@@ -56,7 +57,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             ),
         )
 
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = AnnotationTaskSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @extend_schema(responses=AnnotationTaskRetrieveSerializer)
@@ -79,8 +80,8 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             ),
         )
         task = get_object_or_404(queryset, pk=pk)
-        if task.status == 0:
-            task.status = 1
+        if task.status == AnnotationTask.Status.CREATED:
+            task.status = AnnotationTask.Status.STARTED
             task.save()
         serializer = AnnotationTaskRetrieveSerializer(task, user_id=request.user.id)
 
@@ -123,7 +124,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         next_tasks = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=task.annotation_campaign_id,
-        ).exclude(status=2)
+        ).exclude(status=AnnotationTask.Status.FINISHED)
         next_task = next_tasks.filter(
             dataset_file__audio_metadatum__start__gte=task_date
         ).first()
