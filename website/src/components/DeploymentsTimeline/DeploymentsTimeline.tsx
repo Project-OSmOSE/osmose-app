@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from "react";
 import ReactApexChart from "react-apexcharts"
 import { ApexOptions } from "apexcharts";
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { getRandomColor } from "../DeploymentsMap/utils.functions";
 
 export const DeploymentsTimeline: React.FC<{

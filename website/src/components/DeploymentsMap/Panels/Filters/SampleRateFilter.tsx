@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState
 } from "react";
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { RangeSlider } from "../../../Inputs/RangeSlider";
 import { FilterRef } from "./FilterRef";
 

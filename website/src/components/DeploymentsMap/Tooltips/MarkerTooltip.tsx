@@ -1,5 +1,5 @@
 import React from "react";
-import { DeploymentAPI } from '@PAM-Standardization/metadatax-ts';
+import { DeploymentAPI } from '@pam-standardization/metadatax-ts';
 import styles from './Tooltip.module.scss';
 
 export const MarkerTooltip: React.FC<{ deployment: DeploymentAPI }> = ({ deployment }) => {

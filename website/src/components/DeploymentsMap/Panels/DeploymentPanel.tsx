@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo, useState } from "react";
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { IoCaretUp, IoClose, IoDownloadOutline, IoMailOutline, IoOpenOutline } from "react-icons/io5";
 import { InstitutionLink } from "../InstitutionLink";
 import styles from './panel.module.scss'

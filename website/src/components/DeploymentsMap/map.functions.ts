@@ -7,7 +7,7 @@ import {
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { getMinZoom } from './utils.functions'
 
 export function initMap(id: string): LeafletMap {
