@@ -6,6 +6,8 @@ FROM node:16-alpine3.13 as build-app
 WORKDIR /opt
 
 COPY frontend/package.json .
+COPY frontend/package-lock.json .
+COPY dockerfiles/.npmrc .
 
 RUN npm install
 
@@ -24,6 +26,7 @@ WORKDIR /opt
 
 COPY website/package.json .
 COPY website/package-lock.json .
+COPY dockerfiles/.npmrc .
 
 RUN npm install
 
