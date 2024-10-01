@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-from backend.api.models import Dataset
+from backend.api.models.datasets import Dataset
 
 
 class AudioMetadatum(models.Model):
@@ -35,6 +35,8 @@ class AudioMetadatum(models.Model):
     @staticmethod
     @receiver(post_delete, sender=Dataset)
     def post_delete_dataset(sender, instance: Dataset, **kwargs):
+        """Auto delete orphans audio metadatum"""
+        # pylint: disable=unused-argument
         instance.audio_metadatum.delete()
 
 
