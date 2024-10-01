@@ -8,4 +8,5 @@ if [ "$STAGING" = "true" ]; then poetry install; fi
 poetry run python manage.py migrate
 
 # Launching server
-poetry run gunicorn -b 0.0.0.0:8000 backend.wsgi
+# Increase the timeout to 120 seconds to handle large CSV files
+poetry run gunicorn -b 0.0.0.0:8000 backend.wsgi --timeout 120
