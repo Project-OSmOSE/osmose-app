@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.conf import settings
-from django.db.models.signals import post_delete
 from django.utils import timezone
 
 
@@ -64,13 +63,6 @@ class Dataset(models.Model):
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-
-def post_delete_dataset(sender: Dataset, **kwargs):
-    sender.audio_metadatum.delete()
-
-
-post_delete.connect(post_delete, sender=Dataset)
 
 
 class DatasetFile(models.Model):

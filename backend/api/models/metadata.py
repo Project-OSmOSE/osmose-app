@@ -1,6 +1,10 @@
 """Metadata-related models"""
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+from backend.api.models import Dataset
 
 
 class AudioMetadatum(models.Model):
@@ -27,6 +31,11 @@ class AudioMetadatum(models.Model):
     dutycycle_rdm = models.FloatField(null=True, blank=True)
     dutycycle_rim = models.FloatField(null=True, blank=True)
     audio_file_dataset_duration = models.FloatField(null=True, blank=True)
+
+    @staticmethod
+    @receiver(post_delete, sender=Dataset)
+    def post_delete_dataset(sender, instance: Dataset, **kwargs):
+        instance.audio_metadatum.delete()
 
 
 class GeoMetadatum(models.Model):
