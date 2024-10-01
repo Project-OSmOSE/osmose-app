@@ -29,11 +29,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
     A simple ViewSet for annotation tasks related actions
     """
 
-    queryset = (
-        AnnotationTask.objects.all()
-        .prefetch_related("dataset_file__audio_metadatum")
-        .order_by("dataset_file__audio_metadatum__start", "id")
-    )
+    queryset = AnnotationTask.objects.all().prefetch_related("dataset_file")
 
     # serializer_class = AnnotationTaskSerializer
 
@@ -47,8 +43,8 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
         campaign = get_object_or_404(AnnotationCampaign, pk=campaign_id)
         queryset = campaign.tasks.filter(annotator_id=request.user.id).annotate(
             filename=F("dataset_file__filename"),
-            start=F("dataset_file__audio_metadatum__start"),
-            end=F("dataset_file__audio_metadatum__end"),
+            start=F("dataset_file__start"),
+            end=F("dataset_file__end"),
             dataset_name=F("dataset_file__dataset__name"),
             results_count=Subquery(
                 campaign.results.filter(dataset_file_id=OuterRef("dataset_file_id"))
@@ -70,7 +66,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             "annotation_campaign__confidence_indicator_set__confidence_indicators",
             "dataset_file__dataset",
             "dataset_file__dataset__spectro_configs",
-            "dataset_file__dataset__audio_metadatum",
+            "dataset_file__dataset",
             Prefetch(
                 "task_comments",
                 queryset=AnnotationComment.objects.filter(
@@ -120,14 +116,12 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
                 annotation_task=task, annotation_result=None
             ).delete()
 
-        task_date = task.dataset_file.audio_metadatum.start
+        task_date = task.dataset_file.start
         next_tasks = self.queryset.filter(
             annotator_id=request.user.id,
             annotation_campaign_id=task.annotation_campaign_id,
         ).exclude(status=AnnotationTask.Status.FINISHED)
-        next_task = next_tasks.filter(
-            dataset_file__audio_metadatum__start__gte=task_date
-        ).first()
+        next_task = next_tasks.filter(dataset_file__start__gte=task_date).first()
         if next_task is None:
             next_task = next_tasks.first()
         if next_task is None:

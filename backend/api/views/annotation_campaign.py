@@ -181,8 +181,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         file_duration = Cast(
             Extract(
                 ExpressionWrapper(
-                    F("dataset_file__audio_metadatum__end")
-                    - F("dataset_file__audio_metadatum__start"),
+                    F("dataset_file__end") - F("dataset_file__start"),
                     output_field=DurationField(),
                 ),
                 "epoch",
@@ -197,7 +196,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             AnnotationResult.objects.filter(annotation_campaign_id=pk)
             .select_related(
                 "dataset_file",
-                "dataset_file__audio_metadatum",
                 "dataset_file__dataset",
                 "dataset_file__dataset__audio_metadatum",
                 "label",
@@ -210,8 +208,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 file_max_frequency=file_max_frequency,
                 file_name=F("dataset_file__filename"),
                 dataset_name=F("dataset_file__dataset__name"),
-                file_start=F("dataset_file__audio_metadatum__start"),
-                file_end=F("dataset_file__audio_metadatum__end"),
+                file_start=F("dataset_file__start"),
+                file_end=F("dataset_file__end"),
                 label_name=F("label__name"),
                 annotator_name=F("annotator__username"),
                 detector_name=F("detector_configuration__detector__name"),
@@ -241,7 +239,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             .select_related(
                 "annotation_task__dataset_file",
                 "annotation_task__dataset_file__dataset",
-                "annotation_task__dataset_file__audio_metadatum",
                 "annotation_task__annotator",
             )
             .annotate(
@@ -258,11 +255,11 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 confidence_label=Value(""),
                 confidence_level=Value(""),
                 is_weak=Value(""),
-                file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
-                file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
+                file_start=F("annotation_task__dataset_file__start"),
+                file_end=F("annotation_task__dataset_file__end"),
                 file_duration=ExpressionWrapper(
-                    F("annotation_task__dataset_file__audio_metadatum__end")
-                    - F("annotation_task__dataset_file__audio_metadatum__start"),
+                    F("annotation_task__dataset_file__end")
+                    - F("annotation_task__dataset_file__start"),
                     output_field=BigIntegerField(),
                 ),
                 file_max_frequency=ExpressionWrapper(

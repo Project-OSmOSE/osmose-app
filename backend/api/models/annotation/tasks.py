@@ -17,7 +17,7 @@ class AnnotationTask(models.Model):
         FINISHED = ("F", "Finished")
 
     class Meta:
-        ordering = ["dataset_file__audio_metadatum__start"]
+        ordering = ["dataset_file__start", "id"]
 
     status = models.TextField(choices=Status.choices, default=Status.CREATED)
 

@@ -159,7 +159,8 @@ class DatasetFileAdmin(admin.ModelAdmin):
         "filepath",
         "size",
         "dataset",
-        "audio_metadatum",
+        "start",
+        "end",
     )
 
 

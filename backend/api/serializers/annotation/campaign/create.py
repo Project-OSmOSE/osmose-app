@@ -227,16 +227,16 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
     def get_dataset_files(self, dataset: Dataset, start: datetime, end: datetime):
         """Get dataset files from absolute start and ends"""
         dataset_files_start = dataset.files.filter(
-            audio_metadatum__start__lte=start,
-            audio_metadatum__end__gte=start,
+            start__lte=start,
+            end__gte=start,
         )
         dataset_files_while = dataset.files.filter(
-            audio_metadatum__start__gt=start,
-            audio_metadatum__end__lt=end,
+            start__gt=start,
+            end__lt=end,
         )
         dataset_files_end = dataset.files.filter(
-            audio_metadatum__start__lte=end,
-            audio_metadatum__end__gte=end,
+            start__lte=end,
+            end__gte=end,
         )
         return dataset_files_start | dataset_files_while | dataset_files_end
 
@@ -279,17 +279,14 @@ class AnnotationCampaignCreateCheckAnnotationsSerializer(serializers.ModelSerial
                 continue
 
             for dataset_file in dataset_files:
-                if start < dataset_file.audio_metadatum.start:
+                if start < dataset_file.start:
                     start_time = 0
                 else:
-                    start_time = to_seconds(start - dataset_file.audio_metadatum.start)
-                if end > dataset_file.audio_metadatum.end:
-                    end_time = to_seconds(
-                        dataset_file.audio_metadatum.end
-                        - dataset_file.audio_metadatum.start
-                    )
+                    start_time = to_seconds(start - dataset_file.start)
+                if end > dataset_file.end:
+                    end_time = to_seconds(dataset_file.end - dataset_file.start)
                 else:
-                    end_time = to_seconds(end - dataset_file.audio_metadatum.start)
+                    end_time = to_seconds(end - dataset_file.start)
 
                 AnnotationResult.objects.create(
                     annotation_campaign=campaign,

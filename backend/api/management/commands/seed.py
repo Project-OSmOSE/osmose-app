@@ -143,7 +143,6 @@ class Command(management.BaseCommand):
 
     def _create_datasets(self):
         print(" ###### _create_datasets ######")
-        audio_metadata = []
         files = []
         configs = []
         dataset_names = [
@@ -178,16 +177,13 @@ class Command(management.BaseCommand):
             for k in range(1, self.files_nb):
                 start = parse_datetime("2012-10-03T12:00:00+0200")
                 end = start + timedelta(minutes=15)
-                audio_metadatum = AudioMetadatum(
-                    start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k))
-                )
-                audio_metadata.append(audio_metadatum)
                 files.append(
                     DatasetFile(
                         filename=f"sound{k:03d}.wav",
                         filepath="data/audio/50h_0.wav",
                         size=58982478,
-                        audio_metadatum=audio_metadatum,
+                        start=(start + timedelta(hours=k)),
+                        end=(end + timedelta(hours=k)),
                         dataset=dataset,
                     )
                 )
@@ -290,7 +286,6 @@ class Command(management.BaseCommand):
                 )
 
         Dataset.objects.bulk_create(self.datasets)
-        AudioMetadatum.objects.bulk_create(audio_metadata)
         DatasetFile.objects.bulk_create(files)
         SpectrogramConfiguration.objects.bulk_create(configs)
 

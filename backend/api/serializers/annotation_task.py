@@ -257,8 +257,8 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     def get_boundaries(self, task):
         # type:(AnnotationTask) -> dict
         return {
-            "startTime": task.dataset_file.audio_metadatum.start,
-            "endTime": task.dataset_file.audio_metadatum.end,
+            "startTime": task.dataset_file.start,
+            "endTime": task.dataset_file.end,
             "startFrequency": 0,
             "endFrequency": task.dataset_file.dataset_sr / 2,
         }
@@ -315,8 +315,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
                 annotation_campaign=task.annotation_campaign.id,
                 annotator=task.annotator.id,
             )
-            .prefetch_related("dataset_file__audio_metadatum")
-            .order_by("dataset_file__audio_metadatum__start", "id")
+            .prefetch_related("dataset_file")
             .values_list("id", flat=True)
         )
         currentKey = qs_list.index(task.id)
