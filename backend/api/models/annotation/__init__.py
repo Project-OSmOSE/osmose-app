@@ -4,4 +4,4 @@ from .result import (
     AnnotationResult,
     AnnotationResultValidation,
 )
-from .tasks import AnnotationTask
+from .tasks import AnnotationTask, AnnotationFileRange

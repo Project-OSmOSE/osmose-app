@@ -27,6 +27,7 @@ from .annotation import (
     AnnotationResult,
     AnnotationResultValidation,
     AnnotationTask,
+    AnnotationFileRange,
 )
 from .spectrogram import (
     LinearScale,
