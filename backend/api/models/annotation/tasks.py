@@ -2,26 +2,9 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import QuerySet
 
-
-class AnnotationFileRange(models.Model):
-    """Gives a range of files to annotate by an annotator within a campaign"""
-
-    class Meta:
-        ordering = ["first_file_index"]
-
-    first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-    last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-    annotator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="annotation_file_ranges",
-    )
-    annotation_campaign = models.ForeignKey(
-        "AnnotationCampaign",
-        on_delete=models.CASCADE,
-        related_name="annotation_file_ranges",
-    )
+from backend.api.models.datasets import DatasetFile
 
 
 class AnnotationTask(models.Model):
@@ -53,3 +36,43 @@ class AnnotationTask(models.Model):
     dataset_file = models.ForeignKey(
         "DatasetFile", on_delete=models.CASCADE, related_name="annotation_tasks"
     )
+
+
+class AnnotationFileRange(models.Model):
+    """Gives a range of files to annotate by an annotator within a campaign"""
+
+    class Meta:
+        ordering = ["first_file_index"]
+
+    first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    annotator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="annotation_file_ranges",
+    )
+    annotation_campaign = models.ForeignKey(
+        "AnnotationCampaign",
+        on_delete=models.CASCADE,
+        related_name="annotation_file_ranges",
+    )
+
+    def get_files(self) -> QuerySet[DatasetFile]:
+        """Return files corresponding to this range"""
+        # pylint: disable=no-member
+        campaign_files: QuerySet[
+            DatasetFile
+        ] = self.annotation_campaign.get_sorted_files()
+        return campaign_files[self.first_file_index : self.last_file_index + 1]
+
+    def get_tasks(self) -> QuerySet[AnnotationTask]:
+        """Return tasks corresponding to this range"""
+        return self.annotation_campaign.tasks.filter(
+            annotator=self.annotator,
+            dataset_file_id__in=self.get_files().values_list("id", flat=True),
+        )
+
+    @property
+    def finished_count(self) -> int:
+        """Count finished tasks within this file range"""
+        return self.get_tasks().filter(status=AnnotationTask.Status.FINISHED).count()

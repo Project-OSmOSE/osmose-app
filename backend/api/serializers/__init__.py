@@ -29,14 +29,5 @@ from backend.api.serializers.dataset import (
     DatasetSerializer,
 )
 from backend.api.serializers.label_set import LabelSetSerializer
-from .annotation import (
-    DetectorSerializer,
-    DetectorConfigurationSerializer,
-    AnnotationCampaignCreateCreateAnnotationsSerializer,
-    AnnotationCampaignCreateCheckAnnotationsSerializer,
-    AnnotationCampaignAddAnnotatorsSerializer,
-    AnnotationCampaignListSerializer,
-)
-from .spectrogram import (
-    SpectrogramConfigurationSerializer,
-)
+from .annotation import *
+from .spectrogram import *

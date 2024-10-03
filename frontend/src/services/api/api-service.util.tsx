@@ -1,6 +1,8 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { AuthAPIService } from "../auth.ts";
 
+type QueryParams = { [key in string]: any }
+
 export class APIService<List, Retrieve, Create> {
 
   private listRequest?: SuperAgentRequest;
@@ -13,8 +15,13 @@ export class APIService<List, Retrieve, Create> {
               protected auth: AuthAPIService) {
   }
 
-  public list(url?: string): Promise<List> {
-    this.listRequest = get(url ?? this.URI).set("Authorization", this.auth.bearer);
+  getURLWithQueryParams(baseURL: string, queryParams?: QueryParams): string {
+    if (!queryParams) return baseURL;
+    return encodeURI(`${ baseURL }?${ Object.entries(queryParams).map(([ key, value ]) => `${ key }=${ value }`).join('&') }`);
+  }
+
+  public list(url?: string, queryParams?: QueryParams): Promise<List> {
+    this.listRequest = get(this.getURLWithQueryParams(url ?? this.URI, queryParams)).set("Authorization", this.auth.bearer);
     return this.listRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
   }
 

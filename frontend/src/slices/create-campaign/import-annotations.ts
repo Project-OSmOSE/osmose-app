@@ -40,6 +40,7 @@ export const importAnnotationsSlice = createSlice({
     },
     setRows: (state, action: { payload: Array<AnnotationsCSVRow> }) => {
       state.rows = action.payload
+      console.debug(action.payload)
     },
     setFilename: (state, action: { payload: string }) => {
       state.filename = action.payload

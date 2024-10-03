@@ -43,6 +43,11 @@ import {
 import { useUsersAPI } from "./user.ts";
 
 export {
+  type AnnotationFileRange,
+  useAnnotationFileRangeAPI
+} from './annotation-file-range-api.service.tsx';
+
+export {
   type DatasetList,
   type DatasetListItem,
   type DatasetListToImport,

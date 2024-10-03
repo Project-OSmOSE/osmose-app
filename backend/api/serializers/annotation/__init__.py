@@ -5,9 +5,8 @@ from .detector import (
     DetectorSerializer,
     DetectorConfigurationSerializer,
 )
-from .campaign import (
-    AnnotationCampaignCreateCheckAnnotationsSerializer,
-    AnnotationCampaignCreateCreateAnnotationsSerializer,
-    AnnotationCampaignAddAnnotatorsSerializer,
-    AnnotationCampaignListSerializer,
+from .campaign import *
+from .file_range import (
+    AnnotationFileRangeSerializer,
+    AnnotationFileRangeFinishedSerializer,
 )

@@ -5,9 +5,11 @@ from collections import defaultdict
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from backend.aplose_auth.models import User
+from .datasets import DatasetFile
 from .annotation import AnnotationResult, AnnotationTask
 
 
@@ -213,6 +215,12 @@ class AnnotationCampaign(models.Model):
             return
         self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
         self.save()
+
+    def get_sorted_files(self) -> QuerySet[DatasetFile]:
+        """Return sorted dataset files"""
+        return DatasetFile.objects.filter(
+            dataset_id__in=self.datasets.values_list("id", flat=True)
+        ).order_by("start", "id")
 
 
 class AnnotationComment(models.Model):

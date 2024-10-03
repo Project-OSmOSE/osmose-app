@@ -108,7 +108,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
                                        reload={ reload }/>
 
       <DetailCampaignStatus campaign={ annotationCampaign }
-                            annotationStatus={ annotationStatus }/>
+                            setError={ setError }/>
 
       <DetailCampaignSpectroConfig campaign={ annotationCampaign }
                                    spectroConfigurations={ spectrogramConfigurations }/>

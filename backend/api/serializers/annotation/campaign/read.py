@@ -22,6 +22,14 @@ AnnotationCampaignListFields = [
 ]
 
 
+class AnnotationCampaignBasicSerializer(serializers.ModelSerializer):
+    """Serializer for annotation file range"""
+
+    class Meta:
+        model = AnnotationCampaign
+        exclude = ("created_at", "spectro_configs", "annotators")
+
+
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     """Serialize Annotation campaign list"""
 

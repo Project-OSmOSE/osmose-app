@@ -1,15 +1,15 @@
-import React, { Fragment, useMemo, useState } from 'react';
+import React, { Dispatch, Fragment, useEffect, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonProgressBar } from "@ionic/react";
 import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI } from "@/services/api";
-import { AnnotationStatus } from "@/types/campaign.ts";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
-import './blocs.css';
 import { getDisplayName } from "@/types/user.ts";
+import { useAnnotationFileRangeAPI } from "@/services/api/annotation-file-range-api.service.tsx";
+import './blocs.css';
 
 interface Props {
   campaign: AnnotationCampaignRetrieveCampaign;
-  annotationStatus: Array<AnnotationStatus>;
+  setError: Dispatch<any>;
 }
 
 interface Sort {
@@ -17,27 +17,59 @@ interface Sort {
   sort: 'ASC' | 'DESC';
 }
 
-export const DetailCampaignStatus: React.FC<Props> = ({
-                                                        campaign,
-                                                        annotationStatus
-                                                      }) => {
+export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) => {
   const campaignService = useAnnotationCampaignAPI();
-  const [sort, setSort] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
-  const status = useMemo(() => {
-    if (!sort) return annotationStatus;
-    return annotationStatus.sort((a, b) => {
+  const fileRangeService = useAnnotationFileRangeAPI();
+
+  const [ annotators, setAnnotators ] = useState<Map<string, { total: number, progress: number }>>(new Map());
+
+  const [ sort, setSort ] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
+  const status: Array<string> = useMemo(() => {
+    if (!sort) return [ ...annotators.keys() ];
+    return [ ...annotators.entries() ].sort((a, b) => {
       let comparison = 0;
       switch (sort.entry) {
         case "Annotator":
-          comparison = getDisplayName(a.annotator).localeCompare(getDisplayName(b.annotator));
+          comparison = a[0].localeCompare(b[0]);
           break;
         case "Progress":
-          comparison = a.finished - b.finished;
+          comparison = a[1].progress - b[1].progress;
       }
       if (sort.sort === 'ASC') return comparison;
       return -comparison;
-    });
-  }, [sort, annotationStatus]);
+    }).map(e => e[0]);
+  }, [ sort, annotators ]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    fileRangeService.listForCampaignWithFinishedCount(campaign.id)
+      .then(ranges => {
+        const map = new Map<string, { total: number, progress: number }>()
+        for (const range of ranges) {
+          const annotator = getDisplayName(range.annotator);
+          if (map.get(annotator)) {
+            map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
+            map.get(annotator)!.progress += range.finished_count;
+          } else {
+            map.set(annotator, {
+              total: range.last_file_index - range.first_file_index + 1,
+              progress: range.finished_count,
+            })
+          }
+        }
+        console.debug(map)
+        setAnnotators(map)
+      }).catch(e => {
+      if (isCancelled) return;
+      setError(e);
+    })
+
+    return () => {
+      isCancelled = true;
+      fileRangeService.abort();
+    }
+  }, [ campaign.id ]);
 
   const toggleAnnotatorSort = () => {
     if (!sort || sort.entry !== 'Annotator') {
@@ -93,15 +125,16 @@ export const DetailCampaignStatus: React.FC<Props> = ({
           <IonIcon className={ `down ${ sort?.entry === 'Progress' && sort.sort === 'DESC' ? 'active' : '' }` }
                    icon={ caretDown }/>
         </TableHead>
-        { status.map(status => {
+        { status.map(annotator => {
+          const data = annotators.get(annotator)!
           return (
-            <Fragment key={ status.annotator?.id }>
+            <Fragment key={ annotator }>
               <TableDivider/>
               <TableContent
-                isFirstColumn={ true }>{ getDisplayName(status.annotator) }</TableContent>
+                isFirstColumn={ true }>{ annotator }</TableContent>
               <TableContent>
-                <p>{ status.finished } / { status.total }</p>
-                <IonProgressBar color="medium" value={ status.finished / status.total }/>
+                <p>{ data.progress } / { data.total }</p>
+                <IonProgressBar color="medium" value={ data.progress / data.total }/>
               </TableContent>
             </Fragment>
           );
