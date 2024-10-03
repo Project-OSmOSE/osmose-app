@@ -5,6 +5,7 @@ from backend.api.models import AnnotationFileRange
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
     AnnotationFileRangeFinishedSerializer,
+    AnnotationFileRangeTasksSerializer,
 )
 from backend.utils.filters import ModelFilter
 
@@ -29,4 +30,16 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             "with_finish_count"
         ):
             return AnnotationFileRangeFinishedSerializer
+        if self.action in ["list", "retrieve"] and self.request.query_params.get(
+            "with_tasks"
+        ):
+            return AnnotationFileRangeTasksSerializer
         return super().get_serializer_class()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.action in ["list", "retrieve"] and self.request.query_params.get(
+            "for_current_user"
+        ):
+            queryset = queryset.filter(annotator_id=self.request.user.id)
+        return queryset

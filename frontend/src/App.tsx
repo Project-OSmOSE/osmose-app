@@ -59,7 +59,7 @@ export const App: React.FC = () => {
                 </AuthenticatedRoute>
                 <AuthenticatedRoute exact
                                     path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation_campaign/:id/files'><AnnotationTaskList/></AuthenticatedRoute>
                 <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
               </Switch>
             </AploseSkeleton>

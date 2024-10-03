@@ -1,4 +1,5 @@
 """Annotation task related models"""
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -22,6 +23,7 @@ class AnnotationTask(models.Model):
 
     class Meta:
         ordering = ["dataset_file__start", "id"]
+        unique_together = (("dataset_file", "annotation_campaign", "annotator"),)
 
     status = models.TextField(choices=Status.choices, default=Status.CREATED)
 
@@ -43,6 +45,14 @@ class AnnotationFileRange(models.Model):
 
     class Meta:
         ordering = ["first_file_index"]
+        unique_together = (
+            (
+                "first_file_index",
+                "last_file_index",
+                "annotation_campaign",
+                "annotator",
+            ),
+        )
 
     first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])

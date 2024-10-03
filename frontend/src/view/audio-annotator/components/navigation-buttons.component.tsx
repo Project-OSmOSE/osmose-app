@@ -105,7 +105,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       history.push(`/audio-annotator/${ siblings.current.next }`);
       console.debug("go next")
     } else {
-      history.push(`/annotation_tasks/${ task.campaignId }`)
+      history.push(`/annotation_campaign/${ task.campaignId }/files`)
       console.debug("go tasks")
     }
   }
