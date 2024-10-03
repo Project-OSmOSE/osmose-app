@@ -240,6 +240,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
                 "created_at",
                 "usage",
                 "dataset_files_count",
+                "my_total",
             ],
         )
 

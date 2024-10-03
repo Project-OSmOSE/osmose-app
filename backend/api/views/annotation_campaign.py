@@ -88,7 +88,12 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
     def retrieve(self, request, pk=None):
         """Show a specific annotation campaign"""
-        annotation_campaign = get_object_or_404(self.queryset, pk=pk)
+        annotation_campaign = get_object_or_404(
+            self.queryset.annotate(
+                my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
+            ),
+            pk=pk,
+        )
         serializer = AnnotationCampaignRetrieveSerializer(
             annotation_campaign, context={"user_id": request.user.id}
         )

@@ -56,6 +56,7 @@ export type RetrieveCampaign = {
   dataset_files_count: number;
   usage: Usage;
   created_at: Date;
+  my_total: number;
 }
 
 export type Create = {

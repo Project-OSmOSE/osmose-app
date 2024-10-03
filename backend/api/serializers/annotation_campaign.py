@@ -45,6 +45,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     datasets_name = serializers.SerializerMethodField()
     archive = AnnotationCampaignArchiveSerializer()
     usage = EnumField(enum=AnnotationCampaignUsage)
+    my_total = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = AnnotationCampaign
@@ -62,6 +63,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "created_at",
             "usage",
             "dataset_files_count",
+            "my_total",
         ]
 
     def get_datasets_name(self, campaign: AnnotationCampaign) -> list[str]:

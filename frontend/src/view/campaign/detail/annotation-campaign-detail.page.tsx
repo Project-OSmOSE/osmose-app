@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useIonAlert } from "@ionic/react";
+import { useHistory, useParams } from 'react-router-dom';
+import { IonButton, useIonAlert } from "@ionic/react";
 import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, useUsersAPI, } from "@/services/api";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { AudioMetadatum } from "@/types/process-metadata/audio.ts";
@@ -16,6 +16,7 @@ import { getDisplayName } from "@/types/user.ts";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
+  const history = useHistory();
   const [annotationCampaign, setAnnotationCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
   const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
   const [isStaff, setIsStaff] = useState<boolean>(false);
@@ -82,6 +83,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
     campaignService.retrieve(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
   }
 
+  const annotate = () => history.push(`/annotation_campaign/${ campaignID }/files`);
+
   if (error) {
     return (
       <Fragment>
@@ -100,6 +103,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
         <h2>{ annotationCampaign.name }</h2>
         { isArchived && <p className="archive-description">Archived
             on { annotationCampaign?.archive?.date.toLocaleDateString() } by { getDisplayName(annotationCampaign?.archive?.by_user) }</p> }
+        { !isArchived && annotationCampaign?.my_total > 0 &&
+            <IonButton fill="outline" onClick={ annotate }>Annotate</IonButton> }
       </div>
 
       <DetailCampaignGlobalInformation campaign={ annotationCampaign }

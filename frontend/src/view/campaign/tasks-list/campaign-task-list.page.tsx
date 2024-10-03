@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import {
   AnnotationTaskList as List,
   useAnnotationFileRangeAPI,
@@ -13,6 +13,7 @@ import './campaign-task-list.page.css';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
+  const history = useHistory();
   const [ tasks, setTasks ] = useState<List | undefined>(undefined);
 
   const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { tasks: Array<AnnotationTask> }>>([]);
@@ -55,6 +56,7 @@ export const AnnotationTaskList: React.FC = () => {
     window.open(campaign.instructions_url, "_blank", "noopener, noreferrer")
   }
 
+  const manage = () => history.push(`/annotation_campaign/${ campaignID }`);
 
   if (error) {
     return (
@@ -74,6 +76,9 @@ export const AnnotationTaskList: React.FC = () => {
       </div>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonButton fill="outline" shape="round" onClick={ manage }>
+          { campaign?.archive === null ? "Manage" : "Info" }
+        </IonButton>
         <IonButton color="warning" shape="round" fill="outline" onClick={ openGuide }>
           User guide
           <IonIcon icon={ helpBuoyOutline } slot="end"/>
