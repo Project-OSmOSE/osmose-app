@@ -134,6 +134,8 @@ class DatasetAdmin(admin.ModelAdmin):
     @admin.display(description="Audio metadata")
     def show_audio_metadatum_url(self, obj):
         """show_audio_metadatum_url"""
+        if obj.audio_metadatum is None:
+            return "-"
         return format_html(
             "<a href='/backend/admin/api/audiometadatum/{id}/change/'>{metadatum}</a>",
             id=obj.audio_metadatum.id,
