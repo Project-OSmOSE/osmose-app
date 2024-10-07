@@ -97,12 +97,20 @@ export const Publications: React.FC = () => {
               passive acoustics 2024</em>, Rotterdam, The Netherlands.
             </li>
             <li>
+              <a href="https://doi.org/10.13140/RG.2.2.28637.22240" target="_blank" rel="noreferrer"><strong>Dupont, M.,
+                Béesau, J., Torterotot</strong>, M., Loirat, V.,
+                Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins'
+                behaviour around fishing nets in bycatch context. <em>Detection, Classification, Localization and Density Estimation of marine mammals using
+                  passive acoustics 2024</em>, Rotterdam, The Netherlands.
+              </a>
+            </li>
+            <li>
               <strong>Samaran, F., Morin, E.</strong> (2024) Etat des lieux des outils de traitement OSEkit et APLOSE
               au sein du projet collaboratif OSmOSE. <em>Workshop SERENADE</em>, Toulon, France
             </li>
             <li>
               <a href="https://doi.org/10.13140/RG.2.2.34666.53445" target="_blank" rel="noreferrer">
-                <strong>Maison, T., Torterotot, M., dupont, M.</strong> (2024) Vers une standardisation nationale des
+                <strong>Maison, T., Torterotot, M., Dupont, M.</strong> (2024) Vers une standardisation nationale des
                 métadonnées en acoustique passive sous-marine. <em>Workshop SERENADE</em>, Toulon, France
               </a>
             </li>
@@ -115,8 +123,8 @@ export const Publications: React.FC = () => {
                   conference</em>, O’Grove, Spain.</a>
             </li>
             <li>
-              <a href="https://doi.org/10.13140/RG.2.2.28637.22240" target="_blank" rel="noreferrer"><strong>Dupont, M.,
-                Béesau, J., Torterotot</strong>, M., Loirat, V.,
+              <a href="https://www.researchgate.net/publication/374088531_Using_passive_acoustic_to_better_understand_dolphins'_behaviour_around_fishing_nets_in_bycatch_context" target="_blank" rel="noreferrer">
+                <strong>Dupont, M., Béesau, J., Torterotot</strong>, M., Loirat, V.,
                 Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins'
                 behaviour around fishing nets in bycatch context. <em>34th European Cetacean Society annual
                   conference</em>, O’Grove, Spain.
