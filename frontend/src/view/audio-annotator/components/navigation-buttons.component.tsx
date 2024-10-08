@@ -3,7 +3,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
 import { AnnotationTaskDto, useAnnotationTaskAPI } from "@/services/api";
-import { AnnotationType } from "@/types/annotations.ts";
+import { Annotation, AnnotationType } from "@/types/annotations.ts";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
@@ -48,6 +48,11 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     hasChanged
   } = useAppSelector(state => state.annotator.annotations);
 
+  const _results = useRef<Annotation[]>([])
+  useEffect(() => {
+    _results.current = results
+  }, [results]);
+
   useEffect(() => {
     siblings.current = task.prevAndNextAnnotation;
   }, [task.prevAndNextAnnotation])
@@ -75,7 +80,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     const now = new Date().getTime();
     setIsSubmitting(true);
     const response = await taskAPI.update(task.id!, {
-      annotations: results.map(r => {
+      annotations: _results.current.map(r => {
         const isBox = r.type === AnnotationType.box;
         const startTime = isBox ? r.startTime : null;
         const endTime = isBox ? r.endTime : null;
