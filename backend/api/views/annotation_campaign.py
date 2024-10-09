@@ -37,7 +37,6 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationComment,
     AnnotationCampaignUsage,
-    AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
