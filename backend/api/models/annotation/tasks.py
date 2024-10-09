@@ -3,9 +3,10 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q, Count, Subquery, F
 
-from backend.api.models.datasets import DatasetFile
+from .result import AnnotationResult
+from ..datasets import DatasetFile
 
 
 class AnnotationTask(models.Model):
@@ -54,8 +55,8 @@ class AnnotationFileRange(models.Model):
             ),
         )
 
-    first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-    last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -77,12 +78,156 @@ class AnnotationFileRange(models.Model):
 
     def get_tasks(self) -> QuerySet[AnnotationTask]:
         """Return tasks corresponding to this range"""
-        return self.annotation_campaign.tasks.filter(
-            annotator=self.annotator,
+        return AnnotationTask.objects.filter(
+            annotator_id=self.annotator_id,
             dataset_file_id__in=self.get_files().values_list("id", flat=True),
+            annotation_campaign_id=self.annotation_campaign_id,
         )
 
     @property
     def finished_count(self) -> int:
         """Count finished tasks within this file range"""
         return self.get_tasks().filter(status=AnnotationTask.Status.FINISHED).count()
+
+    @staticmethod
+    def get_results(
+        annotation_campaign_id: int,
+        annotator_id: int,
+        first_file_index: int,
+        last_file_index: int,
+    ) -> QuerySet[AnnotationResult]:
+        """Count results count within this file range"""
+        dataset_files_id = Subquery(
+            DatasetFile.objects.only("dataset", "start", "end", "id")
+            .select_related("dataset")
+            .prefetch_related("dataset__annotation_campaigns")
+            .filter(dataset__annotation_campaigns__id=annotation_campaign_id)
+            .order_by("start", "id")
+            .annotate(
+                row=Count(
+                    "id",
+                    filter=Q(start__lt=F("start"))
+                    | Q(start=F("start"), id__lt=F("id")),
+                )
+            )
+            .filter(
+                row__gte=first_file_index,
+                row__lte=last_file_index,
+            )
+            .values_list("id", flat=True)
+        )
+        return AnnotationResult.objects.only(
+            "annotator_id", "annotation_campaign_id", "dataset_file_id"
+        ).filter(
+            annotator_id=annotator_id,
+            annotation_campaign_id=annotation_campaign_id,
+            dataset_file_id__in=dataset_files_id,
+        )
+
+    @staticmethod
+    def get_finished_tasks(
+        annotation_campaign_id: int,
+        annotator_id: int,
+        first_file_index: int,
+        last_file_index: int,
+    ) -> QuerySet[AnnotationTask]:
+        """Finished tasks within this file range"""
+        dataset_files_id = Subquery(
+            DatasetFile.objects.only("dataset", "start", "end", "id")
+            .select_related("dataset")
+            .prefetch_related("dataset__annotation_campaigns")
+            .filter(dataset__annotation_campaigns__id=annotation_campaign_id)
+            .order_by("start", "id")
+            .annotate(
+                row=Count(
+                    "id",
+                    filter=Q(start__lt=F("start"))
+                    | Q(start=F("start"), id__lt=F("id")),
+                )
+            )
+            .filter(
+                row__gte=first_file_index,
+                row__lte=last_file_index,
+            )
+            .values_list("id", flat=True)
+        )
+        return AnnotationTask.objects.only(
+            "annotator_id", "annotation_campaign_id", "dataset_file_id"
+        ).filter(
+            annotator_id=annotator_id,
+            annotation_campaign_id=annotation_campaign_id,
+            dataset_file_id__in=dataset_files_id,
+        )
+
+    @staticmethod
+    def get_connected_ranges(data):
+        """Recover connected ranges"""
+        return AnnotationFileRange.objects.filter(
+            annotator_id=data.annotator,
+            annotation_campaign_id=data.annotation_campaign,
+        ).filter(
+            # get bigger
+            Q(
+                first_file_index__lte=data.first_file_index,
+                last_file_index__gte=data.last_file_index,
+            )
+            # get littler
+            | Q(
+                first_file_index__gte=data.first_file_index,
+                last_file_index__lte=data.last_file_index,
+            )
+            # get mixted
+            | Q(
+                first_file_index__lte=data.first_file_index,
+                last_file_index__lte=data.last_file_index,
+            )
+            | Q(
+                first_file_index__gte=data.first_file_index,
+                last_file_index__gte=data.last_file_index,
+            )
+            # get siblings
+            | Q(first_file_index=data.last_file_index + 1)
+            | Q(last_file_index=data.first_file_index - 1)
+        )
+
+    @staticmethod
+    def clean_connected_ranges(data):
+        """Clean connected ranges to limit the number of different items"""
+        ids = [file_range.id for file_range in data]
+        return_ids = []
+        for range_id in ids:
+            queryset = AnnotationFileRange.objects.filter(id=range_id)
+            if not queryset.exists():
+                continue
+            item = queryset.first()
+            connected_ranges = AnnotationFileRange.get_connected_ranges(item)
+            if connected_ranges.exists():
+                # update connected
+                min_first_index = min(
+                    connected_ranges.order_by("first_file_index")
+                    .first()
+                    .first_file_index,
+                    item.first_file_index,
+                )
+                max_last_index = max(
+                    connected_ranges.order_by("-last_file_index")
+                    .first()
+                    .last_file_index,
+                    item.last_file_index,
+                )
+                instance = connected_ranges.order_by("id").first()
+                duplicates = AnnotationFileRange.objects.filter(
+                    annotator_id=instance.annotator_id,
+                    annotation_campaign_id=instance.annotation_campaign,
+                    first_file_index=min_first_index,
+                    last_file_index=max_last_index,
+                )
+                if duplicates.exists():
+                    instance = duplicates.first()
+                else:
+                    instance.first_file_index = min_first_index
+                    instance.last_file_index = max_last_index
+                    instance.save()
+                return_ids.append(instance.id)
+                connected_ranges.exclude(pk=instance.pk).delete()
+        return AnnotationFileRange.objects.filter(id__in=return_ids)

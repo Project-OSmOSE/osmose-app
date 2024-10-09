@@ -6,6 +6,7 @@ import { APIService } from "./api-service.util.tsx";
 import { LabelSet } from "@/types/label.ts";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { AudioMetadatum, AudioMetadatumDTO } from "@/types/process-metadata/audio.ts";
+import { BasicCampaign } from "@/services/api/annotation-file-range-api.service.tsx";
 
 
 export type List = Array<ListItem>
@@ -76,7 +77,7 @@ export type Create = {
 } | {
   usage: Usage.check;
   label_set_labels: Array<string>;
-  confidence_set_indicators: Array<[string, number]>,
+  confidence_set_indicators: Array<[ string, number ]>,
   detectors: Array<{
     detectorId?: number;
     detectorName: string;
@@ -129,7 +130,7 @@ export type AddAnnotators = {
   annotation_goal?: number
 }
 
-class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResult> {
+class AnnotationCampaignAPIService extends APIService<List, BasicCampaign, CreateResult> {
   private addAnnotatorsRequest?: SuperAgentRequest;
 
   list(): Promise<List> {
@@ -144,8 +145,12 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
     return super.create(data);
   }
 
-  retrieve(id: string): Promise<Retrieve> {
-    return super.retrieve(id).then(r => ({
+  retrieve(id: string): Promise<BasicCampaign> {
+    return super.retrieve(id);
+  }
+
+  retrieveDetailed(id: string): Promise<Retrieve> {
+    return super.retrieve(id, `${ this.URI }/${ id }/detail/`).then((r: any) => ({
       ...r,
       campaign: {
         ...r.campaign,
@@ -153,7 +158,7 @@ class AnnotationCampaignAPIService extends APIService<List, Retrieve, CreateResu
         deadline: r.campaign.deadline ? new Date(r.campaign.deadline) : r.campaign.deadline,
         created_at: new Date(r.campaign.created_at)
       },
-      audio_metadata: r.audio_metadata.map(m => new AudioMetadatum(m as unknown as AudioMetadatumDTO))
+      audio_metadata: r.audio_metadata.map((m: any) => new AudioMetadatum(m as unknown as AudioMetadatumDTO))
     }));
   }
 

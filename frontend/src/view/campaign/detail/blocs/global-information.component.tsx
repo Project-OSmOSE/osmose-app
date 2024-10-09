@@ -111,7 +111,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
           </IonButton>
           <IonButton color={ "primary" }
                      onClick={ openEditCampaign }>
-              Add annotators
+              Manage annotators
           </IonButton>
       </div> }
     </div>

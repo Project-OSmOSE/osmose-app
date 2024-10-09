@@ -40,6 +40,7 @@ from backend.api.serializers import (
     AnnotationCampaignAddAnnotatorsSerializer,
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignCreateCreateAnnotationsSerializer,
+    AnnotationCampaignBasicSerializer,
 )
 from backend.utils.renderers import CSVRenderer
 
@@ -87,6 +88,22 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
 
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
     def retrieve(self, request, pk=None):
+        """Show a specific annotation campaign"""
+        annotation_campaign = get_object_or_404(
+            self.queryset.annotate(files_count=Count("datasets__files")), pk=pk
+        )
+        serializer = AnnotationCampaignBasicSerializer(annotation_campaign)
+        return Response(serializer.data)
+
+    @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="detail",
+        url_name="detail",
+        name="detail",
+    )
+    def detailed(self, request, pk=None):
         """Show a specific annotation campaign"""
         annotation_campaign = get_object_or_404(
             self.queryset.annotate(

@@ -1,29 +1,30 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import {
   AnnotationTaskList as List,
   useAnnotationFileRangeAPI,
   useAnnotationTaskAPI,
-  AnnotationFileRange, AnnotationTask
+  AnnotationFileRange, AnnotationTask, useAnnotationCampaignAPI
 } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { helpBuoyOutline, informationCircle } from "ionicons/icons";
 import './campaign-task-list.page.css';
+import { BasicCampaign } from "@/services/api/annotation-file-range-api.service.tsx";
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
+
+  // Services
   const history = useHistory();
-  const [ tasks, setTasks ] = useState<List | undefined>(undefined);
-
-  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { tasks: Array<AnnotationTask> }>>([]);
-  const campaign = useMemo(() => {
-    if (fileRanges.length === 0) return undefined;
-    return fileRanges[0].annotation_campaign;
-  }, [ fileRanges ]);
-
   const taskService = useAnnotationTaskAPI();
   const fileRangeService = useAnnotationFileRangeAPI();
+  const campaignService = useAnnotationCampaignAPI()
+
+  // States
+  const [ tasks, setTasks ] = useState<List | undefined>(undefined);
+  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { tasks: Array<AnnotationTask> }>>([]);
+  const [ campaign, setCampaign ] = useState<BasicCampaign | undefined>(undefined);
   const [ error, setError ] = useState<any | undefined>(undefined);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export const AnnotationTaskList: React.FC = () => {
 
     setError(undefined);
     Promise.all([
+      campaignService.retrieve(campaignID).then(setCampaign),
       taskService.list(campaignID).then(setTasks),
       fileRangeService.listForCampaignWithTasks(+campaignID).then(setFileRanges)
     ]).catch(e => {

@@ -38,7 +38,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
     Promise.all([
       userService.list(),
-      campaignService.retrieve(campaignID),
+      campaignService.retrieveDetailed(campaignID),
       userService.isStaff().then(setIsStaff)
     ]).then(([users, data]) => {
       setAnnotationCampaign(data.campaign);
@@ -80,7 +80,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   }, [campaignID])
 
   const reload = () => {
-    campaignService.retrieve(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
+    campaignService.retrieveDetailed(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
   }
 
   const annotate = () => history.push(`/annotation_campaign/${ campaignID }/files`);

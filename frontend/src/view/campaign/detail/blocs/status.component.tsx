@@ -1,6 +1,10 @@
 import React, { Dispatch, Fragment, useEffect, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonProgressBar } from "@ionic/react";
-import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI } from "@/services/api";
+import {
+  AnnotationCampaignRetrieveCampaign,
+  useAnnotationCampaignAPI,
+  useUsersAPI
+} from "@/services/api";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { getDisplayName } from "@/types/user.ts";
@@ -18,10 +22,14 @@ interface Sort {
 }
 
 export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) => {
+
+  // State
+  const [ annotators, setAnnotators ] = useState<Map<string, { total: number, progress: number }>>(new Map());
+
+  // Services
   const campaignService = useAnnotationCampaignAPI();
   const fileRangeService = useAnnotationFileRangeAPI();
-
-  const [ annotators, setAnnotators ] = useState<Map<string, { total: number, progress: number }>>(new Map());
+  const userService = useUsersAPI();
 
   const [ sort, setSort ] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
   const status: Array<string> = useMemo(() => {
@@ -43,31 +51,30 @@ export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) =>
   useEffect(() => {
     let isCancelled = false;
 
-    fileRangeService.listForCampaignWithFinishedCount(campaign.id)
-      .then(ranges => {
-        const map = new Map<string, { total: number, progress: number }>()
-        for (const range of ranges) {
-          const annotator = getDisplayName(range.annotator);
-          if (map.get(annotator)) {
-            map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
-            map.get(annotator)!.progress += range.finished_count;
-          } else {
-            map.set(annotator, {
-              total: range.last_file_index - range.first_file_index + 1,
-              progress: range.finished_count,
-            })
-          }
+    Promise.all([
+      fileRangeService.listForCampaign(campaign.id),
+      userService.list()
+    ]).then(([ranges, users]) => {
+      const map = new Map<string, { total: number, progress: number }>()
+      for (const range of ranges) {
+        const annotator = getDisplayName(users.find(u => u.id === range.annotator));
+        if (map.get(annotator)) {
+          map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
+          map.get(annotator)!.progress += range.finished_tasks_count;
+        } else {
+          map.set(annotator, {
+            total: range.last_file_index - range.first_file_index + 1,
+            progress: range.finished_tasks_count,
+          })
         }
-        console.debug(map)
-        setAnnotators(map)
-      }).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
+      }
+      setAnnotators(map)
+    }).catch(e => !isCancelled && setError(e));
 
     return () => {
       isCancelled = true;
       fileRangeService.abort();
+      userService.abort();
     }
   }, [ campaign.id ]);
 

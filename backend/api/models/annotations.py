@@ -145,7 +145,7 @@ class AnnotationCampaign(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)
 
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
-    datasets = models.ManyToManyField("Dataset")
+    datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
     spectro_configs = models.ManyToManyField(
         "SpectrogramConfiguration", related_name="annotation_campaigns"
     )

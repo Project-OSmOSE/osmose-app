@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user
 from django.test import TestCase
 
 from backend.api.models import Dataset, AudioMetadatum

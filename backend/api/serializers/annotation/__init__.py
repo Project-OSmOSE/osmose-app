@@ -8,6 +8,5 @@ from .detector import (
 from .campaign import *
 from .file_range import (
     AnnotationFileRangeSerializer,
-    AnnotationFileRangeFinishedSerializer,
     AnnotationFileRangeTasksSerializer,
 )

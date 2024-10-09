@@ -1,62 +1,53 @@
-import React, { useEffect, useState, FormEvent } from "react";
-import { useAnnotationCampaignAPI, useUsersAPI } from "@/services/api";
-import { IonButton } from "@ionic/react";
+import React, { useEffect, useState, FormEvent, useRef } from "react";
+import { useAnnotationCampaignAPI } from "@/services/api";
+import { IonButton, IonSpinner } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
-import { ChipsInput, FormBloc, Input, Searchbar } from "@/components/form";
-import { getDisplayName, User } from '@/types/user.ts';
-import { Item } from "@/types/item.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import './create-edit-campaign.css';
+import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
+import { BasicCampaign } from "@/services/api/annotation-file-range-api.service.tsx";
+import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 
 
 export const EditCampaign: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
 
-  // API Data
-  const [users, setUsers] = useState<Array<User>>([]);
-  const [campaignFilesCount, setCampaignFilesCount] = useState<number>(0);
-  const usersAPI = useUsersAPI();
-  const campaignAPI = useAnnotationCampaignAPI();
-
-  // Form data
-  const [annotators, setAnnotators] = useState<Array<User>>([]);
-  const [filesToAnnotate, setFilesToAnnotate] = useState<number>(1);
-  useEffect(() => setFilesToAnnotate(campaignFilesCount), [campaignFilesCount]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // States
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
+  const [ campaign, setCampaign ] = useState<BasicCampaign | undefined>(undefined);
 
   // Services
-  const toast = useToast();
   const history = useHistory();
+  const toast = useToast();
+  const campaignAPI = useAnnotationCampaignAPI();
+
+  // Ref
+  const annotatorBlocRef = useRef<BlocRef | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
 
     Promise.all([
-      campaignAPI.retrieve(campaignID),
-      usersAPI.list()
-    ]).then(([campaign, users]) => {
-      if (isCancelled) return;
-      const campaignUsersIDs = campaign.tasks.map(t => t.annotator_id);
-      setUsers(users.filter(u => !campaignUsersIDs.includes(u.id)));
-      setCampaignFilesCount(campaign.campaign.dataset_files_count)
-    }).catch(e => !isCancelled && toast.presentError(e));
+      campaignAPI.retrieve(campaignID).then(setCampaign),
+    ]).catch(e => !isCancelled && toast.presentError(e));
 
     return () => {
       isCancelled = true;
-      usersAPI.abort();
-      campaignAPI.abort();
+     campaignAPI.abort();
       toast.dismiss();
     }
-  }, [campaignID])
+  }, [ campaignID ])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!annotatorBlocRef.current?.isValid) {
+      toast.presentError(annotatorBlocRef.current?.getErrorMessage() ?? 'Unknown')
+      return;
+    }
     try {
       setIsSubmitting(true);
-      await campaignAPI.addAnnotators(+campaignID, {
-        annotators: annotators.map(a => a.id),
-        annotation_goal: filesToAnnotate
-      })
+
+      await annotatorBlocRef.current.submit();
 
       history.push(`/annotation_campaign/${ campaignID }`);
     } catch (e: any) {
@@ -66,59 +57,21 @@ export const EditCampaign: React.FC = () => {
     }
   }
 
-  const onAddAnnotator = (item: Item) => {
-    const annotator = users.find(a => a.id === item.value);
-    if (!annotator) return;
-    setAnnotators([...annotators, annotator])
-  }
-
-  const onAnnotatorsChange = (array: Array<string | number>) => {
-    const newAnnotators = annotators.filter(a => array.includes(a.id))
-    setAnnotators(newAnnotators)
-  }
-
-  const handleChipsSubmission = (e: FormEvent<HTMLInputElement>) => {
-    if (annotators.length <= 0)
-      e.currentTarget.setCustomValidity('Annotators are required')
-  }
-
   return (
     <form id="create-campaign-form"
           onSubmit={ handleSubmit }>
-      <h1>Edit Annotation Campaign</h1>
+      <div className="title">
+        <h1>Edit Annotation Campaign</h1>
+        { campaign && <h5>{ campaign.name }</h5> }
+      </div>
 
-      <FormBloc label="Annotators">
-
-        <Searchbar placeholder="Search annotator..."
-                   values={
-                     users.filter(u => !annotators.find(annotator => annotator.id === u.id))
-                       .map(a => ({ value: a.id, label: getDisplayName(a, true) }))
-                   }
-                   onValueSelected={ onAddAnnotator }/>
-
-        <ChipsInput items={ annotators.map(a => ({ value: a.id, label: getDisplayName(a, true) })) }
-                    required={ true }
-                    activeItemsValues={ annotators.map(a => a.id) }
-                    onInvalid={ handleChipsSubmission }
-                    setActiveItemsValues={ onAnnotatorsChange }/>
-
-        <Input disabled={ annotators.length <= 0 }
-               label="Wanted number of files to annotate"
-               type="number"
-               max={ campaignFilesCount }
-               min={ 1 }
-               value={ filesToAnnotate }
-               onChange={ e => {
-                 if (!e.target.value) setFilesToAnnotate(0);
-                 else setFilesToAnnotate(+e.target.value)
-               } }
-               note={ `Each new annotator will annotate ${ filesToAnnotate === 0 ? campaignFilesCount : filesToAnnotate } / ${ campaignFilesCount } files.` }/>
-      </FormBloc>
+      <AnnotatorsRangeBloc ref={ annotatorBlocRef } campaign={ campaign }/>
 
       <IonButton color="primary"
                  disabled={ isSubmitting }
                  type="submit">
         Update campaign
+        { isSubmitting && <IonSpinner/> }
       </IonButton>
     </form>
   )
