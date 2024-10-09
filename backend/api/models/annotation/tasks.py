@@ -73,27 +73,6 @@ class AnnotationFileRange(models.Model):
         self.files_count = self.last_file_index - self.first_file_index + 1
         super().save(*args, **kwargs)
 
-    def get_files(self) -> QuerySet[DatasetFile]:
-        """Return files corresponding to this range"""
-        # pylint: disable=no-member
-        campaign_files: QuerySet[
-            DatasetFile
-        ] = self.annotation_campaign.get_sorted_files()
-        return campaign_files[self.first_file_index : self.last_file_index + 1]
-
-    def get_tasks(self) -> QuerySet[AnnotationTask]:
-        """Return tasks corresponding to this range"""
-        return AnnotationTask.objects.filter(
-            annotator_id=self.annotator_id,
-            dataset_file_id__in=self.get_files().values_list("id", flat=True),
-            annotation_campaign_id=self.annotation_campaign_id,
-        )
-
-    @property
-    def finished_count(self) -> int:
-        """Count finished tasks within this file range"""
-        return self.get_tasks().filter(status=AnnotationTask.Status.FINISHED).count()
-
     @staticmethod
     def get_results(
         annotation_campaign_id: int,
@@ -130,16 +109,14 @@ class AnnotationFileRange(models.Model):
         )
 
     @staticmethod
-    def get_finished_tasks(
+    def get_files(
         annotation_campaign_id: int,
-        annotator_id: int,
         first_file_index: int,
         last_file_index: int,
-    ) -> QuerySet[AnnotationTask]:
-        """Finished tasks within this file range"""
-        dataset_files_id = Subquery(
-            DatasetFile.objects.only("dataset", "start", "end", "id")
-            .select_related("dataset")
+    ) -> QuerySet[DatasetFile]:
+        """Get corresponding dataset files"""
+        return (
+            DatasetFile.objects.select_related("dataset")
             .prefetch_related("dataset__annotation_campaigns")
             .filter(dataset__annotation_campaigns__id=annotation_campaign_id)
             .order_by("start", "id")
@@ -154,14 +131,24 @@ class AnnotationFileRange(models.Model):
                 row__gte=first_file_index,
                 row__lte=last_file_index,
             )
-            .values_list("id", flat=True)
         )
-        return AnnotationTask.objects.only(
-            "annotator_id", "annotation_campaign_id", "dataset_file_id"
-        ).filter(
+
+    @staticmethod
+    def get_finished_tasks(
+        annotation_campaign_id: int,
+        annotator_id: int,
+        first_file_index: int,
+        last_file_index: int,
+    ) -> QuerySet[AnnotationTask]:
+        """Finished tasks within this file range"""
+        dataset_files_id = AnnotationFileRange.get_files(
+            annotation_campaign_id, first_file_index, last_file_index
+        ).values_list("id", flat=True)
+        return AnnotationTask.objects.filter(
             annotator_id=annotator_id,
             annotation_campaign_id=annotation_campaign_id,
             dataset_file_id__in=dataset_files_id,
+            status=AnnotationTask.Status.FINISHED,
         )
 
     @staticmethod

@@ -83,7 +83,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
     campaignService.retrieveDetailed(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
   }
 
-  const annotate = () => history.push(`/annotation_campaign/${ campaignID }/files`);
+  const annotate = () => history.push(`/annotation-campaign/${ campaignID }/file`);
 
   if (error) {
     return (

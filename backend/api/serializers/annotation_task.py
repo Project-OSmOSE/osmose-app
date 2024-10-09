@@ -98,11 +98,6 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
             "validation",
         ]
 
-    def __init__(self, *args, **kwargs):
-        if "user_id" in kwargs:
-            self.user_id = kwargs.pop("user_id")
-        super().__init__(*args, **kwargs)
-
     @extend_schema_field(DetectorSerializer(allow_null=True))
     def get_detector(self, result: AnnotationResult):
         if result.detector_configuration is None:
@@ -116,9 +111,9 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     def get_validation(self, result) -> Optional[bool]:
         if result.annotation_campaign.usage == AnnotationCampaignUsage.CREATE:
             return None
-        if self.user_id is None:
+        if self.context["user_id"] is None:
             return None
-        validation = result.validations.filter(annotator_id=self.user_id)
+        validation = result.validations.filter(annotator_id=self.context["user_id"])
         if not validation.exists():
             return None
         return validation.first().is_valid
@@ -236,8 +231,6 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     )
 
     def __init__(self, *args, **kwargs):
-        if "user_id" in kwargs:
-            self.user_id = kwargs.pop("user_id")
         super().__init__(*args, **kwargs)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
@@ -304,12 +297,12 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             "detector_configuration__detector",
         )
         return AnnotationTaskResultSerializer(
-            queryset, many=True, user_id=self.user_id
+            queryset, many=True, context=self.context
         ).data
 
     def get_prevAndNextAnnotation(self, task):
         # type:(AnnotationTask) -> {"prev": int, "next": int}
-        qs_list = list(
+        task_ids = list(
             AnnotationTask.objects.all()
             .filter(
                 annotation_campaign=task.annotation_campaign.id,
@@ -318,18 +311,25 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
             .prefetch_related("dataset_file")
             .values_list("id", flat=True)
         )
-        currentKey = qs_list.index(task.id)
+        currentKey = task_ids.index(task.id)
         prevId = ""
         nextId = ""
         if currentKey > 0:
-            prevId = qs_list[currentKey - 1]
-        if currentKey < len(qs_list) - 1:
-            nextId = qs_list[currentKey + 1]
-        return {"prev": prevId, "next": nextId}
+            prevId = task_ids[currentKey - 1]
+        if currentKey < len(task_ids) - 1:
+            nextId = task_ids[currentKey + 1]
+        return {
+            "prev": AnnotationTask.objects.get(pk=prevId).dataset_file_id
+            if prevId
+            else "",
+            "next": AnnotationTask.objects.get(pk=nextId).dataset_file_id
+            if nextId
+            else "",
+        }
 
     @extend_schema_field(AnnotationCommentSerializer(many=True))
     def get_taskComment(self, task):
-        return AnnotationCommentSerializer(task.task_comment, many=True).data
+        return AnnotationCommentSerializer(task.task_comments, many=True).data
 
 
 class AnnotationTaskUpdateSerializer(serializers.Serializer):

@@ -1,14 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import {
-  AnnotationTaskList as List,
   useAnnotationFileRangeAPI,
   useAnnotationTaskAPI,
-  AnnotationFileRange, AnnotationTask, useAnnotationCampaignAPI
+  AnnotationFileRange,
+  useAnnotationCampaignAPI,
+  DatasetFile
 } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon } from "@ionic/react";
-import { helpBuoyOutline, informationCircle } from "ionicons/icons";
+import {
+  checkmarkOutline,
+  helpBuoyOutline,
+  informationCircle
+} from "ionicons/icons";
 import './campaign-task-list.page.css';
 import { BasicCampaign } from "@/services/api/annotation-file-range-api.service.tsx";
 
@@ -22,8 +27,7 @@ export const AnnotationTaskList: React.FC = () => {
   const campaignService = useAnnotationCampaignAPI()
 
   // States
-  const [ tasks, setTasks ] = useState<List | undefined>(undefined);
-  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { tasks: Array<AnnotationTask> }>>([]);
+  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { files: Array<DatasetFile> }>>([]);
   const [ campaign, setCampaign ] = useState<BasicCampaign | undefined>(undefined);
   const [ error, setError ] = useState<any | undefined>(undefined);
 
@@ -34,8 +38,7 @@ export const AnnotationTaskList: React.FC = () => {
     setError(undefined);
     Promise.all([
       campaignService.retrieve(campaignID).then(setCampaign),
-      taskService.list(campaignID).then(setTasks),
-      fileRangeService.listForCampaignWithTasks(+campaignID).then(setFileRanges)
+      fileRangeService.listForCampaignWithFiles(+campaignID).then(setFileRanges)
     ]).catch(e => {
       if (isCanceled) return;
       setError(e);
@@ -58,7 +61,7 @@ export const AnnotationTaskList: React.FC = () => {
     window.open(campaign.instructions_url, "_blank", "noopener, noreferrer")
   }
 
-  const manage = () => history.push(`/annotation_campaign/${ campaignID }`);
+  const manage = () => history.push(`/annotation-campaign/${ campaignID }`);
 
   if (error) {
     return (
@@ -98,43 +101,31 @@ export const AnnotationTaskList: React.FC = () => {
           <th>Date</th>
           <th>Duration</th>
           <th>Results</th>
-          <th>Status</th>
+          <th>Submitted</th>
           <th>Link</th>
         </tr>
         </thead>
         <tbody>
         { fileRanges.map((range, index) => <Fragment>
-          { index > 0 && <tr className="empty"></tr> }
-          { range.tasks.map(task => {
-            const startDate = new Date(task.dataset_file.start);
-            const diffTime = new Date(new Date(task.dataset_file.end).getTime() - startDate.getTime());
-            return <tr className={ task.status === 'Finished' ? 'table-success' : 'table-warning' }
-                       key={ task.id }>
-              <td>{ task.dataset_file.filename }</td>
-              <td>{ task.dataset_file.dataset_name }</td>
+          { index > 0 && <tr key={ index } className="empty"></tr> }
+          { range.files.map(file => {
+            const startDate = new Date(file.start);
+            const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
+            return <tr className={ file.is_submitted ? 'table-success' : 'table-warning' }
+                       key={ file.id }>
+              <td>{ file.filename }</td>
+              <td>{ file.dataset_name }</td>
               <td>{ startDate.toLocaleDateString() }</td>
               <td>{ diffTime.toUTCString().split(' ')[4] }</td>
-              <td>{ task.results_count }</td>
-              <td>{ task.status }</td>
-              <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
+              <td>{ file.results_count }</td>
+              <td>
+                { file.is_submitted && <IonIcon icon={ checkmarkOutline }/> }
+              </td>
+              <td><Link to={ `/annotation-campaign/${ campaignID }/file/${ file.id }` }>Task link</Link></td>
             </tr>
           })
           }
         </Fragment>) }
-        { tasks?.map(task => {
-          const startDate = new Date(task.start);
-          const diffTime = new Date(new Date(task.end).getTime() - startDate.getTime());
-          return (<tr className={ task.status === 'Finished' ? 'table-success' : 'table-warning' }
-                      key={ task.id }>
-            <td>{ task.filename }</td>
-            <td>{ task.dataset_name }</td>
-            <td>{ startDate.toLocaleDateString() }</td>
-            <td>{ diffTime.toUTCString().split(' ')[4] }</td>
-            <td>{ task.results_count }</td>
-            <td>{ task.status }</td>
-            <td><Link to={ `/audio-annotator/${ task.id }` }>Task link</Link></td>
-          </tr>)
-        }) }
         </tbody>
       </table>
     </div>

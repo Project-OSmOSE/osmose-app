@@ -43,6 +43,8 @@ export type DatasetFile = {
   end: string; // Date
   dataset: number; // ID
   dataset_name: string;
+  is_submitted: boolean;
+  results_count: number;
 }
 
 class AnnotationFileRangeAPIService extends APIService<Array<AnnotationFileRange>, AnnotationFileRange, never> {
@@ -51,13 +53,13 @@ class AnnotationFileRangeAPIService extends APIService<Array<AnnotationFileRange
     return this.list(undefined, { annotation_campaign: campaignID })
   }
 
-  public listForCampaignWithTasks(campaignID: number): Promise<Array<AnnotationFileRange & {
-    tasks: Array<AnnotationTask>;
+  public listForCampaignWithFiles(campaignID: number): Promise<Array<AnnotationFileRange & {
+    files: Array<DatasetFile>;
   }>> {
     return this.list(undefined, {
       annotation_campaign: campaignID,
       for_current_user: true,
-      with_tasks: true
+      with_files: true
     }) as any
   }
 

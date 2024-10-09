@@ -32,7 +32,7 @@ import '../../css/annotator.css';
 
 
 // Playback rates
-const AVAILABLE_RATES: Array<number> = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0];
+const AVAILABLE_RATES: Array<number> = [ 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0 ];
 
 export type SpectroUrlsParams = {
   nfft: number,
@@ -99,19 +99,19 @@ export interface KeypressHandler {
 
 
 export const AudioAnnotator: React.FC = () => {
-  const { id: taskID } = useParams<{ id: string }>();
+  const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
 
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const labelsKeyPress = useRef<KeypressHandler | null>(null);
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | undefined>();
-  const [start, setStart] = useState<Date>(new Date());
-  const [isUserStaff, setIsUserStaff] = useState<boolean>(false);
-  const [isLoadingSpectroDL, setIsLoadingSpectroDL] = useState<boolean>();
+  const [ isLoading, setIsLoading ] = useState<boolean>(true);
+  const [ error, setError ] = useState<string | undefined>();
+  const [ start, setStart ] = useState<Date>(new Date());
+  const [ isUserStaff, setIsUserStaff ] = useState<boolean>(false);
+  const [ isLoadingSpectroDL, setIsLoadingSpectroDL ] = useState<boolean>();
 
-  const [canChangePlaybackRate, setCanChangePlaybackRate] = useState<boolean>(false);
+  const [ canChangePlaybackRate, setCanChangePlaybackRate ] = useState<boolean>(false);
   const localIsPaused = useRef<boolean>(true);
   const localAreShortcutsEnabled = useRef<boolean>(true);
 
@@ -152,10 +152,10 @@ export const AudioAnnotator: React.FC = () => {
     setError(undefined);
 
     Promise.all([
-      taskAPI.retrieve(taskID),
+      taskAPI.retrieve(campaignID, fileID),
       userAPI.isStaff()
     ])
-      .then(([task, isStaff]) => {
+      .then(([ task, isStaff ]) => {
         if (isCancelled) return;
         if (task.labels.length < 1) return setError('Label set is empty');
         if (task.spectroUrls.length < 1) return setError('Cannot retrieve spectrograms');
@@ -174,15 +174,15 @@ export const AudioAnnotator: React.FC = () => {
       isCancelled = true;
       taskAPI.abort();
     }
-  }, [taskID])
+  }, [ campaignID, fileID ])
 
   useEffect(() => {
     localAreShortcutsEnabled.current = areShortcutsEnabled;
-  }, [areShortcutsEnabled])
+  }, [ areShortcutsEnabled ])
 
   useEffect(() => {
     localIsPaused.current = isPaused;
-  }, [isPaused])
+  }, [ isPaused ])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!localAreShortcutsEnabled.current) return;
@@ -215,7 +215,7 @@ export const AudioAnnotator: React.FC = () => {
   }
 
   const goBack = () => {
-    window.open(`/app/annotation_campaign/${ task.campaignId }/files`, "_self")
+    window.open(`/app/annotation-campaign/${ task.campaignId }/file`, "_self")
   }
 
   const downloadAudio = () => {
@@ -335,7 +335,7 @@ export const AudioAnnotator: React.FC = () => {
           }
         </p>
 
-        <NavigationButtons ref={ navKeyPress } start={ start }/>
+        <NavigationButtons ref={ navKeyPress } start={ start } campaignID={ campaignID }/>
 
         <div className="col-sm-3">
           <Toast toastMessage={ toast }/>

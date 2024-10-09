@@ -44,7 +44,6 @@ import { useUsersAPI } from "./user.ts";
 
 export {
   type AnnotationFileRange,
-  type AnnotationTask,
   type DatasetFile,
   useAnnotationFileRangeAPI
 } from './annotation-file-range-api.service.tsx';

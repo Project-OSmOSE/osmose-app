@@ -1,6 +1,6 @@
 """Serializer for annotation file range"""
 
-from django.db.models import OuterRef, Subquery, F, Func
+from django.db.models import OuterRef, Subquery, F, Func, Exists
 from rest_framework import serializers
 
 from backend.api.models import (
@@ -81,6 +81,8 @@ class DatasetFileSerializer(serializers.ModelSerializer):
     dataset_name = serializers.SlugRelatedField(
         slug_field="name", read_only=True, source="dataset"
     )
+    is_submitted = serializers.BooleanField()
+    results_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DatasetFile
@@ -99,35 +101,37 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
         exclude = ("annotation_campaign", "annotator")
 
 
-class AnnotationFileRangeTasksSerializer(AnnotationFileRangeSerializer):
-    """Serializer for annotation file range with detail tasks"""
+class AnnotationFileRangeFilesSerializer(AnnotationFileRangeSerializer):
+    """Serializer for annotation file range with detail files"""
 
-    tasks = serializers.SerializerMethodField(read_only=True)
+    files = serializers.SerializerMethodField(read_only=True)
 
     class Meta(AnnotationFileRangeSerializer.Meta):
         pass
 
-    def get_tasks(self, file_range: AnnotationFileRange):
-        """Get finished task count within the range"""
-        files = file_range.annotation_campaign.get_sorted_files()[
-            file_range.first_file_index : file_range.last_file_index + 1
-        ]
-        result_query = (
-            AnnotationResult.objects.filter(
-                annotator_id=file_range.annotator_id,
-                dataset_file_id=OuterRef("dataset_file_id"),
-            )
-            .order_by()
-            .annotate(count=Func(F("id"), function="Count"))
-            .values("count")
+    def get_files(self, file_range: AnnotationFileRange):
+        """Get files within the range"""
+        files = AnnotationFileRange.get_files(
+            annotation_campaign_id=file_range.annotation_campaign_id,
+            first_file_index=file_range.first_file_index,
+            last_file_index=file_range.last_file_index,
+        ).annotate(
+            is_submitted=Exists(
+                AnnotationTask.objects.filter(
+                    annotation_campaign_id=file_range.annotation_campaign_id,
+                    annotator_id=file_range.annotator_id,
+                    dataset_file_id=OuterRef("pk"),
+                    status=AnnotationTask.Status.FINISHED,
+                )
+            ),
+            results_count=Subquery(
+                AnnotationResult.objects.filter(
+                    annotation_campaign_id=file_range.annotation_campaign_id,
+                    annotator_id=file_range.annotator_id,
+                    dataset_file_id=OuterRef("pk"),
+                )
+                .annotate(count=Func(F("id"), function="Count"))
+                .values("count")
+            ),
         )
-        tasks = (
-            file_range.annotation_campaign.tasks.filter(
-                annotator_id=file_range.annotator_id,
-                dataset_file_id__in=files.values_list("id", flat=True),
-                annotation_campaign_id=file_range.annotation_campaign.id,
-            )
-            .select_related("dataset_file", "dataset_file__dataset")
-            .annotate(results_count=Subquery(result_query))
-        )
-        return AnnotationTaskSerializer(tasks, many=True).data
+        return DatasetFileSerializer(files, many=True).data

@@ -16,7 +16,7 @@ export const Login: React.FC = () => {
   const auth = useAuthService();
   const history = useHistory();
   const location = useLocation<any>();
-  const { from } = location.state || { from: { pathname: '/annotation-campaigns' } };
+  const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
 
   useEffect(() => {
     if (auth.isConnected()) history.replace(from);

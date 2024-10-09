@@ -35,8 +35,8 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
     }
   }, [ state ]);
 
-  const manage = () => history.push(`/annotation_campaign/${ campaign.id }`);
-  const annotate = () => history.push(`/annotation_campaign/${ campaign.id }/files`);
+  const manage = () => history.push(`/annotation-campaign/${ campaign.id }`);
+  const annotate = () => history.push(`/annotation-campaign/${ campaign.id }/file`);
 
   return (
     <div id="campaign-card" className="campaign-card">

@@ -49,7 +49,7 @@ export const EditCampaign: React.FC = () => {
 
       await annotatorBlocRef.current.submit();
 
-      history.push(`/annotation_campaign/${ campaignID }`);
+      history.push(`/annotation-campaign/${ campaignID }`);
     } catch (e: any) {
       toast.presentError(e)
     } finally {

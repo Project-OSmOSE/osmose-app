@@ -47,20 +47,20 @@ export const App: React.FC = () => {
             <Route exact path="/login"><Login/></Route>
             <Route exact path='/'><Layout><Home/></Layout></Route>
 
-            <AuthenticatedRoute exact path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>
                 <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'>
+                <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/:id/edit'>
                   <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
                 </AuthenticatedRoute>
                 <AuthenticatedRoute exact
-                                    path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_campaign/:id/files'><AnnotationTaskList/></AuthenticatedRoute>
-                <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+                                    path='/annotation-campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/:id/file'><AnnotationTaskList/></AuthenticatedRoute>
+                <Route path="**"><Redirect to="/annotation-campaign"/></Route>
               </Switch>
             </AploseSkeleton>
           </Switch>

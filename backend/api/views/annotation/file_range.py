@@ -9,7 +9,7 @@ from backend.api.models import (
 )
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
-    AnnotationFileRangeTasksSerializer,
+    AnnotationFileRangeFilesSerializer,
 )
 from backend.utils.filters import ModelFilter
 
@@ -33,9 +33,9 @@ class AnnotationFileRangeViewSet(
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"] and self.request.query_params.get(
-            "with_tasks"
+            "with_files"
         ):
-            return AnnotationFileRangeTasksSerializer
+            return AnnotationFileRangeFilesSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):

@@ -13,7 +13,7 @@ export const StaffOnlyRoute: FC<{ children?: ReactNode } & any> = ({ children, .
   return (
     <Route { ...params }
            render={ ({ location }) =>
-             canAccess ? (children) : (<Redirect to={ { pathname: "/annotation-campaigns", state: { from: location } } }/>)
+             canAccess ? (children) : (<Redirect to={ { pathname: "/annotation-campaign", state: { from: location } } }/>)
            }/>
   )
 }

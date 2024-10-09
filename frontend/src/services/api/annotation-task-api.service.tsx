@@ -106,12 +106,6 @@ export type AnnotationTaskDto = {
   validation?: boolean;
 };
 
-interface AddAnnotation {
-  annotation: AnnotationTaskDto,
-  task_start_time: number,
-  task_end_time: number,
-}
-
 interface Update {
   annotations: AnnotationTaskDto[],
   task_start_time: number,
@@ -128,16 +122,12 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
   private addAnnotationRequest?: SuperAgentRequest;
   private updateRequest?: SuperAgentRequest;
 
-  list(campaignID: string): Promise<List> {
-    return super.list(`${ this.URI }/campaign/${ campaignID }/`).then(r => r.map((d: any) => ({
-      ...d,
-      start: new Date(d.start),
-      end: new Date(d.end),
-    })));
-  }
-
-  retrieve(id: string): Promise<Retrieve> {
-    return super.retrieve(id).then(r => {
+  retrieve(campaignID: string, fileID: string): Promise<Retrieve> {
+    return super.list(undefined, {
+      annotation_campaign: campaignID,
+      dataset_file: fileID,
+      for_current_user: true
+    }).then((r: Array<any>) => r[0]).then((r: any) => {
       const startTime = new Date(r.boundaries.startTime);
       const endTime = new Date(r.boundaries.endTime);
       return {
@@ -148,14 +138,6 @@ export class AnnotationTaskAPIService extends APIService<List, Retrieve, never> 
         }
       }
     })
-  }
-
-  public addAnnotation(taskID: string | number,
-                       data: AddAnnotation): Promise<number> {
-    this.addAnnotationRequest = put(`${ this.URI }/one-result/${ taskID }/`)
-      .set("Authorization", this.auth.bearer)
-      .send(data);
-    return this.addAnnotationRequest.then(r => r.body.id).catch(this.auth.catch401.bind(this.auth))
   }
 
   public update(taskID: number,

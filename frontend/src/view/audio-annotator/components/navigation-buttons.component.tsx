@@ -1,4 +1,4 @@
-import React, {Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState} from "react";
+import React, { Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
@@ -32,11 +32,14 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
   </div>
 ))
 
-export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date }>(({ start }, ref) => {
+export const NavigationButtons = React.forwardRef<KeypressHandler, {
+  start: Date,
+  campaignID: string
+}>(({ start, campaignID }, ref) => {
   const history = useHistory();
   const siblings = useRef<{ prev?: number, next?: number } | undefined>(undefined)
   const taskAPI = useAnnotationTaskAPI();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
 
   const {
     areShortcutsEnabled,
@@ -50,7 +53,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
 
   useEffect(() => {
     siblings.current = task.prevAndNextAnnotation;
-  }, [task.prevAndNextAnnotation])
+  }, [ task.prevAndNextAnnotation ])
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!areShortcutsEnabled) return;
@@ -69,7 +72,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
     }
   }
 
-  useImperativeHandle(ref, () => ({ handleKeyPressed }), [areShortcutsEnabled])
+  useImperativeHandle(ref, () => ({ handleKeyPressed }), [ areShortcutsEnabled ])
 
   const submit = async () => {
     const now = new Date().getTime();
@@ -97,15 +100,15 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       }),
       task_start_time: Math.floor((start.getTime() ?? now) / 1000),
       task_end_time: Math.floor(new Date().getTime() / 1000),
-      task_comments: taskComment.comment ? [taskComment] : []
+      task_comments: taskComment.comment ? [ taskComment ] : []
     }).finally(() => setIsSubmitting(false))
 
     if (!response) return;
     if (siblings.current?.next) {
-      history.push(`/audio-annotator/${ siblings.current.next }`);
+      history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.next }`);
       console.debug("go next")
     } else {
-      history.push(`/annotation_campaign/${ task.campaignId }/files`)
+      history.push(`/annotation-campaign/${ campaignID }/file`)
       console.debug("go tasks")
     }
   }
@@ -116,7 +119,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/audio-annotator/${ siblings.current.prev }`)
+    history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.prev }`);
   }
   const navNext = async () => {
     if (!siblings.current?.next) return;
@@ -124,7 +127,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, { start: Date
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/audio-annotator/${ siblings.current.next }`)
+    history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.next }`);
   }
 
   if (!siblings) return <Fragment/>;

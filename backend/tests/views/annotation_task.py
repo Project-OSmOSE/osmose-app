@@ -17,14 +17,15 @@ class AnnotationTaskViewSetUnauthenticatedTestCase(APITestCase):
 
     def test_campaign_list_unauthenticated(self):
         """AnnotationTask view 'campaign_list' returns 401 if no user is authenticated"""
-        url = reverse("annotation-task-campaign-list", kwargs={"campaign_id": 1})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_retrieve_unauthenticated(self):
-        """AnnotationTask view 'retrieve' returns 401 if no user is authenticated"""
-        url = reverse("annotation-task-detail", kwargs={"pk": 1})
-        response = self.client.get(url)
+        url = reverse("annotation-task-list")
+        response = self.client.get(
+            url,
+            {
+                "annotation_campaign": 1,
+                "dataset_file": 1,
+                "for_current_user": True,
+            },
+        )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_unauthenticated(self):
@@ -54,51 +55,25 @@ class AnnotationTaskViewSetTestCase(APITestCase):
     def tearDown(self):
         self.client.logout()
 
-    # Testing 'campaign_list'
-
-    def test_campaign_list_for_user1(self):
-        """AnnotationTask view 'campaign_list' returns no tasks for owner"""
-        self.client.login(username="user1", password="osmose29")
-        url = reverse("annotation-task-campaign-list", kwargs={"campaign_id": 1})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_campaign_list_for_unknown_campaign(self):
-        """AnnotationTask view 'campaign_list' returns 404 for unknown campaign"""
-        url = reverse("annotation-task-campaign-list", kwargs={"campaign_id": 42})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_campaign_list_for_user2(self):
-        """AnnotationTask view 'campaign_list' returns some tasks for annotator"""
-        url = reverse("annotation-task-campaign-list", kwargs={"campaign_id": 1})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 5)
-        self.assertEqual(
-            dict(response.data[0]),
-            {
-                "dataset_name": "SPM Aural A 2010",
-                "end": "2012-10-03T16:15:00Z",
-                "filename": "sound007.wav",
-                "id": 7,
-                "start": "2012-10-03T16:00:00Z",
-                "status": "Created",
-                "results_count": 3,
-            },
-        )
-
     # Testing 'retrieve'
 
     def test_retrieve(self):
         """AnnotationTask view 'retrieve' returns task data"""
-        url = reverse("annotation-task-detail", kwargs={"pk": 1})
-        response = self.client.get(url)
+        self.client.login(username="admin", password="osmose29")
+        url = reverse("annotation-task-list")
+        response = self.client.get(
+            url,
+            {
+                "annotation_campaign": 1,
+                "dataset_file": 1,
+                "for_current_user": True,
+            },
+        )
+        response_task = response.data[0]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            list(response.data.keys()),
+            list(response_task.keys()),
             [
                 "id",
                 "campaignId",
@@ -118,11 +93,11 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             ],
         )
         self.assertEqual(
-            response.data["labels"],
+            response_task["labels"],
             ["Mysticetes", "Odoncetes", "Boat", "Rain", "Other"],
         )
         self.assertEqual(
-            dict(response.data["boundaries"]),
+            dict(response_task["boundaries"]),
             {
                 "endFrequency": 64000.0,
                 "endTime": parse_datetime("2012-10-03T10:15:00Z"),
@@ -131,20 +106,28 @@ class AnnotationTaskViewSetTestCase(APITestCase):
             },
         )
         self.assertEqual(
-            response.data["audioUrl"],
+            response_task["audioUrl"],
             "/backend/static/seed/dataset_path/audio/50h_0.wav",
         )
-        self.assertEqual(len(response.data["spectroUrls"]), 1)
+        self.assertEqual(len(response_task["spectroUrls"]), 1)
         self.assertEqual(
-            list(response.data["spectroUrls"][0].keys()),
+            list(response_task["spectroUrls"][0].keys()),
             AnnotationTaskSpectroSerializerFields,
         )
-        self.assertEqual(len(response.data["spectroUrls"][0]["urls"]), 15)
+        self.assertEqual(len(response_task["spectroUrls"][0]["urls"]), 15)
 
     def test_retrieve_unknown(self):
         """AnnotationTask view 'retrieve' returns 404 for unknown task"""
-        url = reverse("annotation-task-detail", kwargs={"pk": 42})
-        response = self.client.get(url)
+        url = reverse("annotation-task-list")
+        response = self.client.get(
+            url,
+            {
+                "annotation_campaign": 42,
+                "dataset_file": 1,
+                "for_current_user": True,
+            },
+        )
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # Testing 'update'
