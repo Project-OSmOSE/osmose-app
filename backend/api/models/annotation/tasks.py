@@ -57,6 +57,7 @@ class AnnotationFileRange(models.Model):
 
     first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    files_count = models.PositiveIntegerField()
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -67,6 +68,10 @@ class AnnotationFileRange(models.Model):
         on_delete=models.CASCADE,
         related_name="annotation_file_ranges",
     )
+
+    def save(self, *args, **kwargs):
+        self.files_count = self.last_file_index - self.first_file_index + 1
+        super().save(*args, **kwargs)
 
     def get_files(self) -> QuerySet[DatasetFile]:
         """Return files corresponding to this range"""

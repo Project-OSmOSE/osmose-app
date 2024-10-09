@@ -4,6 +4,7 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
+    AnnotationTask,
 )
 from backend.utils.serializers import EnumField
 
@@ -35,27 +36,39 @@ class AnnotationCampaignBasicSerializer(serializers.ModelSerializer):
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):
     """Serialize Annotation campaign list"""
 
-    datasets_name = serializers.SerializerMethodField()
-    is_mine = serializers.SerializerMethodField()
-    is_archived = serializers.SerializerMethodField()
-    my_progress = serializers.IntegerField()
-    my_total = serializers.IntegerField()
-    progress = serializers.IntegerField()
-    total = serializers.IntegerField()
+    datasets_name = serializers.ListSerializer(
+        read_only=True, child=serializers.CharField()
+    )
+    is_mine = serializers.BooleanField(read_only=True)
+    is_archived = serializers.BooleanField(read_only=True)
+    my_progress = serializers.SerializerMethodField(read_only=True)
+    my_total = serializers.IntegerField(read_only=True)
+    progress = serializers.SerializerMethodField(read_only=True)
+    total = serializers.IntegerField(read_only=True)
     usage = EnumField(enum=AnnotationCampaignUsage)
 
     class Meta:
         model = AnnotationCampaign
-        fields = AnnotationCampaignListFields
+        fields = [
+            "id",
+            "name",
+            "deadline",
+            "datasets_name",
+            "is_mine",
+            "is_archived",
+            "my_progress",
+            "my_total",
+            "progress",
+            "total",
+            "usage",
+        ]
 
-    def get_datasets_name(self, campaign: AnnotationCampaign) -> list[str]:
-        """Get datasets name"""
-        return campaign.datasets.values_list("name")
+    def get_progress(self, campaign: AnnotationCampaign) -> int:
+        """Get progress"""
+        return campaign.tasks.filter(status=AnnotationTask.Status.FINISHED).count()
 
-    def get_is_mine(self, campaign: AnnotationCampaign) -> bool:
-        """Defined either the campaign is owned by the context user"""
-        return campaign.owner_id == self.context["user_id"]
-
-    def get_is_archived(self, campaign: AnnotationCampaign) -> bool:
-        """Defined either the campaign is archived"""
-        return campaign.archive_id is not None
+    def get_my_progress(self, campaign: AnnotationCampaign) -> int:
+        """Get current user progress"""
+        return campaign.tasks.filter(
+            annotator_id=self.context["user_id"], status=AnnotationTask.Status.FINISHED
+        ).count()

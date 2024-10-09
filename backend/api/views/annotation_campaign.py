@@ -1,12 +1,11 @@
 """Annotation campaign DRF-Viewset file"""
 from datetime import timedelta
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
 from django.db.models import (
     Count,
     Q,
-    Exists,
-    OuterRef,
     F,
     Max,
     BooleanField,
@@ -15,6 +14,12 @@ from django.db.models import (
     FloatField,
     BigIntegerField,
     DurationField,
+    Sum,
+    IntegerField,
+    Case,
+    When,
+    Exists,
+    OuterRef,
 )
 from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
@@ -32,6 +37,7 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationComment,
     AnnotationCampaignUsage,
+    AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
@@ -55,18 +61,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationCampaignListSerializer)
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.annotate(
-            my_progress=Count(
-                "tasks",
-                filter=Q(tasks__annotator_id=request.user.id)
-                & Q(tasks__status=AnnotationTask.Status.FINISHED),
-            ),
-            my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
-            progress=Count(
-                "tasks", filter=Q(tasks__status=AnnotationTask.Status.FINISHED)
-            ),
-            total=Count("tasks"),
-        )
+        queryset = self.queryset
         if not request.user.is_staff:
             queryset = queryset.filter(
                 Q(owner_id=request.user.id)
@@ -80,7 +75,33 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                     & Q(archive__isnull=True)
                 )
             )
-        queryset = queryset.prefetch_related("datasets").order_by("name")
+        queryset = queryset.annotate(
+            datasets_name=ArrayAgg("datasets__name", distinct=True),
+            is_mine=Case(
+                When(owner_id=request.user.id, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_archived=Case(
+                When(archive_id__isnull=False, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            total=Sum(
+                "annotation_file_ranges__files_count",
+                output_field=IntegerField(default=0),
+            ),
+            my_total=Sum(
+                Case(
+                    When(
+                        annotation_file_ranges__annotator_id=self.request.user.id,
+                        then=F("annotation_file_ranges__files_count"),
+                    ),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            ),
+        ).order_by("name")
         serializer = AnnotationCampaignListSerializer(
             queryset, many=True, context={"user_id": request.user.id}
         )

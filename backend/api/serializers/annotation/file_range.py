@@ -22,6 +22,7 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
         queryset=AnnotationCampaign.objects.all()
     )
     finished_tasks_count = serializers.SerializerMethodField(read_only=True)
+    files_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = AnnotationFileRange
