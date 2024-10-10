@@ -22,7 +22,7 @@ export const Table: React.FC<TableProps> = ({
 )
 
 interface CellProps {
-  children: ReactNode;
+  children?: ReactNode;
   isFirstColumn?: boolean;
   onClick?: () => void;
 }

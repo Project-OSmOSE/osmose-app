@@ -123,8 +123,10 @@ export const DetailCampaignSpectroConfig: React.FC<Props> = ({
         <TableHead isFirstColumn={ true }>Resolution</TableHead>
         { spectroConfigurations.map(c => <TableContent key={ c.id }>
           { c.frequency_resolution } Hz
-          <br/>
-          { c.temporal_resolution } s
+          { c.temporal_resolution !== null && <Fragment>
+              <br/>
+            { c.temporal_resolution } s
+          </Fragment> }
         </TableContent>) }
         <TableDivider/>
 

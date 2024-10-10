@@ -38,7 +38,7 @@ export const CreateCampaign: React.FC = () => {
       setIsLoading(true);
       await service.submitCampaign(force);
 
-      history.push('/annotation-campaigns');
+      history.push('/annotation-campaign');
     } catch (e: any) {
       const force = await toast.presentError(e, e.response?.body?.dataset_file_not_found);
       if (force) await submit(force);

@@ -11,6 +11,7 @@ from backend.api.models import (
     AnnotationCampaignArchive,
     AnnotationCampaignUsage,
     AudioMetadatum,
+    AnnotationTask,
 )
 from backend.utils.serializers import EnumField
 from .confidence_indicator_set import (
@@ -44,6 +45,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
     datasets_name = serializers.SerializerMethodField()
     archive = AnnotationCampaignArchiveSerializer()
     usage = EnumField(enum=AnnotationCampaignUsage)
+    my_total = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = AnnotationCampaign
@@ -61,6 +63,7 @@ class AnnotationCampaignRetrieveAuxCampaignSerializer(serializers.ModelSerialize
             "created_at",
             "usage",
             "dataset_files_count",
+            "my_total",
         ]
 
     def get_datasets_name(self, campaign: AnnotationCampaign) -> list[str]:
@@ -82,7 +85,7 @@ class AnnotationCampaignRetrieveAuxTaskSerializer(serializers.Serializer):
     Serializer meant to output AnnotationTask basic data used in AnnotationCampaignRetrieveSerializer
     """
 
-    status = serializers.IntegerField()
+    status = EnumField(enum=AnnotationTask.Status)
     annotator_id = serializers.IntegerField()
     count = serializers.IntegerField()
 
@@ -102,11 +105,14 @@ class AnnotationCampaignRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationCampaignRetrieveAuxTaskSerializer(many=True))
     def get_tasks(self, campaign: AnnotationCampaign):
-        return list(
-            campaign.tasks.values("status", "annotator_id")
-            .annotate(count=Count("status"))
-            .order_by("status")  # will group by status
-        )
+        return AnnotationCampaignRetrieveAuxTaskSerializer(
+            list(
+                campaign.tasks.values("status", "annotator_id")
+                .annotate(count=Count("status"))
+                .order_by("status")  # will group by status
+            ),
+            many=True,
+        ).data
 
     @extend_schema_field(AudioMetadatumSerializer(many=True))
     def get_audio_metadata(self, campaign: AnnotationCampaign):

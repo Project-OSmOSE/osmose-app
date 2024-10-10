@@ -17,7 +17,6 @@ describe('Edit campaign', () => {
             split.pop()
             let ID = split.pop();
 
-            console.debug(">>> ID", ID)
             cy.intercept('POST', `/api/annotation-campaign/${ID}/add_annotators`, (req) => {
                 console.debug('IN')
                 try {

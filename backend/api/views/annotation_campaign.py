@@ -1,12 +1,11 @@
 """Annotation campaign DRF-Viewset file"""
 from datetime import timedelta
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
 from django.db.models import (
     Count,
     Q,
-    Exists,
-    OuterRef,
     F,
     Max,
     BooleanField,
@@ -15,6 +14,13 @@ from django.db.models import (
     FloatField,
     BigIntegerField,
     DurationField,
+    Sum,
+    IntegerField,
+    Case,
+    When,
+    Exists,
+    OuterRef,
+    QuerySet,
 )
 from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
@@ -32,6 +38,8 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationComment,
     AnnotationCampaignUsage,
+    AnnotationFileRange,
+    DatasetFile,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
@@ -40,6 +48,7 @@ from backend.api.serializers import (
     AnnotationCampaignAddAnnotatorsSerializer,
     AnnotationCampaignCreateCheckAnnotationsSerializer,
     AnnotationCampaignCreateCreateAnnotationsSerializer,
+    AnnotationCampaignBasicSerializer,
 )
 from backend.utils.renderers import CSVRenderer
 
@@ -54,15 +63,7 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationCampaignListSerializer)
     def list(self, request):
         """List annotation campaigns"""
-        queryset = self.queryset.annotate(
-            my_progress=Count(
-                "tasks",
-                filter=Q(tasks__annotator_id=request.user.id) & Q(tasks__status=2),
-            ),
-            my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
-            progress=Count("tasks", filter=Q(tasks__status=2)),
-            total=Count("tasks"),
-        )
+        queryset = self.queryset
         if not request.user.is_staff:
             queryset = queryset.filter(
                 Q(owner_id=request.user.id)
@@ -76,7 +77,33 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
                     & Q(archive__isnull=True)
                 )
             )
-        queryset = queryset.prefetch_related("datasets").order_by("name")
+        queryset = queryset.annotate(
+            datasets_name=ArrayAgg("datasets__name", distinct=True),
+            is_mine=Case(
+                When(owner_id=request.user.id, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_archived=Case(
+                When(archive_id__isnull=False, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            total=Sum(
+                "annotation_file_ranges__files_count",
+                output_field=IntegerField(default=0),
+            ),
+            my_total=Sum(
+                Case(
+                    When(
+                        annotation_file_ranges__annotator_id=self.request.user.id,
+                        then=F("annotation_file_ranges__files_count"),
+                    ),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            ),
+        ).order_by("name")
         serializer = AnnotationCampaignListSerializer(
             queryset, many=True, context={"user_id": request.user.id}
         )
@@ -85,7 +112,37 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
     @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
     def retrieve(self, request, pk=None):
         """Show a specific annotation campaign"""
-        annotation_campaign = get_object_or_404(self.queryset, pk=pk)
+        annotation_campaign = get_object_or_404(
+            self.queryset.annotate(files_count=Count("datasets__files")), pk=pk
+        )
+        serializer = AnnotationCampaignBasicSerializer(annotation_campaign)
+        return Response(serializer.data)
+
+    @extend_schema(responses=AnnotationCampaignRetrieveSerializer)
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="detail",
+        url_name="detail",
+        name="detail",
+    )
+    def detailed(self, request, pk=None):
+        """Show a specific annotation campaign"""
+        annotation_campaign = get_object_or_404(
+            self.queryset.annotate(
+                my_total=Sum(
+                    Case(
+                        When(
+                            annotation_file_ranges__annotator_id=self.request.user.id,
+                            then=F("annotation_file_ranges__files_count"),
+                        ),
+                        default=0,
+                        output_field=IntegerField(),
+                    )
+                ),
+            ),
+            pk=pk,
+        )
         serializer = AnnotationCampaignRetrieveSerializer(
             annotation_campaign, context={"user_id": request.user.id}
         )
@@ -178,8 +235,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
         file_duration = Cast(
             Extract(
                 ExpressionWrapper(
-                    F("dataset_file__audio_metadatum__end")
-                    - F("dataset_file__audio_metadatum__start"),
+                    F("dataset_file__end") - F("dataset_file__start"),
                     output_field=DurationField(),
                 ),
                 "epoch",
@@ -194,7 +250,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             AnnotationResult.objects.filter(annotation_campaign_id=pk)
             .select_related(
                 "dataset_file",
-                "dataset_file__audio_metadatum",
                 "dataset_file__dataset",
                 "dataset_file__dataset__audio_metadatum",
                 "label",
@@ -207,8 +262,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 file_max_frequency=file_max_frequency,
                 file_name=F("dataset_file__filename"),
                 dataset_name=F("dataset_file__dataset__name"),
-                file_start=F("dataset_file__audio_metadatum__start"),
-                file_end=F("dataset_file__audio_metadatum__end"),
+                file_start=F("dataset_file__start"),
+                file_end=F("dataset_file__end"),
                 label_name=F("label__name"),
                 annotator_name=F("annotator__username"),
                 detector_name=F("detector_configuration__detector__name"),
@@ -238,7 +293,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             .select_related(
                 "annotation_task__dataset_file",
                 "annotation_task__dataset_file__dataset",
-                "annotation_task__dataset_file__audio_metadatum",
                 "annotation_task__annotator",
             )
             .annotate(
@@ -255,11 +309,11 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 confidence_label=Value(""),
                 confidence_level=Value(""),
                 is_weak=Value(""),
-                file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
-                file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
+                file_start=F("annotation_task__dataset_file__start"),
+                file_end=F("annotation_task__dataset_file__end"),
                 file_duration=ExpressionWrapper(
-                    F("annotation_task__dataset_file__audio_metadatum__end")
-                    - F("annotation_task__dataset_file__audio_metadatum__start"),
+                    F("annotation_task__dataset_file__end")
+                    - F("annotation_task__dataset_file__start"),
                     output_field=BigIntegerField(),
                 ),
                 file_max_frequency=ExpressionWrapper(
@@ -374,45 +428,44 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
     @action(detail=True, renderer_classes=[CSVRenderer])
     def report_status(self, request, pk=None):
         """Returns the CSV report on tasks status for the given campaign"""
-        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        campaign: AnnotationCampaign = get_object_or_404(AnnotationCampaign, pk=pk)
+
+        # Headers
         header = ["dataset", "filename"]
+        file_ranges: QuerySet[AnnotationFileRange] = campaign.annotation_file_ranges
         annotators = (
-            campaign.annotators.distinct()
-            .order_by(Lower("username"))
-            .values_list("username", flat=True)
+            file_ranges.values("annotator__username")
+            .distinct()
+            .order_by(Lower("annotator__username"))
+            .values_list("annotator__username", flat=True)
         )
         data = [header + list(annotators)]
-        tasks = (
-            campaign.tasks.select_related(
-                "dataset_file", "dataset_file__dataset", "annotator"
-            )
-            .order_by(
-                Lower("dataset_file__dataset__name"), Lower("dataset_file__filename")
-            )
-            .values_list(
-                "dataset_file__dataset__name",
-                "dataset_file__filename",
-                "annotator__username",
-                "status",
-            )
-        )
-        tasks_status = {}
-        for dataset_name, filename, annotator, status_int in tasks:
-            if (dataset_name, filename) not in tasks_status:
-                tasks_status[(dataset_name, filename)] = {}
-            tasks_status[(dataset_name, filename)][annotator] = status_int
 
-        # We list all dataset_name, filename couples and then annotators + status for each
-        for (dataset_name, filename), annotator_status in tasks_status.items():
-            status_per_annotator = []
+        # Content
+        files: QuerySet[DatasetFile] = campaign.get_sorted_files().select_related(
+            "dataset"
+        )
+        finished_tasks: QuerySet[AnnotationTask] = campaign.tasks.filter(
+            status=AnnotationTask.Status.FINISHED
+        )
+        for file in files:
+            row = []
+            row.append(file.dataset.name)
+            row.append(file.filename)
             for annotator in annotators:
-                status_string = "UNASSIGNED"  # Default status that will only be kept if no task was given
-                if annotator in annotator_status:
-                    status_string = AnnotationTask.StatusChoices(
-                        annotator_status[annotator]
-                    ).name
-                status_per_annotator.append(status_string)
-            data.append([dataset_name, filename] + status_per_annotator)
+                status = "UNASSIGNED"
+                if finished_tasks.filter(
+                    annotator__username=annotator, dataset_file_id=file.id
+                ).exists():
+                    status = "FINISHED"
+                elif file_ranges.filter(
+                    annotator__username=annotator,
+                    first_file_index__lte=file.row,
+                    last_file_index__gte=file.row,
+                ).exists():
+                    status = "CREATED"
+                row.append(status)
+            data.append(row)
 
         response = Response(data)
         response[

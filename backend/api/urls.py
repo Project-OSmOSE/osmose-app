@@ -8,6 +8,7 @@ from backend.api.views import (
     AnnotationCommentViewSet,
     ConfidenceIndicatorSetViewSet,
     DetectorViewSet,
+    AnnotationFileRangeViewSet,
 )
 from backend.aplose_auth.views import UserViewSet
 
@@ -19,6 +20,11 @@ api_router.register(r"detector", DetectorViewSet, basename="detector")
 api_router.register(r"label-set", LabelSetViewSet, basename="label-set")
 api_router.register(
     r"annotation-campaign", AnnotationCampaignViewSet, basename="annotation-campaign"
+)
+api_router.register(
+    r"annotation-file-range",
+    AnnotationFileRangeViewSet,
+    basename="annotation-file-range",
 )
 api_router.register(
     r"annotation-comment", AnnotationCommentViewSet, basename="annotation-comment"

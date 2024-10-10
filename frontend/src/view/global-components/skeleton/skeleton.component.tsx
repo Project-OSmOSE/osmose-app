@@ -14,7 +14,7 @@ export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children })
       <div id="nav" className="border rounded">
         <a href="/app/">Back to Home</a>
         <Link to="/datasets">Datasets</Link>
-        <Link to="/annotation-campaigns">Annotation campaigns</Link>
+        <Link to="/annotation-campaign">Annotation campaigns</Link>
         <br/>
         <IonButton color={ "medium" }
                    onClick={ auth.logout.bind(auth) }>

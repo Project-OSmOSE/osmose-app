@@ -11,7 +11,7 @@
   width: min(100%, 40rem);
 }
 
-#create-campaign-form h1 {
+#create-campaign-form .title {
   text-align: center;
 }
 

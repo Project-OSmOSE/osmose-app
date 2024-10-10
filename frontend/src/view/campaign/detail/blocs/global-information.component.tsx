@@ -51,7 +51,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
 
   const openEditCampaign = () => {
     if (!campaign) return;
-    history.push(`/annotation_campaign/${ campaign?.id }/edit`)
+    history.push(`/annotation-campaign/${ campaign?.id }/edit`)
   }
 
   return (
@@ -111,7 +111,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
           </IonButton>
           <IonButton color={ "primary" }
                      onClick={ openEditCampaign }>
-              Add annotators
+              Manage annotators
           </IonButton>
       </div> }
     </div>
