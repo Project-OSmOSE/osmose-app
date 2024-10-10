@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count, F
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
@@ -157,11 +157,6 @@ class AnnotationCampaign(models.Model):
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    annotators = models.ManyToManyField(
-        to=settings.AUTH_USER_MODEL,
-        through="AnnotationTask",
-        related_name="task_campaigns",
-    )
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -218,9 +213,19 @@ class AnnotationCampaign(models.Model):
 
     def get_sorted_files(self) -> QuerySet[DatasetFile]:
         """Return sorted dataset files"""
-        return DatasetFile.objects.filter(
-            dataset_id__in=self.datasets.values_list("id", flat=True)
-        ).order_by("start", "id")
+        return (
+            DatasetFile.objects.filter(
+                dataset_id__in=self.datasets.values_list("id", flat=True)
+            )
+            .order_by("start", "id")
+            .annotate(
+                row=Count(
+                    "id",
+                    filter=Q(start__lt=F("start"))
+                    | Q(start=F("start"), id__lt=F("id")),
+                )
+            )
+        )
 
 
 class AnnotationComment(models.Model):

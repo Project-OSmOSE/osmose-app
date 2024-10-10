@@ -30,7 +30,7 @@ class AnnotationCampaignBasicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationCampaign
-        exclude = ("created_at", "spectro_configs", "annotators")
+        exclude = ("created_at", "spectro_configs")
 
 
 class AnnotationCampaignListSerializer(serializers.ModelSerializer):

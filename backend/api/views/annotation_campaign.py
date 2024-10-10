@@ -20,6 +20,7 @@ from django.db.models import (
     When,
     Exists,
     OuterRef,
+    QuerySet,
 )
 from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
@@ -37,6 +38,8 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationComment,
     AnnotationCampaignUsage,
+    AnnotationFileRange,
+    DatasetFile,
 )
 from backend.api.serializers import (
     AnnotationCampaignListSerializer,
@@ -127,7 +130,16 @@ class AnnotationCampaignViewSet(viewsets.ViewSet):
         """Show a specific annotation campaign"""
         annotation_campaign = get_object_or_404(
             self.queryset.annotate(
-                my_total=Count("tasks", filter=Q(tasks__annotator_id=request.user.id)),
+                my_total=Sum(
+                    Case(
+                        When(
+                            annotation_file_ranges__annotator_id=self.request.user.id,
+                            then=F("annotation_file_ranges__files_count"),
+                        ),
+                        default=0,
+                        output_field=IntegerField(),
+                    )
+                ),
             ),
             pk=pk,
         )
@@ -416,45 +428,44 @@ SPM Aural A 2010,sound038.wav,FINISHED,CREATED,CREATED,CREATED,CREATED""",
     @action(detail=True, renderer_classes=[CSVRenderer])
     def report_status(self, request, pk=None):
         """Returns the CSV report on tasks status for the given campaign"""
-        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        campaign: AnnotationCampaign = get_object_or_404(AnnotationCampaign, pk=pk)
+
+        # Headers
         header = ["dataset", "filename"]
+        file_ranges: QuerySet[AnnotationFileRange] = campaign.annotation_file_ranges
         annotators = (
-            campaign.annotators.distinct()
-            .order_by(Lower("username"))
-            .values_list("username", flat=True)
+            file_ranges.values("annotator__username")
+            .distinct()
+            .order_by(Lower("annotator__username"))
+            .values_list("annotator__username", flat=True)
         )
         data = [header + list(annotators)]
-        tasks = (
-            campaign.tasks.select_related(
-                "dataset_file", "dataset_file__dataset", "annotator"
-            )
-            .order_by(
-                Lower("dataset_file__dataset__name"), Lower("dataset_file__filename")
-            )
-            .values_list(
-                "dataset_file__dataset__name",
-                "dataset_file__filename",
-                "annotator__username",
-                "status",
-            )
-        )
-        tasks_status = {}
-        for dataset_name, filename, annotator, status_int in tasks:
-            if (dataset_name, filename) not in tasks_status:
-                tasks_status[(dataset_name, filename)] = {}
-            tasks_status[(dataset_name, filename)][annotator] = status_int
 
-        # We list all dataset_name, filename couples and then annotators + status for each
-        for (dataset_name, filename), annotator_status in tasks_status.items():
-            status_per_annotator = []
+        # Content
+        files: QuerySet[DatasetFile] = campaign.get_sorted_files().select_related(
+            "dataset"
+        )
+        finished_tasks: QuerySet[AnnotationTask] = campaign.tasks.filter(
+            status=AnnotationTask.Status.FINISHED
+        )
+        for file in files:
+            row = []
+            row.append(file.dataset.name)
+            row.append(file.filename)
             for annotator in annotators:
-                status_string = "UNASSIGNED"  # Default status that will only be kept if no task was given
-                if annotator in annotator_status:
-                    status_string = AnnotationTask.Status(
-                        annotator_status[annotator]
-                    ).name
-                status_per_annotator.append(status_string)
-            data.append([dataset_name, filename] + status_per_annotator)
+                status = "UNASSIGNED"
+                if finished_tasks.filter(
+                    annotator__username=annotator, dataset_file_id=file.id
+                ).exists():
+                    status = "FINISHED"
+                elif file_ranges.filter(
+                    annotator__username=annotator,
+                    first_file_index__lte=file.row,
+                    last_file_index__gte=file.row,
+                ).exists():
+                    status = "CREATED"
+                row.append(status)
+            data.append(row)
 
         response = Response(data)
         response[

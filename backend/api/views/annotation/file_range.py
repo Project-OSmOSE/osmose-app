@@ -64,12 +64,7 @@ class AnnotationFileRangeViewSet(
             elif "id" in data and data["id"] is not None:
                 # update
                 instance = get_object_or_404(AnnotationFileRange, id=data["id"])
-                finished_tasks = AnnotationFileRange.get_finished_tasks(
-                    instance.annotation_campaign_id,
-                    instance.annotator_id,
-                    instance.first_file_index,
-                    instance.last_file_index,
-                ).count()
+                finished_tasks = instance.get_finished_tasks().count()
                 if finished_tasks > 0:
                     raise serializers.ValidationError(
                         f"The range for annotator {instance.annotator.username} contains finished tasks, "

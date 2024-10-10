@@ -3,9 +3,8 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import QuerySet, Q, Count, Subquery, F
+from django.db.models import QuerySet, Q
 
-from .result import AnnotationResult
 from ..datasets import DatasetFile
 
 
@@ -73,80 +72,20 @@ class AnnotationFileRange(models.Model):
         self.files_count = self.last_file_index - self.first_file_index + 1
         super().save(*args, **kwargs)
 
-    @staticmethod
-    def get_results(
-        annotation_campaign_id: int,
-        annotator_id: int,
-        first_file_index: int,
-        last_file_index: int,
-    ) -> QuerySet[AnnotationResult]:
-        """Count results count within this file range"""
-        dataset_files_id = Subquery(
-            DatasetFile.objects.only("dataset", "start", "end", "id")
-            .select_related("dataset")
-            .prefetch_related("dataset__annotation_campaigns")
-            .filter(dataset__annotation_campaigns__id=annotation_campaign_id)
-            .order_by("start", "id")
-            .annotate(
-                row=Count(
-                    "id",
-                    filter=Q(start__lt=F("start"))
-                    | Q(start=F("start"), id__lt=F("id")),
-                )
-            )
-            .filter(
-                row__gte=first_file_index,
-                row__lte=last_file_index,
-            )
-            .values_list("id", flat=True)
-        )
-        return AnnotationResult.objects.only(
-            "annotator_id", "annotation_campaign_id", "dataset_file_id"
-        ).filter(
-            annotator_id=annotator_id,
-            annotation_campaign_id=annotation_campaign_id,
-            dataset_file_id__in=dataset_files_id,
-        )
-
-    @staticmethod
-    def get_files(
-        annotation_campaign_id: int,
-        first_file_index: int,
-        last_file_index: int,
-    ) -> QuerySet[DatasetFile]:
+    def get_files(self) -> QuerySet[DatasetFile]:
         """Get corresponding dataset files"""
-        return (
-            DatasetFile.objects.select_related("dataset")
-            .prefetch_related("dataset__annotation_campaigns")
-            .filter(dataset__annotation_campaigns__id=annotation_campaign_id)
-            .order_by("start", "id")
-            .annotate(
-                row=Count(
-                    "id",
-                    filter=Q(start__lt=F("start"))
-                    | Q(start=F("start"), id__lt=F("id")),
-                )
-            )
-            .filter(
-                row__gte=first_file_index,
-                row__lte=last_file_index,
-            )
+        # pylint: disable=no-member
+        return self.annotation_campaign.get_sorted_files().filter(
+            row__gte=self.first_file_index,
+            row__lte=self.last_file_index,
         )
 
-    @staticmethod
-    def get_finished_tasks(
-        annotation_campaign_id: int,
-        annotator_id: int,
-        first_file_index: int,
-        last_file_index: int,
-    ) -> QuerySet[AnnotationTask]:
+    def get_finished_tasks(self) -> QuerySet[AnnotationTask]:
         """Finished tasks within this file range"""
-        dataset_files_id = AnnotationFileRange.get_files(
-            annotation_campaign_id, first_file_index, last_file_index
-        ).values_list("id", flat=True)
+        dataset_files_id = self.get_files().values_list("id", flat=True)
         return AnnotationTask.objects.filter(
-            annotator_id=annotator_id,
-            annotation_campaign_id=annotation_campaign_id,
+            annotator_id=self.annotator_id,
+            annotation_campaign_id=self.annotation_campaign_id,
             dataset_file_id__in=dataset_files_id,
             status=AnnotationTask.Status.FINISHED,
         )

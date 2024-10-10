@@ -30,12 +30,7 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
 
     def get_finished_tasks_count(self, file_range: AnnotationFileRange) -> int:
         """Count finished tasks within this file range"""
-        return AnnotationFileRange.get_finished_tasks(
-            annotation_campaign_id=file_range.annotation_campaign_id,
-            annotator_id=file_range.annotator_id,
-            first_file_index=file_range.first_file_index,
-            last_file_index=file_range.last_file_index,
-        ).count()
+        return file_range.get_finished_tasks().count()
 
     def check_max_value(self, data: dict):
         """Check file indexes doesn't go higher than campaign has files"""
@@ -111,11 +106,7 @@ class AnnotationFileRangeFilesSerializer(AnnotationFileRangeSerializer):
 
     def get_files(self, file_range: AnnotationFileRange):
         """Get files within the range"""
-        files = AnnotationFileRange.get_files(
-            annotation_campaign_id=file_range.annotation_campaign_id,
-            first_file_index=file_range.first_file_index,
-            last_file_index=file_range.last_file_index,
-        ).annotate(
+        files = file_range.get_files().annotate(
             is_submitted=Exists(
                 AnnotationTask.objects.filter(
                     annotation_campaign_id=file_range.annotation_campaign_id,
