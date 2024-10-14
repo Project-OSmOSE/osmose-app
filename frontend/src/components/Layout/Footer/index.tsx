@@ -11,9 +11,9 @@ export const Footer: React.FC = () => (
         <IonIcon icon={ logoGithub }></IonIcon>
         Github
       </a>
-      <a className={ styles.link } href="mailto:contact-osmose@ensta-bretagne.fr" title="Contact OSmOSE">
+      <a className={ styles.link } href="mailto:osmose@ensta-bretagne.fr" title="Contact OSmOSE">
         <IonIcon icon={ mailOutline }></IonIcon>
-        contact-osmose@ensta-bretagne.fr
+        osmose@ensta-bretagne.fr
       </a>
     </div>
 
