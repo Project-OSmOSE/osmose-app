@@ -14,3 +14,7 @@
 #campaign-task-list > .head .subtitle {
   color: var(--ion-color-medium);
 }
+
+#campaign-task-list tr.empty {
+  height: 2rem;
+}

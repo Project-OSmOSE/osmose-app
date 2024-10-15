@@ -1,9 +1,4 @@
-
-export enum AnnotationTaskStatus {
-  created = 0,
-  started = 1,
-  finished = 2
-}
+export type AnnotationTaskStatus = "Created" | "Started" | "Finished";
 
 export enum AnnotationMode {
   boxes = 1,

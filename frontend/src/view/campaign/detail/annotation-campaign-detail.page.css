@@ -20,6 +20,10 @@
   color: var(--ion-color-medium);
 }
 
+#detail-campaign > #head ion-button {
+  margin-top: 1rem;
+}
+
 
 #detail-campaign > .bloc {
   display: grid;

@@ -176,16 +176,6 @@ def datawork_import(*, wanted_datasets, importer):
             timestamp_data: dict
             for timestamp_data in csv.DictReader(csvfile):
                 start = parse_datetime(timestamp_data["timestamp"])
-                # TODO we should first bulk create AudioMetadatum and then bulk create DatasetFiles
-                audio_metadatum = AudioMetadatum.objects.create(
-                    start=start,
-                    end=(
-                        start
-                        + timedelta(
-                            seconds=float(audio_raw["audio_file_dataset_duration"])
-                        )
-                    ),
-                )
                 dataset_files.append(
                     DatasetFile(
                         dataset=curr_dataset,
@@ -194,7 +184,13 @@ def datawork_import(*, wanted_datasets, importer):
                         / conf_folder
                         / timestamp_data["filename"],
                         size=0,
-                        audio_metadatum=audio_metadatum,
+                        start=start,
+                        end=(
+                            start
+                            + timedelta(
+                                seconds=float(audio_raw["audio_file_dataset_duration"])
+                            )
+                        ),
                     )
                 )
         curr_dataset.files.bulk_create(dataset_files)
