@@ -75,10 +75,9 @@ class AnnotationFileRange(models.Model):
     def get_files(self) -> QuerySet[DatasetFile]:
         """Get corresponding dataset files"""
         # pylint: disable=no-member
-        return self.annotation_campaign.get_sorted_files().filter(
-            row__gte=self.first_file_index,
-            row__lte=self.last_file_index,
-        )
+        return self.annotation_campaign.get_sorted_files()[
+            self.first_file_index : self.last_file_index + 1
+        ]
 
     def get_finished_tasks(self) -> QuerySet[AnnotationTask]:
         """Finished tasks within this file range"""
@@ -93,38 +92,44 @@ class AnnotationFileRange(models.Model):
     @staticmethod
     def get_connected_ranges(data):
         """Recover connected ranges"""
-        return AnnotationFileRange.objects.filter(
-            annotator_id=data.annotator,
-            annotation_campaign_id=data.annotation_campaign,
-        ).filter(
-            # get bigger
-            Q(
-                first_file_index__lte=data.first_file_index,
-                last_file_index__gte=data.last_file_index,
+        return (
+            AnnotationFileRange.objects.filter(
+                annotator_id=data.annotator,
+                annotation_campaign_id=data.annotation_campaign,
             )
-            # get littler
-            | Q(
-                first_file_index__gte=data.first_file_index,
-                last_file_index__lte=data.last_file_index,
+            .exclude(id=data.id)
+            .filter(
+                # get bigger
+                Q(
+                    first_file_index__lte=data.first_file_index,
+                    last_file_index__gte=data.last_file_index,
+                )
+                # get littler
+                | Q(
+                    first_file_index__gte=data.first_file_index,
+                    last_file_index__lte=data.last_file_index,
+                )
+                # get mixted
+                | Q(
+                    first_file_index__lte=data.first_file_index,
+                    last_file_index__gte=data.first_file_index,
+                    last_file_index__lte=data.last_file_index,
+                )
+                | Q(
+                    first_file_index__gte=data.first_file_index,
+                    first_file_index__lte=data.last_file_index,
+                    last_file_index__gte=data.last_file_index,
+                )
+                # get siblings
+                | Q(first_file_index=data.last_file_index + 1)
+                | Q(last_file_index=data.first_file_index - 1)
             )
-            # get mixted
-            | Q(
-                first_file_index__lte=data.first_file_index,
-                last_file_index__lte=data.last_file_index,
-            )
-            | Q(
-                first_file_index__gte=data.first_file_index,
-                last_file_index__gte=data.last_file_index,
-            )
-            # get siblings
-            | Q(first_file_index=data.last_file_index + 1)
-            | Q(last_file_index=data.first_file_index - 1)
         )
 
     @staticmethod
-    def clean_connected_ranges(data):
+    def clean_connected_ranges(data: list[dict]):
         """Clean connected ranges to limit the number of different items"""
-        ids = [file_range.id for file_range in data]
+        ids = [file_range["id"] for file_range in data]
         return_ids = []
         for range_id in ids:
             queryset = AnnotationFileRange.objects.filter(id=range_id)
@@ -160,5 +165,5 @@ class AnnotationFileRange(models.Model):
                     instance.last_file_index = max_last_index
                     instance.save()
                 return_ids.append(instance.id)
-                connected_ranges.exclude(pk=instance.pk).delete()
+                connected_ranges.exclude(id=instance.id).delete()
         return AnnotationFileRange.objects.filter(id__in=return_ids)

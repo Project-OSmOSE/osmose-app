@@ -38,7 +38,7 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
       },
       async submit() {
         if (!campaign) return;
-        await fileRangeService.send(fileRanges, campaign?.files_count - 1)
+        await fileRangeService.send(campaign.id, fileRanges, campaign?.files_count - 1)
       }
     }
   }, [])

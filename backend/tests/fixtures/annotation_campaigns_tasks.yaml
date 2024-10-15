@@ -33,7 +33,7 @@
   pk: 3
   fields:
     first_file_index: 6
-    last_file_index: 10
+    last_file_index: 9
     files_count: 5
     annotator: 4
     annotation_campaign: 1

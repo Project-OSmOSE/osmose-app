@@ -1,6 +1,6 @@
 """Serializer for annotation file range"""
 
-from django.db.models import OuterRef, Subquery, F, Func, Exists
+from django.db.models import OuterRef, Subquery, F, Func, Exists, QuerySet, Q
 from rest_framework import serializers
 
 from backend.api.models import (
@@ -14,19 +14,103 @@ from backend.aplose_auth.models import User
 from backend.utils.serializers import EnumField
 
 
+class AnnotationFileRangeListSerializer(serializers.ListSerializer):
+    def prepare_deletion(
+        self,
+        original_ranges: QuerySet[AnnotationFileRange],
+        validated_data: list[dict],
+    ) -> QuerySet[AnnotationFileRange]:
+        deleted_ranges = original_ranges.exclude(
+            id__in=[data["id"] for data in validated_data if "id" in data]
+        )
+        for file_range in deleted_ranges:
+            if file_range.get_finished_tasks().count() > 0:
+                raise serializers.ValidationError(
+                    "Cannot delete range with finished tasks",
+                    code="invalid_deletion",
+                )
+        return deleted_ranges
+
+    def prepare_updates_and_creates(
+        self,
+        original_ranges: QuerySet[AnnotationFileRange],
+        validated_data: list[dict],
+    ) -> list[serializers.ModelSerializer]:
+        serializers_list = []
+        for file_range in validated_data:
+            instance = original_ranges.filter(
+                Q(id=file_range["id"] if "id" in file_range else None)
+                | Q(
+                    annotation_campaign_id=file_range["annotation_campaign"].id,
+                    annotator_id=file_range["annotator"].id,
+                    first_file_index=file_range["first_file_index"],
+                    last_file_index=file_range["last_file_index"],
+                )
+            )
+            file_range_data = {
+                **file_range,
+                "annotator": file_range["annotator"].id,
+                "annotation_campaign": file_range["annotation_campaign"].id,
+            }
+            if instance.exists():
+                # Update
+                instance = instance.first()
+                if (
+                    instance.first_file_index != file_range["first_file_index"]
+                    or instance.last_file_index != file_range["last_file_index"]
+                ) and instance.get_finished_tasks().count() > 0:
+                    raise serializers.ValidationError(
+                        "Cannot update range with finished tasks",
+                        code="invalid_update",
+                    )
+                serializer = AnnotationFileRangeSerializer(
+                    instance, data=file_range_data
+                )
+                serializer.is_valid(raise_exception=True)
+                serializers_list.append(serializer)
+            else:
+                # Create
+                serializer = AnnotationFileRangeSerializer(data=file_range_data)
+                serializer.is_valid(raise_exception=True)
+                serializers_list.append(serializer)
+        return serializers_list
+
+    def update(
+        self,
+        instance: QuerySet[AnnotationFileRange],
+        validated_data: list[dict],
+    ):
+        # Preparation
+        deleted_ranges = self.prepare_deletion(instance, validated_data)
+        serializers_list = self.prepare_updates_and_creates(instance, validated_data)
+
+        # Execution
+        deleted_ranges.delete()
+        instances = []
+        for serializer in serializers_list:
+            serializer.save()
+            instances.append(serializer.data)
+
+        return AnnotationFileRange.clean_connected_ranges(instances)
+
+
 class AnnotationFileRangeSerializer(serializers.ModelSerializer):
     """Serializer for annotation file range"""
 
+    id = serializers.IntegerField(required=False)
     annotator = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     annotation_campaign = serializers.PrimaryKeyRelatedField(
         queryset=AnnotationCampaign.objects.all()
     )
+
+    # Read only
     finished_tasks_count = serializers.SerializerMethodField(read_only=True)
     files_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = AnnotationFileRange
         fields = "__all__"
+        list_serializer_class = AnnotationFileRangeListSerializer
 
     def get_finished_tasks_count(self, file_range: AnnotationFileRange) -> int:
         """Count finished tasks within this file range"""

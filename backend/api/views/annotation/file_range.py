@@ -1,4 +1,5 @@
 """Viewset for annotation file range"""
+from django.db.models import QuerySet, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins, status, serializers
 from rest_framework.decorators import action
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationFileRange,
+    AnnotationCampaign,
 )
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
@@ -39,57 +41,64 @@ class AnnotationFileRangeViewSet(
         return super().get_serializer_class()
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset: QuerySet[AnnotationFileRange] = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(annotator=self.request.user)
+                | Q(annotation_campaign__owner=self.request.user)
+            )
         if self.action in ["list", "retrieve"] and self.request.query_params.get(
             "for_current_user"
         ):
             queryset = queryset.filter(annotator_id=self.request.user.id)
         return queryset
 
-    @action(methods=["POST"], detail=False, url_path="many", url_name="many")
-    def send_many(self, request, *args, **kwargs):
-        """POST an array of annotation file ranges, handle both update and create"""
-        instances = []
-        update_serializers = []
-        create_serializers = []
-        for data in request.data:
-            duplicates = AnnotationFileRange.objects.filter(
-                annotator_id=data["annotator"],
-                annotation_campaign_id=data["annotation_campaign"],
-                first_file_index=data["first_file_index"],
-                last_file_index=data["last_file_index"],
-            )
-            if duplicates.exists():
-                instances.append(duplicates.first())
-            elif "id" in data and data["id"] is not None:
-                # update
-                instance = get_object_or_404(AnnotationFileRange, id=data["id"])
-                finished_tasks = instance.get_finished_tasks().count()
-                if finished_tasks > 0:
-                    raise serializers.ValidationError(
-                        f"The range for annotator {instance.annotator.username} contains finished tasks, "
-                        f"it cannot be updated",
-                        code="deleted_results",
-                    )
+    def can_user_post_data(self, request_data: list[dict]) -> bool:
+        if self.request.user.is_staff:
+            return True
+        required_campaigns = AnnotationCampaign.objects.filter(
+            id__in=[data["annotation_campaign"] for data in request_data],
+        )
+        required_owned_campaigns = required_campaigns.filter(owner=self.request.user)
+        # Check if non-staff user is owner of all campaigns where changes are requested
+        return required_campaigns.count() == required_owned_campaigns.count()
 
-                serializer = self.get_serializer(instance, data=data)
-                serializer.is_valid(raise_exception=True)
-                update_serializers.append(serializer)
-            else:
-                # create
-                serializer: AnnotationFileRangeSerializer = self.get_serializer(
-                    data=data
-                )
-                serializer.is_valid(raise_exception=True)
-                create_serializers.append(serializer)
-        for serializer in update_serializers:
-            self.perform_update(serializer)
-            instances.append(serializer.instance)
-        for serializer in create_serializers:
-            self.perform_create(serializer)
-            instances.append(serializer.instance)
-        ranges = AnnotationFileRange.clean_connected_ranges(instances)
+    @action(
+        methods=["POST"],
+        detail=False,
+        url_path="campaign/(?P<campaign_id>[^/.]+)",
+        url_name="update_for_campaign",
+    )
+    def update_for_campaign(self, request, campaign_id: int = None, *args, **kwargs):
+        """POST an array of annotation file ranges, handle both update and create"""
+
+        campaign: AnnotationCampaign = get_object_or_404(
+            AnnotationCampaign,
+            id=campaign_id,
+        )
+
+        def add_campaign(d: dict) -> dict:
+            return {
+                **d,
+                "annotation_campaign": campaign.id,
+            }
+
+        data = list(map(add_campaign, request.data))
+
+        if not self.can_user_post_data(data):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = AnnotationFileRangeSerializer(
+            campaign.annotation_file_ranges,
+            data=data,
+            many=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(
-            self.serializer_class(ranges, many=True).data,
+            AnnotationFileRangeSerializer(
+                campaign.annotation_file_ranges,
+                many=True,
+            ).data,
             status=status.HTTP_200_OK,
         )

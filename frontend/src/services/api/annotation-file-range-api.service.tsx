@@ -1,6 +1,6 @@
 import { useAuthService } from "../auth";
 import { APIService } from "./api-service.util.tsx";
-import { AnnotationTaskStatus } from "@/types/annotations.ts";
+import { BaseAnnotationCampaign } from "@/types/campaign.ts";
 
 export type AnnotationFileRange = {
   id: number;
@@ -10,28 +10,17 @@ export type AnnotationFileRange = {
   last_file_index: number;
   finished_tasks_count: number;
 }
+type SendAnnotationFileRange = Omit<AnnotationFileRange, "id" | "annotation_campaign" | "finished_tasks_count"> & {
+  id?: number;
+}
 
-export type BasicCampaign = {
-  id: number;
-  name: string,
-  desc: string,
-  instructions_url: string,
-  deadline: null | string,
-  annotation_scope: number, // Enum
-  usage: number, // Enum
+export interface BasicCampaign extends BaseAnnotationCampaign {
   label_set: number, // ID
   owner: number, // ID
   confidence_indicator_set: null | number, // ID
   archive: null | number, // ID
   datasets: Array<number>,
   files_count: number,
-}
-
-export type AnnotationTask = {
-  id: number;
-  status: AnnotationTaskStatus;
-  dataset_file: DatasetFile;
-  results_count: number;
 }
 
 export type DatasetFile = {
@@ -63,13 +52,13 @@ class AnnotationFileRangeAPIService extends APIService<Array<AnnotationFileRange
     }) as any
   }
 
-  public send(data: Array<AnnotationFileRange>, max_files: number): Promise<never> {
+  public send(campaignID: number, data: Array<SendAnnotationFileRange>, max_files: number): Promise<never> {
     return super.create(data.map(range => ({
       ...range,
-      id: range.id < 0 ? undefined : range.id,
+      id: (range.id ?? -1) < 0 ? undefined : range.id,
       first_file_index: range.first_file_index < 0 ? 0 : range.first_file_index,
       last_file_index: range.last_file_index < 0 ? max_files : range.last_file_index
-    })), `${ this.URI }/many/`);
+    })), `${ this.URI }/campaign/${ campaignID }/`);
   }
 }
 

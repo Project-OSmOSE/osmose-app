@@ -4,13 +4,13 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Q, Count, F
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from backend.aplose_auth.models import User
-from .datasets import DatasetFile
 from .annotation import AnnotationResult, AnnotationTask
+from .datasets import DatasetFile
 
 
 class ConfidenceIndicatorSet(models.Model):
@@ -213,19 +213,9 @@ class AnnotationCampaign(models.Model):
 
     def get_sorted_files(self) -> QuerySet[DatasetFile]:
         """Return sorted dataset files"""
-        return (
-            DatasetFile.objects.filter(
-                dataset_id__in=self.datasets.values_list("id", flat=True)
-            )
-            .order_by("start", "id")
-            .annotate(
-                row=Count(
-                    "id",
-                    filter=Q(start__lt=F("start"))
-                    | Q(start=F("start"), id__lt=F("id")),
-                )
-            )
-        )
+        return DatasetFile.objects.filter(
+            dataset_id__in=self.datasets.values_list("id", flat=True)
+        ).order_by("start", "id")
 
 
 class AnnotationComment(models.Model):
