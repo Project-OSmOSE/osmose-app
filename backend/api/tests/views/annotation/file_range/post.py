@@ -1,4 +1,5 @@
 """Test AnnotationFileRangeViewSet"""
+# pylint: disable=missing-class-docstring, missing-function-docstring
 import json
 
 from django.urls import reverse
@@ -7,11 +8,11 @@ from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
 from backend.api.models import AnnotationFileRange
-from backend.api.tests.utils import AuthenticatedTestCase
+from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures
 
-URL = reverse("annotation-file-range-update_for_campaign", kwargs={"campaign_id": 1})
+URL = reverse("annotation-file-range-campaign", kwargs={"campaign_id": 1})
 URL_unknown_campaign = reverse(
-    "annotation-file-range-update_for_campaign", kwargs={"campaign_id": 27}
+    "annotation-file-range-campaign", kwargs={"campaign_id": 27}
 )
 
 existing_ranges = [
@@ -52,13 +53,7 @@ class PostUnauthenticatedTestCase(APITestCase):
 
 class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     username = "user2"
-    fixtures = [
-        "users",
-        "datasets",
-        "label_sets",
-        "confidence_indicator_sets",
-        "annotation_campaigns_tasks",
-    ]
+    fixtures = all_fixtures
 
     def test_post(self):
         response = self.client.post(
@@ -86,13 +81,7 @@ class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
 
 class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
     username = "user1"
-    fixtures = [
-        "users",
-        "datasets",
-        "label_sets",
-        "confidence_indicator_sets",
-        "annotation_campaigns_tasks",
-    ]
+    fixtures = all_fixtures
 
     def post(self, data: list[dict]) -> Response:
         response = self.client.post(

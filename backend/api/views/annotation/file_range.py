@@ -1,7 +1,7 @@
 """Viewset for annotation file range"""
 from django.db.models import QuerySet, Q
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, mixins, status, serializers
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -16,9 +16,7 @@ from backend.api.serializers import (
 from backend.utils.filters import ModelFilter
 
 
-class AnnotationFileRangeViewSet(
-    viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin
-):
+class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for annotation file range related actions
     """
@@ -32,6 +30,7 @@ class AnnotationFileRangeViewSet(
     )
     serializer_class = AnnotationFileRangeSerializer
     filter_backends = (ModelFilter,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"] and self.request.query_params.get(
@@ -54,6 +53,7 @@ class AnnotationFileRangeViewSet(
         return queryset
 
     def can_user_post_data(self, request_data: list[dict]) -> bool:
+        """Check permission to post data for user"""
         if self.request.user.is_staff:
             return True
         required_campaigns = AnnotationCampaign.objects.filter(
@@ -67,9 +67,13 @@ class AnnotationFileRangeViewSet(
         methods=["POST"],
         detail=False,
         url_path="campaign/(?P<campaign_id>[^/.]+)",
-        url_name="update_for_campaign",
+        url_name="campaign",
     )
-    def update_for_campaign(self, request, campaign_id: int = None, *args, **kwargs):
+    def update_for_campaign(
+        self,
+        request,
+        campaign_id: int = None,
+    ):
         """POST an array of annotation file ranges, handle both update and create"""
 
         campaign: AnnotationCampaign = get_object_or_404(
@@ -77,13 +81,13 @@ class AnnotationFileRangeViewSet(
             id=campaign_id,
         )
 
-        def add_campaign(d: dict) -> dict:
-            return {
+        data = [
+            {
                 **d,
                 "annotation_campaign": campaign.id,
             }
-
-        data = list(map(add_campaign, request.data))
+            for d in request.data
+        ]
 
         if not self.can_user_post_data(data):
             return Response(status=status.HTTP_401_UNAUTHORIZED)

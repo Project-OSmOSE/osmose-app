@@ -1,4 +1,4 @@
-"""Annotation file range tests"""
+"""Annotation result tests"""
 from .list import (
     ListUnauthenticatedTestCase,
     ListEmpyAdminAuthenticatedTestCase,
@@ -9,6 +9,7 @@ from .list import (
 from .post import (
     PostUnauthenticatedTestCase,
     PostBaseUserAuthenticatedTestCase,
+    PostAnnotatorAuthenticatedTestCase,
     PostCampaignOwnerAuthenticatedTestCase,
     PostAdminAuthenticatedTestCase,
 )

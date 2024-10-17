@@ -140,8 +140,6 @@
       task_end_time: 1643037084
       task_start_time: 1643037067
     annotation_task: 7
-#    annotator: 4
-#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 2
   fields:
@@ -167,8 +165,6 @@
       task_end_time: 1643037095
       task_start_time: 1643037085
     annotation_task: 8
-#    annotator: 4
-#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 3
   fields:
@@ -194,5 +190,3 @@
       task_end_time: 1643037163
       task_start_time: 1643037155
     annotation_task: 1
-#    annotator: 1
-#    annotation_campaign: 1

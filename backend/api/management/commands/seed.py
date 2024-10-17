@@ -25,6 +25,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     SpectrogramConfiguration,
+    AnnotationFileRange,
 )
 from backend.aplose_auth.models import AploseUser
 from backend.aplose_auth.models.user import ExpertiseLevel
@@ -361,8 +362,9 @@ class Command(management.BaseCommand):
             for config in dataset.spectro_configs.all():
                 campaign.spectro_configs.add(config)
             tasks = []
-            for file in dataset.files.all().order_by("?"):
-                for user in self.users:
+            file_ranges = []
+            for user in self.users:
+                for file in dataset.files.all().order_by("?"):
                     task = AnnotationTask(
                         dataset_file=file,
                         annotator=user,
@@ -370,7 +372,17 @@ class Command(management.BaseCommand):
                         annotation_campaign=campaign,
                     )
                     tasks.append(task)
+                file_ranges.append(
+                    AnnotationFileRange(
+                        annotation_campaign_id=campaign.id,
+                        annotator_id=user.id,
+                        first_file_index=0,
+                        last_file_index=dataset.files.count() - 1,
+                        files_count=dataset.files.count(),
+                    )
+                )
             AnnotationTask.objects.bulk_create(tasks)
+            AnnotationFileRange.objects.bulk_create(file_ranges)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
@@ -383,7 +395,9 @@ class Command(management.BaseCommand):
                 if randint(1, 3) >= 2:
                     AnnotationComment.objects.create(
                         comment="a comment",
-                        annotation_task=task,
+                        annotation_campaign_id=campaign.id,
+                        dataset_file_id=task.dataset_file_id,
+                        author_id=task.annotator_id,
                         annotation_result=None,
                     )
                 for _ in range(randint(1, 5)):
@@ -412,11 +426,9 @@ class Command(management.BaseCommand):
                 comments.append(
                     AnnotationComment(
                         comment=f"a comment : {result.label.name}",
-                        annotation_task=AnnotationTask.objects.filter(
-                            annotation_campaign_id=result.annotation_campaign_id,
-                            dataset_file_id=result.dataset_file_id,
-                            annotator_id=result.annotator_id,
-                        ).first(),
+                        annotation_campaign_id=result.annotation_campaign_id,
+                        dataset_file_id=result.dataset_file_id,
+                        author_id=result.annotator_id,
                         annotation_result=result,
                     )
                 )

@@ -1,7 +1,8 @@
 """Dataset-related models"""
+from datetime import datetime
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 
 
@@ -63,6 +64,22 @@ class Dataset(models.Model):
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def get_files(self, start: datetime, end: datetime):
+        """Get dataset files from absolute start and ends"""
+        dataset_files_start = self.files.filter(
+            start__lte=start,
+            end__gte=start,
+        )
+        dataset_files_while = self.files.filter(
+            start__gt=start,
+            end__lt=end,
+        )
+        dataset_files_end = self.files.filter(
+            start__lte=end,
+            end__gte=end,
+        )
+        return dataset_files_start | dataset_files_while | dataset_files_end
 
 
 class DatasetFile(models.Model):

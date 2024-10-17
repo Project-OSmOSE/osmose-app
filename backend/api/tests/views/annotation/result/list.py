@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 from backend.api.tests.utils import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
-URL = reverse("annotation-file-range-list")
+URL = reverse("annotation-result-list")
 
 
 class ListUnauthenticatedTestCase(APITestCase):
@@ -37,12 +37,12 @@ class ListEmpyAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_list_for_current_user_with_files(self):
+    def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
             URL,
             {
                 "for_current_user": True,
-                "with_files": True,
+                "annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -56,7 +56,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data), 9)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -66,27 +66,28 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
-    def test_list_for_current_user_with_files(self):
+    def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
             URL,
             {
                 "for_current_user": True,
-                "with_files": True,
+                "annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
-        # First file range
-        self.assertEqual(response.data[0]["id"], 1)
-        self.assertEqual(response.data[0]["files_count"], 6)
-        self.assertEqual(len(response.data[0]["files"]), 6)
-
-        # First file of first file range
-        self.assertEqual(response.data[0]["files"][0]["id"], 1)
-        self.assertEqual(response.data[0]["files"][0]["filename"], "sound001.wav")
+    def test_list_for_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "annotation_campaign": 1,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 9)
 
 
 class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
@@ -96,7 +97,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data), 9)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -108,16 +109,26 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_list_for_current_user_with_files(self):
+    def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
             URL,
             {
                 "for_current_user": True,
-                "with_files": True,
+                "annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+    def test_list_for_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "annotation_campaign": 1,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 9)
 
 
 class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
@@ -127,7 +138,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 6)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -137,24 +148,25 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 6)
 
-    def test_list_for_current_user_with_files(self):
+    def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
             URL,
             {
                 "for_current_user": True,
-                "with_files": True,
+                "annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 6)
 
-        # First file range
-        self.assertEqual(response.data[0]["id"], 4)
-        self.assertEqual(response.data[0]["files_count"], 1)
-        self.assertEqual(len(response.data[0]["files"]), 1)
-
-        # First file of first file range
-        self.assertEqual(response.data[0]["files"][0]["id"], 4)
-        self.assertEqual(response.data[0]["files"][0]["filename"], "sound004.wav")
+    def test_list_for_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "annotation_campaign": 1,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 6)

@@ -9,7 +9,7 @@ from backend.api.models import (
     Dataset,
     AudioMetadatum,
 )
-from .spectrogram import SpectrogramConfigurationSerializer
+from .data import SpectrogramConfigurationSerializer
 
 
 class AudioMetadatumSerializer(serializers.ModelSerializer):

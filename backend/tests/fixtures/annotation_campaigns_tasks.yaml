@@ -115,13 +115,6 @@
     annotation_campaign: 1
     annotator: 4
     dataset_file: 10
-- model: api.annotationtask
-  pk: 11
-  fields:
-    status: C
-    annotation_campaign: 1
-    annotator: 4
-    dataset_file: 11
 - model: api.annotationcampaign
   pk: 2
   fields:

@@ -4,7 +4,3 @@ from .models.metadata import *
 from .views.user import *
 from .views.dataset import *
 from .views.label_set import *
-from .views.annotation_task import *
-from .views.annotation_campaign import *
-from .serializers.annotation_task import *
-from .serializers.annotation_campaign import *

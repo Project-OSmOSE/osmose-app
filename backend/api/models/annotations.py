@@ -230,15 +230,19 @@ class AnnotationComment(models.Model):
     annotation_result = models.ForeignKey(
         AnnotationResult,
         on_delete=models.CASCADE,
-        related_name="result_comments",
+        related_name="comments",
         null=True,
         blank=True,
         default=None,
     )
-    annotation_task = models.ForeignKey(
-        AnnotationTask,
-        on_delete=models.CASCADE,
-        related_name="task_comments",
+    annotation_campaign = models.ForeignKey(
+        AnnotationCampaign, on_delete=models.CASCADE, related_name="comments"
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
+    )
+    dataset_file = models.ForeignKey(
+        DatasetFile, on_delete=models.CASCADE, related_name="comments"
     )
 
 

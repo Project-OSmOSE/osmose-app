@@ -45,14 +45,15 @@ class AnnotationFileRange(models.Model):
 
     class Meta:
         ordering = ["first_file_index"]
-        unique_together = (
-            (
-                "first_file_index",
-                "last_file_index",
-                "annotation_campaign",
-                "annotator",
-            ),
-        )
+        # TODO: find a way to get this constraints back without crash the serializer
+        # unique_together = (
+        #     (
+        #         "first_file_index",
+        #         "last_file_index",
+        #         "annotation_campaign",
+        #         "annotator",
+        #     ),
+        # )
 
     first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])

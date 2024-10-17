@@ -15,11 +15,14 @@ from backend.utils.serializers import EnumField
 
 
 class AnnotationFileRangeListSerializer(serializers.ListSerializer):
+    """Annotation file range list serializer"""
+
     def prepare_deletion(
         self,
         original_ranges: QuerySet[AnnotationFileRange],
         validated_data: list[dict],
     ) -> QuerySet[AnnotationFileRange]:
+        """Check deletions and recover deleted items"""
         deleted_ranges = original_ranges.exclude(
             id__in=[data["id"] for data in validated_data if "id" in data]
         )
@@ -36,6 +39,7 @@ class AnnotationFileRangeListSerializer(serializers.ListSerializer):
         original_ranges: QuerySet[AnnotationFileRange],
         validated_data: list[dict],
     ) -> list[serializers.ModelSerializer]:
+        """Prepare updates and creates, recover each serializer and check data validity"""
         serializers_list = []
         for file_range in validated_data:
             instance = original_ranges.filter(

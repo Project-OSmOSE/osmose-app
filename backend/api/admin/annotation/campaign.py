@@ -45,7 +45,6 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "owner",
         "show_spectro_configs",
         "show_datasets",
-        "show_annotators",
         "confidence_indicator_set",
         "usage",
     )
@@ -107,10 +106,6 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
     def show_datasets(self, obj):
         """show_datasets"""
         return get_many_to_many(obj, "datasets", "name")
-
-    def show_annotators(self, obj):
-        """show_annotators"""
-        return get_many_to_many(obj, "annotators", "username")
 
     def is_archived(self, campaign: AnnotationCampaign) -> bool:
         """is_archived"""

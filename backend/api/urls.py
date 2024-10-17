@@ -1,14 +1,17 @@
 """ APLOSE API Routing"""
 from rest_framework import routers
+
 from backend.api.views import (
     DatasetViewSet,
     LabelSetViewSet,
-    AnnotationTaskViewSet,
     AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
     ConfidenceIndicatorSetViewSet,
     DetectorViewSet,
     AnnotationFileRangeViewSet,
+    AnnotationResultViewSet,
+    AudioMetadatumViewSet,
+    SpectrogramConfigurationViewSet,
 )
 from backend.aplose_auth.views import UserViewSet
 
@@ -27,13 +30,20 @@ api_router.register(
     basename="annotation-file-range",
 )
 api_router.register(
-    r"annotation-comment", AnnotationCommentViewSet, basename="annotation-comment"
+    r"annotation-result", AnnotationResultViewSet, basename="annotation-result"
 )
 api_router.register(
-    r"annotation-task", AnnotationTaskViewSet, basename="annotation-task"
+    r"annotation-comment", AnnotationCommentViewSet, basename="annotation-comment"
 )
 api_router.register(
     r"confidence-indicator",
     ConfidenceIndicatorSetViewSet,
     basename="confidence-indicator",
 )
+
+api_router.register(
+    r"spectrogram-configuration",
+    SpectrogramConfigurationViewSet,
+    basename="spectrogram-configuration",
+)
+api_router.register(r"audio-metadata", AudioMetadatumViewSet, basename="audio-metadata")

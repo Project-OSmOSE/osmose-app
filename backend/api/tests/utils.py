@@ -2,6 +2,19 @@
 from rest_framework.test import APITestCase
 
 
+all_fixtures = [
+    "users",
+    "datasets",
+    "label_sets",
+    "confidence_indicator_sets",
+    "annotation_campaigns_tasks",
+    "annotation_results_sessions",
+]
+empty_fixtures = [
+    "users",
+]
+
+
 class AuthenticatedTestCase(APITestCase):
     """Test ViewSet with connected user"""
 
