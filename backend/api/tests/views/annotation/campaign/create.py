@@ -9,6 +9,7 @@ from backend.api.models import (
     AnnotationCampaign,
     LabelSet,
     ConfidenceIndicatorSet,
+    AnnotationComment,
 )
 from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures
 
@@ -75,6 +76,9 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["confidence_indicator_set"], 1)
         self.assertEqual(response.data["label_set"], 1)
         self.assertEqual(response.data["usage"], "Create")
+        self.assertEqual(
+            response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
+        )
         self.assertEqual(response.data["datasets"], [1])
         self.assertEqual(response.data["archive"], None)
         self.assertEqual(
@@ -103,6 +107,9 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
 
         self.assertEqual(response.data["id"], campaign.id)
         self.assertEqual(response.data["usage"], "Check")
+        self.assertEqual(
+            response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
+        )
 
         label_set = LabelSet.objects.latest("id")
         self.assertEqual(response.data["label_set"], label_set.id)
