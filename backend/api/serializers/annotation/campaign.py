@@ -21,8 +21,8 @@ class AnnotationCampaignBasicSerializer(serializers.ModelSerializer):
     """Serializer for annotation file range"""
 
     files_count = serializers.SerializerMethodField(read_only=True)
-    datasets = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Dataset.objects.all()
+    datasets = serializers.SlugRelatedField(
+        many=True, queryset=Dataset.objects.all(), slug_field="name"
     )
     my_progress = serializers.SerializerMethodField(read_only=True)
     my_total = serializers.IntegerField(read_only=True)

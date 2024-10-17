@@ -22,7 +22,7 @@ creation_data = {
     "deadline": "2022-01-30T10:42:15Z",
     "label_set": 1,
     "confidence_indicator_set": 1,
-    "datasets": [1],
+    "datasets": ["SPM Aural A 2010"],
     "spectro_configs": [1],
     "created_at": "2012-01-14T00:00:00Z",
     "usage": "Create",
@@ -32,7 +32,7 @@ check_creation_data = {
     "desc": "string",
     "instructions_url": "string",
     "deadline": "2022-01-30T10:42:15Z",
-    "datasets": [1],
+    "datasets": ["SPM Aural A 2010"],
     "spectro_configs": [1],
     "created_at": "2012-01-14T00:00:00Z",
     "usage": "Check",
@@ -79,7 +79,7 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(
             response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
         )
-        self.assertEqual(response.data["datasets"], [1])
+        self.assertEqual(response.data["datasets"], ["SPM Aural A 2010"])
         self.assertEqual(response.data["archive"], None)
         self.assertEqual(
             list(campaign.spectro_configs.values_list("id", flat=True)), [1]
