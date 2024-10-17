@@ -24,4 +24,6 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "expertise_level",
+            "is_staff",
+            "is_superuser",
         ]
