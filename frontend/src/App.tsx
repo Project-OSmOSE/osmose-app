@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-import { Home } from "@/view/home/home.page.tsx";
+const Home = lazy(() => import("@/view/home/home.page.tsx"));
 import { Layout } from "@/components/Layout";
 import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
