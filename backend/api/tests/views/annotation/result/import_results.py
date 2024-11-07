@@ -23,7 +23,7 @@ URL_unknown_campaign = reverse(
     "annotation-result-campaign-import", kwargs={"campaign_id": 27}
 )
 
-dataset_name = "SPM Aural A 2010"
+DATASET_NAME = "SPM Aural A 2010"
 detectors_map = {"detector1": {"detector": "nnini", "configuration": "test"}}
 
 
@@ -48,9 +48,9 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     ]
 
     def _get_url(
-        # pylint: disable=dangerous-default-value
         self,
-        _dataset_name=dataset_name,
+        _dataset_name=DATASET_NAME,
+        # pylint: disable=dangerous-default-value
         _detectors_map: dict = detectors_map,
     ):
         campaign = AnnotationCampaign.objects.create(
