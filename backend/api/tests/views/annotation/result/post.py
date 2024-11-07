@@ -1,7 +1,5 @@
 """Test AnnotationFileRangeViewSet"""
 # pylint: disable=duplicate-code
-# pylint: disable=duplicate-code
-# pylint: disable=duplicate-code
 # pylint: disable=missing-class-docstring, missing-function-docstring, duplicate-code
 import json
 
@@ -11,10 +9,8 @@ from rest_framework.test import APITestCase
 
 from backend.api.models import (
     AnnotationResult,
-    AnnotationTask,
     AnnotationComment,
     AnnotationResultValidation,
-    AnnotationSession,
 )
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 

@@ -12,9 +12,7 @@ from backend.api.models import (
     SpectrogramConfiguration,
     Dataset,
     LabelSet,
-    Label,
     ConfidenceIndicatorSet,
-    ConfidenceIndicator,
     AnnotationCampaignArchive,
 )
 from backend.aplose.models import User

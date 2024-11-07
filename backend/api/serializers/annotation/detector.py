@@ -1,6 +1,6 @@
 """APLOSE - Detector"""
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
+
 from backend.api.models import Detector, DetectorConfiguration
 
 DetectorFields = [

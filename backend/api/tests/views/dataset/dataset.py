@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import Dataset
+from backend.api.serializers.dataset import DATASET_FIELDS
 
 IMPORT_FIXTURES = settings.FIXTURE_DIRS[0] / "list_to_import"
 
@@ -39,17 +40,7 @@ class DatasetViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data), Dataset.objects.count())
         self.assertEqual(
             list(response.data[0].keys()),
-            [
-                "id",
-                "name",
-                "files_type",
-                "start_date",
-                "end_date",
-                "files_count",
-                "type",
-                "spectros",
-                "created_at",
-            ],
+            DATASET_FIELDS,
         )
         self.assertEqual(response.data[0]["name"], "Another Dataset")
         self.assertEqual(len(response.data[0]["spectros"]), 1)

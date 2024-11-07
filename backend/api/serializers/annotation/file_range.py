@@ -6,10 +6,8 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationFileRange,
     AnnotationTask,
-    DatasetFile,
     AnnotationResult,
     AnnotationCampaign,
-    AnnotationCampaignUsage,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import EnumField

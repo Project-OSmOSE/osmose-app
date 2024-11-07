@@ -8,7 +8,6 @@ from django.db.models import (
     ExpressionWrapper,
     Value,
     FloatField,
-    BigIntegerField,
     DurationField,
     Sum,
     IntegerField,
@@ -217,7 +216,9 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             )
             .extra(
                 select={
-                    "file_duration": 'SELECT EXTRACT(EPOCH FROM ("end" - start)) FROM dataset_files f WHERE f.id = annotation_comment.dataset_file_id'
+                    "file_duration": 'SELECT EXTRACT(EPOCH FROM ("end" - start)) '
+                    "FROM dataset_files f "
+                    "WHERE f.id = annotation_comment.dataset_file_id"
                 },
             )
         )

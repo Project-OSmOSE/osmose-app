@@ -3,10 +3,6 @@ import ast
 import csv
 from io import StringIO
 
-# pylint: disable=duplicate-code
-from pathlib import Path
-from typing import Optional
-
 from django.db.models import QuerySet, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
@@ -25,6 +21,9 @@ from backend.api.serializers import (
 )
 from backend.utils.filters import ModelFilter, get_boolean_query_param
 from backend.utils.serializers import FileUploadSerializer
+
+
+# pylint: disable=duplicate-code
 
 
 class ResultAccessFilter(filters.BaseFilterBackend):

@@ -18,11 +18,12 @@ class ModelFilter(filters.BaseFilterBackend):
 
 
 def get_boolean_query_param(request: Request, label: str) -> bool:
+    """Recover boolean query param as bool"""
     param = request.query_params.get(label)
     if param is None:
         return False
-    if type(param) == bool:
+    if isinstance(param, bool):
         return param
-    if type(param) == str:
+    if isinstance(param, str):
         return param.lower() == "true"
     return False

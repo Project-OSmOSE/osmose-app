@@ -35,14 +35,13 @@ class AuthenticatedTestCase(APITestCase):
 
 def upload_csv_file(self: APITestCase, url: str, path: str) -> Response:
     """Upload a CSV file to the given URL"""
-    data = open(path, "rb")
+    with open(path, "rb") as data:
+        data = SimpleUploadedFile(
+            content=data.read(), name=data.name, content_type="multipart/form-data"
+        )
 
-    data = SimpleUploadedFile(
-        content=data.read(), name=data.name, content_type="multipart/form-data"
-    )
-
-    return self.client.post(
-        url,
-        {"file": data},
-        format="multipart",
-    )
+        return self.client.post(
+            url,
+            {"file": data},
+            format="multipart",
+        )

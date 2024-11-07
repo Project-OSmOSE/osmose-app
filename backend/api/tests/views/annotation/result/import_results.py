@@ -1,6 +1,5 @@
 """Test AnnotationFileRangeViewSet"""
-# pylint: disable=missing-class-docstring, missing-function-docstring, duplicate-code
-import json
+# pylint: disable=missing-class-docstring, missing-function-docstring, duplicate-code, too-many-public-methods
 import os
 
 from django.db.models import QuerySet
@@ -15,7 +14,6 @@ from backend.api.models import (
     LabelSet,
     Dataset,
     SpectrogramConfiguration,
-    ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file
@@ -50,7 +48,10 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     ]
 
     def _get_url(
-        self, _dataset_name=dataset_name, _detectors_map: dict = detectors_map
+        # pylint: disable=dangerous-default-value
+        self,
+        _dataset_name=dataset_name,
+        _detectors_map: dict = detectors_map,
     ):
         campaign = AnnotationCampaign.objects.create(
             name="string",

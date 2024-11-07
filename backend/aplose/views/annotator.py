@@ -1,18 +1,17 @@
 """Annotator viewset"""
+# pylint: disable=protected-access
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from backend.api.serializers import AnnotationSessionSerializer
 from backend.api.models import (
     AnnotationCampaign,
     DatasetFile,
     AnnotationTask,
-    SpectrogramConfiguration,
 )
-from .user import UserViewSet
+from backend.api.serializers import AnnotationSessionSerializer
 from backend.api.views import (
     AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
@@ -22,6 +21,7 @@ from backend.api.views import (
     SpectrogramConfigurationViewSet,
     LabelSetViewSet,
 )
+from .user import UserViewSet
 
 
 # TODO: test !!!! and update result post ones

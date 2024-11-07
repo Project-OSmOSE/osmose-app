@@ -59,16 +59,27 @@ class ListSerializer(serializers.ListSerializer):
 
 
 class FileUploadSerializer(serializers.Serializer):
+    """File upload form serializer"""
+
     file = serializers.FileField()
 
     class Meta:
         fields = ("file",)
 
+    def update(self, instance, validated_data):
+        raise NotImplementedError("`update()` must be implemented.")
+
+    def create(self, validated_data):
+        raise NotImplementedError("`create()` must be implemented.")
+
 
 class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
+    """Slug related field that can create an unknown item"""
+
     def to_internal_value(self, data):
         queryset = self.get_queryset()
         try:
             return queryset.get_or_create(**{self.slug_field: data})[0]
         except (TypeError, ValueError):
             self.fail("invalid")
+            return None

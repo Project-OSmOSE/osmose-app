@@ -1,3 +1,4 @@
+# pylint: disable=missing-class-docstring, missing-function-docstring
 from django.test import TestCase
 
 from backend.api.models import Dataset, AudioMetadatum

@@ -23,7 +23,7 @@ from backend.api.models import (
 from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer, SlugRelatedGetOrCreateField
 from .comment import AnnotationCommentSerializer
-from .. import ConfidenceIndicatorSerializer
+from ..confidence_indicator_set import ConfidenceIndicatorSerializer
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -83,12 +83,12 @@ class AnnotationResultImportSerializer(serializers.Serializer):
     def run_validation(self, data=empty):
         try:
             data = super().run_validation(data)
-        except AssertionError as e:
-            if ".validate() should return the validated data" in str(e):
+        except AssertionError as error:
+            if ".validate() should return the validated data" in str(error):
                 return None
-            raise e
-        except Exception as e:
-            raise e
+            raise error
+        except Exception as error:
+            raise error
 
         return data
 
@@ -198,6 +198,9 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         return AnnotationResult.objects.bulk_create(instances)
 
+    def update(self, instance, validated_data):
+        raise NotImplementedError("`update()` must be implemented.")
+
 
 class AnnotationResultImportListSerializer(ListSerializer):
     """Annotation result list serializer for detection importation"""
@@ -206,13 +209,11 @@ class AnnotationResultImportListSerializer(ListSerializer):
 
     def is_valid(self, *, raise_exception=False):
         data = super().is_valid(raise_exception=raise_exception)
+        # pylint: disable=attribute-defined-outside-init
         self._validated_data = [
             data for data in self._validated_data if data is not None
         ]
         return data
-
-    def validate(self, attrs):
-        return super().validate(attrs)
 
     def create(self, validated_data: list[dict]):
         result = super().create(validated_data)

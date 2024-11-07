@@ -36,6 +36,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+    - name: Check for missed black (don't forget to run black)
+      run: |
+        poetry run black --check backend
+    - name: Check for missed pylint warnings (don't forget to run pylint)
+      run: |
+        poetry run pylint --disable=fixme --ignore migrations backend
+    - name: Check for missed migrations (don't forget to run makemigrations)
+      run: |
+        if [ "$(poetry run ./manage.py makemigrations --dry-run)" != "No changes detected" ]; then exit 1; fi
     - name: Run Django tests
       run: |
         poetry run ./manage.py test
@@ -43,16 +52,7 @@ jobs:
       run: |
         poetry run coverage run ./manage.py test &> /dev/null
         poetry run coverage report
-    - name: Check for missed migrations (don't forget to run makemigrations)
-      run: |
-        if [ "$(poetry run ./manage.py makemigrations --dry-run)" != "No changes detected" ]; then exit 1; fi
     - name: Check whether seeding still works
       run: |
         poetry run ./manage.py migrate
         poetry run ./manage.py seed
-    - name: Check for missed black (don't forget to run black)
-      run: |
-        poetry run black --check backend
-    - name: Check for missed pylint warnings (don't forget to run pylint)
-      run: |
-        poetry run pylint --disable=fixme --ignore migrations backend

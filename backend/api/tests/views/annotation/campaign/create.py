@@ -7,8 +7,6 @@ from rest_framework.test import APITestCase
 
 from backend.api.models import (
     AnnotationCampaign,
-    LabelSet,
-    ConfidenceIndicatorSet,
 )
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 

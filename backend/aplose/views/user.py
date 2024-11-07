@@ -2,7 +2,7 @@
 
 from django.db.models.functions import Lower
 from drf_spectacular.utils import extend_schema, inline_serializer
-from rest_framework import viewsets, serializers, mixins, permissions, status
+from rest_framework import viewsets, serializers, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 

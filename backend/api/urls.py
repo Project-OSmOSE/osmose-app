@@ -14,7 +14,6 @@ from backend.api.views import (
     SpectrogramConfigurationViewSet,
     DatasetFileViewSet,
 )
-from backend.aplose.views import UserViewSet
 
 # API urls are meant to be used by our React frontend
 api_router = routers.DefaultRouter()
