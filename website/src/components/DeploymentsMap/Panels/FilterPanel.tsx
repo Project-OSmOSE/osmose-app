@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import styles from "./panel.module.scss";
 import { IoClose, IoFunnel, IoFunnelOutline, IoRefresh } from "react-icons/io5";
 import { SampleRateFilter, FilterRef } from "./Filters";

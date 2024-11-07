@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Institution } from "@PAM-Standardization/metadatax-ts";
+import { Institution } from "@pam-standardization/metadatax-ts";
 
 export const InstitutionLink: React.FC<{ institution: Institution }> = ({ institution }) => {
   if (institution.website) return <a href={ institution.website } target="_blank"

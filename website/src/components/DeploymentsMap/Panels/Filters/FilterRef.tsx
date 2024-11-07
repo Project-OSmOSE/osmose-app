@@ -1,4 +1,4 @@
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 
 export interface FilterRef {
   /**

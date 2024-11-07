@@ -11,7 +11,7 @@ import {
   MarkerCluster,
   MarkerClusterGroup
 } from 'leaflet';
-import { DeploymentAPI } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { ClusterTooltip, MarkerTooltip } from './Tooltips';
 import { clearMap, initMap, setMapView } from './map.functions';
 import './DeploymentsMap.css'

@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "@ionic/react": "^7.5.6",
-    "@pam-standardization/metadatax-ts": "npm:@PAM-Standardization/metadatax-ts@^1.0.3",
+    "@pam-standardization/metadatax-ts": "^1.0.4",
     "@react-leaflet/core": "^1.1.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^11.2.7",

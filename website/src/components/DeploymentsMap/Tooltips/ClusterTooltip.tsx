@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { DeploymentAPI } from '@PAM-Standardization/metadatax-ts';
+import { DeploymentAPI } from '@pam-standardization/metadatax-ts';
 import styles from './Tooltip.module.scss';
 
 export const ClusterTooltip: React.FC<{ deployments: Array<DeploymentAPI> }> = ({ deployments }) => {
