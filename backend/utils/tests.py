@@ -1,6 +1,4 @@
 """Util test case classes with common behavior"""
-import os
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
@@ -36,6 +34,7 @@ class AuthenticatedTestCase(APITestCase):
 
 
 def upload_csv_file(self: APITestCase, url: str, path: str) -> Response:
+    """Upload a CSV file to the given URL"""
     data = open(path, "rb")
 
     data = SimpleUploadedFile(

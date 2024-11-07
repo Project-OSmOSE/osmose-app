@@ -8,7 +8,6 @@ jobs:
   playwright-test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       # Setup server

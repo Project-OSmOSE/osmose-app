@@ -8,13 +8,17 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('api', '0062_auto_20241025_1157'),
+        ("api", "0062_auto_20241025_1157"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='annotators',
-            field=models.ManyToManyField(related_name='campaigns', through='api.AnnotationFileRange', to=settings.AUTH_USER_MODEL),
+            model_name="annotationcampaign",
+            name="annotators",
+            field=models.ManyToManyField(
+                related_name="campaigns",
+                through="api.AnnotationFileRange",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
