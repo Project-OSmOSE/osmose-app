@@ -1,50 +1,48 @@
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
-import { CSVDetectorItem } from "@/types/csv-import-annotations.ts";
 import { importAnnotationsActions, ImportAnnotationsError } from "@/slices/create-campaign/import-annotations.ts";
 import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
 import { formatCSV } from "@/services/utils/format.tsx";
-import { createCampaignActions } from "@/slices/create-campaign";
 import { useEffect } from "react";
 
 export const useImportAnnotations = () => {
-  const state = useAppSelector(state => state.createCampaignForm.importAnnotations)
-  const datasetName = useAppSelector(state => state.createCampaignForm.global.dataset?.name)
+  const {
+    initialRows,
+    status,
+    datasetName,
+    areDetectorsChosen,
+    selectedDatasets
+  } = useAppSelector(state => state.createCampaignForm.importAnnotations)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     checkErrors();
-  }, [state.rows])
+  }, [ initialRows ])
 
   function checkErrors() {
-    if (state.status === 'empty') return;
+    if (status === 'empty') return;
 
-    if (state.rows.length < 1) {
-      dispatch(importAnnotationsActions.setErrors([{
+    if (initialRows.length < 1) {
+      dispatch(importAnnotationsActions.setErrors([ {
         type: 'unrecognised file',
         error: 'Not enough rows'
-      }]));
+      } ]));
       dispatch(importAnnotationsActions.setStatus('errors'));
       return;
     }
 
     const errors: Array<ImportAnnotationsError> = [];
-    const otherDatasets = state.rows.map(r => r.dataset).filter(d => d !== datasetName)
-    if (otherDatasets.length > 0)
-      errors.push({
-        type: 'contains unrecognized dataset',
-        error: `Found different datasets than requested: ${ otherDatasets.join(', ') }`
-      });
-
-    const maxLevel = [...new Set(state.rows.map(r => r.confidence_indicator_max_level))].filter(n => n !== undefined)
-    if (maxLevel.length > 1)
-      errors.push({
-        type: 'inconsistent max confidence',
-        error: `Found multiple max confidence level: ${ maxLevel.join(', ') }`
-      })
+    if (!selectedDatasets?.length) {
+      const otherDatasets = initialRows.map(r => r.dataset).filter(d => d !== datasetName)
+      if (otherDatasets.length > 0)
+        errors.push({
+          type: 'contains unrecognized dataset',
+          error: `Found different datasets than requested: ${ otherDatasets.join(', ') }`
+        });
+    }
 
     dispatch(importAnnotationsActions.setErrors(errors));
     if (errors.length < 1)
-      if (state.areDetectorsChosen)
+      if (areDetectorsChosen)
         dispatch(importAnnotationsActions.setStatus('edit-detectors-config'))
       else
         dispatch(importAnnotationsActions.setStatus('edit-detectors'))
@@ -52,73 +50,17 @@ export const useImportAnnotations = () => {
       dispatch(importAnnotationsActions.setStatus('errors'));
   }
 
-  function getDistinctDetectors() {
-    const detectors: Array<CSVDetectorItem & { display_name: string }> = [];
-    for (const row of state.rows) {
-      if (detectors.find(d => d.initialName === row.detector_item.initialName)) continue;
-      detectors.push({
-        ...row.detector_item,
-        display_name: getDisplayNameForDetector(row.detector_item)
-      });
-    }
-    return detectors;
-  }
-
   return {
-    get distinctDatasets() {
-      return [...new Set(state.rows.map(d => d.dataset).filter(d => !!d))];
-    },
-    get distinctMaxConfidence() {
-      // Get distinct max confidence indicators in given CSV and their occurrences
-      const itemsMax = state.rows.map(d => d.confidence_indicator_max_level);
-      const allMax = [...new Set(itemsMax)].filter(n => n !== undefined) as Array<number>;
-      return new Map(
-        allMax.map(max => [
-          max,
-          itemsMax.reduce((a: number, b) => a + (b === max ? 1 : 0), 0)
-        ])
-      )
-    },
-    get distinctDetectors() {
-      return getDistinctDetectors()
-    },
-    get distinctLabels() {
-      return [...new Set(state.rows.map(d => d.annotation).filter(d => !!d))]
-    },
-    get distinctConfidenceIndicators(): Array<[string, number]> {
-      const distinctLevels = [...new Set(state.rows.map(d => d.confidence_indicator_level).filter(d => d != undefined))];
-      return distinctLevels.map(l => [
-        state.rows.find(r => r.confidence_indicator_level === l)!.confidence_indicator_label as string,
-        l as number,
-      ])
-    },
-    get results() {
-      return state.rows.map(i => ({
-        is_box: i.is_box,
-        confidence: i.confidence_indicator_label,
-        label: i.annotation,
-        min_time: i.start_time,
-        max_time: i.end_time,
-        min_frequency: i.start_frequency,
-        max_frequency: i.end_frequency,
-        start_datetime: i.start_datetime,
-        end_datetime: i.end_datetime,
-        dataset_file: i.filename,
-        dataset: i.dataset,
-        detector: getDisplayNameForDetector(i.detector_item),
-        detector_config: i.detector_item.existingConfiguration?.configuration ?? i.detector_item.editConfiguration!
-      })).filter(i => !!i.label)
-    },
     loadFile: async (file: File) => {
       dispatch(importAnnotationsActions.setStatus('loading'));
       dispatch(importAnnotationsActions.setFilename(file.name));
 
       if (!ACCEPT_CSV_MIME_TYPE.includes(file.type)) {
         console.warn('Load CSV', 'Unsupported MIME type:', file.type);
-        dispatch(importAnnotationsActions.setErrors([{
+        dispatch(importAnnotationsActions.setErrors([ {
           type: 'unrecognised file',
           error: `Wrong MIME Type, found : ${ file.type } ; but accepted types are: ${ ACCEPT_CSV_MIME_TYPE }`
-        }]))
+        } ]))
         dispatch(importAnnotationsActions.setStatus('errors'));
         return;
       }
@@ -128,10 +70,10 @@ export const useImportAnnotations = () => {
 
       reader.onerror = () => {
         console.warn('Load CSV', 'Reading error');
-        dispatch(importAnnotationsActions.setErrors([{
+        dispatch(importAnnotationsActions.setErrors([ {
           type: 'unrecognised file',
           error: 'Error reading file, check the file isn\'t corrupted'
-        }]))
+        } ]))
         dispatch(importAnnotationsActions.setStatus('errors'));
       }
 
@@ -139,10 +81,10 @@ export const useImportAnnotations = () => {
         const result = event.target?.result;
         if (!result || typeof result !== 'string') {
           console.warn('Load CSV', 'Unsupported read data', result);
-          dispatch(importAnnotationsActions.setErrors([{
+          dispatch(importAnnotationsActions.setErrors([ {
             type: 'unrecognised file',
             error: `The file is empty or it does not contain a string content.`
-          }]))
+          } ]))
           dispatch(importAnnotationsActions.setStatus('errors'));
           return;
         }
@@ -155,15 +97,15 @@ export const useImportAnnotations = () => {
           );
           if (!data) {
             console.warn('Load CSV', 'Empty formatted data');
-            dispatch(importAnnotationsActions.setErrors([{
+            dispatch(importAnnotationsActions.setErrors([ {
               type: 'unrecognised file',
               error: 'Cannot format the file data'
-            }]))
+            } ]))
             dispatch(importAnnotationsActions.setStatus('errors'));
             return;
           }
 
-          dispatch(importAnnotationsActions.setRows(
+          dispatch(importAnnotationsActions.setInitialRows(
             data.map(d => {
               const confidenceLevel = d.confidence_indicator_level ? d.confidence_indicator_level.split('/') : d.confidence_indicator_level;
               return {
@@ -173,10 +115,6 @@ export const useImportAnnotations = () => {
                 start_frequency: +d.start_frequency,
                 end_frequency: +d.end_frequency,
                 detector: d.annotator,
-                detector_item: {
-                  initialName: d.annotator,
-                  selected: false,
-                },
                 is_box: !!+d.is_box,
                 confidence_indicator_level: confidenceLevel?.length > 0 ? +confidenceLevel[0] : undefined,
                 confidence_indicator_max_level: confidenceLevel?.length > 1 ? +confidenceLevel[1] : undefined,
@@ -184,58 +122,13 @@ export const useImportAnnotations = () => {
             })
           ));
         } catch (e) {
-          dispatch(importAnnotationsActions.setErrors([{
+          dispatch(importAnnotationsActions.setErrors([ {
             type: 'unrecognised file',
             error: e as Error
-          }]))
+          } ]))
           dispatch(importAnnotationsActions.setStatus('errors'));
         }
       }
     },
-    keepDatasets: (datasets: Array<string>) => {
-      dispatch(importAnnotationsActions.setRows(
-        state.rows
-          // Keep only given datasets in the rows
-          .filter(r => datasets.includes(r.dataset))
-          // Replace all dataset names mentioned in the rows with the dataset name
-          .map(r => ({ ...r, dataset: state.datasetName ?? '' }))
-      ));
-    },
-    keepMaxConfidence: (max: number) => {
-      dispatch(importAnnotationsActions.setRows(
-        // Replace all max confidence levels mentioned in the rows with the given max level
-        state.rows.map(r => ({
-          ...r,
-          confidence_indicator_max_level: r.confidence_indicator_max_level != undefined ? max : undefined
-        }))
-      ));
-    },
-    keepDetectors: (detectors: Array<CSVDetectorItem>) => {
-      dispatch(importAnnotationsActions.setRows(
-        state.rows
-          // Keep only given detectors in the rows
-          .filter(r => detectors.find(d => d.initialName === r.detector))
-          //Complete detectors item information in rows
-          .map(r => ({
-            ...r,
-            detector_item: detectors.find(d => d.initialName === r.detector) ?? r.detector_item
-          }))
-      ));
-      dispatch(importAnnotationsActions.setAreDetectorsChosen(true));
-    },
-    validate: () => {
-      dispatch(createCampaignActions.setDetectors(getDistinctDetectors()))
-      dispatch(importAnnotationsActions.setStatus('done'))
-    }
   }
-}
-
-/**
- * @private
- * Get the name to display for the detector item
- * @param detector {CSVDetectorItem}
- * @return {string} Name to display
- */
-function getDisplayNameForDetector(detector: CSVDetectorItem): string {
-  return detector.existingDetector?.name ?? detector.editName ?? detector.initialName;
 }

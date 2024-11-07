@@ -115,6 +115,30 @@
     annotation_campaign: 1
     confidence_indicator: 2
     dataset_file: 1
+- model: api.annotationresult
+  pk: 10
+  fields:
+    start_time: 108.21842250413678
+    end_time: 224.87589630446772
+    start_frequency: 7520.0
+    end_frequency: 13696.0
+    label: 4
+    detector_configuration: 1
+    annotation_campaign: 4
+    confidence_indicator: 2
+    dataset_file: 1
+- model: api.annotationresultvalidation
+  pk: 1
+  fields:
+    is_valid: true
+    annotator: 1
+    result: 10
+- model: api.annotationresultvalidation
+  pk: 2
+  fields:
+    is_valid: false
+    annotator: 4
+    result: 10
 - model: api.annotationsession
   pk: 1
   fields:

@@ -7,18 +7,8 @@ from rest_framework import serializers
 
 from backend.api.models import (
     Dataset,
-    AudioMetadatum,
 )
 from .data import SpectrogramConfigurationSerializer
-
-
-class AudioMetadatumSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic AudioMetadatum data"""
-
-    class Meta:
-        model = AudioMetadatum
-        fields = "__all__"
-
 
 DATASET_FIELDS = [
     "id",

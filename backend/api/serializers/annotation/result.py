@@ -4,6 +4,7 @@ from typing import Optional
 
 from django.db.models import QuerySet
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from backend.api.models import (
     AnnotationResult,
@@ -16,10 +17,13 @@ from backend.api.models import (
     Dataset,
     Detector,
     DetectorConfiguration,
+    ConfidenceIndicatorSet,
+    AnnotationCampaignUsage,
 )
-from backend.aplose_auth.models import User
-from backend.utils.serializers import ListSerializer
+from backend.aplose.models import User
+from backend.utils.serializers import ListSerializer, SlugRelatedGetOrCreateField
 from .comment import AnnotationCommentSerializer
+from .. import ConfidenceIndicatorSerializer
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -41,15 +45,11 @@ class AnnotationResultImportSerializer(serializers.Serializer):
     end_datetime = serializers.DateTimeField()
     min_frequency = serializers.FloatField(min_value=0)
     max_frequency = serializers.FloatField(min_value=0)
-    label = serializers.SlugRelatedField(
-        queryset=Label.objects.all(),
+    label = SlugRelatedGetOrCreateField(
+        queryset=Label.objects,
         slug_field="name",
     )
-    confidence_indicator = serializers.SlugRelatedField(
-        queryset=ConfidenceIndicator.objects.all(),
-        slug_field="label",
-        required=False,
-    )
+    confidence_indicator = serializers.DictField(allow_null=True)
 
     class Meta:
         list_serializer_class = ListSerializer
@@ -62,13 +62,12 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         if campaign is not None:
             fields["dataset"].queryset = campaign.datasets
-            fields["label"].queryset = campaign.label_set.labels
-            if campaign.confidence_indicator_set is not None:
-                fields["confidence_indicator"] = serializers.SlugRelatedField(
-                    queryset=campaign.confidence_indicator_set.confidence_indicators,
-                    slug_field="label",
-                    required=True,
-                )
+            if campaign.usage is AnnotationCampaignUsage.CREATE:
+                fields["label"].queryset = campaign.label_set.labels
+                if campaign.confidence_indicator_set is not None:
+                    fields["confidence_indicator"] = ConfidenceIndicatorSerializer(
+                        required=True,
+                    )
             max_frequency = (
                 max(d.audio_metadatum.dataset_sr for d in campaign.datasets.all()) / 2
             )
@@ -81,14 +80,27 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         return fields
 
+    def run_validation(self, data=empty):
+        try:
+            data = super().run_validation(data)
+        except AssertionError as e:
+            if ".validate() should return the validated data" in str(e):
+                return None
+            raise e
+        except Exception as e:
+            raise e
+
+        return data
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
-
         dataset = attrs["dataset"]
         start = attrs["start_datetime"]
         end = attrs["end_datetime"]
         dataset_files = dataset.get_files(start, end)
         if not dataset_files:
+            if self.context["force"]:
+                return None
             raise serializers.ValidationError(
                 "This start and end datetime does not belong to any file of the dataset",
                 code="invalid",
@@ -113,6 +125,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         is_box: bool = validated_data["is_box"]
+
         files: QuerySet[DatasetFile] = validated_data["files"]
         campaign: AnnotationCampaign = self.context["campaign"]
         detector, _ = Detector.objects.get_or_create(name=validated_data["detector"])
@@ -128,13 +141,20 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             "confidence_indicator" in validated_data
             and validated_data["confidence_indicator"] is not None
         ):
-            (
-                confidence_indicator,
-                _,
-            ) = campaign.confidence_indicator_set.confidence_indicators.get_or_create(
-                label=validated_data["confidence_indicator"],
+            if campaign.confidence_indicator_set is None:
+                campaign.confidence_indicator_set = (
+                    ConfidenceIndicatorSet.objects.create(
+                        name=f"{campaign.name} confidence set"
+                    )
+                )
+            serializer = ConfidenceIndicatorSerializer(
+                data={
+                    **validated_data["confidence_indicator"],
+                    "confidence_indicator_set": campaign.confidence_indicator_set.id,
+                }
             )
-
+            serializer.is_valid(raise_exception=True)
+            confidence_indicator = serializer.save()
         if not is_box and files.count() == 1:
             return AnnotationResult.objects.create(
                 annotation_campaign=campaign,
@@ -175,16 +195,24 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                     end_time=end_time,
                 )
             )
-        return AnnotationResult.objects.bulk_create(instances)
 
-    def update(self, instance, validated_data):
-        pass
+        return AnnotationResult.objects.bulk_create(instances)
 
 
 class AnnotationResultImportListSerializer(ListSerializer):
     """Annotation result list serializer for detection importation"""
 
     child = AnnotationResultImportSerializer()
+
+    def is_valid(self, *, raise_exception=False):
+        data = super().is_valid(raise_exception=raise_exception)
+        self._validated_data = [
+            data for data in self._validated_data if data is not None
+        ]
+        return data
+
+    def validate(self, attrs):
+        return super().validate(attrs)
 
     def create(self, validated_data: list[dict]):
         result = super().create(validated_data)
@@ -346,18 +374,18 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         ).data
         instance = instance.first()
 
-        result_instance = super().update(instance, validated_data)
+        instance_id = super().update(instance, validated_data).id
 
         # Comments
         instance_comments = AnnotationComment.objects.filter(
-            annotation_result__id=instance.id
+            annotation_result__id=instance_id
         )
         comments_serializer = AnnotationCommentSerializer(
             instance_comments,
             data=[
                 {
                     **c,
-                    "annotation_result": result_instance.id,
+                    "annotation_result": instance_id,
                 }
                 for c in comments
             ],
@@ -378,4 +406,4 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations_serializer.is_valid(raise_exception=True)
         validations_serializer.save()
 
-        return result_instance
+        return self.Meta.model.objects.get(pk=instance_id)

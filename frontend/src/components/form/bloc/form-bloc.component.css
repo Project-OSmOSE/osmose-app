@@ -3,6 +3,10 @@
   gap: 1rem;
 }
 
+#form-bloc > ion-spinner {
+  justify-self: center;
+}
+
 #form-bloc #separator {
   font-weight: 300;
   display: grid;

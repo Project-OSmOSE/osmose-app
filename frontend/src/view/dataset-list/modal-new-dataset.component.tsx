@@ -18,7 +18,7 @@ const NewDataItem: FC<{
         <label className="form-check-label"
                htmlFor={ `${ data.name }-${ index }` }>
           { data.name }
-          <p>Folder name : { data.campaign && `${data.campaign} /`} { data.dataset }</p>
+          <p>Folder name : { data.path }</p>
         </label>
       </div>
     </li>

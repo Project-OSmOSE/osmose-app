@@ -1,45 +1,7 @@
-export type AnnotationTaskStatus = "Created" | "Started" | "Finished";
+import { Comment } from "@/services/api/campaign.service.tsx";
 
-export enum AnnotationMode {
-  boxes = 1,
-  wholeFile = 2,
-}
-
-export enum Usage {
-  create = 'Create',
-  check = 'Check',
-}
-
-export enum AnnotationType {
-  box = 'box',
-  tag = "tag"
-}
-
-
-export type Annotation = {
-  id?: number,
-  newId?: number, // Used only in front side - used for new annotations not saved yet
-  confidenceIndicator?: string,
-  label: string,
-  startTime: number,
-  endTime: number,
-  type: AnnotationType,
-  startFrequency: number,
-  endFrequency: number,
-  result_comments: Array<AnnotationComment>,
-  validation: boolean | null,
-};
-
-export interface AnnotationComment {
-  id?: number,
-  comment: string,
-  annotation_task: number,
-  annotation_result: number | null,
-  annotation_result_new_id?: number | null, // Used only in front side - used for new annotations not saved yet
-}
-export const DEFAULT_COMMENT: AnnotationComment = {
+export const DEFAULT_COMMENT: Comment = {
   comment: '',
-  annotation_task: -1,
-  annotation_result: null
+  id: -1
 }
 

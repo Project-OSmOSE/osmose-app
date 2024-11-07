@@ -56,3 +56,19 @@ class ListSerializer(serializers.ListSerializer):
             result_instances.append(serializer.instance)
         instance.exclude(id__in=[r.id for r in result_instances]).delete()
         return result_instances
+
+
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+    class Meta:
+        fields = ("file",)
+
+
+class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        queryset = self.get_queryset()
+        try:
+            return queryset.get_or_create(**{self.slug_field: data})[0]
+        except (TypeError, ValueError):
+            self.fail("invalid")

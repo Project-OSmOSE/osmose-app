@@ -18,10 +18,11 @@ export default (_: ConfigEnv): UserConfig => {
         "/api": "http://localhost:8000",
         "/backend": "http://localhost:8000",
       },
+      cors: false
     },
     plugins: [react()],
     resolve: {
       alias: [{ find: '@', replacement: resolve(__dirname, "./src") }]
-    }
+    },
   }
 };

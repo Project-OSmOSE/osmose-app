@@ -1,14 +1,13 @@
-import React, { Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useImperativeHandle, useRef } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
 import { KeypressHandler } from "../audio-annotator.page.tsx";
-import { AnnotationTaskDto, useAnnotationTaskAPI } from "@/services/api";
-import { AnnotationType } from "@/types/annotations.ts";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from "@/slices/app";
+import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
 
 interface Props {
   shortcut: ReactNode;
@@ -33,30 +32,45 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
 ))
 
 export const NavigationButtons = React.forwardRef<KeypressHandler, {
-  start: Date,
   campaignID: string
-}>(({ start, campaignID }, ref) => {
+}>(({ campaignID }, ref) => {
+  // Services
   const history = useHistory();
-  const siblings = useRef<{ prev?: number, next?: number } | undefined>(undefined)
-  const taskAPI = useAnnotationTaskAPI();
-  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
+  const submitService = useAnnotatorSubmitService();
 
+  // Data
   const {
-    areShortcutsEnabled,
-    task,
+    areShortcutsEnabled: _areShortcutsEnabled,
+    previous_file_id: _previous_file_id,
+    next_file_id: _next_file_id,
   } = useAppSelector(state => state.annotator.global);
   const {
-    results,
-    taskComment,
-    hasChanged
+    hasChanged: _hasChanged
   } = useAppSelector(state => state.annotator.annotations);
 
+  const areShortcutsEnabled = useRef<boolean>(_areShortcutsEnabled);
   useEffect(() => {
-    siblings.current = task.prevAndNextAnnotation;
-  }, [ task.prevAndNextAnnotation ])
+    areShortcutsEnabled.current = _areShortcutsEnabled
+  }, [ _areShortcutsEnabled ]);
+
+  const previous_file_id = useRef<number | null>(_previous_file_id);
+  useEffect(() => {
+    previous_file_id.current = _previous_file_id
+  }, [ _previous_file_id ]);
+  const next_file_id = useRef<number | null>(_next_file_id);
+  useEffect(() => {
+    next_file_id.current = _next_file_id
+  }, [ _next_file_id ]);
+
+  const hasChanged = useRef<boolean>(_hasChanged);
+  useEffect(() => {
+    hasChanged.current = _hasChanged
+  }, [ _hasChanged ]);
+
+  const isSubmitting = useRef<boolean>(false);
 
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!areShortcutsEnabled) return;
+    if (!areShortcutsEnabled.current) return;
     switch (event.code) {
       case 'Enter':
       case 'NumpadEnter':
@@ -75,68 +89,42 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
   useImperativeHandle(ref, () => ({ handleKeyPressed }), [ areShortcutsEnabled ])
 
   const submit = async () => {
-    const now = new Date().getTime();
-    setIsSubmitting(true);
-    const response = await taskAPI.update(task.id!, {
-      annotations: results.map(r => {
-        const isBox = r.type === AnnotationType.box;
-        const startTime = isBox ? r.startTime : null;
-        const endTime = isBox ? r.endTime : null;
-        const startFrequency = isBox ? r.startFrequency : null;
-        const endFrequency = isBox ? r.endFrequency : null;
-        const result_comments = r.result_comments.filter(c => c.comment.length > 0);
-        const result: AnnotationTaskDto = {
-          id: r.id,
-          startTime,
-          endTime,
-          label: r.label,
-          startFrequency,
-          endFrequency,
-          confidenceIndicator: r.confidenceIndicator ?? null,
-          result_comments: result_comments,
-        }
-        if (task.mode === 'Check') result.validation = !!r.validation;
-        return result;
-      }),
-      task_start_time: Math.floor((start.getTime() ?? now) / 1000),
-      task_end_time: Math.floor(new Date().getTime() / 1000),
-      task_comments: taskComment.comment ? [ taskComment ] : []
-    }).finally(() => setIsSubmitting(false))
+    isSubmitting.current = true;
+    const response = await submitService.submit()?.finally(() => {
+      isSubmitting.current = false;
+    })
 
     if (!response) return;
-    if (siblings.current?.next) {
-      history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.next }`);
-      console.debug("go next")
+    if (next_file_id.current) {
+      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
     } else {
       history.push(`/annotation-campaign/${ campaignID }/file`)
-      console.debug("go tasks")
     }
   }
 
   const navPrevious = async () => {
-    if (!siblings.current?.prev) return;
-    if (hasChanged) {
+    if (!previous_file_id.current) return;
+    if (hasChanged.current) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.prev }`);
+    history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }`);
   }
   const navNext = async () => {
-    if (!siblings.current?.next) return;
-    if (hasChanged) {
+    if (!next_file_id.current) return;
+    if (hasChanged.current) {
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/annotation-campaign/${ campaignID }/file/${ siblings.current.next }`);
+    history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
   }
 
-  if (!siblings) return <Fragment/>;
   return (
     <div className="col-sm-5 d-flex justify-content-center">
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
                                                                     description="load previous recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting || !siblings.current?.prev }
+                   disabled={ isSubmitting.current || previous_file_id.current === null }
                    className="rounded-right-0"
                    onClick={ navPrevious }>
           <IonIcon icon={ caretBack } slot={ "icon-only" }/>
@@ -145,7 +133,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Enter"
                                                                     description="Submit & load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting }
+                   disabled={ isSubmitting.current }
                    className="rounded-0"
                    onClick={ submit }>
           Submit &amp; load next recording
@@ -154,7 +142,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
                                                                     description="load next recording"/></Tooltip> }>
         <IonButton color={ "primary" }
-                   disabled={ isSubmitting || !siblings.current?.next }
+                   disabled={ isSubmitting.current || next_file_id.current === null }
                    className="rounded-left-0"
                    onClick={ navNext }>
           <IonIcon icon={ caretForward } slot={ "icon-only" }/>

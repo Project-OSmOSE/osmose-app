@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
     "backend.osmosewebsite.apps.OsmoseWebsiteConfig",
-    "backend.aplose_auth.apps.AploseAuthConfig",
+    "backend.aplose.apps.AploseConfig",
     "tinymce",
     "metadatax",
 ]

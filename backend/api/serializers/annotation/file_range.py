@@ -9,9 +9,11 @@ from backend.api.models import (
     DatasetFile,
     AnnotationResult,
     AnnotationCampaign,
+    AnnotationCampaignUsage,
 )
-from backend.aplose_auth.models import User
+from backend.aplose.models import User
 from backend.utils.serializers import EnumField
+from ..data.file import DatasetFileSerializer
 
 
 class AnnotationFileRangeListSerializer(serializers.ListSerializer):
@@ -158,25 +160,21 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
         return data
 
 
-class DatasetFileSerializer(serializers.ModelSerializer):
+class FileRangeDatasetFileSerializer(DatasetFileSerializer):
     """Serializer for dataset file"""
 
-    dataset_name = serializers.SlugRelatedField(
-        slug_field="name", read_only=True, source="dataset"
-    )
-    is_submitted = serializers.BooleanField()
+    is_submitted = serializers.BooleanField(read_only=True)
     results_count = serializers.IntegerField(read_only=True)
 
-    class Meta:
-        model = DatasetFile
-        fields = "__all__"
+    class Meta(DatasetFileSerializer.Meta):
+        pass
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
     """Serializer for Annotation task"""
 
     status = EnumField(enum=AnnotationTask.Status)
-    dataset_file = DatasetFileSerializer(read_only=True)
+    dataset_file = FileRangeDatasetFileSerializer(read_only=True)
     results_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -206,11 +204,14 @@ class AnnotationFileRangeFilesSerializer(AnnotationFileRangeSerializer):
             results_count=Subquery(
                 AnnotationResult.objects.filter(
                     annotation_campaign_id=file_range.annotation_campaign_id,
-                    annotator_id=file_range.annotator_id,
                     dataset_file_id=OuterRef("pk"),
+                )
+                .filter(
+                    Q(annotator=file_range.annotator)
+                    | Q(detector_configuration__isnull=False)
                 )
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             ),
         )
-        return DatasetFileSerializer(files, many=True).data
+        return FileRangeDatasetFileSerializer(files, many=True).data

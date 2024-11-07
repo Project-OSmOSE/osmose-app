@@ -1,4 +1,4 @@
-#campaign-card {
+.campaign-card {
   padding: 1rem;
   gap: 1rem;
   display: grid;
@@ -15,7 +15,7 @@
   grid-template-rows: auto auto 1fr auto auto;
 }
 
-#campaign-card #head {
+.campaign-card #head {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -23,11 +23,11 @@
   overflow: hidden;
 }
 
-#campaign-card #head p {
+.campaign-card #head p {
   margin: 0;
 }
 
-#campaign-card #head #campaign-name {
+.campaign-card #head #campaign-name {
   font-weight: 600;
   letter-spacing: 0.5px;
   font-size: 1rem;
@@ -38,7 +38,7 @@
   text-overflow: ellipsis;
 }
 
-#campaign-card #head #dataset-name {
+.campaign-card #head #dataset-name {
   font-weight: 500;
   font-size: 0.8rem;
   line-height: 0.8rem;
@@ -46,7 +46,7 @@
 }
 
 
-#campaign-card .property {
+.campaign-card .property {
   display: grid;
   gap: 0.5rem;
   grid-auto-flow: column;
@@ -56,33 +56,33 @@
   grid-area: property;
 }
 
-#campaign-card .property .icon {
+.campaign-card .property .icon {
   opacity: 0.5;
 }
 
-#campaign-card .property .label {
+.campaign-card .property .label {
   font-weight: 300;
 }
 
-#campaign-card .progression {
+.campaign-card .progression {
   display: grid;
   grid-area: progression;
 }
 
-#campaign-card .my.progression {
+.campaign-card .my.progression {
   grid-area: my-progression;
 }
 
-#campaign-card .progression .progress-label {
+.campaign-card .progression .progress-label {
   color: var(--ion-color-medium);
 }
 
-#campaign-card .progression .progress-value {
+.campaign-card .progression .progress-value {
   color: var(--ion-color-shade);
 }
 
 
-#campaign-card #buttons {
+.campaign-card #buttons {
   display: grid;
   justify-content: space-between;
   grid-auto-flow: column;
@@ -90,6 +90,6 @@
   grid-area: buttons;
 }
 
-#campaign-card #buttons.fill {
+.campaign-card #buttons.fill {
   justify-content: stretch;
 }

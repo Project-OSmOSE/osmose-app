@@ -1,0 +1,9 @@
+- model: api.detector
+  pk: 1
+  fields:
+    name: Detector 1
+- model: api.detectorconfiguration
+  pk: 1
+  fields:
+    configuration: Detector configuration 1
+    detector: 1

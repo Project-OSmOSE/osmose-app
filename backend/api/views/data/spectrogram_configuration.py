@@ -35,7 +35,7 @@ class SpectrogramConfigurationViewSet(viewsets.ReadOnlyModelViewSet):
         queryset: QuerySet[SpectrogramConfiguration] = self.get_queryset()
         filename = (
             request.query_params["filename"]
-            if "filename" in request.query
+            if "filename" in request.query_params
             else "spectrogram_configurations"
         )
         header = [

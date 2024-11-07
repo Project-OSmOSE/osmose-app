@@ -1,22 +1,21 @@
 import React, { HTMLAttributes, ReactNode, useRef } from "react";
 import { IonBreadcrumb, IonBreadcrumbs, IonButton, IonContent, IonIcon, IonModal } from "@ionic/react";
-import { DetectorList } from "@/services/api";
+import { Detector } from "@/services/api";
 import { chevronForwardOutline } from "ionicons/icons";
 import { CSVImportContent } from "./csv-import-content.tsx";
 import { DetectorsContent } from "./detectors-content.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
 import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
 import './import-modal.component.css';
-import { createCampaignActions } from "@/slices/create-campaign";
 import { IonModalCustomEvent } from "@ionic/core/dist/types/components";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
 import { DetectorsConfigContent } from "@/view/campaign/create-edit/blocs/import-modal/detectors-config-content.tsx";
 
 type Props = {
   isOpen: boolean,
   setIsOpen: (value: boolean) => void;
-  allDetectors: DetectorList,
+  allDetectors: Array<Detector>,
+  onFileImported: (file: File) => void;
 } & HTMLAttributes<HTMLIonModalElement>
 
 
@@ -24,20 +23,20 @@ export const ImportModal: React.FC<Props> = ({
                                                isOpen,
                                                setIsOpen,
                                                allDetectors,
+                                               onFileImported,
                                                ...modalArgs
                                              }) => {
   const modal = useRef<HTMLIonModalElement | null>(null);
 
   // Services
-  const status = useAppSelector(state => state.createCampaignForm.importAnnotations.status)
-  const service = useImportAnnotations();
-
   const dispatch = useAppDispatch();
+  const {
+    status,
+  } = useAppSelector(state => state.createCampaignForm.importAnnotations);
 
   const onDismiss = (event: IonModalCustomEvent<OverlayEventDetail>) => {
     setIsOpen(false);
     if (event.detail.role === 'validate') {
-      dispatch(createCampaignActions.setDetectors(service.distinctDetectors))
       dispatch(importAnnotationsActions.setStatus('done'))
     } else
       dispatch(importAnnotationsActions.clear())
@@ -50,7 +49,7 @@ export const ImportModal: React.FC<Props> = ({
           <h1>Import annotations</h1>
 
           <IonBreadcrumbs>
-            <IonBreadcrumb active={ ['empty', 'loading', 'errors'].includes(status) }>
+            <IonBreadcrumb active={ [ 'empty', 'loading', 'errors' ].includes(status) }>
               CSV Import
               <IonIcon slot="separator" icon={ chevronForwardOutline }></IonIcon>
             </IonBreadcrumb>
@@ -62,6 +61,7 @@ export const ImportModal: React.FC<Props> = ({
         </div>
 
         <ImportModalContent allDetectors={ allDetectors }
+                            onFileImported={ onFileImported }
                             cancelButton={ <IonButton color="medium"
                                                       onClick={ () => modal.current?.dismiss(undefined, 'cancel') }>Cancel</IonButton> }
                             onDone={ () => modal.current?.dismiss(undefined, 'validate') }/>
@@ -71,22 +71,24 @@ export const ImportModal: React.FC<Props> = ({
 }
 
 interface ImportModalContentProps {
-  allDetectors: DetectorList,
+  allDetectors: Array<Detector>,
   onDone: () => void,
-  cancelButton: ReactNode
+  cancelButton: ReactNode,
+  onFileImported: (file: File) => void;
 }
 
 export const ImportModalContent: React.FC<ImportModalContentProps> = ({
                                                                         allDetectors,
                                                                         cancelButton,
                                                                         onDone,
+                                                                        onFileImported
                                                                       }) => {
   // Form data
   const dispatch = useAppDispatch();
-  const status = useAppSelector(state => state.createCampaignForm.importAnnotations.status)
+  const { status, errors } = useAppSelector(state => state.createCampaignForm.importAnnotations)
 
-  if (['empty', 'loading', 'errors'].includes(status))
-    return <CSVImportContent cancelButton={ cancelButton }/>
+  if ([ 'empty', 'loading', 'errors' ].includes(status))
+    return <CSVImportContent cancelButton={ cancelButton } onFileImported={ onFileImported }/>
 
   if (status === 'edit-detectors')
     return <DetectorsContent cancelButton={ cancelButton }
@@ -97,7 +99,6 @@ export const ImportModalContent: React.FC<ImportModalContentProps> = ({
 
   if (status === 'edit-detectors-config')
     return <DetectorsConfigContent cancelButton={ cancelButton }
-                                   allDetectors={ allDetectors }
                                    save={ onDone }/>
 
   return <div id="buttons">{ cancelButton }</div>

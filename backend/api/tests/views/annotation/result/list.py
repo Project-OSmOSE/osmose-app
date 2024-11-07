@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.tests.utils import AuthenticatedTestCase, empty_fixtures, all_fixtures
+from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-result-list")
 
@@ -56,7 +56,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 9)
+        self.assertEqual(len(response.data), 10)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -66,7 +66,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data), 4)
 
     def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
@@ -97,7 +97,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 9)
+        self.assertEqual(len(response.data), 10)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -107,7 +107,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data), 1)
 
     def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
@@ -138,7 +138,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 7)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -148,7 +148,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 7)
 
     def test_list_for_current_user_for_campaign(self):
         response = self.client.get(

@@ -1,26 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionicons/icons";
-import { AnnotationCampaignList as List, useAnnotationCampaignAPI } from "@/services/api";
+import { AnnotationCampaign, AnnotationCampaignUsage, useAnnotationCampaignAPI } from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import './annotation-campaign-list.page.css'
-import { Usage } from "@/types/annotations.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
-  const [annotationCampaigns, setAnnotationCampaigns] = useState<List>([]);
+
+  // State
+  const [annotationCampaigns, setAnnotationCampaigns] = useState<Array<AnnotationCampaign>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string | undefined>();
   const [showArchivedFilter, setShowArchivedFilter] = useState<boolean>(false);
-  const [modeFilter, setModeFilter] = useState<Usage | undefined>();
+  const [modeFilter, setModeFilter] = useState<AnnotationCampaignUsage | undefined>();
 
   // Memo
   const showCampaigns = useMemo(() => {
     const baseCampaigns = annotationCampaigns
-      .filter(c => c.is_archived === showArchivedFilter)
+      .filter(c => (c.archive !== null) === showArchivedFilter)
       .filter(c => !modeFilter || c.usage === modeFilter);
     if (!search) return baseCampaigns;
     const results = searchFilter(
@@ -32,8 +33,7 @@ export const AnnotationCampaignList: React.FC = () => {
     );
     return baseCampaigns.filter(c => results.find(r => r.value === c.id));
   }, [annotationCampaigns, search, showArchivedFilter, modeFilter]);
-  const canAccessArchive = useMemo(() => annotationCampaigns.filter(c => c.is_archived).length > 0, [annotationCampaigns]);
-
+  const canAccessArchive = useMemo(() => annotationCampaigns.filter(c => c.archive !== null).length > 0, [annotationCampaigns]);
 
   // Services
   const campaignService = useAnnotationCampaignAPI();
@@ -74,12 +74,12 @@ export const AnnotationCampaignList: React.FC = () => {
   const toggleModeFilter = () => {
     switch (modeFilter) {
       case undefined:
-        setModeFilter(Usage.create);
+        setModeFilter('Create');
         break;
-      case Usage.create:
-        setModeFilter(Usage.check);
+      case 'Create':
+        setModeFilter('Check');
         break;
-      case Usage.check:
+      case 'Check':
         setModeFilter(undefined);
         break;
     }
@@ -107,8 +107,8 @@ export const AnnotationCampaignList: React.FC = () => {
                    color="medium"
                    onClick={ toggleModeFilter }>
             Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
-            { modeFilter === Usage.create && <IonIcon icon={ swapHorizontal }/> }
-            { modeFilter === Usage.check && <IonIcon icon={ closeCircle }/> }
+            { modeFilter === 'Create' && <IonIcon icon={ swapHorizontal }/> }
+            { modeFilter === 'Check' && <IonIcon icon={ closeCircle }/> }
           </IonChip>
         </div>
 

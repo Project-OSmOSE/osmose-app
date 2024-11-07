@@ -1,41 +1,62 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { ToastMessage } from "@/types/toast.ts";
-import { Retrieve } from "@/services/api/annotation-task-api.service.tsx";
+import { AnnotationCampaign, DatasetFile, User } from "@/services/api";
 
 export type AnnotatorSlice = {
-  task: Retrieve;
+  file?: DatasetFile;
+  user?: User;
+  campaign?: AnnotationCampaign;
+  previous_file_id: number | null;
+  next_file_id: number | null;
 
   toast?: ToastMessage;
   areShortcutsEnabled: boolean;
+  sessionStart: number;
 }
 
 export const annotatorSlice = createSlice({
   name: 'Annotator',
   initialState: {
     areShortcutsEnabled: true,
+    sessionStart: Date.now(),
+    previous_file_id: null,
+    next_file_id: null,
   } as AnnotatorSlice,
   reducers: {
-    initAnnotator: (state, action: { payload: Retrieve }) => {
-      state.task = action.payload
+    init: (state, action: {
+      payload: {
+        campaign: AnnotationCampaign;
+        file: DatasetFile;
+        user: User;
+        previous_file_id: number | null;
+        next_file_id: number | null;
+      }
+    }) => {
+      state.file = action.payload.file;
+      state.campaign = action.payload.campaign;
+      state.user = action.payload.user;
+      state.sessionStart = Date.now();
+      state.previous_file_id = action.payload.previous_file_id;
+      state.next_file_id = action.payload.next_file_id;
     },
 
     setDangerToast: (state, action: { payload: string }) => {
       state.toast = {
         level: 'danger',
-        messages: [action.payload]
+        messages: [ action.payload ]
       };
     },
     setSuccessToast: (state, action: { payload: string }) => {
       state.toast = {
         level: 'success',
-        messages: [action.payload]
+        messages: [ action.payload ]
       };
     },
     setPrimaryToast: (state, action: { payload: string }) => {
       state.toast = {
         level: 'primary',
-        messages: [action.payload]
+        messages: [ action.payload ]
       };
     },
     removeToast: (state) => {
@@ -51,14 +72,6 @@ export const annotatorSlice = createSlice({
   }
 })
 
-export const {
-  initAnnotator,
-  setDangerToast,
-  setSuccessToast,
-  setPrimaryToast,
-  removeToast,
-  enableShortcuts,
-  disableShortcuts,
-} = annotatorSlice.actions;
+export const AnnotatorActions = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

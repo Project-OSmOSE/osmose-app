@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from backend.api.models import (
     AnnotationComment,
 )
-from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures
+from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
 URL = reverse(
     "annotation-comment-campaign-file-global", kwargs={"campaign_id": 1, "file_id": 9}
@@ -73,7 +73,7 @@ class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             data=json.dumps(create),
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PostAnnotatorAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):

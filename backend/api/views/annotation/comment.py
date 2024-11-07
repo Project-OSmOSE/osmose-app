@@ -16,7 +16,7 @@ from backend.api.models import (
 from backend.api.serializers import (
     AnnotationCommentSerializer,
 )
-from backend.utils.filters import ModelFilter
+from backend.utils.filters import ModelFilter, get_boolean_query_param
 
 
 class CommentAccessFilter(filters.BaseFilterBackend):
@@ -33,20 +33,6 @@ class CommentAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class CommentAccessPermission(permissions.BasePermission):
-    # pylint: disable=duplicate-code
-    """Filter comment access base on user"""
-
-    def has_object_permission(self, request, view, obj: AnnotationComment) -> bool:
-        if request.user.is_staff:
-            return True
-        if obj.annotation_campaign.owner_id == request.user.id:
-            return True
-        if obj.annotation_campaign.archive is not None:
-            return False
-        return True
-
-
 class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     A simple ViewSet for annotation comment related actions
@@ -55,20 +41,19 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = AnnotationComment.objects.all()
     serializer_class = AnnotationCommentSerializer
     filter_backends = (ModelFilter, CommentAccessFilter)
-    permission_classes = (permissions.IsAuthenticated, CommentAccessPermission)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         queryset: QuerySet[AnnotationResult] = super().get_queryset()
-        if self.action in ["list", "retrieve"] and self.request.query_params.get(
-            "for_current_user"
-        ):
+        for_current_user = get_boolean_query_param(self.request, "for_current_user")
+        if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(author_id=self.request.user.id)
         return queryset
 
     @action(
         methods=["POST"],
         detail=False,
-        url_path="/campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)/global",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)/global",
         url_name="campaign-file-global",
     )
     def bulk_post_global_comment(self, request, campaign_id, file_id):
@@ -80,12 +65,12 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             annotator_id=request.user.id
         )
         if not file_ranges.exists():
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
         all_files = []
         for file_range in file_ranges:
             all_files += list(file_range.get_files())
         if file not in all_files:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = [
             {

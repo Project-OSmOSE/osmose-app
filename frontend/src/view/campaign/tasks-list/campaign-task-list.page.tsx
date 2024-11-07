@@ -2,33 +2,30 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import {
   useAnnotationFileRangeAPI,
-  useAnnotationTaskAPI,
-  AnnotationFileRange,
   useAnnotationCampaignAPI,
-  DatasetFile
+  AnnotationCampaign
 } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import {
   checkmarkOutline,
   helpBuoyOutline,
   informationCircle
 } from "ionicons/icons";
 import './campaign-task-list.page.css';
-import { BasicCampaign } from "@/services/api/annotation-file-range-api.service.tsx";
+import { AnnotationFileRangeWithFiles } from "@/services/api/annotation/file-range.service.tsx";
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
 
   // Services
   const history = useHistory();
-  const taskService = useAnnotationTaskAPI();
   const fileRangeService = useAnnotationFileRangeAPI();
   const campaignService = useAnnotationCampaignAPI()
 
   // States
-  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange & { files: Array<DatasetFile> }>>([]);
-  const [ campaign, setCampaign ] = useState<BasicCampaign | undefined>(undefined);
+  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRangeWithFiles> | undefined>();
+  const [ campaign, setCampaign ] = useState<AnnotationCampaign | undefined>(undefined);
   const [ error, setError ] = useState<any | undefined>(undefined);
 
   useEffect(() => {
@@ -38,7 +35,7 @@ export const AnnotationTaskList: React.FC = () => {
     setError(undefined);
     Promise.all([
       campaignService.retrieve(campaignID).then(setCampaign),
-      fileRangeService.listForCampaignWithFiles(+campaignID).then(setFileRanges)
+      fileRangeService.listForCampaignCurrentUser(campaignID).then(setFileRanges)
     ]).catch(e => {
       if (isCanceled) return;
       setError(e);
@@ -47,7 +44,6 @@ export const AnnotationTaskList: React.FC = () => {
 
     return () => {
       isCanceled = true;
-      taskService.abort();
       fileRangeService.abort();
     }
   }, [ campaignID ]);
@@ -77,7 +73,7 @@ export const AnnotationTaskList: React.FC = () => {
 
       <div className="head">
         <h2>{ campaign?.name }</h2>
-        <p className="subtitle">Annotation Tasks</p>
+        <p className="subtitle">Annotation files</p>
       </div>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
@@ -88,46 +84,49 @@ export const AnnotationTaskList: React.FC = () => {
           User guide
           <IonIcon icon={ helpBuoyOutline } slot="end"/>
         </IonButton>
-        { campaign?.instructions_url && <IonButton color="secondary" onClick={ openInstructions }>
+        { campaign?.instructions_url && <IonButton color="secondary" shape="round" onClick={ openInstructions }>
             <IonIcon icon={ informationCircle } slot="start"/>
             Campaign instructions
         </IonButton> }
       </div>
-      <table className="table table-bordered">
-        <thead>
-        <tr>
-          <th>Filename</th>
-          <th>Dataset</th>
-          <th>Date</th>
-          <th>Duration</th>
-          <th>Results</th>
-          <th>Submitted</th>
-          <th>Link</th>
-        </tr>
-        </thead>
-        <tbody>
-        { fileRanges.map((range, index) => <Fragment>
-          { index > 0 && <tr key={ index } className="empty"></tr> }
-          { range.files.map(file => {
-            const startDate = new Date(file.start);
-            const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
-            return <tr className={ file.is_submitted ? 'table-success' : 'table-warning' }
-                       key={ file.id }>
-              <td>{ file.filename }</td>
-              <td>{ file.dataset_name }</td>
-              <td>{ startDate.toLocaleDateString() }</td>
-              <td>{ diffTime.toUTCString().split(' ')[4] }</td>
-              <td>{ file.results_count }</td>
-              <td>
-                { file.is_submitted && <IonIcon icon={ checkmarkOutline }/> }
-              </td>
-              <td><Link to={ `/annotation-campaign/${ campaignID }/file/${ file.id }` }>Task link</Link></td>
-            </tr>
-          })
-          }
-        </Fragment>) }
-        </tbody>
-      </table>
+
+      { !fileRanges && <IonSpinner/> }
+      { fileRanges && fileRanges.length === 0 && "No files to annotate" }
+      { fileRanges && fileRanges.length > 0 && <table className="table table-bordered">
+          <thead>
+          <tr>
+              <th>Filename</th>
+              <th>Dataset</th>
+              <th>Date</th>
+              <th>Duration</th>
+              <th>Results</th>
+              <th>Submitted</th>
+              <th>Link</th>
+          </tr>
+          </thead>
+          <tbody>
+          { fileRanges.map((range, index) => <Fragment>
+            { index > 0 && <tr key={ index } className="empty"></tr> }
+            { range.files.map(file => {
+              const startDate = new Date(file.start);
+              const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
+              return <tr className={ file.is_submitted ? 'table-success' : '' }
+                         key={ file.id }>
+                <td>{ file.filename }</td>
+                <td>{ file.dataset_name }</td>
+                <td>{ startDate.toLocaleDateString() }</td>
+                <td>{ diffTime.toUTCString().split(' ')[4] }</td>
+                <td>{ file.results_count }</td>
+                <td>
+                  { file.is_submitted && <IonIcon icon={ checkmarkOutline }/> }
+                </td>
+                <td><Link to={ `/annotation-campaign/${ campaignID }/file/${ file.id }` }>Task link</Link></td>
+              </tr>
+            })
+            }
+          </Fragment>) }
+          </tbody>
+      </table> }
     </div>
   )
 }

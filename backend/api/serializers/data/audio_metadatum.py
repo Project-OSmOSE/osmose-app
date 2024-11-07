@@ -9,3 +9,4 @@ class AudioMetadatumSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AudioMetadatum
+        fields = "__all__"

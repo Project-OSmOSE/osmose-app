@@ -1,75 +1,71 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { IonButton, useIonAlert } from "@ionic/react";
-import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI, useUsersAPI, } from "@/services/api";
-import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
-import { AudioMetadatum } from "@/types/process-metadata/audio.ts";
-import { AnnotationStatus } from "@/types/campaign.ts";
+import {
+  AnnotationCampaign,
+  useAnnotationCampaignAPI,
+  useAnnotationFileRangeAPI,
+  User,
+  useUsersAPI,
+} from "@/services/api";
 
 import { DetailCampaignGlobalInformation } from "@/view/campaign/detail/blocs/global-information.component.tsx";
 import { DetailCampaignStatus } from "@/view/campaign/detail/blocs/status.component.tsx";
-import { DetailCampaignSpectroConfig } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
+import { DetailCampaignSpectrogramConfiguration } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
-import './annotation-campaign-detail.page.css';
 import { getDisplayName } from "@/types/user.ts";
+import './annotation-campaign-detail.page.css';
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
-  const history = useHistory();
-  const [annotationCampaign, setAnnotationCampaign] = useState<AnnotationCampaignRetrieveCampaign | undefined>(undefined);
-  const [annotationStatus, setAnnotationStatus] = useState<Array<AnnotationStatus>>([]);
-  const [isStaff, setIsStaff] = useState<boolean>(false);
-  const [isCampaignOwner, setIsCampaignOwner] = useState<boolean>(false);
-  const [ spectrogramConfigurations, setSpectrogramConfigurations ] = useState<Array<SpectrogramConfiguration>>([]);
-  const [audioMetadata, setAudioMetadata] = useState<Array<AudioMetadatum>>([]);
 
-  const isArchived = useMemo(() => !!annotationCampaign?.archive, [annotationCampaign?.archive]);
-  const isEditionAllowed = useMemo(() => (isStaff || isCampaignOwner) && !isArchived, [isStaff, isCampaignOwner, isArchived]);
+  // State
+  const [ campaign, setCampaign ] = useState<AnnotationCampaign | undefined>(undefined);
+  const [ currentUser, setCurrentUser ] = useState<User | undefined>(undefined);
+  const [ annotatorsStatus, setAnnotatorsStatus ] = useState<Map<string, {
+    total: number,
+    progress: number
+  }>>(new Map());
+
+  // Services
+  const history = useHistory();
+  const isOwner = useMemo(() => {
+    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
+  }, [ currentUser, campaign?.owner ]);
+  const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner ]);
 
   const campaignService = useAnnotationCampaignAPI();
   const userService = useUsersAPI();
-  const [error, setError] = useState<any | undefined>(undefined);
+  const fileRangeService = useAnnotationFileRangeAPI();
+  const [ error, setError ] = useState<any | undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, dismissAlert] = useIonAlert();
+  const [ _, dismissAlert ] = useIonAlert();
 
   useEffect(() => {
     let isCancelled = false;
 
     Promise.all([
+      fileRangeService.listForCampaign(campaignID),
       userService.list(),
-      campaignService.retrieveDetailed(campaignID),
-      userService.isStaff().then(setIsStaff)
-    ]).then(([users, data]) => {
-      setAnnotationCampaign(data.campaign);
-
-      const status = data.tasks
-        .filter(task => task.annotator_id)
-        .reduce((array: Array<AnnotationStatus>, value) => {
-          const annotator = users.find(u => u.id === value.annotator_id);
-          const finished = value.status === 'Finished' ? value.count : 0;
-          const total = value.count;
-          if (!annotator) return array;
-          const currentStatus = array.find(s => s.annotator.id === value.annotator_id);
-          if (currentStatus) {
-            return [
-              ...array.filter(s => s.annotator.id !== value.annotator_id),
-              {
-                annotator,
-                finished: currentStatus.finished + finished,
-                total: currentStatus.total + total
-              }
-            ]
-          } else return [...array, { annotator, finished, total }]
-        }, [])
-      setAnnotationStatus(status);
-      setIsCampaignOwner(data.is_campaign_owner);
-      setSpectrogramConfigurations(data.spectro_configs);
-      setAudioMetadata(data.audio_metadata);
-    }).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
+      campaignService.retrieve(campaignID).then(setCampaign),
+      userService.self().then(setCurrentUser)
+    ]).then(([ ranges, users ]) => {
+      const map = new Map<string, { total: number, progress: number }>()
+      for (const range of ranges) {
+        const annotator = getDisplayName(users.find((u: User) => u.id === range.annotator));
+        if (map.get(annotator)) {
+          map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
+          map.get(annotator)!.progress += range.finished_tasks_count;
+        } else {
+          map.set(annotator, {
+            total: range.last_file_index - range.first_file_index + 1,
+            progress: range.finished_tasks_count,
+          })
+        }
+      }
+      setAnnotatorsStatus(map)
+    }).catch(e => !isCancelled && setError(e));
 
     return () => {
       isCancelled = true;
@@ -77,11 +73,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       userService.abort();
       dismissAlert();
     }
-  }, [campaignID])
-
-  const reload = () => {
-    campaignService.retrieveDetailed(campaignID).then(data => setAnnotationCampaign(data.campaign)).catch(setError);
-  }
+  }, [ campaignID ])
 
   const annotate = () => history.push(`/annotation-campaign/${ campaignID }/file`);
 
@@ -93,33 +85,36 @@ export const AnnotationCampaignDetail: React.FC = () => {
       </Fragment>
     )
   }
-  if (!annotationCampaign) {
+  if (!campaign) {
     return <h6>Loading Annotation Campaign ...</h6>
   }
   return (
     <div id="detail-campaign">
 
       <div id="head">
-        <h2>{ annotationCampaign.name }</h2>
-        { isArchived && <p className="archive-description">Archived
-            on { annotationCampaign?.archive?.date.toLocaleDateString() } by { getDisplayName(annotationCampaign?.archive?.by_user) }</p> }
-        { !isArchived && annotationCampaign?.my_total > 0 &&
+        <h2>{ campaign.name }</h2>
+        { campaign.archive && <p className="archive-description">Archived
+            on { new Date(campaign.archive.date).toLocaleDateString() } by { getDisplayName(campaign?.archive?.by_user) }</p> }
+        { !campaign.archive && <p className="archive-description">Created
+            on { new Date(campaign.created_at).toLocaleDateString() } by { campaign?.owner }</p> }
+        { !campaign.archive && campaign?.my_total > 0 &&
             <IonButton fill="outline" onClick={ annotate }>Annotate</IonButton> }
       </div>
 
-      <DetailCampaignGlobalInformation campaign={ annotationCampaign }
+      <DetailCampaignGlobalInformation campaign={ campaign }
                                        isEditionAllowed={ isEditionAllowed }
-                                       annotationStatus={ annotationStatus }
-                                       reload={ reload }/>
+                                       annotatorsStatus={ annotatorsStatus }
+                                       setCampaign={ setCampaign }
+                                       setError={ setError }/>
 
-      <DetailCampaignStatus campaign={ annotationCampaign }
-                            setError={ setError }/>
+      <DetailCampaignStatus campaign={ campaign }
+                            isOwner={ isOwner }
+                            isEditionAllowed={ isEditionAllowed }
+                            annotatorsStatus={ annotatorsStatus }/>
 
-      <DetailCampaignSpectroConfig campaign={ annotationCampaign }
-                                   spectroConfigurations={ spectrogramConfigurations }/>
+      <DetailCampaignSpectrogramConfiguration isOwner={ isOwner } campaign={ campaign } setError={ setError }/>
 
-      <DetailCampaignAudioMetadata campaign={ annotationCampaign }
-                                   audioMetadata={ audioMetadata }/>
+      <DetailCampaignAudioMetadata isOwner={ isOwner } campaign={ campaign } setError={ setError }/>
 
     </div>
   )

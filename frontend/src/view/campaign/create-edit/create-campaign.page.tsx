@@ -1,21 +1,26 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { IonButton, IonSpinner } from "@ionic/react";
-import { useCreateCampaign } from "@/services/create-campaign";
 import { useBlur } from "@/services/utils/clic.ts";
 import { useToast } from "@/services/utils/toast.ts";
-import { GlobalInfoBloc } from "./blocs/global-info.bloc.tsx";
-import { DatasetBloc } from "./blocs/dataset.bloc.tsx";
-import { AnnotatorsBloc } from "./blocs/annotators.bloc.tsx";
-import { AnnotationsBloc } from "./blocs/annotations.bloc.tsx";
+import { AnnotationCampaign, DatasetListItem } from "@/services/api";
+import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
+import { CampaignBloc } from "@/view/campaign/create-edit/blocs/campaign.bloc.tsx";
+import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import './create-edit-campaign.css'
 
 export const CreateCampaign: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [ isLoading, setIsLoading ] = useState<boolean>(false);
+  const [ submittedCampaign, setSubmittedCampaign ] = useState<AnnotationCampaign | undefined>();
+  const [ dataset, setDataset ] = useState<DatasetListItem | undefined>();
 
-  const service = useCreateCampaign();
   const blurUtil = useBlur();
   const toast = useToast();
+
+  // Blocs
+  const campaignBloc = useRef<BlocRef | null>(null);
+  const fileRangeBloc = useRef<BlocRef | null>(null);
+
 
   const history = useHistory();
 
@@ -33,15 +38,15 @@ export const CreateCampaign: React.FC = () => {
     submit()
   }
 
-  const submit = async (force: boolean = false) => {
+  const submit = async () => {
     try {
       setIsLoading(true);
-      await service.submitCampaign(force);
+      await campaignBloc.current?.submit();
+      await fileRangeBloc.current?.submit()
 
       history.push('/annotation-campaign');
     } catch (e: any) {
-      const force = await toast.presentError(e, e.response?.body?.dataset_file_not_found);
-      if (force) await submit(force);
+      toast.presentError(e);
     } finally {
       setIsLoading(false);
     }
@@ -53,14 +58,9 @@ export const CreateCampaign: React.FC = () => {
           onSubmit={ handleSubmit }>
       <h1>Create Annotation Campaign</h1>
 
-      <GlobalInfoBloc/>
+      <CampaignBloc ref={ campaignBloc } onDatasetUpdated={ setDataset } onCampaignSubmitted={ setSubmittedCampaign }/>
 
-      <DatasetBloc/>
-
-      <AnnotationsBloc/>
-
-      <AnnotatorsBloc/>
-
+      <AnnotatorsRangeBloc ref={ fileRangeBloc } campaign={ submittedCampaign } files_count={ dataset?.files_count }/>
 
       <IonButton color="primary" type="submit" disabled={ isLoading }>
         Create campaign

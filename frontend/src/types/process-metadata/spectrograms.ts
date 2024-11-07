@@ -1,6 +1,9 @@
+import { LinearScale, MultiLinearScale } from "@/services/spectrogram";
+
 export interface SpectrogramConfiguration {
   id: number;
   name: string;
+  folder_path: string;
   desc: string;
   nfft: number;
   window_size: number;
@@ -31,6 +34,8 @@ export interface SpectrogramConfiguration {
   time_resolution_zoom_7: number;
   time_resolution_zoom_8: number;
   window_type: WindowType;
+  linear_frequency_scale: LinearScale | null;
+  multi_linear_frequency_scale: MultiLinearScale | null;
 }
 
 export interface WindowType {

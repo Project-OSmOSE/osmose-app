@@ -79,5 +79,6 @@
   justify-self: end;
   display: grid;
   grid-auto-flow: column;
+  align-items: center;
   gap: 1rem;
 }

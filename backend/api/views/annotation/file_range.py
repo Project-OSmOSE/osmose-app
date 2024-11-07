@@ -1,8 +1,9 @@
 """Viewset for annotation file range"""
 from django.db.models import QuerySet, Q
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from backend.api.models import (
@@ -13,7 +14,27 @@ from backend.api.serializers import (
     AnnotationFileRangeSerializer,
     AnnotationFileRangeFilesSerializer,
 )
-from backend.utils.filters import ModelFilter
+from backend.utils.filters import ModelFilter, get_boolean_query_param
+
+
+class AnnotationFileRangeFilter(filters.BaseFilterBackend):
+    """Filter comment access base on user"""
+
+    def filter_queryset(
+        self, request: Request, queryset: QuerySet[AnnotationFileRange], view
+    ):
+        if request.user.is_staff:
+            return queryset
+        # When testing with campaign owner which is not an annotators, all items are doubled
+        # (don't understand why, the result query is correct when executed directly in SQL console)
+        # The .distinct() is necessary to assure the items are not doubled
+        return queryset.filter(
+            Q(annotation_campaign__owner=request.user)
+            | (
+                Q(annotation_campaign__archive__isnull=True)
+                & Q(annotation_campaign__annotators__id=request.user.id)
+            )
+        ).distinct()
 
 
 class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -29,26 +50,19 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         "annotation_campaign__datasets",
     )
     serializer_class = AnnotationFileRangeSerializer
-    filter_backends = (ModelFilter,)
+    filter_backends = (ModelFilter, AnnotationFileRangeFilter)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self):
-        if self.action in ["list", "retrieve"] and self.request.query_params.get(
-            "with_files"
-        ):
+        with_files = get_boolean_query_param(self.request, "with_files")
+        if self.action in ["list", "retrieve"] and with_files:
             return AnnotationFileRangeFilesSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):
         queryset: QuerySet[AnnotationFileRange] = super().get_queryset()
-        if not self.request.user.is_staff:
-            queryset = queryset.filter(
-                Q(annotator=self.request.user)
-                | Q(annotation_campaign__owner=self.request.user)
-            )
-        if self.action in ["list", "retrieve"] and self.request.query_params.get(
-            "for_current_user"
-        ):
+        for_current_user = get_boolean_query_param(self.request, "for_current_user")
+        if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(annotator_id=self.request.user.id)
         return queryset
 
@@ -90,7 +104,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         ]
 
         if not self.can_user_post_data(data):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = AnnotationFileRangeSerializer(
             campaign.annotation_file_ranges,

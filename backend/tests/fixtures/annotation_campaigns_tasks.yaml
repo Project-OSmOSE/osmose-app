@@ -48,7 +48,7 @@
 - model: api.annotationtask
   pk: 1
   fields:
-    status: C
+    status: F
     annotation_campaign: 1
     annotator: 1
     dataset_file: 1
@@ -159,8 +159,46 @@
     deadline: 2010-11-02 00:00:00+00:00
     label_set: 1
     annotation_scope: 1
-    owner: 1
+    owner: 3
+    archive: 1
     datasets:
     - 1
     spectro_configs:
     - 1
+- model: api.annotationcampaignarchive
+  pk: 1
+  fields:
+    date: 2010-11-02 00:00:00+00:00
+    by_user: 1
+- model: api.annotationcampaign
+  pk: 4
+  fields:
+    name: Test Z check campaign
+    desc: Test check annotation campaign
+    instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
+    deadline: 2010-11-02 00:00:00+00:00
+    label_set: 1
+    confidence_indicator_set: 1
+    annotation_scope: 1
+    owner: 3
+    usage: 1
+    datasets:
+    - 1
+    spectro_configs:
+    - 1
+- model: api.annotationfilerange
+  pk: 5
+  fields:
+    first_file_index: 0
+    last_file_index: 1
+    files_count: 2
+    annotator: 4
+    annotation_campaign: 4
+- model: api.annotationfilerange
+  pk: 6
+  fields:
+    first_file_index: 0
+    last_file_index: 1
+    files_count: 2
+    annotator: 1
+    annotation_campaign: 4

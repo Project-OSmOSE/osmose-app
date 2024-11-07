@@ -1,4 +1,11 @@
 """Annotation campaigns tests"""
+from .archive import (
+    ArchiveUnauthenticatedTestCase,
+    ArchiveOwnerAuthenticatedTestCase,
+    ArchiveAnnotatorAuthenticatedTestCase,
+    ArchiveBaseUserAuthenticatedTestCase,
+    ArchiveAdminAuthenticatedTestCase,
+)
 from .create import (
     CreateBaseUserAuthenticatedTestCase,
     CreateUnauthenticatedTestCase,
@@ -18,7 +25,7 @@ from .report import (
     ReportUnauthenticatedTestCase,
     ReportFilledBaseUserNoCampaignAuthenticatedTestCase,
     ReportFilledAdminAuthenticatedTestCase,
-    ReportEmpyAdminAuthenticatedTestCase,
+    ReportEmptyAdminAuthenticatedTestCase,
 )
 from .retrieve import (
     RetrieveUnauthenticatedTestCase,

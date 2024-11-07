@@ -9,7 +9,7 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignArchive,
 )
-from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures
+from backend.utils.tests import all_fixtures, AuthenticatedTestCase
 
 URL = reverse("annotation-campaign-archive", kwargs={"pk": 1})
 URL_unknown = reverse("annotation-campaign-archive", kwargs={"pk": 186})
@@ -57,7 +57,7 @@ class ArchiveAnnotatorAuthenticatedTestCase(ArchiveAdminAuthenticatedTestCase):
     def test_archive(self):
         """ViewSet returns 401 if no user is authenticated"""
         response = self.client.post(URL, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class ArchiveBaseUserAuthenticatedTestCase(ArchiveAnnotatorAuthenticatedTestCase):

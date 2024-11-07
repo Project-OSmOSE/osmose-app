@@ -1,5 +1,12 @@
 """Annotation result viewset"""
+import ast
+import csv
+from io import StringIO
+
 # pylint: disable=duplicate-code
+from pathlib import Path
+from typing import Optional
+
 from django.db.models import QuerySet, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
@@ -11,14 +18,13 @@ from backend.api.models import (
     AnnotationResult,
     AnnotationCampaign,
     DatasetFile,
-    AnnotationTask,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
     AnnotationResultImportListSerializer,
-    AnnotationSessionSerializer,
 )
-from backend.utils.filters import ModelFilter
+from backend.utils.filters import ModelFilter, get_boolean_query_param
+from backend.utils.serializers import FileUploadSerializer
 
 
 class ResultAccessFilter(filters.BaseFilterBackend):
@@ -38,35 +44,28 @@ class ResultAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class ResultAccessPermission(permissions.BasePermission):
-    # pylint: disable=duplicate-code
-    """Filter result access base on user"""
-
-    def has_object_permission(self, request, view, obj: AnnotationResult) -> bool:
-        if request.user.is_staff:
-            return True
-        if obj.annotation_campaign.owner_id == request.user.id:
-            return True
-        if obj.annotation_campaign.archive is not None:
-            return False
-        return obj.annotator_id == request.user.id or obj.annotator is None
-
-
 class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     A simple ViewSet for annotation result related actions
     """
 
-    queryset = AnnotationResult.objects.all()
+    queryset = AnnotationResult.objects.select_related(
+        "label",
+        "confidence_indicator",
+        "detector_configuration",
+        "detector_configuration__detector",
+    ).prefetch_related(
+        "comments",
+        "validations",
+    )
     serializer_class = AnnotationResultSerializer
     filter_backends = (ModelFilter, ResultAccessFilter)
-    permission_classes = (permissions.IsAuthenticated, ResultAccessPermission)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         queryset: QuerySet[AnnotationResult] = super().get_queryset()
-        if self.action in ["list", "retrieve"] and self.request.query_params.get(
-            "for_current_user"
-        ):
+        for_current_user = get_boolean_query_param(self.request, "for_current_user")
+        if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(
                 Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True)
             )
@@ -75,7 +74,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(
         methods=["POST"],
         detail=False,
-        url_path="/campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
         url_name="campaign-file",
     )
     def bulk_post(self, request, campaign_id, file_id):
@@ -87,12 +86,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             annotator_id=request.user.id
         )
         if not file_ranges.exists():
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
         all_files = []
         for file_range in file_ranges:
             all_files += list(file_range.get_files())
         if file not in all_files:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = [
             {
@@ -121,7 +120,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     for v in (d["validations"] if "validations" in d else [])
                 ],
             }
-            for d in request.data["results"]
+            for d in request.data
         ]
 
         initial_results = self.get_queryset().filter(
@@ -137,28 +136,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        task, _ = AnnotationTask.objects.get_or_create(
-            annotator=request.user,
-            annotation_campaign_id=campaign_id,
-            dataset_file_id=file_id,
-        )
-        task.status = AnnotationTask.Status.FINISHED
-        task.save()
-        session_serializer = AnnotationSessionSerializer(
-            data={
-                **request.data["session"],
-                "annotation_task": task.id,
-                "session_output": serializer.data,
-            }
-        )
-        session_serializer.is_valid(raise_exception=True)
-        session_serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         methods=["POST"],
         detail=False,
-        url_path="/campaign/(?P<campaign_id>[^/.]+)/import",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/import",
         url_name="campaign-import",
     )
     def import_results(self, request, campaign_id):
@@ -166,18 +149,67 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # Check permission
         campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
         if campaign.owner_id != request.user.id and not request.user.is_staff:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        upload_serializer = FileUploadSerializer(data=request.data)
+        upload_serializer.is_valid(raise_exception=True)
+
+        file = upload_serializer.validated_data["file"]
+
+        force = get_boolean_query_param(self.request, "force")
+
+        dataset_name = request.query_params.get("dataset_name")
+        detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))
+
+        decoded_file = file.read().decode()
+        io_string = StringIO(decoded_file)
+        reader = csv.DictReader(io_string)
+        data = []
+        for row in reader:
+            annotator = row["annotator"] if "annotator" in row else None
+            if annotator not in detectors_map:
+                continue
+            detector_map = detectors_map[annotator] if annotator else None
+            confidence_level = (
+                row["confidence_indicator_level"]
+                if "confidence_indicator_level" in row
+                else None
+            )
+            detector = annotator
+            if detector_map and "detector" in detector_map and detector_map["detector"]:
+                detector = detector_map["detector"]
+            data.append(
+                {
+                    "is_box": row["is_box"],
+                    "dataset": dataset_name,
+                    "detector": detector,
+                    "detector_config": detector_map["configuration"]
+                    if detector_map and "configuration" in detector_map
+                    else None,
+                    "start_datetime": row["start_datetime"],
+                    "end_datetime": row["end_datetime"],
+                    "min_frequency": row["start_frequency"],
+                    "max_frequency": row["end_frequency"],
+                    "label": row["annotation"],
+                    "confidence_indicator": {
+                        "label": row["confidence_indicator_label"],
+                        "level": confidence_level.split("/")[0],
+                    }
+                    if "confidence_indicator_label" in row
+                    and row["confidence_indicator_label"]
+                    and confidence_level
+                    else None,
+                    "annotation_campaign": campaign_id,
+                }
+            )
 
         # Execute import
-        data = [
-            {
-                **d,
-                "annotation_campaign": campaign_id,
-            }
-            for d in request.data
-        ]
         serializer = AnnotationResultImportListSerializer(
-            data=data, context={"campaign": campaign}
+            data=data,
+            context={
+                "campaign": campaign,
+                "force": force,
+            },
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()

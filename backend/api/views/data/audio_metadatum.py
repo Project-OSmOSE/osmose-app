@@ -33,7 +33,7 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
         queryset: QuerySet[AudioMetadatum] = self.get_queryset()
         filename = (
             request.query_params["filename"]
-            if "filename" in request.query
+            if "filename" in request.query_params
             else "audio_metadata"
         )
         header = [

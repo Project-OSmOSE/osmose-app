@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 
-from backend.aplose_auth.models import User
+from backend.aplose.models import User
 from .detector import DetectorConfiguration
 
 

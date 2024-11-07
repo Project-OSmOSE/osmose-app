@@ -15,3 +15,14 @@ class ModelFilter(filters.BaseFilterBackend):
             except FieldError:
                 continue
         return _queryset
+
+
+def get_boolean_query_param(request: Request, label: str) -> bool:
+    param = request.query_params.get(label)
+    if param is None:
+        return False
+    if type(param) == bool:
+        return param
+    if type(param) == str:
+        return param.lower() == "true"
+    return False

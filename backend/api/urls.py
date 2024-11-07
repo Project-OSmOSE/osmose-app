@@ -12,13 +12,14 @@ from backend.api.views import (
     AnnotationResultViewSet,
     AudioMetadatumViewSet,
     SpectrogramConfigurationViewSet,
+    DatasetFileViewSet,
 )
-from backend.aplose_auth.views import UserViewSet
+from backend.aplose.views import UserViewSet
 
 # API urls are meant to be used by our React frontend
 api_router = routers.DefaultRouter()
 api_router.register(r"dataset", DatasetViewSet, basename="dataset")
-api_router.register(r"user", UserViewSet, basename="user")
+api_router.register(r"dataset-file", DatasetFileViewSet, basename="dataset-file")
 api_router.register(r"detector", DetectorViewSet, basename="detector")
 api_router.register(r"label-set", LabelSetViewSet, basename="label-set")
 api_router.register(

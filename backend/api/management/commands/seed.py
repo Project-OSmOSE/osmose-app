@@ -27,8 +27,8 @@ from backend.api.models import (
     SpectrogramConfiguration,
     AnnotationFileRange,
 )
-from backend.aplose_auth.models import AploseUser
-from backend.aplose_auth.models.user import ExpertiseLevel
+from backend.aplose.models import AploseUser
+from backend.aplose.models.user import ExpertiseLevel
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
@@ -103,6 +103,18 @@ class Command(management.BaseCommand):
                     password=make_password(password),
                     first_name="User2",
                     last_name="Test",
+                ),
+                expertise_level=ExpertiseLevel.NOVICE,
+            ),
+            AploseUser(
+                user=User.objects.create(
+                    username="TestUser3",
+                    email="TestUser3@osmose.xyz",
+                    password=make_password(password),
+                    first_name="User3",
+                    last_name="Test",
+                    is_superuser=True,
+                    is_staff=True,
                 ),
                 expertise_level=ExpertiseLevel.NOVICE,
             ),
@@ -361,17 +373,10 @@ class Command(management.BaseCommand):
             campaign.datasets.add(dataset)
             for config in dataset.spectro_configs.all():
                 campaign.spectro_configs.add(config)
-            tasks = []
             file_ranges = []
             for user in self.users:
-                for file in dataset.files.all().order_by("?"):
-                    task = AnnotationTask(
-                        dataset_file=file,
-                        annotator=user,
-                        status=AnnotationTask.Status.CREATED,
-                        annotation_campaign=campaign,
-                    )
-                    tasks.append(task)
+                if user.username in ["TestUser2", "TestUser3"]:
+                    continue
                 file_ranges.append(
                     AnnotationFileRange(
                         annotation_campaign_id=campaign.id,
@@ -381,17 +386,22 @@ class Command(management.BaseCommand):
                         files_count=dataset.files.count(),
                     )
                 )
-            AnnotationTask.objects.bulk_create(tasks)
             AnnotationFileRange.objects.bulk_create(file_ranges)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
         labels = self.label_sets[0].labels.values_list("id", flat=True)
-        for user in self.users:
-            done_files = randint(5, max(self.files_nb - 5, 5))
-            tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
-            for task in tasks:
+        file_range: AnnotationFileRange
+        for file_range in campaign.annotation_file_ranges.all():
+            done_files = file_range.get_files()[: randint(5, max(self.files_nb - 5, 5))]
+            for file in done_files:
+                task = AnnotationTask.objects.create(
+                    dataset_file=file,
+                    annotator=file_range.annotator,
+                    status=AnnotationTask.Status.FINISHED,
+                    annotation_campaign=campaign,
+                )
                 if randint(1, 3) >= 2:
                     AnnotationComment.objects.create(
                         comment="a comment",
@@ -413,8 +423,6 @@ class Command(management.BaseCommand):
                         dataset_file_id=task.dataset_file_id,
                         annotator_id=task.annotator_id,
                     )
-                task.status = AnnotationTask.Status.FINISHED
-                task.save()
 
     def _create_comments(self):
         print(" ###### _create_comments ######")

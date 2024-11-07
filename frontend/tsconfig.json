@@ -2,9 +2,10 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["es5","ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["cypress", "node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -34,6 +35,11 @@
       "@/view/*": ["src/view/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "cypress",
+    "cypress/global.d.ts",
+    "node_modules/@types/jest/index.d.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

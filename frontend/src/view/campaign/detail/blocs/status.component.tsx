@@ -1,19 +1,19 @@
-import React, { Dispatch, Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonProgressBar } from "@ionic/react";
 import {
-  AnnotationCampaignRetrieveCampaign,
-  useAnnotationCampaignAPI,
-  useUsersAPI
+  AnnotationCampaign,
+  useAnnotationCampaignAPI
 } from "@/services/api";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
-import { getDisplayName } from "@/types/user.ts";
-import { useAnnotationFileRangeAPI } from "@/services/api/annotation-file-range-api.service.tsx";
 import './blocs.css';
+import { useHistory } from "react-router-dom";
 
 interface Props {
-  campaign: AnnotationCampaignRetrieveCampaign;
-  setError: Dispatch<any>;
+  isOwner: boolean;
+  campaign: AnnotationCampaign;
+  isEditionAllowed: boolean,
+  annotatorsStatus: Map<string, { total: number, progress: number }>;
 }
 
 interface Sort {
@@ -21,20 +21,16 @@ interface Sort {
   sort: 'ASC' | 'DESC';
 }
 
-export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) => {
-
-  // State
-  const [ annotators, setAnnotators ] = useState<Map<string, { total: number, progress: number }>>(new Map());
+export const DetailCampaignStatus: React.FC<Props> = ({ campaign, isEditionAllowed, annotatorsStatus, isOwner }) => {
 
   // Services
   const campaignService = useAnnotationCampaignAPI();
-  const fileRangeService = useAnnotationFileRangeAPI();
-  const userService = useUsersAPI();
+  const history = useHistory();
 
   const [ sort, setSort ] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
   const status: Array<string> = useMemo(() => {
-    if (!sort) return [ ...annotators.keys() ];
-    return [ ...annotators.entries() ].sort((a, b) => {
+    if (!sort) return [ ...annotatorsStatus.keys() ];
+    return [ ...annotatorsStatus.entries() ].sort((a, b) => {
       let comparison = 0;
       switch (sort.entry) {
         case "Annotator":
@@ -46,37 +42,7 @@ export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) =>
       if (sort.sort === 'ASC') return comparison;
       return -comparison;
     }).map(e => e[0]);
-  }, [ sort, annotators ]);
-
-  useEffect(() => {
-    let isCancelled = false;
-
-    Promise.all([
-      fileRangeService.listForCampaign(campaign.id),
-      userService.list()
-    ]).then(([ranges, users]) => {
-      const map = new Map<string, { total: number, progress: number }>()
-      for (const range of ranges) {
-        const annotator = getDisplayName(users.find(u => u.id === range.annotator));
-        if (map.get(annotator)) {
-          map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
-          map.get(annotator)!.progress += range.finished_tasks_count;
-        } else {
-          map.set(annotator, {
-            total: range.last_file_index - range.first_file_index + 1,
-            progress: range.finished_tasks_count,
-          })
-        }
-      }
-      setAnnotators(map)
-    }).catch(e => !isCancelled && setError(e));
-
-    return () => {
-      isCancelled = true;
-      fileRangeService.abort();
-      userService.abort();
-    }
-  }, [ campaign.id ]);
+  }, [ sort, annotatorsStatus ]);
 
   const toggleAnnotatorSort = () => {
     if (!sort || sort.entry !== 'Annotator') {
@@ -98,55 +64,69 @@ export const DetailCampaignStatus: React.FC<Props> = ({ campaign, setError }) =>
     }
   }
 
+  const openEditCampaign = () => {
+    if (!campaign) return;
+    history.push(`/annotation-campaign/${ campaign?.id }/edit`)
+  }
+
   return (
     <div id="campaign-detail-status" className="bloc">
       <div className="head-bloc">
         <h5>Status</h5>
-
         <div className="buttons">
-          <IonButton color="primary"
-                     onClick={ () => campaignService.downloadResults(campaign) }>
-            <IonIcon icon={ downloadOutline } slot="start"/>
-            Results (csv)
-          </IonButton>
-          <IonButton color="primary"
-                     onClick={ () => campaignService.downloadStatus(campaign) }>
-            <IonIcon icon={ downloadOutline } slot="start"/>
-            Task status (csv)
-          </IonButton>
+
+          { isOwner && annotatorsStatus.size > 0 && <Fragment>
+              <IonButton color="primary" fill="outline"
+                         onClick={ () => campaignService.downloadReport(campaign) }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Results (csv)
+              </IonButton>
+              <IonButton color="primary" fill="outline"
+                         onClick={ () => campaignService.downloadStatus(campaign) }>
+                  <IonIcon icon={ downloadOutline } slot="start"/>
+                  Task status (csv)
+              </IonButton>
+          </Fragment> }
+          { annotatorsStatus.size == 0 && 'No annotators' }
+          { isEditionAllowed && <IonButton color={ "primary" }
+                                           onClick={ openEditCampaign }>
+              Manage annotators
+          </IonButton> }
         </div>
       </div>
 
-      <Table columns={ 2 }>
-        <TableHead isFirstColumn={ true } onClick={ toggleAnnotatorSort }>
-          <p>Annotator</p>
-          <IonIcon className={ `up ${ sort?.entry === 'Annotator' && sort.sort === 'ASC' ? 'active' : '' }` }
-                   icon={ caretUp }/>
-          <IonIcon className={ `down ${ sort?.entry === 'Annotator' && sort.sort === 'DESC' ? 'active' : '' }` }
-                   icon={ caretDown }/>
-        </TableHead>
-        <TableHead onClick={ toggleProgressSort }>
-          <p>Progress</p>
-          <IonIcon className={ `up ${ sort?.entry === 'Progress' && sort.sort === 'ASC' ? 'active' : '' }` }
-                   icon={ caretUp }/>
-          <IonIcon className={ `down ${ sort?.entry === 'Progress' && sort.sort === 'DESC' ? 'active' : '' }` }
-                   icon={ caretDown }/>
-        </TableHead>
-        { status.map(annotator => {
-          const data = annotators.get(annotator)!
-          return (
-            <Fragment key={ annotator }>
-              <TableDivider/>
-              <TableContent
-                isFirstColumn={ true }>{ annotator }</TableContent>
-              <TableContent>
-                <p>{ data.progress } / { data.total }</p>
-                <IonProgressBar color="medium" value={ data.progress / data.total }/>
-              </TableContent>
-            </Fragment>
-          );
-        }) }
-      </Table>
+
+      { annotatorsStatus.size > 0 &&
+          <Table columns={ 2 }>
+              <TableHead isFirstColumn={ true } onClick={ toggleAnnotatorSort }>
+                  <p>Annotator</p>
+                  <IonIcon className={ `up ${ sort?.entry === 'Annotator' && sort.sort === 'ASC' ? 'active' : '' }` }
+                           icon={ caretUp }/>
+                  <IonIcon className={ `down ${ sort?.entry === 'Annotator' && sort.sort === 'DESC' ? 'active' : '' }` }
+                           icon={ caretDown }/>
+              </TableHead>
+              <TableHead onClick={ toggleProgressSort }>
+                  <p>Progress</p>
+                  <IonIcon className={ `up ${ sort?.entry === 'Progress' && sort.sort === 'ASC' ? 'active' : '' }` }
+                           icon={ caretUp }/>
+                  <IonIcon className={ `down ${ sort?.entry === 'Progress' && sort.sort === 'DESC' ? 'active' : '' }` }
+                           icon={ caretDown }/>
+              </TableHead>
+            { status.map(annotator => {
+              const data = annotatorsStatus.get(annotator)!
+              return (
+                <Fragment key={ annotator }>
+                  <TableDivider/>
+                  <TableContent
+                    isFirstColumn={ true }>{ annotator }</TableContent>
+                  <TableContent>
+                    <p>{ data.progress } / { data.total }</p>
+                    <IonProgressBar color="medium" value={ data.progress / data.total }/>
+                  </TableContent>
+                </Fragment>
+              );
+            }) }
+          </Table> }
     </div>
   )
 }

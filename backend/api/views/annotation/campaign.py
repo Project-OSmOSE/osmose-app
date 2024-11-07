@@ -18,7 +18,7 @@ from django.db.models import (
     OuterRef,
     QuerySet,
 )
-from django.db.models.functions import Lower, Cast, Extract
+from django.db.models.functions import Lower, Cast, Extract, Coalesce
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -77,37 +77,25 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class CampaignAccessPermission(permissions.BasePermission):
-    """Filter campaign access base on user"""
-
-    def has_object_permission(self, request, view, obj: AnnotationCampaign) -> bool:
-        if request.user.is_staff:
-            return True
-        if obj.owner_id == request.user.id:
-            return True
-        if obj.archive is not None:
-            return False
-        return obj.annotation_file_ranges.filter(
-            annotation_campaign_id=obj.id,
-            annotator_id=request.user.id,
-        ).exists()
-
-
 class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
     """Model viewset for Annotation campaign"""
 
-    queryset = AnnotationCampaign.objects.annotate()
+    queryset = AnnotationCampaign.objects.all()
     serializer_class = AnnotationCampaignBasicSerializer
     filter_backends = (CampaignAccessFilter,)
-    permission_classes = (CampaignAccessPermission, permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.action in ["list", "retrieve"]:
-            queryset = queryset.annotate(
-                total=Sum(
-                    "annotation_file_ranges__files_count",
-                    output_field=IntegerField(default=0),
+        queryset = (
+            super()
+            .get_queryset()
+            .annotate(
+                total=Coalesce(
+                    Sum(
+                        "annotation_file_ranges__files_count",
+                        output_field=IntegerField(default=0),
+                    ),
+                    0,
                 ),
                 my_total=Sum(
                     Case(
@@ -119,7 +107,9 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                         output_field=IntegerField(),
                     )
                 ),
-            ).order_by("name")
+            )
+            .order_by("name")
+        )
         return queryset
 
     @action(
@@ -132,10 +122,14 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
         """Download annotation results report csv"""
         # pylint: disable=too-many-locals
         campaign: AnnotationCampaign = self.get_object()
-        max_confidence = max(
-            campaign.confidence_indicator_set.confidence_indicators.values_list(
-                "level", flat=True
+        max_confidence = (
+            max(
+                campaign.confidence_indicator_set.confidence_indicators.values_list(
+                    "level", flat=True
+                )
             )
+            if campaign.confidence_indicator_set
+            else 0
         )
 
         file_duration = Cast(
@@ -216,14 +210,15 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 is_weak=Value(""),
                 file_start=F("dataset_file__start"),
                 file_end=F("dataset_file__end"),
-                file_duration=ExpressionWrapper(
-                    F("dataset_file__end") - F("dataset_file__start"),
-                    output_field=BigIntegerField(),
-                ),
                 file_max_frequency=ExpressionWrapper(
                     F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
                     output_field=FloatField(),
                 ),
+            )
+            .extra(
+                select={
+                    "file_duration": 'SELECT EXTRACT(EPOCH FROM ("end" - start)) FROM dataset_files f WHERE f.id = annotation_comment.dataset_file_id'
+                },
             )
         )
         validations = (
@@ -360,7 +355,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
         # pylint: disable=unused-argument
         campaign: AnnotationCampaign = self.get_object()
         if campaign.owner_id != request.user.id and not request.user.is_staff:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         campaign.do_archive(request.user)
         return Response(

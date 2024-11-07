@@ -1,40 +1,43 @@
-import React, { MutableRefObject, useEffect, useMemo, useState } from 'react'
-import { Annotation } from "@/types/annotations.ts";
+import React, { Fragment, MutableRefObject, useEffect, useMemo, useState } from 'react'
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
-import { AudioPlayer } from "./audio-player.component.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { focusResult, removeResult } from "@/slices/annotator/annotations.ts";
 import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
+import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { AnnotationResult } from "@/services/api";
+import { AnnotationActions } from "@/slices/annotator/annotations.ts";
+import { getResultType } from "@/services/utils/annotator.ts";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
 const HEADER_MARGIN: number = 3;
 
 type RegionProps = {
-  annotation: Annotation,
-  audioPlayer: AudioPlayer | null;
+  annotation: AnnotationResult,
   yAxis: MutableRefObject<ScaleMapping | null>;
   xAxis: MutableRefObject<ScaleMapping | null>;
+  audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 };
 
 
 export const Region: React.FC<RegionProps> = ({
                                                 annotation,
-                                                audioPlayer,
-                                                yAxis, xAxis
+                                                yAxis, xAxis,
+                                                audioPlayer
                                               }) => {
 
   const {
-    task,
+    campaign,
   } = useAppSelector(state => state.annotator.global);
   const {
     labelColors,
     focusedResult,
   } = useAppSelector(state => state.annotator.annotations);
   const {
-    selectedSpectroId
+    selectedID
   } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
+
+  const audioService = useAudioService(audioPlayer);
 
   const [left, setLeft] = useState<number>(0);
   const [top, setTop] = useState<number>(0);
@@ -44,20 +47,23 @@ export const Region: React.FC<RegionProps> = ({
 
   // Recalc time position
   useEffect(() => {
-    setLeft(xAxis.current?.valueToPosition(Math.min(annotation.startTime, annotation.endTime)) ?? 0);
-    setWidth(xAxis.current?.valuesToPositionRange(annotation.startTime, annotation.endTime) ?? 0);
-  }, [xAxis.current, annotation.startTime, annotation.endTime])
+    if (annotation.start_time === null || annotation.end_time === null) return;
+    setLeft(xAxis.current?.valueToPosition(Math.min(annotation.start_time, annotation.end_time)) ?? 0);
+    setWidth(xAxis.current?.valuesToPositionRange(annotation.start_time, annotation.end_time) ?? 0);
+  }, [xAxis.current, annotation.start_time, annotation.end_time])
 
   // Recalc frequency position
   useEffect(() => {
-    const top =yAxis.current?.valueToPosition(Math.max(annotation.startFrequency, annotation.endFrequency)) ?? 0
+    if (annotation.start_frequency === null || annotation.end_frequency === null) return;
+    const top =yAxis.current?.valueToPosition(Math.max(annotation.start_frequency, annotation.end_frequency)) ?? 0
     setTop(top);
-    setHeight(yAxis.current?.valuesToPositionRange(annotation.startFrequency, annotation.endFrequency) ?? 0);
+    setHeight(yAxis.current?.valuesToPositionRange(annotation.start_frequency, annotation.end_frequency) ?? 0);
     setHeaderIsOnTop(top > HEADER_HEIGHT + HEADER_MARGIN)
-  }, [yAxis.current, annotation.startFrequency, annotation.endFrequency, selectedSpectroId,])
+  }, [yAxis.current, annotation.start_frequency, annotation.end_frequency, selectedID,])
 
   const color = useMemo(() => labelColors[annotation.label] ?? DEFAULT_COLOR, [labelColors, annotation.label])
-  const isActive = useMemo(() => annotation.id === focusedResult?.id && annotation.newId === focusedResult?.newId, [annotation.id, focusedResult?.id, annotation.newId, focusedResult?.newId])
+  const isActive = useMemo(() => annotation.id === focusedResult?.id, [annotation.id, focusedResult?.id])
+  const type = useMemo(() => getResultType(annotation), [annotation]);
 
 
   const bodyRegion = useMemo(() => <div className="region-body"
@@ -66,6 +72,7 @@ export const Region: React.FC<RegionProps> = ({
                                           height
                                         } }></div>, [color, height])
 
+  if (type !== 'box') return <Fragment/>
   return (
     <div className={ "region " + (isActive ? 'active' : '') }
          style={ {
@@ -87,20 +94,20 @@ export const Region: React.FC<RegionProps> = ({
          } }>
 
         <button className="btn-simple fa fa-play-circle text-white"
-                onClick={ () => audioPlayer?.play(annotation) }></button>
+                onClick={ () => audioService.play(annotation) }></button>
 
         <span className="flex-fill text-center"
-              onClick={ () => dispatch(focusResult(annotation)) }
+              onClick={ () => dispatch(AnnotationActions.focusResult(annotation)) }
               style={ { height: HEADER_HEIGHT } }>
           { annotation.label }
         </span>
 
-        { annotation.result_comments.length > 0 ?
+        { annotation.comments.length > 0 ?
           <i className="fas fa-comment mr-2"></i> :
           <i className="far fa-comment mr-2"></i> }
 
-        { task.mode === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
-                                            onClick={ () => dispatch(removeResult(annotation)) }></button> }
+        { campaign?.usage === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
+                                            onClick={ () => dispatch(AnnotationActions.removeResult(annotation)) }></button> }
       </p>
 
       { headerIsOnTop && bodyRegion }

@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
-from backend.aplose_auth.models import User
+from backend.aplose.models import User
 from .annotation import AnnotationResult, AnnotationTask
 from .datasets import DatasetFile
 
@@ -139,7 +139,7 @@ class AnnotationCampaign(models.Model):
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
     instructions_url = models.TextField(null=True, blank=True)
-    deadline = models.DateTimeField(null=True, blank=True)
+    deadline = models.DateField(null=True, blank=True)
 
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
     datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
@@ -154,6 +154,11 @@ class AnnotationCampaign(models.Model):
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    annotators = models.ManyToManyField(
+        to=settings.AUTH_USER_MODEL,
+        through="AnnotationFileRange",
+        related_name="campaigns",
+    )
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )

@@ -13,3 +13,10 @@ from .post import (
     PostCampaignOwnerAuthenticatedTestCase,
     PostAdminAuthenticatedTestCase,
 )
+from .import_results import (
+    ImportUnauthenticatedTestCase,
+    ImportBaseUserAuthenticatedTestCase,
+    ImportAnnotatorAuthenticatedTestCase,
+    ImportCampaignOwnerAuthenticatedTestCase,
+    ImportAdminAuthenticatedTestCase,
+)

@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.tests.utils import AuthenticatedTestCase, empty_fixtures, all_fixtures
+from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-file-range-list")
 
@@ -56,7 +56,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data), 6)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -66,7 +66,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
     def test_list_for_current_user_with_files(self):
         response = self.client.get(
@@ -77,7 +77,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
         # First file range
         self.assertEqual(response.data[0]["id"], 1)
@@ -86,6 +86,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
 
         # First file of first file range
         self.assertEqual(response.data[0]["files"][0]["id"], 1)
+        self.assertEqual(response.data[0]["files"][0]["results_count"], 3)
         self.assertEqual(response.data[0]["files"][0]["filename"], "sound001.wav")
 
 
@@ -96,7 +97,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data), 6)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -127,7 +128,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 6)
 
     def test_list_for_current_user(self):
         response = self.client.get(
@@ -137,7 +138,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
     def test_list_for_current_user_with_files(self):
         response = self.client.get(
@@ -148,13 +149,14 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
         # First file range
-        self.assertEqual(response.data[0]["id"], 4)
-        self.assertEqual(response.data[0]["files_count"], 1)
-        self.assertEqual(len(response.data[0]["files"]), 1)
+        self.assertEqual(response.data[0]["id"], 5)
+        self.assertEqual(response.data[0]["files_count"], 2)
+        self.assertEqual(len(response.data[0]["files"]), 2)
 
         # First file of first file range
-        self.assertEqual(response.data[0]["files"][0]["id"], 4)
-        self.assertEqual(response.data[0]["files"][0]["filename"], "sound004.wav")
+        self.assertEqual(response.data[0]["files"][0]["id"], 1)
+        self.assertEqual(response.data[0]["files"][0]["results_count"], 1)
+        self.assertEqual(response.data[0]["files"][0]["filename"], "sound001.wav")

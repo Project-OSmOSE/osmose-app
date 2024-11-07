@@ -1,5 +1,5 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { IonButton, IonCheckbox, IonRadio, IonRadioGroup } from "@ionic/react";
+import { IonButton, IonCheckbox } from "@ionic/react";
 import { WarningMessage } from "@/components/warning/warning-message.component";
 import { DragNDropFileInput, DragNDropState, FormBloc } from "@/components/form";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
@@ -10,9 +10,10 @@ import { buildErrorMessage } from "@/services/utils/format.tsx";
 
 interface Props {
   cancelButton: ReactNode;
+  onFileImported: (file: File) => void;
 }
 
-export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
+export const CSVImportContent: React.FC<Props> = ({ cancelButton, onFileImported: _onFileImported }) => {
 
   // Form data
   const dispatch = useAppDispatch();
@@ -23,7 +24,12 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
   } = useAppSelector(state => state.createCampaignForm.importAnnotations);
 
   // Services
-  const service = useImportAnnotations();
+  const { loadFile } = useImportAnnotations();
+
+  const onFileImported = (file: File) => {
+    loadFile(file);
+    _onFileImported(file);
+  }
 
   const dragNDropLoaded =
     <DragNDropFileInput state={ DragNDropState.fileLoaded }
@@ -38,7 +44,7 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
     </Fragment>
 
 
-  const errorsTypes = useMemo(() => errors.map(e => e.type), [errors]);
+  const errorsTypes = useMemo(() => errors.map(e => e.type), [ errors ]);
   switch (status) {
     case 'empty':
       return (
@@ -46,7 +52,7 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
           <DragNDropFileInput state={ DragNDropState.available }
                               label="Import annotations (csv)"
                               accept={ ACCEPT_CSV_MIME_TYPE }
-                              onFileImported={ file => service.loadFile(file) }/>
+                              onFileImported={ onFileImported }/>
 
           <div id="buttons">{ cancelButton }</div>
         </Fragment>
@@ -62,8 +68,6 @@ export const CSVImportContent: React.FC<Props> = ({ cancelButton }) => {
       }
       if (errorsTypes.includes('contains unrecognized dataset'))
         return <UnrecognizedDatasetWithButtons dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>
-      if (errorsTypes.includes('inconsistent max confidence'))
-        return <InconsistentMaxConfidenceWithButtons dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>
       return;
     case 'edit-detectors':
       return loadingContent;
@@ -112,26 +116,23 @@ const UnrecognizedCSVError: React.FC<ContentProps & { error: string; }> = ({ can
 )
 
 const UnrecognizedDatasetWithButtons: React.FC<ContentProps> = ({ cancelButton, dragNDrop }) => {
-  const [datasetSelection, setDatasetSelection] = useState<Map<string, boolean>>(new Map());
-  const canValidateDatasets = useMemo(() => [...datasetSelection.values()].includes(true), [datasetSelection]);
+  const [ datasetSelection, setDatasetSelection ] = useState<Map<string, boolean>>(new Map());
+  const canValidateDatasets = useMemo(() => [ ...datasetSelection.values() ].includes(true), [ datasetSelection ]);
 
   // Form data
-  const { datasetName, rows } = useAppSelector(state => state.createCampaignForm.importAnnotations);
-
-  // Services
-  const service = useImportAnnotations();
+  const { datasetName, initialRows } = useAppSelector(state => state.createCampaignForm.importAnnotations);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setDatasetSelection(new Map(service.distinctDatasets.map(d => [d, true])))
-  }, [rows])
+    setDatasetSelection(new Map(initialRows.map(r => [ r.dataset, true ])))
+  }, [ initialRows ])
 
   const save = () => {
-    const selection = []
-    for (const entry of datasetSelection.entries()) {
-      if (entry[1]) selection.push(entry[0]);
-    }
-
-    service.keepDatasets(selection);
+    const selection: string[] = [ ...datasetSelection.entries() ]
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([ _, isSelected ]) => isSelected)
+      .map(([ dataset ]) => dataset);
+    dispatch(importAnnotationsActions.setSelectedDatasets(selection))
   }
 
   return (
@@ -142,7 +143,7 @@ const UnrecognizedDatasetWithButtons: React.FC<ContentProps> = ({ cancelButton, 
           <p>The selected file contains unrecognized dataset{ datasetSelection.size > 0 && 's' }</p>
         </WarningMessage>
         <FormBloc label="Dataset founds">
-          { [...datasetSelection.entries()].map(([dataset, checked]) => (
+          { [ ...datasetSelection.entries() ].map(([ dataset, checked ]) => (
             <IonCheckbox labelPlacement="end" justify="start"
                          checked={ checked }
                          key={ dataset }
@@ -172,48 +173,3 @@ const UnrecognizedDatasetWithButtons: React.FC<ContentProps> = ({ cancelButton, 
   )
 }
 
-const InconsistentMaxConfidenceWithButtons: React.FC<ContentProps> = ({ cancelButton, dragNDrop }) => {
-  const [confidenceMaxLevel, setConfidenceMaxLevel] = useState<number>(0);
-
-  // Services
-  const service = useImportAnnotations();
-
-  const save = () => {
-    service.keepMaxConfidence(confidenceMaxLevel)
-  }
-
-  return (
-    <Fragment>
-      <div id="content">
-        { dragNDrop }
-        <WarningMessage>
-          <p>
-            Inconsistent confidence indicator max level:
-            <br/>
-            found { service.distinctMaxConfidence.size } different max
-          </p>
-        </WarningMessage>
-        <FormBloc label="Confidence indicator max level">
-          <IonRadioGroup value={ confidenceMaxLevel } onIonChange={ e => setConfidenceMaxLevel(e.detail.value) }>
-            { [...service.distinctMaxConfidence.entries()].map(([max, occurrences]) => (
-              <IonRadio value={ max } key={ max } labelPlacement="end" justify="start">
-                { max } ({ occurrences } occurrences)
-              </IonRadio>
-            )) }
-          </IonRadioGroup>
-        </FormBloc>
-      </div>
-
-
-      <div id="buttons">
-        { cancelButton }
-
-        <IonButton disabled={ !confidenceMaxLevel }
-                   aria-disabled={ !confidenceMaxLevel }
-                   onClick={ save }>
-          Use { confidenceMaxLevel } as maximum for confidence level
-        </IonButton>
-      </div>
-    </Fragment>
-  )
-}

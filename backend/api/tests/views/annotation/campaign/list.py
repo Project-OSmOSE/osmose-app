@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures, empty_fixtures
+from backend.utils.tests import AuthenticatedTestCase, all_fixtures, empty_fixtures
 
 URL = reverse("annotation-campaign-list")
 
@@ -37,9 +37,10 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[1]["name"], "Test RTF campaign")
+        self.assertEqual(response.data[1]["my_total"], 0)
 
 
 class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
@@ -49,10 +50,10 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
-        self.assertEqual(response.data[1]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[1]["my_total"], 0)
+        self.assertEqual(response.data[2]["name"], "Test SPM campaign")
+        self.assertEqual(response.data[2]["my_total"], 0)
 
 
 class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
@@ -62,7 +63,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list(self):
         response = self.client.get(URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[1]["name"], "Test SPM campaign")
         self.assertEqual(response.data[1]["my_total"], 5)

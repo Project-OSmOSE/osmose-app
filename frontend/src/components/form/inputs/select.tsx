@@ -1,45 +1,51 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState, } from "react";
-import { IonAlert, IonIcon } from "@ionic/react";
+import { IonAlert, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { useBlur } from "@/services/utils/clic.ts";
 import { Item } from '@/types/item.ts';
 import './inputs.css';
 
-interface Props {
+export type SelectValue = number | string | undefined;
+
+type SelectProperties = {
   label?: string;
   required?: boolean;
   placeholder: string;
   options: Array<Item>;
   optionsContainer: 'popover' | 'alert';
-  value?: number | string;
+  value?: SelectValue;
   onValueSelected: (value: number | string | undefined) => void;
   children?: ReactNode,
   noneLabel?: string;
   noneFirst?: boolean;
-}
+  error?: string;
+  isLoading?: boolean;
+} & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>
 
-export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>> = ({
-                                                                                          label,
-                                                                                          placeholder,
-                                                                                          required = false,
-                                                                                          options: parentOptions,
-                                                                                          value,
-                                                                                          onValueSelected,
-                                                                                          optionsContainer,
-                                                                                          children,
-                                                                                          noneLabel = 'None',
-                                                                                          disabled,
-                                                                                          className,
-                                                                                          noneFirst = false,
-                                                                                          ...props
-                                                                                        }) => {
+export const Select: React.FC<SelectProperties> = ({
+                                                     label,
+                                                     placeholder,
+                                                     required = false,
+                                                     options: parentOptions,
+                                                     value,
+                                                     onValueSelected,
+                                                     optionsContainer,
+                                                     children,
+                                                     noneLabel = 'None',
+                                                     disabled,
+                                                     className,
+                                                     noneFirst = false,
+                                                     error,
+                                                     isLoading = false,
+                                                     ...props
+                                                   }) => {
   const blurUtil = useBlur();
 
   const selectRef = useRef<HTMLDivElement | null>(null);
   const optionsRef = useRef<HTMLDivElement | null>(null);
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [hasSelectedItem, setHasSelectedItem] = useState<boolean>(false);
+  const [ isOpen, setIsOpen ] = useState<boolean>(false);
+  const [ hasSelectedItem, setHasSelectedItem ] = useState<boolean>(false);
 
   useEffect(() => {
     setHasSelectedItem(false)
@@ -47,13 +53,13 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
   }, [])
 
   const getOptions = (): Array<Item> => {
-    let values = [...parentOptions];
+    let values = [ ...parentOptions ];
     if (!required) {
       const none = {
         value: -1,
         label: noneLabel
       }
-      if (noneFirst) values = [none, ...values]
+      if (noneFirst) values = [ none, ...values ]
       else values.push(none)
     }
     return values;
@@ -65,17 +71,22 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
       else return placeholder;
     }
     return getOptions().find(o => o.value === value)?.label ?? placeholder
-  }, [value, parentOptions, required, hasSelectedItem, placeholder])
-  const buttonId = useMemo(() => `button-${ placeholder.toLowerCase().replace(' ', '-') }`, [placeholder])
+  }, [ value, parentOptions, required, hasSelectedItem, placeholder ])
+  const buttonId = useMemo(() => `button-${ placeholder.toLowerCase().replace(' ', '-') }`, [ placeholder ])
 
-  const parentClasses = ["select", className]
+  const parentClasses = [ "select", className ]
   if (label) parentClasses.push("has-label")
 
-  return <div id="aplose-input" className={ parentClasses.join(' ') } ref={ selectRef } { ...props }>
-    { label && <div id="label" className={ required ? 'required' : '' }>{ label }{ required && '*' }</div> }
+  return <div id="aplose-input" className={ parentClasses.join(' ') } ref={ selectRef } { ...props }
+              aria-loading={ isLoading }
+              aria-invalid={ !!error }>
+    { label && <div id="label"
+                    aria-disabled={ disabled }
+                    className={ required ? 'required' : '' }>{ label }{ required && '*' }</div> }
+
+    { isLoading && <IonSpinner/> }
 
     <div id="input"
-         aria-disabled={ disabled }
          className={ isOpen ? 'open' : '' }>
       <select required={ required }
               className="hide-real-input"
@@ -86,8 +97,10 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
       </select>
 
       <button id={ buttonId } type="button"
-           onClick={ () => !disabled && setIsOpen(!isOpen) }
-           className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
+              aria-disabled={ disabled }
+              disabled={ disabled }
+              onClick={ () => !disabled && setIsOpen(!isOpen) }
+              className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
         <p>{ buttonLabel }</p>
         { !isOpen && <IonIcon icon={ caretDown }/> }
         { isOpen && <IonIcon icon={ caretUp }/> }
@@ -104,7 +117,7 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
       { optionsContainer === 'alert' && <IonAlert
           trigger={ buttonId }
           header={ placeholder }
-          buttons={ ['OK'] }
+          buttons={ [ 'OK' ] }
           inputs={ getOptions().map(o => ({
             type: 'radio',
             ...o,
@@ -122,5 +135,6 @@ export const Select: React.FC<Props & Omit<HTMLProps<HTMLDivElement>, 'id' | 're
     </div>
 
     { !!children && <div id="inner-content">{ children }</div> }
+    { error && <IonNote color="danger">{ error }</IonNote> }
   </div>
 }

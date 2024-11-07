@@ -7,7 +7,7 @@ from backend.api.models import (
     AnnotationComment,
     DatasetFile,
 )
-from backend.aplose_auth.models import User
+from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer
 
 

@@ -4,11 +4,12 @@ import json
 
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
 from backend.api.models import AnnotationFileRange
-from backend.api.tests.utils import AuthenticatedTestCase, all_fixtures
+from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
 URL = reverse("annotation-file-range-campaign", kwargs={"campaign_id": 1})
 URL_unknown_campaign = reverse(
@@ -61,7 +62,7 @@ class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             data=json.dumps([basic_create_range]),
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_unknown_campaign(self):
         response = self.client.post(
@@ -235,9 +236,18 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
 
         self.assertEqual(AnnotationFileRange.objects.count(), initial_count)
 
+    def test_post_delete_all_with_finished_task(self):
+        response = self.post([])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0].code, "invalid_deletion")
+
     def test_post_delete_all(self):
         initial_count = AnnotationFileRange.objects.count()
-        response = self.post([])
+        response = self.client.post(
+            reverse("annotation-file-range-campaign", kwargs={"campaign_id": 2}),
+            data=json.dumps([]),
+            content_type="application/json",
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(AnnotationFileRange.objects.count(), initial_count - 2)
