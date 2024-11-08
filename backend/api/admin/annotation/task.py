@@ -13,12 +13,13 @@ class AnnotationFileRangeAdmin(admin.ModelAdmin):
         "last_file_index",
         "annotator",
         "annotation_campaign",
+        "files_count",
     )
     search_fields = (
         "annotation_campaign__name",
         "annotator__username",
-        "annotator__firstname",
-        "annotator__lastname",
+        "annotator__first_name",
+        "annotator__last_name",
     )
 
 

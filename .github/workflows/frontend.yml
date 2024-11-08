@@ -35,7 +35,6 @@ jobs:
       - name: Setup DB
         run: |
           poetry run ./manage.py migrate
-          poetry run ./manage.py seed
       # Setup frontend
       - uses: actions/setup-node@v4
         with:
@@ -49,6 +48,10 @@ jobs:
       - name: Run Playwright tests
         working-directory: frontend
         run: npx playwright test
+        start: |
+          poetry run python ../manage.py runserver
+          poetry run python ../manage.py seed
+          npm run dev
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
