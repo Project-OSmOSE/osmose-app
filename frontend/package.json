@@ -6,12 +6,16 @@
   "homepage": ".",
   "proxy": "http://localhost:8000",
   "scripts": {
-    "run-back": "cd .. && poetry run .\\manage.py runserver",
+    "run:all": "concurrently --kill-others-on-fail \"npm run run:server\" \"npm run dev\"",
+    "run:server": "cd .. && .\\venv\\Scripts\\activate && poetry run python .\\manage.py runserver",
     "dev": "vite",
+    "wait:all": "wait-on http://localhost:8000/backend/admin && wait-on http://localhost:5173/app",
+    "wait:server": "wait-on http://localhost:8000/backend/admin",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "test:playwright": "concurrently --kill-others \"npm run run:all\" \"npm run wait:server && npx playwright test -c ./playwright.config.ts ./tests/front\""
   },
   "dependencies": {
     "@ionic/react": "^7.6.2",
@@ -47,6 +51,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
     "babel-jest": "^29.7.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
@@ -60,6 +65,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "wait-on": "^8.0.1"
   }
 }
