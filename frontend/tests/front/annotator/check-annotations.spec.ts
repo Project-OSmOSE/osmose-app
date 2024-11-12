@@ -170,7 +170,9 @@ function getValidationButtons(page: Page) {
   }
 }
 
-test('global', async ({ annotatorPage: page }) => {
+test('global', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
   await accessAnnotator(page)
   await expect(page.getByText('Labels list')).not.toBeVisible()
@@ -190,7 +192,9 @@ test('No results', async ({ annotatorPage: page }) => {
   await expect(page.getByText('No results')).toBeVisible()
 })
 
-test.describe('Detection validations', () => {
+test.describe('Detection validations', {
+  tag: '@essential'
+}, () => {
   test('Can validate tag', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
@@ -302,7 +306,9 @@ test.describe('Detection validations', () => {
   })
 })
 
-test.describe('Comments', () => {
+test.describe('Comments', {
+  tag: '@essential'
+}, () => {
   test('Can add comment on the task', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
@@ -384,7 +390,9 @@ test.describe('Comments', () => {
   })
 })
 
-test('Can go back to campaign', async ({ annotatorPage: page }) => {
+test('Can go back to campaign', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
   await accessAnnotator(page)
   await page.getByRole('button', { name: 'Back to campaign' }).click()

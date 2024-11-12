@@ -85,7 +85,9 @@ async function importAnnotations(page: Page, filename: string,
   await modal.getByRole('button', { name: `Import` }).click({ force: true });
 }
 
-test('Default', async ({ annotatorPage: page }) => {
+test('Default', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await accessCreateCampaign(page);
   await fillBaseForm(page);
   // Annotation
@@ -268,7 +270,9 @@ test('Can delete import', async ({ annotatorPage: page }) => {
   )
 })
 
-test('Handle import some annotation not matching dataset files', async ({ annotatorPage: page }) => {
+test('Handle import some annotation not matching dataset files', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
 
   await accessCreateCampaign(page);
   await fillBaseForm(page);
@@ -322,7 +326,9 @@ test('Handle import some annotation not matching dataset files', async ({ annota
   expect(submitResultsRequestFinal.url()).toContain(`force=true`)
 })
 
-test('Handle detector already in database', async ({ annotatorPage: page }) => {
+test('Handle detector already in database', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await page.route(/api\/detector/g, route => route.fulfill({
     status: 200, json: [ {
       name: 'detector1',

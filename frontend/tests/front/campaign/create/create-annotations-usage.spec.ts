@@ -14,7 +14,9 @@ import {
   url
 } from './util';
 
-test('Default', async ({ annotatorPage: page }) => {
+test('Default', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await accessCreateCampaign(page);
   // Global info
   await page.getByPlaceholder('Campaign name').fill(name);
@@ -46,7 +48,9 @@ test('Default', async ({ annotatorPage: page }) => {
   expect(submittedData).toEqual(expectedData);
 })
 
-test('Only needed info', async ({ annotatorPage: page }) => {
+test('Only needed info', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await accessCreateCampaign(page);
   // Global info
   await page.getByPlaceholder('Campaign name').fill(name);
@@ -73,7 +77,9 @@ test('Only needed info', async ({ annotatorPage: page }) => {
   expect(submittedData).toEqual(expectedData);
 })
 
-test('Handle errors', async ({ annotatorPage: page }) => {
+test('Handle errors', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await accessCreateCampaign(page);
   // Global info
   await page.getByPlaceholder('Campaign name').fill(name);

@@ -1,7 +1,9 @@
 import { expect, test } from '../../../utils/fixture';
 import { accessCampaignDetail } from '../../../utils/campaign/functions';
 
-test('annotator can view campaign audio metadata ', async ({ annotatorPage }) => {
+test('annotator can view campaign audio metadata ', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await accessCampaignDetail(annotatorPage);
   await expect(annotatorPage.getByText('Sample bits16')).toBeVisible();
 })
@@ -23,7 +25,9 @@ test('admin cannot download empty audio metadata', async ({ adminPage }) => {
   await expect(button).not.toBeVisible();
 })
 
-test('admin can download filled audio metadata', async ({ adminPage }) => {
+test('admin can download filled audio metadata', {
+  tag: '@essential'
+}, async ({ adminPage }) => {
   await adminPage.route(/\/api\/audio-metadata\/export\/?\??.*/g, route => {
     return route.fulfill({ status: 200 })
   })

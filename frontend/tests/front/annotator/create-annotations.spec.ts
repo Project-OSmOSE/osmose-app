@@ -389,7 +389,9 @@ const end_coords = {
   frequency: 16640,
 }
 
-test.describe('No results', () => {
+test.describe('No results', {
+  tag: '@essential'
+}, () => {
   test('A text is shown', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({
       status: 200,
@@ -824,7 +826,9 @@ test('No confidence', async ({ annotatorPage: page }) => {
   await expect(page.getByText('Confidence indicator')).not.toBeVisible()
 })
 
-test('Can go back to campaign', async ({ annotatorPage: page }) => {
+test('Can go back to campaign', {
+  tag: '@essential'
+}, async ({ annotatorPage: page }) => {
   await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
   await accessAnnotator(page)
   await page.getByRole('button', { name: 'Back to campaign' }).click()

@@ -7,7 +7,9 @@ import {
   canAccessUserGuide
 } from '../../../utils/campaign/functions';
 
-test('can see campaigns', async ({ annotatorPage }) => {
+test('can see campaigns', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   const cards = annotatorPage.locator('.campaign-card');
   await cards.first().waitFor();
   expect(await cards.count()).toBeGreaterThanOrEqual(1);
@@ -53,31 +55,41 @@ test('cannot see archived campaigns', async ({ annotatorPage }) => {
   await expect(toggle).not.toBeVisible();
 })
 
-test('can search campaigns', async ({ annotatorPage }) => {
+test('can search campaigns', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await annotatorPage.getByPlaceholder('Search campaign').locator('input').fill(DEFAULT_CAMPAIGN_NAME);
   const cards = annotatorPage.locator('.campaign-card')
   await cards.first().waitFor()
   expect(await cards.count()).toEqual(1)
 })
 
-test('can access campaign detail', async ({ annotatorPage }) => {
+test('can access campaign detail', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await annotatorPage.getByPlaceholder('Search campaign').locator('input').fill(DEFAULT_CAMPAIGN_NAME);
   const card = annotatorPage.locator('.campaign-card').first()
   await card.waitFor()
   await canAccessCampaignDetail(annotatorPage, card)
 })
 
-test('can access campaign annotation file list', async ({ annotatorPage }) => {
+test('can access campaign annotation file list', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await annotatorPage.getByPlaceholder('Search campaign').locator('input').fill(DEFAULT_CAMPAIGN_NAME);
   const card = annotatorPage.locator('.campaign-card').first()
   await card.waitFor()
   await canAccessCampaignFileList(annotatorPage, card)
 })
 
-test('can create campaign', async ({ annotatorPage }) => {
+test('can create campaign', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await accessCreateCampaign(annotatorPage)
 })
 
-test('can access user guide', async ({ annotatorPage }) => {
+test('can access user guide', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await canAccessUserGuide(annotatorPage)
 })

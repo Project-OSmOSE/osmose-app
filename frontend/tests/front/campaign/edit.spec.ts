@@ -20,7 +20,9 @@ test.describe('Loading', () => {
     await expect(adminPage.locator('.table-aplose')).not.toBeVisible()
   })
 
-  test('Filled state', async ({ adminPage }) => {
+  test('Filled state', {
+    tag: '@essential'
+  }, async ({ adminPage }) => {
     await accessCampaignEdit(adminPage, [
       {
         "id": 1,
@@ -38,7 +40,9 @@ test.describe('Loading', () => {
   })
 })
 
-test.describe('Adding an annotator', () => {
+test.describe('Adding an annotator', {
+  tag: '@essential'
+}, () => {
   test('not in campaign', async ({ adminPage }) => {
     await accessCampaignEdit(adminPage, []);
     await adminPage.getByPlaceholder('Search annotator').locator('input').fill(ANNOTATOR.displayName);
@@ -97,7 +101,9 @@ test.describe('Adding an annotator', () => {
   })
 })
 
-test.describe('Edit an annotator', () => {
+test.describe('Edit an annotator', {
+  tag: '@essential'
+}, () => {
   test('without finished task is possible', async ({ adminPage }) => {
     await accessCampaignEdit(adminPage, [
       {
@@ -139,7 +145,9 @@ test.describe('Edit an annotator', () => {
   })
 })
 
-test.describe('Remove an annotator', () => {
+test.describe('Remove an annotator', {
+  tag: '@essential'
+}, () => {
   test('without finished task is possible', async ({ adminPage }) => {
     await accessCampaignEdit(adminPage, [
       {

@@ -17,7 +17,9 @@ test('Empty state - admin can archive campaign', async ({ adminPage }) => {
   ])
 })
 
-test('Filled state - admin can archive campaign', async ({ adminPage }) => {
+test('Filled state - admin can archive campaign', {
+  tag: '@essential'
+}, async ({ adminPage }) => {
   await accessCampaignDetail(adminPage);
   await adminPage.route(/\/api\/annotation-campaign\/\d\/archive\/?/g, route => {
     return route.fulfill({ status: 200 });
@@ -34,7 +36,9 @@ test('Filled state - admin can archive campaign', async ({ adminPage }) => {
   ])
 })
 
-test('Annotator cannot archive campaign', async ({ annotatorPage }) => {
+test('Annotator cannot archive campaign', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await accessCampaignDetail(annotatorPage);
   const button = annotatorPage.getByRole('button', { name: 'Archive' });
   await expect(button).not.toBeVisible();

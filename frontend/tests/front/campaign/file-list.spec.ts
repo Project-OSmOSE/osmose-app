@@ -13,12 +13,16 @@ test.describe('Empty state', () => {
 })
 
 test.describe('Annotator', () => {
-  test('can access detail', async ({ annotatorPage }) => {
+  test('can access detail', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
     await accessCampaignFileList(annotatorPage);
     await canAccessCampaignDetail(annotatorPage, annotatorPage);
   })
 
-  test('can access user guide', async ({ annotatorPage }) => {
+  test('can access user guide', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
     await accessCampaignFileList(annotatorPage);
     await canAccessUserGuide(annotatorPage);
   })
@@ -29,7 +33,9 @@ test.describe('Annotator', () => {
     await expect(button).toBeVisible();
   })
 
-  test('show file list', async ({ annotatorPage }) => {
+  test('show file list', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
     await accessCampaignFileList(annotatorPage);
     const table = annotatorPage.getByRole('table')
     await expect(table).toBeVisible();
@@ -37,7 +43,9 @@ test.describe('Annotator', () => {
     expect(rowsCount).toBeGreaterThan(1);
   })
 
-  test('can annotate submitted file', async ({ annotatorPage }) => {
+  test('can annotate submitted file', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
     await accessCampaignFileList(annotatorPage);
     const table = annotatorPage.getByRole('table')
     await expect(table).toBeVisible();
@@ -47,7 +55,9 @@ test.describe('Annotator', () => {
     await annotatorPage.waitForURL(/.*\/annotation-campaign\/\d+\/file\/\d+/g);
   })
 
-  test('can annotate unsubmitted file', async ({ annotatorPage }) => {
+  test('can annotate unsubmitted file', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
     await accessCampaignFileList(annotatorPage);
     const table = annotatorPage.getByRole('table')
     await expect(table).toBeVisible();

@@ -1,4 +1,4 @@
-import { test, expect } from '../utils/fixture';
+import { expect, test } from '../utils/fixture';
 import { login } from "../utils/auth/function";
 import { ADMIN, ANNOTATOR, TestUser } from "../utils/auth/data";
 import { Cookie, Page } from "@playwright/test";
@@ -11,7 +11,9 @@ async function checkTokenCookie(page: Page) {
 }
 
 test.describe('Login', () => {
-  test('logs in with admin credentials', async ({ page }) => {
+  test('logs in with admin credentials', {
+    tag: '@essential'
+  }, async ({ page }) => {
     await login(page, ADMIN);
 
     const title = page.getByRole('heading', { name: 'Annotation Campaigns' })
@@ -20,7 +22,9 @@ test.describe('Login', () => {
     await checkTokenCookie(page);
   })
 
-  test('logs in with annotator credentials', async ({ page }) => {
+  test('logs in with annotator credentials', {
+    tag: '@essential'
+  }, async ({ page }) => {
     await login(page, ANNOTATOR);
 
     const title = page.getByRole('heading', { name: 'Annotation Campaigns' })
@@ -67,7 +71,9 @@ test.describe('Login', () => {
   })
 })
 
-test.describe('Logout', () => {
+test.describe('Logout', {
+  tag: '@essential'
+}, () => {
   test('logs out with admin credentials', async ({ adminPage: page }) => {
     await page.getByRole('button', { name: 'Logout' }).click()
 

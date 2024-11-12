@@ -2,7 +2,9 @@ import { expect, test } from '../../../utils/fixture';
 import { accessCampaignDetail } from '../../../utils/campaign/functions';
 import { ADMIN, ANNOTATOR, BASE_USER } from '../../../utils/auth/data';
 
-test('Annotator can view campaign status ', async ({ annotatorPage }) => {
+test('Annotator can view campaign status', {
+  tag: '@essential'
+}, async ({ annotatorPage }) => {
   await accessCampaignDetail(annotatorPage);
   await expect(annotatorPage.getByText('admin (Expert)')).toBeVisible()
   await expect(annotatorPage.getByText(ANNOTATOR.displayName)).toBeVisible()
@@ -29,7 +31,9 @@ test('admin cannot download empty status', async ({ adminPage }) => {
   await expect(statusButton).not.toBeVisible();
 })
 
-test('admin can download filled status', async ({ adminPage }) => {
+test('admin can download filled status', {
+  tag: '@essential'
+}, async ({ adminPage }) => {
   await adminPage.route(/\/api\/annotation-campaign\/\d\/report\/?\??.*/g, route => {
     return route.fulfill({ status: 200 })
   })
@@ -51,7 +55,9 @@ test('admin can download filled status', async ({ adminPage }) => {
   ])
 })
 
-test('admin can manage annotators', async ({ adminPage }) => {
+test('admin can manage annotators', {
+  tag: '@essential'
+}, async ({ adminPage }) => {
   await accessCampaignDetail(adminPage);
   const button = adminPage.getByRole('button', { name: 'Manage annotators' });
   await expect(button).toBeVisible();
@@ -67,7 +73,7 @@ test('annotator cannot download filled status', async ({ annotatorPage }) => {
   await expect(statusButton).not.toBeVisible();
 })
 
-test('admin cannot manage annotators', async ({ annotatorPage }) => {
+test('annotator cannot manage annotators', async ({ annotatorPage }) => {
   await accessCampaignDetail(annotatorPage);
   const button = annotatorPage.getByRole('button', { name: 'Manage annotators' });
   await expect(button).not.toBeVisible();

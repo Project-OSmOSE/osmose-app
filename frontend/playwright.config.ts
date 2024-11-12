@@ -7,16 +7,22 @@ import { defineConfig, devices } from '@playwright/test';
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+
+let grep: RegExp[] | undefined = []
+/* Limit test to essential (tagged) ones [full: 10m - essential: 6m] */
+if (process.env.CI_LIMITED) grep.push(/essential/)
+if (grep.length === 0) grep = undefined;
+
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  grep,
   /* Retry on CI only */
   retries: process.env.CI ? 3 : 0,
   /* Opt out of parallel tests on CI. */
