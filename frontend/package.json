@@ -7,7 +7,7 @@
   "proxy": "http://localhost:8000",
   "scripts": {
     "run:all": "concurrently --kill-others-on-fail \"npm run run:server\" \"npm run dev\"",
-    "run:server": "cd .. && poetry run python .\\manage.py runserver",
+    "run:server": "cd .. && poetry run python manage.py runserver",
     "dev": "vite",
     "wait:all": "wait-on http://localhost:8000/backend/admin && wait-on http://localhost:5173/app",
     "wait:server": "wait-on http://localhost:8000/backend/admin",
