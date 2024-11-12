@@ -54,6 +54,7 @@ test.describe('Access', () => {
 test.describe('Empty states', () => {
   test('List should not appear', async ({ adminPage }) => {
     await adminPage.route(/api\/dataset$/g, route => route.fulfill({ status: 200, json: [] }))
+    await mockDatasetImportList(adminPage);
     await adminPage.getByRole('link', { name: 'Datasets' }).click();
 
     const table = adminPage.getByRole('table')
