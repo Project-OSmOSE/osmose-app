@@ -18,12 +18,12 @@ export type ListItem = {
 }
 export type ListToImport = Array<ListToImportItem>
 export type ListToImportItem = {
-  name: string;
-  campaign: string;
   dataset: string;
-  spectro_duration: string;
-  sample_rate: string;
+  dataset_sr: string;
   file_type: string;
+  name: string;
+  path: string;
+  spectro_duration: string;
 }
 
 class DatasetAPIService extends APIService<List, never, never> {

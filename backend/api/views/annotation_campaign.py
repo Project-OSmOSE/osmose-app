@@ -13,7 +13,6 @@ from django.db.models import (
     ExpressionWrapper,
     Value,
     FloatField,
-    BigIntegerField,
     DurationField,
 )
 from django.db.models.functions import Lower, Cast, Extract
@@ -257,11 +256,6 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 is_weak=Value(""),
                 file_start=F("annotation_task__dataset_file__audio_metadatum__start"),
                 file_end=F("annotation_task__dataset_file__audio_metadatum__end"),
-                file_duration=ExpressionWrapper(
-                    F("annotation_task__dataset_file__audio_metadatum__end")
-                    - F("annotation_task__dataset_file__audio_metadatum__start"),
-                    output_field=BigIntegerField(),
-                ),
                 file_max_frequency=ExpressionWrapper(
                     F(
                         "annotation_task__dataset_file__dataset__audio_metadatum__dataset_sr"
@@ -269,6 +263,25 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                     / 2,
                     output_field=FloatField(),
                 ),
+                # file_duration=ExpressionWrapper(
+                #     F("annotation_task__dataset_file__audio_metadatum__end")
+                #     - F("annotation_task__dataset_file__audio_metadatum__start"),
+                #     output_field=BigIntegerField(),
+                #     ),
+            )
+            .extra(
+                select={
+                    "file_duration": 'SELECT EXTRACT(EPOCH FROM ("end" - start)) '
+                    "FROM annotation_tasks t "
+                    "LEFT JOIN (SELECT id, "
+                    "audio_metadatum_id "
+                    "FROM dataset_files) f on t.dataset_file_id = f.id "
+                    "LEFT JOIN (SELECT id, "
+                    '"end", '
+                    "start "
+                    "FROM audio_metadata) m on f.audio_metadatum_id = m.id "
+                    "WHERE t.id = annotation_comment.annotation_task_id"
+                },
             )
         )
         validations = (
@@ -345,6 +358,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
             return check_data
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
+            print(">", comments)
             data.extend(map(map_result, list(results) + list(comments)))
 
         if campaign.usage == AnnotationCampaignUsage.CHECK:
