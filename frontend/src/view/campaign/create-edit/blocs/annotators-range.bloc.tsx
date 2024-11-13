@@ -128,6 +128,7 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
               <TableHead>
                   File range
                   <small>(between 1 and { files_count ?? 1 })</small>
+                  <small className="disabled"><i>Start and end limits are included</i></small>
               </TableHead>
               <TableHead/>
               <TableDivider/>
@@ -208,13 +209,15 @@ const AnnotatorRangeLine = React.forwardRef<
     </TableContent>
     <TableContent>
       <div className={ styles.fileRangeCell }>
-        { disabled && <span>{ range.first_file_index + 1 }</span> }
+        { disabled &&
+            <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index + 1 }</span> }
         { !disabled && <Input type="number" ref={ el => inputsRef.current.first_file_index = el }
                               placeholder="1"
                               min={ 1 } max={ files_count }
                               disabled={ files_count === undefined }/> }
         -
-        { disabled && <span>{ range.last_file_index + 1 }</span> }
+        { disabled &&
+            <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index + 1 }</span> }
         { !disabled && <Input type="number" ref={ el => inputsRef.current.last_file_index = el }
                               placeholder={ files_count?.toString() }
                               min={ 1 } max={ files_count }
@@ -224,6 +227,7 @@ const AnnotatorRangeLine = React.forwardRef<
     <TableContent>
       <IonButton disabled={ disabled }
                  color="danger"
+                 data-tooltip={ 'This user as already started to annotate' }
                  onClick={ () => onDelete(_range.current!) }>
         <IonIcon icon={ trashBinOutline }/>
       </IonButton>
