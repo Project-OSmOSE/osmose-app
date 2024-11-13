@@ -23,13 +23,13 @@ jobs:
         ports:
           - 5432:5432
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: "3.9"
     - name: Set up poetry cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pypoetry/
         key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
@@ -51,7 +51,7 @@ jobs:
         COLOR="success"; if (( $PCT < 95)); then COLOR=yellow; fi
         curl https://img.shields.io/badge/coverage-${PCT}%25-${COLOR} > ./_site/coverage/badge.svg
     - name: Upload coverage artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         retention-days: "90"
   deploy-coverage:
@@ -63,4 +63,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
