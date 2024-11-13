@@ -85,7 +85,7 @@ export const ImportModalContent: React.FC<ImportModalContentProps> = ({
                                                                       }) => {
   // Form data
   const dispatch = useAppDispatch();
-  const { status, errors } = useAppSelector(state => state.createCampaignForm.importAnnotations)
+  const { status } = useAppSelector(state => state.createCampaignForm.importAnnotations)
 
   if ([ 'empty', 'loading', 'errors' ].includes(status))
     return <CSVImportContent cancelButton={ cancelButton } onFileImported={ onFileImported }/>

@@ -2,11 +2,17 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["es5","ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "es5",
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
-    "types": ["cypress", "node"],
-
+    "types": [
+      "node"
+    ],
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -14,32 +20,48 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
-
     /* Absolute imports */
     "baseUrl": ".",
     "paths": {
-      "/app/*": ["./public/*"],
-      "@/components/*": ["src/components/*"],
-      "@/consts/*": ["src/consts/*"],
-      "@/routes/*": ["src/routes/*"],
-      "@/services/*": ["src/services/*"],
-      "@/slices/*": ["src/slices/*"],
-      "@/types/*": ["src/types/*"],
-      "@/view/*": ["src/view/*"]
+      "/app/*": [
+        "./public/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/consts/*": [
+        "src/consts/*"
+      ],
+      "@/routes/*": [
+        "src/routes/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/slices/*": [
+        "src/slices/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/view/*": [
+        "src/view/*"
+      ]
     }
   },
   "include": [
     "src",
-    "cypress",
-    "cypress/global.d.ts",
     "node_modules/@types/jest/index.d.ts"
   ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
