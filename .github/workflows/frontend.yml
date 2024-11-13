@@ -50,6 +50,7 @@ jobs:
         working-directory: frontend
         env:
           CI: true
+          CI_LIMITED: github.event.pull_request.draft == true
         run: npm run test:playwright
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
