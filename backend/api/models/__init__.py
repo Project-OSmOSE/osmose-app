@@ -1,9 +1,6 @@
 """All Django models available"""
 
 from backend.api.models.annotations import (
-    AnnotationCampaign,
-    AnnotationCampaignArchive,
-    AnnotationCampaignUsage,
     AnnotationComment,
     AnnotationSession,
     AnnotationTask,
