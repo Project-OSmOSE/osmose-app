@@ -1,12 +1,16 @@
 """Campaign related models"""
+from typing import Optional
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, signals
+from django.dispatch import receiver
 from django.utils import timezone
 
 from backend.aplose.models import User
 from .confidence import ConfidenceIndicatorSet
-from .label import LabelSet
+from .label import LabelSet, Label
 from ..datasets import DatasetFile
 
 
@@ -63,6 +67,7 @@ class AnnotationCampaign(models.Model):
     deadline = models.DateField(null=True, blank=True)
 
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
+    labels_with_acoustic_features = models.ManyToManyField(Label, blank=True)
     datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
     spectro_configs = models.ManyToManyField(
         "SpectrogramConfiguration", related_name="annotation_campaigns"
@@ -102,3 +107,26 @@ class AnnotationCampaign(models.Model):
         return DatasetFile.objects.filter(
             dataset_id__in=self.datasets.values_list("id", flat=True)
         ).order_by("start", "id")
+
+
+@receiver(
+    signal=signals.m2m_changed,
+    sender=AnnotationCampaign.labels_with_acoustic_features.through,
+)
+def check_labels_features_in_label_set(_: AnnotationCampaign, **kwargs):
+    """Check added labels in labels_with_acoustic_features does belong to the campaign label_set"""
+    action = kwargs.pop("action", None)
+    if action != "pre_add":
+        return
+    campaign: Optional[AnnotationCampaign] = kwargs.pop("instance", None)
+    if not campaign:
+        return
+    pk_set = kwargs.pop("pk_set", {})
+    for pk in pk_set:
+        label = Label.objects.get(pk=pk)
+        if not label:
+            continue
+        if label not in campaign.label_set.labels.all():
+            raise ValidationError(
+                "Label with acoustic features should belong to label set"
+            )
