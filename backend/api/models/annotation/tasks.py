@@ -169,3 +169,22 @@ class AnnotationFileRange(models.Model):
                 return_ids.append(instance.id)
                 connected_ranges.exclude(id=instance.id).delete()
         return AnnotationFileRange.objects.filter(id__in=return_ids)
+
+
+class AnnotationSession(models.Model):
+    """
+    This table contains the AudioAnnotator sessions output linked to the annotation of a specific dataset file. There
+    can be multiple AA sessions for an annotation_tasks, the result of the latest session should be equal to the
+    dataset’s file annotation.
+    """
+
+    class Meta:
+        db_table = "annotation_sessions"
+
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    session_output = models.JSONField()
+
+    annotation_task = models.ForeignKey(
+        AnnotationTask, on_delete=models.CASCADE, related_name="sessions"
+    )
