@@ -9,8 +9,6 @@ from backend.api.models.annotations import (
     AnnotationTask,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
-    Label,
-    LabelSet,
 )
 from backend.api.models.datasets import (
     DatasetType,
@@ -21,17 +19,5 @@ from backend.api.models.metadata import (
     AudioMetadatum,
     GeoMetadatum,
 )
-from .annotation import (
-    Detector,
-    DetectorConfiguration,
-    AnnotationResult,
-    AnnotationResultValidation,
-    AnnotationTask,
-    AnnotationFileRange,
-)
-from .spectrogram import (
-    LinearScale,
-    MultiLinearScale,
-    SpectrogramConfiguration,
-    WindowType,
-)
+from .annotation import *
+from .spectrogram import *
