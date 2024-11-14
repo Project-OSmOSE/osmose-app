@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 
 from backend.aplose.models import User
+from .confidence import ConfidenceIndicator
 from .detector import DetectorConfiguration
 from .label import Label
 
@@ -35,7 +36,7 @@ class AnnotationResult(models.Model):
 
     label = models.ForeignKey(Label, on_delete=models.CASCADE)
     confidence_indicator = models.ForeignKey(
-        "ConfidenceIndicator", on_delete=models.SET_NULL, null=True, blank=True
+        ConfidenceIndicator, on_delete=models.SET_NULL, null=True, blank=True
     )
     annotation_campaign = models.ForeignKey(
         "AnnotationCampaign",

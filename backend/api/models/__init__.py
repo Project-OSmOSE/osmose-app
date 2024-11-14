@@ -7,8 +7,6 @@ from backend.api.models.annotations import (
     AnnotationComment,
     AnnotationSession,
     AnnotationTask,
-    ConfidenceIndicator,
-    ConfidenceIndicatorSet,
 )
 from backend.api.models.datasets import (
     DatasetType,
