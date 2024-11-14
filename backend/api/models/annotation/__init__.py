@@ -23,4 +23,5 @@ from .result import (
 from .tasks import (
     AnnotationTask,
     AnnotationFileRange,
+    AnnotationSession,
 )

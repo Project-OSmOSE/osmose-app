@@ -2,8 +2,6 @@
 
 from backend.api.models.annotations import (
     AnnotationComment,
-    AnnotationSession,
-    AnnotationTask,
 )
 from backend.api.models.datasets import (
     DatasetType,
