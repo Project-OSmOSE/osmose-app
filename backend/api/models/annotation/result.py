@@ -1,9 +1,10 @@
 """Results model"""
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 from backend.aplose.models import User
 from .detector import DetectorConfiguration
+from .label import Label
 
 
 class AnnotationResult(models.Model):
@@ -32,7 +33,7 @@ class AnnotationResult(models.Model):
     start_frequency = models.FloatField(null=True, blank=True)
     end_frequency = models.FloatField(null=True, blank=True)
 
-    label = models.ForeignKey("Label", on_delete=models.CASCADE)
+    label = models.ForeignKey(Label, on_delete=models.CASCADE)
     confidence_indicator = models.ForeignKey(
         "ConfidenceIndicator", on_delete=models.SET_NULL, null=True, blank=True
     )
