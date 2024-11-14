@@ -1,4 +1,8 @@
 """ Models for Annotations """
+from .confidence import (
+    ConfidenceIndicator,
+    ConfidenceIndicatorSet,
+)
 from .detector import (
     Detector,
     DetectorConfiguration,
