@@ -1,8 +1,5 @@
 """All Django models available"""
 
-from backend.api.models.annotations import (
-    AnnotationComment,
-)
 from backend.api.models.datasets import (
     DatasetType,
     Dataset,

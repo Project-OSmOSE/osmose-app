@@ -19,6 +19,7 @@ from .label import (
 from .result import (
     AnnotationResult,
     AnnotationResultValidation,
+    AnnotationComment,
 )
 from .tasks import (
     AnnotationTask,
