@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import QuerySet, Q
 
+from .campaign import AnnotationCampaign
 from ..datasets import DatasetFile
 
 
@@ -28,7 +29,7 @@ class AnnotationTask(models.Model):
     status = models.TextField(choices=Status.choices, default=Status.CREATED)
 
     annotation_campaign = models.ForeignKey(
-        "AnnotationCampaign", on_delete=models.CASCADE, related_name="tasks"
+        AnnotationCampaign, on_delete=models.CASCADE, related_name="tasks"
     )
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -64,7 +65,7 @@ class AnnotationFileRange(models.Model):
         related_name="annotation_file_ranges",
     )
     annotation_campaign = models.ForeignKey(
-        "AnnotationCampaign",
+        AnnotationCampaign,
         on_delete=models.CASCADE,
         related_name="annotation_file_ranges",
     )
