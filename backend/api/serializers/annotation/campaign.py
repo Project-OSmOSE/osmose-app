@@ -30,7 +30,7 @@ class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AnnotationCampaignBasicSerializer(serializers.ModelSerializer):
+class AnnotationCampaignSerializer(serializers.ModelSerializer):
     """Serializer for annotation campaign"""
 
     files_count = serializers.SerializerMethodField(read_only=True)
