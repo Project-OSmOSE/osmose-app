@@ -12,6 +12,7 @@ from backend.api.models import (
     SpectrogramConfiguration,
     Dataset,
     LabelSet,
+    Label,
     ConfidenceIndicatorSet,
     AnnotationCampaignArchive,
 )
@@ -46,6 +47,12 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     label_set = serializers.PrimaryKeyRelatedField(
         queryset=LabelSet.objects.all(),
         required=False,
+    )
+    labels_with_acoustic_features = serializers.SlugRelatedField(
+        queryset=Label.objects.all(),
+        slug_field="name",
+        required=False,
+        many=True,
     )
     confidence_indicator_set = serializers.PrimaryKeyRelatedField(
         queryset=ConfidenceIndicatorSet.objects.all(), required=False, allow_null=True
@@ -117,6 +124,14 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
         self.validate_spectro_configs_in_datasets(attrs)
         if attrs["usage"] == AnnotationCampaignUsage.CREATE:
             self.validate_create_usage(attrs)
+        if "labels_with_acoustic_features" in attrs:
+            label_set: LabelSet = attrs["label_set"]
+            for label in attrs["labels_with_acoustic_features"]:
+                if not label_set.labels.filter(name=label).exists():
+                    message = "Label with acoustic features should belong to label set"
+                    raise serializers.ValidationError(
+                        {"labels_with_acoustic_features": message},
+                    )
         return attrs
 
     def create(self, validated_data):
