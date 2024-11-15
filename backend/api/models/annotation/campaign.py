@@ -113,8 +113,9 @@ class AnnotationCampaign(models.Model):
     signal=signals.m2m_changed,
     sender=AnnotationCampaign.labels_with_acoustic_features.through,
 )
-def check_labels_features_in_label_set(_: AnnotationCampaign, **kwargs):
+def check_labels_features_in_label_set(sender, **kwargs):
     """Check added labels in labels_with_acoustic_features does belong to the campaign label_set"""
+    # pylint: disable=unused-argument
     action = kwargs.pop("action", None)
     if action != "pre_add":
         return
@@ -128,5 +129,8 @@ def check_labels_features_in_label_set(_: AnnotationCampaign, **kwargs):
             continue
         if label not in campaign.label_set.labels.all():
             raise ValidationError(
-                "Label with acoustic features should belong to label set"
+                {
+                    "labels_with_acoustic_features": "Label with acoustic features should belong to label set"
+                },
+                code="invalid",
             )
