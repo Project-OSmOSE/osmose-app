@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import {
-  AnnotationCampaign, useAudioMetadataAPI,
-  AudioMetadatum
-} from "@/services/api";
+import { AnnotationCampaign, AudioMetadatum, useAudioMetadataAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
@@ -56,8 +53,8 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ campaign, setErro
       </div>
 
       { metadata && metadata.length > 0 && <Table columns={ metadata.length + 1 } isFirstColumnSticky={ true }>
-          <TableHead isFirstColumn={ true }>Sample bits</TableHead>
-        { metadata.map(c => <TableContent key={ c.id }>{ c.sample_bits }</TableContent>) }
+          <TableHead isFirstColumn={ true }>Files subtypes</TableHead>
+        { metadata.map(c => <TableContent key={ c.id }>{ c.files_subtypes.join(', ') }</TableContent>) }
           <TableDivider/>
 
           <TableHead isFirstColumn={ true }>Channel count</TableHead>
