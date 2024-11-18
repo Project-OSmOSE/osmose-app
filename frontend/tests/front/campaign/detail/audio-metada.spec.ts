@@ -5,7 +5,7 @@ test('annotator can view campaign audio metadata ', {
   tag: '@essential'
 }, async ({ annotatorPage }) => {
   await accessCampaignDetail(annotatorPage);
-  await expect(annotatorPage.getByText('Sample bits16')).toBeVisible();
+  await expect(annotatorPage.getByText('Files subtypesPCM-16')).toBeVisible();
 })
 
 test('Empty state - No audio metadata are shown', async ({ adminPage }) => {
