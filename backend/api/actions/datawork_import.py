@@ -19,6 +19,7 @@ from backend.api.models import (
     MultiLinearScale,
     LinearScale,
 )
+from backend.api.models.metadata import FileSubtype
 
 
 @transaction.atomic
@@ -62,7 +63,6 @@ def datawork_import(*, wanted_datasets, importer):
         audio_metadatum = AudioMetadatum.objects.create(
             channel_count=audio_raw["channel_count"],
             dataset_sr=audio_raw["dataset_sr"],
-            sample_bits=audio_raw["sample_bits"],
             start=parse_datetime(audio_raw["start_date"]),
             end=parse_datetime(audio_raw["end_date"]),
             audio_file_count=audio_raw["audio_file_count"]
@@ -72,6 +72,9 @@ def datawork_import(*, wanted_datasets, importer):
             if "audio_file_dataset_duration" in audio_raw
             else None,
         )
+        for subtype in eval(audio_raw["sample_bits"]):
+            file_subtype, _ = FileSubtype.objects.get_or_create(name=subtype)
+            audio_metadatum.files_subtypes.add(file_subtype)
 
         dataset_path = settings.DATASET_EXPORT_PATH / dataset["path"]
         dataset_path = dataset_path.as_posix()
