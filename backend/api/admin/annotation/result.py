@@ -1,5 +1,9 @@
 """Detector model"""
+from typing import Optional
+
 from django.contrib import admin
+
+from backend.api.models import AnnotationResultAcousticFeatures, SignalTrend
 
 
 class AnnotationResultAdmin(admin.ModelAdmin):
@@ -64,3 +68,32 @@ class AnnotationResultValidationAdmin(admin.ModelAdmin):
         if conf is None:
             return None
         return conf.detector
+
+
+@admin.register(AnnotationResultAcousticFeatures)
+class AnnotationResultAcousticFeaturesAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "start_frequency",
+        "end_frequency",
+        "min_frequency",
+        "max_frequency",
+        "median_frequency",
+        "beginning_sweep_slope",
+        "end_sweep_slope",
+        "steps_count",
+        "relative_peaks_count",
+        "has_harmonics",
+        "harmonics_count",
+        "level_peak_frequency",
+        "duration",
+        "trend",
+    )
+    search_fields = ("annotation_result__annotation_campaign__name",)
+
+    @admin.display(description="Trend")
+    def get_trend(self, obj: AnnotationResultAcousticFeatures) -> Optional[str]:
+        """Display expertise level"""
+        if obj.trend:
+            return SignalTrend(obj.trend).label
+        return None

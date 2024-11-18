@@ -20,6 +20,8 @@ from .result import (
     AnnotationResult,
     AnnotationResultValidation,
     AnnotationComment,
+    AnnotationResultAcousticFeatures,
+    SignalTrend,
 )
 from .tasks import (
     AnnotationTask,
