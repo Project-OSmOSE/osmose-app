@@ -143,12 +143,12 @@ class Command(management.BaseCommand):
             channel_count=1,
             dataset_sr=327680,
             total_samples=88473600,
-            sample_bits=16,
             gain_db=22,
             gain_rel=-165,
             dutycycle_rdm=45,
             dutycycle_rim=60,
         )
+        self.audio_metadatum.files_subtypes.create(name="PCM-16")
         self.geo_metadatum = GeoMetadatum.objects.create(
             name="Saint-Pierre-et-Miquelon", desc="South of Saint-Pierre-et-Miquelon"
         )
