@@ -410,6 +410,110 @@ class PostAnnotatorAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
         self.assertEqual(AnnotationResult.objects.count(), old_count - 3 + 1)
         self.__check_box(response.data[0], AnnotationResult.objects.get(pk=2), 7)
 
+    def test_post_create_box_with_acoustic_features(self):
+        # TODO: update with definitive fields
+        old_count = AnnotationResult.objects.count()
+        response = self.client.post(
+            URL_with_annotations,
+            data=json.dumps(
+                [
+                    {
+                        **create_box_result,
+                        "acoustic_features": {
+                            "start_frequency": 10,
+                            "end_frequency": 50,
+                            "min_frequency": 5,
+                            "max_frequency": 500,
+                            "median_frequency": 25,
+                            "beginning_sweep_slope": 25,
+                            "end_sweep_slope": 25,
+                            "steps_count": 2,
+                            "relative_peaks_count": 2,
+                            "has_harmonics": True,
+                            "harmonics_count": 3,
+                            "level_peak_frequency": 53,
+                            "duration": 53,
+                            "trend": "Modulated",
+                        },
+                    }
+                ],
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(AnnotationResult.objects.count(), old_count - 3 + 1)
+        self.__check_box(response.data[0], AnnotationResult.objects.latest("id"), 7)
+
+        response_features = response.data[0]["acoustic_features"]
+        print("response >", response.data[0])
+        self.assertNotEqual(response_features, None)
+        self.assertEqual(response_features["start_frequency"], 10)
+        self.assertEqual(response_features["end_frequency"], 50)
+        self.assertEqual(response_features["min_frequency"], 5)
+        self.assertEqual(response_features["max_frequency"], 500)
+        self.assertEqual(response_features["median_frequency"], 25)
+        self.assertEqual(response_features["beginning_sweep_slope"], 25)
+        self.assertEqual(response_features["end_sweep_slope"], 25)
+        self.assertEqual(response_features["steps_count"], 2)
+        self.assertEqual(response_features["relative_peaks_count"], 2)
+        self.assertEqual(response_features["has_harmonics"], True)
+        self.assertEqual(response_features["harmonics_count"], 3)
+        self.assertEqual(response_features["level_peak_frequency"], 53)
+        self.assertEqual(response_features["duration"], 53)
+        self.assertEqual(response_features["trend"], "Modulated")
+
+    def test_post_update_box_with_acoustic_features(self):
+        # TODO: update with definitive fields
+        old_count = AnnotationResult.objects.count()
+        response = self.client.post(
+            URL_with_annotations,
+            data=json.dumps(
+                [
+                    {
+                        **create_box_result,
+                        "id": 2,
+                        "acoustic_features": {
+                            "start_frequency": 10,
+                            "end_frequency": 50,
+                            "min_frequency": 5,
+                            "max_frequency": 500,
+                            "median_frequency": 25,
+                            "beginning_sweep_slope": 25,
+                            "end_sweep_slope": 25,
+                            "steps_count": 2,
+                            "relative_peaks_count": 2,
+                            "has_harmonics": True,
+                            "harmonics_count": 3,
+                            "level_peak_frequency": 53,
+                            "duration": 53,
+                            "trend": "Modulated",
+                        },
+                    }
+                ],
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(AnnotationResult.objects.count(), old_count - 3 + 1)
+        self.__check_box(response.data[0], AnnotationResult.objects.get(pk=2), 7)
+
+        response_features = response.data[0]["acoustic_features"]
+        self.assertNotEqual(response_features, None)
+        self.assertEqual(response_features["start_frequency"], 10)
+        self.assertEqual(response_features["end_frequency"], 50)
+        self.assertEqual(response_features["min_frequency"], 5)
+        self.assertEqual(response_features["max_frequency"], 500)
+        self.assertEqual(response_features["median_frequency"], 25)
+        self.assertEqual(response_features["beginning_sweep_slope"], 25)
+        self.assertEqual(response_features["end_sweep_slope"], 25)
+        self.assertEqual(response_features["steps_count"], 2)
+        self.assertEqual(response_features["relative_peaks_count"], 2)
+        self.assertEqual(response_features["has_harmonics"], True)
+        self.assertEqual(response_features["harmonics_count"], 3)
+        self.assertEqual(response_features["level_peak_frequency"], 53)
+        self.assertEqual(response_features["duration"], 53)
+        self.assertEqual(response_features["trend"], "Modulated")
+
     # Errors
 
     def test_empty_post_empty_label(self):

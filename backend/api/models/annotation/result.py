@@ -1,5 +1,6 @@
 """Results model"""
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from backend.aplose.models import User
@@ -25,20 +26,33 @@ class AnnotationResultAcousticFeatures(models.Model):
     # TODO: Update this field list the final one
 
     start_frequency = models.FloatField(
-        null=True, blank=True, help_text="[Hz] Frequency at the beginning of the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="[Hz] Frequency at the beginning of the signal",
     )
     end_frequency = models.FloatField(
-        null=True, blank=True, help_text="[Hz] Frequency at the end of the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="[Hz] Frequency at the end of the signal",
     )
     min_frequency = models.IntegerField(
-        null=True, blank=True, help_text="[Hz] Minimum frequency of the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="[Hz] Minimum frequency of the signal",
     )
     max_frequency = models.IntegerField(
-        null=True, blank=True, help_text="[Hz] Maximum frequency of the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="[Hz] Maximum frequency of the signal",
     )
     median_frequency = models.IntegerField(
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         help_text="[Hz] The frequency at which half of the frequencies of the whistle "
         "contour lie above and half of the frequencies of the whistle contour lie below",
     )
@@ -50,27 +64,38 @@ class AnnotationResultAcousticFeatures(models.Model):
     )
 
     steps_count = models.IntegerField(
-        null=True, blank=True, help_text="Number of steps in the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="Number of steps in the signal",
     )
     relative_peaks_count = models.IntegerField(
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         help_text="Number of relative minimum/maximum frequency in the signal",
     )
     has_harmonics = models.BooleanField(
         null=True, blank=True, help_text="If the signal has harmonics"
     )
     harmonics_count = models.IntegerField(
-        null=True, blank=True, help_text="Number of harmonics in the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="Number of harmonics in the signal",
     )
     level_peak_frequency = models.FloatField(
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         help_text="[Hz] The frequency at which the maximum level in the signal occurs",
     )
 
     duration = models.FloatField(
-        null=True, blank=True, help_text="[s] Duration of the signal"
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="[s] Duration of the signal",
     )
     trend = models.CharField(
         choices=SignalTrend.choices, null=True, blank=True, max_length=10

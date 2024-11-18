@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
+from django.db import transaction
 from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.fields import empty
@@ -19,9 +20,15 @@ from backend.api.models import (
     DetectorConfiguration,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
+    AnnotationResultAcousticFeatures,
+    SignalTrend,
 )
 from backend.aplose.models import User
-from backend.utils.serializers import ListSerializer, SlugRelatedGetOrCreateField
+from backend.utils.serializers import (
+    ListSerializer,
+    SlugRelatedGetOrCreateField,
+    EnumField,
+)
 from .comment import AnnotationCommentSerializer
 from ..confidence_indicator_set import ConfidenceIndicatorSerializer
 
@@ -254,6 +261,16 @@ class DetectorConfigurationSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AnnotationResultAcousticFeaturesSerializer(serializers.ModelSerializer):
+    """AnnotationResultAcousticFeatures serializer"""
+
+    trend = EnumField(enum=SignalTrend, allow_null=True, allow_blank=True)
+
+    class Meta:
+        model = AnnotationResultAcousticFeatures
+        fields = "__all__"
+
+
 class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
@@ -293,6 +310,9 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     )
     comments = AnnotationCommentSerializer(many=True)
     validations = AnnotationResultValidationSerializer(many=True)
+    acoustic_features = AnnotationResultAcousticFeaturesSerializer(
+        allow_null=True, required=False
+    )
 
     class Meta:
         model = AnnotationResult
@@ -340,6 +360,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
 
         return fields
 
+    @transaction.atomic
     def create(self, validated_data):
         comments = AnnotationCommentSerializer(
             validated_data.pop("comments", []), many=True
@@ -347,11 +368,15 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations = AnnotationResultValidationSerializer(
             validated_data.pop("validations", []), many=True
         ).data
-        instance = super().create(validated_data)
+        acoustic_features = AnnotationResultAcousticFeaturesSerializer(
+            validated_data.pop("acoustic_features", None)
+        ).data
+        instance: AnnotationResult = super().create(validated_data)
 
         # Comments
         comments_serializer = AnnotationCommentSerializer(
-            data=[{**c, "annotation_result": instance.id} for c in comments], many=True
+            data=[{**c, "annotation_result": instance.id} for c in comments],
+            many=True,
         )
         comments_serializer.is_valid(raise_exception=True)
         comments_serializer.save()
@@ -364,8 +389,18 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations_serializer.is_valid(raise_exception=True)
         validations_serializer.save()
 
+        # Acoustic features
+        acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
+            data={**acoustic_features, "annotation_result": instance.id},
+        )
+        acoustic_features_serializer.is_valid(raise_exception=True)
+        acoustic_features_serializer.save()
+        instance.acoustic_features = acoustic_features_serializer.instance
+        instance.save()
+
         return instance
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         comments = AnnotationCommentSerializer(
             validated_data.pop("comments", []), many=True
