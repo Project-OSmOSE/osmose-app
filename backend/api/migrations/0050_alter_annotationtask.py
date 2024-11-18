@@ -31,12 +31,22 @@ class Migration(migrations.Migration):
             field=models.TextField(
                 choices=[("C", "Created"), ("S", "Started"), ("F", "Finished")],
                 default="C",
+                null=True,
+                blank=True,
             ),
         ),
         migrations.RunPython(update_status, reverse_update_status),
         migrations.RemoveField(model_name="annotationtask", name="status"),
         migrations.RenameField(
             model_name="annotationtask", old_name="status_new", new_name="status"
+        ),
+        migrations.AlterField(
+            model_name="annotationtask",
+            name="status",
+            field=models.TextField(
+                choices=[("C", "Created"), ("S", "Started"), ("F", "Finished")],
+                default="C",
+            ),
         ),
         migrations.AlterModelTable(
             name="annotationtask",
