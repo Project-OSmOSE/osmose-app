@@ -328,8 +328,8 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box },
-      { ...expected_tag },
+      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
+      { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([ { comment, id: null } ]);
@@ -355,8 +355,8 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box },
-      { ...expected_tag, comments: [ { comment, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
+      { ...expected_tag, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([]);
@@ -382,8 +382,8 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box, comments: [ { comment, id: null } ] },
-      { ...expected_tag },
+      { ...expected_box, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
+      { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([]);
