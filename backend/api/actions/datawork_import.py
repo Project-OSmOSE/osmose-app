@@ -2,6 +2,7 @@
 
 import csv
 import os
+from ast import literal_eval
 from datetime import timedelta
 from typing import Optional
 
@@ -72,7 +73,7 @@ def datawork_import(*, wanted_datasets, importer):
             if "audio_file_dataset_duration" in audio_raw
             else None,
         )
-        for subtype in eval(audio_raw["sample_bits"]):
+        for subtype in literal_eval(audio_raw["sample_bits"]):
             file_subtype, _ = FileSubtype.objects.get_or_create(name=subtype)
             audio_metadatum.files_subtypes.add(file_subtype)
 
