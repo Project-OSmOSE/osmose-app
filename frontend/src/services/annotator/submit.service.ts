@@ -53,7 +53,7 @@ export const useAnnotatorSubmitService = () => {
 
   function submit() {
     if (!campaign.current || !file.current) return;
-    return API.post(campaign.current.id, file.current.id, {
+    return API.post(campaign.current, file.current.id, {
       results: results.current.map(r => ({
         ...r,
         id: r.id > -1 ? r.id : null,

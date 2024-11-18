@@ -195,7 +195,7 @@ test('No results', async ({ annotatorPage: page }) => {
 test.describe('Detection validations', {
   tag: '@essential'
 }, () => {
-  test('Can validate tag', async ({ annotatorPage: page }) => {
+  test('Can validate only tag', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
     const buttons = getValidationButtons(page)
@@ -216,7 +216,7 @@ test.describe('Detection validations', {
     ])
     const submittedResults = request.postDataJSON().results;
     const expectedResults = [
-      { ...expected_box },
+      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
       { ...expected_tag, validations: [ { is_valid: true, id: null } ] },
     ]
     expect(submittedResults).toEqual(expectedResults);

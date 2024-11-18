@@ -35,8 +35,18 @@ class AnnotatorAPIService extends APIService<AnnotatorData, WriteAnnotatorData> 
   get(campaignID: string | number, fileID: string | number): Promise<AnnotatorData> {
     return super.list(`${ this.URI }/campaign/${ campaignID }/file/${ fileID }/`) as Promise<any>
   }
-  post(campaignID: string | number, fileID: string | number, data: WriteAnnotatorData): Promise<AnnotatorData> {
-    return super.create(data, `${ this.URI }/campaign/${ campaignID }/file/${ fileID }/`)
+
+  post(campaign: AnnotationCampaign, fileID: string | number, data: WriteAnnotatorData): Promise<AnnotatorData> {
+    if (campaign.usage === 'Check') {
+      data.results = data.results.map(r => ({
+        ...r,
+        validations: r.validations.length > 0 ? r.validations : [ {
+          id: null,
+          is_valid: false
+        } ],
+      }))
+    }
+    return super.create(data, `${ this.URI }/campaign/${ campaign.id }/file/${ fileID }/`)
   }
 
   list(): Promise<Array<AnnotatorData>> {
