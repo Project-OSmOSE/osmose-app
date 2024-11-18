@@ -11,5 +11,9 @@ from .file_range import (
     AnnotationFileRangeSerializer,
     AnnotationFileRangeFilesSerializer,
 )
-from .result import AnnotationResultSerializer, AnnotationResultImportListSerializer
+from .result import (
+    AnnotationResultSerializer,
+    AnnotationResultImportListSerializer,
+    AnnotationResultAcousticFeaturesSerializer,
+)
 from .session import AnnotationSessionSerializer

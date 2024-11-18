@@ -72,6 +72,8 @@ class AnnotationResultValidationAdmin(admin.ModelAdmin):
 
 @admin.register(AnnotationResultAcousticFeatures)
 class AnnotationResultAcousticFeaturesAdmin(admin.ModelAdmin):
+    """Admin management of AnnotationResultAcousticFeatures"""
+
     list_display = (
         "id",
         "start_frequency",
