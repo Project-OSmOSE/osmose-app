@@ -8,6 +8,8 @@ from backend.api.models.datasets import Dataset
 
 
 class FileSubtype(models.Model):
+    """Subtype of File (eg: PCM-16)"""
+
     name = models.CharField(max_length=255)
 
 
