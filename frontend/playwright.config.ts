@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 let grep: RegExp[] | undefined = []
 /* Limit test to essential (tagged) ones [full: 10m - essential: 6m] */
-if (process.env.CI_LIMITED === "true") grep.push(/essential/)
+if (process.env.CI === "true") grep.push(/essential/)
 if (grep.length === 0) grep = undefined;
 
 export default defineConfig({
