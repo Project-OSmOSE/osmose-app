@@ -1,7 +1,8 @@
 import { get, options, post, SuperAgentRequest } from "superagent";
 import { AuthAPIService } from "../auth.ts";
 
-type QueryParams = { [key in string]: string | number | boolean }
+type BaseType = string | number | boolean
+type QueryParams = { [key in string]: BaseType | Array<BaseType> }
 
 interface BaseOptionsItem {
   required: boolean;

@@ -30,7 +30,7 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def export(self, request):
         """Export queryset as CSV"""
-        queryset: QuerySet[AudioMetadatum] = self.get_queryset()
+        queryset: QuerySet[AudioMetadatum] = self.filter_queryset(self.get_queryset())
         filename = (
             request.query_params["filename"]
             if "filename" in request.query_params

@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import {
-  AnnotationCampaign, useAudioMetadataAPI,
-  AudioMetadatum
-} from "@/services/api";
+import { AnnotationCampaign, AudioMetadatum, useAudioMetadataAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
@@ -24,9 +21,7 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ campaign, setErro
   useEffect(() => {
     let isCancelled = false;
 
-    audioMetadataService.list(undefined, {
-      annotation_campaign: campaign.id
-    })
+    audioMetadataService.listForCampaign(campaign)
       .then(setMetadata)
       .catch(e => {
         if (isCancelled) return;
