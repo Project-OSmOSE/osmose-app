@@ -127,7 +127,10 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
     }
     if (submittedCampaign.current)
       importResultsRef.current?.setCampaignID(submittedCampaign.current.id)
-    if (_usage.current === 'Create') throw errors;
+    if (_usage.current === 'Create') {
+      if (Object.values(errors.current).filter(v => !!v).length > 0) throw errors.current;
+      return
+    }
     await importResultsRef?.current?.submit();
     dispatch(importAnnotationsActions.setCampaignID(undefined))
   }

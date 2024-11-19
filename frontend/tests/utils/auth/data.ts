@@ -26,7 +26,7 @@ export const BASE_USER: TestUser = {
 }
 
 export const ADMIN: TestUser = {
-  id: 3,
+  id: 4,
   displayName: 'User3 Test',
   username: 'TestUser3',
   password: 'osmose29',

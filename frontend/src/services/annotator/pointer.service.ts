@@ -9,15 +9,10 @@ export const usePointerService = (
 
   function isInCanvas(event: PointerEvent<HTMLDivElement> | MouseEvent) {
     const bounds = canvas.current?.getBoundingClientRect();
-    console.log('[0] isInCanvas', event.clientX, event.clientY, JSON.stringify(bounds))
     if (!bounds) return false;
-    console.log('[1] isInCanvas', event.clientX, event.clientY)
     if (event.clientX < bounds.x) return false;
-    console.log('[2] isInCanvas', event.clientX, event.clientY)
     if (event.clientY < bounds.y) return false;
-    console.log('[3] isInCanvas', event.clientX, event.clientY)
     if (event.clientX > (bounds.x + bounds.width)) return false;
-    console.log('[4] isInCanvas', event.clientX, event.clientY, event.clientY <= bounds.y + bounds.height)
     return event.clientY <= (bounds.y + bounds.height);
   }
 

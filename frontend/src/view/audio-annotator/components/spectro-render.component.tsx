@@ -244,7 +244,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
     if (!_isDrawingEnabled.current) return;
     const data = pointerService.getFreqTime(e);
-    console.log('start', e.clientX, e.clientY, JSON.stringify(data), JSON.stringify(canvasRef.current?.getBoundingClientRect()));
     if (!data) return;
 
     _newResult.current = {
@@ -259,7 +258,6 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     if (!yAxis.current || !xAxis.current) return;
     if (_newResult.current) {
       const data = pointerService.getFreqTime(e);
-      console.log('end', e.clientX, e.clientY, JSON.stringify(data))
       if (data) {
         _newResult.current.end_time = data.time;
         _newResult.current.end_frequency = data.frequency;

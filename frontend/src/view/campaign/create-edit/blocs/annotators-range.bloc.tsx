@@ -11,6 +11,7 @@ import { Item } from "@/types/item.ts";
 import { BlocRef } from "./util.bloc.ts";
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { InputValue } from "@/components/form/inputs/input.tsx";
+import { useAppSelector } from '@/slices/app.ts';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
@@ -23,10 +24,17 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
   // Use negative fileRange id for newly created ones
   const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange>>([]);
   const [ users, setUsers ] = useState<Array<User> | undefined>(undefined);
-  const _campaign = useRef<AnnotationCampaign | undefined>(campaign);
+  const _campaignID = useRef<number | undefined>(campaign?.id);
+  const _files_count = useRef<number | undefined>(files_count);
+  const {
+    campaignID,
+  } = useAppSelector(state => state.createCampaignForm.importAnnotations);
   useEffect(() => {
-    _campaign.current = campaign;
-  }, [ campaign ]);
+    _campaignID.current = campaign?.id ?? campaignID;
+  }, [ campaign, campaignID ]);
+  useEffect(() => {
+    _files_count.current = files_count;
+  }, [ files_count ]);
 
   const _fileRanges = useRef<Array<AnnotationFileRange>>([]);
   useEffect(() => {
@@ -54,13 +62,13 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
       }
     },
     async submit() {
-      if (!_campaign.current) return;
+      if (!_campaignID.current || !_files_count.current) return;
       const data = annotatorRowRef.current.map(ref => ref?.validate()).filter(r => !!r)
       try {
-        await fileRangeService.updateForCampaign(_campaign.current.id, data.map(r => ({
+        await fileRangeService.updateForCampaign(_campaignID.current, data.map(r => ({
           id: r.id >= 0 ? r.id : undefined,
           first_file_index: r.first_file_index < 0 ? 0 : r.first_file_index,
-          last_file_index: r.last_file_index < 0 ? _campaign.current!.files_count - 1 : r.last_file_index,
+          last_file_index: r.last_file_index < 0 ? _files_count.current! - 1 : r.last_file_index,
           annotator: r.annotator
         })))
       } catch (e) {
