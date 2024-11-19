@@ -152,8 +152,36 @@ export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ campai
               { c.audio_file_dataset_overlap }
             </TableContent>) }
               <TableDivider/>
+
+            { configurations.some(c => c.linear_frequency_scale || c.multi_linear_frequency_scale) && <Fragment>
+                <TableHead isFirstColumn={ true }>Frequency scale</TableHead>
+              { configurations.map(c => <TableContent key={ c.id }>
+                <ScaleCellContent linear_frequency_scale={ c.linear_frequency_scale }
+                                  multi_linear_frequency_scale={ c.multi_linear_frequency_scale }/>
+                { c.peak_voltage }
+              </TableContent>) }
+                <TableDivider/>
+            </Fragment> }
           </Table>
       }
     </div>
   )
 }
+
+
+const ScaleCellContent: React.FC<{
+  linear_frequency_scale: LinearScale | null,
+  multi_linear_frequency_scale: MultiLinearScale | null,
+}> = ({ linear_frequency_scale, multi_linear_frequency_scale }) => {
+  if (linear_frequency_scale) return <LinearScaleLine scale={ linear_frequency_scale }/>
+  if (multi_linear_frequency_scale)
+    return <Fragment>
+      <p>{ multi_linear_frequency_scale.name }</p>
+      { multi_linear_frequency_scale.inner_scales.map((scale, id) => <LinearScaleLine scale={ scale } key={ id }/>) }
+    </Fragment>
+  return <Fragment/>
+}
+
+const LinearScaleLine: React.FC<{ scale: LinearScale }> = ({ scale }) => (
+  <p>{ scale.name } { scale.min_value }Hz <IoArrowForwardOutline/> { scale.max_value }Hz ({ scale.ratio * 100 }%)</p>
+)
