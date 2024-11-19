@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { AnnotationCampaign, useSpectrogramConfigurationAPI } from "@/services/api";
+import { AnnotationCampaign, LinearScale, useSpectrogramConfigurationAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
+import { MultiLinearScale } from '@/services/spectrogram';
+import { IoArrowForwardOutline } from 'react-icons/io5';
 
 interface Props {
   isOwner: boolean;
