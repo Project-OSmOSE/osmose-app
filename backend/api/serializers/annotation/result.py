@@ -391,7 +391,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
 
         # Acoustic features
         acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
-            data={**acoustic_features, "annotation_result": instance.id},
+            data=acoustic_features,
         )
         acoustic_features_serializer.is_valid(raise_exception=True)
         acoustic_features_serializer.save()
@@ -401,12 +401,15 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         return instance
 
     @transaction.atomic
-    def update(self, instance, validated_data):
+    def update(self, instance: AnnotationResult, validated_data: dict):
         comments = AnnotationCommentSerializer(
             validated_data.pop("comments", []), many=True
         ).data
         validations = AnnotationResultValidationSerializer(
             validated_data.pop("validations", []), many=True
+        ).data
+        acoustic_features = AnnotationResultAcousticFeaturesSerializer(
+            validated_data.pop("acoustic_features", None)
         ).data
         instance = instance.first()
 
@@ -441,5 +444,15 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         )
         validations_serializer.is_valid(raise_exception=True)
         validations_serializer.save()
+
+        # Acoustic features
+        acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
+            instance.acoustic_features,
+            data=acoustic_features,
+        )
+        acoustic_features_serializer.is_valid(raise_exception=True)
+        acoustic_features_serializer.save()
+        instance.acoustic_features = acoustic_features_serializer.instance
+        instance.save()
 
         return self.Meta.model.objects.get(pk=instance_id)
