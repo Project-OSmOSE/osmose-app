@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring
 from django.test import TestCase
 from rest_framework.utils.serializer_helpers import ReturnDict
 
