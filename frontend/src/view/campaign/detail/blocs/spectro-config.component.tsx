@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { AnnotationCampaign, LinearScale, useSpectrogramConfigurationAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
@@ -179,11 +179,24 @@ const ScaleCellContent: React.FC<{
   if (multi_linear_frequency_scale)
     return <Fragment>
       <p>{ multi_linear_frequency_scale.name }</p>
-      { multi_linear_frequency_scale.inner_scales.map((scale, id) => <LinearScaleLine scale={ scale } key={ id }/>) }
+      { multi_linear_frequency_scale.inner_scales.map((scale, id) => <LinearScaleLine scale={ scale }
+                                                                                      allScales={ multi_linear_frequency_scale.inner_scales }
+                                                                                      key={ id }/>) }
     </Fragment>
   return <Fragment/>
 }
 
-const LinearScaleLine: React.FC<{ scale: LinearScale }> = ({ scale }) => (
-  <p>{ scale.name } { scale.min_value }Hz <IoArrowForwardOutline/> { scale.max_value }Hz ({ scale.ratio * 100 }%)</p>
-)
+const LinearScaleLine: React.FC<{ scale: LinearScale, allScales?: Array<LinearScale> }> = ({
+                                                                                             scale,
+                                                                                             allScales = []
+                                                                                           }) => {
+  const rangePercent = useMemo(() => {
+    const min = Math.max(0, ...allScales.filter(s => s.ratio < scale.ratio).map(s => s.ratio))
+    const percent = (scale.ratio - min) * 100;
+    return Math.round(percent);
+  }, [ scale.ratio, allScales ])
+
+  return <p>
+    { scale.name } { scale.min_value }Hz <IoArrowForwardOutline/> { scale.max_value }Hz ({ rangePercent }%)
+  </p>
+}
