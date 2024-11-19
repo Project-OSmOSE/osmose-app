@@ -34,8 +34,27 @@ export const Input = React.forwardRef<InputRef<InputValue>, InputProperties>(({
   }
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    _setValue(e.target.value);
-    _setError(undefined);
+    const newValue = e.target.value;
+    let newNumber = +e.target.value;
+    const min = +(inputArgs.min ?? '');
+    const max = +(inputArgs.max ?? '');
+    const placeholder = +(inputArgs.placeholder ?? '');
+    switch (inputArgs.type) {
+      case 'number':
+        if (!value && !isNaN(placeholder)) {
+          if (newNumber == -1) newNumber = placeholder - 1;
+          if (newNumber == 1) newNumber = placeholder + 1;
+        }
+        if (!isNaN(min) && newNumber < min) newNumber = min
+        if (!isNaN(max) && newNumber > max) newNumber = max
+        _setValue(newNumber);
+        _setError(undefined);
+        break;
+      default:
+        _setValue(newValue);
+        _setError(undefined);
+        break
+    }
   }
 
   useImperativeHandle(ref, () => ({
@@ -57,7 +76,7 @@ export const Input = React.forwardRef<InputRef<InputValue>, InputProperties>(({
 
     <div id="input">
       { startIcon && <IonIcon id="input-start-icon" icon={ startIcon }/> }
-      <input { ...inputArgs }
+      <input { ...{ ...inputArgs, min: undefined, max: undefined } }
              value={ value }
              onChange={ onChange }
              required={ required }
