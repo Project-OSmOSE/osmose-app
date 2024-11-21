@@ -70,34 +70,15 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             )
         return queryset
 
-    @action(
-        methods=["POST"],
-        detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
-        url_name="campaign-file",
-    )
-    def bulk_post(self, request, campaign_id, file_id):
-        """Bulk post results for annotator"""
-        # Check permission
-        campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
-        file = get_object_or_404(DatasetFile, id=file_id)
-        file_ranges = campaign.annotation_file_ranges.filter(
-            annotator_id=request.user.id
-        )
-        if not file_ranges.exists():
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        all_files = []
-        for file_range in file_ranges:
-            all_files += list(file_range.get_files())
-        if file not in all_files:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        data = [
+    @staticmethod
+    def map_request_results(results: list[dict], campaign_id, file_id, user_id):
+        """Map results from request with the other request information"""
+        return [
             {
-                **d,
+                **r,
                 "annotation_campaign": campaign_id,
                 "dataset_file": file_id,
-                "annotator": request.user.id,
+                "annotator": user_id,
                 "comments": [
                     {
                         **c,
@@ -105,37 +86,48 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                         "dataset_file": file_id,
                         "author": c["author"]
                         if "author" in c and c["author"] is not None
-                        else request.user.id,
+                        else user_id,
                     }
-                    for c in (d["comments"] if "comments" in d else [])
+                    for c in (r["comments"] if "comments" in r else [])
                 ],
                 "validations": [
                     {
                         **v,
                         "annotator": v["annotator"]
                         if "annotator" in v and v["annotator"] is not None
-                        else request.user.id,
+                        else user_id,
                     }
-                    for v in (d["validations"] if "validations" in d else [])
+                    for v in (r["validations"] if "validations" in r else [])
                 ],
             }
-            for d in request.data
+            for r in results
         ]
 
-        initial_results = self.get_queryset().filter(
-            annotation_campaign_id=campaign_id,
-            dataset_file_id=file_id,
-            annotator_id=request.user.id,
+    @staticmethod
+    def update_results(
+        new_results: list[dict],
+        campaign: AnnotationCampaign,
+        file: DatasetFile,
+        user_id,
+    ):
+        """Update with given results"""
+        data = AnnotationResultViewSet.map_request_results(
+            new_results, campaign.id, file.id, user_id
         )
-        serializer = self.get_serializer_class()(
-            initial_results,
+        current_results = AnnotationResultViewSet.queryset.filter(
+            annotation_campaign_id=campaign.id,
+            dataset_file_id=file.id,
+            annotator_id=user_id,
+        )
+        serializer = AnnotationResultViewSet.serializer_class(
+            current_results,
             many=True,
             data=data,
             context={"campaign": campaign, "file": file},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return serializer.data
 
     @action(
         methods=["POST"],

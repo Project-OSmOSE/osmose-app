@@ -25,8 +25,8 @@ type WriteAnnotatorData = {
   results: Array<WriteAnnotationResult>;
   task_comments: Array<WriteAnnotationComment>;
   session: {
-    start: number; // seconds
-    end: number; // seconds
+    start: Date; // Send ISO String
+    end: Date; // Send ISO String
   },
 }
 
@@ -36,7 +36,10 @@ class AnnotatorAPIService extends APIService<AnnotatorData, WriteAnnotatorData> 
     return super.list(`${ this.URI }/campaign/${ campaignID }/file/${ fileID }/`) as Promise<any>
   }
 
-  post(campaign: AnnotationCampaign, fileID: string | number, data: WriteAnnotatorData): Promise<AnnotatorData> {
+  post(campaign: AnnotationCampaign, fileID: string | number, data: WriteAnnotatorData): Promise<{
+    results: Array<AnnotationResult>,
+    task_comments: Array<AnnotationComment>,
+  }> {
     if (campaign.usage === 'Check') {
       data.results = data.results.map(r => ({
         ...r,
@@ -46,7 +49,13 @@ class AnnotatorAPIService extends APIService<AnnotatorData, WriteAnnotatorData> 
         } ],
       }))
     }
-    return super.create(data, `${ this.URI }/campaign/${ campaign.id }/file/${ fileID }/`)
+    return super.create({
+      ...data,
+      session: {
+        start: data.session.start.toISOString() as any,
+        end: data.session.start.toISOString() as any,
+      }
+    }, `${ this.URI }/campaign/${ campaign.id }/file/${ fileID }/`)
   }
 
   list(): Promise<Array<AnnotatorData>> {

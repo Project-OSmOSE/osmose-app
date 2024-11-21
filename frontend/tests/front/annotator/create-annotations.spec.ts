@@ -441,6 +441,43 @@ test.describe('No results', {
     expect(submittedData.results).toEqual(expectedResults);
   })
 
+  test('Can add presence submitted with "enter" key', async ({ annotatorPage: page }) => {
+    await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({
+      status: 200,
+      json: {
+        ...DEFAULT_DATA,
+        results: []
+      }
+    }))
+    await accessAnnotator(page)
+
+    await expect(page.getByRole('button', { name: label })).not.toBeEnabled()
+    await page.getByRole('checkbox', { name: label }).check()
+    await expect(page.getByText(label).nth(2)).toBeVisible()
+    await expect(page.getByRole('button', { name: label })).toBeEnabled()
+
+    const [ request ] = await Promise.all([
+      page.waitForRequest(/annotator\/campaign\/\d\/file\/\d/g),
+      page.keyboard.press('Enter')
+    ])
+    const submittedData = request.postDataJSON();
+    const expectedResults: Array<WriteAnnotationResult> = [
+      {
+        id: null,
+        label,
+        detector_configuration: null,
+        validations: [],
+        comments: [],
+        confidence_indicator: defaultConfidence,
+        start_time: null,
+        end_time: null,
+        start_frequency: null,
+        end_frequency: null
+      }
+    ]
+    expect(submittedData.results).toEqual(expectedResults);
+  })
+
   test('Can add not confident presence', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({
       status: 200,

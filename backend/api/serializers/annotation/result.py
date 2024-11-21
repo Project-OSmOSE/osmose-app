@@ -274,25 +274,31 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     dataset_file = serializers.PrimaryKeyRelatedField(
         queryset=DatasetFile.objects.all(),
     )
-    detector_configuration = DetectorConfigurationSerializer(required=False)
+    detector_configuration = DetectorConfigurationSerializer(
+        required=False, allow_null=True
+    )
     start_time = serializers.FloatField(
         required=False,
+        allow_null=True,
         min_value=0.0,
     )
     end_time = serializers.FloatField(
         required=False,
+        allow_null=True,
         min_value=0.0,
     )
     start_frequency = serializers.FloatField(
         required=False,
+        allow_null=True,
         min_value=0.0,
     )
     end_frequency = serializers.FloatField(
         required=False,
+        allow_null=True,
         min_value=0.0,
     )
-    comments = AnnotationCommentSerializer(many=True)
-    validations = AnnotationResultValidationSerializer(many=True)
+    comments = AnnotationCommentSerializer(many=True, required=False)
+    validations = AnnotationResultValidationSerializer(many=True, required=False)
 
     class Meta:
         model = AnnotationResult
@@ -322,23 +328,47 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
 
         if file is not None:
             fields["start_time"] = serializers.FloatField(
-                required=False, min_value=0.0, max_value=(file.end - file.start).seconds
+                required=False,
+                allow_null=True,
+                min_value=0.0,
+                max_value=(file.end - file.start).seconds,
             )
             fields["end_time"] = serializers.FloatField(
-                required=False, min_value=0.0, max_value=(file.end - file.start).seconds
+                required=False,
+                allow_null=True,
+                min_value=0.0,
+                max_value=(file.end - file.start).seconds,
             )
             fields["start_frequency"] = serializers.FloatField(
                 required=False,
+                allow_null=True,
                 min_value=0.0,
                 max_value=file.dataset.audio_metadatum.dataset_sr / 2,
             )
             fields["end_frequency"] = serializers.FloatField(
                 required=False,
+                allow_null=True,
                 min_value=0.0,
                 max_value=file.dataset.audio_metadatum.dataset_sr / 2,
             )
 
         return fields
+
+    def validate(self, attrs):
+        # Reorder start/end
+        start_time = attrs.get("start_time")
+        end_time = attrs.get("end_time")
+        if end_time is not None and (start_time is None or start_time > end_time):
+            attrs["start_time"] = end_time
+            attrs["end_time"] = start_time
+        start_frequency = attrs.get("start_frequency")
+        end_frequency = attrs.get("end_frequency")
+        if end_frequency is not None and (
+            start_frequency is None or start_frequency > end_frequency
+        ):
+            attrs["start_frequency"] = end_frequency
+            attrs["end_frequency"] = start_frequency
+        return super().validate(attrs)
 
     def create(self, validated_data):
         comments = AnnotationCommentSerializer(
@@ -373,7 +403,9 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations = AnnotationResultValidationSerializer(
             validated_data.pop("validations", []), many=True
         ).data
-        instance = instance.first()
+
+        if hasattr(instance, "first") and callable(getattr(instance, "first")):
+            instance = instance.first()
 
         instance_id = super().update(instance, validated_data).id
 

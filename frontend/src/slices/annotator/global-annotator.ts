@@ -12,14 +12,14 @@ export type AnnotatorSlice = {
 
   toast?: ToastMessage;
   areShortcutsEnabled: boolean;
-  sessionStart: number;
+  sessionStart: Date;
 }
 
 export const annotatorSlice = createSlice({
   name: 'Annotator',
   initialState: {
     areShortcutsEnabled: true,
-    sessionStart: Date.now(),
+    sessionStart: new Date(),
     previous_file_id: null,
     next_file_id: null,
   } as AnnotatorSlice,
@@ -36,7 +36,7 @@ export const annotatorSlice = createSlice({
       state.file = action.payload.file;
       state.campaign = action.payload.campaign;
       state.user = action.payload.user;
-      state.sessionStart = Date.now();
+      state.sessionStart = new Date();
       state.previous_file_id = action.payload.previous_file_id;
       state.next_file_id = action.payload.next_file_id;
     },

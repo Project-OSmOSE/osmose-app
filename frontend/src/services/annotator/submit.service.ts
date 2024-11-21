@@ -22,7 +22,7 @@ export const useAnnotatorSubmitService = () => {
     taskComments: _taskComments
   } = useAppSelector(state => state.annotator.annotations);
 
-  const sessionStart = useRef<number>(_sessionStart);
+  const sessionStart = useRef<Date>(_sessionStart);
   useEffect(() => {
     sessionStart.current = _sessionStart
   }, [ _sessionStart ]);
@@ -70,8 +70,8 @@ export const useAnnotatorSubmitService = () => {
       })),
       task_comments: taskComments.current.map(commentService.mapForWriting),
       session: {
-        start: Math.floor(sessionStart.current / 1000),
-        end: Math.floor(Date.now() / 1000)
+        start: sessionStart.current,
+        end: new Date()
       }
     });
   }

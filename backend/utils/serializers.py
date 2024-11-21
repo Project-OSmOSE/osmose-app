@@ -1,4 +1,5 @@
 """ Serializer util functions """
+from django.db import transaction
 from django.db.models import QuerySet
 from rest_framework import serializers
 
@@ -33,6 +34,7 @@ class ListSerializer(serializers.ListSerializer):
         """Get serialized data"""
         return self.child.__class__(data).data
 
+    @transaction.atomic()
     def update(self, instance: QuerySet, validated_data: list[dict]):
         serializer_list = []
         for data in validated_data:
@@ -42,7 +44,7 @@ class ListSerializer(serializers.ListSerializer):
                 if update_instance.exists():
                     serializer_list.append(
                         self.child.__class__(
-                            instance=update_instance, data=serializer_data
+                            instance=update_instance.first(), data=serializer_data
                         )
                     )
                     continue

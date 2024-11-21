@@ -1,6 +1,9 @@
 """Annotator viewset"""
+from django.db import transaction
+
 # pylint: disable=protected-access
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -11,7 +14,9 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
 )
-from backend.api.serializers import AnnotationSessionSerializer
+from backend.api.serializers import (
+    AnnotationSessionSerializer,
+)
 from backend.api.views import (
     AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
@@ -119,24 +124,34 @@ class AnnotatorViewSet(viewsets.ViewSet):
         url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
         url_name="campaign-file-post",
     )
-    def post_file(self, request: Request, campaign_id: int, file_id: int):
+    @transaction.atomic()
+    def post(self, request: Request, campaign_id: int, file_id: int):
         """Post all data for annotator"""
 
-        results = AnnotationResultViewSet.as_view({"post": "bulk_post"})(
-            request._request,
-            campaign_id=campaign_id,
-            file_id=file_id,
-            **request.query_params.get("results"),
-        ).data
+        # Check permission
+        campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
+        file = get_object_or_404(DatasetFile, id=file_id)
+        file_ranges = campaign.annotation_file_ranges.filter(
+            annotator_id=request.user.id
+        )
+        if not file_ranges.exists():
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        all_files = []
+        for file_range in file_ranges:
+            all_files += list(file_range.get_files())
+        if file not in all_files:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-        task_comments = AnnotationCommentViewSet.as_view(
-            {"post": "bulk_post_global_comment"}
-        )(
-            request._request,
-            campaign_id=campaign_id,
-            file_id=file_id,
-            **request.query_params.get("task_comments"),
-        ).data
+        # Update
+        results = AnnotationResultViewSet.update_results(
+            request.data.get("results") or [], campaign, file, request.user.id
+        )
+        comments = AnnotationCommentViewSet.update_comments(
+            request.data.get("task_comments") or [],
+            campaign,
+            file,
+            request.user.id,
+        )
 
         task, _ = AnnotationTask.objects.get_or_create(
             annotator=request.user,
@@ -149,17 +164,19 @@ class AnnotatorViewSet(viewsets.ViewSet):
             data={
                 **request.data["session"],
                 "annotation_task": task.id,
-                "session_output": {"results": results, "task_comments": task_comments},
+                "session_output": {
+                    "results": request.data.get("results"),
+                    "task_comments": request.data.get("task_comments"),
+                },
             }
         )
         session_serializer.is_valid(raise_exception=True)
         session_serializer.save()
 
         return Response(
-            self.as_view({"get": "get_file"})(
-                request._request,
-                campaign_id=campaign_id,
-                file_id=file_id,
-            ).data,
+            {
+                "results": results,
+                "task_comments": comments,
+            },
             status=status.HTTP_200_OK,
         )
