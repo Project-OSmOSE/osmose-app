@@ -1,7 +1,11 @@
 """OSmOSE Website - Projects"""
+from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
+from backend.osmosewebsite.models import Project
 
+
+@admin.register(Project)
 class ProjectAdmin(ModelAdmin):
     """Projects presentation in DjangoAdmin"""
 
@@ -13,7 +17,8 @@ class ProjectAdmin(ModelAdmin):
         "end",
         "intro",
         "body",
-        "contact",
+        "osmose_member_contacts",
+        "other_contacts",
         "collaborators",
         "thumbnail",
         "metadatax_project",
