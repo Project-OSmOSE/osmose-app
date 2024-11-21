@@ -12,7 +12,7 @@ class ScientificTalk(models.Model):
     """
 
     title = models.CharField(max_length=255, unique=True)
-    intro = models.CharField(max_length=255)
+    intro = models.CharField(max_length=255, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")
 

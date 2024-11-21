@@ -60,7 +60,7 @@ class Command(management.BaseCommand):
 
         # Cleanup
         print("# Cleanup")
-        # management.call_command("flush", verbosity=0, interactive=False)
+        management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         print("# Creation")
