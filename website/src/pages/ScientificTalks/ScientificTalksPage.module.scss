@@ -31,18 +31,5 @@ grid-template-rows: auto auto 1fr auto;
     .presenter {
       font-weight: 500;
     }
-    .cardLinks {
-      display: grid;
-      gap: 0.5rem;
-      grid-auto-flow: column;
-      justify-content: center;
-      align-items: center;
-      margin: 0;
-
-      svg {
-        height: 1.2rem;
-        width: 1.2rem;
-      }
-    }
   }
 }

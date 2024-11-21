@@ -1,5 +1,6 @@
 """ScientificTalk DRF serializers file"""
 from rest_framework import serializers
+
 from backend.osmosewebsite.models import ScientificTalk
 
 ScientificTalkFields = [
@@ -8,10 +9,8 @@ ScientificTalkFields = [
     "intro",
     "date",
     "thumbnail",
-    "presenter_name",
-    "presenter_linkedin_url",
-    "presenter_mail_address",
-    "presenter_research_gate_url",
+    "osmose_member_presenters",
+    "other_presenters",
 ]
 
 
