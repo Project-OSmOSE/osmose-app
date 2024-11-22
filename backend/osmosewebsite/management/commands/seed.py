@@ -138,7 +138,9 @@ class Command(BaseCommand):
                 thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
             )
             for i in range(1, random.randint(2, 5)):
-                talk.osmose_member_authors.add(TeamMember.objects.filter(id=i).first())
+                talk.osmose_member_presenters.add(
+                    TeamMember.objects.filter(id=i).first()
+                )
                 talk.save()
 
     def _create_collaborators(self):
