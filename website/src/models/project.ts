@@ -9,6 +9,7 @@ export interface Project {
     start?: string;
     end?: string;
     thumbnail?: string;
-    contact?: Array<TeamMember>;
+    osmose_member_contacts?: Array<TeamMember>;
+    other_contacts?: Array<string>;
     collaborators?: Array<Collaborator>;
 }

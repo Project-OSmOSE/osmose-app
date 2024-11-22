@@ -10,35 +10,18 @@ class ScientificTalkAdmin(admin.ModelAdmin):
 
     list_display = [
         "title",
-        "presenter_name",
         "intro",
         "date",
         "thumbnail",
     ]
-
-    search_fields = ["title", "presenter_name"]
-
-    fieldsets = [
-        (
-            None,
-            {
-                "fields": [
-                    "title",
-                    "date",
-                    "intro",
-                    "thumbnail",
-                ]
-            },
-        ),
-        (
-            "Presenter",
-            {
-                "fields": [
-                    "presenter_name",
-                    "presenter_linkedin_url",
-                    "presenter_mail_address",
-                    "presenter_research_gate_url",
-                ]
-            },
-        ),
+    search_fields = [
+        "title",
+    ]
+    fields = [
+        "title",
+        "date",
+        "intro",
+        "thumbnail",
+        "osmose_member_presenters",
+        "other_presenters",
     ]

@@ -11,7 +11,7 @@ import { Project } from "../../models/project";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { Pagination } from "../../components/Pagination/Pagination";
 import { DeploymentsMap } from "../../components/DeploymentsMap";
-import { DeploymentAPI, DeploymentService } from "@pam-standardization/metadatax-ts";
+import { DeploymentAPI, DeploymentService } from "@PAM-Standardization/metadatax-ts";
 
 
 export const Projects: React.FC = () => {

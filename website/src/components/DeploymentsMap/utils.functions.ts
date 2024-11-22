@@ -1,4 +1,5 @@
 export function getMinZoom(value: number, zoom = 1): number {
+  if (!isFinite(value)) return 0
   return 2 ** (zoom + 1) > value ? zoom : getMinZoom(value, zoom + 1)
 }
 

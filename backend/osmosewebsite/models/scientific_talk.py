@@ -1,6 +1,9 @@
 """ScientificTalk-related models"""
 
+from django.contrib.postgres import fields
 from django.db import models
+
+from .team_member import TeamMember
 
 
 class ScientificTalk(models.Model):
@@ -9,14 +12,13 @@ class ScientificTalk(models.Model):
     """
 
     title = models.CharField(max_length=255, unique=True)
-    presenter_name = models.CharField(max_length=255)
-    intro = models.CharField(max_length=255)
+    intro = models.CharField(max_length=255, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     thumbnail = models.URLField(default="")
-    presenter_linkedin_url = models.URLField(blank=True, null=True)
-    presenter_mail_address = models.EmailField(blank=True, null=True)
-    presenter_research_gate_url = models.URLField(
-        "Research Gate URL", blank=True, null=True
+
+    osmose_member_presenters = models.ManyToManyField(TeamMember, blank=True)
+    other_presenters = fields.ArrayField(
+        models.CharField(max_length=255, blank=True), null=True, blank=True
     )
 
     class Meta:

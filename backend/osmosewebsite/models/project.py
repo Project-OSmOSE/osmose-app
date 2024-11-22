@@ -1,10 +1,12 @@
 """Projects-related models"""
 
+from django.contrib.postgres import fields
 from django.db import models
-from tinymce.models import HTMLField
 from metadatax.models import Project as MetadataxProject
-from .team_member import TeamMember
+from tinymce.models import HTMLField
+
 from .collaborator import Collaborator
+from .team_member import TeamMember
 
 
 class Project(models.Model):
@@ -22,8 +24,12 @@ class Project(models.Model):
     body = HTMLField()
     thumbnail = models.URLField(default="")
 
-    contact = models.ManyToManyField(TeamMember, blank=True)
     collaborators = models.ManyToManyField(Collaborator, blank=True)
+
+    osmose_member_contacts = models.ManyToManyField(TeamMember, blank=True)
+    other_contacts = fields.ArrayField(
+        models.CharField(max_length=255, blank=True), null=True, blank=True
+    )
 
     metadatax_project = models.OneToOneField(
         MetadataxProject,
