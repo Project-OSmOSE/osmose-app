@@ -36,12 +36,6 @@ def get_response_result(result: dict):
     return {**result, "validations": [], "comments": [], "detector_configuration": None}
 
 
-context = {
-    "campaign": AnnotationCampaign.objects.get(pk=1),
-    "file": DatasetFile.objects.get(pk=9),
-}
-
-
 class CreateTestCase(TestCase):
     fixtures = all_fixtures
     maxDiff = None  # See all differences on failed tests
