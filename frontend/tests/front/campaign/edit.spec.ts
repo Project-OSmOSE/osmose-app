@@ -33,9 +33,22 @@ test.describe('Loading', () => {
         "first_file_index": 0,
         "last_file_index": 9
       },
+      {
+        "id": 1,
+        "annotator": ADMIN.id,
+        "annotation_campaign": 1,
+        "finished_tasks_count": 0,
+        "files_count": 10,
+        "first_file_index": 0,
+        "last_file_index": 9
+      },
     ])
     await expect(adminPage.getByText(ANNOTATOR.displayName)).toBeVisible()
-    await expect(adminPage.getByText(ADMIN.displayName)).not.toBeVisible()
+    await expect(adminPage.getByText('1-10')).toBeVisible()
+
+    await expect(adminPage.getByText(ADMIN.displayName)).toBeVisible()
+    await expect(adminPage.getByPlaceholder('1')).toHaveValue('1')
+    
     await expect(adminPage.getByText(BASE_USER.displayName)).not.toBeVisible()
   })
 })

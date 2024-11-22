@@ -183,7 +183,20 @@ const AnnotatorRangeLine = React.forwardRef<
 
   const disabled = useMemo(() => (_range.current?.finished_tasks_count ?? 0) > 0, [ _range.current ])
 
-  const setValue = (range: AnnotationFileRange) => {
+  const setValue = async (range: AnnotationFileRange) => {
+    if (range.finished_tasks_count > 0) return;
+    await new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (inputsRef.current.first_file_index && inputsRef.current.last_file_index) {
+          resolve(true)
+          clearInterval(interval)
+        }
+      }, 50)
+      setTimeout(() => {
+        resolve(true)
+        clearInterval(interval)
+      }, 500)
+    })
     inputsRef.current.first_file_index?.setValue(range.first_file_index < 0 ? undefined : range.first_file_index + 1);
     inputsRef.current.last_file_index?.setValue(range.last_file_index < 0 ? undefined : range.last_file_index + 1);
     _range.current = range;
