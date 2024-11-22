@@ -7,7 +7,7 @@ import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import { Back } from "../../../components/Back/Back";
 import { DeploymentsMap } from "../../../components/DeploymentsMap";
-import { DeploymentAPI, DeploymentService } from "@pam-standardization/metadatax-ts";
+import { DeploymentAPI, DeploymentService } from "@PAM-Standardization/metadatax-ts";
 import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
 
@@ -53,7 +53,8 @@ export const ProjectDetail: React.FC = () => {
           <HTMLContent content={ project.body }></HTMLContent>
 
           <ContactList label="Contact"
-                       teamMembers={ project.contact }></ContactList>
+                       teamMembers={ project.osmose_member_contacts }
+                       namedMembers={ project.other_contacts }></ContactList>
 
         </div>
       ) }

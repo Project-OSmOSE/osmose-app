@@ -4,9 +4,9 @@
 # is a quickfix however another solution like changing start.sh might be better.
 
 from random import Random
-from faker import Faker
 
 from django.core.management.base import BaseCommand
+from faker import Faker
 
 from backend.osmosewebsite.models import (
     TeamMember,
@@ -130,27 +130,18 @@ class Command(BaseCommand):
 
     def _create_scientific_talk(self):
         print(" ###### _create_scientific_talk ######")
-        talks = []
         for _ in range(0, random.randint(5, 15)):
-            profile = fake.profile()
-            websites = profile["website"]
-            talks.append(
-                ScientificTalk(
-                    presenter_name=f"{fake.first_name()} {fake.last_name()}",
-                    title=fake.sentence(nb_words=10)[:255],
-                    intro=fake.paragraph(nb_sentences=5)[:255],
-                    date=fake.date_time_between(start_date="-1y", end_date="now"),
-                    thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
-                    presenter_linkedin_url=websites[3] if len(websites) > 3 else None,
-                    presenter_mail_address=profile["mail"]
-                    if random.randint(0, 1) > 0
-                    else None,
-                    presenter_research_gate_url=websites[0]
-                    if len(websites) > 0
-                    else None,
-                )
+            talk = ScientificTalk.objects.create(
+                title=fake.sentence(nb_words=10)[:255],
+                intro=fake.paragraph(nb_sentences=5)[:255],
+                date=fake.date_time_between(start_date="-1y", end_date="now"),
+                thumbnail=f"https://api.dicebear.com/7.x/identicon/svg?seed={fake.word()}",
             )
-        ScientificTalk.objects.bulk_create(talks)
+            for i in range(1, random.randint(2, 5)):
+                talk.osmose_member_presenters.add(
+                    TeamMember.objects.filter(id=i).first()
+                )
+                talk.save()
 
     def _create_collaborators(self):
         print(" ###### _create_collaborators ######")
@@ -202,7 +193,9 @@ class Command(BaseCommand):
                 thumbnail=get_fake_image_url(),
             )
             for i in range(1, random.randint(2, 3)):
-                project.contact.add(TeamMember.objects.filter(id=i).first())
+                project.osmose_member_contacts.add(
+                    TeamMember.objects.filter(id=i).first()
+                )
                 project.save()
             for i in range(1, random.randint(2, 7)):
                 project.collaborators.add(Collaborator.objects.filter(id=i).first())
