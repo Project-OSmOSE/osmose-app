@@ -1,4 +1,3 @@
-import React from 'react'
 import { Input } from '@/components/form/inputs/input'
 
 const label = 'My label';
@@ -27,9 +26,18 @@ describe('Input', () => {
   it('can be required', () => {
     cy.mount(<Input label={ label }
                     required={ true }
-                    placeholder={ placeholder }
-                    note={ note }/>)
+                    placeholder={ placeholder }/>)
     cy.get('#aplose-input').should('contain', `${ label }*`)
     cy.get('#aplose-input input').should('have.attr', 'required')
   })
+
+  //TODO: test with error, error should be removed after input update - for now: cannot use hook inside a test
+  // it('can have an error', () => {
+  //   const ref = useRef<InputRef<InputValue>>(null);
+  //   cy.mount(<Input label={ label }
+  //                   ref={ ref }
+  //                   placeholder={ placeholder }/>)
+  //   ref.current?.setError("My custom error")
+  //   cy.get('#aplose-input').should('contain', "My custom error")
+  // })
 })

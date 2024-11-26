@@ -1,6 +1,7 @@
 import { CSVColumns } from "@/types/csv-import-annotations.ts";
 
-export function formatTimestamp(rawSeconds: number, withMs: boolean = true) {
+export function formatTimestamp(rawSeconds: number | null, withMs: boolean = true) {
+  if (rawSeconds === null) return;
   const hours: number = Math.floor(rawSeconds / 3600);
   const minutes: number = Math.floor(rawSeconds / 60) % 60;
   const seconds: number = Math.floor(rawSeconds) % 60;

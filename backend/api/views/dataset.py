@@ -43,11 +43,11 @@ class DatasetViewSet(viewsets.ViewSet):
             LEFT OUTER JOIN (SELECT id, name
                       FROM dataset_types) type
                      on type.id = datasets.dataset_type_id
+            ORDER BY datasets.id DESC
             """
         ).prefetch_related("spectro_configs")
 
         serializer = self.serializer_class(queryset, many=True)
-
         return Response(serializer.data)
 
     @action(detail=False)

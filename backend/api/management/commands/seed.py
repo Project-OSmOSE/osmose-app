@@ -25,9 +25,10 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     SpectrogramConfiguration,
+    AnnotationFileRange,
 )
-from backend.aplose_auth.models import AploseUser
-from backend.aplose_auth.models.user import ExpertiseLevel
+from backend.aplose.models import AploseUser
+from backend.aplose.models.user import ExpertiseLevel
 from backend.osmosewebsite.management.commands.seed import Command as WebsiteCommand
 
 
@@ -105,6 +106,18 @@ class Command(management.BaseCommand):
                 ),
                 expertise_level=ExpertiseLevel.NOVICE,
             ),
+            AploseUser(
+                user=User.objects.create(
+                    username="TestUser3",
+                    email="TestUser3@osmose.xyz",
+                    password=make_password(password),
+                    first_name="User3",
+                    last_name="Test",
+                    is_superuser=True,
+                    is_staff=True,
+                ),
+                expertise_level=ExpertiseLevel.NOVICE,
+            ),
         ]
         names = [self.fake.unique.first_name() for _ in range(40)]
         for name in names:
@@ -143,7 +156,6 @@ class Command(management.BaseCommand):
 
     def _create_datasets(self):
         print(" ###### _create_datasets ######")
-        audio_metadata = []
         files = []
         configs = []
         dataset_names = [
@@ -178,16 +190,13 @@ class Command(management.BaseCommand):
             for k in range(1, self.files_nb):
                 start = parse_datetime("2012-10-03T12:00:00+0200")
                 end = start + timedelta(minutes=15)
-                audio_metadatum = AudioMetadatum(
-                    start=(start + timedelta(hours=k)), end=(end + timedelta(hours=k))
-                )
-                audio_metadata.append(audio_metadatum)
                 files.append(
                     DatasetFile(
                         filename=f"sound{k:03d}.wav",
                         filepath="data/audio/50h_0.wav",
                         size=58982478,
-                        audio_metadatum=audio_metadatum,
+                        start=(start + timedelta(hours=k)),
+                        end=(end + timedelta(hours=k)),
                         dataset=dataset,
                     )
                 )
@@ -290,7 +299,6 @@ class Command(management.BaseCommand):
                 )
 
         Dataset.objects.bulk_create(self.datasets)
-        AudioMetadatum.objects.bulk_create(audio_metadata)
         DatasetFile.objects.bulk_create(files)
         SpectrogramConfiguration.objects.bulk_create(configs)
 
@@ -365,30 +373,41 @@ class Command(management.BaseCommand):
             campaign.datasets.add(dataset)
             for config in dataset.spectro_configs.all():
                 campaign.spectro_configs.add(config)
-            tasks = []
-            for file in dataset.files.all().order_by("?"):
-                for user in self.users:
-                    task = AnnotationTask(
-                        dataset_file=file,
-                        annotator=user,
-                        status=0,
-                        annotation_campaign=campaign,
+            file_ranges = []
+            for user in self.users:
+                if user.username in ["TestUser2", "TestUser3"]:
+                    continue
+                file_ranges.append(
+                    AnnotationFileRange(
+                        annotation_campaign_id=campaign.id,
+                        annotator_id=user.id,
+                        first_file_index=0,
+                        last_file_index=dataset.files.count() - 1,
+                        files_count=dataset.files.count(),
                     )
-                    tasks.append(task)
-            AnnotationTask.objects.bulk_create(tasks)
+                )
+            AnnotationFileRange.objects.bulk_create(file_ranges)
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
         campaign = self.campaigns[0]
         labels = self.label_sets[0].labels.values_list("id", flat=True)
-        for user in self.users:
-            done_files = randint(5, max(self.files_nb - 5, 5))
-            tasks = campaign.tasks.filter(annotator_id=user.id)[:done_files]
-            for task in tasks:
+        file_range: AnnotationFileRange
+        for file_range in campaign.annotation_file_ranges.all():
+            done_files = file_range.get_files()[: randint(5, max(self.files_nb - 5, 5))]
+            for file in done_files:
+                task = AnnotationTask.objects.create(
+                    dataset_file=file,
+                    annotator=file_range.annotator,
+                    status=AnnotationTask.Status.FINISHED,
+                    annotation_campaign=campaign,
+                )
                 if randint(1, 3) >= 2:
                     AnnotationComment.objects.create(
                         comment="a comment",
-                        annotation_task=task,
+                        annotation_campaign_id=campaign.id,
+                        dataset_file_id=task.dataset_file_id,
+                        author_id=task.annotator_id,
                         annotation_result=None,
                     )
                 for _ in range(randint(1, 5)):
@@ -404,8 +423,6 @@ class Command(management.BaseCommand):
                         dataset_file_id=task.dataset_file_id,
                         annotator_id=task.annotator_id,
                     )
-                task.status = 2
-                task.save()
 
     def _create_comments(self):
         print(" ###### _create_comments ######")
@@ -417,11 +434,9 @@ class Command(management.BaseCommand):
                 comments.append(
                     AnnotationComment(
                         comment=f"a comment : {result.label.name}",
-                        annotation_task=AnnotationTask.objects.filter(
-                            annotation_campaign_id=result.annotation_campaign_id,
-                            dataset_file_id=result.dataset_file_id,
-                            annotator_id=result.annotator_id,
-                        ).first(),
+                        annotation_campaign_id=result.annotation_campaign_id,
+                        dataset_file_id=result.dataset_file_id,
+                        author_id=result.annotator_id,
                         annotation_result=result,
                     )
                 )

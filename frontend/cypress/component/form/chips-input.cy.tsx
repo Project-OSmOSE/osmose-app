@@ -1,4 +1,3 @@
-import React from 'react'
 import { setupIonicReact } from '@ionic/react';
 import { ChipsInput } from '@/components/form';
 import { Item } from "@/types/item";
@@ -8,12 +7,13 @@ const options: Array<Item> = [
   { label: 'First', value: 1 },
   { label: 'Second', value: 2 },
 ];
-const activeItems = [1];
+const activeItems: Array<string | number> = [1];
 
 setupIonicReact({
   mode: 'md',
   spinner: 'crescent',
 });
+
 
 describe('Chips input', () => {
   beforeEach(() => {
@@ -50,7 +50,17 @@ describe('Chips input', () => {
     cy.mount(<ChipsInput label={ label }
                          required={ true }
                          items={ options }
-                         activeItemsValues={ activeItems }/>)
+                         activeItemsValues={ activeItems }
+                         setActiveItemsValues={ () => {} }/>)
     cy.get('#aplose-input').should('contain', `${ label }*`)
+  })
+
+  it('can have an error', () => {
+    cy.mount(<ChipsInput label={ label }
+                         error="My custom error"
+                         items={ options }
+                         activeItemsValues={ activeItems }
+                         setActiveItemsValues={ () => {} }/>)
+    cy.get('#aplose-input').should('contain', "My custom error")
   })
 })

@@ -1,294 +1,290 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Annotation, AnnotationComment, AnnotationMode, AnnotationType, DEFAULT_COMMENT } from "@/types/annotations.ts";
-import { Boundaries, Retrieve } from "@/services/api/annotation-task-api.service.tsx";
 import { COLORS } from "@/consts/colors.const.tsx";
+import {
+  AnnotationComment,
+  AnnotationResult,
+  AnnotationResultBounds,
+  ConfidenceIndicatorSet,
+  LabelSet
+} from "@/services/api";
+import { getResultType } from "@/services/utils/annotator.ts";
+import { DEFAULT_PRESENCE_RESULT } from "@/services/api/annotation/result.service.tsx";
 
 
 export type AnnotationsSlice = {
-  currentMode: AnnotationMode,
-  wholeFileBoundaries: Boundaries & { duration: number },
   hasChanged: boolean;
 
-  results: Array<Annotation>;
-  focusedResult?: Annotation;
+  results: Array<AnnotationResult>;
+  focusedResult?: AnnotationResult;
 
-  allLabels: Array<string>;
+  labelSet?: LabelSet;
   labelColors: { [key: string]: string };
   presenceLabels: Array<string>;
   focusedLabel?: string;
 
-  allConfidences: Array<string>;
-  confidenceDescription?: string;
+  confidenceSet?: ConfidenceIndicatorSet | null;
   focusedConfidence?: string;
 
   focusedComment?: AnnotationComment;
-  taskComment: AnnotationComment;
+  taskComments: Array<AnnotationComment>;
 }
 
-function isBoxResult(a: any, bounds: Boundaries): boolean {
-
-  if ((typeof a.startTime !== 'number') || (typeof a.endTime !== 'number') ||
-    (typeof a.startFrequency !== 'number') || (typeof a.endFrequency !== 'number')) return false;
-
-  const fileDuration = bounds.duration ??
-    (new Date(bounds.endTime).getTime() - new Date(bounds.startTime).getTime()) / 1000;
-  return (!(a.startTime === 0 && a.endTime === fileDuration
-    && a.startFrequency === bounds.startFrequency && a.endFrequency === bounds.endFrequency));
-}
-
-function getNewId(state: AnnotationsSlice): number {
-  const currentNewIds: Array<number> = state.results.map(a => a.newId)
-    .filter(r => typeof r === 'number') as Array<number>;
-  return Math.max(...currentNewIds, 0) + 1
-}
-
-function getUpdatedResults(state: AnnotationsSlice, newFocus?: Annotation): Array<Annotation> {
+function getUpdatedResults(state: AnnotationsSlice, newFocus?: AnnotationResult): Array<AnnotationResult> {
   if (!newFocus) return state.results;
-  return [...new Set([...state.results.map(r => (r.id === newFocus.id && r.newId === newFocus.newId) ? newFocus : r)])]
+  return [ ...new Set([ ...state.results.map(r => (r.id === newFocus.id) ? newFocus : r) ]) ]
 }
 
-function createLabelResult(state: AnnotationsSlice, label: string): Annotation {
-  const currentNewIds: Array<number> = state.results.map(a => a.newId)
-    .filter(r => typeof r === 'number') as Array<number>;
-  return state.results.find(r => r.type === AnnotationType.tag && r.label === label) ?? {
-    newId: Math.max(...currentNewIds, 0) + 1,
-    label: label,
-    result_comments: [],
-    startTime: -1,
-    endTime: -1,
-    startFrequency: -1,
-    endFrequency: -1,
-    type: AnnotationType.tag,
-    confidenceIndicator: state.focusedConfidence,
-    validation: null
-  }
+function focusResult(state: any, action: { payload: AnnotationResult }) {
+  state.focusedResult = action.payload;
+  state.results = getUpdatedResults(state, state.focusedResult);
+  state.focusedComment = action.payload.comments.length > 0 ? action.payload.comments[0] : undefined;
+  state.focusedLabel = action.payload.label;
+  state.focusedConfidence = action.payload.confidence_indicator ?? undefined;
 }
 
+function focusTask(state: any) {
+  state.focusedResult = undefined;
+  state.focusedLabel = undefined;
+  state.focusedComment = state.taskComments.length > 0 ? state.taskComments[0] : undefined;
+  state.focusedConfidence = getDefaultConfidence(state);
+}
 
+function getDefaultConfidence(state: AnnotationsSlice): string | undefined {
+  return state.confidenceSet?.confidence_indicators.find(i => i.isDefault)?.label;
+}
+
+// TODO: Test hasChanged -> true
 export const annotationsSlice = createSlice({
   name: 'Annotations',
   initialState: {
-    currentMode: AnnotationMode.wholeFile,
     hasChanged: false,
-    wholeFileBoundaries: {
-      startTime: '',
-      startFrequency: 0,
-      endTime: '',
-      endFrequency: 0,
-      duration: 0
-    },
     results: [],
-    taskComment: DEFAULT_COMMENT,
-    allLabels: [],
+    taskComments: [],
     presenceLabels: [],
-    allConfidences: [],
     labelColors: {},
   } as AnnotationsSlice,
   reducers: {
-    initAnnotations: (state, action: { payload: Retrieve }) => {
-      const taskComment = action.payload.taskComment.length > 0 ? action.payload.taskComment[0] : {
-        comment: '',
-        annotation_task: action.payload.id,
-        annotation_result: null
+    init: (state, action: {
+      payload: {
+        results: Array<AnnotationResult>;
+        label_set: LabelSet;
+        confidence_set: ConfidenceIndicatorSet | null;
+        task_comments: Array<AnnotationComment>;
       }
+    }) => {
+      state.results = action.payload.results;
+      state.focusedResult = undefined;
+      state.hasChanged = false;
+      state.taskComments = action.payload.task_comments;
+      state.focusedComment = action.payload.task_comments.length > 0 ? action.payload.task_comments[0] : undefined;
+
+      state.labelSet = action.payload.label_set;
       const labelColors = {};
-      for (const label of action.payload.labels) {
-        Object.assign(labelColors, { [label]: COLORS[action.payload.labels.indexOf(label) % COLORS.length] })
+      for (const label of action.payload.label_set.labels) {
+        Object.assign(labelColors, { [label]: COLORS[action.payload.label_set.labels.indexOf(label) % COLORS.length] })
       }
-      Object.assign(state, {
-        hasChanged: false,
-        currentMode: action.payload.annotationScope,
-        results: action.payload.prevAnnotations.map(a => {
-          const isBox = isBoxResult(a, action.payload.boundaries);
-          return {
-            ...a,
-            type: isBox ? AnnotationType.box : AnnotationType.tag,
-            startTime: isBox ? a.startTime ?? 0 : -1,
-            endTime: isBox ? a.endTime ?? 0 : -1,
-            startFrequency: isBox ? a.startFrequency ?? 0 : -1,
-            endFrequency: isBox ? a.endFrequency ?? 0 : -1,
-            validation: action.payload.mode === 'Create' ? null : (a.validation === null ? true : !!a.validation)
-          }
-        }),
-        focusedResult: undefined,
-        focusedComment: taskComment,
-        taskComment,
-        allLabels: action.payload.labels,
-        presenceLabels: action.payload.prevAnnotations.map(a => a.label),
-        labelColors,
-        focusedLabel: undefined,
-        allConfidences: action.payload.confidenceIndicatorSet?.confidence_indicators.map(c => c.label) ?? [],
-        confidenceDescription: action.payload.confidenceIndicatorSet?.desc,
-        focusedConfidence: action.payload.confidenceIndicatorSet?.confidence_indicators.find(c => c.isDefault)?.label
-          ?? action.payload.confidenceIndicatorSet?.confidence_indicators.find(c => c.label)?.label,
-        wholeFileBoundaries: action.payload.boundaries
-      });
+      state.labelColors = labelColors;
+      state.presenceLabels = [ ...new Set(action.payload.results.map(a => a.label)) ];
+      state.focusedLabel = undefined;
+
+      state.confidenceSet = action.payload.confidence_set;
+      state.focusedConfidence = getDefaultConfidence(state)
+      if (!state.focusedConfidence) state.focusedConfidence = action.payload.confidence_set?.confidence_indicators.find(i => i.label)?.label;
     },
 
-    focusResult: (state, action: { payload: Annotation }) => {
-      Object.assign(state, {
-        focusedResult: action.payload,
-        focusedComment: action.payload.result_comments.length > 0 ? action.payload.result_comments[0] : undefined,
-        focusedLabel: action.payload.label,
-        focusedConfidence: action.payload.confidenceIndicator
-      });
-    },
-    addResult: (state, action: { payload: Annotation }) => {
-      const focusedResult = action.payload
-      focusedResult.newId = getNewId(state);
-      Object.assign(state, {
-        results: [...state.results, focusedResult],
-        focusedResult,
-        focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceLabels: [...new Set([...state.presenceLabels, focusedResult.label])].filter(t => !!t),
-        focusedLabel: focusedResult.label
-      });
-    },
-    removeResult: (state, action: { payload: Annotation }) => {
-      const results = state.results.filter(r => !(r.id === action.payload.id && r.newId === action.payload.newId));
-      let focusedResult = state.focusedResult;
-      if (action.payload.type === AnnotationType.box) {
-        focusedResult = state.results.find(r => r.label === action.payload.label && r.type === AnnotationType.tag)
+    focusResult,
+    addResult: (state, action: { payload: AnnotationResultBounds }) => {
+      state.focusedResult = {
+        ...action.payload,
+        id: Math.min(0, ...state.results.map(r => r.id)) - 1,
+        annotator: -1,
+        annotation_campaign: -1,
+        dataset_file: -1,
+        detector_configuration: null,
+        comments: [],
+        validations: [],
+        confidence_indicator: state.focusedConfidence ?? null,
+        label: state.focusedLabel ?? state.presenceLabels[0]
       }
-      Object.assign(state, {
-        results,
-        focusedResult,
-        focusedComment: focusedResult?.result_comments && focusedResult.result_comments.length > 0 ? focusedResult?.result_comments[0] : undefined,
-        presenceLabels: action.payload.type === AnnotationType.box ? state.presenceLabels : state.presenceLabels.filter(t => t !== action.payload.label),
-        focusedLabel: focusedResult?.label,
-        focusedConfidence: focusedResult?.confidenceIndicator
-      });
+      state.results = [ ...state.results, state.focusedResult ];
+      state.focusedComment = undefined;
+    },
+    removeResult: (state, action: { payload: AnnotationResult }) => {
+      const results = state.results;
+      const presenceResult = results.find(r => r.label === action.payload.label && getResultType(r) === 'presence');
+      switch (getResultType(action.payload)) {
+        case 'box':
+        case 'point':
+          state.results = results.filter(r => r.id !== action.payload.id);
+          if (!presenceResult) return;
+          focusResult(state, { payload: presenceResult })
+          break;
+        case 'presence':
+          state.results = results.filter(r => r.label !== action.payload.label);
+          state.focusedResult = undefined;
+          state.focusedComment = state.taskComments.length > 0 ? state.taskComments[0] : undefined;
+          state.presenceLabels = state.presenceLabels.filter(l => l !== action.payload.label);
+          state.focusedLabel = undefined;
+          break;
+      }
     },
 
-    focusTask: (state) => {
-      Object.assign(state, {
-        focusedResult: undefined,
-        focusedComment: state.taskComment
-      });
-    },
+    focusTask,
     updateFocusComment: (state, action: { payload: string }) => {
-      const focusedComment = state.focusedComment ?? {
+      const focusedResult = state.focusedResult;
+      const focusedComment: AnnotationComment = state.focusedComment ?? {
         comment: action.payload,
-        annotation_task: state.taskComment.annotation_task,
-        annotation_result: state.focusedResult?.id ?? null,
-        annotation_result_new_id: state.focusedResult?.newId ?? null
+        annotation_result: focusedResult?.id ?? null,
+        annotation_campaign: -1,
+        dataset_file: -1,
+        id: -1,
+        author: -1
       };
       focusedComment.comment = action.payload;
-      const focusedResult = state.focusedResult;
-      if (focusedResult) focusedResult.result_comments = [focusedComment];
-      Object.assign(state, {
-        results: getUpdatedResults(state, focusedResult),
-        focusedResult,
-        focusedComment,
-        taskComment: focusedComment.annotation_result || focusedComment.annotation_result_new_id ? state.taskComment : focusedComment,
-      });
+      if (focusedResult) focusedResult.comments = [ focusedComment ];
+      state.focusedComment = focusedComment;
+      state.focusedResult = focusedResult;
+      state.results = getUpdatedResults(state, focusedResult);
+      state.taskComments = focusedComment.annotation_result ? state.taskComments : [ focusedComment ];
     },
     removeFocusComment: (state) => {
-      let focusedComment = state.focusedComment;
+      const focusedComment = state.focusedComment;
       if (!focusedComment) return;
-      let taskComment = state.taskComment;
-      if (!focusedComment.annotation_result) {
-        taskComment = { ...taskComment, comment: '' };
-        focusedComment = taskComment;
-      } else focusedComment = undefined;
-      const focusedResult = state.focusedResult;
-      if (focusedResult) focusedResult.result_comments = []
-      Object.assign(state, {
-        results: getUpdatedResults(state, focusedResult),
-        focusedResult,
-        focusedComment,
-        taskComment
-      });
+
+      if (focusedComment.annotation_result === null) {
+        state.focusedResult = undefined;
+        state.taskComments = []
+        state.focusedComment = undefined;
+      } else {
+        state.focusedResult = {
+          ...state.focusedResult!,
+          comments: []
+        }
+        state.results = getUpdatedResults(state, state.focusedResult);
+        state.focusedComment = undefined;
+      }
     },
 
     addPresence: (state, action: { payload: string }) => {
-      const focusedResult = createLabelResult(state, action.payload);
-      const results = state.results;
-      results.push(focusedResult);
-      Object.assign(state, {
-        results: [...new Set([...results])],
-        focusedResult,
-        focusedComment: focusedResult.result_comments.length > 0 ? focusedResult.result_comments[0] : undefined,
-        presenceLabels: [...new Set([...state.presenceLabels, action.payload])],
-        focusedLabel: action.payload
-      });
+      state.focusedResult = {
+        ...DEFAULT_PRESENCE_RESULT,
+        id: Math.min(0, ...state.results.map(r => r.id)) - 1,
+        label: action.payload,
+        confidence_indicator: state.focusedConfidence ?? null,
+      }
+      state.focusedLabel = action.payload;
+      state.presenceLabels = [ ...new Set([ ...state.presenceLabels, action.payload ]) ];
+      state.results = [ ...state.results, state.focusedResult ];
+      state.focusedComment = undefined;
     },
     focusLabel: (state, action: { payload: string }) => {
-      let focusedResult = state.focusedResult;
-      if (focusedResult && focusedResult.type === AnnotationType.box) focusedResult.label = action.payload
-      else focusedResult = undefined
-      Object.assign(state, {
-        results: getUpdatedResults(state, focusedResult),
-        focusedResult,
-        focusedLabel: action.payload
-      });
+      state.focusedLabel = action.payload;
+      const result = state.focusedResult;
+      if (!result) return;
+      const type = getResultType(result);
+      if (type === 'presence') {
+        focusTask(state);
+        state.focusedLabel = action.payload;
+      } else {
+        state.focusedResult = { ...result, label: action.payload };
+        state.results = getUpdatedResults(state, state.focusedResult)
+      }
     },
     removePresence: (state, action: { payload: string }) => {
-      Object.assign(state, {
-        results: state.results.filter(r => r.label !== action.payload),
-        focusedResult: undefined,
-        focusedComment: state.taskComment,
-        presenceLabels: state.presenceLabels.filter(t => t !== action.payload),
-        focusedLabel: undefined
-      });
+      state.results = state.results.filter(r => r.label !== action.payload);
+      state.focusedResult = undefined;
+      state.focusedComment = state.taskComments.length > 0 ? state.taskComments[0] : undefined;
+      state.presenceLabels = state.presenceLabels.filter(l => l !== action.payload);
+      state.focusedLabel = undefined;
     },
 
-    validateResult: (state, action: { payload: Annotation }) => {
-      const focusedResult = state.results.find(r => r.id === action.payload.id && r.newId === action.payload.newId);
-      focusedResult!.validation = true;
-      let results = getUpdatedResults(state, focusedResult);
-      results = results.map(r => {
-        if (r.type === AnnotationType.box) return r;
-        if (r.label !== focusedResult?.label) return r;
+    validateResult: (state, action: { payload: AnnotationResult }) => {
+      const focusedResult = state.results.find(r => r.id === action.payload.id);
+      if (!focusedResult) return;
+      let validation = focusedResult?.validations.pop();
+      if (validation) {
+        validation.is_valid = true
+      } else {
+        validation = {
+          is_valid: true,
+          result: focusedResult.id,
+          annotator: -1,
+          id: Math.min(0, ...state.results.flatMap(r => r.validations.map(v => v.id))) - 1
+        }
+      }
+      state.focusedResult = {
+        ...focusedResult,
+        validations: [ validation ]
+      }
+      focusResult(state, { payload: state.focusedResult });
+      if (getResultType(state.focusedResult) === 'presence') return;
+      state.results = state.results.map(r => {
+        if (r.id === focusedResult.id) return state.focusedResult!;
+        const type = getResultType(r);
+        if (type !== 'presence') return r;
+        if (r.label !== focusedResult.label) return r;
+        const v = r.validations.pop()
         return {
           ...r,
-          validation: true
+          validations: [ {
+            is_valid: true,
+            result: r.id,
+            annotator: v?.annotator ?? -1,
+            id: v?.id ?? Math.min(0, ...state.results.flatMap(r => r.validations.map(v => v.id))) - 1
+          } ]
         }
       })
-      Object.assign(state, { results, focusedResult });
     },
-    invalidateResult: (state, action: { payload: Annotation }) => {
-      const focusedResult = state.results.find(r => r.id === action.payload.id && r.newId === action.payload.newId);
-      focusedResult!.validation = false;
-      let results = getUpdatedResults(state, focusedResult);
-      if (focusedResult?.type === AnnotationType.tag) {
-        results = results.map(r => {
-          if (r.label !== focusedResult?.label) return r;
-          return {
-            ...r,
-            validation: false
-          }
-        })
+    invalidateResult: (state, action: { payload: AnnotationResult }) => {
+      const focusedResult = state.results.find(r => r.id === action.payload.id);
+      if (!focusedResult) return;
+      let validation = focusedResult?.validations.pop();
+      if (validation) {
+        validation.is_valid = false
+      } else {
+        validation = {
+          is_valid: false,
+          result: focusedResult.id,
+          annotator: -1,
+          id: Math.min(0, ...state.results.flatMap(r => r.validations.map(v => v.id))) - 1
+        }
       }
-      Object.assign(state, { results, focusedResult });
+      state.focusedResult = {
+        ...focusedResult,
+        validations: [ validation ]
+      }
+      focusResult(state, { payload: state.focusedResult });
+      if (getResultType(state.focusedResult) !== 'presence') {
+        state.results = getUpdatedResults(state, state.focusedResult);
+        return;
+      }
+      state.results = state.results.map(r => {
+        if (r.id === focusedResult.id) return state.focusedResult!;
+        const type = getResultType(r);
+        if (type === 'presence') return r;
+        if (r.label !== focusedResult.label) return r;
+        return {
+          ...r,
+          validations: [ {
+            is_valid: false,
+            result: r.id,
+            annotator: -1,
+            id: r.validations.pop()?.id ?? Math.min(0, ...state.results.flatMap(r => r.validations.map(v => v.id))) - 1
+          } ]
+        }
+      })
     },
 
     selectConfidence: (state, action: { payload: string }) => {
       const focusedResult = state.focusedResult
-      if (focusedResult) focusedResult.confidenceIndicator = action.payload;
-      Object.assign(state, {
-        results: getUpdatedResults(state, focusedResult),
-        focusedResult,
-        focusedConfidence: action.payload
-      });
+      if (focusedResult) focusedResult.confidence_indicator = action.payload;
+      state.results = getUpdatedResults(state, focusedResult);
+      state.focusedResult = focusedResult;
+      state.focusedConfidence = action.payload;
     },
   }
 })
 
-export const {
-  initAnnotations,
-  focusResult,
-  addResult,
-  removeResult,
-  focusTask,
-  updateFocusComment,
-  removeFocusComment,
-  addPresence,
-  focusLabel,
-  removePresence,
-  validateResult,
-  invalidateResult,
-  selectConfidence,
-} = annotationsSlice.actions;
+export const AnnotationActions = annotationsSlice.actions;
 
 export default annotationsSlice.reducer;

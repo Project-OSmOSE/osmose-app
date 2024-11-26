@@ -1,63 +1,43 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Retrieve, RetrieveSpectroURL } from "@/services/api/annotation-task-api.service.tsx";
+import { SpectrogramConfiguration } from "@/services/api";
 
 
 export type SpectroSlice = {
   pointerPosition?: { time: number, frequency: number };
 
-  selectedSpectroId: number;
-  spectros: Array<RetrieveSpectroURL>;
+  configurations: Array<SpectrogramConfiguration>;
+  selectedID: number;
 
   currentZoom: number;
   currentZoomOrigin?: { x: number, y: number };
   maxZoom: number;
 }
 
-export function getZoomFromPath(path: string): { zoom: number, id: number } {
-  const pathSplit = path.split('.')
-  pathSplit.pop(); // pop file extension
-  const filename = pathSplit.pop()!
-  const filenameSplit = filename.split('_')
-  const id = +filenameSplit.pop()! // pop id of the image for zoom level
-  const zoom = +filenameSplit.pop()! // pop zoom level
-  return { zoom, id };
-}
-
-function getMaxZoom(state: SpectroSlice): number {
-  let max = 1
-  const spectro = state.spectros.find(s => s.id === state.selectedSpectroId);
-  if (!spectro) return max
-  for (const url of spectro.urls) {
-    max = Math.max(max, getZoomFromPath(url).zoom)
-  }
-  return max
-}
-
 export const spectroSlice = createSlice({
   name: 'Spectro',
   initialState: {
-    selectedSpectroId: 0,
-    spectros: [],
+    configurations: [],
+    selectedID: 0,
     currentZoom: 1,
     maxZoom: 1,
   } as SpectroSlice,
   reducers: {
-    initSpectro: (state, action: { payload: Retrieve }) => {
+    init: (state, action: {payload: {spectrogram_configurations: Array<SpectrogramConfiguration>}}) => {
+      state.configurations = action.payload.spectrogram_configurations;
       state.currentZoom = 1;
       state.currentZoomOrigin = undefined;
-      if (!action.payload.spectroUrls.some(s => s.id === state.selectedSpectroId)) {
-        const simpleSpectroID = action.payload.spectroUrls.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
-        state.selectedSpectroId = simpleSpectroID ?? Math.min(...action.payload.spectroUrls.map(s => s.id));
+      if (!state.configurations.some(s => s.id === state.selectedID)) {
+        const simpleSpectrogramID = state.configurations.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
+        state.selectedID = simpleSpectrogramID ?? Math.min(...state.configurations.map(s => s.id));
       }
-      state.spectros = action.payload.spectroUrls;
-      state.maxZoom = getMaxZoom(state);
+      state.maxZoom = Math.max(...state.configurations.map(s => s.zoom_level));
     },
 
-    selectSpectro: (state, action: { payload: number }) => {
-      if (state.selectedSpectroId === action.payload) return;
-      state.selectedSpectroId = action.payload
+    selectSpectrogram: (state, action: { payload: number }) => {
+      if (state.selectedID === action.payload) return;
+      state.selectedID = action.payload
       state.currentZoom = 1
-      state.maxZoom = getMaxZoom(state);
+      state.maxZoom = state.configurations.find(s => s.id === action.payload)!.zoom_level;
     },
 
     updatePointerPosition: (state, action: { payload: { time: number, frequency: number } }) => {
@@ -84,12 +64,6 @@ export const spectroSlice = createSlice({
   }
 })
 
-export const {
-  initSpectro,
-  updatePointerPosition,
-  leavePointer,
-  zoom,
-  selectSpectro
-} = spectroSlice.actions;
+export const SpectrogramActions = spectroSlice.actions;
 
 export default spectroSlice.reducer;

@@ -6,15 +6,8 @@
   transition: 300ms;
   width: 100%;
 }
-#aplose-input.select.has-label {
-  grid-template-columns: 1fr auto;
-  justify-content: space-between;
-}
-#aplose-input.select:not(.has-label) {
-  width: fit-content;
-}
 #aplose-input ion-note {
-  grid-column: 1 / 3;
+  grid-column: 1 / -1;
 }
 
 #aplose-input > #label {
@@ -37,6 +30,10 @@
   padding: 0.5rem 1rem;
   outline-color: var(--ion-color-primary);
   accent-color: var(--ion-color-primary);
+}
+#aplose-input[aria-invalid=true] > #input > textarea,
+#aplose-input[aria-invalid=true] > #input > input {
+  box-shadow: inset 0 0 0 0.1rem var(--ion-color-danger);
 }
 #aplose-input #input > .hide-real-input {
   position: absolute;
@@ -61,7 +58,16 @@
 
 
 /* Select specific */
-
+#aplose-input.select.has-label {
+  grid-template-columns: 1fr auto;
+  justify-content: space-between;
+}
+#aplose-input.select:not(.has-label) {
+  width: fit-content;
+}
+#aplose-input.select[aria-loading=true].has-label {
+  grid-template-columns: 1fr auto auto;
+}
 #aplose-input.select #input button {
   background-color: var(--ion-color-light-shade);
   padding: 0.5rem 1rem;
@@ -74,9 +80,14 @@
   transition: 300ms;
   cursor: pointer;
   border: none;
+  outline-color: var(--ion-color-primary);
+  accent-color: var(--ion-color-primary);
 }
-#aplose-input.select #input[aria-disabled=true] button {
+#aplose-input.select[aria-disabled=true] button {
   cursor: default;
+}
+#aplose-input.select[aria-invalid=true] button {
+  box-shadow: inset 0 0 0 0.1rem var(--ion-color-danger);
 }
 
 #aplose-input.select #input button p {
@@ -129,10 +140,12 @@
   padding: 0 2rem;
 }
 
-
 /* Chips specific */
 #aplose-input.chips > #input {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+#aplose-input.chips[aria-invalid=true] ion-chip {
+  box-shadow: inset 0 0 0 0.1rem var(--ion-color-danger);
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import ReactDOM from "react-dom";
+import { createPortal } from "react-dom";
 import { DatasetList as List, DatasetListToImport, useDatasetsAPI } from "@/services/api";
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
 import { IonButton, IonSpinner } from "@ionic/react";
@@ -8,10 +8,10 @@ import '../../css/modal.css';
 
 
 export const DatasetList: React.FC = () => {
-  const [datasets, setDatasets] = useState<List>([]);
-  const [datasetsToImport, setDatasetsToImport] = useState<DatasetListToImport>([]);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [ datasets, setDatasets ] = useState<List | undefined>();
+  const [ datasetsToImport, setDatasetsToImport ] = useState<DatasetListToImport | undefined>();
+  const [ isImportModalOpen, setIsImportModalOpen ] = useState(false);
+  const [ isLoading, setIsLoading ] = useState<boolean>(true);
 
   // Services
   const datasetService = useDatasetsAPI();
@@ -25,7 +25,7 @@ export const DatasetList: React.FC = () => {
     Promise.all([
       datasetService.list(),
       datasetService.listToImport(),
-    ]).then(([d, dToImport]) => {
+    ]).then(([ d, dToImport ]) => {
       setDatasets(d);
       setDatasetsToImport(dToImport);
     }).catch(e => {
@@ -45,8 +45,8 @@ export const DatasetList: React.FC = () => {
   const importDatasets = async (datasets: DatasetListToImport) => {
     setIsLoading(true);
     datasetService.importDatasets(datasets)
-      .then(data => {
-        const remainingDatasets = datasetsToImport.filter(newDataset => {
+      .then((data: DatasetListToImport) => {
+        const remainingDatasets = datasetsToImport?.filter(newDataset => {
           return data.some(importedDataset => importedDataset.name !== newDataset.name)
         });
         setDatasetsToImport(remainingDatasets);
@@ -63,51 +63,59 @@ export const DatasetList: React.FC = () => {
     <Fragment>
       <h1 className="text-center">Datasets</h1>
 
-      <div className="d-flex justify-content-center">
-        <IonButton color={ "primary" }
-                   disabled={ datasetsToImport.length === 0 }
-                   onClick={ () => setIsImportModalOpen(!isImportModalOpen) }>
-          Import
-        </IonButton>
+      { datasetsToImport && <div className="d-flex justify-content-center">
+          <IonButton color={ "primary" }
+                     disabled={ !datasetsToImport || datasetsToImport.length === 0 }
+                     onClick={ () => setIsImportModalOpen(!isImportModalOpen) }>
+              Import
+          </IonButton>
 
-        { isImportModalOpen && ReactDOM.createPortal(
+        { isImportModalOpen && createPortal(
           <ModalNewDataset startImport={ (datasets) => importDatasets(datasets) }
                            onClose={ () => setIsImportModalOpen(false) }
                            isLoading={ isLoading }
-                           newData={ datasetsToImport }/>,
+                           newData={ datasetsToImport ?? [] }/>,
           document.body) }
-      </div>
+      </div> }
 
-      <table className="table table-bordered">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Created at</th>
-          <th>Type</th>
-          <th>File type</th>
-          <th>Number of files</th>
-          <th>Start Date</th>
-          <th>End Date</th>
-        </tr>
-        </thead>
-        <tbody>
-        { datasets.map((dataset) => {
-          return (
-            <tr key={ dataset.id }>
-              <td>{ dataset.name }</td>
-              <td>{ new Date(dataset.created_at).toDateString() }</td>
-              <td>{ dataset.type }</td>
-              <td>{ dataset.files_type }</td>
-              <td>{ dataset.files_count }</td>
-              <td>{ new Date(dataset.start_date).toDateString() }</td>
-              <td>{ new Date(dataset.end_date).toDateString() }</td>
-            </tr>
-          );
-        }) }
-        </tbody>
-      </table>
+      { datasets && <DatasetTable datasets={ datasets }/> }
 
-      { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
+      { isLoading && <Spinner/> }
     </Fragment>
-  );
+  )
+
 };
+
+const Spinner: React.FC = () => <div className="d-flex justify-content-center"><IonSpinner/></div>
+
+const DatasetTable: React.FC<{ datasets: List }> = ({ datasets }) => {
+  if (datasets.length === 0) return <div className="d-flex justify-content-center"><p>No datasets</p></div>
+  return <table className="table table-bordered">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created at</th>
+      <th>Type</th>
+      <th>File type</th>
+      <th>Number of files</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    { datasets?.map((dataset) => {
+      return (
+        <tr key={ dataset.id }>
+          <td>{ dataset.name }</td>
+          <td>{ new Date(dataset.created_at).toDateString() }</td>
+          <td>{ dataset.type }</td>
+          <td>{ dataset.files_type }</td>
+          <td>{ dataset.files_count }</td>
+          <td>{ new Date(dataset.start_date).toDateString() }</td>
+          <td>{ new Date(dataset.end_date).toDateString() }</td>
+        </tr>
+      );
+    }) }
+    </tbody>
+  </table>
+}

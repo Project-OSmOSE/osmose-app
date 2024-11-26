@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
 import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-import { Home } from "@/view/home/home.page.tsx";
+const Home = lazy(() => import("@/view/home/home.page.tsx"));
 import { Layout } from "@/components/Layout";
 import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
@@ -47,20 +47,20 @@ export const App: React.FC = () => {
             <Route exact path="/login"><Login/></Route>
             <Route exact path='/'><Layout><Home/></Layout></Route>
 
-            <AuthenticatedRoute exact path='/audio-annotator/:id'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute exact path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>
                 <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation-campaigns'><AnnotationCampaignList/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/create-annotation-campaign'><CreateCampaign/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_campaign/:id/edit'>
+                <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/:id/edit'>
                   <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
                 </AuthenticatedRoute>
                 <AuthenticatedRoute exact
-                                    path='/annotation_campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation_tasks/:id'><AnnotationTaskList/></AuthenticatedRoute>
-                <Route path="**"><Redirect to="/annotation-campaigns"/></Route>
+                                    path='/annotation-campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
+                <AuthenticatedRoute exact path='/annotation-campaign/:id/file'><AnnotationTaskList/></AuthenticatedRoute>
+                <Route path="**"><Redirect to="/annotation-campaign"/></Route>
               </Switch>
             </AploseSkeleton>
           </Switch>

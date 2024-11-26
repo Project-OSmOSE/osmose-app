@@ -189,7 +189,7 @@ ion-input label {
 }
 
 ion-input input[type=number] {
-  max-width: 5rem !important;
+  max-width: 6rem !important;
   text-align: end !important;
 }
 

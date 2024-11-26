@@ -19,14 +19,14 @@ export type ListItem = {
 export type ListToImport = Array<ListToImportItem>
 export type ListToImportItem = {
   dataset: string;
-  dataset_sr: string;
-  file_type: string;
-  name: string;
+  name: string; // = dataset
   path: string;
   spectro_duration: string;
+  dataset_sr: string;
+  file_type: string;
 }
 
-class DatasetAPIService extends APIService<List, never, never> {
+class DatasetAPIService extends APIService<ListItem, never> {
   URI = '/api/dataset';
 
   private listToImportRequest?: SuperAgentRequest;

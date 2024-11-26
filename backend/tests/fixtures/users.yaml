@@ -13,7 +13,7 @@
     date_joined: 2022-01-13 11:23:54.864049+00:00
     groups: []
     user_permissions: []
-- model: aplose_auth.aploseuser
+- model: aplose.aploseuser
   pk: 1
   fields:
     user_id: 1

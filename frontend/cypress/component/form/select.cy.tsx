@@ -1,7 +1,6 @@
-import React from 'react'
 import { setupIonicReact } from '@ionic/react';
-import { Select } from "../../../src/components/form";
-import { Item } from "../../../src/types/item";
+import { Select } from "@/components/form";
+import { Item } from "@/types/item.ts";
 
 const label = 'My label';
 const placeholder = 'My placeholder';
@@ -49,18 +48,14 @@ describe('Select', () => {
       const selectedOption = options[1];
 
       cy.get('div.item').contains(selectedOption.label).click()
-        .then(() => {
-          cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
-        })
+      cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
     })
 
     it('should select none', () => {
       cy.contains(placeholder).click();
 
       cy.get('div.item').contains(noneLabel).click()
-        .then(() => {
-          cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
-        })
+      cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
     })
 
     it('can be required', () => {
@@ -69,11 +64,23 @@ describe('Select', () => {
                        optionsContainer="popover"
                        required={ true }
                        noneLabel={ noneLabel }
+                       onValueSelected={ () => {} }
                        placeholder={ placeholder }/>)
 
       cy.get('#aplose-input').should('contain', `${ label }*`)
       cy.contains(placeholder).click();
       cy.get('div.item').should('not.contain', noneLabel);
+    })
+
+    it('can have an error', () => {
+      cy.mount(<Select label={ label }
+                       options={ options }
+                       optionsContainer="popover"
+                       error="My custom error"
+                       noneLabel={ noneLabel }
+                       onValueSelected={ () => {} }
+                       placeholder={ placeholder }/>)
+      cy.get('#aplose-input').should('contain', "My custom error")
     })
   })
 
@@ -101,9 +108,7 @@ describe('Select', () => {
 
       cy.get('button').contains(selectedOption.label).click()
       cy.contains('Ok', { matchCase: false }).click()
-        .then(() => {
-          cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
-        })
+      cy.get('@onValueSelected').should('have.been.calledWithMatch', selectedOption.value);
     })
 
     it('should select none', () => {
@@ -111,9 +116,7 @@ describe('Select', () => {
 
       cy.get('button').contains(noneLabel).click()
       cy.contains('Ok', { matchCase: false }).click()
-        .then(() => {
-          cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
-        })
+      cy.get('@onValueSelected').should('have.been.calledWithMatch', undefined);
     })
 
     it('can be required', () => {
@@ -122,9 +125,21 @@ describe('Select', () => {
                        optionsContainer="alert"
                        required={ true }
                        noneLabel={ noneLabel }
+                       onValueSelected={ () => {} }
                        placeholder={ placeholder }/>)
 
       cy.get('#aplose-input').should('contain', `${ label }*`)
+    })
+
+    it('can have an error', () => {
+      cy.mount(<Select label={ label }
+                       options={ options }
+                       optionsContainer="popover"
+                       error="My custom error"
+                       noneLabel={ noneLabel }
+                       onValueSelected={ () => {} }
+                       placeholder={ placeholder }/>)
+      cy.get('#aplose-input').should('contain', "My custom error")
     })
   })
 })

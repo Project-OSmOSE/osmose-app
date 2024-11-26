@@ -32,6 +32,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 from backend.api.urls import api_router
+from backend.aplose.urls import aplose_router
 from backend.osmosewebsite.urls import website_router
 
 # Backend urls are for admin & api documentation
@@ -49,6 +50,7 @@ api_urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("", include(api_router.urls)),
+    path("", include(aplose_router.urls)),
     path("", include(website_router.urls)),
 ]
 

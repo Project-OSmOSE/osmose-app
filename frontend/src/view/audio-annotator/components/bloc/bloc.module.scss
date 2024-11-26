@@ -1,0 +1,45 @@
+.results {
+  border-radius: 0.5rem;
+  display: grid;
+  align-content: start;
+  grid-template-columns: repeat(5, auto);
+
+  &.check {
+    grid-template-columns: repeat(7, auto);
+  }
+
+  .header {
+    font-weight: 700;
+  }
+
+  .header, ion-note {
+    padding: 0.5rem;
+    grid-column: 1 / -1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  > div {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    padding: 0.4rem 0.5rem;
+    justify-content: start;
+
+    &.label {
+      font-weight: 600;
+
+      &.presence {
+        grid-column: 1 / 4;
+      }
+    }
+
+    &.confidence svg {
+      font-size: 1.2rem;
+    }
+
+    &.validation {
+      gap: 0.4rem;
+    }
+  }
+}

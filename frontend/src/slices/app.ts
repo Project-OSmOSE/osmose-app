@@ -1,6 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import { createCampaignReducer } from "@/slices/create-campaign";
 import authReducer from "@/slices/auth";
 import globalAnnotatorReducer from "@/slices/annotator/global-annotator";
 import annotationsReducer from "@/slices/annotator/annotations";
@@ -12,13 +11,12 @@ import { importAnnotationsReducer } from "@/slices/create-campaign/import-annota
 export const AppStore = configureStore({
   reducer: {
     createCampaignForm: combineReducers({
-      global: createCampaignReducer,
       importAnnotations: importAnnotationsReducer
     }),
     auth: authReducer,
     annotator: combineReducers({
-      global: globalAnnotatorReducer,
       annotations: annotationsReducer,
+      global: globalAnnotatorReducer,
       audio: audioReducer,
       spectro: spectroReducer
     })

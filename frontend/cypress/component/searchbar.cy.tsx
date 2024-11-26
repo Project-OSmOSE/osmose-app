@@ -1,7 +1,6 @@
-import React from 'react'
 import { setupIonicReact } from '@ionic/react';
-import { Item } from "../../src/types/item";
-import { Searchbar } from "../../src/components/form";
+import { Item } from "@/types/item.ts";
+import { Searchbar } from "@/components/form";
 
 setupIonicReact({
   mode: 'md',

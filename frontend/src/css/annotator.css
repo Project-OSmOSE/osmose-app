@@ -692,7 +692,7 @@ select {
   padding: 0.25rem 1rem;
 }
 
-#aplose-annotator #header .buttons {
+#aplose-annotator .buttons {
   justify-self: stretch;
   display: flex;
   flex-direction: row;

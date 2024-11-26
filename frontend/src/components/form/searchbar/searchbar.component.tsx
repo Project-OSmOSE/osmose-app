@@ -6,17 +6,17 @@ import { searchFilter } from "@/services/utils/search.ts";
 
 interface Props {
   values: Array<Item>;
-  onValueSelected: (value: Item) => void;
+  onValueSelected?: (value: Item) => void;
   placeholder: string;
 }
 
 export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>> = (props) => {
   const searchbarRef = useRef<HTMLIonSearchbarElement | null>(null);
 
-  const [search, setSearch] = useState<string>();
-  const [searchResult, setSearchResult] = useState<Array<any>>([]);
+  const [ search, setSearch ] = useState<string>();
+  const [ searchResult, setSearchResult ] = useState<Array<any>>([]);
 
-  useEffect(() => setSearchResult(searchFilter(props.values, search)), [search])
+  useEffect(() => setSearchResult(searchFilter(props.values, search)), [ search ])
 
   return (
     <div id="searchbar" className={ !search ? '' : 'got-results' }>
@@ -29,7 +29,7 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
         { (searchResult.length > 5 ? searchResult.slice(0, 4) : searchResult.slice(0, 5)).map((v, i) => (
           <IonItem key={ i } onClick={ () => {
             setSearch(undefined);
-            props.onValueSelected(v)
+            if (props.onValueSelected) props.onValueSelected(v)
           } }>{ v.label }</IonItem>
         )) }
         { searchResult.length > 5 && <IonItem className="none">{ searchResult.length - 4 } more results</IonItem> }

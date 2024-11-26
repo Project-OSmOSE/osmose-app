@@ -1,5 +1,5 @@
-import React, { FormEvent } from "react";
-import { IonChip, IonIcon } from "@ionic/react";
+import React from "react";
+import { IonChip, IonIcon, IonNote } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
 import { Item } from "@/types/item.ts";
 import './inputs.css';
@@ -11,7 +11,7 @@ type ChipsProperties = {
   items: Array<Item>;
   activeItemsValues: Array<number | string>;
   setActiveItemsValues: (value: Array<number | string>) => void;
-  onInvalid?: (e: FormEvent<HTMLInputElement>) => void
+  error?: string;
 }
 
 export const ChipsInput: React.FC<ChipsProperties> = ({
@@ -21,13 +21,13 @@ export const ChipsInput: React.FC<ChipsProperties> = ({
                                                         items,
                                                         activeItemsValues,
                                                         setActiveItemsValues,
-                                                        onInvalid
+                                                        error,
                                                       }) => {
 
   const deactivateChip = (chip: Item) => setActiveItemsValues(activeItemsValues.filter(v => v !== chip.value))
-  const activateChip = (chip: Item) => setActiveItemsValues([...activeItemsValues, chip.value])
+  const activateChip = (chip: Item) => setActiveItemsValues([ ...activeItemsValues, chip.value ])
 
-  return <div id="aplose-input" className="chips" aria-disabled={ disabled }>
+  return <div id="aplose-input" className="chips" aria-disabled={ disabled } aria-invalid={ !!error }>
     { label && <p id="label"
                   className={ required ? 'required' : '' }>
       { label }{ required ? '*' : '' }
@@ -38,13 +38,13 @@ export const ChipsInput: React.FC<ChipsProperties> = ({
              className="hide-real-input"
              value={ activeItemsValues.join('') }
              onChange={ () => {
-             } }
-             onInvalid={ onInvalid }/>
+             } }/>
 
       { items.map(c => {
         const isActive = activeItemsValues.includes(c.value);
         return <IonChip key={ c.value }
                         color="dark"
+                        disabled={ disabled }
                         outline={ !isActive }
                         onClick={ () => {
                           if (isActive) deactivateChip(c)
@@ -55,5 +55,6 @@ export const ChipsInput: React.FC<ChipsProperties> = ({
         </IonChip>
       }) }
     </div>
+    { error && <IonNote color="danger">{ error }</IonNote> }
   </div>
 }

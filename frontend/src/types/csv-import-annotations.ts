@@ -1,18 +1,11 @@
-import { DetectorListItem, DetectorListItemConfiguration } from '@/services/api';
+import { Detector, DetectorConfiguration } from '@/services/api';
 
 export interface CSVDetectorItem {
   initialName: string;
-  existingDetector?: DetectorListItem;
-  editName?: string;
-  existingConfiguration?: DetectorListItemConfiguration;
+  existingDetector?: Detector;
+  existingConfiguration?: DetectorConfiguration;
   editConfiguration?: string;
   selected: boolean;
-}
-
-export enum AnnotationsCSVError {
-  unrecognisedFile = 'unrecognisedFile',
-  containsUnrecognizedDataset = 'containsUnrecognizedDataset',
-  inconsistentMaxConfidence = 'inconsistentMaxConfidence',
 }
 
 export interface CSVColumns {
@@ -36,10 +29,4 @@ export interface AnnotationsCSVRow {
   confidence_indicator_label?: string;
   confidence_indicator_level?: number;
   confidence_indicator_max_level?: number;
-}
-
-export interface AnnotationsCSV {
-  rows: Array<AnnotationsCSVRow>;
-  filename: string;
-  errors: Array<AnnotationsCSVError>;
 }
