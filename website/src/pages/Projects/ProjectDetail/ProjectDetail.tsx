@@ -7,7 +7,7 @@ import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import { Back } from "../../../components/Back/Back";
 import { DeploymentsMap } from "../../../components/DeploymentsMap";
-import { DeploymentAPI, DeploymentService } from "@PAM-Standardization/metadatax-ts";
+import { DeploymentAPI, DeploymentService } from "@pam-standardization/metadatax-ts";
 import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
 
