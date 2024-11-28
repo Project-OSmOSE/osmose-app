@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 
 export interface LabelSet {
   id: number;
@@ -8,7 +8,7 @@ export interface LabelSet {
   labels: Array<string>;
 }
 
-export class LabelSetAPIService extends APIService<LabelSet, never> {
+export class LabelSetAPIService extends OldAPIService<LabelSet, never> {
 
   retrieveForCampaign(campaignID: string |number): Promise<LabelSet | undefined> {
     return this.list(undefined, {

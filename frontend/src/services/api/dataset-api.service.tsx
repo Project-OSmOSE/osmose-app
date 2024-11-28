@@ -1,6 +1,6 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
-import { APIService } from "./api-service.util.tsx";
+import { OldAPIService } from "./api-service.util.tsx";
 import { useAuthService } from "../auth";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 
@@ -26,7 +26,7 @@ export type ListToImportItem = {
   file_type: string;
 }
 
-class DatasetAPIService extends APIService<ListItem, never> {
+class DatasetAPIService extends OldAPIService<ListItem, never> {
   URI = '/api/dataset';
 
   private listToImportRequest?: SuperAgentRequest;

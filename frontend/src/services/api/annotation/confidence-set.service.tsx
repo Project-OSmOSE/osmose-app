@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 
 export interface ConfidenceIndicator {
   id: number;
@@ -15,7 +15,7 @@ export interface ConfidenceIndicatorSet {
   confidence_indicators: Array<ConfidenceIndicator>
 }
 
-class ConfidenceSetAPIService extends APIService<ConfidenceIndicatorSet, never> {
+class ConfidenceSetAPIService extends OldAPIService<ConfidenceIndicatorSet, never> {
 
   retrieveForCampaign(campaignID: string |number): Promise<ConfidenceIndicatorSet | undefined> {
     return this.list(undefined, {

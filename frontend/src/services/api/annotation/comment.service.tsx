@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 
 export interface AnnotationComment {
   id: number;
@@ -13,7 +13,7 @@ export interface AnnotationComment {
 export type WriteAnnotationComment = Omit<AnnotationComment, "id" | "annotation_result" | "annotation_campaign" | "author" | "dataset_file"> & {id: number | null;}
 
 
-class AnnotationCommentAPIService extends APIService<AnnotationComment, WriteAnnotationComment> {
+class AnnotationCommentAPIService extends OldAPIService<AnnotationComment, WriteAnnotationComment> {
 
   listGlobalCommentForCampaignFile(campaignID: string | number, fileID: string | number): Promise<Array<AnnotationComment>> {
     return this.list(undefined, {

@@ -38,7 +38,7 @@ export type OptionsItem = ChoiceOptionsItem | ArrayOptionsItem | NestedOptionsIt
 
 export type Options = { [key in string]: OptionsItem }
 
-export class APIService<Read, Write> {
+export class OldAPIService<Read, Write> {
 
   private listRequest?: SuperAgentRequest;
   private retrieveRequest?: SuperAgentRequest;

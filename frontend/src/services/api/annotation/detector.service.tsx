@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 
 export interface Detector {
   id: number;
@@ -11,7 +11,7 @@ export interface DetectorConfiguration {
   configuration: string;
 }
 
-class DetectorService extends APIService<Detector, never> {
+class DetectorService extends OldAPIService<Detector, never> {
   create(): Promise<never> {
     throw 'Unimplemented';
   }

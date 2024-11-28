@@ -1,5 +1,5 @@
 import { useAuthService, } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { User } from "../user.service.ts";
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
@@ -55,7 +55,7 @@ export type WriteCheckAnnotationCampaign = BaseAnnotationCampaign & {
 }
 export type WriteAnnotationCampaign = WriteCheckAnnotationCampaign | WriteCreateAnnotationCampaign
 
-class AnnotationCampaignAPIService extends APIService<AnnotationCampaign, WriteAnnotationCampaign> {
+class AnnotationCampaignAPIService extends OldAPIService<AnnotationCampaign, WriteAnnotationCampaign> {
 
   downloadReport(campaign: AnnotationCampaign): Promise<void> {
     const filename = campaign.name.replace(' ', '_') + '_results.csv';

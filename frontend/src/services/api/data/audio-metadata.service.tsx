@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "../annotation/campaign.service.tsx";
 
 export interface AudioMetadatum {
@@ -16,7 +16,7 @@ export interface AudioMetadatum {
   dutycycle_rim: number;
 }
 
-class AnnotationCampaignAPIService extends APIService<AudioMetadatum, never> {
+class AnnotationCampaignAPIService extends OldAPIService<AudioMetadatum, never> {
   downloadForCampaign(campaign: AnnotationCampaign): Promise<void> {
     const filename = campaign.name.replace(' ', '_') + '_audio_metadata.csv';
     const url = this.getURLWithQueryParams(`${ this.URI }/export/`, {

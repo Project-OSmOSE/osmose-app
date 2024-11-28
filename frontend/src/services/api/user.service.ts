@@ -1,5 +1,5 @@
 import { useAuthService } from "../auth";
-import { APIService } from "./api-service.util.tsx";
+import { OldAPIService } from "./api-service.util.tsx";
 
 export type ExpertiseLevel =
   "Expert" |
@@ -17,7 +17,7 @@ export interface User {
   is_superuser: boolean
 }
 
-class UserAPIService extends APIService<User, never> {
+class UserAPIService extends OldAPIService<User, never> {
   self(): Promise<User> {
     return super.retrieve("", `${ this.URI }/self/`)
   }

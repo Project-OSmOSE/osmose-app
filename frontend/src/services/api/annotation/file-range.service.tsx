@@ -1,5 +1,5 @@
 import { useAuthService, } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { DatasetFile } from "../data/file.service.ts";
 
 /**
@@ -27,7 +27,7 @@ export type WriteAnnotationFileRange =
   Omit<AnnotationFileRange, "id" | "files_count" | "annotation_campaign" | "finished_tasks_count">
   & { id?: number; }
 
-class AnnotationFileRangeAPIService extends APIService<AnnotationFileRange, WriteAnnotationFileRange> {
+class AnnotationFileRangeAPIService extends OldAPIService<AnnotationFileRange, WriteAnnotationFileRange> {
 
   listForCampaign(campaignID: string | number): Promise<Array<AnnotationFileRange>> {
     return this.list(undefined, {

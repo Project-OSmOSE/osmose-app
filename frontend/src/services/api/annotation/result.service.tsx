@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { DetectorConfiguration } from "./detector.service";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
 import { DatasetListItem } from '@/services/api';
@@ -69,7 +69,7 @@ export interface ImportAnnotationResult {
 }
 
 
-export class AnnotationResultAPIService extends APIService<AnnotationResult, WriteAnnotationResult> {
+export class AnnotationResultAPIService extends OldAPIService<AnnotationResult, WriteAnnotationResult> {
   retrieve(): Promise<never> {
     throw 'Unimplemented';
   }

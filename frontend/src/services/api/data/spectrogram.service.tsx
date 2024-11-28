@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "../annotation/campaign.service.tsx";
 
 export interface SpectrogramConfiguration {
@@ -63,7 +63,7 @@ export function getScaleName(configuration: SpectrogramConfiguration): string {
   return 'Default'
 }
 
-class SpectrogramConfigurationAPIService extends APIService<SpectrogramConfiguration, never> {
+class SpectrogramConfigurationAPIService extends OldAPIService<SpectrogramConfiguration, never> {
 
   listForCampaign(campaignID: string | number): Promise<Array<SpectrogramConfiguration>> {
     return this.list(undefined, {

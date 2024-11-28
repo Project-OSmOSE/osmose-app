@@ -1,5 +1,5 @@
 import { useAuthService, } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "./campaign.service";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
 import { AnnotationResult, WriteAnnotationResult } from "./result.service";
@@ -30,7 +30,7 @@ type WriteAnnotatorData = {
   },
 }
 
-class AnnotatorAPIService extends APIService<AnnotatorData, WriteAnnotatorData> {
+class AnnotatorAPIService extends OldAPIService<AnnotatorData, WriteAnnotatorData> {
 
   get(campaignID: string | number, fileID: string | number): Promise<AnnotatorData> {
     return super.list(`${ this.URI }/campaign/${ campaignID }/file/${ fileID }/`) as Promise<any>

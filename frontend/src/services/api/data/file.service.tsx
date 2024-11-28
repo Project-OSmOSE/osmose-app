@@ -1,5 +1,5 @@
 import { useAuthService } from "../../auth";
-import { APIService } from "../api-service.util.tsx";
+import { OldAPIService } from "../api-service.util.tsx";
 
 export interface DatasetFile {
   id: number;
@@ -12,7 +12,7 @@ export interface DatasetFile {
   dataset_name: string; // read only
 }
 
-class DatasetFileAPIService extends APIService<DatasetFile, never> {
+class DatasetFileAPIService extends OldAPIService<DatasetFile, never> {
   create(): Promise<never> {
     throw 'Unimplemented';
   }
