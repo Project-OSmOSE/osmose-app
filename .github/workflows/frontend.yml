@@ -4,6 +4,8 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+    types:
+      - ready_for_review
 jobs:
   playwright-test:
     timeout-minutes: 60
