@@ -1,26 +1,31 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import authReducer from "@/slices/auth";
 import globalAnnotatorReducer from "@/slices/annotator/global-annotator";
 import annotationsReducer from "@/slices/annotator/annotations";
 import audioReducer from "@/slices/annotator/audio";
 import spectroReducer from "@/slices/annotator/spectro";
 import { useDispatch, useSelector } from "react-redux";
 import { importAnnotationsReducer } from "@/slices/create-campaign/import-annotations.ts";
+import { AuthAPI, AuthReducer } from '@/service/auth';
 
 export const AppStore = configureStore({
   reducer: {
+    auth: AuthReducer,
     createCampaignForm: combineReducers({
       importAnnotations: importAnnotationsReducer
     }),
-    auth: authReducer,
     annotator: combineReducers({
       annotations: annotationsReducer,
       global: globalAnnotatorReducer,
       audio: audioReducer,
       spectro: spectroReducer
-    })
-  }
+    }),
+    [AuthAPI.reducerPath]: AuthAPI.reducer
+  },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(AuthAPI.middleware)
+
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

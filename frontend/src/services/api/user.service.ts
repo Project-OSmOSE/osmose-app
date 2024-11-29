@@ -1,4 +1,3 @@
-import { useAuthService } from "../auth";
 import { OldAPIService } from "./api-service.util.tsx";
 
 export type ExpertiseLevel =
@@ -32,6 +31,5 @@ class UserAPIService extends OldAPIService<User, never> {
 }
 
 export const useUsersAPI = (host?: string) => {
-  const auth = useAuthService();
-  return new UserAPIService(`${host ?? ''}/api/user`, auth);
+  return new UserAPIService(`${host ?? ''}/api/user`);
 }

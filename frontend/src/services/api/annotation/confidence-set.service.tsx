@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 
 export interface ConfidenceIndicator {
@@ -29,6 +28,5 @@ class ConfidenceSetAPIService extends OldAPIService<ConfidenceIndicatorSet, neve
 }
 
 export const useConfidenceSetAPI = () => {
-  const auth = useAuthService();
-  return new ConfidenceSetAPIService('/api/confidence-indicator', auth);
+  return new ConfidenceSetAPIService('/api/confidence-indicator');
 }

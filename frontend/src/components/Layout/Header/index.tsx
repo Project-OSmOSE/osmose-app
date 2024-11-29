@@ -2,13 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
-import { useAuthService } from "@/services/auth.ts";
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
+import { useAppSelector } from '@/slices/app.ts';
+import { selectIsConnected } from '@/service/auth/slice.ts';
 
 export const Header: React.FC = () => {
-  const auth = useAuthService();
-  const isConnected = auth.isConnected();
+  const isConnected = useAppSelector(selectIsConnected);
   const appUrl = 'https://' + window.location.hostname;
 
   return (

@@ -1,4 +1,3 @@
-import { useAuthService, } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "./campaign.service";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
@@ -72,6 +71,5 @@ class AnnotatorAPIService extends OldAPIService<AnnotatorData, WriteAnnotatorDat
 }
 
 export const useAnnotatorAPI = () => {
-  const auth = useAuthService();
-  return new AnnotatorAPIService('/api/annotator', auth);
+  return new AnnotatorAPIService('/api/annotator');
 }

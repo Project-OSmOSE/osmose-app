@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 
 export interface Detector {
@@ -18,6 +17,5 @@ class DetectorService extends OldAPIService<Detector, never> {
 }
 
 export const useDetectorsAPI = () => {
-  const auth = useAuthService();
-  return new DetectorService('/api/detector', auth);
+  return new DetectorService('/api/detector');
 }

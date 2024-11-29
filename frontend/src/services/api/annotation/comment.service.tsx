@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 
 export interface AnnotationComment {
@@ -40,6 +39,5 @@ class AnnotationCommentAPIService extends OldAPIService<AnnotationComment, Write
 }
 
 export const useAnnotationCommentAPI = () => {
-  const auth = useAuthService();
-  return new AnnotationCommentAPIService('/api/annotation-comment', auth);
+  return new AnnotationCommentAPIService('/api/annotation-comment');
 }

@@ -1,7 +1,6 @@
 import { get, post, SuperAgentRequest } from "superagent";
 import { v4 as uuidV4 } from "uuid";
 import { OldAPIService } from "./api-service.util.tsx";
-import { useAuthService } from "../auth";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 
 export type List = Array<ListItem>
@@ -41,19 +40,19 @@ class DatasetAPIService extends OldAPIService<ListItem, never> {
   }
 
   public listToImport(): Promise<ListToImport> {
-    this.listToImportRequest = get(`${ this.URI }/list_to_import`).set("Authorization", this.auth.bearer);
+    this.listToImportRequest = get(`${ this.URI }/list_to_import`).set("Authorization", 'bearer');
     return this.listToImportRequest.then(r => r.body.map((d: any) => ({
       ...d,
       id: uuidV4()
-    }))).catch(this.auth.catch401.bind(this.auth));
+    })));
   }
 
   public importDatasets(data: ListToImport): Promise<ListToImport> {
     this.importRequest = post(`${ this.URI }/datawork_import/`)
-      .set("Authorization", this.auth.bearer)
+      .set("Authorization", 'bearer')
       .set("Accept", "application/json")
       .send({ 'wanted_datasets': data });
-    return this.importRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth));
+    return this.importRequest.then(r => r.body);
   }
 
   public abort() {
@@ -72,6 +71,5 @@ class DatasetAPIService extends OldAPIService<ListItem, never> {
 }
 
 export const useDatasetsAPI = () => {
-  const auth = useAuthService();
-  return new DatasetAPIService('/api/dataset', auth);
+  return new DatasetAPIService('/api/dataset');
 }

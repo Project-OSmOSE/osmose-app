@@ -1,19 +1,15 @@
-import { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { useAuthService } from "@/services/auth";
+import { useAppSelector } from '@/slices/app.ts';
+import { selectIsConnected } from '@/service/auth/slice.ts';
 
 export const AuthenticatedRoute: FC<{ children?: ReactNode } & any> = ({ children, ...params }) => {
-  const auth = useAuthService();
-  const [canAccess, setCanAccess] = useState<boolean>(true);
-
-  useEffect(() => {
-    setCanAccess(auth.isConnected());
-  }, []);
+  const isConnected = useAppSelector(selectIsConnected);
 
   return (
-      <Route { ...params }
-             render={ ({ location }) =>
-                 canAccess ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
-             }/>
+    <Route { ...params }
+           render={ ({ location }) =>
+             isConnected ? (children) : (<Redirect to={ { pathname: "/login", state: { from: location } } }/>)
+           }/>
   )
 }

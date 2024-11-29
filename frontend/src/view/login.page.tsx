@@ -1,18 +1,17 @@
-import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
-import { useAuthService } from "@/services/auth";
 import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { Input, InputValue } from "@/components/form/inputs/input.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { InputRef } from "@/components/form/inputs/utils.ts";
+import { useLoginMutation, selectIsConnected } from '@/service/auth';
+import { useAppSelector } from '@/slices/app.ts';
 
 
 export const Login: React.FC = () => {
   const [ error, setError ] = useState<string | undefined>();
-  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
 
-  const auth = useAuthService();
   const history = useHistory();
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
@@ -21,16 +20,15 @@ export const Login: React.FC = () => {
     password: null
   });
 
+  // State
+  const isConnected = useAppSelector(selectIsConnected);
+
+  // Service
+  const [ login, { isLoading } ] = useLoginMutation()
+
   useEffect(() => {
-    if (auth.isConnected()) history.replace(from);
-
-    // Abort calls on view leave
-    return () => auth.abort();
-  }, []);
-
-  useCallback(() => {
-    if (auth.isConnected()) history.replace(from);
-  }, [ auth.bearer ]);
+    if (isConnected) history.replace(from);
+  }, [isConnected]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,17 +40,14 @@ export const Login: React.FC = () => {
     if (!username) {
       inputsRef.current.username?.setError("This field is required.")
     }
-    if (!username || !password) return ;
+    if (!username || !password) return;
     setError(undefined);
 
     try {
-      setIsSubmitting(true)
-      await auth.login(username, password);
+      await login({ username, password }).unwrap()
       history.replace(from);
     } catch (e: any) {
       setError(buildErrorMessage(e));
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -75,7 +70,7 @@ export const Login: React.FC = () => {
             </div>
 
             <IonButton color={ "primary" }
-                       disabled={ isSubmitting }
+                       disabled={ isLoading }
                        type={ "submit" }>
               Submit
             </IonButton>

@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 
 export interface DatasetFile {
@@ -19,6 +18,5 @@ class DatasetFileAPIService extends OldAPIService<DatasetFile, never> {
 }
 
 export const useDatasetFileAPI = () => {
-  const auth = useAuthService();
-  return new DatasetFileAPIService('/api/dataset-file', auth);
+  return new DatasetFileAPIService('/api/dataset-file');
 }

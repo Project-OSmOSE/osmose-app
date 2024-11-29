@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "../annotation/campaign.service.tsx";
 
@@ -85,6 +84,5 @@ class SpectrogramConfigurationAPIService extends OldAPIService<SpectrogramConfig
 }
 
 export const useSpectrogramConfigurationAPI = () => {
-  const auth = useAuthService();
-  return new SpectrogramConfigurationAPIService('/api/spectrogram-configuration', auth);
+  return new SpectrogramConfigurationAPIService('/api/spectrogram-configuration');
 }

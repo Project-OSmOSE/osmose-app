@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationCampaign } from "../annotation/campaign.service.tsx";
 
@@ -38,6 +37,5 @@ class AnnotationCampaignAPIService extends OldAPIService<AudioMetadatum, never> 
 }
 
 export const useAudioMetadataAPI = () => {
-  const auth = useAuthService();
-  return new AnnotationCampaignAPIService('/api/audio-metadata', auth);
+  return new AnnotationCampaignAPIService('/api/audio-metadata');
 }

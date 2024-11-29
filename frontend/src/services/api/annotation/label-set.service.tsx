@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 
 export interface LabelSet {
@@ -23,6 +22,5 @@ export class LabelSetAPIService extends OldAPIService<LabelSet, never> {
 
 
 export const useLabelSetAPI = () => {
-  const auth = useAuthService();
-  return new LabelSetAPIService('/api/label-set', auth);
+  return new LabelSetAPIService('/api/label-set');
 }

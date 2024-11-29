@@ -1,5 +1,4 @@
 import { get, options, post, SuperAgentRequest } from "superagent";
-import { AuthAPIService } from "../auth.ts";
 
 type BaseType = string | number | boolean
 type QueryParams = { [key in string]: BaseType | Array<BaseType> }
@@ -47,8 +46,7 @@ export class OldAPIService<Read, Write> {
   private downloadRequests: Map<string, SuperAgentRequest> = new Map();
   private downloadURL: Map<string, string> = new Map();
 
-  constructor(protected URI: string,
-              protected auth: AuthAPIService) {
+  constructor(protected URI: string) {
   }
 
   protected getURLWithQueryParams(baseURL: string, queryParams?: QueryParams): string {
@@ -57,23 +55,23 @@ export class OldAPIService<Read, Write> {
   }
 
   public list(url?: string, queryParams?: QueryParams): Promise<Array<Read>> {
-    this.listRequest = get(this.getURLWithQueryParams(url ?? this.URI, queryParams)).set("Authorization", this.auth.bearer);
-    return this.listRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
+    this.listRequest = get(this.getURLWithQueryParams(url ?? this.URI, queryParams)).set("Authorization", 'bearer');
+    return this.listRequest.then(r => r.body)
   }
 
   public retrieve(id: string | number, url?: string): Promise<Read> {
-    this.retrieveRequest = get(url ?? `${ this.URI }/${ id }/`).set("Authorization", this.auth.bearer);
-    return this.retrieveRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
+    this.retrieveRequest = get(url ?? `${ this.URI }/${ id }/`).set("Authorization", 'bearer');
+    return this.retrieveRequest.then(r => r.body)
   }
 
   public create(data: Write, url?: string, queryParams?: QueryParams): Promise<Read> {
-    this.createRequest = post(this.getURLWithQueryParams(url ?? `${ this.URI }/`, queryParams)).set("Authorization", this.auth.bearer).send(data as any);
-    return this.createRequest.then(r => r.body).catch(this.auth.catch401.bind(this.auth))
+    this.createRequest = post(this.getURLWithQueryParams(url ?? `${ this.URI }/`, queryParams)).set("Authorization", 'bearer').send(data as any);
+    return this.createRequest.then(r => r.body)
   }
 
   public options(): Promise<Options> {
-    this.optionRequest = options(this.URI + '/').set("Authorization", this.auth.bearer).set("Content-Type", "application/json")
-    return this.optionRequest.then(r => r.body.actions.POST).catch(this.auth.catch401.bind(this.auth))
+    this.optionRequest = options(this.URI + '/').set("Authorization", 'bearer').set("Content-Type", "application/json")
+    return this.optionRequest.then(r => r.body.actions.POST)
   }
 
   public abort(): void {
@@ -91,7 +89,7 @@ export class OldAPIService<Read, Write> {
     const formerURL = this.downloadURL.get(requestURL);
     if (formerURL) URL.revokeObjectURL(formerURL);
 
-    const request = get(requestURL).set("Authorization", this.auth.bearer);
+    const request = get(requestURL).set("Authorization", 'bearer');
     this.downloadRequests.set(requestURL, request);
 
     const result = await request

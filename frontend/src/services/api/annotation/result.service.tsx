@@ -1,4 +1,3 @@
-import { useAuthService } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 import { DetectorConfiguration } from "./detector.service";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
@@ -102,6 +101,5 @@ export class AnnotationResultAPIService extends OldAPIService<AnnotationResult, 
 
 
 export const useAnnotationResultAPI = () => {
-  const auth = useAuthService();
-  return new AnnotationResultAPIService('/api/annotation-result', auth);
+  return new AnnotationResultAPIService('/api/annotation-result');
 }

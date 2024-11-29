@@ -1,15 +1,17 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { useAuthService } from "@/services/auth.ts";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { Link } from 'react-router-dom';
 import { IonButton, IonIcon } from "@ionic/react";
 import './skeleton.component.css';
 import { User, useUsersAPI } from "@/services/api";
 import { openOutline } from 'ionicons/icons';
+import { useAppDispatch } from '@/slices/app.ts';
+import { logout } from '@/service/auth';
 
 export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
-  const auth = useAuthService();
   const userAPI = useUsersAPI();
+
+  const dispatch = useAppDispatch();
 
   const [ user, setUser ] = useState<User | undefined>();
   useEffect(() => {
@@ -30,7 +32,7 @@ export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children })
         { user?.is_staff && <a href="/backend/admin" target="_blank">Admin <IonIcon icon={ openOutline }/></a> }
         <br/>
         <IonButton color={ "medium" }
-                   onClick={ auth.logout.bind(auth) }>
+                   onClick={ () => dispatch(logout()) }>
           Logout
         </IonButton>
       </div>

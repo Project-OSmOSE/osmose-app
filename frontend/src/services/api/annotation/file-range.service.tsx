@@ -1,4 +1,3 @@
-import { useAuthService, } from "../../auth";
 import { OldAPIService } from "../api-service.util.tsx";
 import { DatasetFile } from "../data/file.service.ts";
 
@@ -53,6 +52,5 @@ class AnnotationFileRangeAPIService extends OldAPIService<AnnotationFileRange, W
 }
 
 export const useAnnotationFileRangeAPI = () => {
-  const auth = useAuthService();
-  return new AnnotationFileRangeAPIService('/api/annotation-file-range', auth);
+  return new AnnotationFileRangeAPIService('/api/annotation-file-range');
 }
