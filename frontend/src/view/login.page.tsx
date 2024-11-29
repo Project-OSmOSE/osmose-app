@@ -1,7 +1,6 @@
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
-import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { Input, InputValue } from "@/components/form/inputs/input.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { InputRef } from "@/components/form/inputs/utils.ts";
@@ -47,7 +46,7 @@ export const Login: React.FC = () => {
       await login({ username, password }).unwrap()
       history.replace(from);
     } catch (e: any) {
-      setError(buildErrorMessage(e));
+      setError(e)
     }
   }
 

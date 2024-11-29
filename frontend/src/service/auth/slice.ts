@@ -13,6 +13,7 @@ export const AuthSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.token = undefined;
+      document.cookie = 'token=;max-age=0;path=/';
     }
   },
   extraReducers: (builder) => {
@@ -20,6 +21,8 @@ export const AuthSlice = createSlice({
       AuthAPI.endpoints.login.matchFulfilled,
       (state, { payload }) => {
         state.token = payload;
+        // Cookie is set to expire a bit before 8 hours
+        document.cookie = `token=${ payload };max-age=28000;path=/`;
       },
     )
 

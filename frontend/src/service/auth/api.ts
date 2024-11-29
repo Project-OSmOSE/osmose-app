@@ -6,7 +6,7 @@ export const AuthAPI = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/',
-    prepareHeaders: prepareHeadersWithToken
+    prepareHeaders: prepareHeadersWithToken,
   }),
   endpoints: (builder) => ({
     login: builder.mutation<Token, { username: string, password: string }>({
@@ -16,6 +16,10 @@ export const AuthAPI = createApi({
         body: credentials
       }),
       transformResponse: (response: { access: Token }) => response.access,
+      transformErrorResponse: (response: any) => {
+        console.log('transformErrorResponse', JSON.stringify(response))
+        return response.data.detail
+      }
     })
   })
 })
