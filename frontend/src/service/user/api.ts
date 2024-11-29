@@ -10,12 +10,12 @@ export const UserAPI = createApi({
   }),
 
   endpoints: (builder) => ({
-    getCurrentUser: builder.mutation<User, void>({ query: () => 'self/', }),
-    list: builder.mutation<Array<User>, void>({ query: () => '', }),
+    getCurrentUser: builder.query<User, void>({ query: () => 'self/', }),
+    list: builder.query<Array<User>, void>({ query: () => '', }),
   })
 })
 
 export const {
-  useGetCurrentUserMutation,
-  useListMutation: useListUsersMutation,
+  useGetCurrentUserQuery,
+  useListQuery: useListUsersQuery,
 } = UserAPI;

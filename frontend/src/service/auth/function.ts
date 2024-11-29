@@ -5,7 +5,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 export function prepareHeadersWithToken(headers: Headers, { getState }: Pick<BaseQueryApi, 'getState'>) {
   const token = (getState() as AppState).auth.token ?? getTokenFromCookie();
-  if (token) headers.set('authorization', `Bearer ${ token }`);
+  if (token) headers.set('Authorization', `Bearer ${ token }`);
   return headers;
 }
 

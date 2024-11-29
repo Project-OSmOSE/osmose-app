@@ -8,6 +8,6 @@ export {
 } from './function.ts'
 
 export {
-  AuthReducer,
+  AuthSlice,
   logout,
 } from './slice.ts';

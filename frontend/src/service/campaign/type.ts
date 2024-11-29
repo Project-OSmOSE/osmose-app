@@ -1,9 +1,8 @@
-import { OldAPIService } from "../api-service.util.tsx";
 import { User } from '@/service/user';
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
 
-export interface AnnotationCampaignArchive {
+export type AnnotationCampaignArchive = {
   id: number;
   date: string; // Date
   by_user: User
@@ -54,29 +53,6 @@ export type WriteCheckAnnotationCampaign = BaseAnnotationCampaign & {
 }
 export type WriteAnnotationCampaign = WriteCheckAnnotationCampaign | WriteCreateAnnotationCampaign
 
-class AnnotationCampaignAPIService extends OldAPIService<AnnotationCampaign, WriteAnnotationCampaign> {
-
-  downloadReport(campaign: AnnotationCampaign): Promise<void> {
-    const filename = campaign.name.replace(' ', '_') + '_results.csv';
-    const url = this.getURLWithQueryParams(`${ this.URI }/${ campaign.id }/report/`, {
-      filename
-    })
-    return this.download(url, filename);
-  }
-
-  downloadStatus(campaign: AnnotationCampaign): Promise<void> {
-    const filename = campaign.name.replace(' ', '_') + '_status.csv';
-    const url = this.getURLWithQueryParams(`${ this.URI }/${ campaign.id }/report-status/`, {
-      filename
-    })
-    return this.download(url, filename);
-  }
-
-  archive(campaignId: number): Promise<AnnotationCampaign> {
-    return this.create({} as any, `${ this.URI }/${ campaignId }/archive/`)
-  }
-}
-
-export const useAnnotationCampaignAPI = () => {
-  return new AnnotationCampaignAPIService('/api/annotation-campaign');
+export type CampaignState = {
+  currentCampaign: AnnotationCampaign | undefined;
 }

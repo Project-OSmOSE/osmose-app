@@ -6,12 +6,15 @@ import audioReducer from "@/slices/annotator/audio";
 import spectroReducer from "@/slices/annotator/spectro";
 import { useDispatch, useSelector } from "react-redux";
 import { importAnnotationsReducer } from "@/slices/create-campaign/import-annotations.ts";
-import { AuthAPI, AuthReducer } from '@/service/auth';
+import { AuthAPI, AuthSlice } from '@/service/auth';
 import { UserAPI } from '@/service/user';
+import { CampaignAPI, CampaignSlice } from '@/service/campaign';
 
 export const AppStore = configureStore({
   reducer: {
-    auth: AuthReducer,
+    [AuthSlice.reducerPath]: AuthSlice.reducer,
+    [CampaignSlice.reducerPath]: CampaignSlice.reducer,
+
     createCampaignForm: combineReducers({
       importAnnotations: importAnnotationsReducer
     }),
@@ -21,15 +24,17 @@ export const AppStore = configureStore({
       audio: audioReducer,
       spectro: spectroReducer
     }),
+
     [AuthAPI.reducerPath]: AuthAPI.reducer,
     [UserAPI.reducerPath]: UserAPI.reducer,
+    [CampaignAPI.reducerPath]: CampaignAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(AuthAPI.middleware)
       .concat(UserAPI.middleware)
-
+      .concat(CampaignAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

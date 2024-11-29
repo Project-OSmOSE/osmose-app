@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { AnnotationCampaign, AudioMetadatum, useAudioMetadataAPI } from "@/services/api";
+import { AudioMetadatum, useAudioMetadataAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
+import { useAppSelector } from '@/slices/app.ts';
+import { selectCurrentCampaign } from '@/service/campaign/function.ts';
 
 interface Props {
   isOwner: boolean;
-  campaign: AnnotationCampaign;
   setError: (e: any) => void
 }
 
-export const DetailCampaignAudioMetadata: React.FC<Props> = ({ campaign, setError, isOwner }) => {
+export const DetailCampaignAudioMetadata: React.FC<Props> = ({ setError, isOwner }) => {
   // State
   const [ metadata, setMetadata ] = useState<Array<AudioMetadatum> | undefined>();
+  const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
   const audioMetadataService = useAudioMetadataAPI();
@@ -32,7 +34,7 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ campaign, setErro
       isCancelled = true;
       audioMetadataService.abort();
     }
-  }, [ campaign.id ])
+  }, [ campaign?.id ])
 
   return (
     <div id="audio-meta" className="bloc">

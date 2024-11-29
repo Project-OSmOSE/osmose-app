@@ -1,12 +1,8 @@
 export {
-  useGetCurrentUserMutation,
-  useListUsersMutation,
+  useGetCurrentUserQuery,
+  useListUsersQuery,
   UserAPI
 } from './api.ts';
-
-export {
-  selectCurrentUser
-} from './function.ts';
 
 export type {
   User,

@@ -2,30 +2,28 @@ import React, { Fragment, InputHTMLAttributes, useEffect, useImperativeHandle, u
 import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import { ChipsInput, FormBloc, Select, Textarea } from "@/components/form";
 import {
-  AnnotationCampaign,
-  AnnotationCampaignUsage,
   ConfidenceIndicatorSet,
   DatasetList,
   DatasetListItem as Dataset,
   LabelSet,
   SpectrogramConfiguration,
-  useAnnotationCampaignAPI,
   useDatasetsAPI
 } from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
 import { LabelSetSelect } from "@/view/campaign/create-edit/blocs/input/label-set.select.tsx";
 import { ConfidenceSetSelect } from "@/view/campaign/create-edit/blocs/input/confidence-set.select.tsx";
 import { CheckAnnotationsInputs } from "@/view/campaign/create-edit/blocs/input/check-annotations.tsx";
-import {
-  BaseAnnotationCampaign,
-  WriteCheckAnnotationCampaign,
-  WriteCreateAnnotationCampaign
-} from "@/services/api/annotation/campaign.service.tsx";
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { Input, InputValue } from "@/components/form/inputs/input.tsx";
 import { TextareaValue } from "@/components/form/inputs/textarea.tsx";
 import { useAppDispatch } from '@/slices/app.ts';
 import { importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
+import {
+  AnnotationCampaign,
+  AnnotationCampaignUsage, BaseAnnotationCampaign, useCreateCampaignMutation,
+  WriteCheckAnnotationCampaign,
+  WriteCreateAnnotationCampaign
+} from '@/service/campaign';
 
 type SubmitCampaign = WriteCreateAnnotationCampaign & WriteCheckAnnotationCampaign
 type SubmitCampaignKeys = keyof SubmitCampaign
@@ -37,7 +35,6 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
   // API
   const [ allDatasets, setAllDatasets ] = useState<DatasetList | undefined>();
   const datasetsAPI = useDatasetsAPI();
-  const campaignAPI = useAnnotationCampaignAPI();
   const submittedCampaign = useRef<AnnotationCampaign | undefined>();
   const nameInput = useRef<InputRef<InputHTMLAttributes<HTMLInputElement>['value']> | null>(null)
   const inputsRef = useRef<{ [key in SubmitCampaignKeys]: InputRef<InputValue | TextareaValue> | null }>({})
@@ -46,6 +43,7 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
   // Services
   const toast = useToast();
   const dispatch = useAppDispatch();
+  const [ createCampaign ] = useCreateCampaignMutation()
 
   // Global states
   const description = useRef<string | null>(null);
@@ -151,17 +149,17 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
     switch (_usage.current) {
       case 'Create':
         if (!_labelSet.current?.id) throw new Error('Some fields are missing');
-        return campaignAPI.create({
+        return createCampaign({
           ...data,
           usage: 'Create',
           label_set: _labelSet.current.id,
           confidence_indicator_set: _confidenceSet.current?.id ?? null
-        });
+        }).unwrap();
       case 'Check':
-        return campaignAPI.create({
+        return createCampaign({
           ...data,
           usage: 'Check',
-        });
+        }).unwrap();
     }
   }
 

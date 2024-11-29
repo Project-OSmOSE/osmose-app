@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useSt
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { getDisplayName, User } from '@/types/user';
 import { useToast } from "@/services/utils/toast";
-import { AnnotationCampaign, AnnotationFileRange, useAnnotationFileRangeAPI } from "@/services/api";
+import { AnnotationFileRange, useAnnotationFileRangeAPI } from "@/services/api";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { trashBinOutline } from "ionicons/icons";
@@ -12,7 +12,8 @@ import { BlocRef } from "./util.bloc.ts";
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
-import { useListUsersMutation } from '@/service/user';
+import { useListUsersQuery } from '@/service/user';
+import { AnnotationCampaign } from '@/service/campaign';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
@@ -24,7 +25,6 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
   // API Data
   // Use negative fileRange id for newly created ones
   const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange>>([]);
-  const [ users, setUsers ] = useState<Array<User> | undefined>(undefined);
   const _campaignID = useRef<number | undefined>(campaign?.id);
   const _files_count = useRef<number | undefined>(files_count);
   const {
@@ -49,7 +49,7 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
   // Services
   const toast = useToast();
   const fileRangeService = useAnnotationFileRangeAPI();
-  const [listUsers] = useListUsersMutation()
+  const { data: users } = useListUsersQuery()
 
   // Ref
   const annotatorRowRef = useRef<Array<InputRef<AnnotationFileRange, FileRangeError> | null>>([]);
@@ -96,7 +96,6 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
 
     Promise.all([
       campaign ? fileRangeService.listForCampaign(campaign.id).then(setFileRanges) : undefined,
-      listUsers().unwrap().then(setUsers)
     ]).catch(e => !isCancelled && toast.presentError(e));
 
     return () => {

@@ -1,10 +1,4 @@
 export {
-  type AnnotationCampaign,
-  type AnnotationCampaignUsage,
-  useAnnotationCampaignAPI
-} from './campaign.service'
-
-export {
   type AnnotationComment,
   useAnnotationCommentAPI
 } from './comment.service'

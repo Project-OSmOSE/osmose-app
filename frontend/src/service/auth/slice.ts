@@ -3,15 +3,15 @@ import { AuthAPI } from './api.ts';
 import { catch401 } from './function.ts';
 import { AuthState } from './type.ts';
 import { UserAPI } from '@/service/user/api.ts';
+import { CampaignAPI } from '@/service/campaign';
 
 
-const slice = createSlice({
+export const AuthSlice = createSlice({
   name: 'auth',
-  initialState: { token: undefined, user: undefined } as AuthState,
+  initialState: { token: undefined } as AuthState,
   reducers: {
     logout: (state) => {
       state.token = undefined;
-      state.user = undefined;
     }
   },
   extraReducers: (builder) => {
@@ -21,18 +21,17 @@ const slice = createSlice({
         state.token = payload;
       },
     )
-    builder.addMatcher(
-      UserAPI.endpoints.getCurrentUser.matchFulfilled,
-      (state, { payload }) => {
-        state.user = payload;
-      }
-    )
 
     // Handle 401: Unauthenticated
     builder.addMatcher(UserAPI.endpoints.getCurrentUser.matchRejected, catch401)
     builder.addMatcher(UserAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.retrieve.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.create.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.archive.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.downloadReport.matchRejected, catch401)
+    builder.addMatcher(CampaignAPI.endpoints.downloadStatus.matchRejected, catch401)
   },
 })
 
-export const AuthReducer = slice.reducer;
-export const { logout } = slice.actions
+export const { logout } = AuthSlice.actions

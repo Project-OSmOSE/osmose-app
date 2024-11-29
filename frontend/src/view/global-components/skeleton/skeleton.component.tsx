@@ -1,24 +1,18 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { Link } from 'react-router-dom';
 import { IonButton, IonIcon } from "@ionic/react";
 import './skeleton.component.css';
 import { openOutline } from 'ionicons/icons';
-import { useAppDispatch, useAppSelector } from '@/slices/app.ts';
+import { useAppDispatch } from '@/slices/app.ts';
 import { logout } from '@/service/auth';
-import { selectCurrentUser, useGetCurrentUserMutation } from '@/service/user';
+import { useGetCurrentUserQuery } from '@/service/user';
 
 export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
 
-  const currentUser = useAppSelector(selectCurrentUser);
   const dispatch = useAppDispatch();
 
-  const [ getCurrentUser ] = useGetCurrentUserMutation();
-
-  useEffect(() => {
-    if (currentUser) return;
-    getCurrentUser().unwrap();
-  }, [])
+  const { data: currentUser } = useGetCurrentUserQuery();
 
   return (
     <div id="aplose-skeleton-component">

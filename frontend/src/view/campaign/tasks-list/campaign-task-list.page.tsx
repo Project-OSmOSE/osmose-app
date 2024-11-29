@@ -1,10 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import {
-  useAnnotationFileRangeAPI,
-  useAnnotationCampaignAPI,
-  AnnotationCampaign
-} from "@/services/api";
+import { useAnnotationFileRangeAPI } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import {
@@ -14,6 +10,7 @@ import {
 } from "ionicons/icons";
 import './campaign-task-list.page.css';
 import { AnnotationFileRangeWithFiles } from "@/services/api/annotation/file-range.service.tsx";
+import { useRetrieveCampaignQuery } from '@/service/campaign';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -21,11 +18,10 @@ export const AnnotationTaskList: React.FC = () => {
   // Services
   const history = useHistory();
   const fileRangeService = useAnnotationFileRangeAPI();
-  const campaignService = useAnnotationCampaignAPI()
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID);
 
   // States
   const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRangeWithFiles> | undefined>();
-  const [ campaign, setCampaign ] = useState<AnnotationCampaign | undefined>(undefined);
   const [ error, setError ] = useState<any | undefined>(undefined);
 
   useEffect(() => {
@@ -34,7 +30,6 @@ export const AnnotationTaskList: React.FC = () => {
 
     setError(undefined);
     Promise.all([
-      campaignService.retrieve(campaignID).then(setCampaign),
       fileRangeService.listForCampaignCurrentUser(campaignID).then(setFileRanges)
     ]).catch(e => {
       if (isCanceled) return;

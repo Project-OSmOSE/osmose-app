@@ -1,22 +1,24 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { AnnotationCampaign, LinearScale, useSpectrogramConfigurationAPI } from "@/services/api";
+import { LinearScale, useSpectrogramConfigurationAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
 import { MultiLinearScale } from '@/services/spectrogram';
 import { IoArrowForwardOutline } from 'react-icons/io5';
+import { useAppSelector } from '@/slices/app.ts';
+import { selectCurrentCampaign } from '@/service/campaign/function.ts';
 
 interface Props {
   isOwner: boolean;
-  campaign: AnnotationCampaign;
   setError: (e: any) => void
 }
 
-export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ campaign, setError, isOwner }) => {
+export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ setError, isOwner }) => {
   // State
   const [ configurations, setConfigurations ] = useState<Array<SpectrogramConfiguration> | undefined>([]);
+  const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
   const spectrogramService = useSpectrogramConfigurationAPI();
@@ -24,6 +26,7 @@ export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ campai
   useEffect(() => {
     let isCancelled = false;
 
+    if (!campaign) return;
     spectrogramService.listForCampaign(campaign.id)
       .then(setConfigurations)
       .catch(e => {
@@ -35,7 +38,7 @@ export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ campai
       isCancelled = true;
       spectrogramService.abort();
     }
-  }, [ campaign.id ])
+  }, [ campaign?.id ])
 
   return (
     <div id="campaign-detail-spectro-config" className="bloc">

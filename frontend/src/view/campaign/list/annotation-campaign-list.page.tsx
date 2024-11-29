@@ -1,28 +1,28 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionicons/icons";
-import { AnnotationCampaign, AnnotationCampaignUsage, useAnnotationCampaignAPI } from "@/services/api";
-import { useToast } from "@/services/utils/toast.ts";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import './annotation-campaign-list.page.css'
+import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
 
 
 export const AnnotationCampaignList: React.FC = () => {
 
+  // Services
+  const { data: campaigns, isLoading } = useListCampaignsQuery()
+
   // State
-  const [annotationCampaigns, setAnnotationCampaigns] = useState<Array<AnnotationCampaign>>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [search, setSearch] = useState<string | undefined>();
-  const [showArchivedFilter, setShowArchivedFilter] = useState<boolean>(false);
-  const [modeFilter, setModeFilter] = useState<AnnotationCampaignUsage | undefined>();
+  const [ search, setSearch ] = useState<string | undefined>();
+  const [ showArchivedFilter, setShowArchivedFilter ] = useState<boolean>(false);
+  const [ modeFilter, setModeFilter ] = useState<AnnotationCampaignUsage | undefined>();
 
   // Memo
   const showCampaigns = useMemo(() => {
-    const baseCampaigns = annotationCampaigns
-      .filter(c => (c.archive !== null) === showArchivedFilter)
-      .filter(c => !modeFilter || c.usage === modeFilter);
+    const baseCampaigns = campaigns
+      ?.filter(c => (c.archive !== null) === showArchivedFilter)
+      .filter(c => !modeFilter || c.usage === modeFilter) ?? [];
     if (!search) return baseCampaigns;
     const results = searchFilter(
       baseCampaigns.map(c => ({
@@ -32,32 +32,8 @@ export const AnnotationCampaignList: React.FC = () => {
       search
     );
     return baseCampaigns.filter(c => results.find(r => r.value === c.id));
-  }, [annotationCampaigns, search, showArchivedFilter, modeFilter]);
-  const canAccessArchive = useMemo(() => annotationCampaigns.filter(c => c.archive !== null).length > 0, [annotationCampaigns]);
-
-  // Services
-  const campaignService = useAnnotationCampaignAPI();
-  const toast = useToast();
-
-  useEffect(() => {
-    let isCancelled = false;
-    setIsLoading(true);
-
-    campaignService.list()
-      .then(setAnnotationCampaigns)
-      .catch(e => {
-        if (isCancelled) return;
-        toast.presentError(e);
-      })
-      .finally(() => !isCancelled && setIsLoading(false))
-
-    return () => {
-      isCancelled = true;
-      campaignService.abort();
-      setIsLoading(false);
-      toast.dismiss();
-    }
-  }, []);
+  }, [ campaigns, search, showArchivedFilter, modeFilter ]);
+  const canAccessArchive = useMemo(() => (campaigns ?? [])?.filter(c => c.archive !== null).length > 0, [ campaigns ]);
 
   const openGuide = () => {
     window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
@@ -126,7 +102,8 @@ export const AnnotationCampaignList: React.FC = () => {
       </div>
 
       <div id="content">
-        { showCampaigns.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map(c => <CampaignCard campaign={ c } key={ c.id }/>) }
+        { showCampaigns.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map(c => <CampaignCard
+          campaign={ c } key={ c.id }/>) }
         { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
 
