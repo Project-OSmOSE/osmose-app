@@ -5,6 +5,7 @@ import { AuthState } from './type.ts';
 import { UserAPI } from '@/service/user/api.ts';
 import { CampaignAPI } from '@/service/campaign';
 import { AnnotationFileRangeAPI } from '@/service/annotation-file-range';
+import { DatasetAPI } from '@/service/dataset';
 
 
 export const AuthSlice = createSlice({
@@ -38,6 +39,9 @@ export const AuthSlice = createSlice({
     builder.addMatcher(AnnotationFileRangeAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(AnnotationFileRangeAPI.endpoints.listWithFiles.matchRejected, catch401)
     builder.addMatcher(AnnotationFileRangeAPI.endpoints.update.matchRejected, catch401)
+    builder.addMatcher(DatasetAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(DatasetAPI.endpoints.listForImport.matchRejected, catch401)
+    builder.addMatcher(DatasetAPI.endpoints.import.matchRejected, catch401)
   },
 })
 

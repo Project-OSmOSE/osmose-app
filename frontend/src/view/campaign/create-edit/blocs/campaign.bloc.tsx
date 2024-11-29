@@ -3,13 +3,9 @@ import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import { ChipsInput, FormBloc, Select, Textarea } from "@/components/form";
 import {
   ConfidenceIndicatorSet,
-  DatasetList,
-  DatasetListItem as Dataset,
   LabelSet,
   SpectrogramConfiguration,
-  useDatasetsAPI
 } from "@/services/api";
-import { useToast } from "@/services/utils/toast.ts";
 import { LabelSetSelect } from "@/view/campaign/create-edit/blocs/input/label-set.select.tsx";
 import { ConfidenceSetSelect } from "@/view/campaign/create-edit/blocs/input/confidence-set.select.tsx";
 import { CheckAnnotationsInputs } from "@/view/campaign/create-edit/blocs/input/check-annotations.tsx";
@@ -24,6 +20,7 @@ import {
   WriteCheckAnnotationCampaign,
   WriteCreateAnnotationCampaign
 } from '@/service/campaign';
+import { useListDatasetQuery, Dataset } from '@/service/dataset';
 
 type SubmitCampaign = WriteCreateAnnotationCampaign & WriteCheckAnnotationCampaign
 type SubmitCampaignKeys = keyof SubmitCampaign
@@ -33,17 +30,15 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
   onCampaignSubmitted: (campaign?: AnnotationCampaign) => void,
 }>(({ onDatasetUpdated, onCampaignSubmitted }, ref) => {
   // API
-  const [ allDatasets, setAllDatasets ] = useState<DatasetList | undefined>();
-  const datasetsAPI = useDatasetsAPI();
   const submittedCampaign = useRef<AnnotationCampaign | undefined>();
   const nameInput = useRef<InputRef<InputHTMLAttributes<HTMLInputElement>['value']> | null>(null)
   const inputsRef = useRef<{ [key in SubmitCampaignKeys]: InputRef<InputValue | TextareaValue> | null }>({})
   const errors = useRef<{ [key in SubmitCampaignKeys]: string | undefined }>({})
 
   // Services
-  const toast = useToast();
   const dispatch = useAppDispatch();
   const [ createCampaign ] = useCreateCampaignMutation()
+  const { data: allDatasets } = useListDatasetQuery();
 
   // Global states
   const description = useRef<string | null>(null);
@@ -81,19 +76,8 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
 
   // Loading
   useEffect(() => {
-    let isCancelled = false;
-    Promise.all([
-      datasetsAPI.list().then(d => {
-        setAllDatasets(d)
-        if (d.length === 0) errors.current.datasets = "You should first import a dataset."
-      })
-    ]).catch(e => !isCancelled && toast.presentError(e));
-
-    return () => {
-      isCancelled = true;
-      datasetsAPI.abort();
-    }
-  }, [])
+    if (allDatasets && allDatasets.length === 0) errors.current.datasets = "You should first import a dataset."
+  }, [allDatasets]);
 
   // Submission
   const submit = async () => {
@@ -187,7 +171,7 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
   }
 
   const onSpectrogramConfigurationsChange = (ids: Array<string | number>) => {
-    setSpectrogramConfigurations(dataset?.spectros.filter(c => ids.includes(c.id)) ?? [])
+    setSpectrogramConfigurations(dataset?.spectros.filter((c: any) => ids.includes(c.id)) ?? [])
     errors.current.spectro_configs = undefined;
   }
 
@@ -240,7 +224,7 @@ export const CampaignBloc = React.forwardRef<BlocRef, {
                                error={ errors.current.spectro_configs }
                                label="Spectrogram configurations"
                                disabled={ !dataset?.spectros?.length || !!submittedCampaign.current }
-                               items={ dataset?.spectros.map(c => ({ value: c.id, label: c.name })) ?? [] }
+                               items={ dataset?.spectros.map((c: any) => ({ value: c.id, label: c.name })) ?? [] }
                                activeItemsValues={ spectrogramConfigurations.map(i => i.id) }
                                setActiveItemsValues={ onSpectrogramConfigurationsChange }/> }
     </FormBloc>

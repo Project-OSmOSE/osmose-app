@@ -10,6 +10,7 @@ import { AuthAPI, AuthSlice } from '@/service/auth';
 import { UserAPI } from '@/service/user';
 import { CampaignAPI, CampaignSlice } from '@/service/campaign';
 import { AnnotationFileRangeAPI } from '@/service/annotation-file-range';
+import { DatasetAPI } from '@/service/dataset';
 
 export const AppStore = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const AppStore = configureStore({
     [UserAPI.reducerPath]: UserAPI.reducer,
     [CampaignAPI.reducerPath]: CampaignAPI.reducer,
     [AnnotationFileRangeAPI.reducerPath]: AnnotationFileRangeAPI.reducer,
+    [DatasetAPI.reducerPath]: DatasetAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -37,7 +39,7 @@ export const AppStore = configureStore({
       .concat(AuthAPI.middleware)
       .concat(UserAPI.middleware)
       .concat(CampaignAPI.middleware)
-      .concat(AnnotationFileRangeAPI.middleware)
+      .concat(DatasetAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

@@ -1,5 +1,5 @@
 import { expect, Page, test } from '../utils/fixture';
-import { ListToImport } from '../../src/services/api/dataset-api.service';
+import { ImportDataset } from '../../src/service/dataset';
 
 const TEST_IMPORT_DATASET_NAME = 'Test import dataset'
 
@@ -10,7 +10,7 @@ function mockDatasetImportList(page: Page) {
       dataset: TEST_IMPORT_DATASET_NAME,
       file_type: '.wav',
       path: TEST_IMPORT_DATASET_NAME
-    } ] as ListToImport
+    } ] as Array<ImportDataset>
   }))
 }
 
@@ -53,7 +53,7 @@ test.describe('Access', () => {
 
 test.describe('Empty states', () => {
   test('List should not appear', async ({ adminPage }) => {
-    await adminPage.route(/api\/dataset$/g, route => route.fulfill({ status: 200, json: [] }))
+    await adminPage.route('/api/dataset/', route => route.fulfill({ status: 200, json: [] }))
     await mockDatasetImportList(adminPage);
     await adminPage.getByRole('link', { name: 'Datasets' }).click();
 
