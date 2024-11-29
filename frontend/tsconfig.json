@@ -32,30 +32,9 @@
       "/app/*": [
         "./public/*"
       ],
-      "@/components/*": [
-        "src/components/*"
+      "@/*": [
+        "src/*"
       ],
-      "@/consts/*": [
-        "src/consts/*"
-      ],
-      "@/routes/*": [
-        "src/routes/*"
-      ],
-      "@/services/*": [
-        "src/services/*"
-      ],
-      "@/service/*": [
-        "src/service/*"
-      ],
-      "@/slices/*": [
-        "src/slices/*"
-      ],
-      "@/types/*": [
-        "src/types/*"
-      ],
-      "@/view/*": [
-        "src/view/*"
-      ]
     }
   },
   "include": [

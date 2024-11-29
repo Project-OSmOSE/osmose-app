@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useSt
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { getDisplayName, User } from '@/types/user';
 import { useToast } from "@/services/utils/toast";
-import { AnnotationCampaign, AnnotationFileRange, useAnnotationFileRangeAPI, useUsersAPI } from "@/services/api";
+import { AnnotationCampaign, AnnotationFileRange, useAnnotationFileRangeAPI } from "@/services/api";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { trashBinOutline } from "ionicons/icons";
@@ -12,6 +12,7 @@ import { BlocRef } from "./util.bloc.ts";
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
+import { useListUsersMutation } from '@/service/user';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
@@ -48,7 +49,7 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
   // Services
   const toast = useToast();
   const fileRangeService = useAnnotationFileRangeAPI();
-  const userService = useUsersAPI();
+  const [listUsers] = useListUsersMutation()
 
   // Ref
   const annotatorRowRef = useRef<Array<InputRef<AnnotationFileRange, FileRangeError> | null>>([]);
@@ -95,13 +96,12 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
 
     Promise.all([
       campaign ? fileRangeService.listForCampaign(campaign.id).then(setFileRanges) : undefined,
-      userService.list().then(setUsers)
+      listUsers().unwrap().then(setUsers)
     ]).catch(e => !isCancelled && toast.presentError(e));
 
     return () => {
       isCancelled = true;
       fileRangeService.abort();
-      userService.abort();
     }
   }, [ campaign ])
 

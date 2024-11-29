@@ -1,19 +1,25 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { useUsersAPI } from "@/services/api/user.service.ts";
+import { selectCurrentUser, useGetCurrentUserMutation } from '@/service/user';
+import { useAppSelector } from '@/slices/app.ts';
 
 export const StaffOnlyRoute: FC<{ children?: ReactNode } & any> = ({ children, ...params }) => {
-  const userService = useUsersAPI();
-  const [canAccess, setCanAccess] = useState<boolean>(true);
+  const currentUser = useAppSelector(selectCurrentUser);
+
+  const [ canAccess, setCanAccess ] = useState<boolean>(currentUser?.is_staff ?? false);
+
+  const [ getCurrentUser ] = useGetCurrentUserMutation()
 
   useEffect(() => {
-    userService.self().then(u => setCanAccess(u.is_staff)).catch(console.warn)
+    if (currentUser) return;
+    getCurrentUser().unwrap().then(u => setCanAccess(u.is_staff)).catch(console.warn)
   }, [])
 
   return (
     <Route { ...params }
            render={ ({ location }) =>
-             canAccess ? (children) : (<Redirect to={ { pathname: "/annotation-campaign", state: { from: location } } }/>)
+             canAccess ? (children) : (
+               <Redirect to={ { pathname: "/annotation-campaign", state: { from: location } } }/>)
            }/>
   )
 }

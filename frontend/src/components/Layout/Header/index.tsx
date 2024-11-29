@@ -5,7 +5,7 @@ import './styles.css';
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
 import { useAppSelector } from '@/slices/app.ts';
-import { selectIsConnected } from '@/service/auth/slice.ts';
+import { selectIsConnected } from '@/service/auth';
 
 export const Header: React.FC = () => {
   const isConnected = useAppSelector(selectIsConnected);

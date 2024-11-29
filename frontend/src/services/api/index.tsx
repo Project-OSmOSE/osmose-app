@@ -8,12 +8,3 @@ export {
   type ListToImportItem as DatasetListToImportItem,
   useDatasetsAPI
 } from './dataset-api.service.tsx';
-
-
-export {
-  type User,
-  type ExpertiseLevel,
-  useUsersAPI
-} from "./user.service.ts";
-
-

@@ -5,8 +5,6 @@ import {
   AnnotationCampaign,
   useAnnotationCampaignAPI,
   useAnnotationFileRangeAPI,
-  User,
-  useUsersAPI,
 } from "@/services/api";
 
 import { DetailCampaignGlobalInformation } from "@/view/campaign/detail/blocs/global-information.component.tsx";
@@ -15,6 +13,8 @@ import { DetailCampaignSpectrogramConfiguration } from "@/view/campaign/detail/b
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
 import { getDisplayName } from "@/types/user.ts";
 import './annotation-campaign-detail.page.css';
+import { selectCurrentUser, useGetCurrentUserMutation, useListUsersMutation, User } from '@/service/user';
+import { useAppSelector } from '@/slices/app.ts';
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
@@ -22,7 +22,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
   // State
   const [ campaign, setCampaign ] = useState<AnnotationCampaign | undefined>(undefined);
-  const [ currentUser, setCurrentUser ] = useState<User | undefined>(undefined);
+  const currentUser = useAppSelector(selectCurrentUser);
   const [ annotatorsStatus, setAnnotatorsStatus ] = useState<Map<string, {
     total: number,
     progress: number
@@ -36,20 +36,21 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner ]);
 
   const campaignService = useAnnotationCampaignAPI();
-  const userService = useUsersAPI();
   const fileRangeService = useAnnotationFileRangeAPI();
   const [ error, setError ] = useState<any | undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ _, dismissAlert ] = useIonAlert();
+  const [ listUsers ] = useListUsersMutation();
+  const [ getCurrentUSer ] = useGetCurrentUserMutation();
 
   useEffect(() => {
     let isCancelled = false;
 
     Promise.all([
       fileRangeService.listForCampaign(campaignID),
-      userService.list(),
+      listUsers().unwrap(),
       campaignService.retrieve(campaignID).then(setCampaign),
-      userService.self().then(setCurrentUser)
+      currentUser ? undefined : getCurrentUSer().unwrap()
     ]).then(([ ranges, users ]) => {
       const map = new Map<string, { total: number, progress: number }>()
       for (const range of ranges) {
@@ -70,7 +71,6 @@ export const AnnotationCampaignDetail: React.FC = () => {
     return () => {
       isCancelled = true;
       campaignService.abort();
-      userService.abort();
       dismissAlert();
     }
   }, [ campaignID ])

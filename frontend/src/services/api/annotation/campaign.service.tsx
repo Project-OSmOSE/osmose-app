@@ -1,5 +1,5 @@
 import { OldAPIService } from "../api-service.util.tsx";
-import { User } from "../user.service.ts";
+import { User } from '@/service/user';
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
 

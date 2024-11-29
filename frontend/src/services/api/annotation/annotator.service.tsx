@@ -4,9 +4,9 @@ import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
 import { AnnotationResult, WriteAnnotationResult } from "./result.service";
 import { ConfidenceIndicatorSet } from "./confidence-set.service";
 import { LabelSet } from "./label-set.service";
-import { User } from "../user.service";
 import { SpectrogramConfiguration } from "../data/spectrogram.service";
 import { DatasetFile } from "../data/file.service";
+import { User } from '@/service/user';
 
 type AnnotatorData = {
   campaign: AnnotationCampaign;

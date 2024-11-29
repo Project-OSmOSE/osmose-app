@@ -18,3 +18,8 @@ export function getTokenFromCookie(): Token {
 export function catch401(state: AuthState, { payload }: PayloadAction<FetchBaseQueryError | undefined>) {
   if (payload?.status === 401) state.token = undefined;
 }
+
+export const selectIsConnected = (state: AppState): boolean => {
+  if (state.auth.token) return true;
+  return !!getTokenFromCookie()
+}

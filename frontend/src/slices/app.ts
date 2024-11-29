@@ -7,6 +7,7 @@ import spectroReducer from "@/slices/annotator/spectro";
 import { useDispatch, useSelector } from "react-redux";
 import { importAnnotationsReducer } from "@/slices/create-campaign/import-annotations.ts";
 import { AuthAPI, AuthReducer } from '@/service/auth';
+import { UserAPI } from '@/service/user';
 
 export const AppStore = configureStore({
   reducer: {
@@ -20,11 +21,14 @@ export const AppStore = configureStore({
       audio: audioReducer,
       spectro: spectroReducer
     }),
-    [AuthAPI.reducerPath]: AuthAPI.reducer
+    [AuthAPI.reducerPath]: AuthAPI.reducer,
+    [UserAPI.reducerPath]: UserAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(AuthAPI.middleware)
+    getDefaultMiddleware()
+      .concat(AuthAPI.middleware)
+      .concat(UserAPI.middleware)
 
 })
 
