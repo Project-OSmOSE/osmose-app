@@ -1,6 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { useAnnotationFileRangeAPI } from "@/services/api";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import {
@@ -9,38 +8,19 @@ import {
   informationCircle
 } from "ionicons/icons";
 import './campaign-task-list.page.css';
-import { AnnotationFileRangeWithFiles } from "@/services/api/annotation/file-range.service.tsx";
 import { useRetrieveCampaignQuery } from '@/service/campaign';
+import { useListAnnotationFileRangeWithFilesQuery } from '@/service/annotation-file-range';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
 
   // Services
   const history = useHistory();
-  const fileRangeService = useAnnotationFileRangeAPI();
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
-
-  // States
-  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRangeWithFiles> | undefined>();
-  const [ error, setError ] = useState<any | undefined>(undefined);
+  const { data: fileRanges } = useListAnnotationFileRangeWithFilesQuery({ campaignID, forCurrentUser: true });
 
   useEffect(() => {
     document.body.scrollTo({ top: 0, behavior: 'instant' })
-    let isCanceled = false;
-
-    setError(undefined);
-    Promise.all([
-      fileRangeService.listForCampaignCurrentUser(campaignID).then(setFileRanges)
-    ]).catch(e => {
-      if (isCanceled) return;
-      setError(e);
-      throw e
-    })
-
-    return () => {
-      isCanceled = true;
-      fileRangeService.abort();
-    }
   }, [ campaignID ]);
 
   const openGuide = () => {
@@ -53,15 +33,6 @@ export const AnnotationTaskList: React.FC = () => {
   }
 
   const manage = () => history.push(`/annotation-campaign/${ campaignID }`);
-
-  if (error) {
-    return (
-      <Fragment>
-        <h1>Annotation Tasks</h1>
-        <p className="error-message">{ error.message }</p>
-      </Fragment>
-    )
-  }
 
   return (
     <div id="campaign-task-list">

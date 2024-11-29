@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { getDisplayName, User } from '@/types/user';
-import { useToast } from "@/services/utils/toast";
-import { AnnotationFileRange, useAnnotationFileRangeAPI } from "@/services/api";
+import { AnnotationFileRange } from "@/services/api";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { trashBinOutline } from "ionicons/icons";
@@ -14,6 +13,7 @@ import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
 import { useListUsersQuery } from '@/service/user';
 import { AnnotationCampaign } from '@/service/campaign';
+import { useListAnnotationFileRangeQuery, useUpdateAnnotationFileRangeMutation } from '@/service/annotation-file-range';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
@@ -22,9 +22,14 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
   files_count?: number
 }>(({ campaign, files_count }, ref) => {
 
+  // Services
+  const { data: users } = useListUsersQuery()
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: campaign?.id })
+  const [ updateFileRanges ] = useUpdateAnnotationFileRangeMutation()
+
   // API Data
   // Use negative fileRange id for newly created ones
-  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange>>([]);
+  const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange>>(initialFileRanges ?? []);
   const _campaignID = useRef<number | undefined>(campaign?.id);
   const _files_count = useRef<number | undefined>(files_count);
   const {
@@ -46,11 +51,6 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
     }
   }, [ fileRanges ]);
 
-  // Services
-  const toast = useToast();
-  const fileRangeService = useAnnotationFileRangeAPI();
-  const { data: users } = useListUsersQuery()
-
   // Ref
   const annotatorRowRef = useRef<Array<InputRef<AnnotationFileRange, FileRangeError> | null>>([]);
   useImperativeHandle(ref, () => ({
@@ -66,12 +66,15 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
       if (!_campaignID.current || !_files_count.current) return;
       const data = annotatorRowRef.current.map(ref => ref?.validate()).filter(r => !!r)
       try {
-        await fileRangeService.updateForCampaign(_campaignID.current, data.map(r => ({
-          id: r.id >= 0 ? r.id : undefined,
-          first_file_index: r.first_file_index < 0 ? 0 : r.first_file_index,
-          last_file_index: r.last_file_index < 0 ? _files_count.current! - 1 : r.last_file_index,
-          annotator: r.annotator
-        })))
+        await updateFileRanges({
+          campaignID: _campaignID.current,
+          data: data.map(r => ({
+            id: r.id >= 0 ? r.id : undefined,
+            first_file_index: r.first_file_index < 0 ? 0 : r.first_file_index,
+            last_file_index: r.last_file_index < 0 ? _files_count.current! - 1 : r.last_file_index,
+            annotator: r.annotator
+          }))
+        });
       } catch (e) {
         if ((e as any).status === 400) {
           const response = (e as any).response.text;
@@ -88,21 +91,6 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
       }
     }
   }), [])
-
-  useEffect(() => {
-    let isCancelled = false;
-
-    if (users?.length) return;
-
-    Promise.all([
-      campaign ? fileRangeService.listForCampaign(campaign.id).then(setFileRanges) : undefined,
-    ]).catch(e => !isCancelled && toast.presentError(e));
-
-    return () => {
-      isCancelled = true;
-      fileRangeService.abort();
-    }
-  }, [ campaign ])
 
   useEffect(() => {
     if (!fileRanges) annotatorRowRef.current = [];
@@ -140,11 +128,11 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
               <TableHead/>
               <TableDivider/>
             { fileRanges.map((range, index) => <AnnotatorRangeLine key={ index }
-                                                                   initialRange={ range }
-                                                                   ref={ el => annotatorRowRef.current[index] = el }
-                                                                   annotator={ users.find(u => u.id === range.annotator)! }
-                                                                   files_count={ files_count }
-                                                                   onDelete={ onFileRangeDelete }
+                                                                          initialRange={ range }
+                                                                          ref={ el => annotatorRowRef.current[index] = el }
+                                                                          annotator={ users.find(u => u.id === range.annotator)! }
+                                                                          files_count={ files_count }
+                                                                          onDelete={ onFileRangeDelete }
             />) }
           </Table>
       }

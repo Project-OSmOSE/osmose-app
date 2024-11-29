@@ -4,6 +4,7 @@ import { catch401 } from './function.ts';
 import { AuthState } from './type.ts';
 import { UserAPI } from '@/service/user/api.ts';
 import { CampaignAPI } from '@/service/campaign';
+import { AnnotationFileRangeAPI } from '@/service/annotation-file-range';
 
 
 export const AuthSlice = createSlice({
@@ -31,6 +32,9 @@ export const AuthSlice = createSlice({
     builder.addMatcher(CampaignAPI.endpoints.archive.matchRejected, catch401)
     builder.addMatcher(CampaignAPI.endpoints.downloadReport.matchRejected, catch401)
     builder.addMatcher(CampaignAPI.endpoints.downloadStatus.matchRejected, catch401)
+    builder.addMatcher(AnnotationFileRangeAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(AnnotationFileRangeAPI.endpoints.listWithFiles.matchRejected, catch401)
+    builder.addMatcher(AnnotationFileRangeAPI.endpoints.update.matchRejected, catch401)
   },
 })
 
