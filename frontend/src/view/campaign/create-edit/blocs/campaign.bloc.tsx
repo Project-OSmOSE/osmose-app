@@ -2,7 +2,6 @@ import React, { Fragment, InputHTMLAttributes, useEffect, useImperativeHandle, u
 import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import { ChipsInput, FormBloc, Select, Textarea } from "@/components/form";
 import {
-  ConfidenceIndicatorSet,
   SpectrogramConfiguration,
 } from "@/services/api";
 import { LabelSetSelect } from "@/view/campaign/create-edit/blocs/input/label-set.select.tsx";
@@ -21,6 +20,7 @@ import {
 } from '@/service/campaign';
 import { useListDatasetQuery, Dataset } from '@/service/dataset';
 import { LabelSet } from '@/service/campaign/label-set';
+import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
 
 type SubmitCampaign = WriteCreateAnnotationCampaign & WriteCheckAnnotationCampaign
 type SubmitCampaignKeys = keyof SubmitCampaign

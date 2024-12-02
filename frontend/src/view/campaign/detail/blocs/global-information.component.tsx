@@ -1,38 +1,37 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, people, pricetag } from "ionicons/icons";
-import './blocs.css';
-import {
-  ConfidenceIndicatorSet,
-  useConfidenceSetAPI,
-} from "@/services/api";
 import { useAppSelector } from '@/slices/app.ts';
 import { selectCurrentCampaign } from '@/service/campaign/function.ts';
 import { useArchiveCampaignMutation } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';
 import { getErrorMessage } from '@/service/function.ts';
+import { useRetrieveConfidenceSetQuery } from '@/service/campaign/confidence-set';
+import './blocs.css';
 
 interface Props {
   isEditionAllowed: boolean,
   annotatorsStatus: Map<string, { total: number, progress: number }>,
-  setError: (e: any) => void,
 }
 
 export const DetailCampaignGlobalInformation: React.FC<Props> = ({
                                                                    isEditionAllowed,
                                                                    annotatorsStatus,
-                                                                   setError
                                                                  }) => {
   // State
-  const [ confidenceSet, setConfidenceSet ] = useState<ConfidenceIndicatorSet | undefined>(undefined);
   const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
   const [ presentAlert ] = useIonAlert();
   const { presentError, dismiss: dismissToast } = useToast();
   const { data: labelSet, error: labelSetError } = useRetrieveLabelSetQuery(campaign!.label_set)
-  const confidenceSetService = useConfidenceSetAPI();
+  const {
+    data: confidenceSet,
+    error: confidenceSetError
+  } = useRetrieveConfidenceSetQuery(campaign!.confidence_indicator_set ?? -1, {
+    skip: !campaign?.confidence_indicator_set
+  })
   const [ archiveCampaign ] = useArchiveCampaignMutation()
 
   useEffect(() => {
@@ -43,25 +42,11 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
 
   useEffect(() => {
     if (labelSetError) presentError(getErrorMessage(labelSetError));
-  }, [labelSetError]);
+  }, [ labelSetError ]);
 
   useEffect(() => {
-    if (!campaign?.confidence_indicator_set) {
-      setConfidenceSet(undefined);
-      return;
-    }
-    let isCancelled = false;
-
-    confidenceSetService.retrieve(campaign.confidence_indicator_set).then(setConfidenceSet).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
-
-    return () => {
-      isCancelled = true;
-      confidenceSetService.abort();
-    }
-  }, [ campaign?.confidence_indicator_set ])
+    if (confidenceSetError) presentError(getErrorMessage(confidenceSetError));
+  }, [ confidenceSetError ]);
 
   const archive = async () => {
     if (!campaign) return;

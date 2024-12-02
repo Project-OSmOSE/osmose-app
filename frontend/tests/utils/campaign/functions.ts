@@ -2,10 +2,10 @@ import { Locator, Page } from "@playwright/test";
 import { expect } from "../fixture";
 import { DEFAULT_CAMPAIGN_NAME } from "./data";
 import { CONFIDENCE_SET_URL, DATASET_URL, FILE_RANGE_URL, LABEL_SET_URL, waitFileRangeResponse } from '../url';
-import { ConfidenceIndicatorSet } from '../../../src/services/api';
 import { Dataset } from '../../../src/service/dataset';
 import { LabelSet } from '../../../src/service/campaign/label-set';
 import { AnnotationFileRange } from '../../../src/service/campaign/annotation-file-range';
+import { ConfidenceIndicatorSet } from '../../../src/service/campaign/confidence-set';
 
 type Mock = {
   datasets?: Array<Dataset>,

@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { ConfidenceIndicatorSet, useConfidenceSetAPI } from "@/services/api";
+import React, { Fragment, useEffect } from "react";
 import { useToast } from "@/services/utils/toast.ts";
 import { Select } from "@/components/form";
 import { IonNote } from '@ionic/react';
+import { ConfidenceIndicatorSet, useListConfidenceSetQuery } from '@/service/campaign/confidence-set';
+import { getErrorMessage } from '@/service/function.ts';
 
 export const ConfidenceSetSelect: React.FC<{
   confidenceSet?: ConfidenceIndicatorSet,
@@ -10,22 +11,19 @@ export const ConfidenceSetSelect: React.FC<{
   disabled: boolean;
   error?: string;
 }> = ({ confidenceSet, onConfidenceSetChange, disabled, error }) => {
-  // API
-  const confidenceSetAPI = useConfidenceSetAPI();
-  const [ allConfidenceSets, setAllConfidenceSets ] = useState<Array<ConfidenceIndicatorSet> | undefined>();
-
   // Services
-  const toast = useToast();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: allConfidenceSets, error: confidenceSetError } = useListConfidenceSetQuery()
 
   useEffect(() => {
-    let isCancelled = false;
-    confidenceSetAPI.list().then(setAllConfidenceSets).catch(e => !isCancelled && toast.presentError(e));
-
     return () => {
-      isCancelled = true;
-      confidenceSetAPI.abort();
+      dismissToast()
     }
   }, [])
+
+  useEffect(() => {
+    if (confidenceSetError) presentError(getErrorMessage(confidenceSetError))
+  }, [confidenceSetError]);
 
   const onSelect = (value: string | number | undefined) => {
     onConfidenceSetChange(allConfidenceSets?.find(l => l.id === value))

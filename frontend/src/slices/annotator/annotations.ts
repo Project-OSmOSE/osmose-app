@@ -4,11 +4,11 @@ import {
   AnnotationComment,
   AnnotationResult,
   AnnotationResultBounds,
-  ConfidenceIndicatorSet,
 } from "@/services/api";
 import { getResultType } from "@/services/utils/annotator.ts";
 import { DEFAULT_PRESENCE_RESULT } from "@/services/api/annotation/result.service.tsx";
 import { LabelSet } from '@/service/campaign/label-set';
+import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
 
 
 export type AnnotationsSlice = {

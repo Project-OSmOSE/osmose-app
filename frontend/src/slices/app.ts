@@ -12,6 +12,7 @@ import { CampaignAPI, CampaignSlice } from '@/service/campaign';
 import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
 import { LabelSetAPI } from '@/service/campaign/label-set';
 import { DatasetAPI } from '@/service/dataset';
+import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
 
 export const AppStore = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ export const AppStore = configureStore({
     [AnnotationFileRangeAPI.reducerPath]: AnnotationFileRangeAPI.reducer,
     [DatasetAPI.reducerPath]: DatasetAPI.reducer,
     [LabelSetAPI.reducerPath]: LabelSetAPI.reducer,
+    [ConfidenceSetAPI.reducerPath]: ConfidenceSetAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -43,6 +45,7 @@ export const AppStore = configureStore({
       .concat(CampaignAPI.middleware)
       .concat(DatasetAPI.middleware)
       .concat(LabelSetAPI.middleware)
+      .concat(ConfidenceSetAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

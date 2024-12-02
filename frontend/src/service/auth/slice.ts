@@ -7,6 +7,7 @@ import { CampaignAPI } from '@/service/campaign';
 import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
 import { DatasetAPI } from '@/service/dataset';
 import { LabelSetAPI } from '@/service/campaign/label-set';
+import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
 
 
 export const AuthSlice = createSlice({
@@ -45,6 +46,8 @@ export const AuthSlice = createSlice({
     builder.addMatcher(DatasetAPI.endpoints.import.matchRejected, catch401)
     builder.addMatcher(LabelSetAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(LabelSetAPI.endpoints.retrieve.matchRejected, catch401)
+    builder.addMatcher(ConfidenceSetAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(ConfidenceSetAPI.endpoints.retrieve.matchRejected, catch401)
   },
 })
 

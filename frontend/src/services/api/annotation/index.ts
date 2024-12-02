@@ -4,12 +4,6 @@ export {
 } from './comment.service'
 
 export {
-  type ConfidenceIndicator,
-  type ConfidenceIndicatorSet,
-  useConfidenceSetAPI
-} from './confidence-set.service'
-
-export {
   type Detector,
   type DetectorConfiguration,
   useDetectorsAPI

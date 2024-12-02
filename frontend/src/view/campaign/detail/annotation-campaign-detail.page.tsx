@@ -95,8 +95,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       </div>
 
       <DetailCampaignGlobalInformation isEditionAllowed={ isEditionAllowed }
-                                       annotatorsStatus={ annotatorsStatus }
-                                       setError={ setError }/>
+                                       annotatorsStatus={ annotatorsStatus }/>
 
       <DetailCampaignStatus isOwner={ isOwner }
                             isEditionAllowed={ isEditionAllowed }

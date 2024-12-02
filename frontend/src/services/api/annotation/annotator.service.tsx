@@ -1,12 +1,12 @@
 import { OldAPIService } from "../api-service.util.tsx";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
 import { AnnotationResult, WriteAnnotationResult } from "./result.service";
-import { ConfidenceIndicatorSet } from "./confidence-set.service";
 import { SpectrogramConfiguration } from "../data/spectrogram.service";
 import { DatasetFile } from "../data/file.service";
 import { User } from '@/service/user';
 import { AnnotationCampaign } from '@/service/campaign';
 import { LabelSet } from '@/service/campaign/label-set';
+import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
 
 type AnnotatorData = {
   campaign: AnnotationCampaign;
