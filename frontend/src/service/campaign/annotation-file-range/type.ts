@@ -1,4 +1,4 @@
-import { DatasetFile } from "@/services/api";
+import { DatasetFile } from '@/service/dataset';
 
 export interface AnnotationFileRange {
   id: number;

@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { ToastMessage } from "@/types/toast.ts";
-import { DatasetFile } from "@/services/api";
 import { User } from '@/service/user';
 import { AnnotationCampaign } from '@/service/campaign';
+import { DatasetFile } from '@/service/dataset';
 
 export type AnnotatorSlice = {
   file?: DatasetFile;

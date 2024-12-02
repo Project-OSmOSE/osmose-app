@@ -29,11 +29,11 @@ import { UserGuideButton } from "@/view/audio-annotator/components/buttons/user-
 import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
 import { useAnnotatorAPI } from "@/services/api/annotation/annotator.service.tsx";
 import { ResultList } from "@/view/audio-annotator/components/bloc/result-list.component.tsx";
-import { getFileDuration } from "@/services/utils/annotator.ts";
 import { SpectrogramConfigurationSelect } from "@/view/audio-annotator/components/select/spectrogram-configuration.tsx";
 import { ZoomButton } from "@/view/audio-annotator/components/buttons/zoom.tsx";
 import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-position.component.tsx";
 import { WorkbenchInfoBloc } from "@/view/audio-annotator/components/bloc/workbench-info.tsx";
+import { getFileDuration } from '@/service/dataset';
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;

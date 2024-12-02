@@ -20,3 +20,14 @@ export type ImportDataset = {
   dataset_sr: string;
   file_type: string;
 }
+
+export interface DatasetFile {
+  id: number;
+  start: string; // Datetime
+  end: string; // Datetime
+  filename: string;
+  size: number;
+  dataset_sr: number; // read only
+  audio_url: string;
+  dataset_name: string; // read only
+}

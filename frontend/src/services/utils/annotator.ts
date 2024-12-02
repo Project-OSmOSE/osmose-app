@@ -1,4 +1,4 @@
-import { AnnotationResult, DatasetFile } from "@/services/api";
+import { AnnotationResult } from "@/services/api";
 
 export type ResultType = 'presence' | 'point' | 'box';
 
@@ -8,11 +8,4 @@ export function getResultType(result: AnnotationResult): ResultType {
     return 'point';
   }
   return 'presence';
-}
-
-export function getFileDuration(file?: DatasetFile): number {
-  if (!file) return 0;
-  const start = new Date(file.start).getTime() / 1000;
-  const end = new Date(file.end).getTime() / 1000;
-  return end - start;
 }

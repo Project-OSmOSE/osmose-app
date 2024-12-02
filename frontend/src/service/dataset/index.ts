@@ -5,7 +5,12 @@ export {
   DatasetAPI,
 } from './api';
 
+export {
+  getFileDuration,
+} from './function';
+
 export type {
   Dataset,
-  ImportDataset
+  ImportDataset,
+  DatasetFile,
 } from './type';

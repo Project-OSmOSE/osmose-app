@@ -2,9 +2,9 @@ import { MutableRefObject, useMemo, useRef } from "react";
 import { ScaleMapping } from "@/services/spectrogram";
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
 import { AnnotatorActions } from "@/slices/annotator/global-annotator.ts";
-import { getFileDuration } from "@/services/utils/annotator.ts";
 import { AnnotationResultBounds } from "@/services/api";
 import { buildErrorMessage } from "@/services/utils/format.tsx";
+import { getFileDuration } from '@/service/dataset';
 
 export const useSpectrogramService = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,

@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 import {
   AnnotationComment,
   AnnotationResult,
-  DatasetFile,
   useAnnotationCommentAPI
 } from "@/services/api";
 import { AnnotationCampaign } from '@/service/campaign';
+import { DatasetFile } from '@/service/dataset';
 
 export const useAnnotatorSubmitService = () => {
 

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppSelector } from "@/slices/app";
-import { getFileDuration } from "@/services/utils/annotator.ts";
+import { getFileDuration } from '@/service/dataset';
 
 
 export const CurrentAnnotationBloc: React.FC = () => {

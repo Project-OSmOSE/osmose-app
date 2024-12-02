@@ -17,11 +17,11 @@ import { AnnotationResult, AnnotationResultBounds } from "@/services/api";
 import { XAxis } from "@/view/audio-annotator/components/spectrogram/x-axis.component.tsx";
 import { YAxis } from "@/view/audio-annotator/components/spectrogram/y-axis.component.tsx";
 import { useSpectrogramService } from "@/services/annotator/spectrogram.service.ts";
-import { getFileDuration } from "@/services/utils/annotator.ts";
 import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
 import { usePointerService } from "@/services/annotator/pointer.service.ts";
 import { AnnotatorActions } from "@/slices/annotator/global-annotator.ts";
 import { AnnotationActions } from "@/slices/annotator/annotations.ts";
+import { getFileDuration } from '@/service/dataset';
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
