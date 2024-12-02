@@ -4,8 +4,9 @@ import { catch401 } from './function.ts';
 import { AuthState } from './type.ts';
 import { UserAPI } from '@/service/user/api.ts';
 import { CampaignAPI } from '@/service/campaign';
-import { AnnotationFileRangeAPI } from '@/service/annotation-file-range';
+import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
 import { DatasetAPI } from '@/service/dataset';
+import { LabelSetAPI } from '@/service/campaign/label-set';
 
 
 export const AuthSlice = createSlice({
@@ -42,6 +43,8 @@ export const AuthSlice = createSlice({
     builder.addMatcher(DatasetAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(DatasetAPI.endpoints.listForImport.matchRejected, catch401)
     builder.addMatcher(DatasetAPI.endpoints.import.matchRejected, catch401)
+    builder.addMatcher(LabelSetAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(LabelSetAPI.endpoints.retrieve.matchRejected, catch401)
   },
 })
 

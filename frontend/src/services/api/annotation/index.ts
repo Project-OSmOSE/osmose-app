@@ -16,11 +16,6 @@ export {
 } from './detector.service'
 
 export {
-  type LabelSet,
-  useLabelSetAPI
-} from './label-set.service'
-
-export {
   type AnnotationResult,
   type AnnotationResultValidations,
   type ImportAnnotationResult,

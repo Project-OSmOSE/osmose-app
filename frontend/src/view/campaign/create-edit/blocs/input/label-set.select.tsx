@@ -1,7 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { LabelSet, useLabelSetAPI } from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
 import { Select } from "@/components/form";
+import { useListLabelSetQuery } from '@/service/campaign/label-set';
+import { getErrorMessage } from '@/service/function.ts';
+import { LabelSet } from '@/service/campaign/label-set';
 
 export const LabelSetSelect: React.FC<{
   labelSet?: LabelSet,
@@ -10,24 +12,24 @@ export const LabelSetSelect: React.FC<{
   error?: string;
 }> = ({ labelSet, onLabelSetChange, disabled, error }) => {
   // API
-  const labelSetAPI = useLabelSetAPI();
-  const [ allLabelSets, setAllLabelSets ] = useState<Array<LabelSet> | undefined>();
+  const { data: allLabelSets, error: labelSetListError } = useListLabelSetQuery()
 
   const [ _error, set_error ] = useState<string | undefined>(error);
 
   // Services
-  const toast = useToast();
+  const { presentError, dismiss: dismissToast } = useToast();
 
   useEffect(() => {
-    let isCancelled = false;
-    labelSetAPI.list().then(l => {
-      setAllLabelSets(l)
-      if (l.length === 0) set_error('You should create a label set');
-    }).catch(e => !isCancelled && toast.presentError(e));
+    if (!!allLabelSets && allLabelSets.length === 0) set_error('You should create a label set');
+  }, [allLabelSets]);
 
+  useEffect(() => {
+    if (labelSetListError) presentError(getErrorMessage(labelSetListError));
+  }, [labelSetListError]);
+
+  useEffect(() => {
     return () => {
-      isCancelled = true;
-      labelSetAPI.abort();
+      dismissToast()
     }
   }, [])
 

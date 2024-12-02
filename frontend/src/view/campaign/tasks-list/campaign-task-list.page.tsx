@@ -9,7 +9,7 @@ import {
 } from "ionicons/icons";
 import './campaign-task-list.page.css';
 import { useRetrieveCampaignQuery } from '@/service/campaign';
-import { useListAnnotationFileRangeWithFilesQuery } from '@/service/annotation-file-range';
+import { useListAnnotationFileRangeWithFilesQuery } from '@/service/campaign/annotation-file-range';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();

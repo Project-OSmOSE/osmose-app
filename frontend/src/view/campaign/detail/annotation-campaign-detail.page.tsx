@@ -9,7 +9,9 @@ import { getDisplayName } from "@/types/user.ts";
 import './annotation-campaign-detail.page.css';
 import { useGetCurrentUserQuery, useListUsersQuery, User } from '@/service/user';
 import { useRetrieveCampaignQuery } from '@/service/campaign';
-import { useListAnnotationFileRangeQuery } from '@/service/annotation-file-range';
+import { useListAnnotationFileRangeQuery } from '@/service/campaign/annotation-file-range';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
@@ -20,14 +22,15 @@ export const AnnotationCampaignDetail: React.FC = () => {
     total: number,
     progress: number
   }>>(new Map());
+  const [ campaignErrorMessage, setCampaignErrorMessage ] = useState<string | undefined>();
 
   // Services
   const history = useHistory();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID);
-  const { data: users } = useListUsersQuery();
-  const { data: currentUser } = useGetCurrentUserQuery();
-  const { data: fileRanges } = useListAnnotationFileRangeQuery({ campaignID });
-  const [ error, setError ] = useState<any | undefined>(undefined);
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: campaign, error: campaignError } = useRetrieveCampaignQuery(campaignID);
+  const { data: users, error: userError } = useListUsersQuery();
+  const { data: currentUser, error: currentUserError } = useGetCurrentUserQuery();
+  const { data: fileRanges, error: fileRangeError } = useListAnnotationFileRangeQuery({ campaignID });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isOwner = useMemo(() => {
     return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
@@ -50,15 +53,28 @@ export const AnnotationCampaignDetail: React.FC = () => {
       }
     }
     setAnnotatorsStatus(map)
-  }, [fileRanges]);
+  }, [ fileRanges ]);
+
+  useEffect(() => {
+    return () => {
+      dismissToast();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (campaignError) setCampaignErrorMessage(getErrorMessage(campaignError))
+    if (userError) presentError(getErrorMessage(userError))
+    if (currentUserError) presentError(getErrorMessage(currentUserError))
+    if (fileRangeError) presentError(getErrorMessage(fileRangeError))
+  }, [ campaignError, userError, currentUserError, fileRangeError ]);
 
   const annotate = () => history.push(`/annotation-campaign/${ campaignID }/file`);
 
-  if (error) {
+  if (campaignErrorMessage) {
     return (
       <Fragment>
         <h1>Annotation Campaign</h1>
-        <p className="error-message">{ error.message }</p>
+        <p className="error-message">{ campaignErrorMessage }</p>
       </Fragment>
     )
   }

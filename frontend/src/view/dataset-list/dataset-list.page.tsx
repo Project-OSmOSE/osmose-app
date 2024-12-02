@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { createPortal } from "react-dom";
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
 import { IonButton, IonSpinner } from "@ionic/react";
@@ -10,15 +10,18 @@ import {
   useListDatasetForImportQuery,
   useListDatasetQuery
 } from '@/service/dataset';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const DatasetList: React.FC = () => {
   const [ isImportModalOpen, setIsImportModalOpen ] = useState(false);
 
   // Services
-  const { data: datasets, refetch: refetchDatasets } = useListDatasetQuery()
-  const { data: datasetsToImport, refetch: refetchDatasetsToImport } = useListDatasetForImportQuery()
+  const { data: datasets, refetch: refetchDatasets, error: datasetsError } = useListDatasetQuery()
+  const { data: datasetsToImport, refetch: refetchDatasetsToImport, error: datasetsToImportError } = useListDatasetForImportQuery()
   const [ doImportDatasets, { isLoading } ] = useImportDatasetMutation()
+  const { presentError, dismiss: dismissToast } = useToast();
 
 
   const importDatasets = async (importList: Array<ImportDataset>) => {
@@ -28,7 +31,22 @@ export const DatasetList: React.FC = () => {
         refetchDatasets();
         setIsImportModalOpen(false);
       })
+      .catch(error => presentError(getErrorMessage(error)))
   }
+
+  useEffect(() => {
+    return () => {
+      dismissToast()
+    }
+  }, []);
+
+  useEffect(() => {
+    if (datasetsError) presentError(getErrorMessage(datasetsError));
+  }, [datasetsError]);
+
+  useEffect(() => {
+    if (datasetsToImportError) presentError(getErrorMessage(datasetsToImportError));
+  }, [datasetsToImportError]);
 
   return (
     <Fragment>

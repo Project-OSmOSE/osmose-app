@@ -9,7 +9,8 @@ import { importAnnotationsReducer } from "@/slices/create-campaign/import-annota
 import { AuthAPI, AuthSlice } from '@/service/auth';
 import { UserAPI } from '@/service/user';
 import { CampaignAPI, CampaignSlice } from '@/service/campaign';
-import { AnnotationFileRangeAPI } from '@/service/annotation-file-range';
+import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
+import { LabelSetAPI } from '@/service/campaign/label-set';
 import { DatasetAPI } from '@/service/dataset';
 
 export const AppStore = configureStore({
@@ -32,6 +33,7 @@ export const AppStore = configureStore({
     [CampaignAPI.reducerPath]: CampaignAPI.reducer,
     [AnnotationFileRangeAPI.reducerPath]: AnnotationFileRangeAPI.reducer,
     [DatasetAPI.reducerPath]: DatasetAPI.reducer,
+    [LabelSetAPI.reducerPath]: LabelSetAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -40,6 +42,7 @@ export const AppStore = configureStore({
       .concat(UserAPI.middleware)
       .concat(CampaignAPI.middleware)
       .concat(DatasetAPI.middleware)
+      .concat(LabelSetAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

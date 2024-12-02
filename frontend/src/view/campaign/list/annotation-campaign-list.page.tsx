@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionicons/icons";
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
@@ -6,17 +6,20 @@ import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import './annotation-campaign-list.page.css'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const AnnotationCampaignList: React.FC = () => {
 
   // Services
-  const { data: campaigns, isLoading } = useListCampaignsQuery()
+  const { data: campaigns, isLoading, error } = useListCampaignsQuery()
 
   // State
   const [ search, setSearch ] = useState<string | undefined>();
   const [ showArchivedFilter, setShowArchivedFilter ] = useState<boolean>(false);
   const [ modeFilter, setModeFilter ] = useState<AnnotationCampaignUsage | undefined>();
+  const { presentError, dismiss: dismissToast } = useToast()
 
   // Memo
   const showCampaigns = useMemo(() => {
@@ -34,6 +37,16 @@ export const AnnotationCampaignList: React.FC = () => {
     return baseCampaigns.filter(c => results.find(r => r.value === c.id));
   }, [ campaigns, search, showArchivedFilter, modeFilter ]);
   const canAccessArchive = useMemo(() => (campaigns ?? [])?.filter(c => c.archive !== null).length > 0, [ campaigns ]);
+
+  useEffect(() => {
+    return () => {
+      dismissToast()
+    }
+  }, []);
+
+  useEffect(() => {
+    if (error) presentError(getErrorMessage(error));
+  }, [ error ]);
 
   const openGuide = () => {
     window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")

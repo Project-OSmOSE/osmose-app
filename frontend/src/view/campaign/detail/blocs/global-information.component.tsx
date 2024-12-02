@@ -5,12 +5,13 @@ import './blocs.css';
 import {
   ConfidenceIndicatorSet,
   useConfidenceSetAPI,
-  LabelSet,
-  useLabelSetAPI
 } from "@/services/api";
 import { useAppSelector } from '@/slices/app.ts';
 import { selectCurrentCampaign } from '@/service/campaign/function.ts';
 import { useArchiveCampaignMutation } from '@/service/campaign';
+import { useToast } from '@/services/utils/toast.ts';
+import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';
+import { getErrorMessage } from '@/service/function.ts';
 
 interface Props {
   isEditionAllowed: boolean,
@@ -24,30 +25,25 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
                                                                    setError
                                                                  }) => {
   // State
-  const [ labelSet, setLabelSet ] = useState<LabelSet | undefined>(undefined);
   const [ confidenceSet, setConfidenceSet ] = useState<ConfidenceIndicatorSet | undefined>(undefined);
   const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
   const [ presentAlert ] = useIonAlert();
-  const labelSetService = useLabelSetAPI();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: labelSet, error: labelSetError } = useRetrieveLabelSetQuery(campaign!.label_set)
   const confidenceSetService = useConfidenceSetAPI();
-  const [archiveCampaign] = useArchiveCampaignMutation()
+  const [ archiveCampaign ] = useArchiveCampaignMutation()
 
   useEffect(() => {
-    let isCancelled = false;
-
-    if (!campaign) return;
-    labelSetService.retrieve(campaign?.label_set).then(setLabelSet).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
-
     return () => {
-      isCancelled = true;
-      labelSetService.abort();
+      dismissToast()
     }
-  }, [ campaign?.label_set ])
+  }, [])
+
+  useEffect(() => {
+    if (labelSetError) presentError(getErrorMessage(labelSetError));
+  }, [labelSetError]);
 
   useEffect(() => {
     if (!campaign?.confidence_indicator_set) {
@@ -63,7 +59,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
 
     return () => {
       isCancelled = true;
-      labelSetService.abort();
+      confidenceSetService.abort();
     }
   }, [ campaign?.confidence_indicator_set ])
 

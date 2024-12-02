@@ -3,7 +3,6 @@ import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import { ChipsInput, FormBloc, Select, Textarea } from "@/components/form";
 import {
   ConfidenceIndicatorSet,
-  LabelSet,
   SpectrogramConfiguration,
 } from "@/services/api";
 import { LabelSetSelect } from "@/view/campaign/create-edit/blocs/input/label-set.select.tsx";
@@ -21,6 +20,7 @@ import {
   WriteCreateAnnotationCampaign
 } from '@/service/campaign';
 import { useListDatasetQuery, Dataset } from '@/service/dataset';
+import { LabelSet } from '@/service/campaign/label-set';
 
 type SubmitCampaign = WriteCreateAnnotationCampaign & WriteCheckAnnotationCampaign
 type SubmitCampaignKeys = keyof SubmitCampaign

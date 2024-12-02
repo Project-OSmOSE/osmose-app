@@ -13,7 +13,7 @@ import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
 import { useListUsersQuery } from '@/service/user';
 import { AnnotationCampaign } from '@/service/campaign';
-import { useListAnnotationFileRangeQuery, useUpdateAnnotationFileRangeMutation } from '@/service/annotation-file-range';
+import { useListAnnotationFileRangeQuery, useUpdateAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
