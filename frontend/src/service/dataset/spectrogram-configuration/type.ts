@@ -1,6 +1,3 @@
-import { OldAPIService } from "../api-service.util.tsx";
-import { AnnotationCampaign } from "../annotation/campaign.service.tsx";
-
 export interface SpectrogramConfiguration {
   id: number;
   name: string;
@@ -54,35 +51,4 @@ export interface LinearScale {
 export interface MultiLinearScale {
   name?: string;
   inner_scales: Array<LinearScale>;
-}
-
-export function getScaleName(configuration: SpectrogramConfiguration): string {
-  if (configuration.linear_frequency_scale) return configuration.linear_frequency_scale.name ?? 'Linear';
-  if (configuration.multi_linear_frequency_scale) return configuration.multi_linear_frequency_scale.name ?? 'Multi-linear';
-  return 'Default'
-}
-
-class SpectrogramConfigurationAPIService extends OldAPIService<SpectrogramConfiguration, never> {
-
-  listForCampaign(campaignID: string | number): Promise<Array<SpectrogramConfiguration>> {
-    return this.list(undefined, {
-      annotation_campaigns__id: campaignID
-    })
-  }
-
-  downloadForCampaign(campaign: AnnotationCampaign): Promise<void> {
-    const filename = campaign.name.replace(' ', '_') + '_spectrogram_configuration.csv';
-    const url = this.getURLWithQueryParams(`${ this.URI }/export/`, {
-      filename
-    })
-    return this.download(url, filename);
-  }
-
-  create(): Promise<never> {
-    throw 'Unimplemented';
-  }
-}
-
-export const useSpectrogramConfigurationAPI = () => {
-  return new SpectrogramConfigurationAPIService('/api/spectrogram-configuration');
 }

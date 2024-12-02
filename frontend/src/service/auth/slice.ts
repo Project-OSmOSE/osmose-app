@@ -8,6 +8,7 @@ import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range
 import { DatasetAPI } from '@/service/dataset';
 import { LabelSetAPI } from '@/service/campaign/label-set';
 import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
+import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-configuration';
 
 
 export const AuthSlice = createSlice({
@@ -48,6 +49,8 @@ export const AuthSlice = createSlice({
     builder.addMatcher(LabelSetAPI.endpoints.retrieve.matchRejected, catch401)
     builder.addMatcher(ConfidenceSetAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(ConfidenceSetAPI.endpoints.retrieve.matchRejected, catch401)
+    builder.addMatcher(SpectrogramConfigurationAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(SpectrogramConfigurationAPI.endpoints.download.matchRejected, catch401)
   },
 })
 

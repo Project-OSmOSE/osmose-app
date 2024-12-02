@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
-import { getScaleName } from "@/services/api/data/spectrogram.service.tsx";
+import { getScaleName } from '@/service/dataset/spectrogram-configuration';
 
 export const SpectrogramConfigurationSelect: React.FC = () => {
 

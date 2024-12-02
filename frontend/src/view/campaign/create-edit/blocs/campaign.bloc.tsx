@@ -1,9 +1,6 @@
 import React, { Fragment, InputHTMLAttributes, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
 import { ChipsInput, FormBloc, Select, Textarea } from "@/components/form";
-import {
-  SpectrogramConfiguration,
-} from "@/services/api";
 import { LabelSetSelect } from "@/view/campaign/create-edit/blocs/input/label-set.select.tsx";
 import { ConfidenceSetSelect } from "@/view/campaign/create-edit/blocs/input/confidence-set.select.tsx";
 import { CheckAnnotationsInputs } from "@/view/campaign/create-edit/blocs/input/check-annotations.tsx";
@@ -21,6 +18,7 @@ import {
 import { useListDatasetQuery, Dataset } from '@/service/dataset';
 import { LabelSet } from '@/service/campaign/label-set';
 import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
+import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 
 type SubmitCampaign = WriteCreateAnnotationCampaign & WriteCheckAnnotationCampaign
 type SubmitCampaignKeys = keyof SubmitCampaign

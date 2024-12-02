@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { SpectrogramConfiguration } from "@/services/api";
+import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 
 
 export type SpectroSlice = {

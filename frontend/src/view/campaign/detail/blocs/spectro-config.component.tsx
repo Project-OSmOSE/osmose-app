@@ -1,44 +1,46 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { LinearScale, useSpectrogramConfigurationAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
-import { SpectrogramConfiguration } from "@/types/process-metadata/spectrograms.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
-import './blocs.css';
-import { MultiLinearScale } from '@/services/spectrogram';
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import { useAppSelector } from '@/slices/app.ts';
 import { selectCurrentCampaign } from '@/service/campaign/function.ts';
+import {
+  LinearScale,
+  MultiLinearScale,
+  useDownloadSpectrogramConfigurationMutation,
+  useListSpectrogramConfigurationQuery
+} from '@/service/dataset/spectrogram-configuration';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
+import './blocs.css';
 
 interface Props {
   isOwner: boolean;
-  setError: (e: any) => void
 }
 
-export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ setError, isOwner }) => {
+export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ isOwner }) => {
   // State
-  const [ configurations, setConfigurations ] = useState<Array<SpectrogramConfiguration> | undefined>([]);
   const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
-  const spectrogramService = useSpectrogramConfigurationAPI();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: configurations, error } = useListSpectrogramConfigurationQuery({ campaignID: campaign?.id })
+  const [ download, { error: downloadError } ] = useDownloadSpectrogramConfigurationMutation()
 
   useEffect(() => {
-    let isCancelled = false;
-
-    if (!campaign) return;
-    spectrogramService.listForCampaign(campaign.id)
-      .then(setConfigurations)
-      .catch(e => {
-        if (isCancelled) return;
-        setError(e);
-      })
-
     return () => {
-      isCancelled = true;
-      spectrogramService.abort();
+      dismissToast();
     }
   }, [ campaign?.id ])
+
+  useEffect(() => {
+    if (error) presentError(getErrorMessage(error));
+  }, [ error ]);
+
+  useEffect(() => {
+    if (downloadError) presentError(getErrorMessage(downloadError));
+  }, [ downloadError ]);
 
   return (
     <div id="campaign-detail-spectro-config" className="bloc">
@@ -47,7 +49,7 @@ export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ setErr
 
         <div className="buttons">
           { isOwner && configurations && configurations.length > 0 && <IonButton color="primary"
-                                                                                 onClick={ () => spectrogramService.downloadForCampaign(campaign) }>
+                                                                                 onClick={ () => download(campaign!) }>
               <IonIcon icon={ downloadOutline } slot="start"/>
               Spectrogram configuration (csv)
           </IonButton> }
