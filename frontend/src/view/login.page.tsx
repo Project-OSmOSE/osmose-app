@@ -6,11 +6,10 @@ import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-b
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { useLoginMutation, selectIsConnected } from '@/service/auth';
 import { useAppSelector } from '@/slices/app.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const Login: React.FC = () => {
-  const [ error, setError ] = useState<string | undefined>();
-
   const history = useHistory();
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
@@ -21,9 +20,10 @@ export const Login: React.FC = () => {
 
   // State
   const isConnected = useAppSelector(selectIsConnected);
+  const [ errorMessage, setErrorMessage ] = useState<string | undefined>();
 
   // Service
-  const [ login, { isLoading } ] = useLoginMutation()
+  const [ login, { isLoading } ] = useLoginMutation();
 
   useEffect(() => {
     if (isConnected) history.replace(from);
@@ -40,14 +40,13 @@ export const Login: React.FC = () => {
       inputsRef.current.username?.setError("This field is required.")
     }
     if (!username || !password) return;
-    setError(undefined);
 
-    try {
-      await login({ username, password }).unwrap()
-      history.replace(from);
-    } catch (e: any) {
-      setError(e)
-    }
+    await login({ username, password })
+      .unwrap()
+      .then(() => history.replace(from))
+      .catch(error => {
+        setErrorMessage(getErrorMessage(error))
+      });
   }
 
   return (
@@ -55,7 +54,7 @@ export const Login: React.FC = () => {
       <div className="row text-left h-100 main">
         <div className="col-sm-12 border rounded">
           <h1 className="text-center">Login</h1>
-          { error && <p className="error-message">{ error }</p> }
+          { errorMessage && <p className="error-message">{ errorMessage }</p> }
           <form onSubmit={ handleSubmit }>
             <div className="form-group">
               <Input id="loginInput" className="form-control"
