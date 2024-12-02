@@ -15,6 +15,7 @@ import { DatasetAPI } from '@/service/dataset';
 import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
 import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-configuration';
 import { AudioMetadataAPI } from '@/service/dataset/audio-metatada';
+import { DetectorAPI } from '@/service/campaign/detector';
 
 export const AppStore = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const AppStore = configureStore({
     [ConfidenceSetAPI.reducerPath]: ConfidenceSetAPI.reducer,
     [SpectrogramConfigurationAPI.reducerPath]: SpectrogramConfigurationAPI.reducer,
     [AudioMetadataAPI.reducerPath]: AudioMetadataAPI.reducer,
+    [DetectorAPI.reducerPath]: DetectorAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -53,6 +55,7 @@ export const AppStore = configureStore({
       .concat(ConfidenceSetAPI.middleware)
       .concat(SpectrogramConfigurationAPI.middleware)
       .concat(AudioMetadataAPI.middleware)
+      .concat(DetectorAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

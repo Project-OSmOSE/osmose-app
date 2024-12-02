@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { DetectorConfiguration } from "@/services/api";
 import { FormBloc, Select, Textarea } from "@/components/form";
 import { DetectorSelection, importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
+import { DetectorConfiguration } from '@/service/campaign/detector';
 
 interface Props {
   save: () => void;

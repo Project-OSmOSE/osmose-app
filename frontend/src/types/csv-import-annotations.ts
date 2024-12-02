@@ -1,4 +1,4 @@
-import { Detector, DetectorConfiguration } from '@/services/api';
+import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
 
 export interface CSVDetectorItem {
   initialName: string;

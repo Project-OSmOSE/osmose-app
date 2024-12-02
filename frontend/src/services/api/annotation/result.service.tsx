@@ -1,8 +1,8 @@
 import { OldAPIService } from "../api-service.util.tsx";
-import { DetectorConfiguration } from "./detector.service";
 import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
-import { DatasetListItem } from '@/services/api';
 import { DetectorSelection } from '@/slices/create-campaign/import-annotations.ts';
+import { DetectorConfiguration } from '@/service/campaign/detector';
+import { Dataset } from '@/service/dataset';
 
 export interface AnnotationResultValidations {
   id: number;
@@ -75,7 +75,7 @@ export class AnnotationResultAPIService extends OldAPIService<AnnotationResult, 
 
   importAnnotations(campaignID: string | number,
                     file: File,
-                    dataset: DatasetListItem,
+                    dataset: Dataset,
                     detectors: Array<DetectorSelection>,
                     force: boolean = false): Promise<Array<AnnotationResult>> {
     const detectors_map: { [key in string]: { detector: string, configuration: string } } = {}

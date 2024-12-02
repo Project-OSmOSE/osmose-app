@@ -1,6 +1,6 @@
 import { AnnotationsCSVRow } from "@/types/csv-import-annotations.ts";
 import { createSlice } from "@reduxjs/toolkit";
-import { Detector, DetectorConfiguration } from '@/services/api';
+import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
 
 type Status = 'empty' | 'loading' | 'errors' | 'edit-detectors' | 'edit-detectors-config' | 'done';
 export type ImportAnnotationsError = {

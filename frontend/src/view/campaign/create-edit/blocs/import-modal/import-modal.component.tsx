@@ -1,6 +1,5 @@
 import React, { HTMLAttributes, ReactNode, useRef } from "react";
 import { IonBreadcrumb, IonBreadcrumbs, IonButton, IonContent, IonIcon, IonModal } from "@ionic/react";
-import { Detector } from "@/services/api";
 import { chevronForwardOutline } from "ionicons/icons";
 import { CSVImportContent } from "./csv-import-content.tsx";
 import { DetectorsContent } from "./detectors-content.tsx";
@@ -10,6 +9,7 @@ import './import-modal.component.css';
 import { IonModalCustomEvent } from "@ionic/core/dist/types/components";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { DetectorsConfigContent } from "@/view/campaign/create-edit/blocs/import-modal/detectors-config-content.tsx";
+import { Detector } from '@/service/campaign/detector';
 
 type Props = {
   isOpen: boolean,

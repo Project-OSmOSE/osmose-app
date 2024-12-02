@@ -20,4 +20,5 @@ export type {
   BaseAnnotationCampaign,
   WriteCheckAnnotationCampaign,
   WriteCreateAnnotationCampaign,
+  WriteAnnotationCampaign,
 } from './type';

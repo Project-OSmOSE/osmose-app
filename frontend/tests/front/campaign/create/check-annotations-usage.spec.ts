@@ -1,12 +1,12 @@
 import { expect, Page, test } from '../../../utils/fixture';
 import { accessCreateCampaign } from '../../../utils/campaign/functions';
-import { WriteAnnotationCampaign } from '../../../../src/services/api/annotation/campaign.service';
 import { expectNoRequestsOnAction } from '../../../utils/functions';
 import { CAMPAIGN_URL } from '../../../utils/url';
-import { Detector } from '../../../../src/services/api';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { configuration, dataset, deadline, desc, name, selectInAlert, submit, url } from './util';
+import { Detector } from '../../../../src/service/campaign/detector';
+import { WriteAnnotationCampaign } from '../../../../src/service/campaign';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory

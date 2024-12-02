@@ -4,12 +4,6 @@ export {
 } from './comment.service'
 
 export {
-  type Detector,
-  type DetectorConfiguration,
-  useDetectorsAPI
-} from './detector.service'
-
-export {
   type AnnotationResult,
   type AnnotationResultValidations,
   type ImportAnnotationResult,

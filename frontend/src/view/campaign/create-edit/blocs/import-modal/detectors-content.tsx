@@ -2,9 +2,9 @@ import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react"
 import { CheckboxChangeEventDetail, IonButton, IonCheckbox, IonIcon, IonNote } from "@ionic/react";
 import { alertOutline } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { Detector } from "@/services/api";
 import { FormBloc, Select } from "@/components/form";
 import { DetectorSelection, importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
+import { Detector } from '@/service/campaign/detector';
 
 interface Props {
   allDetectors: Array<Detector>,

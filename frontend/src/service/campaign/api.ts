@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { prepareHeadersWithToken } from '@/service/auth/function.ts';
-import { AnnotationCampaign, WriteAnnotationCampaign } from '@/service/campaign/type.ts';
+import { AnnotationCampaign, WriteAnnotationCampaign } from '@/service/campaign';
 import { ID } from '@/service/type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
 

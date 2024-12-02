@@ -25,9 +25,7 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
   const _file = useRef<File | undefined>();
 
   // Form data
-  const dispatch = useAppDispatch();
-  const [ allDetectors, setAllDetectors ] = useState<Array<Detector>>([]);
-  const detectorAPI = useDetectorsAPI();
+  const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
   const toast = useToast();
   const {
     campaignID,
@@ -49,14 +47,14 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
 
 
   useEffect(() => {
-    let isCancelled = false;
-    detectorAPI.list().then(setAllDetectors).catch(e => !isCancelled && toast.presentError(e));
-
     return () => {
-      isCancelled = true;
-      detectorAPI.abort();
+      toast.dismiss();
     }
   }, [])
+
+  useEffect(() => {
+    if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
+  }, [ detectorListError ])
 
   const submit = async (force: boolean = false) => {
     if (!_detectorsSelection.current) throw new Error("Error while recovering detectors selection");
