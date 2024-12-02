@@ -3,16 +3,17 @@ import { useHistory } from "react-router-dom";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { useBlur } from "@/services/utils/clic.ts";
 import { useToast } from "@/services/utils/toast.ts";
-import { AnnotationCampaign, DatasetListItem } from "@/services/api";
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { CampaignBloc } from "@/view/campaign/create-edit/blocs/campaign.bloc.tsx";
 import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
+import { AnnotationCampaign } from '@/service/campaign';
+import { Dataset } from '@/service/dataset';
 import './create-edit-campaign.css'
 
 export const CreateCampaign: React.FC = () => {
   const [ isLoading, setIsLoading ] = useState<boolean>(false);
   const [ submittedCampaign, setSubmittedCampaign ] = useState<AnnotationCampaign | undefined>();
-  const [ dataset, setDataset ] = useState<DatasetListItem | undefined>();
+  const [ dataset, setDataset ] = useState<Dataset | undefined>();
 
   const blurUtil = useBlur();
   const toast = useToast();

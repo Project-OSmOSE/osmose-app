@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { getDisplayName, User } from '@/types/user';
-import { AnnotationFileRange } from "@/services/api";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { trashBinOutline } from "ionicons/icons";
@@ -13,7 +12,11 @@ import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
 import { useListUsersQuery } from '@/service/user';
 import { AnnotationCampaign } from '@/service/campaign';
-import { useListAnnotationFileRangeQuery, useUpdateAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
+import {
+  AnnotationFileRange,
+  useListAnnotationFileRangeQuery,
+  useUpdateAnnotationFileRangeMutation
+} from '@/service/campaign/annotation-file-range';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 

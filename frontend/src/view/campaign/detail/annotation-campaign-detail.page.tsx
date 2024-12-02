@@ -101,9 +101,9 @@ export const AnnotationCampaignDetail: React.FC = () => {
                             isEditionAllowed={ isEditionAllowed }
                             annotatorsStatus={ annotatorsStatus }/>
 
-      <DetailCampaignSpectrogramConfiguration isOwner={ isOwner } setError={ setError }/>
+      <DetailCampaignSpectrogramConfiguration isOwner={ isOwner }/>
 
-      <DetailCampaignAudioMetadata isOwner={ isOwner } setError={ setError }/>
+      <DetailCampaignAudioMetadata isOwner={ isOwner }/>
 
     </div>
   )

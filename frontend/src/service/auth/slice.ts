@@ -9,6 +9,7 @@ import { DatasetAPI } from '@/service/dataset';
 import { LabelSetAPI } from '@/service/campaign/label-set';
 import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
 import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-configuration';
+import { AudioMetadataAPI } from '@/service/dataset/audio-metatada';
 
 
 export const AuthSlice = createSlice({
@@ -51,6 +52,8 @@ export const AuthSlice = createSlice({
     builder.addMatcher(ConfidenceSetAPI.endpoints.retrieve.matchRejected, catch401)
     builder.addMatcher(SpectrogramConfigurationAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(SpectrogramConfigurationAPI.endpoints.download.matchRejected, catch401)
+    builder.addMatcher(AudioMetadataAPI.endpoints.list.matchRejected, catch401)
+    builder.addMatcher(AudioMetadataAPI.endpoints.download.matchRejected, catch401)
   },
 })
 

@@ -2,12 +2,12 @@ import { useAnnotatorAPI } from "@/services/api/annotation/annotator.service.tsx
 import { useAppSelector } from "@/slices/app.ts";
 import { useEffect, useRef } from "react";
 import {
-  AnnotationCampaign,
   AnnotationComment,
   AnnotationResult,
   DatasetFile,
   useAnnotationCommentAPI
 } from "@/services/api";
+import { AnnotationCampaign } from '@/service/campaign';
 
 export const useAnnotatorSubmitService = () => {
 
@@ -22,7 +22,7 @@ export const useAnnotatorSubmitService = () => {
     taskComments: _taskComments
   } = useAppSelector(state => state.annotator.annotations);
 
-  const sessionStart = useRef<Date>(_sessionStart);
+  const sessionStart = useRef<number>(_sessionStart);
   useEffect(() => {
     sessionStart.current = _sessionStart
   }, [ _sessionStart ]);
@@ -70,7 +70,7 @@ export const useAnnotatorSubmitService = () => {
       })),
       task_comments: taskComments.current.map(commentService.mapForWriting),
       session: {
-        start: sessionStart.current,
+        start: new Date(sessionStart.current),
         end: new Date()
       }
     });

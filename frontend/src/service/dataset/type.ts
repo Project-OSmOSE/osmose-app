@@ -1,4 +1,4 @@
-import { SpectrogramConfiguration } from '@/types/process-metadata/spectrograms.ts';
+import { SpectrogramConfiguration } from './spectrogram-configuration';
 
 export type Dataset = {
   id: number;

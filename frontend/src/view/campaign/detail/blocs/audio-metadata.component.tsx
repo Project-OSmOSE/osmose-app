@@ -1,40 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { AudioMetadatum, useAudioMetadataAPI } from "@/services/api";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
-import './blocs.css';
 import { useAppSelector } from '@/slices/app.ts';
 import { selectCurrentCampaign } from '@/service/campaign/function.ts';
+import { useDownloadAudioMetadataMutation, useListAudioMetadataQuery } from '@/service/dataset/audio-metatada';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
+import './blocs.css';
 
 interface Props {
   isOwner: boolean;
-  setError: (e: any) => void
 }
 
-export const DetailCampaignAudioMetadata: React.FC<Props> = ({ setError, isOwner }) => {
+export const DetailCampaignAudioMetadata: React.FC<Props> = ({ isOwner }) => {
   // State
-  const [ metadata, setMetadata ] = useState<Array<AudioMetadatum> | undefined>();
   const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
-  const audioMetadataService = useAudioMetadataAPI();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: metadata, error } = useListAudioMetadataQuery({ campaignID: campaign!.id });
+  const [ download, { error: downloadError } ] = useDownloadAudioMetadataMutation()
 
   useEffect(() => {
-    let isCancelled = false;
-
-    audioMetadataService.listForCampaign(campaign)
-      .then(setMetadata)
-      .catch(e => {
-        if (isCancelled) return;
-        setError(e);
-      })
-
     return () => {
-      isCancelled = true;
-      audioMetadataService.abort();
+      dismissToast()
     }
-  }, [ campaign?.id ])
+  }, [])
+
+  useEffect(() => {
+    if (error) presentError(getErrorMessage(error));
+  }, [ error ]);
+
+  useEffect(() => {
+    if (downloadError) presentError(getErrorMessage(downloadError));
+  }, [ downloadError ]);
 
   return (
     <div id="audio-meta" className="bloc">
@@ -44,7 +44,7 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ setError, isOwner
         <div className="buttons">
           { !metadata && <IonSpinner/> }
           { isOwner && metadata && metadata.length > 0 && <IonButton color="primary"
-                                                                     onClick={ () => audioMetadataService.downloadForCampaign(campaign) }>
+                                                                     onClick={ () => download(campaign!) }>
               <IonIcon icon={ downloadOutline } slot="start"/>
               Audio files metadata (csv)
           </IonButton> }

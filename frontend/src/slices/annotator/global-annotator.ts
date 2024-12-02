@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { ToastMessage } from "@/types/toast.ts";
-import { AnnotationCampaign, DatasetFile } from "@/services/api";
+import { DatasetFile } from "@/services/api";
 import { User } from '@/service/user';
+import { AnnotationCampaign } from '@/service/campaign';
 
 export type AnnotatorSlice = {
   file?: DatasetFile;
@@ -13,14 +14,14 @@ export type AnnotatorSlice = {
 
   toast?: ToastMessage;
   areShortcutsEnabled: boolean;
-  sessionStart: Date;
+  sessionStart: number;
 }
 
 export const annotatorSlice = createSlice({
   name: 'Annotator',
   initialState: {
     areShortcutsEnabled: true,
-    sessionStart: new Date(),
+    sessionStart: Date.now(),
     previous_file_id: null,
     next_file_id: null,
   } as AnnotatorSlice,
@@ -37,7 +38,7 @@ export const annotatorSlice = createSlice({
       state.file = action.payload.file;
       state.campaign = action.payload.campaign;
       state.user = action.payload.user;
-      state.sessionStart = new Date();
+      state.sessionStart = Date.now();
       state.previous_file_id = action.payload.previous_file_id;
       state.next_file_id = action.payload.next_file_id;
     },
