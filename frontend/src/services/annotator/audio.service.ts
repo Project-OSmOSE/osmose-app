@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
 import { AudioActions } from "@/slices/annotator/audio.ts";
 import { AnnotatorActions } from "@/slices/annotator/global-annotator.ts";
-import { AnnotationResult } from "@/services/api";
+import { AnnotationResult } from '@/service/campaign/result';
 
 export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null>) => {
   // Data

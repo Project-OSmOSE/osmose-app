@@ -4,7 +4,7 @@ import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import { useAppSelector } from '@/slices/app.ts';
-import { selectCurrentCampaign } from '@/service/campaign/function.ts';
+import { selectCurrentCampaign } from '@/service/campaign';
 import {
   LinearScale,
   MultiLinearScale,

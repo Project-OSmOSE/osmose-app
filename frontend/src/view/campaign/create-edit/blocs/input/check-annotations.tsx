@@ -5,30 +5,25 @@ import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { cloudUploadOutline, trashOutline } from "ionicons/icons";
 import { ImportModal } from "@/view/campaign/create-edit/blocs/import-modal/import-modal.component.tsx";
 import { ChipsInput } from "@/components/form";
-import {
-  AnnotationResult,
-  DatasetListItem as Dataset,
-  Detector,
-  useAnnotationResultAPI,
-  useDetectorsAPI
-} from "@/services/api";
 import { useToast } from "@/services/utils/toast.ts";
-import { BlocRef } from "@/view/campaign/create-edit/blocs/util.bloc.ts";
+import { selectDraftCampaign } from '@/service/campaign';
+import { useListDetectorQuery } from '@/service/campaign/detector/api.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
-export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID: (id: number) => void }, {
-  dataset?: Dataset,
-}>(({ dataset }, ref) => {
+export const CheckAnnotationsInputs: React.FC<{ areResultsSubmitted: boolean }> = ({ areResultsSubmitted }) => {
+
+  // State
+  const dispatch = useAppDispatch();
+  const draftCampaign = useAppSelector(selectDraftCampaign);
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
-  const [ submittedResults, setSubmittedResults ] = useState<Array<AnnotationResult> | undefined>();
-  const resultAPI = useAnnotationResultAPI();
-  const [ error, setError ] = useState<string | undefined>();
   const _file = useRef<File | undefined>();
 
-  // Form data
-  const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
+  // Service
   const toast = useToast();
+  const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
+
+  // Form data
   const {
-    campaignID,
     selectedDetectors
   } = useAppSelector(state => state.createCampaignForm.importAnnotations)
   const _selectedDetectors = useRef(selectedDetectors)
@@ -56,6 +51,11 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
     if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
   }, [ detectorListError ])
 
+
+  useEffect(() => {
+    if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
+  }, [ detectorListError ])
+
   const submit = async (force: boolean = false) => {
     if (!_detectorsSelection.current) throw new Error("Error while recovering detectors selection");
     const detectorsToImport = [ ..._detectorsSelection.current.entries() ]
@@ -65,7 +65,7 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
       setError("You must import annotations")
       throw new Error("You must import annotations");
     }
-    if (submittedResults) throw 'Already submitted';
+    if (areResultsSubmitted) throw 'Already submitted';
     if (!_campaignID.current) throw 'Missing campaignID';
     if (!_file.current) throw 'Missing file';
     if (!dataset) throw 'Missing dataset';
@@ -130,16 +130,14 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
   }
 
 
-  const isDisabled = useMemo(() => !!submittedResults, [ campaignID, submittedResults ]);
-
   return (
     <Fragment>
       { !detectorsSelection?.size && <Fragment>
           <div id="import-button" className="d-flex justify-content-center">
               <IonButton color="dark" className="center"
                          onClick={ openImportModal }
-                         disabled={ !dataset || isDisabled }
-                         aria-disabled={ !dataset || isDisabled }>
+                         disabled={ !dataset || areResultsSubmitted }
+                         aria-disabled={ !dataset || areResultsSubmitted }>
                   Import annotations
                   <IonIcon icon={ cloudUploadOutline } slot="end"/>
               </IonButton>
@@ -162,7 +160,7 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
 
       { !!detectorsSelection?.size && <div id="detector-import-results">
           <ChipsInput label="Detectors"
-                      disabled={ isDisabled }
+                      disabled={ areResultsSubmitted }
                       required={ true }
                       items={ [ ...detectorsSelection.keys() ].map(d => ({ value: d, label: d })) }
                       activeItemsValues={ [ ...detectorsSelection.entries() ]
@@ -172,7 +170,7 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
                       setActiveItemsValues={ onDetectorsChange }/>
 
           <IonButton color="danger"
-                     disabled={ isDisabled }
+                     disabled={ areResultsSubmitted }
                      onClick={ deleteDetectors }>
               <IonIcon icon={ trashOutline } slot="icon-only"/>
           </IonButton>
@@ -181,4 +179,4 @@ export const CheckAnnotationsInputs = React.forwardRef<BlocRef & { setCampaignID
       { error && <IonNote color="danger">error</IonNote> }
     </Fragment>
   )
-})
+}

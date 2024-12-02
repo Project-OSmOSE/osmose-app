@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { FormBloc, Input, Searchbar } from "@/components/form";
+import { FormBloc, OldInput, Searchbar } from "@/components/form";
 import { getDisplayName, User } from '@/types/user';
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
@@ -11,39 +11,48 @@ import { InputRef } from "@/components/form/inputs/utils.ts";
 import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
 import { useListUsersQuery } from '@/service/user';
-import { AnnotationCampaign } from '@/service/campaign';
+import { AnnotationCampaign, selectDraftCampaign } from '@/service/campaign';
 import {
   AnnotationFileRange,
   useListAnnotationFileRangeQuery,
   useUpdateAnnotationFileRangeMutation
 } from '@/service/campaign/annotation-file-range';
+import { useListDatasetQuery } from '@/service/dataset';
 
 type FileRangeError = { [key in keyof AnnotationFileRange]?: string[] };
 
 export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
-  campaign?: AnnotationCampaign,
-  files_count?: number
-}>(({ campaign, files_count }, ref) => {
+  createdCampaign?: AnnotationCampaign,
+}>(({ createdCampaign }, ref) => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: campaign?.id })
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: createdCampaign?.id })
+  const { data: allDatasets } = useListDatasetQuery();
   const [ updateFileRanges ] = useUpdateAnnotationFileRangeMutation()
+
+  // State
+  const draftCampaign = useAppSelector(selectDraftCampaign);
+  const filesCount = useMemo(() => {
+    if (createdCampaign?.files_count) return createdCampaign?.files_count;
+    if (!draftCampaign.datasets || draftCampaign.datasets.length === 0) return undefined;
+    return allDatasets?.find(d => draftCampaign.datasets![0] === d.name)?.files_count;
+  }, [ createdCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
 
   // API Data
   // Use negative fileRange id for newly created ones
   const [ fileRanges, setFileRanges ] = useState<Array<AnnotationFileRange>>(initialFileRanges ?? []);
-  const _campaignID = useRef<number | undefined>(campaign?.id);
-  const _files_count = useRef<number | undefined>(files_count);
+  const _campaignID = useRef<number | undefined>(createdCampaign?.id);
+  const _files_count = useRef<number | undefined>(filesCount);
   const {
     campaignID,
   } = useAppSelector(state => state.createCampaignForm.importAnnotations);
   useEffect(() => {
-    _campaignID.current = campaign?.id ?? campaignID;
-  }, [ campaign, campaignID ]);
+    _campaignID.current = createdCampaign?.id ?? campaignID;
+  }, [ createdCampaign, campaignID ]);
   useEffect(() => {
-    _files_count.current = files_count;
-  }, [ files_count ]);
+    _files_count.current = filesCount;
+  }, [ filesCount ]);
 
   const _fileRanges = useRef<Array<AnnotationFileRange>>([]);
   useEffect(() => {
@@ -104,7 +113,7 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
     setFileRanges(previous => [ ...previous, {
       id: Math.min(0, ...previous.map(r => r.id)) - 1,
       annotator: value.value as number,
-      annotation_campaign: campaign?.id ?? -1,
+      annotation_campaign: createdCampaign?.id ?? -1,
       last_file_index: -1,
       first_file_index: -1,
       finished_tasks_count: 0,
@@ -125,24 +134,24 @@ export const AnnotatorsRangeBloc = React.forwardRef<BlocRef, {
               <TableHead isFirstColumn={ true }>Annotator</TableHead>
               <TableHead>
                   File range
-                  <small>(between 1 and { files_count ?? 1 })</small>
+                  <small>(between 1 and { filesCount ?? 1 })</small>
                   <small className="disabled"><i>Start and end limits are included</i></small>
               </TableHead>
               <TableHead/>
               <TableDivider/>
             { fileRanges.map((range, index) => <AnnotatorRangeLine key={ index }
-                                                                          initialRange={ range }
-                                                                          ref={ el => annotatorRowRef.current[index] = el }
-                                                                          annotator={ users.find(u => u.id === range.annotator)! }
-                                                                          files_count={ files_count }
-                                                                          onDelete={ onFileRangeDelete }
+                                                                   initialRange={ range }
+                                                                   ref={ el => annotatorRowRef.current[index] = el }
+                                                                   annotator={ users.find(u => u.id === range.annotator)! }
+                                                                   files_count={ filesCount }
+                                                                   onDelete={ onFileRangeDelete }
             />) }
           </Table>
       }
 
       <Searchbar placeholder="Search annotator..."
                  values={
-                   users.filter(u => fileRanges.filter(range => range.annotator === u.id).reduce((a, b) => a + b.files_count, 0) < (files_count ?? 0))
+                   users.filter(u => fileRanges.filter(range => range.annotator === u.id).reduce((a, b) => a + b.files_count, 0) < (filesCount ?? 0))
                      .map(a => ({ value: a.id, label: getDisplayName(a, true) }))
                  }
                  onValueSelected={ onAddAnnotator }/>
@@ -222,17 +231,17 @@ const AnnotatorRangeLine = React.forwardRef<
       <div className={ styles.fileRangeCell }>
         { disabled &&
             <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index + 1 }</span> }
-        { !disabled && <Input type="number" ref={ el => inputsRef.current.first_file_index = el }
-                              placeholder="1"
-                              min={ 1 } max={ files_count }
-                              disabled={ files_count === undefined }/> }
+        { !disabled && <OldInput type="number" ref={ el => inputsRef.current.first_file_index = el }
+                                 placeholder="1"
+                                 min={ 1 } max={ files_count }
+                                 disabled={ files_count === undefined }/> }
         -
         { disabled &&
             <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index + 1 }</span> }
-        { !disabled && <Input type="number" ref={ el => inputsRef.current.last_file_index = el }
-                              placeholder={ files_count?.toString() }
-                              min={ 1 } max={ files_count }
-                              disabled={ files_count === undefined }/> }
+        { !disabled && <OldInput type="number" ref={ el => inputsRef.current.last_file_index = el }
+                                 placeholder={ files_count?.toString() }
+                                 min={ 1 } max={ files_count }
+                                 disabled={ files_count === undefined }/> }
       </div>
     </TableContent>
     <TableContent>

@@ -3,11 +3,11 @@ import { useAppSelector } from "@/slices/app.ts";
 import { useEffect, useRef } from "react";
 import {
   AnnotationComment,
-  AnnotationResult,
   useAnnotationCommentAPI
 } from "@/services/api";
 import { AnnotationCampaign } from '@/service/campaign';
 import { DatasetFile } from '@/service/dataset';
+import { AnnotationResult } from '@/service/campaign/result';
 
 export const useAnnotatorSubmitService = () => {
 

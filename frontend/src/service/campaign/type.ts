@@ -1,4 +1,5 @@
 import { User } from '@/service/user';
+import { Errors } from '@/service/type.ts';
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
 
@@ -55,4 +56,8 @@ export type WriteAnnotationCampaign = WriteCheckAnnotationCampaign | WriteCreate
 
 export type CampaignState = {
   currentCampaign: AnnotationCampaign | undefined;
+  draftCampaign: Partial<WriteAnnotationCampaign>;
+  submissionErrors: CampaignErrors;
 }
+
+export type CampaignErrors = Errors<WriteCheckAnnotationCampaign> & Errors<WriteCreateAnnotationCampaign>;

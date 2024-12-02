@@ -45,7 +45,7 @@ export const EditCampaign: React.FC = () => {
         { campaign && <h5>{ campaign.name }</h5> }
       </div>
 
-      <AnnotatorsRangeBloc ref={ annotatorBlocRef } campaign={ campaign } files_count={ campaign?.files_count }/>
+      <AnnotatorsRangeBloc ref={ annotatorBlocRef } createdCampaign={ campaign } files_count={ campaign?.files_count }/>
 
       <IonButton color="primary"
                  disabled={ isSubmitting }

@@ -5,8 +5,7 @@ import { Table, TableContent, TableDivider, TableHead } from "@/components/table
 import './blocs.css';
 import { useHistory } from "react-router-dom";
 import { useAppSelector } from '@/slices/app.ts';
-import { selectCurrentCampaign } from '@/service/campaign/function.ts';
-import { useDownloadCampaignReportMutation, useDownloadCampaignStatusMutation } from '@/service/campaign';
+import { selectCurrentCampaign, useDownloadCampaignReportMutation, useDownloadCampaignStatusMutation } from '@/service/campaign';
 
 interface Props {
   isOwner: boolean;

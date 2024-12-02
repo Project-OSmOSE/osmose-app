@@ -2,8 +2,7 @@ import React, { ChangeEvent, Fragment, ReactNode, useEffect, useMemo, useState }
 import { IonButton, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { DetectorConfiguration } from "@/services/api";
-import { FormBloc, Select, Textarea } from "@/components/form";
+import { FormBloc, Select, OldTextarea } from "@/components/form";
 import { DetectorSelection, importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
 import { DetectorConfiguration } from '@/service/campaign/detector';
 
@@ -132,11 +131,11 @@ const DetectorConfigEntry: React.FC<DetectorEntryProps> = ({
               noneLabel="Create new" noneFirst
               placeholder="Select configuration"/>
 
-      <Textarea placeholder="Enter new configuration"
-                hidden={ !isUpdated }
-                disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
-                value={ selectedConfiguration?.configuration ?? configurationText }
-                onChange={ onConfigurationTextUpdated }/>
+      <OldTextarea placeholder="Enter new configuration"
+                   hidden={ !isUpdated }
+                   disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
+                   value={ selectedConfiguration?.configuration ?? configurationText }
+                   onChange={ onConfigurationTextUpdated }/>
 
       <div className="line"/>
     </div>

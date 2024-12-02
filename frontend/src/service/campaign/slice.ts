@@ -1,14 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { CampaignAPI } from './api.ts';
-import { CampaignState } from '@/service/campaign/type.ts';
+import { CampaignState, WriteAnnotationCampaign } from './type';
+import { Errors } from '@/service/type.ts';
 
 
 export const CampaignSlice = createSlice({
   name: 'campaign',
-  initialState: { currentCampaign: undefined } as CampaignState,
+  initialState: {
+    currentCampaign: undefined,
+    draftCampaign: {},
+    submissionErrors: {},
+  } as CampaignState,
   reducers: {
     clear: (state) => {
       state.currentCampaign = undefined;
+      state.draftCampaign = {};
+      state.submissionErrors = {};
+    },
+    updateDraftCampaign: (state, { payload }: { payload: Partial<WriteAnnotationCampaign> }) => {
+      Object.assign(payload, state.draftCampaign);
+    },
+    updateSubmissionErrors: (state, { payload }: { payload: Errors<WriteAnnotationCampaign> }) => {
+      for (const [key, value] of Object.entries(payload)) {
+        if (value !== undefined) state.submissionErrors[key as keyof WriteAnnotationCampaign] = value;
+        else delete state.submissionErrors[key as keyof WriteAnnotationCampaign];
+      }
     }
   },
   extraReducers: (builder) => {
@@ -33,4 +49,8 @@ export const CampaignSlice = createSlice({
   },
 })
 
-export const { clear: clearCampaign } = CampaignSlice.actions
+export const {
+  clear: clearCampaign,
+  updateDraftCampaign,
+  updateSubmissionErrors: updateCampaignSubmissionErrors,
+} = CampaignSlice.actions

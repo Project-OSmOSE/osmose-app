@@ -2,13 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 import { COLORS } from "@/consts/colors.const.tsx";
 import {
   AnnotationComment,
-  AnnotationResult,
-  AnnotationResultBounds,
 } from "@/services/api";
 import { getResultType } from "@/services/utils/annotator.ts";
-import { DEFAULT_PRESENCE_RESULT } from "@/services/api/annotation/result.service.tsx";
 import { LabelSet } from '@/service/campaign/label-set';
 import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
+import { AnnotationResult, AnnotationResultBounds, DEFAULT_PRESENCE_RESULT } from '@/service/campaign/result';
 
 
 export type AnnotationsSlice = {

@@ -1,4 +1,4 @@
-import { AnnotationResult } from "@/services/api";
+import { AnnotationResult } from '@/service/campaign/result';
 
 export type ResultType = 'presence' | 'point' | 'box';
 

@@ -3,13 +3,13 @@ import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import { AnnotationResult } from "@/services/api";
 import { AnnotationActions } from "@/slices/annotator/annotations.ts";
 import { getResultType, ResultType } from "@/services/utils/annotator.ts";
 import styles from './bloc.module.scss'
 import { IoArrowUpOutline, IoChatbubble, IoChatbubbleOutline, IoPricetag, IoTimeOutline } from 'react-icons/io5';
 import { FaHandshake } from 'react-icons/fa6';
 import { RiRobot2Fill } from 'react-icons/ri';
+import { AnnotationResult } from '@/service/campaign/result';
 
 
 export const ResultList: React.FC = () => {

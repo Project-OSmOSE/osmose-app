@@ -3,9 +3,9 @@ import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { useAudioService } from "@/services/annotator/audio.service.ts";
-import { AnnotationResult } from "@/services/api";
 import { AnnotationActions } from "@/slices/annotator/annotations.ts";
 import { getResultType } from "@/services/utils/annotator.ts";
+import { AnnotationResult } from '@/service/campaign/result';
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;

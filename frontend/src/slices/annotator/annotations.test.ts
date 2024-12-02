@@ -1,5 +1,6 @@
 import reducer, { AnnotationActions, AnnotationsSlice } from "@/slices/annotator/annotations.ts";
-import { AnnotationComment, AnnotationResult, AnnotationResultBounds } from "@/services/api";
+import { AnnotationComment,  } from "@/services/api";
+import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 
 const mockState: AnnotationsSlice = {
   hasChanged: false,

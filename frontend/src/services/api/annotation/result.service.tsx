@@ -1,71 +1,7 @@
 import { OldAPIService } from "../api-service.util.tsx";
-import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
 import { DetectorSelection } from '@/slices/create-campaign/import-annotations.ts';
-import { DetectorConfiguration } from '@/service/campaign/detector';
 import { Dataset } from '@/service/dataset';
-
-export interface AnnotationResultValidations {
-  id: number;
-  annotator: number; // pk - read only
-  result: number; // pk - read only
-  is_valid: boolean;
-}
-
-export interface AnnotationResultBounds {
-  start_time: number | null; // null for presence
-  end_time: number | null; // null for presence or point
-  start_frequency: number | null; // null for presence
-  end_frequency: number | null; // null for presence or point
-}
-
-export interface AnnotationResult extends AnnotationResultBounds {
-  id: number;
-  label: string;
-  confidence_indicator: string | null;
-  annotation_campaign: number; // pk - read only
-  annotator: number; // pk - read only
-  dataset_file: number; // pk - read only
-  detector_configuration: DetectorConfiguration & { detector: string } | null;
-  comments: Array<AnnotationComment>;
-  validations: Array<AnnotationResultValidations>;
-}
-
-export const DEFAULT_PRESENCE_RESULT: AnnotationResult = {
-  id: -1,
-  label: "",
-  confidence_indicator: null,
-  start_time: null,
-  end_time: null,
-  start_frequency: null,
-  end_frequency: null,
-  comments: [],
-  validations: [],
-  detector_configuration: null,
-  dataset_file: -1,
-  annotator: -1,
-  annotation_campaign: -1,
-}
-
-export type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator">
-  & {
-  id: number | null;
-  comments: Array<WriteAnnotationComment>;
-  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | null }>;
-};
-
-export interface ImportAnnotationResult {
-  is_box: boolean;
-  dataset: string;
-  detector: string;
-  detector_config: string;
-  start_datetime: string; // datetime
-  end_datetime: string; // datetime
-  min_frequency: number;
-  max_frequency: number;
-  label: string;
-  confidence_indicator: string | null;
-}
+import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
 
 
 export class AnnotationResultAPIService extends OldAPIService<AnnotationResult, WriteAnnotationResult> {

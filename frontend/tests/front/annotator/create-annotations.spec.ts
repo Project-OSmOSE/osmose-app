@@ -1,7 +1,7 @@
 import { expect, test } from '../../utils/fixture';
 import { accessAnnotator } from '../../utils/annotations/functions';
 import { DEFAULT_CAMPAIGN_NAME } from '../../utils/campaign/data';
-import { WriteAnnotationResult } from '../../../src/services/api/annotation/result.service';
+import { WriteAnnotationResult } from '../../../src/service/campaign/result';
 
 const DEFAULT_DATA = {
   "campaign": {

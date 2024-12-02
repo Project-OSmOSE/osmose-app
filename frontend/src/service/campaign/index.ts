@@ -9,8 +9,16 @@ export {
 } from './api';
 
 export {
+  selectDraftCampaign,
+  selectCurrentCampaign,
+  selectCampaignSubmissionErrors,
+} from './function';
+
+export {
   CampaignSlice,
-  clearCampaign
+  clearCampaign,
+  updateDraftCampaign,
+  updateCampaignSubmissionErrors
 } from './slice'
 
 export type {
