@@ -1,15 +1,7 @@
-import { AbstractScale, Step } from "./abstract.scale.ts";
-
-export interface LinearScale {
-  name?: string;
-  ratio: number;
-  min_value: number;
-  max_value: number;
-}
+import { AbstractScale, Step } from '@/service/dataset/spectrogram-configuration/scale';
 
 export class LinearScaleService implements AbstractScale {
 
-  // private MIN_SMALL_STEPS_RANGE_PX = 8;
   private MIN_SMALL_STEPS_RANGE_PX = 14;
   private MIN_BIG_STEPS_RANGE_PX = 30;
 

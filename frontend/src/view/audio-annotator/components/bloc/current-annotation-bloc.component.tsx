@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppSelector } from "@/slices/app";
 import { getFileDuration } from '@/service/dataset';
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
@@ -16,13 +16,13 @@ export const CurrentAnnotationBloc: React.FC = () => {
   const startTime = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.start_time === null) return "00:00.000";
-    return formatTimestamp(focusedResult.start_time);
+    return formatTime(focusedResult.start_time);
   }, [focusedResult?.start_time])
 
   const endTime = useMemo(() => {
     if (!focusedResult) return "-"
-    if (focusedResult.end_time === null) return formatTimestamp(getFileDuration(file));
-    return formatTimestamp(focusedResult.end_time);
+    if (focusedResult.end_time === null) return formatTime(getFileDuration(file));
+    return formatTime(focusedResult.end_time);
   }, [focusedResult?.end_time])
 
   const startFrequency = useMemo(() => {

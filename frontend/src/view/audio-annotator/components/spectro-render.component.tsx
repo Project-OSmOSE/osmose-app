@@ -11,7 +11,6 @@ import React, {
 } from "react";
 import { Region } from "./region.component.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { XAxis } from "@/view/audio-annotator/components/spectrogram/x-axis.component.tsx";
 import { YAxis } from "@/view/audio-annotator/components/spectrogram/y-axis.component.tsx";
@@ -21,6 +20,7 @@ import { getFileDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
+import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;

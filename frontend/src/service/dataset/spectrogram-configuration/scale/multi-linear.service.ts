@@ -1,11 +1,5 @@
-import { AbstractScale, Step } from "./abstract.scale.ts";
-import { LinearScale, LinearScaleService } from "./linear.scale.ts";
-
-
-export interface MultiLinearScale {
-  name?: string;
-  inner_scales: Array<LinearScale>;
-}
+import { LinearScaleService } from "./linear.service.ts";
+import { AbstractScale, Step, LinearScale } from '@/service/dataset/spectrogram-configuration/scale';
 
 export class MultiLinearScaleService implements AbstractScale {
 

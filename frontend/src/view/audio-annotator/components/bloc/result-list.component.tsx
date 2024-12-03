@@ -1,6 +1,5 @@
 import React, { Fragment, MouseEvent, useMemo } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
-import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import styles from './bloc.module.scss'
@@ -9,6 +8,7 @@ import { FaHandshake } from 'react-icons/fa6';
 import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, getResultType, invalidateResult, ResultType, validateResult } from '@/service/annotator';
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 
 export const ResultList: React.FC = () => {
@@ -76,8 +76,8 @@ const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, type, isActive, onC
   if (type === 'presence') return <Fragment/>
   return <div className={ isActive } onClick={ onClick }>
     <IoTimeOutline/>&nbsp;
-    { formatTimestamp(result.start_time) }&nbsp;
-    { type === 'box' && <Fragment>&gt;&nbsp;{ formatTimestamp(result.end_time) }&nbsp;</Fragment> }
+    { formatTime(result.start_time!) }&nbsp;
+    { type === 'box' && <Fragment>&gt;&nbsp;{ formatTime(result.end_time!) }&nbsp;</Fragment> }
   </div>
 }
 

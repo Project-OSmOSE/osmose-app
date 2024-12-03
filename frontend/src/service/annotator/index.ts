@@ -5,6 +5,10 @@ export {
 } from './api';
 
 export {
+  CANVAS_DIMENSIONS
+} from './const'
+
+export {
   getPresenceLabels,
   getResultType,
   getNewItemID,

@@ -1,3 +1,5 @@
+import { LinearScale, MultiLinearScale } from './scale';
+
 export interface SpectrogramConfiguration {
   id: number;
   name: string;
@@ -39,16 +41,4 @@ export interface SpectrogramConfiguration {
 export interface WindowType {
   id: number;
   name: string;
-}
-
-export interface LinearScale {
-  name?: string;
-  ratio: number;
-  min_value: number;
-  max_value: number;
-}
-
-export interface MultiLinearScale {
-  name?: string;
-  inner_scales: Array<LinearScale>;
 }

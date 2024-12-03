@@ -6,14 +6,13 @@ import { IoArrowForwardOutline } from 'react-icons/io5';
 import { useAppSelector } from '@/slices/app.ts';
 import { selectCurrentCampaign } from '@/service/campaign';
 import {
-  LinearScale,
-  MultiLinearScale,
   useDownloadSpectrogramConfigurationMutation,
   useListSpectrogramConfigurationQuery
 } from '@/service/dataset/spectrogram-configuration';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import './blocs.css';
+import { LinearScale, MultiLinearScale } from '@/service/dataset/spectrogram-configuration/scale';
 
 interface Props {
   isOwner: boolean;

@@ -1,5 +1,5 @@
 import { MouseEvent, MutableRefObject, PointerEvent, WheelEvent } from "react";
-import { ScaleMapping } from "@/services/spectrogram";
+import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 
 export const usePointerService = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
@@ -36,5 +36,5 @@ export const usePointerService = (
     }
   }
 
-  return { getCoords, getFreqTime, isInCanvas }
+  return { getCoords, getFreqTime }
 }

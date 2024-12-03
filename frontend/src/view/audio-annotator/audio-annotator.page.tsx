@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppSelector } from "@/slices/app";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
@@ -32,6 +31,7 @@ import { getFileDuration } from '@/service/dataset';
 import { useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -170,9 +170,9 @@ export const AudioAnnotator: React.FC = () => {
 
         <div className="col-sm-3"></div>
         <p className="col-sm-2 text-right">
-          { formatTimestamp(audio.time) }
+          { formatTime(audio.time) }
           &nbsp;/&nbsp;
-          { formatTimestamp(getFileDuration(file)) }
+          { formatTime(getFileDuration(file)) }
         </p>
       </div>
 

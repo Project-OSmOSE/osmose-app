@@ -11,6 +11,4 @@ export {
 export type {
   SpectrogramConfiguration,
   WindowType,
-  LinearScale,
-  MultiLinearScale,
 } from './type';

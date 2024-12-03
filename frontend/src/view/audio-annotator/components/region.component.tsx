@@ -1,10 +1,10 @@
 import React, { Fragment, MutableRefObject, useEffect, useMemo, useState } from 'react'
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, getResultType, removeResult } from '@/service/annotator';
+import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
