@@ -3,9 +3,8 @@ import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { useAppDispatch, useAppSelector } from "@/slices/app";
 import { ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
 import { useAudioService } from "@/services/annotator/audio.service.ts";
-import { AnnotationActions } from "@/slices/annotator/annotations.ts";
-import { getResultType } from "@/services/utils/annotator.ts";
 import { AnnotationResult } from '@/service/campaign/result';
+import { focusResult, getResultType, removeResult } from '@/service/annotator';
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -27,14 +26,10 @@ export const Region: React.FC<RegionProps> = ({
 
   const {
     campaign,
-  } = useAppSelector(state => state.annotator.global);
-  const {
     labelColors,
-    focusedResult,
-  } = useAppSelector(state => state.annotator.annotations);
-  const {
-    selectedID
-  } = useAppSelector(state => state.annotator.spectro);
+    focusedResultID,
+    userPreferences
+  } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch()
 
   const audioService = useAudioService(audioPlayer);
@@ -59,10 +54,10 @@ export const Region: React.FC<RegionProps> = ({
     setTop(top);
     setHeight(yAxis.current?.valuesToPositionRange(annotation.start_frequency, annotation.end_frequency) ?? 0);
     setHeaderIsOnTop(top > HEADER_HEIGHT + HEADER_MARGIN)
-  }, [yAxis.current, annotation.start_frequency, annotation.end_frequency, selectedID,])
+  }, [yAxis.current, annotation.start_frequency, annotation.end_frequency, userPreferences.spectrogramConfigurationID,])
 
   const color = useMemo(() => labelColors[annotation.label] ?? DEFAULT_COLOR, [labelColors, annotation.label])
-  const isActive = useMemo(() => annotation.id === focusedResult?.id, [annotation.id, focusedResult?.id])
+  const isActive = useMemo(() => annotation.id === focusedResultID, [annotation.id, focusedResultID])
   const type = useMemo(() => getResultType(annotation), [annotation]);
 
 
@@ -97,7 +92,7 @@ export const Region: React.FC<RegionProps> = ({
                 onClick={ () => audioService.play(annotation) }></button>
 
         <span className="flex-fill text-center"
-              onClick={ () => dispatch(AnnotationActions.focusResult(annotation)) }
+              onClick={ () => dispatch(focusResult(annotation.id)) }
               style={ { height: HEADER_HEIGHT } }>
           { annotation.label }
         </span>
@@ -107,7 +102,7 @@ export const Region: React.FC<RegionProps> = ({
           <i className="far fa-comment mr-2"></i> }
 
         { campaign?.usage === 'Create' && <button className="btn-simple fa fa-times-circle text-white"
-                                            onClick={ () => dispatch(AnnotationActions.removeResult(annotation)) }></button> }
+                                            onClick={ () => dispatch(removeResult(annotation.id)) }></button> }
       </p>
 
       { headerIsOnTop && bodyRegion }

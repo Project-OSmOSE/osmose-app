@@ -11,11 +11,9 @@ export const SpectrogramDownloadButton: React.FC<{
 
   const {
     user,
-    file
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    currentZoom
-  } = useAppSelector(state => state.annotator.spectro);
+    file,
+    userPreferences
+  } = useAppSelector(state => state.annotator);
 
   const download = async () => {
     if (!file?.audio_url) return;
@@ -32,7 +30,7 @@ export const SpectrogramDownloadButton: React.FC<{
     pathSplit = pathSplit[pathSplit.length - 1].split('.');
     pathSplit.pop(); // Remove audio file extension
     const filename = pathSplit.join('.');
-    link.download = `${ filename }-x${ currentZoom }.png`;
+    link.download = `${ filename }-x${ userPreferences.zoomLevel }.png`;
     link.click();
     setIsLoading(false);
   }
@@ -42,7 +40,7 @@ export const SpectrogramDownloadButton: React.FC<{
                     fill={ "outline" }
                     onClick={ download }>
     <IonIcon icon={ downloadOutline } slot="start"/>
-    Download spectrogram (zoom x{ currentZoom })
+    Download spectrogram (zoom x{ userPreferences.zoomLevel })
     { isLoading && <IonSpinner/> }
   </IonButton>
 }

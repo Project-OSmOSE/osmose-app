@@ -3,9 +3,7 @@ import { formatTimestamp } from "@/services/utils/format.tsx";
 import { useAppSelector } from "@/slices/app.ts";
 
 export const PointerPosition: React.FC = () => {
-  const {
-    pointerPosition,
-  } = useAppSelector(state => state.annotator.spectro);
+  const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
   if (!pointerPosition) return <Fragment/>
   return <p className="workbench-pointer">

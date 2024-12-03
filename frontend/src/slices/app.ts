@@ -1,9 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import globalAnnotatorReducer from "@/slices/annotator/global-annotator";
-import annotationsReducer from "@/slices/annotator/annotations";
-import audioReducer from "@/slices/annotator/audio";
-import spectroReducer from "@/slices/annotator/spectro";
 import { useDispatch, useSelector } from "react-redux";
 import { importAnnotationsReducer } from "@/slices/create-campaign/import-annotations.ts";
 import { AuthAPI, AuthSlice } from '@/service/auth';
@@ -16,20 +12,16 @@ import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
 import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-configuration';
 import { AudioMetadataAPI } from '@/service/dataset/audio-metatada';
 import { DetectorAPI } from '@/service/campaign/detector';
+import { AnnotatorAPI, AnnotatorSlice } from '@/service/annotator';
 
 export const AppStore = configureStore({
   reducer: {
     [AuthSlice.reducerPath]: AuthSlice.reducer,
     [CampaignSlice.reducerPath]: CampaignSlice.reducer,
+    [AnnotatorSlice.reducerPath]: AnnotatorSlice.reducer,
 
     createCampaignForm: combineReducers({
       importAnnotations: importAnnotationsReducer
-    }),
-    annotator: combineReducers({
-      annotations: annotationsReducer,
-      global: globalAnnotatorReducer,
-      audio: audioReducer,
-      spectro: spectroReducer
     }),
 
     [AuthAPI.reducerPath]: AuthAPI.reducer,
@@ -42,6 +34,7 @@ export const AppStore = configureStore({
     [SpectrogramConfigurationAPI.reducerPath]: SpectrogramConfigurationAPI.reducer,
     [AudioMetadataAPI.reducerPath]: AudioMetadataAPI.reducer,
     [DetectorAPI.reducerPath]: DetectorAPI.reducer,
+    [AnnotatorAPI.reducerPath]: AnnotatorAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -56,6 +49,7 @@ export const AppStore = configureStore({
       .concat(SpectrogramConfigurationAPI.middleware)
       .concat(AudioMetadataAPI.middleware)
       .concat(DetectorAPI.middleware)
+      .concat(AnnotatorAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

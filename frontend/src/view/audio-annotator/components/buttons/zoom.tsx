@@ -1,18 +1,16 @@
 import React, { Fragment } from "react";
 import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
-import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
+import { zoom } from '@/service/annotator';
 
 export const ZoomButton: React.FC = () => {
-  const {
-    currentZoom
-  } = useAppSelector(state => state.annotator.spectro);
-  const dispatch = useAppDispatch()
+  const zoomLevel = useAppSelector(state => state.annotator.userPreferences.zoomLevel);
+    const dispatch = useAppDispatch()
 
   return <Fragment>
     <button className="btn-simple fa fa-search-plus"
-            onClick={ () => dispatch(SpectrogramActions.zoom({ direction: 'in' })) }></button>
+            onClick={ () => dispatch(zoom({ direction: 'in' })) }></button>
     <button className="btn-simple fa fa-search-minus"
-            onClick={ () => dispatch(SpectrogramActions.zoom({ direction: 'out' })) }></button>
-    <span>{ currentZoom }x</span>
+            onClick={ () => dispatch(zoom({ direction: 'out' })) }></button>
+    <span>{ zoomLevel }x</span>
   </Fragment>
 }

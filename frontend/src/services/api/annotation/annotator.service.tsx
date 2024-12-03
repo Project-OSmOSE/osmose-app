@@ -1,33 +1,9 @@
 import { OldAPIService } from "../api-service.util.tsx";
-import { AnnotationComment, WriteAnnotationComment } from "./comment.service";
-import { User } from '@/service/user';
+import { AnnotationComment } from "./comment.service";
 import { AnnotationCampaign } from '@/service/campaign';
-import { LabelSet } from '@/service/campaign/label-set';
-import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
-import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { DatasetFile } from '@/service/dataset';
-import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotatorData, WriteAnnotatorData } from '@/service/annotator/type.ts';
 
-type AnnotatorData = {
-  campaign: AnnotationCampaign;
-  file: DatasetFile;
-  user: User;
-  results: Array<AnnotationResult>;
-  task_comments: Array<AnnotationComment>;
-  label_set: LabelSet;
-  confidence_set: ConfidenceIndicatorSet | null;
-  spectrogram_configurations: Array<SpectrogramConfiguration>;
-  previous_file_id: number | null;
-  next_file_id: number | null;
-}
-type WriteAnnotatorData = {
-  results: Array<WriteAnnotationResult>;
-  task_comments: Array<WriteAnnotationComment>;
-  session: {
-    start: Date; // Send ISO String
-    end: Date; // Send ISO String
-  },
-}
 
 class AnnotatorAPIService extends OldAPIService<AnnotatorData, WriteAnnotatorData> {
 

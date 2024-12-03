@@ -5,6 +5,7 @@ export {
 
 export {
   selectIsConnected,
+  prepareHeadersWithToken
 } from './function.ts'
 
 export {

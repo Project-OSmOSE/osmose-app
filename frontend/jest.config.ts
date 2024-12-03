@@ -18,13 +18,7 @@ const config: Config = {
   ],
   moduleNameMapper: {
     "/app/(.*)": "<rootDir>/public/$1",
-    "@/components/(.*)": "<rootDir>/src/components/$1",
-    "@/consts/(.*)": "<rootDir>/src/consts/$1",
-    "@/routes/(.*)": "<rootDir>/src/routes/$1",
-    "@/services/(.*)": "<rootDir>/src/services/$1",
-    "@/slices/(.*)": "<rootDir>/src/slices/$1",
-    "@/types/(.*)": "<rootDir>/src/types/$1",
-    "@/view/(.*)": "<rootDir>/src/view/$1",
+    "@/(.*)": "<rootDir>/src/$1",
   }
 };
 

@@ -16,11 +16,9 @@ export const useAnnotatorSubmitService = () => {
     sessionStart: _sessionStart,
     campaign: _campaign,
     file: _file,
-  } = useAppSelector(state => state.annotator.global);
-  const {
     results: _results,
-    taskComments: _taskComments
-  } = useAppSelector(state => state.annotator.annotations);
+    task_comments: _taskComments
+  } = useAppSelector(state => state.annotator);
 
   const sessionStart = useRef<number>(_sessionStart);
   useEffect(() => {
@@ -37,14 +35,14 @@ export const useAnnotatorSubmitService = () => {
     file.current = _file
   }, [ _file ]);
 
-  const results = useRef<Array<AnnotationResult>>(_results);
+  const results = useRef<Array<AnnotationResult>>(_results ?? []);
   useEffect(() => {
-    results.current = _results
+    results.current = _results ?? []
   }, [ _results ]);
 
-  const taskComments = useRef<Array<AnnotationComment>>(_taskComments);
+  const taskComments = useRef<Array<AnnotationComment>>(_taskComments ?? []);
   useEffect(() => {
-    taskComments.current = _taskComments
+    taskComments.current = _taskComments ?? []
   }, [ _taskComments ]);
 
   // Services

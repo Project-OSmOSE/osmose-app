@@ -40,26 +40,24 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
 
   // Data
   const {
-    areShortcutsEnabled: _areShortcutsEnabled,
     previous_file_id: _previous_file_id,
     next_file_id: _next_file_id,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    hasChanged: _hasChanged
-  } = useAppSelector(state => state.annotator.annotations);
+    ui,
+    hasChanged: _hasChanged,
+  } = useAppSelector(state => state.annotator);
 
-  const areShortcutsEnabled = useRef<boolean>(_areShortcutsEnabled);
+  const areShortcutsEnabled = useRef<boolean>(ui.areShortcutsEnabled);
   useEffect(() => {
-    areShortcutsEnabled.current = _areShortcutsEnabled
-  }, [ _areShortcutsEnabled ]);
+    areShortcutsEnabled.current = ui.areShortcutsEnabled
+  }, [ ui.areShortcutsEnabled ]);
 
-  const previous_file_id = useRef<number | null>(_previous_file_id);
+  const previous_file_id = useRef<number | null>(_previous_file_id ?? null);
   useEffect(() => {
-    previous_file_id.current = _previous_file_id
+    previous_file_id.current = _previous_file_id ?? null;
   }, [ _previous_file_id ]);
-  const next_file_id = useRef<number | null>(_next_file_id);
+  const next_file_id = useRef<number | null>(_next_file_id ?? null);
   useEffect(() => {
-    next_file_id.current = _next_file_id
+    next_file_id.current = _next_file_id ?? null;
   }, [ _next_file_id ]);
 
   const hasChanged = useRef<boolean>(_hasChanged);

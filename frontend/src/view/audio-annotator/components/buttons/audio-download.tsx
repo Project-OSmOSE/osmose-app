@@ -8,7 +8,7 @@ export const AudioDownloadButton: React.FC = () => {
   const {
     file,
     user
-  } = useAppSelector(state => state.annotator.global);
+  } = useAppSelector(state => state.annotator);
 
   const download = () => {
     if (!file?.audio_url) return;

@@ -5,7 +5,7 @@ export const WorkbenchInfoBloc: React.FC = () => {
   const {
     campaign,
     file
-  } = useAppSelector(state => state.annotator.global);
+  } = useAppSelector(state => state.annotator);
 
   const filename = useMemo(() => {
     if (!file) return '';

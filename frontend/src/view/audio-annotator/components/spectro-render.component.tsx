@@ -16,12 +16,11 @@ import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { XAxis } from "@/view/audio-annotator/components/spectrogram/x-axis.component.tsx";
 import { YAxis } from "@/view/audio-annotator/components/spectrogram/y-axis.component.tsx";
 import { useSpectrogramService } from "@/services/annotator/spectrogram.service.ts";
-import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
 import { usePointerService } from "@/services/annotator/pointer.service.ts";
-import { AnnotatorActions } from "@/slices/annotator/global-annotator.ts";
-import { AnnotationActions } from "@/slices/annotator/annotations.ts";
 import { getFileDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
+import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
+import { useToast } from '@/services/utils/toast.ts';
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -42,22 +41,15 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
 
   // Data
   const {
-    focusedLabel,
-    results,
-  } = useAppSelector(state => state.annotator.annotations);
-  const {
-    time,
-  } = useAppSelector(state => state.annotator.audio);
-  const {
     campaign,
     file,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    currentZoom,
-    currentZoomOrigin,
-    configurations,
-    selectedID
-  } = useAppSelector(state => state.annotator.spectro);
+    focusedLabel,
+    results,
+    audio,
+    userPreferences,
+    ui,
+    spectrogram_configurations
+  } = useAppSelector(state => state.annotator)
   const dispatch = useAppDispatch()
   const duration = useMemo(() => getFileDuration(file), [ file ])
 
@@ -71,6 +63,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const audioService = useAudioService(audioPlayer);
   const spectrogramService = useSpectrogramService(canvasRef, xAxis, yAxis)
   const pointerService = usePointerService(canvasRef, xAxis, yAxis);
+  const toast = useToast();
 
   const [ _zoom, _setZoom ] = useState<number>(1);
   const currentTime = useRef<number>(0)
@@ -88,12 +81,12 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     _isDrawingEnabled.current = isDrawingEnabled
   }, [ isDrawingEnabled ]);
 
-  const timeWidth = useMemo(() => SPECTRO_WIDTH * currentZoom, [ currentZoom ]);
-  const currentConfiguration = useMemo(() => configurations.find(c => c.id === selectedID), [ configurations, selectedID ]);
+  const timeWidth = useMemo(() => SPECTRO_WIDTH * userPreferences.zoomLevel, [ userPreferences.zoomLevel ]);
+  const currentConfiguration = useMemo(() => spectrogram_configurations?.find(c => c.id === userPreferences.spectrogramConfigurationID), [ spectrogram_configurations, userPreferences.spectrogramConfigurationID ]);
 
   useEffect(() => {
     updateCanvas()
-  }, [ configurations, selectedID ])
+  }, [ spectrogram_configurations, userPreferences.spectrogramConfigurationID ])
 
 
   // On zoom updated
@@ -104,27 +97,27 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     if (!canvas || !timeAxis || !wrapper) return;
 
     // If zoom factor has changed
-    if (currentZoom === _zoom) return;
+    if (userPreferences.zoomLevel === _zoom) return;
     // New timePxRatio
-    const newTimePxRatio: number = SPECTRO_WIDTH * currentZoom / duration;
+    const newTimePxRatio: number = SPECTRO_WIDTH * userPreferences.zoomLevel / duration;
 
     // Resize canvases and scroll
-    canvas.width = SPECTRO_WIDTH * currentZoom;
+    canvas.width = SPECTRO_WIDTH * userPreferences.zoomLevel;
 
     // Compute new center (before resizing)
     let newCenter: number;
-    if (currentZoomOrigin) {
+    if (ui.zoomOrigin) {
       // x-coordinate has been given, center on it
       const bounds = canvas.getBoundingClientRect();
-      newCenter = (currentZoomOrigin.x - bounds.left) * currentZoom / _zoom;
+      newCenter = (ui.zoomOrigin.x - bounds.left) * userPreferences.zoomLevel / _zoom;
     } else {
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
     }
     wrapper.scrollLeft = Math.floor(newCenter - SPECTRO_WIDTH / 2);
-    _setZoom(currentZoom);
+    _setZoom(userPreferences.zoomLevel);
     updateCanvas()
-  }, [ currentZoom ]);
+  }, [ userPreferences.zoomLevel ]);
 
   // On current params loaded/changed
 
@@ -135,15 +128,15 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     const canvas = canvasRef.current;
     if (!wrapper || !canvas) return;
     const oldX: number = Math.floor(canvas.width * currentTime.current / duration);
-    const newX: number = Math.floor(canvas.width * time / duration);
+    const newX: number = Math.floor(canvas.width * audio.time / duration);
 
     if ((oldX - wrapper.scrollLeft) < SPECTRO_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_WIDTH) {
       wrapper.scrollLeft += SPECTRO_WIDTH;
     }
-    currentTime.current = time;
+    currentTime.current = audio.time;
 
     updateCanvas();
-  }, [ time ])
+  }, [ audio.time ])
 
   // On current newAnnotation changed
   useEffect(() => {
@@ -233,12 +226,12 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
     const data = pointerService.getFreqTime(e);
     if (data) {
-      dispatch(SpectrogramActions.updatePointerPosition(data))
+      dispatch(setPointerPosition(data))
       if (_newResult.current) {
         _newResult.current.end_time = data.time;
         _newResult.current.end_frequency = data.frequency;
       }
-    } else dispatch(SpectrogramActions.leavePointer())
+    } else dispatch(leavePointerPosition())
   }
 
   const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
@@ -275,13 +268,13 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
       const minFreq = Math.min(_newResult.current.start_frequency, _newResult.current.end_frequency);
       const maxFreq = Math.max(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (!yAxis.current.isRangeContinuouslyOnScale(minFreq, maxFreq)) {
-        dispatch(AnnotatorActions.setDangerToast(`Be careful, your annotation overlaps a void in the frequency scale.
-         Are you sure your annotation goes from ${ minFreq.toFixed(0) }Hz to ${ maxFreq.toFixed(0) }Hz?`))
+        toast.presentError(`Be careful, your annotation overlaps a void in the frequency scale.
+         Are you sure your annotation goes from ${ minFreq.toFixed(0) }Hz to ${ maxFreq.toFixed(0) }Hz?`)
       }
       const width = xAxis.current?.valuesToPositionRange(_newResult.current.start_time, _newResult.current.end_time);
       const height = yAxis.current?.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (width > 2 && height > 2) {
-        dispatch(AnnotationActions.addResult(_newResult.current))
+        dispatch(addResult(_newResult.current))
       }
     }
     _newResult.current = undefined;
@@ -294,8 +287,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     const origin = pointerService.getCoords(event);
 
     if (!origin) return;
-    if (event.deltaY < 0) dispatch(SpectrogramActions.zoom({ direction: 'in', origin }))
-    else if (event.deltaY > 0) dispatch(SpectrogramActions.zoom({ direction: 'out', origin }))
+    if (event.deltaY < 0) dispatch(zoom({ direction: 'in', origin }))
+    else if (event.deltaY > 0) dispatch(zoom({ direction: 'out', origin }))
   }
 
   return (
@@ -314,7 +307,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
            ref={ containerRef }
         // onPointerDown={ onStartNewAnnotation }
         // onPointerMove={ onUpdateNewAnnotation }
-           onPointerLeave={ () => dispatch(SpectrogramActions.leavePointer()) }
+           onPointerLeave={ () => dispatch(leavePointerPosition()) }
         // onPointerUp={ onEndNewAnnotation }
            style={ {
              width: `${ SPECTRO_WIDTH }px`,
@@ -335,7 +328,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
                max_value={ duration }
                style={ { position: 'absolute', top: `${ SPECTRO_HEIGHT }px` } }/>
 
-        { results.map((annotation: AnnotationResult, key: number) => (
+        { results?.map((annotation: AnnotationResult, key: number) => (
           <Region key={ key }
                   annotation={ annotation }
                   yAxis={ yAxis }

@@ -5,9 +5,7 @@ import { useAppSelector } from "@/slices/app.ts";
 
 export const CampaignInstructionsButton: React.FC = () => {
 
-  const {
-    campaign,
-  } = useAppSelector(state => state.annotator.global);
+  const campaign = useAppSelector(state => state.annotator.campaign);
 
   const open = () => {
     if (!campaign?.instructions_url) return;

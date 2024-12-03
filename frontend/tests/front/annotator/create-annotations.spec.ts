@@ -572,7 +572,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -629,7 +628,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -688,7 +686,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -779,7 +776,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -817,7 +813,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)

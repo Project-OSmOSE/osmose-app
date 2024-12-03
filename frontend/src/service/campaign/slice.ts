@@ -18,7 +18,7 @@ export const CampaignSlice = createSlice({
       state.submissionErrors = {};
     },
     updateDraftCampaign: (state, { payload }: { payload: Partial<WriteAnnotationCampaign> }) => {
-      Object.assign(payload, state.draftCampaign);
+      Object.assign(state.draftCampaign, payload);
     },
     updateSubmissionErrors: (state, { payload }: { payload: Errors<WriteAnnotationCampaign> }) => {
       for (const [key, value] of Object.entries(payload)) {

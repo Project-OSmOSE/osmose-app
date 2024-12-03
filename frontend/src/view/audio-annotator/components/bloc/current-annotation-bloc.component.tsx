@@ -5,14 +5,13 @@ import { getFileDuration } from '@/service/dataset';
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
-
   const {
-    focusedResult,
-    confidenceSet,
-  } = useAppSelector(state => state.annotator.annotations);
-  const {
-    file
-  } = useAppSelector(state => state.annotator.global);
+    file,
+    confidence_set,
+    focusedResultID,
+    results
+  } = useAppSelector(state => state.annotator);
+  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [focusedResultID]);
 
   const startTime = useMemo(() => {
     if (!focusedResult) return "-"
@@ -70,7 +69,7 @@ export const CurrentAnnotationBloc: React.FC = () => {
           { endFrequency } Hz<br/>
           <i
             className="fa fa-tag"></i> :&nbsp;{ label }<br/>
-          { confidenceSet && <span><i
+          { confidence_set && <span><i
               className="fa fa-handshake"></i> :&nbsp; { confidence }<br/></span> }
         </p>
       </div>
