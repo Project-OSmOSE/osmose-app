@@ -1,7 +1,6 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
 import { useDispatch, useSelector } from "react-redux";
-import { importAnnotationsReducer } from "@/slices/create-campaign/import-annotations.ts";
 import { AuthAPI, AuthSlice } from '@/service/auth';
 import { UserAPI } from '@/service/user';
 import { CampaignAPI, CampaignSlice } from '@/service/campaign';
@@ -19,10 +18,6 @@ export const AppStore = configureStore({
     [AuthSlice.reducerPath]: AuthSlice.reducer,
     [CampaignSlice.reducerPath]: CampaignSlice.reducer,
     [AnnotatorSlice.reducerPath]: AnnotatorSlice.reducer,
-
-    createCampaignForm: combineReducers({
-      importAnnotations: importAnnotationsReducer
-    }),
 
     [AuthAPI.reducerPath]: AuthAPI.reducer,
     [UserAPI.reducerPath]: UserAPI.reducer,

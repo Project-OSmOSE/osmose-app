@@ -19,7 +19,7 @@ import './css/app.css';
 import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { Provider } from "react-redux";
-import { AppStore } from "@/slices/app.ts";
+import { AppStore } from "@/service/app";
 import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "@/view/campaign/detail/annotation-campaign-detail.page.tsx";
 import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";

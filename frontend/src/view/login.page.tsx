@@ -4,7 +4,7 @@ import { IonButton } from "@ionic/react";
 import { Input } from "@/components/form/inputs/input.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { selectIsConnected, useLoginMutation } from '@/service/auth';
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { getErrorMessage } from '@/service/function.ts';
 
 

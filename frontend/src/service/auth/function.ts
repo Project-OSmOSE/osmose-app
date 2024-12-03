@@ -1,5 +1,5 @@
 import { AuthState, Token } from './type.ts';
-import { AppState } from '@/slices/app.ts';
+import { AppState } from '@/service/app';
 import { BaseQueryApi, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { PayloadAction } from '@reduxjs/toolkit';
 

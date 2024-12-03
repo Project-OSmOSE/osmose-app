@@ -43,7 +43,7 @@ export const AuthSlice = createSlice({
     builder.addMatcher(CampaignAPI.endpoints.downloadStatus.matchRejected, catch401)
     builder.addMatcher(AnnotationFileRangeAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(AnnotationFileRangeAPI.endpoints.listWithFiles.matchRejected, catch401)
-    builder.addMatcher(AnnotationFileRangeAPI.endpoints.update.matchRejected, catch401)
+    builder.addMatcher(AnnotationFileRangeAPI.endpoints.post.matchRejected, catch401)
     builder.addMatcher(DatasetAPI.endpoints.list.matchRejected, catch401)
     builder.addMatcher(DatasetAPI.endpoints.listForImport.matchRejected, catch401)
     builder.addMatcher(DatasetAPI.endpoints.import.matchRejected, catch401)

@@ -1,5 +1,5 @@
 import { MutableRefObject, useMemo, useRef } from "react";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { getFileDuration } from '@/service/dataset';
 import { AnnotationResultBounds } from '@/service/campaign/result';

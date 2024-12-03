@@ -3,7 +3,7 @@ import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IoArrowForwardOutline } from 'react-icons/io5';
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { selectCurrentCampaign } from '@/service/campaign';
 import {
   useDownloadSpectrogramConfigurationMutation,

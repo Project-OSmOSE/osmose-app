@@ -3,7 +3,7 @@ import { prepareHeadersWithToken } from '@/service/auth/function.ts';
 import { AnnotationResult } from '@/service/campaign/result/type.ts';
 import { ID } from '@/service/type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
-import { DetectorSelection } from '@/slices/create-campaign/import-annotations.ts';
+import { DetectorSelection } from '@/service/campaign';
 
 export const AnnotationResultAPI = createApi({
   reducerPath: 'annotationResultApi',

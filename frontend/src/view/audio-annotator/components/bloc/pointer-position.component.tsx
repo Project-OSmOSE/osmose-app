@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 export const PointerPosition: React.FC = () => {

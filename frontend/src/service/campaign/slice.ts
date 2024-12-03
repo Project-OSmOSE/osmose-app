@@ -1,8 +1,61 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { CampaignAPI } from './api.ts';
-import { CampaignState, WriteAnnotationCampaign } from './type';
+import {
+  CampaignState,
+  CannotFormatCSVError, DetectorSelection,
+  FileData,
+  UnreadableFileError,
+  UnsupportedCSVError,
+  WriteAnnotationCampaign,
+  WrongMIMETypeError
+} from './type';
 import { Errors } from '@/service/type.ts';
+import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
+import { getNewItemID } from '@/service/function.ts';
+import { AnnotationResultAPI } from '@/service/campaign/result';
+import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from '@/consts/csv.ts';
+import { formatCSV } from '@/services/utils/format.tsx';
 
+export const loadFile = createAsyncThunk(
+  'campaign/loadFile',
+  async (file: File) => {
+    if (!ACCEPT_CSV_MIME_TYPE.includes(file.type)) throw new WrongMIMETypeError(file.type);
+
+    return await new Promise<FileData>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsText(file, 'UTF-8');
+      reader.onerror = () => reject(new UnreadableFileError())
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (!result || typeof result !== 'string') {
+          reject(new UnsupportedCSVError())
+          return;
+        }
+
+        try {
+          const data = formatCSV(
+            result,
+            ACCEPT_CSV_SEPARATOR,
+            IMPORT_ANNOTATIONS_COLUMNS
+          );
+          if (!data) {
+            reject(new CannotFormatCSVError())
+            return;
+          }
+
+          resolve({
+            filename: file.name,
+            type: file.type,
+            datasets: data.map(d => d.dataset),
+            detectors: data.map(d => d.annotator),
+          })
+        } catch (e) {
+          reject(e)
+        }
+      }
+    })
+  }
+)
 
 export const CampaignSlice = createSlice({
   name: 'campaign',
@@ -10,24 +63,78 @@ export const CampaignSlice = createSlice({
     currentCampaign: undefined,
     draftCampaign: {},
     submissionErrors: {},
-  } as CampaignState,
+    draftFileRanges: [],
+    resultImport: { isSubmitted: false, isLoading: false },
+  } satisfies CampaignState as CampaignState,
   reducers: {
     clear: (state) => {
       state.currentCampaign = undefined;
       state.draftCampaign = {};
+      state.draftFileRanges = [];
       state.submissionErrors = {};
+      state.resultImport = { isSubmitted: false, isLoading: false };
     },
     updateDraftCampaign: (state, { payload }: { payload: Partial<WriteAnnotationCampaign> }) => {
       Object.assign(state.draftCampaign, payload);
     },
     updateSubmissionErrors: (state, { payload }: { payload: Errors<WriteAnnotationCampaign> }) => {
-      for (const [key, value] of Object.entries(payload)) {
+      for (const [ key, value ] of Object.entries(payload)) {
         if (value !== undefined) state.submissionErrors[key as keyof WriteAnnotationCampaign] = value;
         else delete state.submissionErrors[key as keyof WriteAnnotationCampaign];
       }
+    },
+
+    addDraftFileRange: (state, { payload }: { payload: Partial<WriteAnnotationFileRange> & { annotator: number } }) => {
+      state.draftFileRanges.push({
+        ...payload,
+        id: getNewItemID(state.draftFileRanges)
+      });
+    },
+    updateDraftFileRange: (state, { payload }: { payload: Partial<WriteAnnotationFileRange> & { id: number } }) => {
+      state.draftFileRanges = state.draftFileRanges.map(r => {
+        if (r.id !== payload.id) return r;
+        return {
+          ...r,
+          ...payload
+        }
+      });
+    },
+    removeDraftFileRange: (state, { payload }: { payload: number }) => {
+      state.draftFileRanges = state.draftFileRanges.filter(r => r.id !== payload);
+    },
+
+    clearImport: (state) => {
+      state.resultImport = { isSubmitted: false, isLoading: false };
+    },
+    setFilteredDatasets: (state, { payload }: { payload: Array<string> }) => {
+      state.resultImport.filterDatasets = payload;
+    },
+    setDetectors: (state, { payload }: { payload: Array<DetectorSelection> }) => {
+      state.resultImport.detectors = payload;
     }
   },
   extraReducers: (builder) => {
+    builder.addCase(
+      loadFile.pending,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (state) => {
+        state.resultImport = { isSubmitted: false, isLoading: true };
+      }
+    )
+    builder.addCase(
+      loadFile.fulfilled,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (state, { payload }) => {
+        state.resultImport = { isSubmitted: false, isLoading: false, fileData: payload };
+      }
+    )
+    builder.addCase(
+      loadFile.rejected,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (state, action) => {
+        state.resultImport = { isSubmitted: false, isLoading: false, error: action.error.message };
+      }
+    )
     builder.addMatcher(
       CampaignAPI.endpoints.retrieve.matchFulfilled,
       (state, { payload }) => {
@@ -46,6 +153,13 @@ export const CampaignSlice = createSlice({
         state.currentCampaign = payload;
       },
     )
+    builder.addMatcher(
+      AnnotationResultAPI.endpoints.import.matchFulfilled,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (state, _) => {
+        state.resultImport.isSubmitted = true;
+      }
+    )
   },
 })
 
@@ -53,4 +167,10 @@ export const {
   clear: clearCampaign,
   updateDraftCampaign,
   updateSubmissionErrors: updateCampaignSubmissionErrors,
+  removeDraftFileRange,
+  addDraftFileRange,
+  updateDraftFileRange,
+  clearImport,
+  setFilteredDatasets,
+  setDetectors,
 } = CampaignSlice.actions

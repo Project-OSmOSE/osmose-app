@@ -1,20 +1,23 @@
 import React, { useEffect } from "react";
 import { FormBloc, Input, Textarea } from "@/components/form";
-import { useAppDispatch, useAppSelector } from '@/slices/app.ts';
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
-  AnnotationCampaign,
   selectCampaignSubmissionErrors,
+  selectCurrentCampaign,
   selectDraftCampaign,
   updateCampaignSubmissionErrors,
   updateDraftCampaign,
 } from '@/service/campaign';
 import { useListDatasetQuery } from '@/service/dataset';
 
-export const CampaignBloc: React.FC<{ createdCampaign?: AnnotationCampaign }> = ({ createdCampaign }) => {
+export const CampaignBloc: React.FC = () => {
   // Services
   const dispatch = useAppDispatch();
   const { data: allDatasets } = useListDatasetQuery();
+
+  // State
   const draftCampaign = useAppSelector(selectDraftCampaign)
+  const createdCampaign = useAppSelector(selectCurrentCampaign)
   const errors = useAppSelector(selectCampaignSubmissionErrors)
 
   // Loading

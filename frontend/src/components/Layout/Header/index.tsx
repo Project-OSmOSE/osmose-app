@@ -4,7 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
 
 import logo from '../../../img/logo/logo_seul_couleur.png';
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { selectIsConnected } from '@/service/auth';
 
 export const Header: React.FC = () => {

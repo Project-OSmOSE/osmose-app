@@ -29,3 +29,7 @@ export function getErrorMessage(error: FetchBaseQueryError | SerializedError | u
   const detail = Object.prototype.hasOwnProperty.call(data, 'detail') ? data['detail'] : null;
   return message ?? detail ?? JSON.stringify(data);
 }
+
+export function getNewItemID(items?: { id: number }[]) {
+  return Math.min(0, ...(items ?? []).map(r => r.id)) - 1;
+}

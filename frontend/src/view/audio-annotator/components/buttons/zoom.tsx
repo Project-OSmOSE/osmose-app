@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
-import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { zoom } from '@/service/annotator';
 
 export const ZoomButton: React.FC = () => {
   const zoomLevel = useAppSelector(state => state.annotator.userPreferences.zoomLevel);
-    const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch()
 
   return <Fragment>
     <button className="btn-simple fa fa-search-plus"

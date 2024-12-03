@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from "react";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 
 export const WorkbenchInfoBloc: React.FC = () => {
   const {

@@ -12,13 +12,21 @@ export {
   selectDraftCampaign,
   selectCurrentCampaign,
   selectCampaignSubmissionErrors,
+  selectDraftFileRange,
 } from './function';
 
 export {
   CampaignSlice,
   clearCampaign,
   updateDraftCampaign,
-  updateCampaignSubmissionErrors
+  updateCampaignSubmissionErrors,
+  removeDraftFileRange,
+  addDraftFileRange,
+  updateDraftFileRange,
+  clearImport,
+  loadFile,
+  setFilteredDatasets,
+  setDetectors,
 } from './slice'
 
 export type {
@@ -29,4 +37,5 @@ export type {
   WriteCheckAnnotationCampaign,
   WriteCreateAnnotationCampaign,
   WriteAnnotationCampaign,
+  DetectorSelection,
 } from './type';

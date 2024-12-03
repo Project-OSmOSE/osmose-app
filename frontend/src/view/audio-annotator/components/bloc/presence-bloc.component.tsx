@@ -6,7 +6,7 @@ import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
 import { confirm } from "@/view/global-components";
 import { KeypressHandler } from "../../audio-annotator.page.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
   addPresenceResult,
   disableShortcuts,
@@ -28,7 +28,7 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
   } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch()
 
-  const presenceLabels = useMemo(() => getPresenceLabels(results), [results]);
+  const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
 
   const handleKeyPressed = (event: KeyboardEvent) => {
     if (!ui.areShortcutsEnabled || !label_set) return;

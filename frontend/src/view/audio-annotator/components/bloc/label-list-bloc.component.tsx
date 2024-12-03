@@ -3,7 +3,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { focusLabel, getPresenceLabels } from '@/service/annotator';
 
 

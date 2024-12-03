@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useAppSelector } from "@/slices/app";
+import { useAppSelector } from '@/service/app';
 import { getFileDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 

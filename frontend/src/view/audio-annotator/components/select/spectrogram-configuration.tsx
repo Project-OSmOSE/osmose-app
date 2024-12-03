@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { getScaleName } from '@/service/dataset/spectrogram-configuration';
 import { selectSpectrogramConfiguration } from '@/service/annotator';
 

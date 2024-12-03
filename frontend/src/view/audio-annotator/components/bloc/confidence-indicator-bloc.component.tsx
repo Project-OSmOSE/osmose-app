@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppSelector, useAppDispatch } from '@/service/app';
 import { IonChip, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { focusConfidence } from '@/service/annotator';

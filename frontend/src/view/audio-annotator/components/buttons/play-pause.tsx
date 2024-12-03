@@ -4,7 +4,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { NavigationShortcutOverlay } from "@/view/audio-annotator/components/navigation-buttons.component.tsx";
 import { IonButton, IonIcon } from "@ionic/react";
 import { pause, play } from "ionicons/icons";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 
 export const PlayPauseButton: React.FC<{ player: MutableRefObject<HTMLAudioElement | null> }> = ({ player }) => {

@@ -11,7 +11,6 @@ export {
 export {
   getPresenceLabels,
   getResultType,
-  getNewItemID,
   getDefaultConfidence,
 } from './function';
 

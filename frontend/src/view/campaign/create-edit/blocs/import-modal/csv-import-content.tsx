@@ -1,12 +1,9 @@
-import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { IonButton, IonCheckbox } from "@ionic/react";
+import React, { Fragment, ReactNode, useState } from "react";
 import { WarningMessage } from "@/components/warning/warning-message.component";
-import { DragNDropFileInput, DragNDropState, FormBloc } from "@/components/form";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { DragNDropFileInput, DragNDropState } from "@/components/form";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
-import { importAnnotationsActions } from "@/slices/create-campaign/import-annotations.ts";
-import { useImportAnnotations } from "@/services/create-campaign/import-annotations.ts";
-import { buildErrorMessage } from "@/services/utils/format.tsx";
+import { clearImport, loadFile } from '@/service/campaign';
 
 interface Props {
   cancelButton: ReactNode;
@@ -15,74 +12,61 @@ interface Props {
 
 export const CSVImportContent: React.FC<Props> = ({ cancelButton, onFileImported: _onFileImported }) => {
 
-  // Form data
+  // State
   const dispatch = useAppDispatch();
+  const [ file, setFile ] = useState<File | undefined>();
   const {
-    filename,
-    errors,
-    status
-  } = useAppSelector(state => state.createCampaignForm.importAnnotations);
-
-  // Services
-  const { loadFile } = useImportAnnotations();
+    fileData,
+    error,
+    isLoading,
+  } = useAppSelector(state => state.campaign.resultImport)
 
   const onFileImported = (file: File) => {
-    loadFile(file);
+    dispatch(loadFile(file));
+    setFile(file);
     _onFileImported(file);
   }
 
-  const dragNDropLoaded =
-    <DragNDropFileInput state={ DragNDropState.fileLoaded }
-                        filename={ filename ?? '' }
-                        onReset={ () => dispatch(importAnnotationsActions.clear()) }/>
-
-  const loadingContent =
-    <Fragment>
+  if (isLoading) {
+    return <Fragment>
       <DragNDropFileInput state={ DragNDropState.loading }/>
 
       <div id="buttons">{ cancelButton }</div>
     </Fragment>
-
-
-  const errorsTypes = useMemo(() => errors.map(e => e.type), [ errors ]);
-  switch (status) {
-    case 'empty':
-      return (
-        <Fragment>
-          <DragNDropFileInput state={ DragNDropState.available }
-                              label="Import annotations (csv)"
-                              accept={ ACCEPT_CSV_MIME_TYPE }
-                              onFileImported={ onFileImported }/>
-
-          <div id="buttons">{ cancelButton }</div>
-        </Fragment>
-      )
-    case 'loading':
-      return loadingContent
-    case 'errors':
-      if (errorsTypes.includes('unrecognised file')) {
-        const e = errors.find(e => e.type === 'unrecognised file')?.error ?? ''
-        return <UnrecognizedCSVError dragNDrop={ dragNDropLoaded }
-                                     cancelButton={ cancelButton }
-                                     error={ buildErrorMessage(e) }/>;
-      }
-      if (errorsTypes.includes('contains unrecognized dataset'))
-        return <UnrecognizedDatasetWithButtons dragNDrop={ dragNDropLoaded } cancelButton={ cancelButton }/>
-      return;
-    case 'edit-detectors':
-      return loadingContent;
   }
+  // No file has been given
+  if (error) {
+    return <UnrecognizedCSVError cancelButton={ cancelButton }
+                                 filename={ file!.name }
+                                 error={ error }/>;
+  }
+  if (!fileData) {
+    return (
+      <Fragment>
+        <DragNDropFileInput state={ DragNDropState.available }
+                            label="Import annotations (csv)"
+                            accept={ ACCEPT_CSV_MIME_TYPE }
+                            onFileImported={ onFileImported }/>
+
+        <div id="buttons">{ cancelButton }</div>
+      </Fragment>
+    )
+  }
+  return <Fragment/>
 }
 
 interface ContentProps {
-  dragNDrop: ReactNode;
   cancelButton: ReactNode;
+  filename: string;
 }
 
-const UnrecognizedCSVError: React.FC<ContentProps & { error: string; }> = ({ cancelButton, dragNDrop, error }) => (
-  <Fragment>
+const UnrecognizedCSVError: React.FC<ContentProps & { error: string; }> = ({ cancelButton, filename, error }) => {
+  const dispatch = useAppDispatch();
+  return <Fragment>
     <div id="content">
-      { dragNDrop }
+      <DragNDropFileInput state={ DragNDropState.fileLoaded }
+                          filename={ filename ?? '' }
+                          onReset={ () => dispatch(clearImport()) }/>
       <WarningMessage>
         <p>
           Unrecognized file.
@@ -113,63 +97,5 @@ const UnrecognizedCSVError: React.FC<ContentProps & { error: string; }> = ({ can
     </div>
     <div id="buttons">{ cancelButton }</div>
   </Fragment>
-)
-
-const UnrecognizedDatasetWithButtons: React.FC<ContentProps> = ({ cancelButton, dragNDrop }) => {
-  const [ datasetSelection, setDatasetSelection ] = useState<Map<string, boolean>>(new Map());
-  const canValidateDatasets = useMemo(() => [ ...datasetSelection.values() ].includes(true), [ datasetSelection ]);
-
-  // Form data
-  const { datasetName, initialRows } = useAppSelector(state => state.createCampaignForm.importAnnotations);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    setDatasetSelection(new Map(initialRows.map(r => [ r.dataset, true ])))
-  }, [ initialRows ])
-
-  const save = () => {
-    const selection: string[] = [ ...datasetSelection.entries() ]
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .filter(([ _, isSelected ]) => isSelected)
-      .map(([ dataset ]) => dataset);
-    dispatch(importAnnotationsActions.setSelectedDatasets(selection))
-  }
-
-  return (
-    <Fragment>
-      <div id="content">
-        { dragNDrop }
-        <WarningMessage>
-          <p>The selected file contains unrecognized dataset{ datasetSelection.size > 0 && 's' }</p>
-        </WarningMessage>
-        <FormBloc label="Dataset founds">
-          { [ ...datasetSelection.entries() ].map(([ dataset, checked ]) => (
-            <IonCheckbox labelPlacement="end" justify="start"
-                         checked={ checked }
-                         key={ dataset }
-                         onIonChange={ event => {
-                           const map = datasetSelection;
-                           map.set(dataset, event.detail.checked)
-                           setDatasetSelection(new Map(map));
-                         } }>
-              { dataset }
-            </IonCheckbox>
-          )) }
-        </FormBloc>
-      </div>
-
-
-      <div id="buttons">
-        { cancelButton }
-
-        <IonButton disabled={ !canValidateDatasets }
-                   aria-disabled={ !canValidateDatasets }
-                   className="ion-text-wrap"
-                   onClick={ save }>
-          Use selected datasets as "{ datasetName }"
-        </IonButton>
-      </div>
-    </Fragment>
-  )
 }
 

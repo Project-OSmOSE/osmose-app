@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useAppSelector } from "@/slices/app";
+import { useAppSelector } from '@/service/app';
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import { AudioPlayerComponent } from './components/audio-player.component.tsx';

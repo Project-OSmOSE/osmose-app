@@ -1,5 +1,5 @@
 import { useAnnotatorAPI } from "@/services/api/annotation/annotator.service.tsx";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 import { useEffect, useRef } from "react";
 import { AnnotationCampaign } from '@/service/campaign';
 import { DatasetFile } from '@/service/dataset';

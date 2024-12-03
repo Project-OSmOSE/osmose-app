@@ -1,5 +1,5 @@
 import React, { Fragment, MutableRefObject, useState } from "react";
-import { useAppSelector } from "@/slices/app.ts";
+import { useAppSelector } from '@/service/app';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { SpectrogramRender } from "@/view/audio-annotator/components/spectro-render.component.tsx";

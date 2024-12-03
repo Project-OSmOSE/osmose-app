@@ -1,7 +1,7 @@
 export {
   AnnotationFileRangeAPI,
   useListAnnotationFileRangeQuery,
-  useUpdateAnnotationFileRangeMutation,
+  usePostAnnotationFileRangeMutation,
   useListAnnotationFileRangeWithFilesQuery,
 } from './api';
 

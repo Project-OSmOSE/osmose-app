@@ -4,22 +4,25 @@ import { Select } from "@/components/form";
 import { IonNote } from '@ionic/react';
 import { useListConfidenceSetQuery } from '@/service/campaign/confidence-set';
 import { getErrorMessage } from '@/service/function.ts';
-import { useAppDispatch, useAppSelector } from '@/slices/app.ts';
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
-  AnnotationCampaign,
   selectCampaignSubmissionErrors,
+  selectCurrentCampaign,
   selectDraftCampaign,
   updateDraftCampaign,
   WriteCreateAnnotationCampaign
 } from '@/service/campaign';
 import { CampaignErrors } from '@/service/campaign/type.ts';
 
-export const ConfidenceSetSelect: React.FC<{ createdCampaign?: AnnotationCampaign }> = ({ createdCampaign }) => {
+export const ConfidenceSetSelect: React.FC = () => {
   // Services
   const dispatch = useAppDispatch();
   const { presentError, dismiss: dismissToast } = useToast();
   const { data: allConfidenceSets, error: confidenceSetError } = useListConfidenceSetQuery()
+
+  // State
   const draftCampaign = useAppSelector(selectDraftCampaign) as Partial<WriteCreateAnnotationCampaign>
+  const createdCampaign = useAppSelector(selectCurrentCampaign)
   const errors: CampaignErrors = useAppSelector(selectCampaignSubmissionErrors);
 
   const selectedConfidenceSet = useMemo(() => {

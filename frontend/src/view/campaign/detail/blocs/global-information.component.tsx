@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from 'react';
 import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, people, pricetag } from "ionicons/icons";
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { useArchiveCampaignMutation, selectCurrentCampaign } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';

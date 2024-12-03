@@ -3,10 +3,10 @@ import { useToast } from "@/services/utils/toast.ts";
 import { Select } from "@/components/form";
 import { useListLabelSetQuery } from '@/service/campaign/label-set';
 import { getErrorMessage } from '@/service/function.ts';
-import { useAppDispatch, useAppSelector } from '@/slices/app.ts';
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
-  AnnotationCampaign,
   selectCampaignSubmissionErrors,
+  selectCurrentCampaign,
   selectDraftCampaign,
   updateCampaignSubmissionErrors,
   updateDraftCampaign,
@@ -14,13 +14,16 @@ import {
 } from '@/service/campaign';
 import { CampaignErrors } from '@/service/campaign/type.ts';
 
-export const LabelSetSelect: React.FC<{ createdCampaign?: AnnotationCampaign }> = ({ createdCampaign }) => {
+export const LabelSetSelect: React.FC = () => {
 
   // Services
   const dispatch = useAppDispatch();
   const { presentError, dismiss: dismissToast } = useToast();
   const { data: allLabelSets, error: labelSetListError } = useListLabelSetQuery()
+
+  // State
   const draftCampaign = useAppSelector(selectDraftCampaign) as Partial<WriteCreateAnnotationCampaign>
+  const createdCampaign = useAppSelector(selectCurrentCampaign)
   const errors: CampaignErrors = useAppSelector(selectCampaignSubmissionErrors);
 
   const selectedLabelSet = useMemo(() => {

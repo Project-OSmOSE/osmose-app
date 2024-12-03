@@ -7,10 +7,6 @@ export function getDefaultConfidence(state: AnnotatorState) {
   return defaultIndicator ?? state.confidence_set.confidence_indicators.find(c => c)
 }
 
-export function getNewItemID(items?: { id: number }[]) {
-  return Math.min(0, ...(items ?? []).map(r => r.id)) - 1;
-}
-
 export function getPresenceLabels(results?: Array<AnnotationResult>) {
   if (!results) return [];
   return [ ...new Set(results.map(s => s.label)) ]

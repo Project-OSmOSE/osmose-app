@@ -1,6 +1,6 @@
 import React, { Fragment, MouseEvent, useMemo } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import styles from './bloc.module.scss'
 import { IoArrowUpOutline, IoChatbubble, IoChatbubbleOutline, IoPricetag, IoTimeOutline } from 'react-icons/io5';

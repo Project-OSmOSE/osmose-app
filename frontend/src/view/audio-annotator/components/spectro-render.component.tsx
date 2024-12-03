@@ -10,7 +10,7 @@ import React, {
   WheelEvent
 } from "react";
 import { Region } from "./region.component.tsx";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { XAxis } from "@/view/audio-annotator/components/spectrogram/x-axis.component.tsx";
 import { YAxis } from "@/view/audio-annotator/components/spectrogram/y-axis.component.tsx";

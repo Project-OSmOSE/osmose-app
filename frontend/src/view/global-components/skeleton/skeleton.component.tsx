@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { IonButton, IonIcon } from "@ionic/react";
 import './skeleton.component.css';
 import { openOutline } from 'ionicons/icons';
-import { useAppDispatch } from '@/slices/app.ts';
+import { useAppDispatch } from '@/service/app';
 import { logout } from '@/service/auth';
 import { useGetCurrentUserQuery } from '@/service/user';
 

@@ -2,10 +2,11 @@ import { createSlice } from '@reduxjs/toolkit'
 import { AnnotatorState, } from './type';
 import { COLORS } from '@/consts/colors.const.tsx';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
-import { getDefaultConfidence, getNewItemID, getPresenceLabels, getResultType } from './function.ts';
+import { getDefaultConfidence, getPresenceLabels, getResultType } from './function.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
+import { getNewItemID } from '@/service/function';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;

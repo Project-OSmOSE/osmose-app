@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { selectCurrentCampaign } from '@/service/campaign';
 import { useDownloadAudioMetadataMutation, useListAudioMetadataQuery } from '@/service/dataset/audio-metatada';
 import { useToast } from '@/services/utils/toast.ts';

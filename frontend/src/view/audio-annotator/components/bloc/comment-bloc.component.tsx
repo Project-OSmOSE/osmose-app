@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
   disableShortcuts,
   enableShortcuts,

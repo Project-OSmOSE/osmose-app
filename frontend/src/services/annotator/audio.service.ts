@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { AnnotationResult } from '@/service/campaign/result';
 import { setAudioSpeed, setStopTime, setTime } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';

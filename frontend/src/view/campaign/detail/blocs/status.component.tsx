@@ -4,7 +4,7 @@ import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
 import { useHistory } from "react-router-dom";
-import { useAppSelector } from '@/slices/app.ts';
+import { useAppSelector } from '@/service/app';
 import { selectCurrentCampaign, useDownloadCampaignReportMutation, useDownloadCampaignStatusMutation } from '@/service/campaign';
 
 interface Props {

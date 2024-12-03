@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
-import { useAppSelector, useAppDispatch } from "@/slices/app";
+import { useAppSelector, useAppDispatch } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { onPause, onPlay, setTime } from '@/service/annotator';
 
