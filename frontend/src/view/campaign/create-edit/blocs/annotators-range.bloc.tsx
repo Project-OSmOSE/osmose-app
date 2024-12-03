@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { FormBloc, OldInput, Searchbar } from "@/components/form";
-import { getDisplayName, User } from '@/types/user';
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { trashBinOutline } from "ionicons/icons";
@@ -10,7 +9,7 @@ import { BlocRef } from "./util.bloc.ts";
 import { InputRef } from "@/components/form/inputs/utils.ts";
 import { InputValue } from "@/components/form/inputs/input.tsx";
 import { useAppSelector } from '@/slices/app.ts';
-import { useListUsersQuery } from '@/service/user';
+import { getDisplayName, useListUsersQuery, User } from '@/service/user';
 import { AnnotationCampaign, selectDraftCampaign } from '@/service/campaign';
 import {
   AnnotationFileRange,

@@ -5,9 +5,8 @@ import { DetailCampaignGlobalInformation } from "@/view/campaign/detail/blocs/gl
 import { DetailCampaignStatus } from "@/view/campaign/detail/blocs/status.component.tsx";
 import { DetailCampaignSpectrogramConfiguration } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
-import { getDisplayName } from "@/types/user.ts";
 import './annotation-campaign-detail.page.css';
-import { useGetCurrentUserQuery, useListUsersQuery, User } from '@/service/user';
+import { getDisplayName, useGetCurrentUserQuery, useListUsersQuery, User } from '@/service/user';
 import { useRetrieveCampaignQuery } from '@/service/campaign';
 import { useListAnnotationFileRangeQuery } from '@/service/campaign/annotation-file-range';
 import { useToast } from '@/services/utils/toast.ts';

@@ -1,16 +1,4 @@
-export type ExpertiseLevel =
-  "Expert" |
-  "Average" |
-  "Novice";
-
-export type User = {
-  id: number,
-  username: string,
-  email: string,
-  first_name: string,
-  last_name: string,
-  expertise_level: ExpertiseLevel,
-}
+import { User } from './type';
 
 export const getDisplayName = (user?: User, withExpertise: boolean = true) => {
   if (!user) return '';
