@@ -4,8 +4,8 @@ import { COLORS } from '@/consts/colors.const.tsx';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { getDefaultConfidence, getNewItemID, getPresenceLabels, getResultType } from './function.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotationComment } from '@/services/api';
 import { AnnotatorAPI } from './api.ts';
+import { AnnotationComment } from '@/service/campaign/comment';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;

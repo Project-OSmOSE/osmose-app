@@ -2,11 +2,10 @@ import { AnnotationCampaign } from '@/service/campaign';
 import { DatasetFile } from '@/service/dataset';
 import { User } from '@/service/user';
 import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
-import { AnnotationComment } from '@/services/api';
 import { LabelSet } from '@/service/campaign/label-set';
 import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { WriteAnnotationComment } from '@/services/api/annotation/comment.service.tsx';
+import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
 
 export type AnnotatorState = Partial<AnnotatorData> & {
   focusedResultID?: number,

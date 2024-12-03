@@ -1,6 +1,5 @@
 import { DetectorConfiguration } from '@/service/campaign/detector';
-import { AnnotationComment } from '@/services/api';
-import { WriteAnnotationComment } from '@/services/api/annotation/comment.service.tsx';
+import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
 
 export interface AnnotationResultValidations {
   id: number;

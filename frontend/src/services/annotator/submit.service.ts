@@ -1,13 +1,10 @@
 import { useAnnotatorAPI } from "@/services/api/annotation/annotator.service.tsx";
 import { useAppSelector } from "@/slices/app.ts";
 import { useEffect, useRef } from "react";
-import {
-  AnnotationComment,
-  useAnnotationCommentAPI
-} from "@/services/api";
 import { AnnotationCampaign } from '@/service/campaign';
 import { DatasetFile } from '@/service/dataset';
 import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotationComment, mapCommentForWriting } from '@/service/campaign/comment';
 
 export const useAnnotatorSubmitService = () => {
 
@@ -47,7 +44,6 @@ export const useAnnotatorSubmitService = () => {
 
   // Services
   const API = useAnnotatorAPI();
-  const commentService = useAnnotationCommentAPI();
 
   function submit() {
     if (!campaign.current || !file.current) return;
@@ -55,7 +51,7 @@ export const useAnnotatorSubmitService = () => {
       results: results.current.map(r => ({
         ...r,
         id: r.id > -1 ? r.id : null,
-        comments: r.comments.map(commentService.mapForWriting),
+        comments: r.comments.map(mapCommentForWriting),
         validations: r.validations.map(v => ({
           ...v,
           id: v.id > -1 ? v.id : null,
@@ -66,7 +62,7 @@ export const useAnnotatorSubmitService = () => {
         dataset_file: undefined,
         annotator: undefined,
       })),
-      task_comments: taskComments.current.map(commentService.mapForWriting),
+      task_comments: taskComments.current.map(mapCommentForWriting),
       session: {
         start: new Date(sessionStart.current),
         end: new Date()

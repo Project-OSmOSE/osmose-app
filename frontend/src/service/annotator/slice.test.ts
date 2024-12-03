@@ -12,10 +12,10 @@ import {
   updateFocusComment,
   validateResult,
 } from "./slice";
-import { AnnotationComment, } from "@/services/api";
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { AnnotatorState } from '@/service/annotator/type.ts';
 import { User } from '@/service/user';
+import { AnnotationComment } from '@/service/campaign/comment';
 
 const mockState: AnnotatorState = {
   hasChanged: false,
@@ -144,7 +144,8 @@ const mockState: AnnotatorState = {
   audio: {
     time: 0,
     isPaused: true
-  }
+  },
+  sessionStart: Date.now()
 }
 const newPresence: string = "Boat";
 const newBoxResult: AnnotationResultBounds = {

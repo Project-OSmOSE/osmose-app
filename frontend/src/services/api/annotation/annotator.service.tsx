@@ -1,8 +1,8 @@
 import { OldAPIService } from "../api-service.util.tsx";
-import { AnnotationComment } from "./comment.service";
 import { AnnotationCampaign } from '@/service/campaign';
 import { AnnotationResult } from '@/service/campaign/result';
 import { AnnotatorData, WriteAnnotatorData } from '@/service/annotator/type.ts';
+import { AnnotationComment } from '@/service/campaign/comment';
 
 
 class AnnotatorAPIService extends OldAPIService<AnnotatorData, WriteAnnotatorData> {
