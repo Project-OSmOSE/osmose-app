@@ -24,10 +24,11 @@ export function download(text: string,
 
 export function getErrorMessage(error: FetchBaseQueryError | SerializedError | undefined): string | undefined {
   if (!error) return undefined;
-  const message = (error as SerializedError).message;
+  if ((error as SerializedError).message) return (error as SerializedError).message;
+  if ((error as any).error) return (error as any).error;
   const data = (error as FetchBaseQueryError).data as any;
   const detail = Object.prototype.hasOwnProperty.call(data, 'detail') ? data['detail'] : null;
-  return message ?? detail ?? JSON.stringify(data);
+  return detail ?? JSON.stringify(data);
 }
 
 export function getNewItemID(items?: { id: number }[]) {

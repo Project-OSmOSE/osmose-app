@@ -27,7 +27,7 @@ export const AnnotatorsRangeBloc: React.FC = () => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: createdCampaign?.id })
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: createdCampaign?.id ?? -1 })
   const { data: allDatasets } = useListDatasetQuery();
 
   // Memo
@@ -37,6 +37,7 @@ export const AnnotatorsRangeBloc: React.FC = () => {
     return allDatasets?.find(d => draftCampaign.datasets![0] === d.name)?.files_count;
   }, [ createdCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
   const availableUsers = useMemo(() => {
+    if (!filesCount) return users ?? [];
     return users?.filter(u =>
       draftFileRanges
         .filter(r => r.annotator === u.id)
@@ -45,9 +46,9 @@ export const AnnotatorsRangeBloc: React.FC = () => {
           const first_index = range.first_file_index ?? 0;
           return count + (last_index - first_index)
         }, 0)
-      < (filesCount ?? 0)
-    ) ?? []
-  }, [ users ])
+      < filesCount
+    ) ?? [];
+  }, [ users, filesCount ]);
 
   // Updates
   useEffect(() => {

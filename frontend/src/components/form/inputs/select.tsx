@@ -77,8 +77,7 @@ export const Select: React.FC<SelectProperties> = ({
   const parentClasses = [ "select", className ]
   if (label) parentClasses.push("has-label")
 
-  return <div id="aplose-input" className={ parentClasses.join(' ') } ref={ selectRef } { ...props }
-              aria-loading={ isLoading }
+  return <div id="aplose-input" className={ [...parentClasses, isLoading ? 'loading' : ''].join(' ') } ref={ selectRef } { ...props }
               aria-invalid={ !!error }>
     { label && <div id="label"
                     aria-disabled={ disabled }
@@ -126,7 +125,7 @@ export const Select: React.FC<SelectProperties> = ({
           onWillDismiss={ data => {
             const value = data.detail.data?.values
             if (value !== undefined) {
-              onValueSelected(value >= 0 ? value : undefined)
+              onValueSelected(value !== -1 ? value : undefined)
               setHasSelectedItem(true)
             }
             setIsOpen(false)

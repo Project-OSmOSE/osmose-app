@@ -30,21 +30,21 @@ export const CampaignBloc: React.FC = () => {
     <Input label="Name"
            placeholder="Campaign name"
            error={ errors.name }
-           value={ draftCampaign.name }
+           value={ draftCampaign.name ?? '' }
            onChange={ e => dispatch(updateDraftCampaign({ name: e.target.value })) }
            required={ true }
            disabled={ !!createdCampaign }/>
 
     <Textarea label="Description" placeholder="Enter your campaign description"
               error={ errors.desc }
-              value={ draftCampaign.desc ?? undefined }
+              value={ draftCampaign.desc ?? '' }
               onChange={ e => dispatch(updateDraftCampaign({ desc: e.target.value })) }
               disabled={ !!createdCampaign }/>
 
     <Input label="Instruction URL"
            placeholder="URL"
            error={ errors.instructions_url }
-           value={ draftCampaign.instructions_url ?? undefined }
+           value={ draftCampaign.instructions_url ?? '' }
            onChange={ e => dispatch(updateDraftCampaign({ instructions_url: e.target.value })) }
            disabled={ !!createdCampaign }/>
 
@@ -52,7 +52,7 @@ export const CampaignBloc: React.FC = () => {
            type="date"
            placeholder="Deadline"
            error={ errors.deadline }
-           value={ draftCampaign.deadline ?? undefined }
+           value={ draftCampaign.deadline ?? '' }
            onChange={ e => dispatch(updateDraftCampaign({ deadline: e.target.value })) }
            disabled={ !!createdCampaign }/>
   </FormBloc>

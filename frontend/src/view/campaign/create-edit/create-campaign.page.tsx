@@ -6,6 +6,7 @@ import { useToast } from "@/services/utils/toast.ts";
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { CampaignBloc } from "@/view/campaign/create-edit/blocs/campaign.bloc.tsx";
 import {
+  AnnotationCampaign,
   BaseAnnotationCampaign,
   clearCampaign,
   selectDraftCampaign,
@@ -51,25 +52,27 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submit()
-  }
-
-  const submit = async () => {
     try {
-      if (!await submitCampaign()) return;
-      if (!await submitResults()) return;
-      if (!await submitFileRanges()) return;
+      const campaign = createdCampaign ?? await submitCampaign();
+      await submitResults(campaign)
+      if (!await submitFileRanges(campaign)) return;
 
       history.push('/annotation-campaign');
     } catch (e: any) {
+      console.debug(JSON.stringify(e))
+      if (Object.prototype.hasOwnProperty.call(e, 'data')) {
+
+        for (const [key, value] of Object.entries(e.data)) {
+          console.debug(key, value)
+        }
+      }
       toast.presentError(getErrorMessage(e));
     }
   }
 
   const submitCampaign = () => {
-    if (createdCampaign) return;
     const missingFields = [];
     if (!draftCampaign.name?.trim()) missingFields.push('name');
     if (!draftCampaign.usage) missingFields.push('usage');
@@ -94,7 +97,10 @@ export const CreateCampaign: React.FC = () => {
       return createCampaign({
         ...data,
         usage: 'Check',
-      }).unwrap();
+      }).unwrap().catch(e => {
+        if (Object.prototype.hasOwnProperty.call(e, 'data')) dispatch(updateCampaignSubmissionErrors(e.data))
+        throw e
+      });
     }
 
     if (!(draftCampaign as WriteCreateAnnotationCampaign).label_set) {
@@ -110,17 +116,19 @@ export const CreateCampaign: React.FC = () => {
       usage: 'Create',
       label_set: draft.label_set!,
       confidence_indicator_set: draft.confidence_indicator_set ?? null
-    }).unwrap();
+    }).unwrap().catch(e => {
+      if (Object.prototype.hasOwnProperty.call(e, 'data')) dispatch(updateCampaignSubmissionErrors(e.data))
+      throw e
+    });
   }
 
-  const submitResults = async (force: boolean = false) => {
-    if (!createdCampaign) return;
+  const submitResults = async (campaign: AnnotationCampaign, force: boolean = false) => {
     if (!resultFile) return;
     if (!detectors || detectors.length === 0) throw new Error('You should import results');
     try {
       return importResults({
-        campaignID: createdCampaign.id,
-        datasetName: createdCampaign.datasets[0],
+        campaignID: campaign.id,
+        datasetName: campaign.datasets![0],
         detectors,
         file: resultFile,
         force
@@ -138,22 +146,22 @@ export const CreateCampaign: React.FC = () => {
           const count = response_errors.filter((err: string) => err.includes(error)).length;
           return `[${ count } results]: ${ error }`
         }).join('\n'), true);
-        if (retry) return submitResults(true)
+        if (retry) return submitResults(campaign, true)
       }
     }
   }
 
-  const submitFileRanges = () => {
-    if (!createdCampaign) return;
+  const submitFileRanges = (campaign: AnnotationCampaign) => {
     return postFileRanges({
-      campaignID: createdCampaign.id,
+      campaignID: campaign.id,
       data: draftFileRanges.map(r => {
-        const first_file_index = r.first_file_index === undefined ? 0 : (+r.first_file_index - 1);
-        const last_file_index = r.last_file_index === undefined ? (createdCampaign.files_count - 1) : (+r.last_file_index - 1);
+        const first_file_index = (r.first_file_index === undefined || r.first_file_index === null) ? 0 : (+r.first_file_index - 1);
+        const last_file_index = (r.last_file_index === undefined || r.last_file_index === null) ? (campaign.files_count - 1) : (+r.last_file_index - 1);
+        console.debug('submitFileRanges', campaign.files_count, r.annotator, r.first_file_index, first_file_index, r.last_file_index, last_file_index);
         return {
           id: r.id >= 0 ? r.id : undefined,
           first_file_index: first_file_index < 0 ? 0 : first_file_index,
-          last_file_index: last_file_index < 0 ? createdCampaign.files_count! - 1 : last_file_index,
+          last_file_index: last_file_index < 0 ? campaign.files_count! - 1 : last_file_index,
           annotator: r.annotator
         }
       })

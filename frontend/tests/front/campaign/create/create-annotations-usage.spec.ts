@@ -1,6 +1,5 @@
 import { expect, test } from '../../../utils/fixture';
 import { accessCreateCampaign } from '../../../utils/campaign/functions';
-import { WriteAnnotationCampaign } from '../../../../src/services/api/annotation/campaign.service';
 import {
   confidenceSet,
   dataset,
@@ -14,7 +13,8 @@ import {
   url
 } from './util';
 import { ADMIN, ANNOTATOR } from '../../../utils/auth/data';
-import { WriteAnnotationFileRange } from '../../../../src/services/api/annotation/file-range.service';
+import { WriteAnnotationCampaign } from '../../../../src/service/campaign';
+import { WriteAnnotationFileRange } from '../../../../src/service/campaign/annotation-file-range';
 
 test('Default without annotators', async ({ annotatorPage: page }) => {
   await accessCreateCampaign(page);

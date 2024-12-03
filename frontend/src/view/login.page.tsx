@@ -12,8 +12,8 @@ export const Login: React.FC = () => {
 
   // State
   const isConnected = useAppSelector(selectIsConnected);
-  const [ username, setUsername ] = useState<string | undefined>();
-  const [ password, setPassword ] = useState<string | undefined>();
+  const [ username, setUsername ] = useState<string>('');
+  const [ password, setPassword ] = useState<string>('');
   const [ errors, setErrors ] = useState<{ global?: string, username?: string, password?: string }>({});
 
   // Service

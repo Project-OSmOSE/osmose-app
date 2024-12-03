@@ -24,6 +24,13 @@ export const DataBloc: React.FC = () => {
     if (draftCampaign.datasets.length === 0) return undefined;
     return allDatasets?.find(d => draftCampaign.datasets![0] === d.name);
   }, [ draftCampaign.datasets, allDatasets ]);
+  useEffect(() => {
+    if (draftCampaignDataset) {
+      dispatch(updateDraftCampaign({
+        spectro_configs: draftCampaignDataset.spectros.map(s => s.id)
+      }));
+    }
+  }, [draftCampaignDataset]);
 
   // Loading
   useEffect(() => {
