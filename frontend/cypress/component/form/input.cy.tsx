@@ -1,4 +1,4 @@
-import { OldInput } from '../../../src/components/form/inputs/input'
+import { Input } from '../../../src/components/form'
 
 const label = 'My label';
 const placeholder = 'My placeholder';
@@ -7,9 +7,9 @@ const note = 'My note';
 
 describe('Input', () => {
   beforeEach(() => {
-    cy.mount(<OldInput label={ label }
-                       placeholder={ placeholder }
-                       note={ note }/>)
+    cy.mount(<Input label={ label }
+                    placeholder={ placeholder }
+                    note={ note }/>)
   })
 
   it('renders', () => {
@@ -24,9 +24,9 @@ describe('Input', () => {
   })
 
   it('can be required', () => {
-    cy.mount(<OldInput label={ label }
-                       required={ true }
-                       placeholder={ placeholder }/>)
+    cy.mount(<Input label={ label }
+                    required={ true }
+                    placeholder={ placeholder }/>)
     cy.get('#aplose-input').should('contain', `${ label }*`)
     cy.get('#aplose-input input').should('have.attr', 'required')
   })

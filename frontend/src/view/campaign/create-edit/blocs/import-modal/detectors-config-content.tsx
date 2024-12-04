@@ -2,7 +2,7 @@ import React, { ChangeEvent, Fragment, ReactNode, useEffect, useMemo, useState }
 import { IonButton, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { FormBloc, OldTextarea, Select } from "@/components/form";
+import { FormBloc, Select, Textarea } from "@/components/form";
 import { DetectorConfiguration } from '@/service/campaign/detector';
 import { DetectorSelection, setDetectors as saveDetectors } from '@/service/campaign';
 
@@ -31,7 +31,7 @@ export const DetectorsConfigContent: React.FC<Props> = ({
 
   useEffect(() => {
     if (resultImport.detectors) setDetectors(resultImport.detectors);
-  }, [resultImport.detectors]);
+  }, [ resultImport.detectors ]);
 
   const _save = () => {
     dispatch(saveDetectors(detectors))
@@ -131,11 +131,11 @@ const DetectorConfigEntry: React.FC<DetectorEntryProps> = ({
               noneLabel="Create new" noneFirst
               placeholder="Select configuration"/>
 
-      <OldTextarea placeholder="Enter new configuration"
-                   hidden={ !isUpdated }
-                   disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
-                   value={ selectedConfiguration?.configuration ?? configurationText }
-                   onChange={ onConfigurationTextUpdated }/>
+      <Textarea placeholder="Enter new configuration"
+                hidden={ !isUpdated }
+                disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
+                value={ selectedConfiguration?.configuration ?? configurationText }
+                onChange={ onConfigurationTextUpdated }/>
 
       <div className="line"/>
     </div>
