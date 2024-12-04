@@ -52,12 +52,12 @@ class CreateTestCase(TestCase):
     def test_presence(self):
         serializer = self._get_serializer(presence_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), presence_result)
+        self.assertDictEqual(dict(serializer.data), {**presence_result, "id": None})
 
     def test_box(self):
         serializer = self._get_serializer(box_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), box_result)
+        self.assertDictEqual(dict(serializer.data), {**box_result, "id": None})
 
     # Corrected
     def test_wrong_order(self):
