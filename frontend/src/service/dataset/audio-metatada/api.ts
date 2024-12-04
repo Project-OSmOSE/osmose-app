@@ -1,16 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
-import { encodeQueryParams } from '@/service/function.ts';
+import { downloadResponseHandler, encodeQueryParams } from '@/service/function.ts';
 import { AnnotationCampaign } from '@/service/campaign';
 import { AudioMetadatum } from './type';
 
 export const AudioMetadataAPI = createApi({
   reducerPath: 'audioMetadataAPI',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/audio-metadata/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/audio-metadata/'),
   endpoints: (builder) => ({
     list: builder.query<Array<AudioMetadatum>, {
       campaignID?: ID,
@@ -27,12 +24,8 @@ export const AudioMetadataAPI = createApi({
           filename: name.replace(' ', '_') + '_audio_metadata.csv',
           dataset__annotation_campaigns: id
         }) }`,
-        method: 'POST',
+        responseHandler: downloadResponseHandler
       }),
-      transformResponse: (response) => {
-        console.warn('transformResponse', response)
-        // TODO
-      }
     }),
   })
 })

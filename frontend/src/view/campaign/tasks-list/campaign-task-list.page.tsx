@@ -17,7 +17,7 @@ export const AnnotationTaskList: React.FC = () => {
   // Services
   const history = useHistory();
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
-  const { data: fileRanges } = useListAnnotationFileRangeWithFilesQuery({ campaignID, forCurrentUser: true });
+  const { data: fileRanges } = useListAnnotationFileRangeWithFilesQuery({ campaignID, forCurrentUser: true }, {refetchOnMountOrArgChange: true });
 
   useEffect(() => {
     document.body.scrollTo({ top: 0, behavior: 'instant' })

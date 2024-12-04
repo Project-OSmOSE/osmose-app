@@ -1,14 +1,11 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { Dataset, ImportDataset } from './type.ts';
 import { v4 as uuidV4 } from 'uuid';
 
 export const DatasetAPI = createApi({
   reducerPath: 'datasetApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/dataset/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/dataset/'),
   endpoints: (builder) => ({
 
     list: builder.query<Array<Dataset>, void>({ query: () => '' }),
@@ -23,7 +20,7 @@ export const DatasetAPI = createApi({
       query: (data) => ({
         url: `datawork_import/`,
         method: 'POST',
-        body: data
+        body: { wanted_datasets: data }
       })
     })
   })

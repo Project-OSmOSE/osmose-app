@@ -1,4 +1,4 @@
-import React, { Fragment, ReactNode, useMemo, useState } from "react";
+import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonCheckbox } from "@ionic/react";
 import { WarningMessage } from "@/components/warning/warning-message.component";
 import { DragNDropFileInput, DragNDropState, FormBloc } from "@/components/form";
@@ -16,6 +16,10 @@ export const DatasetChoice: React.FC<{ cancelButton: ReactNode; }> = ({ cancelBu
     draftCampaign
   } = useAppSelector(state => state.campaign)
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (resultImport.fileData?.datasets) setDatasetSelection(new Map(resultImport.fileData.datasets.map(d => [ d, true ])));
+  }, [ resultImport.fileData?.datasets ])
 
   const save = () => {
     const selection: string[] = [ ...datasetSelection.entries() ]

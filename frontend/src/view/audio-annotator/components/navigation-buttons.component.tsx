@@ -8,6 +8,8 @@ import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 interface Props {
   shortcut: ReactNode;
@@ -37,6 +39,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
   // Services
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
+  const toast = useToast();
 
   // Data
   const {
@@ -88,15 +91,17 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
 
   const submit = async () => {
     isSubmitting.current = true;
-    const response = await submitService.submit()?.finally(() => {
+    try {
+      await submitService.submit()
+      if (next_file_id.current) {
+        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+      } else {
+        history.push(`/annotation-campaign/${ campaignID }/file`)
+      }
+    } catch (e: any) {
+      toast.presentError(getErrorMessage(e))
+    } finally {
       isSubmitting.current = false;
-    })
-
-    if (!response) return;
-    if (next_file_id.current) {
-      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
-    } else {
-      history.push(`/annotation-campaign/${ campaignID }/file`)
     }
   }
 

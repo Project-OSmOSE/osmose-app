@@ -7,10 +7,11 @@ import { DetailCampaignSpectrogramConfiguration } from "@/view/campaign/detail/b
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
 import './annotation-campaign-detail.page.css';
 import { getDisplayName, useGetCurrentUserQuery, useListUsersQuery, User } from '@/service/user';
-import { useRetrieveCampaignQuery } from '@/service/campaign';
+import { selectCurrentCampaign, useRetrieveCampaignQuery } from '@/service/campaign';
 import { useListAnnotationFileRangeQuery } from '@/service/campaign/annotation-file-range';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
+import { useAppSelector } from '@/service/app.ts';
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
@@ -22,22 +23,27 @@ export const AnnotationCampaignDetail: React.FC = () => {
     progress: number
   }>>(new Map());
   const [ campaignErrorMessage, setCampaignErrorMessage ] = useState<string | undefined>();
+  const campaign = useAppSelector(selectCurrentCampaign)
 
   // Services
   const history = useHistory();
   const { presentError, dismiss: dismissToast } = useToast();
-  const { data: campaign, error: campaignError } = useRetrieveCampaignQuery(campaignID);
+  const { error: campaignError } = useRetrieveCampaignQuery(campaignID);
   const { data: users, error: userError } = useListUsersQuery();
   const { data: currentUser, error: currentUserError } = useGetCurrentUserQuery();
-  const { data: fileRanges, error: fileRangeError } = useListAnnotationFileRangeQuery({ campaignID });
+  const {
+    data: fileRanges,
+    error: fileRangeError
+  } = useListAnnotationFileRangeQuery({ campaignID }, { refetchOnMountOrArgChange: true });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isOwner = useMemo(() => {
     return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
   }, [ currentUser, campaign?.owner ]);
-  const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner ]);
+  const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner, campaign?.archive ]);
 
   useEffect(() => {
     if (!fileRanges) return;
+    if (!users) return;
     const map = new Map<string, { total: number, progress: number }>()
     for (const range of fileRanges) {
       const annotator = getDisplayName(users?.find((u: User) => u.id === range.annotator));
@@ -52,7 +58,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
       }
     }
     setAnnotatorsStatus(map)
-  }, [ fileRanges ]);
+  }, [ fileRanges, users ]);
 
   useEffect(() => {
     return () => {

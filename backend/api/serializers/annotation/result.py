@@ -257,7 +257,7 @@ class DetectorConfigurationSerializer(serializers.ModelSerializer):
 class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, allow_null=True)
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
         slug_field="name",

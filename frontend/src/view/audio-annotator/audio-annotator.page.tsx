@@ -50,7 +50,10 @@ export const AudioAnnotator: React.FC = () => {
 
   // Service
   const toast = useToast();
-  const { data, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({ campaignID, fileID })
+  const { data, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({
+    campaignID,
+    fileID
+  }, { refetchOnMountOrArgChange: true })
 
   const navKeyPress = useRef<KeypressHandler | null>(null);
   const labelsKeyPress = useRef<KeypressHandler | null>(null);
@@ -79,7 +82,7 @@ export const AudioAnnotator: React.FC = () => {
   // Memo
   const focusedResult = useMemo(() => {
     return results?.find(r => r.id === focusedResultID);
-  }, [focusedResultID])
+  }, [ focusedResultID ])
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyPressed);
@@ -92,7 +95,7 @@ export const AudioAnnotator: React.FC = () => {
 
   useEffect(() => {
     if (retrieveError) setError(getErrorMessage(retrieveError));
-  }, [retrieveError]);
+  }, [ retrieveError ]);
 
   useEffect(() => {
     localAreShortcutsEnabled.current = ui.areShortcutsEnabled;
@@ -117,7 +120,8 @@ export const AudioAnnotator: React.FC = () => {
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!data?.label_set || data.label_set.labels.length === 0) return <p>Error: <code>Label set is empty</code></p>
-  else if (!data?.spectrogram_configurations || data.spectrogram_configurations.length === 0) return <p>Error: <code>Cannot retrieve spectrograms</code></p>
+  else if (!data?.spectrogram_configurations || data.spectrogram_configurations.length === 0) return <p>Error: <code>Cannot
+    retrieve spectrograms</code></p>
   else if (!file || file.id !== +fileID) return <p>Unknown error while loading task.</p>
 
   // Rendering

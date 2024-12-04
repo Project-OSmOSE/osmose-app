@@ -12,6 +12,7 @@ import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-confi
 import { AudioMetadataAPI } from '@/service/dataset/audio-metatada';
 import { DetectorAPI } from '@/service/campaign/detector';
 import { AnnotatorAPI, AnnotatorSlice } from '@/service/annotator';
+import { AnnotationResultAPI } from '@/service/campaign/result';
 
 export const AppStore = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const AppStore = configureStore({
     [AudioMetadataAPI.reducerPath]: AudioMetadataAPI.reducer,
     [DetectorAPI.reducerPath]: DetectorAPI.reducer,
     [AnnotatorAPI.reducerPath]: AnnotatorAPI.reducer,
+    [AnnotationResultAPI.reducerPath]: AnnotationResultAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -45,6 +47,7 @@ export const AppStore = configureStore({
       .concat(AudioMetadataAPI.middleware)
       .concat(DetectorAPI.middleware)
       .concat(AnnotatorAPI.middleware)
+      .concat(AnnotationResultAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

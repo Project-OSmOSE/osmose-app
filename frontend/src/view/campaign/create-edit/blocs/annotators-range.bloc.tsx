@@ -22,38 +22,43 @@ export const AnnotatorsRangeBloc: React.FC = () => {
   // State
   const dispatch = useAppDispatch();
   const draftCampaign = useAppSelector(selectDraftCampaign);
-  const createdCampaign = useAppSelector(selectCurrentCampaign);
+  const currentCampaign = useAppSelector(selectCurrentCampaign);
   const draftFileRanges = useAppSelector(selectDraftFileRange);
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: createdCampaign?.id ?? -1 })
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
   const { data: allDatasets } = useListDatasetQuery();
 
   // Memo
   const filesCount = useMemo(() => {
-    if (createdCampaign?.files_count) return createdCampaign?.files_count;
+    if (currentCampaign?.files_count) return currentCampaign?.files_count;
     if (!draftCampaign.datasets || draftCampaign.datasets.length === 0) return undefined;
     return allDatasets?.find(d => draftCampaign.datasets![0] === d.name)?.files_count;
-  }, [ createdCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
+  }, [ currentCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
   const availableUsers = useMemo(() => {
     if (!filesCount) return users ?? [];
-    return users?.filter(u =>
-      draftFileRanges
-        .filter(r => r.annotator === u.id)
-        .reduce((count, range) => {
-          const last_index = range.last_file_index ?? filesCount ?? 0;
-          const first_index = range.first_file_index ?? 0;
-          return count + (last_index - first_index)
-        }, 0)
-      < filesCount
+    return users?.filter(u => {
+        const count = draftFileRanges
+          .filter(r => r.annotator === u.id)
+          .reduce((count, range) => {
+            const last_index = range.last_file_index ?? filesCount ?? 0;
+            const first_index = range.first_file_index ?? 0;
+            return count + (last_index - first_index)
+          }, 0) + 1
+        return count < filesCount
+      }
     ) ?? [];
-  }, [ users, filesCount ]);
+  }, [ users, filesCount, draftFileRanges ]);
 
   // Updates
   useEffect(() => {
     for (const range of initialFileRanges ?? []) {
-      dispatch(addDraftFileRange(range))
+      dispatch(addDraftFileRange({
+        ...range,
+        first_file_index: range.first_file_index + 1,
+        last_file_index: range.last_file_index + 1,
+      }))
     }
   }, [ initialFileRanges ]);
 
@@ -103,40 +108,46 @@ const AnnotatorRangeLine: React.FC<{
   onFirstIndexChange: (index: number) => void,
   onLastIndexChange: (index: number) => void,
   onDelete: () => void,
-}> = ({ range, annotator, filesCount, onFirstIndexChange, onLastIndexChange, onDelete }) => (
-  <Fragment key={ range.id }>
-    <TableContent isFirstColumn={ true }>
-      { getDisplayName(annotator) }
-    </TableContent>
-    <TableContent>
-      <div className={ styles.fileRangeCell }>
-        { range.finished_tasks_count &&
-            <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index! + 1 }</span> }
-        { !range.finished_tasks_count && <Input type="number"
-                                                value={ range.first_file_index }
-                                                onChange={ e => onFirstIndexChange(+e.target.value) }
-                                                placeholder="1"
-                                                min={ 1 } max={ filesCount }
-                                                disabled={ filesCount === undefined }/> }
-        -
-        { range.finished_tasks_count &&
-            <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index! + 1 }</span> }
-        { !range.finished_tasks_count && <Input type="number"
-                                                value={ range.last_file_index }
-                                                onChange={ e => onLastIndexChange(+e.target.value) }
-                                                placeholder={ filesCount?.toString() }
-                                                min={ 1 } max={ filesCount }
-                                                disabled={ filesCount === undefined }/> }
-      </div>
-    </TableContent>
-    <TableContent>
-      <IonButton disabled={ !!range.finished_tasks_count }
-                 color="danger"
-                 data-tooltip={ 'This user as already started to annotate' }
-                 onClick={ onDelete }>
-        <IonIcon icon={ trashBinOutline }/>
-      </IonButton>
-    </TableContent>
-    <TableDivider/>
-  </Fragment>
-)
+}> = ({ range, annotator, filesCount, onFirstIndexChange, onLastIndexChange, onDelete }) => {
+  const disabled = useMemo(() => {
+    if (range.finished_tasks_count === undefined) return false;
+    return range.finished_tasks_count > 0;
+  }, [ range.finished_tasks_count ])
+  return (
+    <Fragment key={ range.id }>
+      <TableContent isFirstColumn={ true }>
+        { getDisplayName(annotator) }
+      </TableContent>
+      <TableContent>
+        <div className={ styles.fileRangeCell }>
+          { disabled &&
+              <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index! }</span> }
+          { !disabled && <Input type="number"
+                                value={ range.first_file_index }
+                                onChange={ e => onFirstIndexChange(+e.target.value) }
+                                placeholder="1"
+                                min={ 1 } max={ filesCount }
+                                disabled={ filesCount === undefined }/> }
+          -
+          { disabled &&
+              <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index! }</span> }
+          { !disabled && <Input type="number"
+                                value={ range.last_file_index }
+                                onChange={ e => onLastIndexChange(+e.target.value) }
+                                placeholder={ filesCount?.toString() }
+                                min={ 1 } max={ filesCount }
+                                disabled={ filesCount === undefined }/> }
+        </div>
+      </TableContent>
+      <TableContent>
+        <IonButton disabled={ disabled }
+                   color="danger"
+                   data-tooltip={ 'This user as already started to annotate' }
+                   onClick={ onDelete }>
+          <IonIcon icon={ trashBinOutline }/>
+        </IonButton>
+      </TableContent>
+      <TableDivider/>
+    </Fragment>
+  )
+}

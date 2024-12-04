@@ -1,15 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotationFileRange, AnnotationFileRangeWithFiles, WriteAnnotationFileRange } from './type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
 
 export const AnnotationFileRangeAPI = createApi({
   reducerPath: 'fileRangeApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/annotation-file-range/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/annotation-file-range/'),
   endpoints: (builder) => ({
 
     list: builder.query<Array<AnnotationFileRange>, {

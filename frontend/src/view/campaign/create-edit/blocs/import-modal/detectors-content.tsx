@@ -36,6 +36,14 @@ export const DetectorsContent: React.FC<Props> = ({
   } = useAppSelector(state => state.campaign);
   const dispatch = useAppDispatch();
 
+  const availableDetectors = useMemo(() => {
+    const data = resultImport.fileData;
+    const filterDatasets = resultImport.filterDatasets;
+    if (!data || !filterDatasets) return;
+    const availableEntries = filterDatasets.flatMap(d => data.detectorsForDatasets[d])
+    return [...new Set(availableEntries)]
+  }, [])
+
   const _save = () => {
     const entries: DetectorSelection[] = [ ...detectors.entries() ].map(([ initialName, detector ]) => {
       const selection: DetectorSelection = {
@@ -82,7 +90,7 @@ export const DetectorsContent: React.FC<Props> = ({
         </div>
 
         <FormBloc label="Detectors from CSV">
-          { resultImport.fileData?.detectors.map(d => (
+          { availableDetectors?.map(d => (
             <DetectorEntry csvDetector={ d }
                            allDetectors={ allDetectors }
                            key={ d }

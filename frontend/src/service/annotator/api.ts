@@ -1,15 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, WriteAnnotatorData } from './type.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotationCampaign } from '@/service/campaign';
 
 export const AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/annotator/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   endpoints: (builder) => ({
     retrieve: builder.query<AnnotatorData, { campaignID: ID, fileID: ID }>({
       query: ({ campaignID, fileID }) => `campaign/${ campaignID }/file/${ fileID }/`

@@ -43,11 +43,22 @@ export const loadFile = createAsyncThunk(
             return;
           }
 
+          const getDetectors = (data: Array<{
+            dataset: string,
+            annotator: string
+          }>) => [ ...new Set(data.map(d => d.annotator)) ].sort()
+
+          const datasets = [ ...new Set(data.map(d => d.dataset)) ];
+          const detectorsForDatasets: { [key in string]: Array<string> } = {}
+          for (const dataset of datasets) {
+            detectorsForDatasets[dataset] = getDetectors(data.filter(d => d.dataset === dataset));
+          }
+
           resolve({
             filename: file.name,
             type: file.type,
-            datasets: data.map(d => d.dataset),
-            detectors: data.map(d => d.annotator),
+            datasets, detectorsForDatasets,
+            detectors: getDetectors(data),
           })
         } catch (e) {
           reject(e)
@@ -74,6 +85,12 @@ export const CampaignSlice = createSlice({
       state.submissionErrors = {};
       state.resultImport = { isSubmitted: false, isLoading: false };
     },
+    clearDraft: (state) => {
+      state.draftCampaign = {};
+      state.draftFileRanges = [];
+      state.submissionErrors = {};
+      state.resultImport = { isSubmitted: false, isLoading: false };
+    },
     updateDraftCampaign: (state, { payload }: { payload: Partial<WriteAnnotationCampaign> }) => {
       Object.assign(state.draftCampaign, payload);
     },
@@ -87,7 +104,7 @@ export const CampaignSlice = createSlice({
     addDraftFileRange: (state, { payload }: { payload: Partial<WriteAnnotationFileRange> & { annotator: number } }) => {
       state.draftFileRanges.push({
         ...payload,
-        id: getNewItemID(state.draftFileRanges)
+        id: payload.id ?? getNewItemID(state.draftFileRanges)
       });
     },
     updateDraftFileRange: (state, { payload }: { payload: Partial<WriteAnnotationFileRange> & { id: number } }) => {
@@ -111,6 +128,10 @@ export const CampaignSlice = createSlice({
     },
     setDetectors: (state, { payload }: { payload: Array<DetectorSelection> }) => {
       state.resultImport.detectors = payload;
+      state.resultImport.filterDetectors = payload.map(d => d.initialName);
+    },
+    setFilteredDetectors: (state, { payload }: { payload: Array<string> }) => {
+      state.resultImport.filterDetectors = payload;
     }
   },
   extraReducers: (builder) => {
@@ -165,6 +186,7 @@ export const CampaignSlice = createSlice({
 
 export const {
   clear: clearCampaign,
+  clearDraft: clearDraftCampaign,
   updateDraftCampaign,
   updateSubmissionErrors: updateCampaignSubmissionErrors,
   removeDraftFileRange,
@@ -173,5 +195,5 @@ export const {
   clearImport,
   setFilteredDatasets,
   setDetectors,
-
+  setFilteredDetectors,
 } = CampaignSlice.actions

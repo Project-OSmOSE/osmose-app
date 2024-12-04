@@ -5,7 +5,11 @@ import { Table, TableContent, TableDivider, TableHead } from "@/components/table
 import './blocs.css';
 import { useHistory } from "react-router-dom";
 import { useAppSelector } from '@/service/app';
-import { selectCurrentCampaign, useDownloadCampaignReportMutation, useDownloadCampaignStatusMutation } from '@/service/campaign';
+import {
+  selectCurrentCampaign,
+  useDownloadCampaignReportLazyQuery,
+  useDownloadCampaignStatusMutation
+} from '@/service/campaign';
 
 interface Props {
   isOwner: boolean;
@@ -23,11 +27,10 @@ export const DetailCampaignStatus: React.FC<Props> = ({ isEditionAllowed, annota
   // Services
   const history = useHistory();
   const [ downloadStatus ] = useDownloadCampaignStatusMutation()
-  const [ downloadReport ] = useDownloadCampaignReportMutation()
+  const [ downloadReport ] = useDownloadCampaignReportLazyQuery()
 
   // State
   const campaign = useAppSelector(selectCurrentCampaign);
-
 
   const [ sort, setSort ] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
   const status: Array<string> = useMemo(() => {

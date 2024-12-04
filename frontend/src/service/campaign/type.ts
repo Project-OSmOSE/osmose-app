@@ -66,17 +66,23 @@ export type CampaignState = {
     fileData?: FileData;
     filterDatasets?: Array<string>;
     detectors?: Array<DetectorSelection>,
+    filterDetectors?: Array<string>; // initialName
     isSubmitted: boolean;
     error?: string;
     isLoading: boolean;
   },
-  draftFileRanges: Array<Partial<WriteAnnotationFileRange> & {id: number, annotator: number, finished_tasks_count?: number}>;
+  draftFileRanges: Array<Partial<WriteAnnotationFileRange> & {
+    id: number,
+    annotator: number,
+    finished_tasks_count?: number
+  }>;
 }
 
 export type FileData = {
   filename: string;
   type: string;
   datasets: Array<string>;
+  detectorsForDatasets: { [key in string]: Array<string> }; // dataset -> Array<detector>
   detectors: Array<string>;
 }
 
@@ -88,7 +94,7 @@ export class UnreadableFileError extends Error {
 
 export class WrongMIMETypeError extends Error {
   constructor(type: string) {
-    super(`Wrong MIME Type, found : ${ type } ; but accepted types are: ${ ACCEPT_CSV_MIME_TYPE }` );
+    super(`Wrong MIME Type, found : ${ type } ; but accepted types are: ${ ACCEPT_CSV_MIME_TYPE }`);
   }
 }
 

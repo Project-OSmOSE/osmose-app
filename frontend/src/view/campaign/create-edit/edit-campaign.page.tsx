@@ -4,7 +4,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { useToast } from "@/services/utils/toast.ts";
 import './create-edit-campaign.css';
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
-import { clearCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
+import { clearDraftCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useBlur } from '@/services/utils/clic.ts';
 import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
@@ -24,7 +24,7 @@ export const EditCampaign: React.FC = () => {
 
   useEffect(() => {
     document.addEventListener('click', blurUtil.onClick)
-    dispatch(clearCampaign())
+    dispatch(clearDraftCampaign())
     return () => {
       document.removeEventListener('click', blurUtil.onClick);
       blurUtil.cleanListener();

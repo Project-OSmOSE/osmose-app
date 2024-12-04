@@ -1,16 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { AuthAPI } from './api.ts';
-import { catch401 } from './function.ts';
 import { AuthState } from './type.ts';
-import { UserAPI } from '@/service/user/api.ts';
-import { CampaignAPI } from '@/service/campaign';
-import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
-import { DatasetAPI } from '@/service/dataset';
-import { LabelSetAPI } from '@/service/campaign/label-set';
-import { ConfidenceSetAPI } from '@/service/campaign/confidence-set';
-import { SpectrogramConfigurationAPI } from '@/service/dataset/spectrogram-configuration';
-import { AudioMetadataAPI } from '@/service/dataset/audio-metatada';
-import { DetectorAPI } from '@/service/campaign/detector';
 
 
 export const AuthSlice = createSlice({
@@ -31,31 +21,6 @@ export const AuthSlice = createSlice({
         document.cookie = `token=${ payload };max-age=28000;path=/`;
       },
     )
-
-    // Handle 401: Unauthenticated
-    builder.addMatcher(UserAPI.endpoints.getCurrentUser.matchRejected, catch401)
-    builder.addMatcher(UserAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.retrieve.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.create.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.archive.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.downloadReport.matchRejected, catch401)
-    builder.addMatcher(CampaignAPI.endpoints.downloadStatus.matchRejected, catch401)
-    builder.addMatcher(AnnotationFileRangeAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(AnnotationFileRangeAPI.endpoints.listWithFiles.matchRejected, catch401)
-    builder.addMatcher(AnnotationFileRangeAPI.endpoints.post.matchRejected, catch401)
-    builder.addMatcher(DatasetAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(DatasetAPI.endpoints.listForImport.matchRejected, catch401)
-    builder.addMatcher(DatasetAPI.endpoints.import.matchRejected, catch401)
-    builder.addMatcher(LabelSetAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(LabelSetAPI.endpoints.retrieve.matchRejected, catch401)
-    builder.addMatcher(ConfidenceSetAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(ConfidenceSetAPI.endpoints.retrieve.matchRejected, catch401)
-    builder.addMatcher(SpectrogramConfigurationAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(SpectrogramConfigurationAPI.endpoints.download.matchRejected, catch401)
-    builder.addMatcher(AudioMetadataAPI.endpoints.list.matchRejected, catch401)
-    builder.addMatcher(AudioMetadataAPI.endpoints.download.matchRejected, catch401)
-    builder.addMatcher(DetectorAPI.endpoints.list.matchRejected, catch401)
   },
 })
 

@@ -4,7 +4,7 @@ import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { cloudUploadOutline, trashOutline } from "ionicons/icons";
 import { ImportModal } from "@/view/campaign/create-edit/blocs/import-modal/import-modal.component.tsx";
 import { ChipsInput } from "@/components/form";
-import { clearImport, selectCurrentCampaign, selectDraftCampaign } from '@/service/campaign';
+import { clearImport, selectCurrentCampaign, selectDraftCampaign, setFilteredDetectors } from '@/service/campaign';
 
 export const CheckAnnotationsInputs: React.FC<{
   onFileImported: (file: File) => void,
@@ -17,25 +17,29 @@ export const CheckAnnotationsInputs: React.FC<{
   const createdCampaign = useAppSelector(selectCurrentCampaign)
   const {
     isSubmitted: areResultsSubmitted,
+    detectors,
+    filterDetectors,
   } = useAppSelector(state => state.campaign.resultImport)
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
 
-
-  // Form data
-  const [ detectorsSelection, setDetectorsSelection ] = useState<Map<string, boolean> | undefined>();
-
   // Memo
   const selectedDataset = useMemo(() => createdCampaign?.datasets.find(d => !!d) ?? draftCampaign.datasets?.find(d => !!d), [ createdCampaign?.datasets, draftCampaign.datasets ]);
+  const allDetectors = useMemo(() => {
+    const shownDetectors: { [key in string]: Array<string> } = {};
+    for (const d of detectors ?? []) {
+      const displayName = d.knownDetector?.name ?? d.initialName;
+      if (shownDetectors[displayName]) shownDetectors[displayName].push(d.initialName);
+      else shownDetectors[displayName] = [d.initialName];
+    }
+    return shownDetectors;
+  }, [ detectors ])
+  const selectedDetectors = useMemo(() => {
+    if (!filterDetectors) return [];
+    return Object.entries(allDetectors).filter(e => e[1].some(d => filterDetectors.includes(d)))
+  }, [detectors, filterDetectors])
 
   const onDetectorsChange = (array: Array<string | number>) => {
-    setDetectorsSelection(previous => {
-      if (!previous) return previous;
-      const newMap = new Map<string, boolean>();
-      for (const detector of previous.keys()) {
-        newMap.set(detector, array.includes(detector));
-      }
-      return newMap
-    })
+    dispatch(setFilteredDetectors([...new Set(Object.entries(allDetectors).filter(e => array.includes(e[0])).flatMap(e => e[1]))]))
   }
 
   const openImportModal = () => {
@@ -50,7 +54,7 @@ export const CheckAnnotationsInputs: React.FC<{
 
   return (
     <Fragment>
-      { !detectorsSelection?.size && <Fragment>
+      { !detectors?.length && <Fragment>
           <div id="import-button" className="d-flex justify-content-center">
               <IonButton color="dark" className="center"
                          onClick={ openImportModal }
@@ -60,7 +64,7 @@ export const CheckAnnotationsInputs: React.FC<{
                   <IonIcon icon={ cloudUploadOutline } slot="end"/>
               </IonButton>
               <input required={ true } className="hide-real-input"
-                     value={ detectorsSelection?.size ? "ok" : undefined }
+                     value={ detectors?.length ? "ok" : undefined }
                      onChange={ () => {
                      } }/>
           </div>
@@ -75,15 +79,12 @@ export const CheckAnnotationsInputs: React.FC<{
                                           onFileImported={ onFileImported }/> }
 
 
-      { !!detectorsSelection?.size && <div id="detector-import-results">
+      { !!detectors?.length && <div id="detector-import-results">
           <ChipsInput label="Detectors"
                       disabled={ areResultsSubmitted }
                       required={ true }
-                      items={ [ ...detectorsSelection.keys() ].map(d => ({ value: d, label: d })) }
-                      activeItemsValues={ [ ...detectorsSelection.entries() ]
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        .filter(([ _, isSelected ]) => isSelected)
-                        .map(([ d ]) => d) }
+                      items={ Object.entries(allDetectors).map(([displayName]) => ({ value: displayName, label: displayName })) }
+                      activeItemsValues={ selectedDetectors.map(e => e[0]) }
                       setActiveItemsValues={ onDetectorsChange }/>
 
           <IonButton color="danger"

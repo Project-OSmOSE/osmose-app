@@ -4,7 +4,7 @@ export {
   useCreateCampaignMutation,
   useRetrieveCampaignQuery,
   useArchiveCampaignMutation,
-  useDownloadCampaignReportMutation,
+  useDownloadCampaignReportLazyQuery,
   useDownloadCampaignStatusMutation,
 } from './api';
 
@@ -18,6 +18,7 @@ export {
 export {
   CampaignSlice,
   clearCampaign,
+  clearDraftCampaign,
   updateDraftCampaign,
   updateCampaignSubmissionErrors,
   removeDraftFileRange,
@@ -27,6 +28,7 @@ export {
   loadFile,
   setFilteredDatasets,
   setDetectors,
+  setFilteredDetectors,
 } from './slice'
 
 export type {

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment, ReactNode, useMemo, useState } from "react";
+import React, { ChangeEvent, Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from '@/service/app';
@@ -28,6 +28,10 @@ export const DetectorsConfigContent: React.FC<Props> = ({
     resultImport,
   } = useAppSelector(state => state.campaign);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (resultImport.detectors) setDetectors(resultImport.detectors);
+  }, [resultImport.detectors]);
 
   const _save = () => {
     dispatch(saveDetectors(detectors))
@@ -61,7 +65,8 @@ export const DetectorsConfigContent: React.FC<Props> = ({
 
         <FormBloc label="Detectors configurations">
           { resultImport.detectors!.map(selection => (
-            <DetectorConfigEntry detector={ selection }
+            <DetectorConfigEntry key={ selection.initialName }
+                                 detector={ selection }
                                  onConfigurationUpdate={ config => onConfigurationUpdate(selection.initialName, config) }/>)) }
         </FormBloc>
       </div>

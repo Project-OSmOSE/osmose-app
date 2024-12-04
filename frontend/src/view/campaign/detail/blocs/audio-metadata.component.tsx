@@ -44,6 +44,7 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ isOwner }) => {
         <div className="buttons">
           { !metadata && <IonSpinner/> }
           { isOwner && metadata && metadata.length > 0 && <IonButton color="primary"
+                                                                     fill="outline"
                                                                      onClick={ () => download(campaign!) }>
               <IonIcon icon={ downloadOutline } slot="start"/>
               Audio files metadata (csv)

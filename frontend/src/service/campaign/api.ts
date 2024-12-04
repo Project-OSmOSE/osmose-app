@@ -1,15 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+
 import { AnnotationCampaign, WriteAnnotationCampaign } from '@/service/campaign';
-import { ID } from '@/service/type.ts';
-import { encodeQueryParams } from '@/service/function.ts';
+import { ID } from '@/service/type';
+import { downloadResponseHandler, encodeQueryParams } from '@/service/function';
+import { getAuthenticatedBaseQuery } from '@/service/auth';
 
 export const CampaignAPI = createApi({
   reducerPath: 'campaignApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/annotation-campaign/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/annotation-campaign/'),
   endpoints: (builder) => ({
     list: builder.query<Array<AnnotationCampaign>, void>({ query: () => '', }),
     retrieve: builder.query<AnnotationCampaign, ID>({ query: (id) => `${ id }/`, }),
@@ -26,29 +24,21 @@ export const CampaignAPI = createApi({
         method: 'POST',
       }),
     }),
-    downloadReport: builder.mutation<void, AnnotationCampaign>({
+    downloadReport: builder.query<undefined, AnnotationCampaign>({
       query: (campaign) => ({
         url: `${ campaign.id }/report/${ encodeQueryParams({
           filename: campaign.name.replace(' ', '_') + '_results.csv',
         }) }`,
-        method: 'POST',
+        responseHandler: downloadResponseHandler
       }),
-      transformResponse: (response) => {
-        console.warn('transformResponse', response)
-        // TODO
-      }
     }),
     downloadStatus: builder.mutation<void, AnnotationCampaign>({
       query: (campaign) => ({
         url: `${ campaign.id }/report-status/${ encodeQueryParams({
           filename: campaign.name.replace(' ', '_') + '_status.csv',
         }) }`,
-        method: 'POST',
+        responseHandler: downloadResponseHandler
       }),
-      transformResponse: (response) => {
-        console.warn('transformResponse', response)
-        // TODO
-      }
     }),
   })
 })
@@ -58,6 +48,6 @@ export const {
   useRetrieveQuery: useRetrieveCampaignQuery,
   useCreateMutation: useCreateCampaignMutation,
   useArchiveMutation: useArchiveCampaignMutation,
-  useDownloadReportMutation: useDownloadCampaignReportMutation,
+  useLazyDownloadReportQuery: useDownloadCampaignReportLazyQuery,
   useDownloadStatusMutation: useDownloadCampaignStatusMutation,
 } = CampaignAPI;

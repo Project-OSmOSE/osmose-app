@@ -48,6 +48,7 @@ export const DetailCampaignSpectrogramConfiguration: React.FC<Props> = ({ isOwne
 
         <div className="buttons">
           { isOwner && configurations && configurations.length > 0 && <IonButton color="primary"
+                                                                                 fill="outline"
                                                                                  onClick={ () => download(campaign!) }>
               <IonIcon icon={ downloadOutline } slot="start"/>
               Spectrogram configuration (csv)

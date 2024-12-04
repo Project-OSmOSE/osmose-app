@@ -29,7 +29,7 @@ export async function submit(page: Page, mockResponse?: {
 }): Promise<Array<WriteAnnotationCampaign>> {
   await page.route(CREATE_CAMPAIGN_URL, (route, request) => {
     if (request.method() === 'POST') {
-      route.fulfill(mockResponse ?? { status: 200, json: { id: -1, files_count: 99 } })
+      route.fulfill(mockResponse ?? { status: 200, json: { id: -1, files_count: 99, datasets: ['Test Dataset'] } })
     }
   })
   const [ request ] = await Promise.all([

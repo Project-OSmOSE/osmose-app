@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { AnnotationResult } from '@/service/campaign/result/type.ts';
 import { ID } from '@/service/type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
@@ -7,10 +7,7 @@ import { DetectorSelection } from '@/service/campaign';
 
 export const AnnotationResultAPI = createApi({
   reducerPath: 'annotationResultApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/annotation-result/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/annotation-result/'),
   endpoints: (builder) => ({
     list: builder.query<Array<AnnotationResult>, void>({ query: () => '' }),
     import: builder.mutation<Array<AnnotationResult>, {

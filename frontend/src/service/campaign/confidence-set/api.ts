@@ -1,14 +1,11 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeadersWithToken } from '@/service/auth/function.ts';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { ConfidenceIndicatorSet } from './type.ts';
 
 export const ConfidenceSetAPI = createApi({
   reducerPath: 'confidenceSetApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/confidence-indicator/',
-    prepareHeaders: prepareHeadersWithToken,
-  }),
+  baseQuery: getAuthenticatedBaseQuery('/api/confidence-indicator/'),
   endpoints: (builder) => ({
     list: builder.query<Array<ConfidenceIndicatorSet>, void>({ query: () => '' }),
     retrieve: builder.query<ConfidenceIndicatorSet, ID>({ query: (id) => `${ id }/` }),

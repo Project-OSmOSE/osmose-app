@@ -24,6 +24,7 @@ import { AnnotationBloc } from '@/view/campaign/create-edit/blocs/annotation.blo
 import { getErrorMessage } from '@/service/function.ts';
 import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 import { useImportResultMutation } from '@/service/campaign/result';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 export const CreateCampaign: React.FC = () => {
   const blurUtil = useBlur();
@@ -40,6 +41,7 @@ export const CreateCampaign: React.FC = () => {
   const draftCampaign = useAppSelector(selectDraftCampaign)
   const draftFileRanges = useAppSelector(selectDraftFileRange)
   const detectors = useAppSelector(state => state.campaign.resultImport.detectors)
+  const filterDetectors = useAppSelector(state => state.campaign.resultImport.filterDetectors)
   const [ resultFile, setResultFile ] = useState<File | undefined>();
 
   useEffect(() => {
@@ -61,13 +63,6 @@ export const CreateCampaign: React.FC = () => {
 
       history.push('/annotation-campaign');
     } catch (e: any) {
-      console.debug(JSON.stringify(e))
-      if (Object.prototype.hasOwnProperty.call(e, 'data')) {
-
-        for (const [key, value] of Object.entries(e.data)) {
-          console.debug(key, value)
-        }
-      }
       toast.presentError(getErrorMessage(e));
     }
   }
@@ -125,29 +120,28 @@ export const CreateCampaign: React.FC = () => {
   const submitResults = async (campaign: AnnotationCampaign, force: boolean = false) => {
     if (!resultFile) return;
     if (!detectors || detectors.length === 0) throw new Error('You should import results');
+    if (!filterDetectors || filterDetectors.length === 0) throw new Error('You should select detectors results');
     try {
-      return importResults({
+      // TODO: add dataset filter
+      return await importResults({
         campaignID: campaign.id,
         datasetName: campaign.datasets![0],
-        detectors,
+        detectors: detectors.filter(d => filterDetectors.includes(d.initialName)),
         file: resultFile,
         force
-      })
+      }).unwrap()
     } catch (e) {
       if (force) throw e;
 
       if ((e as any).status === 400) {
-        const response = (e as any).response.text;
-        const response_errors: string[] = JSON.parse(response).flatMap((result_error: any) => Object.values(result_error)).flat()
-        const distinct_errors = [ ...new Set(response_errors) ];
+        const response_errors = (e as FetchBaseQueryError).data as Array<{ [key in string]: string[] }>
         const outOfFilesError = "This start and end datetime does not belong to any file of the dataset";
-        if (!response_errors.includes(outOfFilesError)) throw e
-        const retry = await toast.presentError(distinct_errors.map((error: string) => {
-          const count = response_errors.filter((err: string) => err.includes(error)).length;
-          return `[${ count } results]: ${ error }`
-        }).join('\n'), true);
+        if (!JSON.stringify(response_errors).includes(outOfFilesError)) throw e;
+        const count = [ ...JSON.stringify(response_errors).matchAll(new RegExp(outOfFilesError, 'g')) ].length;
+        const retry = await toast.presentError(`[${ count } results]: ${ outOfFilesError }`, true);
         if (retry) return submitResults(campaign, true)
       }
+      throw e
     }
   }
 
@@ -157,7 +151,6 @@ export const CreateCampaign: React.FC = () => {
       data: draftFileRanges.map(r => {
         const first_file_index = (r.first_file_index === undefined || r.first_file_index === null) ? 0 : (+r.first_file_index - 1);
         const last_file_index = (r.last_file_index === undefined || r.last_file_index === null) ? (campaign.files_count - 1) : (+r.last_file_index - 1);
-        console.debug('submitFileRanges', campaign.files_count, r.annotator, r.first_file_index, first_file_index, r.last_file_index, last_file_index);
         return {
           id: r.id >= 0 ? r.id : undefined,
           first_file_index: first_file_index < 0 ? 0 : first_file_index,

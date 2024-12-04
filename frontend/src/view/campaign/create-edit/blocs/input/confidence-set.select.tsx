@@ -26,9 +26,9 @@ export const ConfidenceSetSelect: React.FC = () => {
   const errors: CampaignErrors = useAppSelector(selectCampaignSubmissionErrors);
 
   const selectedConfidenceSet = useMemo(() => {
-    if (!draftCampaign.label_set) return undefined;
-    return allConfidenceSets?.find(l => l.id === draftCampaign.label_set)
-  }, [ draftCampaign.label_set ])
+    if (!draftCampaign.confidence_indicator_set) return undefined;
+    return allConfidenceSets?.find(l => l.id === draftCampaign.confidence_indicator_set)
+  }, [ draftCampaign.confidence_indicator_set ])
 
   useEffect(() => {
     return () => {
