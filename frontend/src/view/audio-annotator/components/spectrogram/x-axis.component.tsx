@@ -1,7 +1,11 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import { AbstractScale, ScaleMapping } from "@/services/spectrogram/scale/abstract.scale.ts";
-import { LinearScaleService } from "@/services/spectrogram/scale/linear.scale.ts";
-import { AxisProps, TimeAxis } from "./axis.utils.ts";
+import {
+  AbstractScale,
+  AxisProps,
+  formatTime,
+  LinearScaleService,
+  ScaleMapping
+} from '@/service/dataset/spectrogram-configuration/scale';
 
 export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linear_scale' | 'linear_scale'>>(({
                                                                                                                width,
@@ -62,7 +66,7 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
           context.fillRect(x <= canvas.width - 2 ? x : canvas.width - 2, 0, 2, 15);
 
           // Text
-          const timeText: string = TimeAxis.formatTime(i, false);
+          const timeText: string = formatTime(i);
           let xTxt: number = x;
           if (xTxt === 0) {
             context.textAlign = "left"

@@ -1,72 +1,51 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, people, pricetag } from "ionicons/icons";
+import { useAppSelector } from '@/service/app';
+import { useArchiveCampaignMutation, selectCurrentCampaign } from '@/service/campaign';
+import { useToast } from '@/services/utils/toast.ts';
+import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';
+import { getErrorMessage } from '@/service/function.ts';
+import { useRetrieveConfidenceSetQuery } from '@/service/campaign/confidence-set';
 import './blocs.css';
-import {
-  AnnotationCampaign,
-  useAnnotationCampaignAPI,
-  ConfidenceIndicatorSet,
-  useConfidenceSetAPI,
-  LabelSet,
-  useLabelSetAPI
-} from "@/services/api";
 
 interface Props {
-  campaign: AnnotationCampaign,
   isEditionAllowed: boolean,
   annotatorsStatus: Map<string, { total: number, progress: number }>,
-  setCampaign: (campaign: AnnotationCampaign) => void,
-  setError: (e: any) => void,
 }
 
 export const DetailCampaignGlobalInformation: React.FC<Props> = ({
-                                                                   campaign,
                                                                    isEditionAllowed,
                                                                    annotatorsStatus,
-                                                                   setCampaign,
-                                                                   setError
                                                                  }) => {
   // State
-  const [ labelSet, setLabelSet ] = useState<LabelSet | undefined>(undefined);
-  const [ confidenceSet, setConfidenceSet ] = useState<ConfidenceIndicatorSet | undefined>(undefined);
+  const campaign = useAppSelector(selectCurrentCampaign);
 
   // Service
   const [ presentAlert ] = useIonAlert();
-  const campaignService = useAnnotationCampaignAPI();
-  const labelSetService = useLabelSetAPI();
-  const confidenceSetService = useConfidenceSetAPI();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: labelSet, error: labelSetError } = useRetrieveLabelSetQuery(campaign!.label_set)
+  const {
+    data: confidenceSet,
+    error: confidenceSetError
+  } = useRetrieveConfidenceSetQuery(campaign!.confidence_indicator_set ?? -1, {
+    skip: !campaign?.confidence_indicator_set
+  })
+  const [ archiveCampaign ] = useArchiveCampaignMutation()
 
   useEffect(() => {
-    let isCancelled = false;
-
-    labelSetService.retrieve(campaign.label_set).then(setLabelSet).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
-
     return () => {
-      isCancelled = true;
-      labelSetService.abort();
+      dismissToast()
     }
-  }, [ campaign.label_set ])
+  }, [])
 
   useEffect(() => {
-    if (!campaign.confidence_indicator_set) {
-      setConfidenceSet(undefined);
-      return;
-    }
-    let isCancelled = false;
+    if (labelSetError) presentError(getErrorMessage(labelSetError));
+  }, [ labelSetError ]);
 
-    confidenceSetService.retrieve(campaign.confidence_indicator_set).then(setConfidenceSet).catch(e => {
-      if (isCancelled) return;
-      setError(e);
-    })
-
-    return () => {
-      isCancelled = true;
-      labelSetService.abort();
-    }
-  }, [ campaign.confidence_indicator_set ])
+  useEffect(() => {
+    if (confidenceSetError) presentError(getErrorMessage(confidenceSetError));
+  }, [ confidenceSetError ]);
 
   const archive = async () => {
     if (!campaign) return;
@@ -81,16 +60,11 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
           {
             text: 'Archive',
             cssClass: 'ion-color-danger',
-            handler: update
+            handler: () => archiveCampaign(campaign.id)
           }
         ]
       });
-    } else update()
-  }
-
-  const update = async () => {
-    const updatedCampaign = await campaignService.archive(campaign.id);
-    setCampaign(updatedCampaign)
+    } else archiveCampaign(campaign.id)
   }
 
   return (
@@ -114,7 +88,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
       <div className="item">
         <IonIcon className="icon" icon={ documents }/>
         <p className="label">Dataset:</p>
-        <p>{ campaign.datasets.join(', ') }</p>
+        <p>{ campaign?.datasets.join(', ') }</p>
       </div>
 
       <div className="item">
@@ -126,20 +100,20 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
       <div className="item">
         <IonIcon className="icon" icon={ crop }/>
         <p className="label">Mode:</p>
-        <p>{ campaign.usage }</p>
+        <p>{ campaign?.usage }</p>
       </div>
 
       <div className="item">
-        { campaign.deadline && <Fragment>
+        { campaign?.deadline && <Fragment>
             <IonIcon className="icon" icon={ calendarClear }/>
             <p className="label">Deadline:</p>
-            <p>{ new Date(campaign.deadline).toLocaleDateString() }</p>
+            <p>{ new Date(campaign?.deadline).toLocaleDateString() }</p>
         </Fragment> }
       </div>
 
-      { campaign.desc && <div className="description">
+      { campaign?.desc && <div className="description">
           <p className="label">Description:</p>
-          <p>{ campaign.desc }</p>
+          <p>{ campaign?.desc }</p>
       </div> }
 
       { isEditionAllowed && <div className="buttons">

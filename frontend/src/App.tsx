@@ -3,11 +3,9 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
-import { AuthenticatedRoute } from "@/view/global-components";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
 const Home = lazy(() => import("@/view/home/home.page.tsx"));
 import { Layout } from "@/components/Layout";
-import { StaffOnlyRoute } from "@/routes/staff-only";
 import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
@@ -21,12 +19,13 @@ import './css/app.css';
 import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { Provider } from "react-redux";
-import { AppStore } from "@/slices/app.ts";
+import { AppStore } from "@/service/app";
 import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
 import { AnnotationCampaignDetail } from "@/view/campaign/detail/annotation-campaign-detail.page.tsx";
 import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";
 import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
+import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 
 setupIonicReact({
   mode: 'md',

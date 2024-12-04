@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonBadge, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
 import { crop } from "ionicons/icons";
-import { AnnotationCampaign } from "@/services/api";
+import { AnnotationCampaign } from '@/service/campaign';
 import './campaign-card.component.css';
 
 interface Props {

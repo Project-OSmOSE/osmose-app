@@ -1,87 +1,85 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { IonButton, useIonAlert } from "@ionic/react";
-import {
-  AnnotationCampaign,
-  useAnnotationCampaignAPI,
-  useAnnotationFileRangeAPI,
-  User,
-  useUsersAPI,
-} from "@/services/api";
-
+import { IonButton } from "@ionic/react";
 import { DetailCampaignGlobalInformation } from "@/view/campaign/detail/blocs/global-information.component.tsx";
 import { DetailCampaignStatus } from "@/view/campaign/detail/blocs/status.component.tsx";
 import { DetailCampaignSpectrogramConfiguration } from "@/view/campaign/detail/blocs/spectro-config.component.tsx";
 import { DetailCampaignAudioMetadata } from "@/view/campaign/detail/blocs/audio-metadata.component.tsx";
-import { getDisplayName } from "@/types/user.ts";
 import './annotation-campaign-detail.page.css';
+import { getDisplayName, useGetCurrentUserQuery, useListUsersQuery, User } from '@/service/user';
+import { selectCurrentCampaign, useRetrieveCampaignQuery } from '@/service/campaign';
+import { useListAnnotationFileRangeQuery } from '@/service/campaign/annotation-file-range';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
+import { useAppSelector } from '@/service/app.ts';
 
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
 
   // State
-  const [ campaign, setCampaign ] = useState<AnnotationCampaign | undefined>(undefined);
-  const [ currentUser, setCurrentUser ] = useState<User | undefined>(undefined);
   const [ annotatorsStatus, setAnnotatorsStatus ] = useState<Map<string, {
     total: number,
     progress: number
   }>>(new Map());
+  const [ campaignErrorMessage, setCampaignErrorMessage ] = useState<string | undefined>();
+  const campaign = useAppSelector(selectCurrentCampaign)
 
   // Services
   const history = useHistory();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { error: campaignError } = useRetrieveCampaignQuery(campaignID);
+  const { data: users, error: userError } = useListUsersQuery();
+  const { data: currentUser, error: currentUserError } = useGetCurrentUserQuery();
+  const {
+    data: fileRanges,
+    error: fileRangeError
+  } = useListAnnotationFileRangeQuery({ campaignID }, { refetchOnMountOrArgChange: true });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isOwner = useMemo(() => {
     return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
   }, [ currentUser, campaign?.owner ]);
-  const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner ]);
-
-  const campaignService = useAnnotationCampaignAPI();
-  const userService = useUsersAPI();
-  const fileRangeService = useAnnotationFileRangeAPI();
-  const [ error, setError ] = useState<any | undefined>(undefined);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [ _, dismissAlert ] = useIonAlert();
+  const isEditionAllowed = useMemo(() => isOwner && !campaign?.archive, [ currentUser, campaign?.owner, campaign?.archive ]);
 
   useEffect(() => {
-    let isCancelled = false;
-
-    Promise.all([
-      fileRangeService.listForCampaign(campaignID),
-      userService.list(),
-      campaignService.retrieve(campaignID).then(setCampaign),
-      userService.self().then(setCurrentUser)
-    ]).then(([ ranges, users ]) => {
-      const map = new Map<string, { total: number, progress: number }>()
-      for (const range of ranges) {
-        const annotator = getDisplayName(users.find((u: User) => u.id === range.annotator));
-        if (map.get(annotator)) {
-          map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
-          map.get(annotator)!.progress += range.finished_tasks_count;
-        } else {
-          map.set(annotator, {
-            total: range.last_file_index - range.first_file_index + 1,
-            progress: range.finished_tasks_count,
-          })
-        }
+    if (!fileRanges) return;
+    if (!users) return;
+    const map = new Map<string, { total: number, progress: number }>()
+    for (const range of fileRanges) {
+      const annotator = getDisplayName(users?.find((u: User) => u.id === range.annotator));
+      if (map.get(annotator)) {
+        map.get(annotator)!.total += range.last_file_index - range.first_file_index + 1;
+        map.get(annotator)!.progress += range.finished_tasks_count;
+      } else {
+        map.set(annotator, {
+          total: range.last_file_index - range.first_file_index + 1,
+          progress: range.finished_tasks_count,
+        })
       }
-      setAnnotatorsStatus(map)
-    }).catch(e => !isCancelled && setError(e));
-
-    return () => {
-      isCancelled = true;
-      campaignService.abort();
-      userService.abort();
-      dismissAlert();
     }
-  }, [ campaignID ])
+    setAnnotatorsStatus(map)
+  }, [ fileRanges, users ]);
+
+  useEffect(() => {
+    return () => {
+      dismissToast();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (campaignError) setCampaignErrorMessage(getErrorMessage(campaignError))
+    if (userError) presentError(getErrorMessage(userError))
+    if (currentUserError) presentError(getErrorMessage(currentUserError))
+    if (fileRangeError) presentError(getErrorMessage(fileRangeError))
+  }, [ campaignError, userError, currentUserError, fileRangeError ]);
 
   const annotate = () => history.push(`/annotation-campaign/${ campaignID }/file`);
 
-  if (error) {
+  if (campaignErrorMessage) {
     return (
       <Fragment>
         <h1>Annotation Campaign</h1>
-        <p className="error-message">{ error.message }</p>
+        <p className="error-message">{ campaignErrorMessage }</p>
       </Fragment>
     )
   }
@@ -101,20 +99,16 @@ export const AnnotationCampaignDetail: React.FC = () => {
             <IonButton fill="outline" onClick={ annotate }>Annotate</IonButton> }
       </div>
 
-      <DetailCampaignGlobalInformation campaign={ campaign }
-                                       isEditionAllowed={ isEditionAllowed }
-                                       annotatorsStatus={ annotatorsStatus }
-                                       setCampaign={ setCampaign }
-                                       setError={ setError }/>
+      <DetailCampaignGlobalInformation isEditionAllowed={ isEditionAllowed }
+                                       annotatorsStatus={ annotatorsStatus }/>
 
-      <DetailCampaignStatus campaign={ campaign }
-                            isOwner={ isOwner }
+      <DetailCampaignStatus isOwner={ isOwner }
                             isEditionAllowed={ isEditionAllowed }
                             annotatorsStatus={ annotatorsStatus }/>
 
-      <DetailCampaignSpectrogramConfiguration isOwner={ isOwner } campaign={ campaign } setError={ setError }/>
+      <DetailCampaignSpectrogramConfiguration isOwner={ isOwner }/>
 
-      <DetailCampaignAudioMetadata isOwner={ isOwner } campaign={ campaign } setError={ setError }/>
+      <DetailCampaignAudioMetadata isOwner={ isOwner }/>
 
     </div>
   )

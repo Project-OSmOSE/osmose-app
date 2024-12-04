@@ -1,4 +1,4 @@
-import { Textarea } from '@/components/form'
+import { OldTextarea } from '@/components/form'
 
 const label = 'My label';
 const placeholder = 'My placeholder';
@@ -6,8 +6,8 @@ const value = 'My value';
 
 describe('Textarea', () => {
   beforeEach(() => {
-    cy.mount(<Textarea label={ label }
-                       placeholder={ placeholder }/>)
+    cy.mount(<OldTextarea label={ label }
+                          placeholder={ placeholder }/>)
   })
 
   it('renders', () => {
@@ -21,9 +21,9 @@ describe('Textarea', () => {
   })
 
   it('can be required', () => {
-    cy.mount(<Textarea label={ label }
-                       required={ true }
-                       placeholder={ placeholder }/>)
+    cy.mount(<OldTextarea label={ label }
+                          required={ true }
+                          placeholder={ placeholder }/>)
     cy.get('#aplose-input').should('contain', `${ label }*`)
     cy.get('#aplose-input textarea').should('have.attr', 'required')
   })

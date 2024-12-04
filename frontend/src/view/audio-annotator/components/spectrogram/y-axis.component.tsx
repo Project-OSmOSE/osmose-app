@@ -1,6 +1,11 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import { MultiLinearScaleService, LinearScaleService, AbstractScale, ScaleMapping, Step } from "@/services/spectrogram";
-import { AxisProps } from "./axis.utils.ts";
+import {
+  AbstractScale,
+  AxisProps,
+  LinearScaleService, MultiLinearScaleService,
+  ScaleMapping,
+  Step
+} from '@/service/dataset/spectrogram-configuration/scale';
 
 export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
                                                                   width,

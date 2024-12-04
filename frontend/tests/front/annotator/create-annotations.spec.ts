@@ -1,7 +1,7 @@
 import { expect, test } from '../../utils/fixture';
 import { accessAnnotator } from '../../utils/annotations/functions';
 import { DEFAULT_CAMPAIGN_NAME } from '../../utils/campaign/data';
-import { WriteAnnotationResult } from '../../../src/services/api/annotation/result.service';
+import { WriteAnnotationResult } from '../../../src/service/campaign/result';
 
 const DEFAULT_DATA = {
   "campaign": {
@@ -572,7 +572,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -629,7 +628,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -688,7 +686,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -779,7 +776,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)
@@ -817,7 +813,6 @@ test.describe('No results', {
     await expect(page.getByText(label).nth(2)).toBeVisible()
     await expect(page.getByRole('button', { name: label })).toBeEnabled()
 
-    await page.getByRole('button', { name: label }).click()
     const canvas = page.locator('canvas.drawable').first()
     await expect(canvas).toBeVisible()
     await page.mouse.move(start_coords.clientX, start_coords.clientY)

@@ -1,63 +1,52 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { createPortal } from "react-dom";
-import { DatasetList as List, DatasetListToImport, useDatasetsAPI } from "@/services/api";
 import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
 import { IonButton, IonSpinner } from "@ionic/react";
-import { useToast } from "@/services/utils/toast.ts";
 import '../../css/modal.css';
+import {
+  Dataset,
+  ImportDataset,
+  useImportDatasetMutation,
+  useListDatasetForImportQuery,
+  useListDatasetQuery
+} from '@/service/dataset';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const DatasetList: React.FC = () => {
-  const [ datasets, setDatasets ] = useState<List | undefined>();
-  const [ datasetsToImport, setDatasetsToImport ] = useState<DatasetListToImport | undefined>();
   const [ isImportModalOpen, setIsImportModalOpen ] = useState(false);
-  const [ isLoading, setIsLoading ] = useState<boolean>(true);
 
   // Services
-  const datasetService = useDatasetsAPI();
-  const toast = useToast();
+  const { data: datasets, refetch: refetchDatasets, error: datasetsError } = useListDatasetQuery()
+  const { data: datasetsToImport, refetch: refetchDatasetsToImport, error: datasetsToImportError } = useListDatasetForImportQuery()
+  const [ doImportDatasets, { isLoading } ] = useImportDatasetMutation()
+  const { presentError, dismiss: dismissToast } = useToast();
 
+
+  const importDatasets = async (importList: Array<ImportDataset>) => {
+    doImportDatasets(importList).unwrap()
+      .then(() => {
+        refetchDatasetsToImport();
+        refetchDatasets();
+        setIsImportModalOpen(false);
+      })
+      .catch(error => presentError(getErrorMessage(error)))
+  }
 
   useEffect(() => {
-    let isCancelled = false;
-    setIsLoading(true);
-
-    Promise.all([
-      datasetService.list(),
-      datasetService.listToImport(),
-    ]).then(([ d, dToImport ]) => {
-      setDatasets(d);
-      setDatasetsToImport(dToImport);
-    }).catch(e => {
-      if (isCancelled) return;
-      toast.presentError(e);
-    }).finally(() => !isCancelled && setIsLoading(false))
-
     return () => {
-      isCancelled = true;
-      datasetService.abort();
-      setIsLoading(false);
-      toast.dismiss();
-    };
+      dismissToast()
+    }
   }, []);
 
+  useEffect(() => {
+    if (datasetsError) presentError(getErrorMessage(datasetsError));
+  }, [datasetsError]);
 
-  const importDatasets = async (datasets: DatasetListToImport) => {
-    setIsLoading(true);
-    datasetService.importDatasets(datasets)
-      .then((data: DatasetListToImport) => {
-        const remainingDatasets = datasetsToImport?.filter(newDataset => {
-          return data.some(importedDataset => importedDataset.name !== newDataset.name)
-        });
-        setDatasetsToImport(remainingDatasets);
-        toast.dismiss();
-        setIsImportModalOpen(false);
-        return datasetService.list()
-      })
-      .then(setDatasets)
-      .catch(toast.presentError.bind(toast))
-      .finally(() => setIsLoading(false));
-  }
+  useEffect(() => {
+    if (datasetsToImportError) presentError(getErrorMessage(datasetsToImportError));
+  }, [datasetsToImportError]);
 
   return (
     <Fragment>
@@ -88,7 +77,7 @@ export const DatasetList: React.FC = () => {
 
 const Spinner: React.FC = () => <div className="d-flex justify-content-center"><IonSpinner/></div>
 
-const DatasetTable: React.FC<{ datasets: List }> = ({ datasets }) => {
+const DatasetTable: React.FC<{ datasets: Array<Dataset> }> = ({ datasets }) => {
   if (datasets.length === 0) return <div className="d-flex justify-content-center"><p>No datasets</p></div>
   return <table className="table table-bordered">
     <thead>

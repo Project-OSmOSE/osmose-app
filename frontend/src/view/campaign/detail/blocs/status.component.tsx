@@ -1,17 +1,18 @@
 import React, { Fragment, useMemo, useState } from 'react';
 import { IonButton, IonIcon, IonProgressBar } from "@ionic/react";
-import {
-  AnnotationCampaign,
-  useAnnotationCampaignAPI
-} from "@/services/api";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import './blocs.css';
 import { useHistory } from "react-router-dom";
+import { useAppSelector } from '@/service/app';
+import {
+  selectCurrentCampaign,
+  useDownloadCampaignReportLazyQuery,
+  useDownloadCampaignStatusMutation
+} from '@/service/campaign';
 
 interface Props {
   isOwner: boolean;
-  campaign: AnnotationCampaign;
   isEditionAllowed: boolean,
   annotatorsStatus: Map<string, { total: number, progress: number }>;
 }
@@ -21,11 +22,15 @@ interface Sort {
   sort: 'ASC' | 'DESC';
 }
 
-export const DetailCampaignStatus: React.FC<Props> = ({ campaign, isEditionAllowed, annotatorsStatus, isOwner }) => {
+export const DetailCampaignStatus: React.FC<Props> = ({ isEditionAllowed, annotatorsStatus, isOwner }) => {
 
   // Services
-  const campaignService = useAnnotationCampaignAPI();
   const history = useHistory();
+  const [ downloadStatus ] = useDownloadCampaignStatusMutation()
+  const [ downloadReport ] = useDownloadCampaignReportLazyQuery()
+
+  // State
+  const campaign = useAppSelector(selectCurrentCampaign);
 
   const [ sort, setSort ] = useState<Sort | undefined>({ entry: 'Progress', sort: 'DESC' });
   const status: Array<string> = useMemo(() => {
@@ -75,14 +80,14 @@ export const DetailCampaignStatus: React.FC<Props> = ({ campaign, isEditionAllow
         <h5>Status</h5>
         <div className="buttons">
 
-          { isOwner && annotatorsStatus.size > 0 && <Fragment>
+          { isOwner && campaign && annotatorsStatus.size > 0 && <Fragment>
               <IonButton color="primary" fill="outline"
-                         onClick={ () => campaignService.downloadReport(campaign) }>
+                         onClick={ () => downloadReport(campaign) }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
                   Results (csv)
               </IonButton>
               <IonButton color="primary" fill="outline"
-                         onClick={ () => campaignService.downloadStatus(campaign) }>
+                         onClick={ () => downloadStatus(campaign) }>
                   <IonIcon icon={ downloadOutline } slot="start"/>
                   Task status (csv)
               </IonButton>

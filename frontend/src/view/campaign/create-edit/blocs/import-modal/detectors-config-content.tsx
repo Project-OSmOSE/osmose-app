@@ -1,10 +1,10 @@
 import React, { ChangeEvent, Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { IonButton, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { DetectorConfiguration } from "@/services/api";
-import { FormBloc, Select, Textarea } from "@/components/form";
-import { DetectorSelection, importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import { FormBloc, OldTextarea, Select } from "@/components/form";
+import { DetectorConfiguration } from '@/service/campaign/detector';
+import { DetectorSelection, setDetectors as saveDetectors } from '@/service/campaign';
 
 interface Props {
   save: () => void;
@@ -15,7 +15,6 @@ export const DetectorsConfigContent: React.FC<Props> = ({
                                                           save,
                                                           cancelButton
                                                         }) => {
-  const [ initialDetectors, setInitialDetectors ] = useState<Array<DetectorSelection>>([]);
   const [ detectors, setDetectors ] = useState<Array<DetectorSelection>>([]);
   const canValidate = useMemo<boolean>(() => detectors.every(v => {
     if (v.isNewConfiguration === undefined) return false;
@@ -25,18 +24,17 @@ export const DetectorsConfigContent: React.FC<Props> = ({
 
   // Form data
   const {
-    datasetName,
-    filename,
-    selectedDetectors
-  } = useAppSelector(state => state.createCampaignForm.importAnnotations);
+    draftCampaign,
+    resultImport,
+  } = useAppSelector(state => state.campaign);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
-    setInitialDetectors(selectedDetectors ?? [])
-    setDetectors(selectedDetectors ?? [])
-  }, [ selectedDetectors ])
+    if (resultImport.detectors) setDetectors(resultImport.detectors);
+  }, [resultImport.detectors]);
 
   const _save = () => {
-    dispatch(importAnnotationsActions.setSelectedDetectors(detectors))
+    dispatch(saveDetectors(detectors))
     save();
   }
 
@@ -57,16 +55,18 @@ export const DetectorsConfigContent: React.FC<Props> = ({
     <Fragment>
       <div id="content">
         <div className="basic-info">
-          <p>File: <span className="bold">{ filename }</span></p>
-          <p>Dataset: <span className="bold">{ datasetName }</span></p>
+          <p>File: <span className="bold">{ resultImport.fileData?.filename }</span></p>
+          <p>Dataset: <span className="bold">{ draftCampaign.datasets![0] }</span></p>
           <p>Detectors: <span
-            className="bold">{ initialDetectors.map(d => d.knownDetector?.name ?? d.initialName).join(', ') }</span></p>
+            className="bold">{ resultImport.detectors!.map(d => d.knownDetector?.name ?? d.initialName).join(', ') }</span>
+          </p>
         </div>
 
 
         <FormBloc label="Detectors configurations">
-          { initialDetectors.map(selection => (
-            <DetectorConfigEntry detector={ selection }
+          { resultImport.detectors!.map(selection => (
+            <DetectorConfigEntry key={ selection.initialName }
+                                 detector={ selection }
                                  onConfigurationUpdate={ config => onConfigurationUpdate(selection.initialName, config) }/>)) }
         </FormBloc>
       </div>
@@ -131,11 +131,11 @@ const DetectorConfigEntry: React.FC<DetectorEntryProps> = ({
               noneLabel="Create new" noneFirst
               placeholder="Select configuration"/>
 
-      <Textarea placeholder="Enter new configuration"
-                hidden={ !isUpdated }
-                disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
-                value={ selectedConfiguration?.configuration ?? configurationText }
-                onChange={ onConfigurationTextUpdated }/>
+      <OldTextarea placeholder="Enter new configuration"
+                   hidden={ !isUpdated }
+                   disabled={ !detector.isNew && (!isUpdated || !!selectedConfiguration) }
+                   value={ selectedConfiguration?.configuration ?? configurationText }
+                   onChange={ onConfigurationTextUpdated }/>
 
       <div className="line"/>
     </div>

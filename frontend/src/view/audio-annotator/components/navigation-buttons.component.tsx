@@ -6,8 +6,10 @@ import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
-import { useAppSelector } from "@/slices/app";
+import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 interface Props {
   shortcut: ReactNode;
@@ -37,29 +39,28 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
   // Services
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
+  const toast = useToast();
 
   // Data
   const {
-    areShortcutsEnabled: _areShortcutsEnabled,
     previous_file_id: _previous_file_id,
     next_file_id: _next_file_id,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    hasChanged: _hasChanged
-  } = useAppSelector(state => state.annotator.annotations);
+    ui,
+    hasChanged: _hasChanged,
+  } = useAppSelector(state => state.annotator);
 
-  const areShortcutsEnabled = useRef<boolean>(_areShortcutsEnabled);
+  const areShortcutsEnabled = useRef<boolean>(ui.areShortcutsEnabled);
   useEffect(() => {
-    areShortcutsEnabled.current = _areShortcutsEnabled
-  }, [ _areShortcutsEnabled ]);
+    areShortcutsEnabled.current = ui.areShortcutsEnabled
+  }, [ ui.areShortcutsEnabled ]);
 
-  const previous_file_id = useRef<number | null>(_previous_file_id);
+  const previous_file_id = useRef<number | null>(_previous_file_id ?? null);
   useEffect(() => {
-    previous_file_id.current = _previous_file_id
+    previous_file_id.current = _previous_file_id ?? null;
   }, [ _previous_file_id ]);
-  const next_file_id = useRef<number | null>(_next_file_id);
+  const next_file_id = useRef<number | null>(_next_file_id ?? null);
   useEffect(() => {
-    next_file_id.current = _next_file_id
+    next_file_id.current = _next_file_id ?? null;
   }, [ _next_file_id ]);
 
   const hasChanged = useRef<boolean>(_hasChanged);
@@ -90,15 +91,17 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
 
   const submit = async () => {
     isSubmitting.current = true;
-    const response = await submitService.submit()?.finally(() => {
+    try {
+      await submitService.submit()
+      if (next_file_id.current) {
+        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+      } else {
+        history.push(`/annotation-campaign/${ campaignID }/file`)
+      }
+    } catch (e: any) {
+      toast.presentError(getErrorMessage(e))
+    } finally {
       isSubmitting.current = false;
-    })
-
-    if (!response) return;
-    if (next_file_id.current) {
-      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
-    } else {
-      history.push(`/annotation-campaign/${ campaignID }/file`)
     }
   }
 

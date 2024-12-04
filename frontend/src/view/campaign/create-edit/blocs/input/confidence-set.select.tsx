@@ -1,48 +1,57 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { ConfidenceIndicatorSet, useConfidenceSetAPI } from "@/services/api";
+import React, { Fragment, useEffect, useMemo } from "react";
 import { useToast } from "@/services/utils/toast.ts";
 import { Select } from "@/components/form";
 import { IonNote } from '@ionic/react';
+import { useListConfidenceSetQuery } from '@/service/campaign/confidence-set';
+import { getErrorMessage } from '@/service/function.ts';
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import {
+  selectCampaignSubmissionErrors,
+  selectCurrentCampaign,
+  selectDraftCampaign,
+  updateDraftCampaign,
+  WriteCreateAnnotationCampaign
+} from '@/service/campaign';
+import { CampaignErrors } from '@/service/campaign/type.ts';
 
-export const ConfidenceSetSelect: React.FC<{
-  confidenceSet?: ConfidenceIndicatorSet,
-  onConfidenceSetChange: (ConfidenceIndicatorSet: ConfidenceIndicatorSet | undefined) => void;
-  disabled: boolean;
-  error?: string;
-}> = ({ confidenceSet, onConfidenceSetChange, disabled, error }) => {
-  // API
-  const confidenceSetAPI = useConfidenceSetAPI();
-  const [ allConfidenceSets, setAllConfidenceSets ] = useState<Array<ConfidenceIndicatorSet> | undefined>();
-
+export const ConfidenceSetSelect: React.FC = () => {
   // Services
-  const toast = useToast();
+  const dispatch = useAppDispatch();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: allConfidenceSets, error: confidenceSetError } = useListConfidenceSetQuery()
+
+  // State
+  const draftCampaign = useAppSelector(selectDraftCampaign) as Partial<WriteCreateAnnotationCampaign>
+  const createdCampaign = useAppSelector(selectCurrentCampaign)
+  const errors: CampaignErrors = useAppSelector(selectCampaignSubmissionErrors);
+
+  const selectedConfidenceSet = useMemo(() => {
+    if (!draftCampaign.confidence_indicator_set) return undefined;
+    return allConfidenceSets?.find(l => l.id === draftCampaign.confidence_indicator_set)
+  }, [ draftCampaign.confidence_indicator_set ])
 
   useEffect(() => {
-    let isCancelled = false;
-    confidenceSetAPI.list().then(setAllConfidenceSets).catch(e => !isCancelled && toast.presentError(e));
-
     return () => {
-      isCancelled = true;
-      confidenceSetAPI.abort();
+      dismissToast()
     }
   }, [])
 
-  const onSelect = (value: string | number | undefined) => {
-    onConfidenceSetChange(allConfidenceSets?.find(l => l.id === value))
-  }
+  useEffect(() => {
+    if (confidenceSetError) presentError(getErrorMessage(confidenceSetError))
+  }, [ confidenceSetError ]);
 
   return <Select label="Confidence indicator set" placeholder="Select a confidence set"
-                 error={ error }
+                 error={ errors.confidence_indicator_set }
                  options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
                  optionsContainer="alert"
-                 value={ confidenceSet?.id }
-                 disabled={ disabled || !allConfidenceSets?.length }
+                 value={ draftCampaign.confidence_indicator_set ?? undefined }
+                 disabled={ !!createdCampaign || !allConfidenceSets?.length }
                  isLoading={ !allConfidenceSets }
-                 onValueSelected={ onSelect }>
-    { !!confidenceSet && (
+                 onValueSelected={ value => dispatch(updateDraftCampaign({ confidence_indicator_set: value as number })) }>
+    { !!selectedConfidenceSet && (
       <Fragment>
-        { confidenceSet?.desc }
-        { confidenceSet?.confidence_indicators.map(c => (
+        { selectedConfidenceSet?.desc }
+        { selectedConfidenceSet?.confidence_indicators.map(c => (
           <p key={ c.level }><span className="bold">{ c.level }:</span> { c.label }</p>
         )) }
       </Fragment>)

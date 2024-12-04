@@ -2,14 +2,14 @@ import React, { ChangeEvent, InputHTMLAttributes, TextareaHTMLAttributes, useEff
 import { IonNote } from "@ionic/react";
 import './inputs.css';
 
-export type TextareaProperties = {
+export type OldTextareaProperties = {
   label?: string;
   error?: string;
 } & TextareaHTMLAttributes<HTMLTextAreaElement>
 
 export type TextareaValue = InputHTMLAttributes<HTMLTextAreaElement>['value']
 
-export const Textarea: React.FC<TextareaProperties> = ({
+export const OldTextarea: React.FC<OldTextareaProperties> = ({
                                                          label,
                                                          disabled,
                                                          value: incomingValue,
@@ -56,6 +56,31 @@ export const Textarea: React.FC<TextareaProperties> = ({
       <textarea { ...textareaArgs }
                 value={ value }
                 onChange={ _onChange }
+                disabled={ disabled }
+                required={ required }/>
+    </div>
+    { error && <IonNote color="danger">{ error }</IonNote> }
+  </div>
+}
+
+
+export const Textarea: React.FC<OldTextareaProperties> = ({
+                                                         label,
+                                                         disabled,
+                                                         value,
+                                                         error,
+                                                         required,
+                                                         ...textareaArgs
+                                                       }) => {
+  return <div id="aplose-input" className="textarea" aria-disabled={ disabled } aria-invalid={ !!error }>
+    { label && <p id="label"
+                  className={ required ? 'required' : '' }>
+      { label }{ required ? '*' : '' }
+    </p> }
+
+    <div id="input">
+      <textarea { ...textareaArgs }
+                value={ value }
                 disabled={ disabled }
                 required={ required }/>
     </div>

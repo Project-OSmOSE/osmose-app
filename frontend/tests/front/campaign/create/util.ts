@@ -1,6 +1,6 @@
 import { expect, Page } from '../../../utils/fixture';
-import { WriteAnnotationCampaign } from '../../../../src/services/api/annotation/campaign.service';
 import { CREATE_CAMPAIGN_URL } from '../../../utils/url';
+import { WriteAnnotationCampaign } from '../../../../src/service/campaign';
 
 export const name = 'Test campaign';
 export const desc = 'Test description';
@@ -29,7 +29,7 @@ export async function submit(page: Page, mockResponse?: {
 }): Promise<Array<WriteAnnotationCampaign>> {
   await page.route(CREATE_CAMPAIGN_URL, (route, request) => {
     if (request.method() === 'POST') {
-      route.fulfill(mockResponse ?? { status: 200, json: { id: -1 } })
+      route.fulfill(mockResponse ?? { status: 200, json: { id: -1, files_count: 99, datasets: ['Test Dataset'] } })
     }
   })
   const [ request ] = await Promise.all([

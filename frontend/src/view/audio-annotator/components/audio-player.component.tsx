@@ -1,7 +1,7 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
-import { useAppSelector, useAppDispatch } from "@/slices/app";
-import { AudioActions } from "@/slices/annotator/audio.ts";
+import { useAppSelector, useAppDispatch } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { onPause, onPlay, setTime } from '@/service/annotator';
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
@@ -10,11 +10,9 @@ export const AudioPlayerComponent = React.forwardRef<HTMLAudioElement | null, an
 
   const {
     file,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    stopTime,
-    playbackRate
-  } = useAppSelector(state => state.annotator.audio);
+    audio,
+    userPreferences
+  } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
   const elementRef = useRef<HTMLAudioElement | null>(null);
@@ -25,19 +23,19 @@ export const AudioPlayerComponent = React.forwardRef<HTMLAudioElement | null, an
       if (!elementRef.current || elementRef.current?.paused) return;
 
       const time = elementRef.current?.currentTime;
-      if (stopTime && time && time > stopTime) audioService.pause();
-      else dispatch(AudioActions.setTime(time))
+      if (audio.stopTime && time && time > audio.stopTime) audioService.pause();
+      else dispatch(setTime(time))
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
   }, [ file?.id ]);
 
   useEffect(() => {
-    dispatch(AudioActions.onPause())
+    dispatch(onPause())
     if (elementRef.current) {
       elementRef.current.volume = 1.0;
       elementRef.current.preservesPitch = false;
-      elementRef.current.playbackRate = playbackRate;
+      elementRef.current.playbackRate = userPreferences.audioSpeed;
     }
   }, [ elementRef.current ])
 
@@ -54,11 +52,11 @@ export const AudioPlayerComponent = React.forwardRef<HTMLAudioElement | null, an
            loop={ false }
            muted={ false }
            ref={ elementRef }
-           onLoadedMetadata={ () => dispatch(AudioActions.setTime(0)) }
-           onAbort={ () => dispatch(AudioActions.onPause()) }
-           onEnded={ () => dispatch(AudioActions.onPause()) }
-           onPause={ () => dispatch(AudioActions.onPause()) }
-           onPlay={ () => dispatch(AudioActions.onPlay()) }
+           onLoadedMetadata={ () => dispatch(setTime(0)) }
+           onAbort={ () => dispatch(onPause()) }
+           onEnded={ () => dispatch(onPause()) }
+           onPause={ () => dispatch(onPause()) }
+           onPlay={ () => dispatch(onPlay()) }
            preload="auto"
            src={ file?.audio_url }
            title={ file?.audio_url }>

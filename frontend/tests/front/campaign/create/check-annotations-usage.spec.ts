@@ -1,12 +1,12 @@
 import { expect, Page, test } from '../../../utils/fixture';
 import { accessCreateCampaign } from '../../../utils/campaign/functions';
-import { WriteAnnotationCampaign } from '../../../../src/services/api/annotation/campaign.service';
 import { expectNoRequestsOnAction } from '../../../utils/functions';
 import { CAMPAIGN_URL } from '../../../utils/url';
-import { Detector } from '../../../../src/services/api';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { configuration, dataset, deadline, desc, name, selectInAlert, submit, url } from './util';
+import { Detector } from '../../../../src/service/campaign/detector';
+import { WriteAnnotationCampaign } from '../../../../src/service/campaign';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -70,17 +70,15 @@ async function importAnnotations(page: Page, filename: string,
     await modal.getByText('Select configuration').first().click()
     await modal.locator('#options:visible').getByText('Create new').first().click()
     await modal.locator('textarea').nth(1).fill(configuration)
+  } else {
+    await expect(page.getByText('detector3')).not.toBeVisible();
   }
   if (!onlyFirstDataset && !onlyFirstDetector) {
     await modal.getByText('Select configuration').first().click()
     await modal.locator('#options:visible').getByText('Create new').first().click()
     await modal.locator('textarea').last().fill(configuration)
-  }
-  if (onlyFirstDataset || onlyFirstDetector) {
+  } else {
     await expect(page.getByText('detector2')).not.toBeVisible();
-  }
-  if (onlyFirstDetector) {
-    await expect(page.getByText('detector3')).not.toBeVisible();
   }
   await modal.getByRole('button', { name: `Import` }).click({ force: true });
 }
@@ -117,8 +115,8 @@ test('Default', {
   expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(dataset) }`)
   expect(submitResultsRequest.url()).toContain(`detectors_map=${ encodeURI(JSON.stringify({
     detector1: { detector: 'detector1', configuration },
+    detector3: { detector: 'detector3', configuration },
     detector2: { detector: 'detector2', configuration },
-    detector3: { detector: 'detector3', configuration }
   })) }`)
 })
 
@@ -273,7 +271,6 @@ test('Can delete import', async ({ annotatorPage: page }) => {
 test('Handle import some annotation not matching dataset files', {
   tag: '@essential'
 }, async ({ annotatorPage: page }) => {
-
   await accessCreateCampaign(page);
   await fillBaseForm(page);
   // Annotation
@@ -306,8 +303,8 @@ test('Handle import some annotation not matching dataset files', {
   expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(dataset) }`)
   expect(submitResultsRequest.url()).toContain(`detectors_map=${ encodeURI(JSON.stringify({
     detector1: { detector: 'detector1', configuration },
+    detector3: { detector: 'detector3', configuration },
     detector2: { detector: 'detector2', configuration },
-    detector3: { detector: 'detector3', configuration }
   })) }`)
 
   const toast = page.locator('ion-toast').first()
@@ -320,8 +317,8 @@ test('Handle import some annotation not matching dataset files', {
   expect(submitResultsRequestFinal.url()).toContain(`dataset_name=${ encodeURI(dataset) }`)
   expect(submitResultsRequestFinal.url()).toContain(`detectors_map=${ encodeURI(JSON.stringify({
     detector1: { detector: 'detector1', configuration },
+    detector3: { detector: 'detector3', configuration },
     detector2: { detector: 'detector2', configuration },
-    detector3: { detector: 'detector3', configuration }
   })) }`)
   expect(submitResultsRequestFinal.url()).toContain(`force=true`)
 })

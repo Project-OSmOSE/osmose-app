@@ -1,4 +1,4 @@
-import React, { useImperativeHandle } from "react";
+import React, { useImperativeHandle, useMemo } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
@@ -6,28 +6,33 @@ import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
 import { confirm } from "@/view/global-components";
 import { KeypressHandler } from "../../audio-annotator.page.tsx";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
-import { AnnotationActions } from "@/slices/annotator/annotations.ts";
-import { AnnotatorActions } from "@/slices/annotator/global-annotator.ts";
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import {
+  addPresenceResult,
+  disableShortcuts,
+  enableShortcuts,
+  focusLabel,
+  getPresenceLabels,
+  removePresence
+} from '@/service/annotator';
 
 
 export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
 
   const {
-    areShortcutsEnabled,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    labelSet,
-    presenceLabels,
-    focusedLabel,
+    ui,
+    label_set,
     results,
+    focusedLabel,
     labelColors
-  } = useAppSelector(state => state.annotator.annotations);
+  } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch()
 
+  const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
+
   const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!areShortcutsEnabled || !labelSet) return;
-    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, labelSet.labels.length);
+    if (!ui.areShortcutsEnabled || !label_set) return;
+    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, label_set.labels.length);
 
     if (event.key === "'") {
       event.preventDefault();
@@ -36,32 +41,32 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
     for (const i in active_alphanumeric_keys) {
       if (event.key !== AlphanumericKeys[0][i] && event.key !== AlphanumericKeys[1][i]) continue;
 
-      const calledLabel = labelSet.labels[i];
+      const calledLabel = label_set.labels[i];
       if (presenceLabels.includes(calledLabel) && focusedLabel !== calledLabel) {
-        dispatch(AnnotationActions.focusLabel(calledLabel))
+        dispatch(focusLabel(calledLabel))
       } else toggle(calledLabel);
     }
   }
 
   useImperativeHandle(ref,
     () => ({ handleKeyPressed }),
-    [areShortcutsEnabled, labelSet?.labels]
+    [ ui.areShortcutsEnabled, label_set?.labels ]
   );
 
   const toggle = async (label: string) => {
     if (presenceLabels.includes(label)) {
       // Remove presence
-      if (results.find(a => a.label === label)) {
+      if (results?.find(a => a.label === label)) {
         // if annotations exists with this label: wait for confirmation
-        dispatch(AnnotatorActions.disableShortcuts())
-        const response = await confirm(`You are about to remove ${results.filter(r => r.label === label).length} annotations using "${label}" label. Are you sure ?`, `Remove "${label}" annotations`);
-        dispatch(AnnotatorActions.enableShortcuts())
+        dispatch(disableShortcuts())
+        const response = await confirm(`You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure ?`, `Remove "${ label }" annotations`);
+        dispatch(enableShortcuts())
         if (!response) return;
       }
-      dispatch(AnnotationActions.removePresence(label));
+      dispatch(removePresence(label));
     } else {
       // Add presence
-      dispatch(AnnotationActions.addPresence(label));
+      dispatch(addPresenceResult(label));
     }
   }
 
@@ -70,7 +75,7 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
       <h6 className="card-header text-center">Presence / Absence</h6>
       <div className="card-body">
         <ul className="presence-absence-columns">
-          { labelSet?.labels.map((label, key) => (
+          { label_set?.labels.map((label, key) => (
             <li className="form-check tooltip-wrap" key={ `tag-${ key.toString() }` }>
               <input id={ `tags_key_checkbox_shortcuts_${ key.toString() }` }
                      className="form-check-input"

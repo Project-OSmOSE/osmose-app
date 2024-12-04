@@ -1,25 +1,29 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { CheckboxChangeEventDetail, IonButton, IonCheckbox, IonIcon, IonNote } from "@ionic/react";
+import { CheckboxChangeEventDetail, IonButton, IonCheckbox, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { alertOutline } from "ionicons/icons";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { Detector } from "@/services/api";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { FormBloc, Select } from "@/components/form";
-import { DetectorSelection, importAnnotationsActions } from '@/slices/create-campaign/import-annotations.ts';
+import { Detector, useListDetectorQuery } from '@/service/campaign/detector';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
+import { DetectorSelection, setDetectors as saveDetectors } from '@/service/campaign';
 
 interface Props {
-  allDetectors: Array<Detector>,
-  save: () => void;
   cancelButton: ReactNode;
 }
 
 export const DetectorsContent: React.FC<Props> = ({
-                                                    allDetectors,
-                                                    save,
                                                     cancelButton
                                                   }) => {
-  const [ csvDetectors, setCsvDetectors ] = useState<Array<string>>([]);
+  // const [ csvDetectors, setCsvDetectors ] = useState<Array<string>>([]);
   const [ detectors, setDetectors ] = useState<Map<string, Detector | null | undefined>>(new Map());
   const [ canValidate, setCanValidate ] = useState<boolean>(false);
+  const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
+  const toast = useToast();
+
+  useEffect(() => {
+    if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
+  }, [ detectorListError ])
 
   const updateCanValidate = () => {
     setCanValidate(detectors.size > 0 && [ ...detectors.values() ].some(v => v !== undefined))
@@ -27,17 +31,18 @@ export const DetectorsContent: React.FC<Props> = ({
 
   // Form data
   const {
-    datasetName,
-    filename,
-    initialRows,
-    selectedDatasets
-  } = useAppSelector(state => state.createCampaignForm.importAnnotations);
+    draftCampaign,
+    resultImport,
+  } = useAppSelector(state => state.campaign);
   const dispatch = useAppDispatch();
 
-  // Services
-  useEffect(() => {
-    setCsvDetectors([ ...new Set(initialRows.filter(r => selectedDatasets?.includes(r.dataset)).map(r => r.detector)) ])
-  }, [ initialRows ])
+  const availableDetectors = useMemo(() => {
+    const data = resultImport.fileData;
+    const filterDatasets = resultImport.filterDatasets;
+    if (!data || !filterDatasets) return;
+    const availableEntries = filterDatasets.flatMap(d => data.detectorsForDatasets[d])
+    return [...new Set(availableEntries)]
+  }, [])
 
   const _save = () => {
     const entries: DetectorSelection[] = [ ...detectors.entries() ].map(([ initialName, detector ]) => {
@@ -48,8 +53,7 @@ export const DetectorsContent: React.FC<Props> = ({
       };
       return selection
     })
-    dispatch(importAnnotationsActions.setSelectedDetectors(entries))
-    save();
+    dispatch(saveDetectors(entries))
   }
 
   const onDetectorSelected = (detector: string) => {
@@ -76,16 +80,17 @@ export const DetectorsContent: React.FC<Props> = ({
     updateCanValidate()
   }
 
+  if (!allDetectors) return <IonSpinner/>
   return (
     <Fragment>
       <div id="content">
         <div className="basic-info">
-          <p>File: <span className="bold">{ filename }</span></p>
-          <p>Dataset: <span className="bold">{ datasetName }</span></p>
+          <p>File: <span className="bold">{ resultImport.fileData?.filename }</span></p>
+          <p>Dataset: <span className="bold">{ draftCampaign.datasets![0] }</span></p>
         </div>
 
         <FormBloc label="Detectors from CSV">
-          { csvDetectors.map(d => (
+          { availableDetectors?.map(d => (
             <DetectorEntry csvDetector={ d }
                            allDetectors={ allDetectors }
                            key={ d }

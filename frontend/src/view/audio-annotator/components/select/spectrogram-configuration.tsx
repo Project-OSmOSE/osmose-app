@@ -1,23 +1,21 @@
 import React, { ChangeEvent } from "react";
-import { SpectrogramActions } from "@/slices/annotator/spectro.ts";
-import { useAppDispatch, useAppSelector } from "@/slices/app.ts";
-import { getScaleName } from "@/services/api/data/spectrogram.service.tsx";
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import { getScaleName } from '@/service/dataset/spectrogram-configuration';
+import { selectSpectrogramConfiguration } from '@/service/annotator';
 
 export const SpectrogramConfigurationSelect: React.FC = () => {
+  const spectrogramConfigurationID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
+  const spectrogramConfigurations = useAppSelector(state => state.annotator.spectrogram_configurations);
 
-  const {
-    configurations,
-    selectedID
-  } = useAppSelector(state => state.annotator.spectro);
   const dispatch = useAppDispatch()
 
   const onSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-    dispatch(SpectrogramActions.selectSpectrogram(+e.target.value))
+    dispatch(selectSpectrogramConfiguration(+e.target.value))
   }
 
-  return <select defaultValue={ selectedID }
+  return <select defaultValue={ spectrogramConfigurationID }
                  onChange={ onSelect }>
-    { configurations.map(spectrogram => (
+    { spectrogramConfigurations?.map(spectrogram => (
       <option key={ spectrogram.id } value={ spectrogram.id }>
         nfft: { spectrogram.nfft } | winsize: { spectrogram.window_size } | overlap: { spectrogram.overlap } |
         scale: { getScaleName(spectrogram) }

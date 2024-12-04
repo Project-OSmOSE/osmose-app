@@ -1,30 +1,27 @@
 import React, { Fragment, MouseEvent, useMemo } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
-import { formatTimestamp } from "@/services/utils/format.tsx";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
+import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import { AnnotationResult } from "@/services/api";
-import { AnnotationActions } from "@/slices/annotator/annotations.ts";
-import { getResultType, ResultType } from "@/services/utils/annotator.ts";
 import styles from './bloc.module.scss'
 import { IoArrowUpOutline, IoChatbubble, IoChatbubbleOutline, IoPricetag, IoTimeOutline } from 'react-icons/io5';
 import { FaHandshake } from 'react-icons/fa6';
 import { RiRobot2Fill } from 'react-icons/ri';
+import { AnnotationResult } from '@/service/campaign/result';
+import { focusResult, getResultType, invalidateResult, ResultType, validateResult } from '@/service/annotator';
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 
 export const ResultList: React.FC = () => {
 
   const {
     campaign,
-  } = useAppSelector(state => state.annotator.global);
-  const {
-    results,
-  } = useAppSelector(state => state.annotator.annotations);
+    results
+  } = useAppSelector(state => state.annotator);
 
   const sorted_results: Array<AnnotationResult> = useMemo(
     () => {
       // Need the spread to sort this readonly array
-      return [ ...results ].sort((a, b) => {
+      return [ ...(results ?? []) ].sort((a, b) => {
         if (a.label !== b.label) {
           return a.label.localeCompare(b.label);
         }
@@ -50,11 +47,11 @@ interface ResultProps {
 }
 
 const ResultItem: React.FC<ResultProps> = ({ result }) => {
-  const { focusedResult } = useAppSelector(state => state.annotator.annotations);
+  const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch()
   const type = useMemo(() => getResultType(result), [ result ]);
-  const isActive = useMemo(() => result.id === focusedResult?.id ? "isActive" : undefined, [ result.id, focusedResult?.id ])
-  const onClick = () => dispatch(AnnotationActions.focusResult(result))
+  const isActive = useMemo(() => result.id === focusedResultID ? "isActive" : undefined, [ result.id, focusedResultID ])
+  const onClick = () => dispatch(focusResult(result.id))
 
   const params: ResultItemProps = { result, type, isActive, onClick }
   return <Fragment>
@@ -79,8 +76,8 @@ const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, type, isActive, onC
   if (type === 'presence') return <Fragment/>
   return <div className={ isActive } onClick={ onClick }>
     <IoTimeOutline/>&nbsp;
-    { formatTimestamp(result.start_time) }&nbsp;
-    { type === 'box' && <Fragment>&gt;&nbsp;{ formatTimestamp(result.end_time) }&nbsp;</Fragment> }
+    { formatTime(result.start_time!) }&nbsp;
+    { type === 'box' && <Fragment>&gt;&nbsp;{ formatTime(result.end_time!) }&nbsp;</Fragment> }
   </div>
 }
 
@@ -128,7 +125,7 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, isActive, onClic
 )
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, isActive, onClick }) => {
-  const { campaign } = useAppSelector(state => state.annotator.global);
+  const { campaign } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     return result.validations.length > 0 ? result.validations[0].is_valid : null
@@ -136,12 +133,12 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, isActive, o
 
   const onValidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(AnnotationActions.validateResult(result))
+    dispatch(validateResult(result.id))
   }
 
   const onInvalidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(AnnotationActions.invalidateResult(result))
+    dispatch(invalidateResult(result.id))
   }
 
   if (campaign?.usage !== 'Check') return <Fragment/>
