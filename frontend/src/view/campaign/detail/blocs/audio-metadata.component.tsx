@@ -54,8 +54,8 @@ export const DetailCampaignAudioMetadata: React.FC<Props> = ({ isOwner }) => {
       </div>
 
       { metadata && metadata.length > 0 && <Table columns={ metadata.length + 1 } isFirstColumnSticky={ true }>
-          <TableHead isFirstColumn={ true }>Sample bits</TableHead>
-        { metadata.map(c => <TableContent key={ c.id }>{ c.sample_bits }</TableContent>) }
+          <TableHead isFirstColumn={ true }>Files subtypes</TableHead>
+        { metadata.map(c => <TableContent key={ c.id }>{ c.files_subtypes.join(', ') }</TableContent>) }
           <TableDivider/>
 
           <TableHead isFirstColumn={ true }>Channel count</TableHead>
