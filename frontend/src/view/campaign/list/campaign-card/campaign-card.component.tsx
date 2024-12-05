@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonBadge, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
-import { ListItem } from "@/services/api/annotation-campaign-api.service.tsx";
 import { crop } from "ionicons/icons";
+import { AnnotationCampaign } from '@/service/campaign';
 import './campaign-card.component.css';
 
 interface Props {
-  campaign: ListItem
+  campaign: AnnotationCampaign
 }
 
 enum State {
@@ -18,11 +18,13 @@ enum State {
 export const CampaignCard: React.FC<Props> = ({ campaign }) => {
   const history = useHistory();
 
+  const deadline: Date | undefined = useMemo(() => campaign.deadline ? new Date(campaign.deadline) : undefined, [ campaign.deadline ]);
+
   const state = useMemo(() => {
-    if (campaign.is_archived) return State.archived;
-    if (campaign.deadline && (campaign.deadline.getTime() - 7 * 24 * 60 * 60 * 1000) <= Date.now()) return State.dueDate;
+    if (campaign.archive) return State.archived;
+    if (deadline && (deadline.getTime() - 7 * 24 * 60 * 60 * 1000) <= Date.now()) return State.dueDate
     return State.open;
-  }, [ campaign.deadline, campaign.is_archived ]);
+  }, [ campaign.deadline, campaign.archive ]);
 
   const color = useMemo(() => {
     switch (state) {
@@ -35,20 +37,20 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
     }
   }, [ state ]);
 
-  const manage = () => history.push(`/annotation_campaign/${ campaign.id }`);
-  const annotate = () => history.push(`/annotation_tasks/${ campaign.id }`);
+  const manage = () => history.push(`/annotation-campaign/${ campaign.id }`);
+  const annotate = () => history.push(`/annotation-campaign/${ campaign.id }/file`);
 
   return (
-    <div id="campaign-card" className="campaign-card">
+    <div className="campaign-card">
 
       <div id="head">
         { state === State.open && <IonBadge color="secondary">Open</IonBadge> }
         { state === State.dueDate &&
-            <IonBadge color="warning">Due date: { campaign.deadline?.toLocaleDateString() }</IonBadge> }
+            <IonBadge color="warning">Due date: { deadline?.toLocaleDateString() }</IonBadge> }
         { state === State.archived && <IonBadge color="medium">Archived</IonBadge> }
 
         <p id="campaign-name">{ campaign.name }</p>
-        <p id="dataset-name">{ campaign.datasets_name }</p>
+        <p id="dataset-name">{ campaign.datasets.join(', ') }</p>
       </div>
 
       <div className="property">
@@ -68,21 +70,21 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
           <IonProgressBar color={ color }
                           value={ campaign.my_progress / campaign.my_total }/>
       </div> }
-      <div className="progression">
-        <p>
+      { campaign.total > 0 && <div className="progression">
+          <p>
           <span className="progress-label">
             Campaign progress: { campaign.progress }&nbsp;/&nbsp;{ campaign.total }
           </span>
-        </p>
-        <IonProgressBar color="medium"
-                        value={ campaign.progress / campaign.total }/>
-      </div>
+          </p>
+          <IonProgressBar color="medium"
+                          value={ campaign.progress / campaign.total }/>
+      </div> }
 
-      <div id="buttons" className={campaign.my_total > 0 ? '' : 'fill' }>
+      <div id="buttons" className={ campaign.my_total > 0 ? '' : 'fill' }>
         <IonButton fill="outline" onClick={ manage }>
-          { campaign.is_archived ? "Info" : "Manage" }
+          { campaign.archive ? "Info" : "Manage" }
         </IonButton>
-        { !campaign.is_archived && campaign.my_total > 0 &&
+        { !campaign.archive && campaign.my_total > 0 &&
             <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton> }
       </div>
     </div>

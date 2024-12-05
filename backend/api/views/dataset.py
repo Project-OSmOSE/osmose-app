@@ -43,11 +43,11 @@ class DatasetViewSet(viewsets.ViewSet):
             LEFT OUTER JOIN (SELECT id, name
                       FROM dataset_types) type
                      on type.id = datasets.dataset_type_id
+            ORDER BY datasets.id DESC
             """
         ).prefetch_related("spectro_configs")
 
         serializer = self.serializer_class(queryset, many=True)
-
         return Response(serializer.data)
 
     @action(detail=False)
@@ -90,14 +90,6 @@ class DatasetViewSet(viewsets.ViewSet):
                 wanted_datasets=request.data["wanted_datasets"],
                 importer=request.user,
             )
-        except FileNotFoundError as error:
-            print("[datawork_import] > FileNotFoundError")
-            capture_exception(error)
-            return HttpResponse(error, status=400)
-        except PermissionError as error:
-            print("[datawork_import] > PermissionError")
-            capture_exception(error)
-            return HttpResponse(error, status=400)
         except KeyError as error:
             print("[datawork_import] > KeyError")
             capture_exception(error)
@@ -105,6 +97,10 @@ class DatasetViewSet(viewsets.ViewSet):
                 f"One of the import CSV is missing the following column : {error}",
                 status=400,
             )
+        except (FileNotFoundError, PermissionError, ValueError) as error:
+            print("[datawork_import] > ValueError")
+            capture_exception(error)
+            return HttpResponse(error, status=400)
 
         queryset = new_datasets.annotate(
             files_count=Count("files"),

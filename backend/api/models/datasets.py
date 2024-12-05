@@ -1,7 +1,8 @@
 """Dataset-related models"""
+from datetime import datetime
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 
 
@@ -54,7 +55,7 @@ class Dataset(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     audio_metadatum = models.ForeignKey(
-        "AudioMetadatum", on_delete=models.CASCADE, null=True, blank=True
+        "AudioMetadatum", on_delete=models.SET_NULL, null=True, blank=True
     )
     dataset_type = models.ForeignKey(
         DatasetType, on_delete=models.CASCADE, null=True, blank=True
@@ -63,6 +64,22 @@ class Dataset(models.Model):
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def get_files(self, start: datetime, end: datetime):
+        """Get dataset files from absolute start and ends"""
+        dataset_files_start = self.files.filter(
+            start__lte=start,
+            end__gte=start,
+        )
+        dataset_files_while = self.files.filter(
+            start__gt=start,
+            end__lt=end,
+        )
+        dataset_files_end = self.files.filter(
+            start__lte=end,
+            end__gte=end,
+        )
+        return dataset_files_start | dataset_files_while | dataset_files_end
 
 
 class DatasetFile(models.Model):
@@ -87,16 +104,12 @@ class DatasetFile(models.Model):
     size = models.BigIntegerField()
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, related_name="files")
-    audio_metadatum = models.ForeignKey(
-        "AudioMetadatum", on_delete=models.CASCADE, null=True, blank=True
-    )
+    start = models.DateTimeField()
+    end = models.DateTimeField()
 
     @property
     def dataset_sr(self):
         """Returns data from file audio_metadatum if there, else from dataset audio_metadatum"""
         # Pylint can't follow foreign keys when using string identifiers instead of model
         # pylint: disable=no-member
-        df_sample_rate = self.audio_metadatum.dataset_sr
-        ds_sample_rate = self.dataset.audio_metadatum.dataset_sr
-        sample_rate = df_sample_rate if df_sample_rate else ds_sample_rate
-        return sample_rate
+        return self.dataset.audio_metadatum.dataset_sr

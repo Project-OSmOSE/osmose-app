@@ -1,31 +1,55 @@
-import React, { Fragment } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { Fragment, useEffect } from 'react';
 import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, people, pricetag } from "ionicons/icons";
+import { useAppSelector } from '@/service/app';
+import { useArchiveCampaignMutation, selectCurrentCampaign } from '@/service/campaign';
+import { useToast } from '@/services/utils/toast.ts';
+import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';
+import { getErrorMessage } from '@/service/function.ts';
+import { useRetrieveConfidenceSetQuery } from '@/service/campaign/confidence-set';
 import './blocs.css';
-import { AnnotationCampaignRetrieveCampaign, useAnnotationCampaignAPI } from "@/services/api";
-import { AnnotationStatus } from "@/types/campaign.ts";
 
 interface Props {
-  campaign: AnnotationCampaignRetrieveCampaign,
   isEditionAllowed: boolean,
-  annotationStatus: Array<AnnotationStatus>,
-  reload: () => void
+  annotatorsStatus: Map<string, { total: number, progress: number }>,
 }
 
 export const DetailCampaignGlobalInformation: React.FC<Props> = ({
-                                                                   campaign,
                                                                    isEditionAllowed,
-                                                                   annotationStatus,
-                                                                   reload,
+                                                                   annotatorsStatus,
                                                                  }) => {
-  const history = useHistory();
-  const [presentAlert] = useIonAlert();
-  const campaignService = useAnnotationCampaignAPI();
+  // State
+  const campaign = useAppSelector(selectCurrentCampaign);
+
+  // Service
+  const [ presentAlert ] = useIonAlert();
+  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: labelSet, error: labelSetError } = useRetrieveLabelSetQuery(campaign!.label_set)
+  const {
+    data: confidenceSet,
+    error: confidenceSetError
+  } = useRetrieveConfidenceSetQuery(campaign!.confidence_indicator_set ?? -1, {
+    skip: !campaign?.confidence_indicator_set
+  })
+  const [ archiveCampaign ] = useArchiveCampaignMutation()
+
+  useEffect(() => {
+    return () => {
+      dismissToast()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (labelSetError) presentError(getErrorMessage(labelSetError));
+  }, [ labelSetError ]);
+
+  useEffect(() => {
+    if (confidenceSetError) presentError(getErrorMessage(confidenceSetError));
+  }, [ confidenceSetError ]);
 
   const archive = async () => {
     if (!campaign) return;
-    if (annotationStatus.filter(s => s.finished < s.total).length > 0) {
+    if ([ ...annotatorsStatus.values() ].filter(s => s.progress < s.total).length > 0) {
       // If annotators haven't finished yet, ask for confirmation
       return await presentAlert({
         header: 'Archive',
@@ -36,22 +60,11 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
           {
             text: 'Archive',
             cssClass: 'ion-color-danger',
-            handler: async () => {
-              await campaignService.archive(campaign.id);
-              reload()
-            }
+            handler: () => archiveCampaign(campaign.id)
           }
         ]
       });
-    } else {
-      await campaignService.archive(campaign.id);
-      reload()
-    }
-  }
-
-  const openEditCampaign = () => {
-    if (!campaign) return;
-    history.push(`/annotation_campaign/${ campaign?.id }/edit`)
+    } else archiveCampaign(campaign.id)
   }
 
   return (
@@ -61,46 +74,46 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
       <div className="item">
         <IonIcon className="icon" icon={ pricetag }/>
         <p className="label">Label set:</p>
-        <p>{ campaign.label_set.name }</p>
+        <p>{ labelSet?.name }</p>
       </div>
 
       <div className="item">
-        { campaign.confidence_indicator_set && <Fragment>
+        { confidenceSet && <Fragment>
             <i className="icon fa fa-handshake"></i>
             <p className="label">Confidence indicator set:</p>
-            <p>{ campaign.confidence_indicator_set.name }</p>
+            <p>{ confidenceSet?.name }</p>
         </Fragment> }
       </div>
 
       <div className="item">
         <IonIcon className="icon" icon={ documents }/>
         <p className="label">Dataset:</p>
-        <p>{ campaign.datasets_name.join(', ') }</p>
+        <p>{ campaign?.datasets.join(', ') }</p>
       </div>
 
       <div className="item">
         <IonIcon className="icon" icon={ people }/>
         <p className="label">Annotators:</p>
-        <p>{ [...new Set(annotationStatus.map(s => s.annotator))].length }</p>
+        <p>{ [ ...new Set(annotatorsStatus.keys()) ].length }</p>
       </div>
 
       <div className="item">
         <IonIcon className="icon" icon={ crop }/>
         <p className="label">Mode:</p>
-        <p>{ campaign.usage }</p>
+        <p>{ campaign?.usage }</p>
       </div>
 
       <div className="item">
-        { campaign.deadline && <Fragment>
+        { campaign?.deadline && <Fragment>
             <IonIcon className="icon" icon={ calendarClear }/>
             <p className="label">Deadline:</p>
-            <p>{ campaign.deadline.toLocaleDateString() }</p>
+            <p>{ new Date(campaign?.deadline).toLocaleDateString() }</p>
         </Fragment> }
       </div>
 
-      { campaign.desc && <div className="description">
+      { campaign?.desc && <div className="description">
           <p className="label">Description:</p>
-          <p>{ campaign.desc }</p>
+          <p>{ campaign?.desc }</p>
       </div> }
 
       { isEditionAllowed && <div className="buttons">
@@ -108,10 +121,6 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
                      onClick={ archive }>
               <IonIcon icon={ archiveOutline }/>
               Archive
-          </IonButton>
-          <IonButton color={ "primary" }
-                     onClick={ openEditCampaign }>
-              Add annotators
           </IonButton>
       </div> }
     </div>

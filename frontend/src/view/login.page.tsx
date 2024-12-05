@@ -1,56 +1,44 @@
-import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
-import { useAuthService } from "@/services/auth";
-import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { Input } from "@/components/form/inputs/input.tsx";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
+import { selectIsConnected, useLoginMutation } from '@/service/auth';
+import { useAppSelector } from '@/service/app';
+import { getErrorMessage } from '@/service/function.ts';
 
 
 export const Login: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string | undefined>();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const auth = useAuthService();
+  // State
+  const isConnected = useAppSelector(selectIsConnected);
+  const [ username, setUsername ] = useState<string>('');
+  const [ password, setPassword ] = useState<string>('');
+  const [ errors, setErrors ] = useState<{ global?: string, username?: string, password?: string }>({});
+
+  // Service
   const history = useHistory();
   const location = useLocation<any>();
-  const { from } = location.state || { from: { pathname: '/annotation-campaigns' } };
+  const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
+
+  // Service
+  const [ login, { isLoading } ] = useLoginMutation();
 
   useEffect(() => {
-    if (auth.isConnected()) history.replace(from);
-
-    // Abort calls on view leave
-    return () => auth.abort();
-  }, []);
-
-  useCallback(() => {
-    if (auth.isConnected()) history.replace(from);
-  }, [auth.bearer]);
-
-  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.currentTarget.value.trim());
-  }
-
-  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.currentTarget.value.trim());
-  }
+    if (isConnected) history.replace(from);
+  }, [ isConnected ]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!username || !password) return setError('You must enter your login and password');
-    setError(undefined);
+    setErrors({})
+    if (!username) setErrors({ username: "This field is required." })
+    if (!password) setErrors(prev => ({ ...prev, password: "This field is required." }))
+    if (!username || !password) return;
 
-    try {
-      setIsSubmitting(true)
-      await auth.login(username, password);
-      history.replace(from);
-    } catch (e: any) {
-      setError(buildErrorMessage(e));
-    } finally {
-      setIsSubmitting(false);
-    }
+    await login({ username, password })
+      .unwrap()
+      .then(() => history.replace(from))
+      .catch(error => setErrors({ global: getErrorMessage(error) }));
   }
 
   return (
@@ -58,26 +46,30 @@ export const Login: React.FC = () => {
       <div className="row text-left h-100 main">
         <div className="col-sm-12 border rounded">
           <h1 className="text-center">Login</h1>
-          { error && <p className="error-message">{ error }</p> }
+          { errors.global && <p className="error-message">{ errors.global }</p> }
           <form onSubmit={ handleSubmit }>
             <div className="form-group">
-              <Input id="loginInput" className="form-control"
-                     label={ "Login" }
+              <Input id="loginInput"
+                     className="form-control"
                      value={ username }
-                     autoComplete={ "username" }
-                     onChange={ handleUsernameChange }/>
+                     onChange={ (e) => setUsername(e.target.value) }
+                     error={ errors.username }
+                     placeholder="username" label="Login" autoComplete="username"/>
             </div>
             <div className="form-group">
-              <Input id="passwordInput" className="form-control"
-                     label={ "Password" }
-                     type={ "password" }
+              <Input id="passwordInput"
+                     className="form-control"
                      value={ password }
-                     autoComplete={ "current-password" }
-                     onChange={ handlePasswordChange }/>
+                     onChange={ e => setPassword(e.target.value) }
+                     error={ errors.password }
+                     placeholder="password"
+                     label="Password"
+                     type="password"
+                     autoComplete="current-password"/>
             </div>
 
             <IonButton color={ "primary" }
-                       disabled={ isSubmitting }
+                       disabled={ isLoading }
                        type={ "submit" }>
               Submit
             </IonButton>

@@ -53,6 +53,8 @@ jobs:
     - name: Upload coverage artifact
       uses: actions/upload-pages-artifact@v3
       with:
+        name: poetry-report
+        path: poetry-report/
         retention-days: "90"
   deploy-coverage:
     environment:

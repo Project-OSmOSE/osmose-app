@@ -189,7 +189,7 @@ ion-input label {
 }
 
 ion-input input[type=number] {
-  max-width: 5rem !important;
+  max-width: 6rem !important;
   text-align: end !important;
 }
 
@@ -252,6 +252,7 @@ ion-toast::part(message) {
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+  word-wrap: break-word;
 }
 
 ion-breadcrumb[active=true] {

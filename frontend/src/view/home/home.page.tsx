@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import './home.page.css';
-import { PageTitle } from "../../components/PageTitle";
+import { PageTitle } from "@/components/PageTitle";
 import { CollaboratorsBanner } from "../../components/CollaboratorsBanner/CollaboratorsBanner";
 import { Collaborator } from "../../interface/collaborator";
-import { useFetchArray } from "../../services/api/utils";
+import { useFetchArray } from "@/services/api/utils.ts";
 import imgTitle from "../../img/illust/Content_head.jpg";
 import step1 from "../../img/illust/etape1.png";
 import step2 from "../../img/illust/etape2.png";
@@ -151,3 +151,4 @@ export const Home: React.FC = () => {
         </div>
     );
 };
+export default Home;

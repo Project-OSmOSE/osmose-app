@@ -1,14 +1,51 @@
-import React from "react";
-import { formatTimestamp } from "@/services/utils/format.tsx";
-import { useAppSelector } from "@/slices/app";
+import React, { useMemo } from "react";
+import { useAppSelector } from '@/service/app';
+import { getFileDuration } from '@/service/dataset';
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
-
   const {
-    focusedResult,
-    wholeFileBoundaries
-  } = useAppSelector(state => state.annotator.annotations);
+    file,
+    confidence_set,
+    focusedResultID,
+    results
+  } = useAppSelector(state => state.annotator);
+  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [focusedResultID]);
+
+  const startTime = useMemo(() => {
+    if (!focusedResult) return "-"
+    if (focusedResult.start_time === null) return "00:00.000";
+    return formatTime(focusedResult.start_time);
+  }, [focusedResult?.start_time])
+
+  const endTime = useMemo(() => {
+    if (!focusedResult) return "-"
+    if (focusedResult.end_time === null) return formatTime(getFileDuration(file));
+    return formatTime(focusedResult.end_time);
+  }, [focusedResult?.end_time])
+
+  const startFrequency = useMemo(() => {
+    if (!focusedResult) return "-"
+    if (focusedResult.start_frequency === null) return "0";
+    return focusedResult.start_frequency.toFixed(2);
+  }, [focusedResult?.start_frequency])
+
+  const endFrequency = useMemo(() => {
+    if (!focusedResult) return "-"
+    if (focusedResult.end_frequency === null) return ((file?.dataset_sr ?? 0) / 2).toFixed(2);
+    return focusedResult.end_frequency.toFixed(2);
+  }, [focusedResult?.end_frequency])
+
+  const label = useMemo(() => {
+    if (!focusedResult?.label) return "-"
+    return focusedResult.label;
+  }, [focusedResult?.end_frequency])
+
+  const confidence = useMemo(() => {
+    if (!focusedResult?.label) return "-"
+    return focusedResult.label;
+  }, [focusedResult?.end_frequency])
 
   if (!focusedResult) return (
     <div className="card mr-2  selected_annotation mini-content">
@@ -19,28 +56,21 @@ export const CurrentAnnotationBloc: React.FC = () => {
     </div>
   )
 
-  let max_time = "00:00.000";
-  if (focusedResult?.endTime === -1) {
-    const minutes = Math.floor(wholeFileBoundaries.duration / 60);
-    const seconds = wholeFileBoundaries.duration - minutes * 60;
-    max_time = `${ minutes.toFixed().padStart(2, "0") }:${ seconds.toFixed().padStart(2, "0") }:000`;
-  }
-
   return (
     <div className="card mr-2 selected_annotation mini-content">
       <h6 className="card-header text-center">Selected annotation</h6>
       <div className="card-body d-flex justify-content-between">
         <p className="card-text">
           <i className="fa fa-clock"></i> :&nbsp;
-          { focusedResult.startTime === -1 ? "00:00.000" : formatTimestamp(focusedResult.startTime) }&nbsp;&gt;&nbsp;
-          { focusedResult.endTime === -1 ? max_time : formatTimestamp(focusedResult.endTime) }<br/>
+          { startTime }&nbsp;&gt;&nbsp;
+          { endTime }<br/>
           <i className="fa fa-arrow-up"></i> :&nbsp;
-          { focusedResult.startFrequency === -1 ? wholeFileBoundaries.startFrequency : focusedResult.startFrequency.toFixed(2) }&nbsp;&gt;&nbsp;
-          { focusedResult.endFrequency === -1 ? wholeFileBoundaries.endFrequency : focusedResult.endFrequency.toFixed(2) } Hz<br/>
+          { startFrequency }&nbsp;&gt;&nbsp;
+          { endFrequency } Hz<br/>
           <i
-            className="fa fa-tag"></i> :&nbsp;{ focusedResult.label ? focusedResult.label : "None" }<br/>
-          { focusedResult.confidenceIndicator && <span><i
-              className="fa fa-handshake"></i> :&nbsp; { focusedResult.confidenceIndicator }<br/></span> }
+            className="fa fa-tag"></i> :&nbsp;{ label }<br/>
+          { confidence_set && <span><i
+              className="fa fa-handshake"></i> :&nbsp; { confidence }<br/></span> }
         </p>
       </div>
     </div>

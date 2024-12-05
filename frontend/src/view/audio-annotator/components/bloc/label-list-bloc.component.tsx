@@ -1,27 +1,27 @@
-import React from "react";
+import React, { useMemo } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
-import { AnnotationMode } from "@/types/annotations.ts";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
-import { useAppDispatch, useAppSelector } from "@/slices/app";
-import { focusLabel } from "@/slices/annotator/annotations.ts";
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import { focusLabel, getPresenceLabels } from '@/service/annotator';
 
 
 export const LabelListBloc: React.FC = () => {
 
   const {
-    allLabels,
-    presenceLabels,
+    label_set,
+    results,
     focusedLabel
-  } = useAppSelector(state => state.annotator.annotations);
+  } = useAppSelector(state => state.annotator);
+  const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
 
   return (
     <div className="card">
       <h6 className="card-header text-center">Labels list</h6>
       <div className="card-body d-flex justify-content-between">
         <ul className="card-text annotation-labels">
-          { allLabels.map((label, key) => (
+          { label_set?.labels.map((label, key) => (
             <LabelItem label={ label }
                        key={ key }
                        id={ key }
@@ -48,10 +48,7 @@ const LabelItem: React.FC<ItemProps> = ({
                                           isActive,
                                         }) => {
 
-  const {
-    labelColors,
-    currentMode
-  } = useAppSelector(state => state.annotator.annotations);
+  const labelColors = useAppSelector(state => state.annotator.labelColors);
   const dispatch = useAppDispatch()
 
   const color = labelColors[label] ?? DEFAULT_COLOR;
@@ -75,7 +72,7 @@ const LabelItem: React.FC<ItemProps> = ({
                 style={ isActive ? style.active : (isEnabled ? style.inactive : {}) }
                 onClick={ () => dispatch(focusLabel(label)) }
                 type="button"
-                disabled={ currentMode === AnnotationMode.wholeFile ? !isEnabled : false }>
+                disabled={ !isEnabled }>
           { label }
         </button>
       </li>

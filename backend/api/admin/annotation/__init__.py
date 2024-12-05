@@ -16,6 +16,7 @@ from .result import (
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
 )
+from .task import AnnotationTaskAdmin
 
 admin.site.register(Detector, DetectorAdmin)
 admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)

@@ -16,7 +16,6 @@ from backend.api.models import (
     DatasetFile,
     LabelSet,
     Label,
-    AnnotationTask,
     AnnotationComment,
     AnnotationSession,
     DatasetType,
@@ -31,6 +30,7 @@ from .annotation import (
     DetectorConfigurationAdmin,
     AnnotationResultAdmin,
     AnnotationResultValidationAdmin,
+    AnnotationTaskAdmin,
 )
 from .spectrogram import (
     MultiLinearScaleAdmin,
@@ -161,7 +161,8 @@ class DatasetFileAdmin(admin.ModelAdmin):
         "filepath",
         "size",
         "dataset",
-        "audio_metadatum",
+        "start",
+        "end",
     )
 
 
@@ -192,40 +193,6 @@ class AnnotationCommentAdmin(admin.ModelAdmin):
         "id",
         "comment",
     )
-
-
-class AnnotationTaskAdmin(admin.ModelAdmin):
-    """AnnotationTask presentation in DjangoAdmin"""
-
-    list_display = (
-        "status",
-        "annotation_campaign",
-        "dataset_file",
-        "annotator",
-    )
-    search_fields = ("dataset_file__filename",)
-    list_filter = ("status", "annotation_campaign", "annotator")
-
-    def clean_duplicates(self, request, queryset):
-        """Clean duplicated annotation task"""
-        task: AnnotationTask
-        for task in queryset.iterator():
-            AnnotationTask.objects.filter(
-                annotation_campaign_id=task.annotation_campaign_id,
-                dataset_file_id=task.dataset_file_id,
-                annotator_id=task.annotator_id,
-                status=0,
-                id__gt=task.id,
-            ).delete()
-
-    clean_duplicates.short_description = (
-        "Clean duplicated tasks (for same annotator, "
-        'campaign, dataset_file -- Only clean "created" tasks)'
-    )
-    clean_duplicates.acts_on_all = True
-    actions = [
-        clean_duplicates,
-    ]
 
 
 class AnnotationSessionAdmin(admin.ModelAdmin):
@@ -275,7 +242,6 @@ admin.site.register(DatasetFile, DatasetFileAdmin)
 admin.site.register(Label, LabelAdmin)
 admin.site.register(LabelSet, LabelSetAdmin)
 admin.site.register(AnnotationComment, AnnotationCommentAdmin)
-admin.site.register(AnnotationTask, AnnotationTaskAdmin)
 admin.site.register(AnnotationSession, AnnotationSessionAdmin)
 admin.site.register(AudioMetadatum, AudioMetadatumAdmin)
 admin.site.register(GeoMetadatum, GeoMetadatumAdmin)

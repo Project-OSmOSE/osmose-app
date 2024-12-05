@@ -1,17 +1,29 @@
-import React from "react";
-import { useAppSelector, useAppDispatch } from "@/slices/app";
-import { disableShortcuts, enableShortcuts } from "@/slices/annotator/global-annotator.ts";
-import { focusTask, removeFocusComment, updateFocusComment } from "@/slices/annotator/annotations.ts";
+import React, { useMemo } from "react";
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import {
+  disableShortcuts,
+  enableShortcuts,
+  focusTask,
+  removeFocusComment,
+  updateFocusComment
+} from '@/service/annotator';
 
 
 export const CommentBloc: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const {
-    focusedComment,
-    focusedResult,
-    taskComment
-  } = useAppSelector(state => state.annotator.annotations)
+    focusedCommentID,
+    results,
+    task_comments,
+    focusedResultID,
+  } = useAppSelector(state => state.annotator)
+
+  const currentComment = useMemo(() => {
+    if (!focusedResultID) return task_comments?.find(c => c.id === focusedCommentID)?.comment;
+    return results?.find(r => r.id === focusedResultID)?.comments.find(c => c.id === focusedCommentID)?.comment;
+  }, [results, focusedCommentID])
+
 
   return (
     <div className="col-sm-2">
@@ -23,7 +35,8 @@ export const CommentBloc: React.FC = () => {
                       maxLength={ 255 }
                       rows={ 10 }
                       cols={ 10 }
-                      value={ focusedComment?.comment ?? '' }
+                      placeholder="Enter your comment"
+                      value={ currentComment ?? '' }
                       onChange={ e => dispatch(updateFocusComment(e.target.value)) }
                       onFocus={ () => dispatch(disableShortcuts()) }
                       onBlur={ () => dispatch(enableShortcuts()) }></textarea>
@@ -37,9 +50,9 @@ export const CommentBloc: React.FC = () => {
             </div>
           </div>
         </div>
-        <button className={ `btn w-100 ${ !focusedResult ? "isActive" : "" }` }
+        <button className={ `btn w-100 ${ !focusedResultID ? "isActive" : "" }` }
                 onClick={ () => dispatch(focusTask()) }>
-          Task Comment { taskComment.comment ? <i className="fas fa-comment mx-2"></i> :
+          Task Comment { (task_comments ?? []).length > 0 ? <i className="fas fa-comment mx-2"></i> :
           <i className="far fa-comment mr-2"></i> }
         </button>
       </div>

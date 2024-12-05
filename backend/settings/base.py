@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
     "backend.osmosewebsite.apps.OsmoseWebsiteConfig",
-    "backend.aplose_auth.apps.AploseAuthConfig",
+    "backend.aplose.apps.AploseConfig",
     "tinymce",
     "metadatax",
 ]
@@ -128,6 +128,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "backend.osmosewebsite.pagination.OsmosePagination",
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 # rest_framework_simplejwt params

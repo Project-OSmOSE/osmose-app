@@ -1,124 +1,80 @@
-import React, { useEffect, useState, FormEvent } from "react";
-import { useAnnotationCampaignAPI, useUsersAPI } from "@/services/api";
-import { IonButton } from "@ionic/react";
+import React, { FormEvent, useEffect } from "react";
+import { IonButton, IonSpinner } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
-import { ChipsInput, FormBloc, Input, Searchbar } from "@/components/form";
-import { getDisplayName, User } from '@/types/user.ts';
-import { Item } from "@/types/item.ts";
 import { useToast } from "@/services/utils/toast.ts";
 import './create-edit-campaign.css';
+import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
+import { clearDraftCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import { useBlur } from '@/services/utils/clic.ts';
+import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 
 
 export const EditCampaign: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>()
 
-  // API Data
-  const [users, setUsers] = useState<Array<User>>([]);
-  const [campaignFilesCount, setCampaignFilesCount] = useState<number>(0);
-  const usersAPI = useUsersAPI();
-  const campaignAPI = useAnnotationCampaignAPI();
-
-  // Form data
-  const [annotators, setAnnotators] = useState<Array<User>>([]);
-  const [filesToAnnotate, setFilesToAnnotate] = useState<number>(1);
-  useEffect(() => setFilesToAnnotate(campaignFilesCount), [campaignFilesCount]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
   // Services
-  const toast = useToast();
+  const dispatch = useAppDispatch();
   const history = useHistory();
+  const toast = useToast();
+  const blurUtil = useBlur();
+  const draftFileRanges = useAppSelector(selectDraftFileRange)
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID);
+  const [ postFileRanges, { isLoading } ] = usePostAnnotationFileRangeMutation()
 
   useEffect(() => {
-    let isCancelled = false;
-
-    Promise.all([
-      campaignAPI.retrieve(campaignID),
-      usersAPI.list()
-    ]).then(([campaign, users]) => {
-      if (isCancelled) return;
-      const campaignUsersIDs = campaign.tasks.map(t => t.annotator_id);
-      setUsers(users.filter(u => !campaignUsersIDs.includes(u.id)));
-      setCampaignFilesCount(campaign.campaign.dataset_files_count)
-    }).catch(e => !isCancelled && toast.presentError(e));
-
+    document.addEventListener('click', blurUtil.onClick)
+    dispatch(clearDraftCampaign())
     return () => {
-      isCancelled = true;
-      usersAPI.abort();
-      campaignAPI.abort();
+      document.removeEventListener('click', blurUtil.onClick);
+      blurUtil.cleanListener();
       toast.dismiss();
     }
-  }, [campaignID])
+  }, [])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      setIsSubmitting(true);
-      await campaignAPI.addAnnotators(+campaignID, {
-        annotators: annotators.map(a => a.id),
-        annotation_goal: filesToAnnotate
-      })
+      await submitFileRanges();
 
-      history.push(`/annotation_campaign/${ campaignID }`);
+      history.push(`/annotation-campaign/${ campaignID }`);
     } catch (e: any) {
       toast.presentError(e)
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
-  const onAddAnnotator = (item: Item) => {
-    const annotator = users.find(a => a.id === item.value);
-    if (!annotator) return;
-    setAnnotators([...annotators, annotator])
-  }
-
-  const onAnnotatorsChange = (array: Array<string | number>) => {
-    const newAnnotators = annotators.filter(a => array.includes(a.id))
-    setAnnotators(newAnnotators)
-  }
-
-  const handleChipsSubmission = (e: FormEvent<HTMLInputElement>) => {
-    if (annotators.length <= 0)
-      e.currentTarget.setCustomValidity('Annotators are required')
+  const submitFileRanges = () => {
+    if (!campaign) return;
+    return postFileRanges({
+      campaignID: campaign.id,
+      data: draftFileRanges.map(r => {
+        const first_file_index = r.first_file_index === undefined ? 0 : (+r.first_file_index - 1);
+        const last_file_index = r.last_file_index === undefined ? (campaign.files_count - 1) : (+r.last_file_index - 1);
+        return {
+          id: r.id >= 0 ? r.id : undefined,
+          first_file_index: first_file_index < 0 ? 0 : first_file_index,
+          last_file_index: last_file_index < 0 ? campaign.files_count! - 1 : last_file_index,
+          annotator: r.annotator
+        }
+      })
+    })
   }
 
   return (
     <form id="create-campaign-form"
           onSubmit={ handleSubmit }>
-      <h1>Edit Annotation Campaign</h1>
+      <div className="title">
+        <h1>Edit Annotation Campaign</h1>
+        { campaign && <h5>{ campaign.name }</h5> }
+      </div>
 
-      <FormBloc label="Annotators">
-
-        <Searchbar placeholder="Search annotator..."
-                   values={
-                     users.filter(u => !annotators.find(annotator => annotator.id === u.id))
-                       .map(a => ({ value: a.id, label: getDisplayName(a, true) }))
-                   }
-                   onValueSelected={ onAddAnnotator }/>
-
-        <ChipsInput items={ annotators.map(a => ({ value: a.id, label: getDisplayName(a, true) })) }
-                    required={ true }
-                    activeItemsValues={ annotators.map(a => a.id) }
-                    onInvalid={ handleChipsSubmission }
-                    setActiveItemsValues={ onAnnotatorsChange }/>
-
-        <Input disabled={ annotators.length <= 0 }
-               label="Wanted number of files to annotate"
-               type="number"
-               max={ campaignFilesCount }
-               min={ 1 }
-               value={ filesToAnnotate }
-               onChange={ e => {
-                 if (!e.target.value) setFilesToAnnotate(0);
-                 else setFilesToAnnotate(+e.target.value)
-               } }
-               note={ `Each new annotator will annotate ${ filesToAnnotate === 0 ? campaignFilesCount : filesToAnnotate } / ${ campaignFilesCount } files.` }/>
-      </FormBloc>
+      <AnnotatorsRangeBloc/>
 
       <IonButton color="primary"
-                 disabled={ isSubmitting }
+                 disabled={ isLoading }
                  type="submit">
         Update campaign
+        { isLoading && <IonSpinner/> }
       </IonButton>
     </form>
   )

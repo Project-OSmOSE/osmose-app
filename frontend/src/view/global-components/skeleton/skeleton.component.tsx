@@ -1,23 +1,31 @@
 import React, { ReactNode } from 'react';
-import { useAuthService } from "@/services/auth.ts";
 import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { Link } from 'react-router-dom';
-import { IonButton } from "@ionic/react";
+import { IonButton, IonIcon } from "@ionic/react";
 import './skeleton.component.css';
+import { openOutline } from 'ionicons/icons';
+import { useAppDispatch } from '@/service/app';
+import { logout } from '@/service/auth';
+import { useGetCurrentUserQuery } from '@/service/user';
 
 export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
-  const auth = useAuthService();
+
+  const dispatch = useAppDispatch();
+
+  const { data: currentUser } = useGetCurrentUserQuery();
+
   return (
     <div id="aplose-skeleton-component">
       <h1>APLOSE</h1>
 
       <div id="nav" className="border rounded">
         <a href="/app/">Back to Home</a>
-        <Link to="/datasets">Datasets</Link>
-        <Link to="/annotation-campaigns">Annotation campaigns</Link>
+        { currentUser?.is_staff && <Link to="/datasets">Datasets</Link> }
+        <Link to="/annotation-campaign">Annotation campaigns</Link>
+        { currentUser?.is_staff && <a href="/backend/admin" target="_blank">Admin <IonIcon icon={ openOutline }/></a> }
         <br/>
         <IonButton color={ "medium" }
-                   onClick={ auth.logout.bind(auth) }>
+                   onClick={ () => dispatch(logout()) }>
           Logout
         </IonButton>
       </div>

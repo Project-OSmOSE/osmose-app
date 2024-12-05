@@ -1,4 +1,3 @@
-import React from 'react'
 import { Textarea } from '@/components/form'
 
 const label = 'My label';
@@ -28,4 +27,14 @@ describe('Textarea', () => {
     cy.get('#aplose-input').should('contain', `${ label }*`)
     cy.get('#aplose-input textarea').should('have.attr', 'required')
   })
+
+  //TODO: test with error, error should be removed after input update - for now: cannot use hook inside a test
+  // it('can have an error', () => {
+  //   const ref = useRef<InputRef<TextareaValue>>(null);
+  //   cy.mount(<Textarea label={ label }
+  //                      ref={ ref }
+  //                      placeholder={ placeholder }/>)
+  //   ref.current?.setError("My custom error")
+  //   cy.get('#aplose-input').should('contain', "My custom error")
+  // })
 })

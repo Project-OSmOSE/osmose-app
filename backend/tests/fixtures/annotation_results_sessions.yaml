@@ -115,6 +115,30 @@
     annotation_campaign: 1
     confidence_indicator: 2
     dataset_file: 1
+- model: api.annotationresult
+  pk: 10
+  fields:
+    start_time: 108.21842250413678
+    end_time: 224.87589630446772
+    start_frequency: 7520.0
+    end_frequency: 13696.0
+    label: 4
+    detector_configuration: 1
+    annotation_campaign: 4
+    confidence_indicator: 2
+    dataset_file: 1
+- model: api.annotationresultvalidation
+  pk: 1
+  fields:
+    is_valid: true
+    annotator: 1
+    result: 10
+- model: api.annotationresultvalidation
+  pk: 2
+  fields:
+    is_valid: false
+    annotator: 4
+    result: 10
 - model: api.annotationsession
   pk: 1
   fields:
@@ -140,8 +164,6 @@
       task_end_time: 1643037084
       task_start_time: 1643037067
     annotation_task: 7
-#    annotator: 4
-#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 2
   fields:
@@ -167,8 +189,6 @@
       task_end_time: 1643037095
       task_start_time: 1643037085
     annotation_task: 8
-#    annotator: 4
-#    annotation_campaign: 1
 - model: api.annotationsession
   pk: 3
   fields:
@@ -194,5 +214,3 @@
       task_end_time: 1643037163
       task_start_time: 1643037155
     annotation_task: 1
-#    annotator: 1
-#    annotation_campaign: 1

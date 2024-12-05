@@ -20,6 +20,10 @@
   color: var(--ion-color-medium);
 }
 
+#detail-campaign > #head ion-button {
+  margin-top: 1rem;
+}
+
 
 #detail-campaign > .bloc {
   display: grid;
@@ -75,5 +79,6 @@
   justify-self: end;
   display: grid;
   grid-auto-flow: column;
+  align-items: center;
   gap: 1rem;
 }

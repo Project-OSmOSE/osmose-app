@@ -1,10 +1,10 @@
 import { ChangeEvent, FC, Fragment, useEffect, useState } from "react";
-import { DatasetListToImport, DatasetListToImportItem } from "../../services/api";
 import { IonButton } from "@ionic/react";
+import { ImportDataset } from '@/service/dataset';
 
 
 const NewDataItem: FC<{
-  data: DatasetListToImportItem,
+  data: ImportDataset,
   index: number,
 }> = ({ data, index }) => {
   return (
@@ -18,7 +18,7 @@ const NewDataItem: FC<{
         <label className="form-check-label"
                htmlFor={ `${ data.name }-${ index }` }>
           { data.name }
-          <p>Folder name : { data.path } </p>
+          <p>Folder name : { data.path }</p>
         </label>
       </div>
     </li>
@@ -28,12 +28,12 @@ const NewDataItem: FC<{
 
 export const ModalNewDataset: FC<{
   onClose: () => void,
-  newData: DatasetListToImport,
-  startImport: (datasets: DatasetListToImport) => void,
+  newData: Array<ImportDataset>,
+  startImport: (datasets: Array<ImportDataset>) => void,
   isLoading: boolean
 }> = ({ onClose, newData, startImport, isLoading }) => {
   const [searchInputFilter, setSearchInputFilter] = useState<string>("");
-  const [filteredResults, setFilteredResults] = useState<DatasetListToImport>([]);
+  const [filteredResults, setFilteredResults] = useState<Array<ImportDataset>>([]);
 
   useEffect(() => {
     if (searchInputFilter !== "") {
@@ -51,7 +51,7 @@ export const ModalNewDataset: FC<{
   const items = () => [...document.getElementsByName("addDataset")] as Array<HTMLInputElement>;
 
   const onSave = () => {
-    startImport(items().filter(data => data.checked).map(data => ({ name: data.value })) as DatasetListToImport);
+    startImport(items().filter(data => data.checked).map(data => ({ name: data.value })) as Array<ImportDataset>);
   }
 
   const onCheckAll = (event: ChangeEvent<HTMLInputElement>) => {
