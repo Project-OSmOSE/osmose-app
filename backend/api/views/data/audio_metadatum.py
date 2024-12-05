@@ -38,7 +38,7 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
         )
         header = [
             "dataset",
-            "sample_bits",
+            "files_subtypes",
             "channel_count",
             "audio_file_count",
             "start_date",
@@ -60,9 +60,21 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
             for label in header:
                 if label == "dataset":
                     metadatum_data.append(
-                        ", ".join(
+                        '"'
+                        + str(
                             list(metadatum.dataset_set.values_list("name", flat=True))
                         )
+                        + '"'
+                    )
+                elif label == "files_subtypes":
+                    metadatum_data.append(
+                        '"'
+                        + str(
+                            list(
+                                metadatum.files_subtypes.values_list("name", flat=True)
+                            )
+                        )
+                        + '"'
                     )
                 elif label == "start_date":
                     metadatum_data.append(str(metadatum.start))

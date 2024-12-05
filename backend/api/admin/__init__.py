@@ -215,12 +215,17 @@ class AudioMetadatumAdmin(admin.ModelAdmin):
         "channel_count",
         "dataset_sr",
         "total_samples",
-        "sample_bits",
+        "show_files_subtypes",
         "gain_db",
         "gain_rel",
         "dutycycle_rdm",
         "dutycycle_rim",
     )
+
+    @admin.display(description="Files subtypes")
+    def show_files_subtypes(self, obj):
+        """show_spectro_configs"""
+        return get_many_to_many(obj, "files_subtypes", "name")
 
 
 class GeoMetadatumAdmin(admin.ModelAdmin):

@@ -5,7 +5,7 @@ export interface AudioMetadatum {
   channel_count: number;
   dataset_sr: number;
   total_samples: number;
-  sample_bits: number;
+  files_subtypes: Array<string>;
   gain_db: number;
   gain_rel: number;
   dutycycle_rdm: number;

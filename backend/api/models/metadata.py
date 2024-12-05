@@ -7,6 +7,12 @@ from django.dispatch import receiver
 from backend.api.models.datasets import Dataset
 
 
+class FileSubtype(models.Model):
+    """Subtype of File (eg: PCM-16)"""
+
+    name = models.CharField(max_length=255)
+
+
 class AudioMetadatum(models.Model):
     """
     This table contains the metadata to audio recordings like hydrophone readings for example.
@@ -24,7 +30,7 @@ class AudioMetadatum(models.Model):
     channel_count = models.IntegerField(null=True, blank=True)
     dataset_sr = models.FloatField(null=True, blank=True)
     total_samples = models.IntegerField(null=True, blank=True)
-    sample_bits = models.IntegerField(null=True, blank=True)
+    files_subtypes = models.ManyToManyField(FileSubtype)
     audio_file_count = models.IntegerField(null=True, blank=True)
     gain_db = models.FloatField(null=True, blank=True)
     gain_rel = models.FloatField(null=True, blank=True)
