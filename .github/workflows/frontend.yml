@@ -4,12 +4,12 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-    types:
-      - ready_for_review
+
 jobs:
   playwright-test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
     services:
       postgres:
         image: postgres

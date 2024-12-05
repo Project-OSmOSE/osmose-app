@@ -2,7 +2,7 @@ import { expect, Page, test } from '../../utils/fixture';
 import { accessCampaignEdit } from "../../utils/campaign/functions";
 import { ADMIN, ANNOTATOR, BASE_USER } from "../../utils/auth/data";
 import { FILE_RANGE_URL } from '../../utils/url';
-import { WriteAnnotationFileRange } from '../../../src/services/api/annotation/file-range.service';
+import { WriteAnnotationFileRange } from '../../../src/service/campaign/annotation-file-range';
 
 async function submit(page: Page): Promise<Array<WriteAnnotationFileRange>> {
   await page.route(FILE_RANGE_URL, route => route.fulfill({ status: 200, json: [] }))
@@ -48,7 +48,7 @@ test.describe('Loading', () => {
 
     await expect(adminPage.getByText(ADMIN.displayName)).toBeVisible()
     await expect(adminPage.getByPlaceholder('1')).toHaveValue('1')
-    
+
     await expect(adminPage.getByText(BASE_USER.displayName)).not.toBeVisible()
   })
 })
