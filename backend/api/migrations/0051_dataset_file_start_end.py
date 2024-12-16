@@ -25,7 +25,7 @@ def reverse_remove_audio_metadata(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("api", "0050_alter_annotationtask"),
+        ("api", "0050b_alter_annotationtask"),
     ]
 
     operations = [
