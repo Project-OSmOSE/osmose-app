@@ -263,7 +263,7 @@ export const AnnotatorSlice = createSlice({
       const max = Math.max(...(state.spectrogram_configurations ?? []).map(s => s.zoom_level))
       switch (action.payload.direction) {
         case "in":
-          state.userPreferences.zoomLevel = Math.min(state.userPreferences.zoomLevel * 2, max);
+          state.userPreferences.zoomLevel = Math.min(state.userPreferences.zoomLevel * 2, 2 ** max);
           break;
         case "out":
           state.userPreferences.zoomLevel = Math.max(state.userPreferences.zoomLevel / 2, 1);
