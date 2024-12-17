@@ -44,15 +44,17 @@ export const useSpectrogramService = (
 
     const filename = file.filename.split('.')[0]
     return Promise.all(
-      Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (element, index) => {
-        if (element) return element;
+      Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (_, index) => {
+        console.info(`Will load for zoom ${zoom}, image ${index}`)
         const image = new Image();
         image.src = `${ currentConfiguration.folder_path }/${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {
           image.onload = () => {
+            console.info(`Image loaded: ${ image.src }`)
             resolve(image);
           }
           image.onerror = e => {
+            console.error(`Cannot load spectrogram image with source: ${ image.src } [${ buildErrorMessage(e as any) }]`, e)
             toast.presentError(`Cannot load spectrogram image with source: ${ image.src } [${ buildErrorMessage(e as any) }]`)
             resolve(undefined);
           }
