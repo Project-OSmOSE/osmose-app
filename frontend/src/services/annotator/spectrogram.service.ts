@@ -44,10 +44,10 @@ export const useSpectrogramService = (
 
     const filename = file.filename.split('.')[0]
     return Promise.all(
-      new Array<HTMLImageElement | undefined>(imagesCount).map(async (element, index) => {
+      Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (element, index) => {
         if (element) return element;
         const image = new Image();
-        image.src = `${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
+        image.src = `${ currentConfiguration.folder_path }/${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {
           image.onload = () => {
             resolve(image);

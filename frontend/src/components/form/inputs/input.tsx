@@ -30,7 +30,7 @@ export const Input: React.FC<InputProperties> = ({
 
     <div id="input">
       { startIcon && <IonIcon id="input-start-icon" icon={ startIcon }/> }
-      <input { ...{ ...inputArgs, min: undefined, max: undefined } }
+      <input { ...inputArgs }
              value={ value }
              required={ required }
              disabled={ disabled }
