@@ -15,6 +15,25 @@ export interface AnnotationResultBounds {
   end_frequency: number | null; // null for presence or point
 }
 
+export type SignalTrend = "Flat" | "Ascending" | "Descending" | "Modulated";
+
+export interface AcousticFeatures {
+  start_frequency: number | null;
+  end_frequency: number | null;
+  min_frequency: number | null;
+  max_frequency: number | null;
+  median_frequency: number | null;
+  beginning_sweep_slope: number | null;
+  end_sweep_slope: number | null;
+  steps_count: number | null;
+  relative_peaks_count: number | null;
+  harmonics_count: number | null;
+  level_peak_frequency: number | null;
+  duration: number | null;
+  has_harmonics: boolean | null;
+  trend: SignalTrend | null;
+}
+
 export interface AnnotationResult extends AnnotationResultBounds {
   id: number;
   label: string;
@@ -25,6 +44,7 @@ export interface AnnotationResult extends AnnotationResultBounds {
   detector_configuration: DetectorConfiguration & { detector: string } | null;
   comments: Array<AnnotationComment>;
   validations: Array<AnnotationResultValidations>;
+  acoustic_features: AcousticFeatures | null;
 }
 
 export type WriteAnnotationResult =
