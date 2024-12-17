@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from "react";
+import React, { FormEvent, Fragment, useEffect, useMemo } from "react";
 import { useToast } from "@/services/utils/toast.ts";
 import { Select } from "@/components/form";
 import { useListLabelSetQuery } from '@/service/campaign/label-set';
@@ -13,6 +13,8 @@ import {
   WriteCreateAnnotationCampaign
 } from '@/service/campaign';
 import { CampaignErrors } from '@/service/campaign/type.ts';
+import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
+import { IonCheckbox } from '@ionic/react';
 
 export const LabelSetSelect: React.FC = () => {
 
@@ -47,6 +49,18 @@ export const LabelSetSelect: React.FC = () => {
     }
   }, [])
 
+  const onLabelChecked = (event: FormEvent<HTMLIonCheckboxElement>, label: string) => {
+    event.stopPropagation()
+    event.preventDefault()
+    let labels = draftCampaign.labels_with_acoustic_features ?? [];
+    if (event.currentTarget.checked) {
+      labels = [ ...labels, label ]
+    } else {
+      labels = labels.filter(l => l !== label)
+    }
+    dispatch(updateDraftCampaign({ labels_with_acoustic_features: labels }))
+  }
+
   return <Select label="Label set" placeholder="Select a label set"
                  required={ true }
                  error={ errors.label_set }
@@ -59,7 +73,19 @@ export const LabelSetSelect: React.FC = () => {
     { !!selectedLabelSet && (
       <Fragment>
         { selectedLabelSet.desc }
-        <p><span className="bold">Labels:</span> { selectedLabelSet.labels.join(', ') }</p>
+
+        <Table columns={ 2 }>
+          <TableHead isFirstColumn={ true }>Label</TableHead>
+          <TableHead>Acoustic features</TableHead>
+          <TableDivider/>
+
+          { selectedLabelSet.labels.map(label => <Fragment key={ label }>
+            <TableContent isFirstColumn={ true }>{ label }</TableContent>
+            <TableContent><IonCheckbox value={ draftCampaign.labels_with_acoustic_features?.includes(label) }
+                                       onClick={ event => onLabelChecked(event, label) }/></TableContent>
+            <TableDivider/>
+          </Fragment>) }
+        </Table>
       </Fragment>)
     }
   </Select>
