@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { archiveOutline, calendarClear, crop, documents, people, pricetag } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
-import { useArchiveCampaignMutation, selectCurrentCampaign } from '@/service/campaign';
+import { selectCurrentCampaign, useArchiveCampaignMutation } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { useRetrieveLabelSetQuery } from '@/service/campaign/label-set';
 import { getErrorMessage } from '@/service/function.ts';
@@ -85,22 +85,32 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
         </Fragment> }
       </div>
 
+      { campaign?.labels_with_acoustic_features && campaign.labels_with_acoustic_features.length > 0 && <Fragment>
+          <div className="item double-line">
+              <IonIcon className="icon" icon={ pricetag }/>
+              <p className="label">Acoustic features on labels:</p>
+              <p>{ campaign.labels_with_acoustic_features.join(', ') }</p>
+          </div>
+          <div className="item"></div>
+      </Fragment> }
+
       <div className="item">
         <IonIcon className="icon" icon={ documents }/>
         <p className="label">Dataset:</p>
         <p>{ campaign?.datasets.join(', ') }</p>
+      </div>
+      <div className="item"></div>
+
+      <div className="item">
+        <IonIcon className="icon" icon={ crop }/>
+        <p className="label">Mode:</p>
+        <p>{ campaign?.usage }</p>
       </div>
 
       <div className="item">
         <IonIcon className="icon" icon={ people }/>
         <p className="label">Annotators:</p>
         <p>{ [ ...new Set(annotatorsStatus.keys()) ].length }</p>
-      </div>
-
-      <div className="item">
-        <IonIcon className="icon" icon={ crop }/>
-        <p className="label">Mode:</p>
-        <p>{ campaign?.usage }</p>
       </div>
 
       <div className="item">
