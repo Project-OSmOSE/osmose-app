@@ -15,7 +15,8 @@ export interface AnnotationResultBounds {
   end_frequency: number | null; // null for presence or point
 }
 
-export type SignalTrend = "Flat" | "Ascending" | "Descending" | "Modulated";
+export const SignalTrends = [ "Flat", "Ascending", "Descending", "Modulated" ];
+export type SignalTrend = typeof SignalTrends[number];
 
 export interface AcousticFeatures {
   start_frequency: number | null;

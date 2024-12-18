@@ -6,14 +6,16 @@ interface TableProps {
   columns: number;
   children: Iterable<ReactNode>;
   isFirstColumnSticky?: boolean;
+  className?: string;
 }
 
 export const Table: React.FC<TableProps> = ({
                                               children,
                                               columns,
+                                              className,
                                               isFirstColumnSticky
                                             }) => (
-  <div className={ `table-aplose ${ isFirstColumnSticky ? 'first-column-sticky' : '' }` }
+  <div className={ className + ` table-aplose ${ isFirstColumnSticky ? 'first-column-sticky' : '' }` }
        style={ {
          "--content-columns": columns
        } as React.CSSProperties }>
