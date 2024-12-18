@@ -5,7 +5,7 @@ import { focusTask, getResultType, updateCurrentResultAcousticFeatures } from '@
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { Input, Select } from '@/components/form';
 import { IonCheckbox, IonNote } from '@ionic/react';
-import { getFileDuration } from '@/service/dataset';
+import { selectAnnotationFileDuration } from '@/service/dataset';
 import { SPECTRO_HEIGHT } from '@/view/audio-annotator/components/spectro-render.component.tsx';
 import { Item } from '@/types/item.ts';
 import { SignalTrend, SignalTrends } from '@/service/campaign/result/type.ts';
@@ -23,8 +23,8 @@ export const AcousticFeatures: React.FC = () => {
     focusedResultID,
     file
   } = useAppSelector(state => state.annotator);
+  const duration = useAppSelector(selectAnnotationFileDuration)
   const dispatch = useAppDispatch();
-  const duration = useMemo(() => getFileDuration(file), [ file ])
 
   const currentResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ results, focusedResultID ]);
   const currentResultType = useMemo(() => currentResult ? getResultType(currentResult) : undefined, [ currentResult ]);

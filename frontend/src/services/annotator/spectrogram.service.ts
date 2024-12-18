@@ -1,7 +1,7 @@
-import { MutableRefObject, useMemo, useRef } from "react";
+import { MutableRefObject, useRef } from "react";
 import { useAppSelector } from '@/service/app';
 import { buildErrorMessage } from "@/services/utils/format.tsx";
-import { getFileDuration } from '@/service/dataset';
+import { selectAnnotationFileDuration } from '@/service/dataset';
 import { AnnotationResultBounds } from '@/service/campaign/result';
 import { useToast } from '@/services/utils/toast.ts';
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
@@ -18,9 +18,8 @@ export const useSpectrogramService = (
     spectrogram_configurations,
     userPreferences,
   } = useAppSelector(state => state.annotator);
+  const duration = useAppSelector(selectAnnotationFileDuration)
   const toast = useToast();
-
-  const duration = useMemo(() => getFileDuration(file), [ file ]);
 
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
 
@@ -45,7 +44,7 @@ export const useSpectrogramService = (
     const filename = file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (_, index) => {
-        console.info(`Will load for zoom ${zoom}, image ${index}`)
+        console.info(`Will load for zoom ${ zoom }, image ${ index }`)
         const image = new Image();
         image.src = `${ currentConfiguration.folder_path }/${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {

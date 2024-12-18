@@ -16,7 +16,7 @@ import { XAxis } from "@/view/audio-annotator/components/spectrogram/x-axis.comp
 import { YAxis } from "@/view/audio-annotator/components/spectrogram/y-axis.component.tsx";
 import { useSpectrogramService } from "@/services/annotator/spectrogram.service.ts";
 import { usePointerService } from "@/services/annotator/pointer.service.ts";
-import { getFileDuration } from '@/service/dataset';
+import { selectAnnotationFileDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
@@ -51,8 +51,8 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
     ui,
     spectrogram_configurations
   } = useAppSelector(state => state.annotator)
+  const duration = useAppSelector(selectAnnotationFileDuration)
   const dispatch = useAppDispatch()
-  const duration = useMemo(() => getFileDuration(file), [ file ])
 
   // Ref
   const containerRef = useRef<HTMLDivElement>(null)

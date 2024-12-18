@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useAppSelector } from '@/service/app';
-import { getFileDuration } from '@/service/dataset';
+import { selectAnnotationFileDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 
 
@@ -11,41 +11,42 @@ export const CurrentAnnotationBloc: React.FC = () => {
     focusedResultID,
     results
   } = useAppSelector(state => state.annotator);
-  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [focusedResultID]);
+  const duration = useAppSelector(selectAnnotationFileDuration)
+  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID ]);
 
   const startTime = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.start_time === null) return "00:00.000";
     return formatTime(focusedResult.start_time);
-  }, [focusedResult?.start_time])
+  }, [ focusedResult?.start_time ])
 
   const endTime = useMemo(() => {
     if (!focusedResult) return "-"
-    if (focusedResult.end_time === null) return formatTime(getFileDuration(file));
+    if (focusedResult.end_time === null) return formatTime(duration);
     return formatTime(focusedResult.end_time);
-  }, [focusedResult?.end_time])
+  }, [ focusedResult?.end_time ])
 
   const startFrequency = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.start_frequency === null) return "0";
     return focusedResult.start_frequency.toFixed(2);
-  }, [focusedResult?.start_frequency])
+  }, [ focusedResult?.start_frequency ])
 
   const endFrequency = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.end_frequency === null) return ((file?.dataset_sr ?? 0) / 2).toFixed(2);
     return focusedResult.end_frequency.toFixed(2);
-  }, [focusedResult?.end_frequency])
+  }, [ focusedResult?.end_frequency ])
 
   const label = useMemo(() => {
     if (!focusedResult?.label) return "-"
     return focusedResult.label;
-  }, [focusedResult?.end_frequency])
+  }, [ focusedResult?.end_frequency ])
 
   const confidence = useMemo(() => {
     if (!focusedResult?.label) return "-"
     return focusedResult.label;
-  }, [focusedResult?.end_frequency])
+  }, [ focusedResult?.end_frequency ])
 
   if (!focusedResult) return (
     <div className="card mr-2  selected_annotation mini-content">
