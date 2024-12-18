@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { KeyboardEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
 import { checkmarkOutline, helpBuoyOutline, informationCircle, playOutline } from "ionicons/icons";
 import { useRetrieveCampaignQuery } from '@/service/campaign';
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from '@/service/campaign/annotation-file-range';
@@ -13,6 +13,7 @@ import { getErrorMessage } from '@/service/function.ts';
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
   const [ page, setPage ] = useState<number>(1);
+  const [ search, setSearch ] = useState<string | undefined>();
 
   // Services
   const history = useHistory();
@@ -20,7 +21,8 @@ export const AnnotationTaskList: React.FC = () => {
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
   const { data: files, error } = useListFilesWithPaginationQuery({
     campaignID,
-    page
+    page,
+    search
   }, { refetchOnMountOrArgChange: true });
   const maxPage = useMemo(() => {
     if (!files) return 1;
@@ -45,8 +47,12 @@ export const AnnotationTaskList: React.FC = () => {
   }
 
   const manage = () => history.push(`/annotation-campaign/${ campaignID }`);
-  
+
   const resume = () => history.push(`/annotation-campaign/${ campaignID }/file/${ files?.resume }`);
+
+  function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
+    if (event.key === 'Enter') setSearch(event.currentTarget.value ?? undefined)
+  }
 
   return (
     <div className={ styles.page }>
@@ -57,6 +63,10 @@ export const AnnotationTaskList: React.FC = () => {
       </div>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
+        <IonSearchbar placeholder="Search file"
+                      className={ styles.search }
+                      onKeyDown={ doSearch }
+                      value={ search }/>
         <IonButton fill="outline" shape="round" onClick={ manage }>
           { campaign?.archive === null ? "Manage" : "Info" }
         </IonButton>

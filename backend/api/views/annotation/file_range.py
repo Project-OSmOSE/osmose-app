@@ -108,6 +108,10 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         files: list[any] = []
         for file_range in queryset:
             files.extend(file_range.get_files())
+
+        search = request.query_params.get("search")
+        if search is not None:
+            files = list(filter(lambda file: search in file.filename, files))
         files = self.paginate_queryset(files)
         files = DatasetFile.objects.filter(id__in=[file.id for file in files]).annotate(
             is_submitted=Exists(

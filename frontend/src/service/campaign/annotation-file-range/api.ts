@@ -25,9 +25,12 @@ export const AnnotationFileRangeAPI = createApi({
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume: number }, {
       campaignID?: ID,
       page: number,
+      search?: string,
     }>({
-      query: ({ campaignID, page }) => {
-        return `campaign/${ campaignID }/files/${ encodeQueryParams({ page, page_size: FILES_PAGE_SIZE }) }`;
+      query: ({ campaignID, page, search }) => {
+        const params: any = { page, page_size: FILES_PAGE_SIZE }
+        if (search) params['search'] = search;
+        return `campaign/${ campaignID }/files/${ encodeQueryParams(params) }`;
       },
     }),
 
