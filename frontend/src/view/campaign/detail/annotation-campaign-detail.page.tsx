@@ -28,7 +28,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   // Services
   const history = useHistory();
   const { presentError, dismiss: dismissToast } = useToast();
-  const { error: campaignError } = useRetrieveCampaignQuery(campaignID);
+  const { error: campaignError } = useRetrieveCampaignQuery(campaignID, { refetchOnMountOrArgChange: true });
   const { data: users, error: userError } = useListUsersQuery();
   const { data: currentUser, error: currentUserError } = useGetCurrentUserQuery();
   const {

@@ -28,6 +28,7 @@ export type AnnotationCampaign = BaseAnnotationCampaign & {
   id: number;
   created_at: string; // Date
   label_set: number; // pk
+  labels_with_acoustic_features: Array<string>; // Labels
   usage: AnnotationCampaignUsage;
   owner: string; // username
   confidence_indicator_set: number | null; // pk
@@ -46,6 +47,7 @@ export type AnnotationCampaign = BaseAnnotationCampaign & {
 export type WriteCreateAnnotationCampaign = BaseAnnotationCampaign & {
   usage: 'Create';
   label_set: number; // pk
+  labels_with_acoustic_features: Array<string>;
   confidence_indicator_set: number | null; // pk
 }
 

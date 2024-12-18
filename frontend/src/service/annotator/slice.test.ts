@@ -1,5 +1,6 @@
 import {
-  addPresenceResult, addResult,
+  addPresenceResult,
+  addResult,
   AnnotatorSlice,
   focusConfidence,
   focusLabel,
@@ -34,6 +35,7 @@ const mockState: AnnotatorState = {
       "end_time": null,
       "start_frequency": null,
       "end_frequency": null,
+      acoustic_features: null,
       "comments": [
         {
           "id": 1568,
@@ -63,6 +65,7 @@ const mockState: AnnotatorState = {
       "end_time": 331.0,
       "start_frequency": 8179.0,
       "end_frequency": 11593.0,
+      acoustic_features: null,
       "comments": [
         {
           "id": 1569,
@@ -180,7 +183,8 @@ describe("Filled state - not focused result", () => {
       annotator: -1,
       annotation_campaign: -1,
       dataset_file: -1,
-      detector_configuration: null
+      detector_configuration: null,
+      acoustic_features: null,
     }
     const focusedResult = response.results?.find(r => r.id === response.focusedResultID);
     expect(focusedResult).toEqual(expectedNewResult);
@@ -252,7 +256,8 @@ describe("Filled state - not focused result", () => {
       annotator: -1,
       annotation_campaign: -1,
       dataset_file: -1,
-      detector_configuration: null
+      detector_configuration: null,
+      acoustic_features: null,
     }
     const focusedResult = response.results?.find(r => r.id === response.focusedResultID);
     expect(focusedResult).toEqual(expectedNewResult);

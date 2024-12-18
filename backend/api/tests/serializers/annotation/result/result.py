@@ -2,10 +2,33 @@
 
 from django.test import TestCase
 
-from backend.api.models import AnnotationCampaign, DatasetFile, AnnotationResult
+from backend.api.models import (
+    AnnotationCampaign,
+    DatasetFile,
+    AnnotationResult,
+    AnnotationResultAcousticFeatures,
+)
 from backend.api.serializers import AnnotationResultSerializer
+from backend.aplose.models import User
 from backend.utils.tests import all_fixtures
 
+# TODO: update with definitive fields
+features = {
+    "start_frequency": 10.0,
+    "end_frequency": 50.0,
+    "min_frequency": 5.0,
+    "max_frequency": 500.0,
+    "median_frequency": 25.0,
+    "beginning_sweep_slope": 25.0,
+    "end_sweep_slope": 25.0,
+    "steps_count": 2,
+    "relative_peaks_count": 2,
+    "has_harmonics": True,
+    "harmonics_count": 3,
+    "level_peak_frequency": 53.0,
+    "duration": 53.0,
+    "trend": "Modulated",
+}
 presence_result = {
     "label": "Boat",
     "confidence_indicator": "confident",
@@ -14,9 +37,11 @@ presence_result = {
     "start_frequency": None,
     "end_frequency": None,
     "dataset_file": 9,
-    "detector_configuration": None,
     "annotation_campaign": 1,
     "annotator": 4,
+    "validations": [],
+    "comments": [],
+    "acoustic_features": None,
 }
 box_result = {
     "label": "Boat",
@@ -26,14 +51,12 @@ box_result = {
     "start_frequency": 5.0,
     "end_frequency": 25.0,
     "dataset_file": 9,
-    "detector_configuration": None,
     "annotation_campaign": 1,
     "annotator": 4,
+    "validations": [],
+    "comments": [],
+    "acoustic_features": features,
 }
-
-
-def get_response_result(result: dict):
-    return {**result, "validations": [], "comments": [], "detector_configuration": None}
 
 
 class CreateTestCase(TestCase):
@@ -52,12 +75,12 @@ class CreateTestCase(TestCase):
     def test_presence(self):
         serializer = self._get_serializer(presence_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), {**presence_result, "id": None})
+        self.assertDictEqual(dict(serializer.data), presence_result)
 
     def test_box(self):
         serializer = self._get_serializer(box_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), {**box_result, "id": None})
+        self.assertDictEqual(dict(serializer.data), box_result)
 
     # Corrected
     def test_wrong_order(self):
@@ -97,6 +120,8 @@ class CreateTestCase(TestCase):
                 "dataset_file": None,
                 "annotation_campaign": None,
                 "confidence_indicator": None,  # Cannot be null since campaign as a confidence indicator set
+                "comments": [],
+                "validations": [],
             }
         )
         self.assertFalse(serializer.is_valid(raise_exception=False))
@@ -107,6 +132,7 @@ class CreateTestCase(TestCase):
                 "confidence_indicator",
                 "annotator",
                 "dataset_file",
+                "detector_configuration",
                 "annotation_campaign",
             ],
         )
@@ -115,6 +141,7 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
         self.assertEqual(serializer.errors["annotator"][0].code, "null")
+        self.assertEqual(serializer.errors["detector_configuration"][0].code, "null")
 
     def test_does_not_exist(self):
         serializer = self._get_serializer(
@@ -173,20 +200,37 @@ class UpdateTestCase(CreateTestCase):
 
     def setUp(self):
         campaign = AnnotationCampaign.objects.get(pk=1)
+        features_instance = AnnotationResultAcousticFeatures.objects.create(**features)
         self.instance = AnnotationResult.objects.create(
             annotation_campaign=campaign,
             dataset_file=campaign.datasets.first().files.first(),
-            annotator=campaign.annotators.first(),
+            annotator=User.objects.get(pk=4),
             label=campaign.label_set.labels.first(),
             confidence_indicator=campaign.confidence_indicator_set.confidence_indicators.first(),
             start_time=1,
             end_time=9,
             start_frequency=10,
             end_frequency=15,
+            acoustic_features=features_instance,
         )
 
     def tearDown(self):
         self.instance.delete()
+
+    def _get_response_result(self, result: dict):
+        return {
+            **result,
+            "validations": [],
+            "comments": [],
+            "detector_configuration": None,
+            "id": self.instance.id,
+            "acoustic_features": {
+                "id": self.instance.acoustic_features.id,
+                **result["acoustic_features"],
+            }
+            if result["acoustic_features"] is not None
+            else None,
+        }
 
     def _get_serializer(self, data):
         return AnnotationResultSerializer(
@@ -204,7 +248,7 @@ class UpdateTestCase(CreateTestCase):
         serializer.save()
         self.assertDictEqual(
             dict(serializer.data),
-            {"id": self.instance.id, **get_response_result(presence_result)},
+            {"id": self.instance.id, **self._get_response_result(presence_result)},
         )
 
     def test_box(self):
@@ -213,7 +257,10 @@ class UpdateTestCase(CreateTestCase):
         serializer.save()
         self.assertDictEqual(
             dict(serializer.data),
-            {"id": self.instance.id, **get_response_result(box_result)},
+            {
+                "id": self.instance.id,
+                **self._get_response_result(box_result),
+            },
         )
 
     # Corrected
@@ -232,7 +279,7 @@ class UpdateTestCase(CreateTestCase):
         self.assertDictEqual(
             dict(serializer.data),
             {
-                **get_response_result(presence_result),
+                **self._get_response_result(presence_result),
                 "id": self.instance.id,
                 "start_time": 7 * 60.0,
                 "end_time": 9 * 60.0,

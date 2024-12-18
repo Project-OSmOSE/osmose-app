@@ -6,7 +6,7 @@ export {
 } from './api';
 
 export {
-  getFileDuration,
+  selectAnnotationFileDuration,
 } from './function';
 
 export type {

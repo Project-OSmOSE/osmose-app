@@ -39,7 +39,7 @@ export {
   setStopTime,
   setAudioSpeed,
   onPlay,
-
+  updateCurrentResultAcousticFeatures,
 } from './slice';
 
 

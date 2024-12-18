@@ -14,4 +14,5 @@ export type {
   AnnotationResultValidations,
   ImportAnnotationResult,
   WriteAnnotationResult,
+  SignalTrends
 } from './type'

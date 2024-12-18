@@ -27,7 +27,7 @@ import { SpectrogramConfigurationSelect } from "@/view/audio-annotator/component
 import { ZoomButton } from "@/view/audio-annotator/components/buttons/zoom.tsx";
 import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-position.component.tsx";
 import { WorkbenchInfoBloc } from "@/view/audio-annotator/components/bloc/workbench-info.tsx";
-import { getFileDuration } from '@/service/dataset';
+import { selectAnnotationFileDuration } from '@/service/dataset';
 import { useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
@@ -78,6 +78,7 @@ export const AudioAnnotator: React.FC = () => {
     results,
     audio,
   } = useAppSelector(state => state.annotator)
+  const duration = useAppSelector(selectAnnotationFileDuration)
 
   // Memo
   const focusedResult = useMemo(() => {
@@ -176,7 +177,7 @@ export const AudioAnnotator: React.FC = () => {
         <p className="col-sm-2 text-right">
           { formatTime(audio.time) }
           &nbsp;/&nbsp;
-          { formatTime(getFileDuration(file)) }
+          { formatTime(duration) }
         </p>
       </div>
 

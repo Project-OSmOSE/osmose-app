@@ -34,7 +34,7 @@ from backend.api.models import (
     DatasetFile,
 )
 from backend.api.serializers import (
-    AnnotationCampaignBasicSerializer,
+    AnnotationCampaignSerializer,
 )
 from backend.utils.renderers import CSVRenderer
 
@@ -80,7 +80,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
     """Model viewset for Annotation campaign"""
 
     queryset = AnnotationCampaign.objects.all()
-    serializer_class = AnnotationCampaignBasicSerializer
+    serializer_class = AnnotationCampaignSerializer
     filter_backends = (CampaignAccessFilter,)
     permission_classes = (permissions.IsAuthenticated,)
 

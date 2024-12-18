@@ -7,6 +7,7 @@ import { ID } from '@/service/type.ts';
 import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
+import { AcousticFeatures } from '@/service/campaign/result/type.ts';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -57,7 +58,8 @@ export const AnnotatorSlice = createSlice({
         comments: [],
         validations: [],
         confidence_indicator: state.focusedConfidenceLabel ?? null,
-        label: state.focusedLabel ?? getPresenceLabels(state.results)!.pop()!
+        label: state.focusedLabel ?? getPresenceLabels(state.results)!.pop()!,
+        acoustic_features: null,
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
@@ -79,6 +81,7 @@ export const AnnotatorSlice = createSlice({
         end_time: null,
         start_time: null,
         start_frequency: null,
+        acoustic_features: null,
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
@@ -285,6 +288,35 @@ export const AnnotatorSlice = createSlice({
     setAudioSpeed: (state, action: { payload: number }) => {
       state.userPreferences.audioSpeed = action.payload;
     },
+
+    // Acoustic features
+    updateCurrentResultAcousticFeatures(state, { payload }: { payload: Partial<AcousticFeatures> | null }) {
+      state.results = state.results?.map(r => {
+        if (r.id !== state.focusedResultID) return r;
+        if (!payload) return { ...r, acoustic_features: null }
+        return {
+          ...r,
+          acoustic_features: {
+            beginning_sweep_slope: null,
+            duration: null,
+            start_frequency: null,
+            end_frequency: null,
+            end_sweep_slope: null,
+            harmonics_count: null,
+            has_harmonics: null,
+            level_peak_frequency: null,
+            max_frequency: null,
+            median_frequency: null,
+            min_frequency: null,
+            relative_peaks_count: null,
+            steps_count: null,
+            trend: null,
+            ...(r.acoustic_features ?? {}),
+            ...payload
+          }
+        }
+      })
+    }
   },
   extraReducers:
     (builder) => {
@@ -344,5 +376,5 @@ export const {
   setAudioSpeed,
   setStopTime,
   onPlay,
-
+  updateCurrentResultAcousticFeatures,
 } = AnnotatorSlice.actions
