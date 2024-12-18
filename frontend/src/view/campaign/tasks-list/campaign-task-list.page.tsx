@@ -1,27 +1,39 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import {
-  checkmarkOutline,
-  helpBuoyOutline,
-  informationCircle
-} from "ionicons/icons";
-import './campaign-task-list.page.css';
+import { checkmarkOutline, helpBuoyOutline, informationCircle, playOutline } from "ionicons/icons";
 import { useRetrieveCampaignQuery } from '@/service/campaign';
-import { useListAnnotationFileRangeWithFilesQuery } from '@/service/campaign/annotation-file-range';
+import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from '@/service/campaign/annotation-file-range';
+import styles from './campaign-task-list.module.scss';
+import { Pagination } from '@/components/Pagination/Pagination.tsx';
+import { useToast } from '@/services/utils/toast.ts';
+import { getErrorMessage } from '@/service/function.ts';
 
 export const AnnotationTaskList: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
+  const [ page, setPage ] = useState<number>(1);
 
   // Services
   const history = useHistory();
+  const toast = useToast();
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
-  const { data: fileRanges } = useListAnnotationFileRangeWithFilesQuery({ campaignID, forCurrentUser: true }, {refetchOnMountOrArgChange: true });
+  const { data: files, error } = useListFilesWithPaginationQuery({
+    campaignID,
+    page
+  }, { refetchOnMountOrArgChange: true });
+  const maxPage = useMemo(() => {
+    if (!files) return 1;
+    return Math.ceil(files.count / FILES_PAGE_SIZE)
+  }, [ files?.count ])
 
   useEffect(() => {
     document.body.scrollTo({ top: 0, behavior: 'instant' })
   }, [ campaignID ]);
+
+  useEffect(() => {
+    if (error) toast.presentError(getErrorMessage(error))
+  }, [ error ]);
 
   const openGuide = () => {
     window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
@@ -33,13 +45,15 @@ export const AnnotationTaskList: React.FC = () => {
   }
 
   const manage = () => history.push(`/annotation-campaign/${ campaignID }`);
+  
+  const resume = () => history.push(`/annotation-campaign/${ campaignID }/file/${ files?.resume }`);
 
   return (
-    <div id="campaign-task-list">
+    <div className={ styles.page }>
 
-      <div className="head">
+      <div className={ styles.head }>
         <h2>{ campaign?.name }</h2>
-        <p className="subtitle">Annotation files</p>
+        <p className={ styles.subtitle }>Annotation files</p>
       </div>
 
       <div className="d-flex justify-content-center gap-1 flex-wrap">
@@ -50,15 +64,20 @@ export const AnnotationTaskList: React.FC = () => {
           User guide
           <IonIcon icon={ helpBuoyOutline } slot="end"/>
         </IonButton>
-        { campaign?.instructions_url && <IonButton color="secondary" shape="round" onClick={ openInstructions }>
-            <IonIcon icon={ informationCircle } slot="start"/>
-            Campaign instructions
+        { campaign?.instructions_url &&
+            <IonButton color="secondary" shape="round" fill="outline" onClick={ openInstructions }>
+                <IonIcon icon={ informationCircle } slot="start"/>
+                Campaign instructions
+            </IonButton> }
+        { files?.resume && <IonButton color="primary" shape="round" onClick={ resume }>
+            Resume annotation
+            <IonIcon icon={ playOutline } slot="end"/>
         </IonButton> }
       </div>
 
-      { !fileRanges && <IonSpinner/> }
-      { fileRanges && fileRanges.length === 0 && "No files to annotate" }
-      { fileRanges && fileRanges.length > 0 && <table className="table table-bordered">
+      { !files && <IonSpinner/> }
+      { files && files.results.length === 0 && "No files to annotate" }
+      { files && files.results.length > 0 && <table className="table table-bordered">
           <thead>
           <tr>
               <th>Filename</th>
@@ -71,28 +90,26 @@ export const AnnotationTaskList: React.FC = () => {
           </tr>
           </thead>
           <tbody>
-          { fileRanges.map((range, index) => <Fragment>
-            { index > 0 && <tr key={ index } className="empty"></tr> }
-            { range.files.map(file => {
-              const startDate = new Date(file.start);
-              const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
-              return <tr className={ file.is_submitted ? 'table-success' : '' }
-                         key={ file.id }>
-                <td>{ file.filename }</td>
-                <td>{ file.dataset_name }</td>
-                <td>{ startDate.toLocaleDateString() }</td>
-                <td>{ diffTime.toUTCString().split(' ')[4] }</td>
-                <td>{ file.results_count }</td>
-                <td>
-                  { file.is_submitted && <IonIcon icon={ checkmarkOutline }/> }
-                </td>
-                <td><Link to={ `/annotation-campaign/${ campaignID }/file/${ file.id }` }>Task link</Link></td>
-              </tr>
-            })
-            }
-          </Fragment>) }
+          { files.results.map((file) => {
+            const startDate = new Date(file.start);
+            const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
+            return <tr className={ file.is_submitted ? 'table-success' : '' }
+                       key={ file.id }>
+              <td>{ file.filename }</td>
+              <td>{ file.dataset_name }</td>
+              <td>{ startDate.toLocaleString() }</td>
+              <td>{ diffTime.toUTCString().split(' ')[4] }</td>
+              <td>{ file.results_count }</td>
+              <td>
+                { file.is_submitted && <IonIcon icon={ checkmarkOutline }/> }
+              </td>
+              <td><Link to={ `/annotation-campaign/${ campaignID }/file/${ file.id }` }>Task link</Link></td>
+            </tr>
+          }) }
           </tbody>
       </table> }
+
+      <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/>
     </div>
   )
 }

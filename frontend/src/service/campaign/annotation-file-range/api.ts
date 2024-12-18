@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
-import { ID } from '@/service/type.ts';
-import { AnnotationFileRange, AnnotationFileRangeWithFiles, WriteAnnotationFileRange } from './type.ts';
+import { ID, Paginated } from '@/service/type.ts';
+import { AnnotationFile, AnnotationFileRange, WriteAnnotationFileRange } from './type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
+
+export const FILES_PAGE_SIZE = 20;
 
 export const AnnotationFileRangeAPI = createApi({
   reducerPath: 'fileRangeApi',
@@ -20,15 +22,12 @@ export const AnnotationFileRangeAPI = createApi({
         return encodeQueryParams(params);
       },
     }),
-    listWithFiles: builder.query<Array<AnnotationFileRangeWithFiles>, {
+    listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume: number }, {
       campaignID?: ID,
-      forCurrentUser?: boolean,
+      page: number,
     }>({
-      query: ({ campaignID, forCurrentUser }) => {
-        const params: any = { with_files: true }
-        if (campaignID) params.annotation_campaign = campaignID;
-        if (forCurrentUser) params.for_current_user = true;
-        return encodeQueryParams(params);
+      query: ({ campaignID, page }) => {
+        return `campaign/${ campaignID }/files/${ encodeQueryParams({ page, page_size: FILES_PAGE_SIZE }) }`;
       },
     }),
 
@@ -44,6 +43,6 @@ export const AnnotationFileRangeAPI = createApi({
 
 export const {
   useListQuery: useListAnnotationFileRangeQuery,
-  useListWithFilesQuery: useListAnnotationFileRangeWithFilesQuery,
+  useListFilesWithPaginationQuery,
   usePostMutation: usePostAnnotationFileRangeMutation,
 } = AnnotationFileRangeAPI;

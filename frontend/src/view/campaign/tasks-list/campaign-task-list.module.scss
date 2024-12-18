@@ -1,0 +1,20 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  font-family: var(--ion-font-family), sans-serif;
+  justify-items: center;
+
+  > .head {
+    display: grid;
+    justify-items: center;
+    gap: 0;
+
+    .subtitle {
+      color: var(--ion-color-medium);
+    }
+  }
+
+  tr.empty {
+    height: 2rem;
+  }
+}
