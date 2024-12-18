@@ -49,11 +49,14 @@ export interface AnnotationResult extends AnnotationResultBounds {
 }
 
 export type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator">
+  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration">
   & {
-  id: number | null;
+  id?: number;
+  confidence_indicator: string | undefined;
+  detector_configuration: DetectorConfiguration & { detector: string } | undefined;
   comments: Array<WriteAnnotationComment>;
   validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | null }>;
+  acoustic_features: AcousticFeatures | null;
 };
 
 export interface ImportAnnotationResult {

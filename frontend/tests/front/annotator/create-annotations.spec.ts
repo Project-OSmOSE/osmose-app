@@ -426,9 +426,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -463,9 +463,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -502,9 +502,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: 'not confident',
@@ -541,16 +541,16 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
         validations: [],
         comments: [ { comment, id: null } ],
         confidence_indicator: defaultConfidence,
         start_time: null,
         end_time: null,
         start_frequency: null,
-        end_frequency: null
+        end_frequency: null,
+        acoustic_features: null
       }
     ]
     expect(submittedData.results).toEqual(expectedResults);
@@ -586,9 +586,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -598,9 +598,9 @@ test.describe('No results', {
         end_frequency: null
       },
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -644,9 +644,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -656,9 +656,9 @@ test.describe('No results', {
         end_frequency: null
       },
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: 'not confident',
@@ -702,9 +702,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,
@@ -714,9 +714,9 @@ test.describe('No results', {
         end_frequency: null
       },
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [ { comment, id: null } ],
         confidence_indicator: defaultConfidence,
@@ -830,9 +830,9 @@ test.describe('No results', {
     const submittedData = request.postDataJSON();
     const expectedResults: Array<WriteAnnotationResult> = [
       {
-        id: null,
         label,
-        detector_configuration: null,
+        detector_configuration: undefined,
+        acoustic_features: null,
         validations: [],
         comments: [],
         confidence_indicator: defaultConfidence,

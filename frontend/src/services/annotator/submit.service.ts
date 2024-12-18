@@ -21,7 +21,7 @@ export const useAnnotatorSubmitService = () => {
       data: {
         results: (_annotator.current.results ?? []).map(r => ({
           ...r,
-          id: r.id > -1 ? r.id : null,
+          id: r.id > -1 ? r.id : undefined,
           comments: r.comments.map(mapCommentForWriting),
           validations: r.validations.map(v => ({
             ...v,
@@ -29,9 +29,8 @@ export const useAnnotatorSubmitService = () => {
             annotator: undefined,
             result: undefined,
           })),
-          annotation_campaign: undefined,
-          dataset_file: undefined,
-          annotator: undefined,
+          confidence_indicator: r.confidence_indicator ?? undefined,
+          detector_configuration: r.detector_configuration ?? undefined,
         })),
         task_comments: (_annotator.current.task_comments ?? []).map(mapCommentForWriting),
         session: {

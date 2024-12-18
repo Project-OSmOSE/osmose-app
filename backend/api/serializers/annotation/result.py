@@ -396,9 +396,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations = AnnotationResultValidationSerializer(
             validated_data.pop("validations", []), many=True
         ).data
-        acoustic_features = AnnotationResultAcousticFeaturesSerializer(
-            validated_data.pop("acoustic_features", None)
-        ).data
+        initial_acoustic_features = validated_data.pop("acoustic_features", None)
         instance: AnnotationResult = super().create(validated_data)
 
         # Comments
@@ -417,13 +415,17 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations_serializer.save()
 
         # Acoustic features
-        acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
-            data={**acoustic_features, "annotation_result": instance.id},
-        )
-        acoustic_features_serializer.is_valid(raise_exception=True)
-        acoustic_features_serializer.save()
-        instance.acoustic_features = acoustic_features_serializer.instance
-        instance.save()
+        if initial_acoustic_features is not None:
+            acoustic_features = AnnotationResultAcousticFeaturesSerializer(
+                initial_acoustic_features
+            ).data
+            acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
+                data={**acoustic_features, "annotation_result": instance.id},
+            )
+            acoustic_features_serializer.is_valid(raise_exception=True)
+            acoustic_features_serializer.save()
+            instance.acoustic_features = acoustic_features_serializer.instance
+            instance.save()
 
         return instance
 
