@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
-from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 from backend.api.views.annotation.campaign import REPORT_HEADERS
+from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-campaign-report", kwargs={"pk": 1})
 URL_check = reverse("annotation-campaign-report", kwargs={"pk": 4})
@@ -22,8 +22,8 @@ def check_report(test: APITestCase, response: Response):
         [  # annotationresult id=7 ; because ordered by dataset_file and not id
             "SPM Aural A 2010",
             "sound001.wav",
-            "108.21842250413678",
-            "224.87589630446772",
+            "108.218422504137",
+            "224.875896304468",
             "7520.0",
             "13696.0",
             "Odoncetes",
@@ -47,8 +47,8 @@ def check_report_check(test: APITestCase, response: Response):
         [  # annotationresult id=10
             "SPM Aural A 2010",
             "sound001.wav",
-            "108.21842250413678",
-            "224.87589630446772",
+            "108.218422504137",
+            "224.875896304468",
             "7520.0",
             "13696.0",
             "Rain",

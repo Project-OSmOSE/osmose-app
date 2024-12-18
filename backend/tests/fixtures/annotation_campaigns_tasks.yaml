@@ -34,7 +34,7 @@
   fields:
     first_file_index: 6
     last_file_index: 9
-    files_count: 5
+    files_count: 4
     annotator: 4
     annotation_campaign: 1
 - model: api.annotationfilerange

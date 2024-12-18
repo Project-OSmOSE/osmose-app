@@ -80,6 +80,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset: QuerySet[AnnotationFileRange] = super().get_queryset()
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
+        print("get_queryset", for_current_user)
         if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(annotator_id=self.request.user.id)
         return queryset
@@ -102,6 +103,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         url_name="campaign-files",
     )
     def list_files(self, request, campaign_id: int = None):
+        """List files of an annotator within a campaign through its file ranges"""
         queryset: QuerySet[AnnotationFileRange] = self.filter_queryset(
             self.get_queryset()
         ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
@@ -112,7 +114,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         search = request.query_params.get("search")
         if search is not None:
             files = list(filter(lambda file: search in file.filename, files))
-        files = self.paginate_queryset(files)
+        files = self.paginate_queryset(files) or []
         files = DatasetFile.objects.filter(id__in=[file.id for file in files]).annotate(
             is_submitted=Exists(
                 AnnotationTask.objects.filter(
