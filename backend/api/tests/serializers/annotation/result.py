@@ -103,18 +103,16 @@ class CreateTestCase(TestCase):
         self.assertListEqual(
             list(serializer.errors.keys()),
             [
+                "annotation_campaign",
                 "label",
                 "confidence_indicator",
-                "annotator",
                 "dataset_file",
-                "annotation_campaign",
             ],
         )
         self.assertEqual(serializer.errors["label"][0].code, "null")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
         self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
-        self.assertEqual(serializer.errors["annotator"][0].code, "null")
 
     def test_does_not_exist(self):
         serializer = self._get_serializer(

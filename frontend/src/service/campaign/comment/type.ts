@@ -7,4 +7,6 @@ export interface AnnotationComment {
   comment: string;
 }
 
-export type WriteAnnotationComment = Omit<AnnotationComment, "id" | "annotation_result" | "annotation_campaign" | "author" | "dataset_file"> & {id: number | null;}
+export type WriteAnnotationComment =
+  Omit<AnnotationComment, "id" | "annotation_result" | "annotation_campaign" | "author" | "dataset_file">
+  & { id?: number; }

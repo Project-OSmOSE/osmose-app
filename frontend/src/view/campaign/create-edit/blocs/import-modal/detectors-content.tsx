@@ -15,7 +15,6 @@ interface Props {
 export const DetectorsContent: React.FC<Props> = ({
                                                     cancelButton
                                                   }) => {
-  // const [ csvDetectors, setCsvDetectors ] = useState<Array<string>>([]);
   const [ detectors, setDetectors ] = useState<Map<string, Detector | null | undefined>>(new Map());
   const [ canValidate, setCanValidate ] = useState<boolean>(false);
   const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
@@ -41,7 +40,7 @@ export const DetectorsContent: React.FC<Props> = ({
     const filterDatasets = resultImport.filterDatasets;
     if (!data || !filterDatasets) return;
     const availableEntries = filterDatasets.flatMap(d => data.detectorsForDatasets[d])
-    return [...new Set(availableEntries)]
+    return [ ...new Set(availableEntries) ]
   }, [])
 
   const _save = () => {

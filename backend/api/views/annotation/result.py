@@ -78,7 +78,9 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 **r,
                 "annotation_campaign": campaign_id,
                 "dataset_file": file_id,
-                "annotator": user_id,
+                "annotator": user_id
+                if r.get("detector_configuration") is None
+                else None,
                 "comments": [
                     {
                         **c,
@@ -114,11 +116,11 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         data = AnnotationResultViewSet.map_request_results(
             new_results, campaign.id, file.id, user_id
         )
+        print(">> data", data)
         current_results = AnnotationResultViewSet.queryset.filter(
             annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
-            annotator_id=user_id,
-        )
+        ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
         serializer = AnnotationResultViewSet.serializer_class(
             current_results,
             many=True,

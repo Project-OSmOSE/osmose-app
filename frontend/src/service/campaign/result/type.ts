@@ -32,7 +32,7 @@ export type WriteAnnotationResult =
   & {
   id: number | null;
   comments: Array<WriteAnnotationComment>;
-  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | null }>;
+  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id?: number }>;
 };
 
 export interface ImportAnnotationResult {

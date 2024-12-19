@@ -195,10 +195,12 @@ test('No results', async ({ annotatorPage: page }) => {
 test.describe('Detection validations', {
   tag: '@essential'
 }, () => {
+
   test('Can validate only tag', async ({ annotatorPage: page }) => {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
     const buttons = getValidationButtons(page)
+    await buttons.tagInvalidate.click()
     await expect(buttons.tagValidate).toHaveAttribute('color', 'medium')
     await expect(buttons.tagInvalidate).toHaveAttribute('color', 'danger')
     await expect(buttons.boxValidate).toHaveAttribute('color', 'medium')
@@ -216,8 +218,8 @@ test.describe('Detection validations', {
     ])
     const submittedResults = request.postDataJSON().results;
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: true, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: false } ] },
+      { ...expected_tag, validations: [ { is_valid: true } ] },
     ]
     expect(submittedResults).toEqual(expectedResults);
   })
@@ -226,6 +228,7 @@ test.describe('Detection validations', {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
     const buttons = getValidationButtons(page)
+    await buttons.tagInvalidate.click()
     await expect(buttons.tagValidate).toHaveAttribute('color', 'medium')
     await expect(buttons.tagInvalidate).toHaveAttribute('color', 'danger')
     await expect(buttons.boxValidate).toHaveAttribute('color', 'medium')
@@ -243,8 +246,8 @@ test.describe('Detection validations', {
     ])
     const submittedResults = request.postDataJSON().results;
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: true, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: true, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: true } ] },
+      { ...expected_tag, validations: [ { is_valid: true } ] },
     ]
     expect(submittedResults).toEqual(expectedResults);
   })
@@ -253,7 +256,6 @@ test.describe('Detection validations', {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
     const buttons = getValidationButtons(page)
-    await buttons.boxValidate.click()
     await expect(buttons.tagValidate).toHaveAttribute('color', 'success')
     await expect(buttons.tagInvalidate).toHaveAttribute('color', 'medium')
     await expect(buttons.boxValidate).toHaveAttribute('color', 'success')
@@ -271,8 +273,8 @@ test.describe('Detection validations', {
     ])
     const submittedResults = request.postDataJSON().results;
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: true, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: false } ] },
+      { ...expected_tag, validations: [ { is_valid: true } ] },
     ]
     expect(submittedResults).toEqual(expectedResults);
   })
@@ -281,7 +283,6 @@ test.describe('Detection validations', {
     await page.route(/annotator\/campaign\/\d\/file\/\d/g, route => route.fulfill({ status: 200, json: DEFAULT_DATA }))
     await accessAnnotator(page)
     const buttons = getValidationButtons(page)
-    await buttons.boxValidate.click()
     await expect(buttons.tagValidate).toHaveAttribute('color', 'success')
     await expect(buttons.tagInvalidate).toHaveAttribute('color', 'medium')
     await expect(buttons.boxValidate).toHaveAttribute('color', 'success')
@@ -299,8 +300,8 @@ test.describe('Detection validations', {
     ])
     const submittedResults = request.postDataJSON().results;
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: false } ] },
+      { ...expected_tag, validations: [ { is_valid: false } ] },
     ]
     expect(submittedResults).toEqual(expectedResults);
   })
@@ -328,11 +329,11 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: true } ] },
+      { ...expected_tag, validations: [ { is_valid: true } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
-    expect(submittedData.task_comments).toEqual([ { comment, id: null } ]);
+    expect(submittedData.task_comments).toEqual([ { comment } ]);
   })
 
   test('Can add comment on the tag', async ({ annotatorPage: page }) => {
@@ -355,8 +356,8 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
+      { ...expected_box, validations: [ { is_valid: true } ] },
+      { ...expected_tag, comments: [ { comment } ], validations: [ { is_valid: true } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([]);
@@ -382,8 +383,8 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
+      { ...expected_box, comments: [ { comment } ], validations: [ { is_valid: true } ] },
+      { ...expected_tag, validations: [ { is_valid: true } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([]);

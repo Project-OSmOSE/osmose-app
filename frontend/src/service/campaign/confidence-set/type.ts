@@ -2,7 +2,7 @@ export interface ConfidenceIndicator {
   id: number;
   label: string;
   level: number;
-  isDefault: boolean;
+  is_default: boolean;
 }
 
 export interface ConfidenceIndicatorSet {

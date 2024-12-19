@@ -19,11 +19,14 @@ from backend.api.models import (
     DetectorConfiguration,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
+    ConfidenceIndicatorSetIndicator,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer, SlugRelatedGetOrCreateField
 from .comment import AnnotationCommentSerializer
-from ..confidence_indicator_set import ConfidenceIndicatorSerializer
+from .confidence_indicator_set import (
+    ConfidenceIndicatorSerializer,
+)
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -123,6 +126,13 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         attrs["files"] = dataset_files
         return attrs
 
+    def get_confidence_set(self, name, index=0):
+        """Recover appropriate confidence set based on the campaign name"""
+        real_name = name if index == 0 else f"{name} ({index})"
+        if ConfidenceIndicatorSet.objects.filter(name=real_name).exists():
+            return self.get_confidence_set(name, index + 1)
+        return ConfidenceIndicatorSet.objects.create(name=real_name)
+
     def create(self, validated_data):
         is_box: bool = validated_data["is_box"]
 
@@ -142,19 +152,19 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             and validated_data["confidence_indicator"] is not None
         ):
             if campaign.confidence_indicator_set is None:
-                campaign.confidence_indicator_set = (
-                    ConfidenceIndicatorSet.objects.create(
-                        name=f"{campaign.name} confidence set"
-                    )
+                campaign.confidence_indicator_set = self.get_confidence_set(
+                    name=f"{campaign.name} confidence set"
                 )
-            serializer = ConfidenceIndicatorSerializer(
-                data={
-                    **validated_data["confidence_indicator"],
-                    "confidence_indicator_set": campaign.confidence_indicator_set.id,
-                }
+            confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
+                label=validated_data["confidence_indicator"].get("label"),
+                level=validated_data["confidence_indicator"].get("level"),
             )
-            serializer.is_valid(raise_exception=True)
-            confidence_indicator = serializer.save()
+            is_default = validated_data["confidence_indicator"].pop("is_default", None)
+            ConfidenceIndicatorSetIndicator.objects.get_or_create(
+                confidence_indicator=confidence_indicator,
+                confidence_indicator_set=campaign.confidence_indicator_set,
+                is_default=is_default or False,
+            )
         if not is_box and files.count() == 1:
             return AnnotationResult.objects.create(
                 annotation_campaign=campaign,
@@ -258,6 +268,9 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
     id = serializers.IntegerField(required=False, allow_null=True)
+    annotation_campaign = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaign.objects.all()
+    )
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
         slug_field="name",
@@ -268,8 +281,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         required=False,
     )
     annotator = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        required=False,
+        queryset=User.objects.all(), required=False, allow_null=True
     )
     dataset_file = serializers.PrimaryKeyRelatedField(
         queryset=DatasetFile.objects.all(),
@@ -404,21 +416,30 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             validated_data.pop("validations", []), many=True
         ).data
 
+        print(" > ", validated_data)
+        initial_detector_config = validated_data.get("detector_configuration", None)
+        if initial_detector_config is not None:
+            validated_data[
+                "detector_configuration"
+            ] = DetectorConfiguration.objects.filter(**initial_detector_config).first()
+
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()
 
-        instance_id = super().update(instance, validated_data).id
+        print("update", instance, validated_data)
+        instance = super().update(instance, validated_data)
+        print("did update", vars(instance))
 
         # Comments
         instance_comments = AnnotationComment.objects.filter(
-            annotation_result__id=instance_id
+            annotation_result__id=instance.id
         )
         comments_serializer = AnnotationCommentSerializer(
             instance_comments,
             data=[
                 {
                     **c,
-                    "annotation_result": instance_id,
+                    "annotation_result": instance.id,
                 }
                 for c in comments
             ],
@@ -439,4 +460,4 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations_serializer.is_valid(raise_exception=True)
         validations_serializer.save()
 
-        return self.Meta.model.objects.get(pk=instance_id)
+        return self.Meta.model.objects.get(pk=instance.id)

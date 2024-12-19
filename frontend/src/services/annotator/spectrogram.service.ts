@@ -25,10 +25,8 @@ export const useSpectrogramService = (
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
 
   function areAllImagesLoaded(): boolean {
-    const zoom = userPreferences.zoomLevel - 1;
-    const imagesCount = 2 ** zoom;
-    const currentImages = images.current.get(zoom);
-    return currentImages?.filter(i => !!i).length === imagesCount
+    const currentImages = images.current.get(userPreferences.zoomLevel);
+    return currentImages?.filter(i => !!i).length === userPreferences.zoomLevel
   }
 
   async function loadImages() {
@@ -38,14 +36,12 @@ export const useSpectrogramService = (
       return;
     }
 
-    const zoom = userPreferences.zoomLevel - 1;
-    const imagesCount = 2 ** zoom;
     if (areAllImagesLoaded()) return;
 
     const filename = file.filename.split('.')[0]
     return Promise.all(
-      Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (_, index) => {
-        console.info(`Will load for zoom ${zoom}, image ${index}`)
+      Array.from(new Array<HTMLImageElement | undefined>(userPreferences.zoomLevel)).map(async (_, index) => {
+        console.info(`Will load for zoom ${ userPreferences.zoomLevel }, image ${ index }`)
         const image = new Image();
         image.src = `${ currentConfiguration.folder_path }/${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {
@@ -61,7 +57,7 @@ export const useSpectrogramService = (
         })
       })
     ).then(loadedImages => {
-      images.current.set(zoom, loadedImages)
+      images.current.set(userPreferences.zoomLevel, loadedImages)
     })
   }
 
@@ -78,7 +74,7 @@ export const useSpectrogramService = (
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
 
-    const currentImages = images.current.get(userPreferences.zoomLevel - 1)
+    const currentImages = images.current.get(userPreferences.zoomLevel)
     if (!currentImages) return;
     for (const i in currentImages) {
       const index: number | undefined = i ? +i : undefined;
