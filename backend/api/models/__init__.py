@@ -9,6 +9,7 @@ from backend.api.models.annotations import (
     AnnotationTask,
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
+    ConfidenceIndicatorSetIndicator,
     Label,
     LabelSet,
 )

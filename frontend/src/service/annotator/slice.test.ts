@@ -1,5 +1,6 @@
 import {
-  addPresenceResult, addResult,
+  addPresenceResult,
+  addResult,
   AnnotatorSlice,
   focusConfidence,
   focusLabel,
@@ -109,13 +110,13 @@ const mockState: AnnotatorState = {
         "id": 2,
         "label": "confident",
         "level": 1,
-        "isDefault": true
+        "is_default": true
       },
       {
         "id": 1,
         "label": "not confident",
         "level": 0,
-        "isDefault": false
+        "is_default": false
       }
     ]
   },

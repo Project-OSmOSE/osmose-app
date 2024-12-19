@@ -3,7 +3,7 @@ import { AnnotationResult } from '@/service/campaign/result';
 
 export function getDefaultConfidence(state: AnnotatorState) {
   if (!state.confidence_set) return undefined;
-  const defaultIndicator = state.confidence_set.confidence_indicators.find(c => c.isDefault);
+  const defaultIndicator = state.confidence_set.confidence_indicators.find(c => c.is_default);
   return defaultIndicator ?? state.confidence_set.confidence_indicators.find(c => c)
 }
 

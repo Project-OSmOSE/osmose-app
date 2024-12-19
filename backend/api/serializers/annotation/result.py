@@ -19,11 +19,14 @@ from backend.api.models import (
     DetectorConfiguration,
     ConfidenceIndicatorSet,
     AnnotationCampaignUsage,
+    ConfidenceIndicatorSetIndicator,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer, SlugRelatedGetOrCreateField
 from .comment import AnnotationCommentSerializer
-from ..confidence_indicator_set import ConfidenceIndicatorSerializer
+from .confidence_indicator_set import (
+    ConfidenceIndicatorSerializer,
+)
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -123,6 +126,12 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         attrs["files"] = dataset_files
         return attrs
 
+    def get_confidence_set(self, name, index=0):
+        real_name = name if index == 0 else f"{name} ({index})"
+        if ConfidenceIndicatorSet.objects.filter(name=real_name).exists():
+            return self.get_confidence_set(name, index + 1)
+        return ConfidenceIndicatorSet.objects.create(name=real_name)
+
     def create(self, validated_data):
         is_box: bool = validated_data["is_box"]
 
@@ -142,19 +151,19 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             and validated_data["confidence_indicator"] is not None
         ):
             if campaign.confidence_indicator_set is None:
-                campaign.confidence_indicator_set = (
-                    ConfidenceIndicatorSet.objects.create(
-                        name=f"{campaign.name} confidence set"
-                    )
+                campaign.confidence_indicator_set = self.get_confidence_set(
+                    name=f"{campaign.name} confidence set"
                 )
-            serializer = ConfidenceIndicatorSerializer(
-                data={
-                    **validated_data["confidence_indicator"],
-                    "confidence_indicator_set": campaign.confidence_indicator_set.id,
-                }
+            confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
+                label=validated_data["confidence_indicator"].get("label"),
+                level=validated_data["confidence_indicator"].get("level"),
             )
-            serializer.is_valid(raise_exception=True)
-            confidence_indicator = serializer.save()
+            is_default = validated_data["confidence_indicator"].pop("is_default", None)
+            ConfidenceIndicatorSetIndicator.objects.get_or_create(
+                confidence_indicator=confidence_indicator,
+                confidence_indicator_set=campaign.confidence_indicator_set,
+                is_default=is_default or False,
+            )
         if not is_box and files.count() == 1:
             return AnnotationResult.objects.create(
                 annotation_campaign=campaign,

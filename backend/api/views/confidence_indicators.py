@@ -12,7 +12,10 @@ class ConfidenceIndicatorSetViewSet(viewsets.ReadOnlyModelViewSet):
     A simple ViewSet for confidence indicator set
     """
 
-    queryset = ConfidenceIndicatorSet.objects.all()
+    queryset = ConfidenceIndicatorSet.objects.all().prefetch_related(
+        "indicator_relations",
+        "indicator_relations__confidence_indicator",
+    )
     serializer_class = ConfidenceIndicatorSetSerializer
     filter_backends = (ModelFilter,)
     permission_classes = (permissions.IsAuthenticated,)

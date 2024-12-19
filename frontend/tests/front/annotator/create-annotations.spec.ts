@@ -143,14 +143,12 @@ const DEFAULT_DATA = {
     "confidence_indicators": [
       {
         "id": 2,
-        "isDefault": true,
         "label": "confident",
         "level": 1,
         "is_default": true
       },
       {
         "id": 1,
-        "isDefault": false,
         "label": "not confident",
         "level": 0,
         "is_default": false
