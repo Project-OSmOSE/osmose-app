@@ -30,6 +30,8 @@ class ConfidenceIndicatorAdmin(admin.ModelAdmin):
 
 
 class ConfidenceRelationInline(admin.TabularInline):
+    """Confidence entry with relation related fields"""
+
     model = ConfidenceIndicatorSetIndicator
 
 
@@ -41,11 +43,11 @@ class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
     inlines = (ConfidenceRelationInline,)
 
     @admin.display(description="Indicators")
-    def get_indicators(self, set: ConfidenceIndicatorSet):
+    def get_indicators(self, confidence_set: ConfidenceIndicatorSet):
         """Get indicators"""
         array = []
         relation: ConfidenceIndicatorSetIndicator
-        for relation in set.indicator_relations.all():
+        for relation in confidence_set.indicator_relations.all():
             if relation.is_default:
                 array.append(f"<b>{relation.confidence_indicator.label}</b>")
             else:

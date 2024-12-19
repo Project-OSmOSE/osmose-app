@@ -127,6 +127,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         return attrs
 
     def get_confidence_set(self, name, index=0):
+        """Recover appropriate confidence set based on the campaign name"""
         real_name = name if index == 0 else f"{name} ({index})"
         if ConfidenceIndicatorSet.objects.filter(name=real_name).exists():
             return self.get_confidence_set(name, index + 1)
@@ -267,6 +268,9 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
     id = serializers.IntegerField(required=False, allow_null=True)
+    annotation_campaign = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaign.objects.all()
+    )
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
         slug_field="name",
@@ -277,8 +281,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         required=False,
     )
     annotator = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        required=False,
+        queryset=User.objects.all(), required=False, allow_null=True
     )
     dataset_file = serializers.PrimaryKeyRelatedField(
         queryset=DatasetFile.objects.all(),
@@ -413,21 +416,30 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             validated_data.pop("validations", []), many=True
         ).data
 
+        print(" > ", validated_data)
+        initial_detector_config = validated_data.get("detector_configuration", None)
+        if initial_detector_config is not None:
+            validated_data[
+                "detector_configuration"
+            ] = DetectorConfiguration.objects.filter(**initial_detector_config).first()
+
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()
 
-        instance_id = super().update(instance, validated_data).id
+        print("update", instance, validated_data)
+        instance = super().update(instance, validated_data)
+        print("did update", vars(instance))
 
         # Comments
         instance_comments = AnnotationComment.objects.filter(
-            annotation_result__id=instance_id
+            annotation_result__id=instance.id
         )
         comments_serializer = AnnotationCommentSerializer(
             instance_comments,
             data=[
                 {
                     **c,
-                    "annotation_result": instance_id,
+                    "annotation_result": instance.id,
                 }
                 for c in comments
             ],
@@ -448,4 +460,4 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         validations_serializer.is_valid(raise_exception=True)
         validations_serializer.save()
 
-        return self.Meta.model.objects.get(pk=instance_id)
+        return self.Meta.model.objects.get(pk=instance.id)
