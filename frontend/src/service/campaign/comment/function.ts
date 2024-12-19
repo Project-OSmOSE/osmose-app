@@ -2,7 +2,7 @@ import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/co
 
 export function mapCommentForWriting(comment: AnnotationComment): WriteAnnotationComment {
   return {
-    id: comment.id > -1 ? comment.id : null,
+    id: comment.id > -1 ? comment.id : undefined,
     comment: comment.comment
   }
 }

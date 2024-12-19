@@ -332,7 +332,7 @@ test.describe('Comments', {
       { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
-    expect(submittedData.task_comments).toEqual([ { comment, id: null } ]);
+    expect(submittedData.task_comments).toEqual([ { comment } ]);
   })
 
   test('Can add comment on the tag', async ({ annotatorPage: page }) => {
@@ -356,7 +356,7 @@ test.describe('Comments', {
     const submittedData = request.postDataJSON();
     const expectedResults = [
       { ...expected_box, validations: [ { is_valid: false, id: null } ] },
-      { ...expected_tag, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
+      { ...expected_tag, comments: [ { comment } ], validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);
     expect(submittedData.task_comments).toEqual([]);
@@ -382,7 +382,7 @@ test.describe('Comments', {
     ])
     const submittedData = request.postDataJSON();
     const expectedResults = [
-      { ...expected_box, comments: [ { comment, id: null } ], validations: [ { is_valid: false, id: null } ] },
+      { ...expected_box, comments: [ { comment } ], validations: [ { is_valid: false, id: null } ] },
       { ...expected_tag, validations: [ { is_valid: false, id: null } ] },
     ]
     expect(submittedData.results).toEqual(expectedResults);

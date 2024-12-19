@@ -1,7 +1,7 @@
 import { useAppSelector } from '@/service/app';
 import { useEffect, useRef } from "react";
 import { mapCommentForWriting } from '@/service/campaign/comment';
-import { AnnotatorState, usePostAnnotatorMutation } from '@/service/annotator';
+import { AnnotatorState, usePostAnnotatorMutation, WriteAnnotatorData } from '@/service/annotator';
 
 export const useAnnotatorSubmitService = () => {
 
@@ -38,7 +38,7 @@ export const useAnnotatorSubmitService = () => {
           start: new Date(_annotator.current.sessionStart),
           end: new Date()
         }
-      }
+      } satisfies WriteAnnotatorData
     }).unwrap()
   }
 
