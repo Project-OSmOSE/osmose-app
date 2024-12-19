@@ -22,9 +22,10 @@ export const Pagination: React.FC<{
   if (totalPages === 1) return;
 
   return <div className={ styles.buttons }>
-    { showPages.map((i) => {
-      if (i === '...') return <p>...</p>
-      return <IonButton fill={ i === currentPage ? 'solid' : 'outline' }
+    { showPages.map((i, index) => {
+      if (i === '...') return <p key={ index }>...</p>
+      return <IonButton key={ index }
+                        fill={ i === currentPage ? 'solid' : 'outline' }
                         onClick={ () => setCurrentPage(i) }>
         { i }
       </IonButton>

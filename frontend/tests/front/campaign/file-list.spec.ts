@@ -66,4 +66,15 @@ test.describe('Annotator', () => {
     await submittedRow.getByRole('link', { name: 'Task link' }).click()
     await annotatorPage.waitForURL(/.*\/annotation-campaign\/\d+\/file\/\d+/g);
   })
+
+  test('can resume annotation', {
+    tag: '@essential'
+  }, async ({ annotatorPage }) => {
+    await accessCampaignFileList(annotatorPage);
+    const table = annotatorPage.getByRole('table')
+    await expect(table).toBeVisible();
+    await table.locator('tbody tr:not(.table-success)').first().waitFor()
+    await annotatorPage.getByRole('button', { name: 'Resume annotation' }).click();
+    await annotatorPage.waitForURL(/.*\/annotation-campaign\/\d+\/file\/\d+/g);
+  })
 })

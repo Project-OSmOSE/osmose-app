@@ -86,8 +86,8 @@ export const AnnotationTaskList: React.FC = () => {
       </div>
 
       { !files && <IonSpinner/> }
-      { files && files.results.length === 0 && "No files to annotate" }
-      { files && files.results.length > 0 && <table className="table table-bordered">
+      { (!files?.results || files.results.length === 0) && "No files to annotate" }
+      { files?.results && files.results.length > 0 && <table className="table table-bordered">
           <thead>
           <tr>
               <th>Filename</th>
