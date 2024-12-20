@@ -1,0 +1,14 @@
+.listPage {
+  font-family: var(--ion-font-family), sans-serif;
+  display: grid;
+  justify-items: center;
+  gap: 2rem;
+}
+
+.buttons {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}

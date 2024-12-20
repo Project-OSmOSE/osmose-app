@@ -2,7 +2,6 @@ import React, { lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Login } from "@/view/login.page.tsx";
-import { DatasetList } from "@/view/dataset-list";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
 import { AploseSkeleton, Layout } from "@/components/Layout";
 
@@ -24,6 +23,7 @@ import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-lis
 import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
+import { DatasetList } from '@/view/dataset';
 
 const Home = lazy(() => import("@/view/home/home.page.tsx"));
 
