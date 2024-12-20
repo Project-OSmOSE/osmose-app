@@ -15,10 +15,11 @@ export const Table: React.FC<TableProps> = ({
                                               className,
                                               isFirstColumnSticky
                                             }) => (
-  <div className={ className + ` table-aplose ${ isFirstColumnSticky ? 'first-column-sticky' : '' }` }
-       style={ {
-         "--content-columns": columns
-       } as React.CSSProperties }>
+  <div
+    className={ [ className, 'table-aplose', isFirstColumnSticky && 'first-column-sticky', `columns-${ columns }` ].join(' ') }
+    style={ {
+      "--content-columns": columns
+    } as React.CSSProperties }>
     { children }
   </div>
 )

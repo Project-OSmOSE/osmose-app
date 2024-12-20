@@ -1,8 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { createPortal } from "react-dom";
-import { ModalNewDataset } from "./modal-new-dataset.component.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import '../../css/modal.css';
 import {
   ImportDataset,
   useImportDatasetMutation,
@@ -14,6 +12,7 @@ import { getErrorMessage } from '@/service/function.ts';
 import styles from './dataset.module.scss'
 import { downloadOutline } from 'ionicons/icons';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
+import { ImportDatasetModal } from '@/view/dataset/ImportModal.tsx';
 
 
 export const DatasetList: React.FC = () => {
@@ -71,13 +70,6 @@ export const DatasetList: React.FC = () => {
           <IonIcon icon={ downloadOutline } slot='start'/>
           Import dataset
         </IonButton>
-
-        { isImportModalOpen && createPortal(
-          <ModalNewDataset startImport={ (datasets) => importDatasets(datasets) }
-                           onClose={ () => setIsImportModalOpen(false) }
-                           isLoading={ isImportInProgress }
-                           newData={ datasetsToImport ?? [] }/>,
-          document.body) }
       </div>
 
       { (isLoading || isImportInProgress) && <IonSpinner/> }
@@ -103,6 +95,13 @@ export const DatasetList: React.FC = () => {
           <TableDivider/>
         </Fragment>) }
       </Table> }
+
+      { isImportModalOpen && createPortal(
+        <ImportDatasetModal startImport={ (datasets) => importDatasets(datasets) }
+                            onClose={ () => setIsImportModalOpen(false) }
+                            isLoading={ isImportInProgress }
+                            newData={ datasetsToImport ?? [] }/>,
+        document.body) }
     </div>
   )
 };

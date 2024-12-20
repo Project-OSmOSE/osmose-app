@@ -3,6 +3,67 @@
   display: grid;
   justify-items: center;
   gap: 2rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.importModal {
+  font-family: var(--ion-font-family), sans-serif;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background: var(--ion-color-light);
+  border-radius: 2rem;
+  box-shadow: var(--aplose-box-shadow), var(--aplose-backdrop);
+  padding: 2rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 1rem;
+
+  min-width: 42rem;
+  max-height: 80%;
+  overflow: hidden;
+
+  .header {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: space-between;
+    align-items: center;
+
+    .iconClose {
+      font-size: 2rem;
+      color: var(--ion-color-medium);
+      cursor: pointer;
+    }
+  }
+
+  .table {
+    overflow: auto;
+  }
+
+  .item {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 1rem;
+    align-items: center;
+    font-weight: normal;
+
+    text-align: start;
+    cursor: pointer;
+
+    b {
+      font-weight: 600;
+    }
+  }
+
+  .buttons {
+    justify-content: end;
+  }
 }
 
 .buttons {
