@@ -51,7 +51,15 @@ export const AnnotationTaskList: React.FC = () => {
   const resume = () => history.push(`/annotation-campaign/${ campaignID }/file/${ files?.resume }`);
 
   function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
-    if (event.key === 'Enter') setSearch(event.currentTarget.value ?? undefined)
+    if (event.key === 'Enter') {
+      setSearch(event.currentTarget.value ?? undefined)
+      setPage(1)
+    }
+  }
+
+  function clearSearch() {
+    setSearch(undefined)
+    setPage(1)
   }
 
   return (
@@ -66,6 +74,7 @@ export const AnnotationTaskList: React.FC = () => {
         <IonSearchbar placeholder="Search file"
                       className={ styles.search }
                       onKeyDown={ doSearch }
+                      onIonClear={ clearSearch }
                       value={ search }/>
         <IonButton fill="outline" shape="round" onClick={ manage }>
           { campaign?.archive === null ? "Manage" : "Info" }

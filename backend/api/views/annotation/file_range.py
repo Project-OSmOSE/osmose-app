@@ -80,7 +80,6 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset: QuerySet[AnnotationFileRange] = super().get_queryset()
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
-        print("get_queryset", for_current_user)
         if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(annotator_id=self.request.user.id)
         return queryset
