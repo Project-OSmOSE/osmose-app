@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { Link } from 'react-router-dom';
 import { IonButton, IonIcon } from "@ionic/react";
 import styles from './skeleton.module.scss';
@@ -8,6 +7,7 @@ import { useAppDispatch } from '@/service/app';
 import { logout } from '@/service/auth';
 import { useGetCurrentUserQuery } from '@/service/user';
 import logo from '/app/images/ode_logo_192x192.png';
+import { OsmoseBarComponent } from '../osmose-bar/osmose-bar.component';
 
 export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
 

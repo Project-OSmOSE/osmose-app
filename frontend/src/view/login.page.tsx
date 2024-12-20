@@ -2,10 +2,10 @@ import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { IonButton } from "@ionic/react";
 import { Input } from "@/components/form/inputs/input.tsx";
-import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 import { selectIsConnected, useLoginMutation } from '@/service/auth';
 import { useAppSelector } from '@/service/app';
 import { getErrorMessage } from '@/service/function.ts';
+import { OsmoseBarComponent } from '@/components/Layout';
 
 
 export const Login: React.FC = () => {

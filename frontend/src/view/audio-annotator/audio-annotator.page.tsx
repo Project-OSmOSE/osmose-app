@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useAppSelector } from '@/service/app';
-import { OsmoseBarComponent } from "@/view/global-components/osmose-bar/osmose-bar.component.tsx";
 
 import { AudioPlayerComponent } from './components/audio-player.component.tsx';
 import { SpectrogramRender, SpectroRenderComponent } from "./components/spectro-render.component.tsx";
@@ -32,6 +31,7 @@ import { useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
+import { OsmoseBarComponent } from '@/components/Layout';
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;

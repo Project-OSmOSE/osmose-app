@@ -4,9 +4,7 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import { Login } from "@/view/login.page.tsx";
 import { DatasetList } from "@/view/dataset-list";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-const Home = lazy(() => import("@/view/home/home.page.tsx"));
-import { Layout } from "@/components/Layout";
-import { AploseSkeleton } from "@/view/global-components/skeleton/skeleton.component.tsx";
+import { AploseSkeleton, Layout } from "@/components/Layout";
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
@@ -27,6 +25,8 @@ import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 
+const Home = lazy(() => import("@/view/home/home.page.tsx"));
+
 setupIonicReact({
   mode: 'md',
   spinner: 'crescent',
@@ -46,7 +46,8 @@ export const App: React.FC = () => {
             <Route exact path="/login"><Login/></Route>
             <Route exact path='/'><Layout><Home/></Layout></Route>
 
-            <AuthenticatedRoute exact path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute exact
+                                path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>
@@ -58,7 +59,8 @@ export const App: React.FC = () => {
                 </AuthenticatedRoute>
                 <AuthenticatedRoute exact
                                     path='/annotation-campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact path='/annotation-campaign/:id/file'><AnnotationTaskList/></AuthenticatedRoute>
+                <AuthenticatedRoute exact
+                                    path='/annotation-campaign/:id/file'><AnnotationTaskList/></AuthenticatedRoute>
                 <Route path="**"><Redirect to="/annotation-campaign"/></Route>
               </Switch>
             </AploseSkeleton>
