@@ -74,7 +74,7 @@ export const DatasetList: React.FC = () => {
 
       { (isLoading || isImportInProgress) && <IonSpinner/> }
 
-      { datasets && <Table columns={ 7 }>
+      { datasets && <Table columns={ 7 } className={ styles.table }>
           <TableHead isFirstColumn={ true }>Name</TableHead>
           <TableHead>Created at</TableHead>
           <TableHead>Type</TableHead>
