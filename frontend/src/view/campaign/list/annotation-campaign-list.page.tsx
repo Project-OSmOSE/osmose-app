@@ -4,7 +4,7 @@ import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionico
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
-import './annotation-campaign-list.page.css'
+import styles from './annotation-campaign-list.module.scss'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
@@ -75,11 +75,11 @@ export const AnnotationCampaignList: React.FC = () => {
   }
 
   return (
-    <div id="campaign-list">
+    <div className={ styles.page }>
       <h2>Annotation Campaigns</h2>
 
-      <div id="head">
-        <div id="search-zone">
+      <div className={ styles.actionBar }>
+        <div className={ styles.filters }>
           <IonSearchbar placeholder="Search campaign"
                         onIonInput={ e => setSearch(e.detail.value ?? undefined) }
                         value={ search }/>
@@ -101,7 +101,7 @@ export const AnnotationCampaignList: React.FC = () => {
           </IonChip>
         </div>
 
-        <div id="actions">
+        <div className={ styles.buttons }>
           <IonButton color="warning" shape="round" fill="outline" onClick={ openGuide }>
             User guide
             <IonIcon icon={ helpBuoyOutline } slot="end"/>
@@ -114,7 +114,7 @@ export const AnnotationCampaignList: React.FC = () => {
         </div>
       </div>
 
-      <div id="content">
+      <div className={ styles.content }>
         { showCampaigns.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map(c => <CampaignCard
           campaign={ c } key={ c.id }/>) }
         { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
