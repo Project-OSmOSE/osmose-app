@@ -12,7 +12,7 @@ COPY poetry.lock .
 COPY metadatax-0.3.1.tar.gz .
 
 ENV POETRY_CACHE_DIR=/opt/.cache/pypoetry
-RUN poetry install --only main
+RUN poetry install --only main --no-root
 
 COPY manage.py .
 COPY backend backend
