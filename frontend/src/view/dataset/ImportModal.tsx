@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import styles from './dataset.module.scss'
 import { ImportDataset } from '@/service/dataset';
-import { IoCloseOutline } from 'react-icons/io5';
 import { IonButton, IonCheckbox, IonIcon, IonSearchbar, IonSpinner, SearchbarInputEventDetail } from '@ionic/react';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { cloudUploadOutline } from 'ionicons/icons';
+import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 
 export const ImportDatasetModal: React.FC<{
   onClose: () => void,
@@ -60,17 +60,13 @@ export const ImportDatasetModal: React.FC<{
   }
 
   return (
-    <div role="dialog"
-         className={ styles.importModal }>
-
-      <div className={ styles.header }>
-        <h3>Import a dataset</h3>
-        <IoCloseOutline onClick={ isLoading ? undefined : onClose } className={ styles.iconClose }/>
-      </div>
+    <Modal onClose={ onClose } className={ styles.importModal }>
+      <ModalHeader title='Import a dataset'
+                   onClose={ onClose }/>
 
       <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
 
-      <Table columns={ 1 } className={ styles.table }>
+      <Table columns={ 1 } className={ styles.importModalTable }>
         <TableHead isFirstColumn={ true }>
           <div className={ styles.item } onClick={ toggleSelectAllDatasets }>
             <IonCheckbox checked={ selectAllDatasets } disabled={ isLoading }/>
@@ -92,14 +88,16 @@ export const ImportDatasetModal: React.FC<{
         </Fragment>) }
       </Table>
 
-      <div className={ styles.buttons }>
+
+
+      <ModalFooter className={ styles.buttons }>
         { isLoading && <IonSpinner/> }
         <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
         <IonButton onClick={ doImport } disabled={ isLoading } color='primary' fill='solid'>
           <IonIcon slot='start' icon={ cloudUploadOutline }/>
           Import datasets into APLOSE
         </IonButton>
-      </div>
-    </div>
+      </ModalFooter>
+    </Modal>
   )
 }
