@@ -1,0 +1,45 @@
+
+.modalBackdrop {
+  font-family: var(--ion-font-family), sans-serif;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(var(--ion-color-dark-rgb), 0.15);
+
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--ion-color-light);
+    border-radius: 2rem;
+    box-shadow: var(--aplose-box-shadow);
+    padding: 2rem;
+    display: grid;
+    gap: 1rem;
+    min-width: 42rem;
+    max-height: 80%;
+    overflow: hidden;
+
+    .header {
+      display: grid;
+      grid-auto-flow: column;
+      justify-content: space-between;
+      align-items: center;
+
+      .icon {
+        font-size: 2rem;
+        color: var(--ion-color-medium);
+        cursor: pointer;
+      }
+    }
+
+    .footer {
+      display: grid;
+      grid-auto-flow: column;
+      justify-content: space-between;
+    }
+  }
+}
