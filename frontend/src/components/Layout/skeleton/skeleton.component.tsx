@@ -11,7 +11,7 @@ export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children })
 
       <Navbar/>
 
-      <div>
+      <div style={{ display: 'grid', alignItems: 'start'}}>
         { children }
       </div>
 

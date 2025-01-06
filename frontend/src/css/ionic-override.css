@@ -321,3 +321,9 @@ ion-progress-bar::part(progress)::after {
     right: 0;
     transform: translateX(100%);
 }
+
+
+ion-spinner {
+    justify-self: center;
+        align-self: center;
+}
