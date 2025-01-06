@@ -279,6 +279,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         queryset=ConfidenceIndicator.objects.all(),
         slug_field="label",
         required=False,
+        allow_null=True,
     )
     annotator = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=False, allow_null=True
@@ -336,6 +337,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
                     queryset=campaign.confidence_indicator_set.confidence_indicators,
                     slug_field="label",
                     required=True,
+                    allow_null=False,
                 )
 
         if file is not None:
@@ -416,7 +418,6 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             validated_data.pop("validations", []), many=True
         ).data
 
-        print(" > ", validated_data)
         initial_detector_config = validated_data.get("detector_configuration", None)
         if initial_detector_config is not None:
             validated_data[
@@ -426,9 +427,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()
 
-        print("update", instance, validated_data)
         instance = super().update(instance, validated_data)
-        print("did update", vars(instance))
 
         # Comments
         instance_comments = AnnotationComment.objects.filter(

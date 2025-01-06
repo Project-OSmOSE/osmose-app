@@ -40,11 +40,11 @@ class CreateTestCase(TestCase):
     fixtures = all_fixtures
     maxDiff = None  # See all differences on failed tests
 
-    def _get_serializer(self, data):
+    def _get_serializer(self, data, campaign_id=1):
         return AnnotationResultSerializer(
             data=data,
             context={
-                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "campaign": AnnotationCampaign.objects.get(pk=campaign_id),
                 "file": DatasetFile.objects.get(pk=9),
             },
         )
@@ -96,7 +96,7 @@ class CreateTestCase(TestCase):
                 "label": None,
                 "dataset_file": None,
                 "annotation_campaign": None,
-                "confidence_indicator": None,  # Cannot be null since campaign as a confidence indicator set
+                "confidence_indicator": None,  # Cannot be null since campaign has a confidence indicator set
             }
         )
         self.assertFalse(serializer.is_valid(raise_exception=False))
@@ -113,6 +113,16 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
         self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
+
+    def test_null_confidence_in_campaign_without_confidence(self):
+        serializer = self._get_serializer(
+            {
+                "confidence_indicator": None,  # Can be null since campaign has no confidence indicator set
+            },
+            campaign_id=2,
+        )
+        self.assertFalse(serializer.is_valid(raise_exception=False))
+        self.assertNotIn("confidence_indicator", list(serializer.errors.keys()))
 
     def test_does_not_exist(self):
         serializer = self._get_serializer(
@@ -186,12 +196,12 @@ class UpdateTestCase(CreateTestCase):
     def tearDown(self):
         self.instance.delete()
 
-    def _get_serializer(self, data):
+    def _get_serializer(self, data, campaign_id=1):
         return AnnotationResultSerializer(
             instance=self.instance,
             data=data,
             context={
-                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "campaign": AnnotationCampaign.objects.get(pk=campaign_id),
                 "file": DatasetFile.objects.get(pk=9),
             },
         )

@@ -116,7 +116,6 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         data = AnnotationResultViewSet.map_request_results(
             new_results, campaign.id, file.id, user_id
         )
-        print(">> data", data)
         current_results = AnnotationResultViewSet.queryset.filter(
             annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
