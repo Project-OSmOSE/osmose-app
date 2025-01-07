@@ -13,7 +13,7 @@ import { Pagination } from "@/components/Pagination/Pagination.tsx";
 export const DetailPageAnnotationTasks: React.FC<{
   campaign: AnnotationCampaign;
   isOwner: boolean;
-}> = ({ campaign, isOwner }) => {
+}> = ({ campaign, }) => {
   const history = useHistory();
   const [ page, setPage ] = useState<number>(1);
   const [ search, setSearch ] = useState<string | undefined>();
@@ -99,7 +99,7 @@ export const DetailPageAnnotationTasks: React.FC<{
           }) }
 
         </Table>
-        
+
         <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/>
     </Fragment> }
 

@@ -4,11 +4,11 @@ import { IonButton } from "@ionic/react";
 export const BackButton: React.FC<{ campaignID: string | number }> = ({ campaignID }) => {
 
   const open = () => {
-    window.open(`/app/annotation-campaign/${ campaignID }/file`, "_self")
+    window.open(`/app/annotation-campaign/${ campaignID }`, "_self")
   }
 
   const openAux = () => {
-    window.open(`/app/annotation-campaign/${ campaignID }/file`, "_blank")
+    window.open(`/app/annotation-campaign/${ campaignID }`, "_blank")
   }
 
   return <IonButton color="danger"

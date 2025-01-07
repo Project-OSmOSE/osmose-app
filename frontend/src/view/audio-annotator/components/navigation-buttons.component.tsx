@@ -96,7 +96,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
       if (next_file_id.current) {
         history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
       } else {
-        history.push(`/annotation-campaign/${ campaignID }/file`)
+        history.push(`/annotation-campaign/${ campaignID }`)
       }
     } catch (e: any) {
       toast.presentError(getErrorMessage(e))

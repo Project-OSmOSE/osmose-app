@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonBadge, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
+import { IonBadge, IonIcon, IonProgressBar } from '@ionic/react';
 import { crop } from "ionicons/icons";
 import { AnnotationCampaign } from '@/service/campaign';
 import './campaign-card.component.css';
@@ -37,11 +37,10 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
     }
   }, [ state ]);
 
-  const manage = () => history.push(`/annotation-campaign/${ campaign.id }`);
-  const annotate = () => history.push(`/annotation-campaign/${ campaign.id }/file`);
+  const accessDetail = () => history.push(`/annotation-campaign/${ campaign.id }`);
 
   return (
-    <div className="campaign-card">
+    <div className="campaign-card" onClick={ accessDetail }>
 
       <div id="head">
         { state === State.open && <IonBadge color="secondary">Open</IonBadge> }
@@ -79,14 +78,6 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
           <IonProgressBar color="medium"
                           value={ campaign.progress / campaign.total }/>
       </div> }
-
-      <div id="buttons" className={ campaign.my_total > 0 ? '' : 'fill' }>
-        <IonButton fill="outline" onClick={ manage }>
-          { campaign.archive ? "Info" : "Manage" }
-        </IonButton>
-        { !campaign.archive && campaign.my_total > 0 &&
-            <IonButton fill="solid" onClick={ annotate }>Annotate</IonButton> }
-      </div>
     </div>
   );
 }

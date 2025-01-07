@@ -18,12 +18,11 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 import { Provider } from "react-redux";
 import { AppStore } from "@/service/app";
 import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
-import { AnnotationCampaignDetail } from "@/view/campaign/detail/annotation-campaign-detail.page.tsx";
-import { AnnotationTaskList } from "@/view/campaign/tasks-list/campaign-task-list.page.tsx";
 import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
+import { CampaignDetail } from '@/view/campaign/new-detail/DetailPage.tsx';
 
 const Home = lazy(() => import("@/view/home/home.page.tsx"));
 
@@ -58,9 +57,7 @@ export const App: React.FC = () => {
                   <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
                 </AuthenticatedRoute>
                 <AuthenticatedRoute exact
-                                    path='/annotation-campaign/:id'><AnnotationCampaignDetail/></AuthenticatedRoute>
-                <AuthenticatedRoute exact
-                                    path='/annotation-campaign/:id/file'><AnnotationTaskList/></AuthenticatedRoute>
+                                    path='/annotation-campaign/:id'><CampaignDetail/></AuthenticatedRoute>
                 <Route path="**"><Redirect to="/annotation-campaign"/></Route>
               </Switch>
             </AploseSkeleton>
