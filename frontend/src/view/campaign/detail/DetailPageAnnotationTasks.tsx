@@ -53,6 +53,7 @@ export const DetailPageAnnotationTasks: React.FC<{
       setNonSubmittedFilter(undefined)
     else
       setNonSubmittedFilter(true)
+    setPage(1)
   }
 
   function toggleWithAnnotationsFilter() {
@@ -60,6 +61,7 @@ export const DetailPageAnnotationTasks: React.FC<{
       setWithAnnotationsFilter(undefined)
     else
       setWithAnnotationsFilter(true)
+    setPage(1)
   }
 
 

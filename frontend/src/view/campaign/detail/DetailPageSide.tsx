@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { AnnotationCampaign } from "@/service/campaign";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { AnnotationCampaign, useArchiveCampaignMutation } from "@/service/campaign";
+import { IonButton, IonIcon, IonSpinner, useIonAlert } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
 import { FadedText } from "@/components/ui";
 import styles from "./Detail.module.scss";
@@ -17,6 +17,8 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
     data: confidenceSet,
     isLoading: isLoadingConfidenceSet
   } = useRetrieveConfidenceSetQuery(campaign.confidence_indicator_set ?? -1, { skip: !campaign.confidence_indicator_set });
+  const [ archiveCampaign ] = useArchiveCampaignMutation()
+  const [ presentAlert ] = useIonAlert();
 
   const [ isSpectrogramModalOpen, setIsSpectrogramModalOpen ] = useState<boolean>(false);
   const [ isAudioModalOpen, setIsAudioModalOpen ] = useState<boolean>(false);
@@ -40,11 +42,30 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
     setIsProgressModalOpen(isOpen => !isOpen);
   }
 
+  async function archive() {
+    if (campaign.progress < campaign.total) {
+      // If annotators haven't finished yet, ask for confirmation
+      return await presentAlert({
+        header: 'Archive',
+        message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
+        cssClass: 'danger-confirm-alert',
+        buttons: [
+          'Cancel',
+          {
+            text: 'Archive',
+            cssClass: 'ion-color-danger',
+            handler: () => archiveCampaign(campaign.id)
+          }
+        ]
+      });
+    } else archiveCampaign(campaign.id)
+  }
+
   return <div className={ styles.side }>
 
     { (isOwner || campaign.instructions_url) && (
       <div className={ [ styles.bloc, styles.last ].join(' ') }>
-        { isOwner && <IonButton color='medium' fill='outline'>
+        { isOwner && <IonButton color='medium' fill='outline' onClick={ archive }>
             <IonIcon icon={ archiveOutline } slot='start'/>
             Archive
         </IonButton> }
