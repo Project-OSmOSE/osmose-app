@@ -1,4 +1,6 @@
 """Util filters"""
+from typing import Optional
+
 from django.core.exceptions import FieldError
 from rest_framework import filters
 from rest_framework.request import Request
@@ -17,11 +19,11 @@ class ModelFilter(filters.BaseFilterBackend):
         return _queryset
 
 
-def get_boolean_query_param(request: Request, label: str) -> bool:
+def get_boolean_query_param(request: Request, label: str) -> Optional[bool]:
     """Recover boolean query param as bool"""
     param = request.query_params.get(label)
     if param is None:
-        return False
+        return None
     if isinstance(param, bool):
         return param
     if isinstance(param, str):

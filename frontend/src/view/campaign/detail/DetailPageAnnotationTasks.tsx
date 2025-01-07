@@ -1,7 +1,7 @@
 import React, { Fragment, KeyboardEvent, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
-import { IonButton, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
+import { IonButton, IonChip, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline } from "ionicons/icons";
 import { Link, useHistory } from "react-router-dom";
@@ -17,11 +17,15 @@ export const DetailPageAnnotationTasks: React.FC<{
   const history = useHistory();
   const [ page, setPage ] = useState<number>(1);
   const [ search, setSearch ] = useState<string | undefined>();
+  const [ nonSubmittedFilter, setNonSubmittedFilter ] = useState<true | undefined>();
+  const [ withAnnotationsFilter, setWithAnnotationsFilter ] = useState<true | undefined>();
 
   const { data: files, isLoading, error } = useListFilesWithPaginationQuery({
     campaignID: campaign.id,
     page,
-    search
+    search,
+    isSubmitted: nonSubmittedFilter === undefined ? undefined : false,
+    withUserAnnotations: withAnnotationsFilter
   }, { refetchOnMountOrArgChange: true });
   const maxPage = useMemo(() => {
     if (!files) return 1;
@@ -44,6 +48,20 @@ export const DetailPageAnnotationTasks: React.FC<{
     history.push(`/annotation-campaign/${ campaign.id }/file/${ files?.resume }`);
   }
 
+  function toggleNonSubmittedFilter() {
+    if (nonSubmittedFilter)
+      setNonSubmittedFilter(undefined)
+    else
+      setNonSubmittedFilter(true)
+  }
+
+  function toggleWithAnnotationsFilter() {
+    if (withAnnotationsFilter)
+      setWithAnnotationsFilter(undefined)
+    else
+      setWithAnnotationsFilter(true)
+  }
+
 
   return <Fragment>
     <div className={ styles.tasksActionBar }>
@@ -59,7 +77,20 @@ export const DetailPageAnnotationTasks: React.FC<{
         <IonIcon icon={ playOutline } slot="end"/>
       </IonButton>
 
-      {/* TODO: Add filters */ }
+      <div className={ styles.filters }>
+        <IonChip outline={ !nonSubmittedFilter }
+                 onClick={ toggleNonSubmittedFilter }
+                 color={ nonSubmittedFilter ? 'primary' : 'medium' }>
+          Non submitted
+          { nonSubmittedFilter && <IonIcon icon={ checkmarkCircle } color='primary'/> }
+        </IonChip>
+        <IonChip outline={ !withAnnotationsFilter }
+                 onClick={ toggleWithAnnotationsFilter }
+                 color={ withAnnotationsFilter ? 'primary' : 'medium' }>
+          With annotations
+          { withAnnotationsFilter && <IonIcon icon={ checkmarkCircle } color='primary'/> }
+        </IonChip>
+      </div>
     </div>
 
     { isLoading && <IonSpinner/> }
@@ -100,7 +131,7 @@ export const DetailPageAnnotationTasks: React.FC<{
 
         </Table>
 
-        <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/>
+      { files.results.length > 0 && <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/>}
     </Fragment> }
 
   </Fragment>

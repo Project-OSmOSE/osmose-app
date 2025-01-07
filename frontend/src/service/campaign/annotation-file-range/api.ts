@@ -26,10 +26,14 @@ export const AnnotationFileRangeAPI = createApi({
       campaignID?: ID,
       page: number,
       search?: string,
+      withUserAnnotations?: boolean,
+      isSubmitted?: boolean,
     }>({
-      query: ({ campaignID, page, search }) => {
+      query: ({ campaignID, page, search, withUserAnnotations, isSubmitted }) => {
         const params: any = { page, page_size: FILES_PAGE_SIZE }
         if (search) params['search'] = search;
+        if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
+        if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
         return `campaign/${ campaignID }/files/${ encodeQueryParams(params) }`;
       },
     }),

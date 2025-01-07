@@ -95,6 +95,63 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         # Check if non-staff user is owner of all campaigns where changes are requested
         return required_campaigns.count() == required_owned_campaigns.count()
 
+    def filter_files_list_on_search(self, files: list[any]) -> list[any]:
+        search = self.request.query_params.get("search")
+        if search is None:
+            return files
+        return list(filter(lambda file: search in file.filename, files))
+
+    def filter_files_list_on_current_user_annotations(
+        self, files: list[any], campaign_id: int
+    ) -> list[any]:
+        with_user_annotations = get_boolean_query_param(
+            self.request, "with_user_annotations"
+        )
+        if with_user_annotations is None:
+            return files
+
+        current_annotator_results_files_id = (
+            AnnotationResult.objects.filter(
+                Q(annotator_id=self.request.user.id)
+                | Q(detector_configuration__isnull=False)
+            )
+            .filter(
+                annotation_campaign__id=campaign_id,
+                dataset_file__in=files,
+            )
+            .values_list("dataset_file_id", flat=True)
+        )
+
+        if with_user_annotations:
+            return list(
+                filter(
+                    lambda file: file.id in current_annotator_results_files_id, files
+                )
+            )
+        return list(
+            filter(
+                lambda file: file.id not in current_annotator_results_files_id, files
+            )
+        )
+
+    def filter_files_list_on_submission_status(
+        self, files: list[any], campaign_id: int
+    ) -> list[any]:
+        is_submitted = get_boolean_query_param(self.request, "is_submitted")
+        if is_submitted is None:
+            return files
+
+        submitted_tasks_files_id = AnnotationTask.objects.filter(
+            annotation_campaign_id=campaign_id,
+            annotator_id=self.request.user.id,
+            dataset_file_id__in=[f.id for f in files],
+            status=AnnotationTask.Status.FINISHED,
+        ).values_list("dataset_file_id", flat=True)
+
+        if is_submitted:
+            return list(filter(lambda file: file.id in submitted_tasks_files_id, files))
+        return list(filter(lambda file: file.id not in submitted_tasks_files_id, files))
+
     @action(
         methods=["GET"],
         detail=False,
@@ -110,9 +167,10 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         for file_range in queryset:
             files.extend(file_range.get_files())
 
-        search = request.query_params.get("search")
-        if search is not None:
-            files = list(filter(lambda file: search in file.filename, files))
+        files = self.filter_files_list_on_search(files)
+        files = self.filter_files_list_on_submission_status(files, campaign_id)
+        files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
+
         files = self.paginate_queryset(files) or []
         files = DatasetFile.objects.filter(id__in=[file.id for file in files]).annotate(
             is_submitted=Exists(

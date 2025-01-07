@@ -106,7 +106,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         end = attrs["end_datetime"]
         dataset_files = dataset.get_files(start, end)
         if not dataset_files:
-            if self.context["force"]:
+            if "force" in self.context and self.context["force"]:
                 return None
             raise serializers.ValidationError(
                 "This start and end datetime does not belong to any file of the dataset",
