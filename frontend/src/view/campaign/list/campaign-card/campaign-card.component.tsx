@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonBadge, IonIcon, IonProgressBar } from '@ionic/react';
+import { IonBadge, IonIcon } from '@ionic/react';
 import { crop } from "ionicons/icons";
 import { AnnotationCampaign } from '@/service/campaign';
+import { Progress } from "@/components/ui/Progress.tsx";
 import './campaign-card.component.css';
 
 interface Props {
@@ -58,26 +59,13 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
         <p>{ campaign.usage }</p>
       </div>
 
-      { campaign.my_total > 0 && <div className="my progression">
-          <p>
-          <span className="progress-label">
-            My progress:
-          </span> <span className={ "progress-value ion-color-" + color }>
-            { campaign.my_progress }&nbsp;/&nbsp;{ campaign.my_total }
-          </span>
-          </p>
-          <IonProgressBar color={ color }
-                          value={ campaign.my_progress / campaign.my_total }/>
-      </div> }
-      { campaign.total > 0 && <div className="progression">
-          <p>
-          <span className="progress-label">
-            Campaign progress: { campaign.progress }&nbsp;/&nbsp;{ campaign.total }
-          </span>
-          </p>
-          <IonProgressBar color="medium"
-                          value={ campaign.progress / campaign.total }/>
-      </div> }
+      { campaign.my_total > 0 && <Progress label='My progress' color={ color }
+                                           value={ campaign.my_progress }
+                                           total={ campaign.my_total }/> }
+
+      { campaign.my_total > 0 && <Progress label='Global progress'
+                                           value={ campaign.progress }
+                                           total={ campaign.total }/> }
     </div>
   );
 }
