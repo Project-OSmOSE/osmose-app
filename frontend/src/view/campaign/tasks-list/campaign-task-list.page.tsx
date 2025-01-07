@@ -1,5 +1,5 @@
 import React, { KeyboardEvent, useEffect, useMemo, useState } from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
 import { IonButton, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
 import { checkmarkOutline, helpBuoyOutline, informationCircle, playOutline } from "ionicons/icons";
@@ -16,7 +16,6 @@ export const AnnotationTaskList: React.FC = () => {
   const [ search, setSearch ] = useState<string | undefined>();
 
   // Services
-  const history = useHistory();
   const toast = useToast();
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
   const { data: files, error } = useListFilesWithPaginationQuery({

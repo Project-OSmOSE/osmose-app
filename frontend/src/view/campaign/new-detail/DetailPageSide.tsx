@@ -41,9 +41,18 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
   }
 
   return <div className={ styles.side }>
-    { campaign.instructions_url && <IonButton color="warning" fill="outline" onClick={ openInstructions }>
-        <IonIcon icon={ helpBuoyOutline } slot="start"/> Instructions
-    </IonButton> }
+
+    { (isOwner || campaign.instructions_url) && (
+      <div className={ [ styles.bloc, styles.last ].join(' ') }>
+        { isOwner && <IonButton color='medium' fill='outline'>
+            <IonIcon icon={ archiveOutline } slot='start'/>
+            Archive
+        </IonButton> }
+        { campaign.instructions_url && <IonButton color="warning" fill="outline" onClick={ openInstructions }>
+            <IonIcon icon={ helpBuoyOutline } slot="start"/> Instructions
+        </IonButton> }
+      </div>
+    ) }
 
     <div className={ styles.bloc }>
       { campaign.deadline && <div><FadedText>Deadline</FadedText><p>{ campaign.deadline }</p></div> }
@@ -110,15 +119,6 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
                        onClose={ toggleProgressModal }/>,
         document.body) }
     </div>
-
-    { isOwner && (
-      <div className={ [styles.bloc, styles.last].join(' ') }>
-        <IonButton color='medium' fill='outline'>
-          <IonIcon icon={ archiveOutline } slot='start'/>
-          Archive
-        </IonButton>
-      </div>
-    ) }
 
   </div>
 }

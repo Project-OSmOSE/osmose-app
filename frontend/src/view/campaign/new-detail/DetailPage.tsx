@@ -8,6 +8,7 @@ import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { DetailPageSide } from "@/view/campaign/new-detail/DetailPageSide.tsx";
 import { useToast } from "@/services/utils/toast.ts";
+import { DetailPageAnnotationTasks } from "@/view/campaign/new-detail/DetailPageAnnotationTasks.tsx";
 
 export const CampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -43,6 +44,8 @@ export const CampaignDetail: React.FC = () => {
         </div>
 
         { campaign.desc && <div><FadedText>Description</FadedText><p>{ campaign.desc }</p></div> }
+
+        <DetailPageAnnotationTasks campaign={ campaign } isOwner={ isOwner }/>
 
       </div>
 

@@ -2,7 +2,9 @@
   font-family: var(--ion-font-family), sans-serif;
   display: grid;
   grid-template-columns: 1fr auto;
+  gap: 2rem;
   height: 100%;
+  position: relative;
 
   .main {
     display: grid;
@@ -25,14 +27,29 @@
     .bloc {
       display: grid;
       gap: 0.5rem;
-
-      &.last {
-        align-content: end;
-      }
     }
 
     p {
       line-height: 0.95rem;
+    }
+  }
+
+  .tasksActionBar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+
+    .search {
+      justify-self: start;
+      width: auto;
+    }
+  }
+
+  .filesTable {
+
+    .statusIcon {
+      justify-self: center;
     }
   }
 }

@@ -29,15 +29,17 @@ interface CellProps {
   isFirstColumn?: boolean;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export const TableHead: React.FC<CellProps> = ({
                                                  children,
                                                  isFirstColumn,
                                                  onClick,
-                                                 className
+                                                 className,
+                                                 disabled,
                                                }) => (
-  <div className={ `table-head ${ isFirstColumn ? 'first' : '' } ${ className ?? '' }` }
+  <div className={ `table-head ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
        onClick={ onClick }>
     { children }
   </div>
@@ -47,9 +49,10 @@ export const TableContent: React.FC<CellProps> = ({
                                                     children,
                                                     isFirstColumn,
                                                     onClick,
-                                                    className
+                                                    className,
+                                                    disabled,
                                                   }) => (
-  <div className={ `table-content ${ isFirstColumn ? 'first' : '' } ${ className ?? '' }` }
+  <div className={ `table-content ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
        onClick={ onClick }>
     { children }
   </div>
