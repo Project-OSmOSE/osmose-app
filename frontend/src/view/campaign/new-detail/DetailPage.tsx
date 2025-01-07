@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import styles from './Detail.module.scss'
 import { useParams } from 'react-router-dom';
 import { AnnotationCampaign, useRetrieveCampaignQuery } from '@/service/campaign';
-import { getDisplayName } from '@/service/user';
+import { getDisplayName, useGetCurrentUserQuery } from '@/service/user';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -16,6 +16,10 @@ export const CampaignDetail: React.FC = () => {
     isLoading: isLoadingCampaign,
     error: errorLoadingCampaign
   } = useRetrieveCampaignQuery(campaignID);
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const isOwner = useMemo(() => {
+    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
+  }, [ currentUser, campaign?.owner ]);
 
   const toast = useToast();
 
@@ -42,7 +46,7 @@ export const CampaignDetail: React.FC = () => {
 
       </div>
 
-      <DetailPageSide campaign={ campaign }/>
+      <DetailPageSide campaign={ campaign } isOwner={ isOwner }/>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
@@ -6,14 +6,12 @@ import { FadedText } from "@/components/ui";
 import styles from "./Detail.module.scss";
 import { createPortal } from "react-dom";
 import { AudioMetadataModal, ProgressModal, SpectrogramConfigurationsModal } from "./modals";
-import { useGetCurrentUserQuery } from "@/service/user";
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
 import { Progress } from "@/components/ui/Progress.tsx";
 
-export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign }> = ({ campaign }) => {
+export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: boolean }> = ({ campaign, isOwner }) => {
 
-  const { data: currentUser } = useGetCurrentUserQuery();
   const { data: labelSet, isLoading: isLoadingLabelSet } = useRetrieveLabelSetQuery(campaign.label_set);
   const {
     data: confidenceSet,
@@ -24,9 +22,6 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign }> = ({ cam
   const [ isAudioModalOpen, setIsAudioModalOpen ] = useState<boolean>(false);
   const [ isProgressModalOpen, setIsProgressModalOpen ] = useState<boolean>(false);
 
-  const isOwner = useMemo(() => {
-    return currentUser?.is_staff || currentUser?.is_superuser || campaign.owner === currentUser?.username
-  }, [ currentUser, campaign.owner ]);
 
   function openInstructions() {
     if (!campaign.instructions_url) return;
