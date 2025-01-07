@@ -15,7 +15,10 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "jest",
-    "test:playwright": "concurrently --kill-others -s=first \"npm run run:all\" \"npm run wait:server && npx playwright test -c ./playwright.config.ts ./tests/front\""
+    "test:playwright": "concurrently --kill-others -s=first \"npm run run:all\" \"npm run wait:server && npx playwright test -c ./playwright.config.ts ./tests/front\"",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@ionic/react": "^7.6.2",
@@ -66,6 +69,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
+    "vitepress": "^1.5.0",
     "wait-on": "^8.0.1"
   }
 }

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
-import { addOutline, closeCircle, helpBuoyOutline, swapHorizontal } from "ionicons/icons";
-import { ANNOTATOR_GUIDE_URL } from "@/consts/links.ts";
+import { addOutline, closeCircle, swapHorizontal } from "ionicons/icons";
 import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import styles from './annotation-campaign-list.module.scss'
@@ -47,10 +46,6 @@ export const AnnotationCampaignList: React.FC = () => {
   useEffect(() => {
     if (error) presentError(getErrorMessage(error));
   }, [ error ]);
-
-  const openGuide = () => {
-    window.open(ANNOTATOR_GUIDE_URL, "_blank", "noopener, noreferrer")
-  }
 
   const openNewCampaign = () => {
     window.open("/app/annotation-campaign/create", "_self")
@@ -102,11 +97,6 @@ export const AnnotationCampaignList: React.FC = () => {
         </div>
 
         <div className={ styles.buttons }>
-          <IonButton color="warning" shape="round" fill="outline" onClick={ openGuide }>
-            User guide
-            <IonIcon icon={ helpBuoyOutline } slot="end"/>
-          </IonButton>
-
           <IonButton color="primary" onClick={ openNewCampaign }>
             <IonIcon icon={ addOutline } slot="start"/>
             New annotation campaign
