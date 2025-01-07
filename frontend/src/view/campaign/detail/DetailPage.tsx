@@ -6,9 +6,9 @@ import { getDisplayName, useGetCurrentUserQuery } from '@/service/user';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
-import { DetailPageSide } from "@/view/campaign/new-detail/DetailPageSide.tsx";
+import { DetailPageSide } from "./DetailPageSide.tsx";
 import { useToast } from "@/services/utils/toast.ts";
-import { DetailPageAnnotationTasks } from "@/view/campaign/new-detail/DetailPageAnnotationTasks.tsx";
+import { DetailPageAnnotationTasks } from "./DetailPageAnnotationTasks.tsx";
 
 export const CampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();

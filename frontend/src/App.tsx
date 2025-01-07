@@ -22,7 +22,7 @@ import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
 import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
-import { CampaignDetail } from '@/view/campaign/new-detail/DetailPage.tsx';
+import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 
 const Home = lazy(() => import("@/view/home/home.page.tsx"));
 
