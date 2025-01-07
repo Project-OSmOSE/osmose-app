@@ -1,3 +1,7 @@
+export {
+  FadedText,
+  WarningText,
+} from './Text'
 
 export {
   Modal,

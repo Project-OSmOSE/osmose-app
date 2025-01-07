@@ -27,7 +27,7 @@ export const CampaignAPI = createApi({
     downloadReport: builder.query<undefined, AnnotationCampaign>({
       query: (campaign) => ({
         url: `${ campaign.id }/report/${ encodeQueryParams({
-          filename: campaign.name.replace(' ', '_') + '_results.csv',
+          filename: campaign.name.replaceAll(' ', '_') + '_results.csv',
         }) }`,
         responseHandler: downloadResponseHandler
       }),
@@ -35,7 +35,7 @@ export const CampaignAPI = createApi({
     downloadStatus: builder.mutation<void, AnnotationCampaign>({
       query: (campaign) => ({
         url: `${ campaign.id }/report-status/${ encodeQueryParams({
-          filename: campaign.name.replace(' ', '_') + '_status.csv',
+          filename: campaign.name.replaceAll(' ', '_') + '_status.csv',
         }) }`,
         responseHandler: downloadResponseHandler
       }),

@@ -38,11 +38,11 @@
 }
 
 #campaign-detail-global-info .item .label,
-#campaign-detail-global-info .description .label {
+#campaign-detail-global-info .faded .label {
     font-weight: 300;
 }
 
-#campaign-detail-global-info .description {
+#campaign-detail-global-info .faded {
     grid-column: 1 / 3;
 }
 

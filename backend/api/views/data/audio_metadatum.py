@@ -31,6 +31,7 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
     def export(self, request):
         """Export queryset as CSV"""
         queryset: QuerySet[AudioMetadatum] = self.filter_queryset(self.get_queryset())
+        print("export", request.query_params, queryset)
         filename = (
             request.query_params["filename"]
             if "filename" in request.query_params
@@ -59,11 +60,16 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
             metadatum_data = []
             for label in header:
                 if label == "dataset":
+                    all_datasets = metadatum.dataset_set
+                    if "dataset__annotation_campaigns" in request.query_params:
+                        all_datasets = all_datasets.filter(
+                            annotation_campaigns__in=request.query_params.get(
+                                "dataset__annotation_campaigns", []
+                            )
+                        )
                     metadatum_data.append(
                         '"'
-                        + str(
-                            list(metadatum.dataset_set.values_list("name", flat=True))
-                        )
+                        + str(list(all_datasets.values_list("name", flat=True)))
                         + '"'
                     )
                 elif label == "files_subtypes":

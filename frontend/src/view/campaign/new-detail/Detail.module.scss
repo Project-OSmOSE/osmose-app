@@ -1,0 +1,38 @@
+.page {
+  font-family: var(--ion-font-family), sans-serif;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  height: 100%;
+
+  .main {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+
+    .header {
+      display: grid;
+      align-items: center;
+      justify-items: center;
+    }
+  }
+
+  .side {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+    grid-template-rows: repeat(5, auto) 1fr;
+
+    .bloc {
+      display: grid;
+      gap: 0.5rem;
+
+      &.last {
+        align-content: end;
+      }
+    }
+
+    p {
+      line-height: 0.95rem;
+    }
+  }
+}

@@ -1,4 +1,28 @@
 
+.fadedText {
+  color: rgba(var(--ion-color-medium-rgb), 0.5);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.warningText {
+  justify-self: center;
+  align-self: center;
+
+  display: grid;
+  justify-items: center;
+  color: var(--ion-color-danger);
+  border: 2px solid var(--ion-color-danger);
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem;
+  gap: 0.5rem;
+  text-align: center;
+
+  .icon {
+    font-size: 2rem;
+  }
+}
+
 .modalBackdrop {
   font-family: var(--ion-font-family), sans-serif;
   position: fixed;
@@ -21,7 +45,13 @@
     gap: 1rem;
     min-width: 42rem;
     max-height: 80%;
+    max-width: 80%;
     overflow: hidden;
+
+    > * {
+      max-width: 100%;
+      overflow: hidden;
+    }
 
     .header {
       display: grid;
@@ -41,5 +71,14 @@
       grid-auto-flow: column;
       justify-content: space-between;
     }
+  }
+}
+
+.progress {
+  display: grid;
+  gap: 0.25rem;
+
+  span[class^=ion-color-] {
+    color: var(--ion-color-base);
   }
 }

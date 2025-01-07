@@ -28,14 +28,16 @@ interface CellProps {
   children?: ReactNode;
   isFirstColumn?: boolean;
   onClick?: () => void;
+  className?: string;
 }
 
 export const TableHead: React.FC<CellProps> = ({
                                                  children,
                                                  isFirstColumn,
                                                  onClick,
+                                                 className
                                                }) => (
-  <div className={ `table-head ${ isFirstColumn ? 'first' : '' }` }
+  <div className={ `table-head ${ isFirstColumn ? 'first' : '' } ${ className ?? '' }` }
        onClick={ onClick }>
     { children }
   </div>
@@ -45,8 +47,9 @@ export const TableContent: React.FC<CellProps> = ({
                                                     children,
                                                     isFirstColumn,
                                                     onClick,
+                                                    className
                                                   }) => (
-  <div className={ `table-content ${ isFirstColumn ? 'first' : '' }` }
+  <div className={ `table-content ${ isFirstColumn ? 'first' : '' } ${ className ?? '' }` }
        onClick={ onClick }>
     { children }
   </div>

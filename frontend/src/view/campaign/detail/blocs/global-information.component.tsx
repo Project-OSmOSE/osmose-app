@@ -121,7 +121,7 @@ export const DetailCampaignGlobalInformation: React.FC<Props> = ({
         </Fragment> }
       </div>
 
-      { campaign?.desc && <div className="description">
+      { campaign?.desc && <div className="faded">
           <p className="label">Description:</p>
           <p>{ campaign?.desc }</p>
       </div> }

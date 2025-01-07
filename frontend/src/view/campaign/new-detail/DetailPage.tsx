@@ -1,0 +1,62 @@
+import React, { useEffect, useMemo } from 'react';
+import styles from './Detail.module.scss'
+import { useParams } from 'react-router-dom';
+import { AnnotationCampaign, useRetrieveCampaignQuery } from '@/service/campaign';
+import { getDisplayName } from '@/service/user';
+import { IonSpinner } from "@ionic/react";
+import { FadedText, WarningText } from "@/components/ui";
+import { getErrorMessage } from "@/service/function.ts";
+import { DetailPageSide } from "@/view/campaign/new-detail/DetailPageSide.tsx";
+import { useToast } from "@/services/utils/toast.ts";
+
+export const CampaignDetail: React.FC = () => {
+  const { id: campaignID } = useParams<{ id: string }>();
+  const {
+    data: campaign,
+    isLoading: isLoadingCampaign,
+    error: errorLoadingCampaign
+  } = useRetrieveCampaignQuery(campaignID);
+
+  const toast = useToast();
+
+  useEffect(() => {
+    return () => {
+      toast.dismiss();
+    }
+  }, [ campaign?.id ])
+
+  if (isLoadingCampaign) return <IonSpinner/>
+  if (errorLoadingCampaign) return <WarningText>{ getErrorMessage(errorLoadingCampaign) }</WarningText>
+  if (!campaign) return <WarningText>Fail recovering campaign</WarningText>
+
+  return (
+    <div className={ styles.page }>
+      <div className={ styles.main }>
+
+        <div className={ styles.header }>
+          <h2>{ campaign.name }</h2>
+          <StateDescription campaign={ campaign }/>
+        </div>
+
+        { campaign.desc && <div><FadedText>Description</FadedText><p>{ campaign.desc }</p></div> }
+
+      </div>
+
+      <DetailPageSide campaign={ campaign }/>
+    </div>
+  )
+}
+
+const StateDescription: React.FC<{ campaign: AnnotationCampaign }> = ({ campaign }) => {
+  const archivedDate = useMemo(() => {
+    if (!campaign.archive) return undefined;
+    new Date(campaign.archive.date).toLocaleDateString()
+  }, [ campaign.archive ]);
+
+  if (archivedDate) return <FadedText>
+    Archived on { archivedDate } by { getDisplayName(campaign.archive?.by_user) }
+  </FadedText>
+  else return <FadedText>
+    Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner }
+  </FadedText>
+}
