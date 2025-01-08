@@ -4,6 +4,9 @@ The tool allows to annotate audio files based on their spectrogram, by one or mo
 
 A demo can be viewed [here](https://www.youtube.com/watch?v=nwANvyMx-Wg)
 
+APLOSE uses pre-segmented audio and pre-calculated spectrogram (thanks to the [OSEKit](https://github.com/Project-OSmOSE/OSEkit)).
+Indeed, no calculation are made through APLOSE, which significantly reduces loading time while annotating.
+
 
 ## Login
 You can log into APLOSE [here](/app/login)

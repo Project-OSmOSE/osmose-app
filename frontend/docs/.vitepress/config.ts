@@ -5,6 +5,7 @@ export default defineConfig({
   title: "APLOSE",
   description: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers",
   themeConfig: {
+    outline: "deep",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
@@ -25,6 +26,7 @@ export default defineConfig({
             {
               text: 'Campaign creator',
               items: [
+                { text: 'Generate a dataset', link: '/user/campaign-creator/generate-dataset' },
                 { text: 'Import a dataset', link: '/user/campaign-creator/import-dataset' },
                 { text: 'Create a campaign', link: '/user/campaign-creator/create-campaign' },
                 { text: 'Manage a campaign', link: '/user/campaign-creator/manage-campaign' },
