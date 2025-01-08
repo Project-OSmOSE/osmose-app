@@ -67,7 +67,7 @@ export const AnnotatorsRangeBloc: React.FC = () => {
     <FormBloc label="Annotators">
 
       { draftFileRanges.length > 0 &&
-          <Table columns={ 2 }>
+          <Table columns={ 3 }>
               <TableHead isFirstColumn={ true }>Annotator</TableHead>
               <TableHead>
                   File range
