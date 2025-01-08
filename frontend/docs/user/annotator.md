@@ -156,3 +156,16 @@ If your campaign allows you to, you can specify the confidence level you have on
 ::: tip Coming soon 
 :::
 
+
+## Submit and navigate
+
+The navigation buttons are located below the spectrogram.
+![](../assets/annotator/submit.png)
+
+To save your changes, you must click on the "Submit & load next recording" button once you're done. 
+This will automatically load the next file.
+
+The arrow buttons allows you to navigate between the files
+:::danger Be careful
+The navigation does not save the changes you've made.
+:::
