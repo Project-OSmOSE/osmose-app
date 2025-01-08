@@ -8,7 +8,6 @@ export default defineConfig({
     outline: "deep",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'User', link: '/user' },
       { text: 'Developer', link: '/dev' },
       { text: 'Examples', link: '/markdown-examples' }
@@ -39,7 +38,8 @@ export default defineConfig({
                 { text: 'Administration presentation', link: '/user/administrator/presentation' },
                 { text: 'Manage users', link: '/user/administrator/manage-users' },
               ]
-            }
+            },
+            { text: 'Terminology', link: '/user/terminology' },
           ],
         },
       ],
