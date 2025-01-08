@@ -27,7 +27,7 @@ export const AnnotatorsRangeBloc: React.FC = () => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 }, {refetchOnMountOrArgChange: true})
   const { data: allDatasets } = useListDatasetQuery();
 
   // Memo
