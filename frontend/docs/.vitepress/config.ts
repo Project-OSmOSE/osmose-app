@@ -51,6 +51,7 @@ export default defineConfig({
             {
               text: 'Installation',
               items: [
+                { text: 'Docker', link: '/dev/docker' },
                 { text: 'Initialize the database', link: '/dev/init-database' },
               ]
             },
