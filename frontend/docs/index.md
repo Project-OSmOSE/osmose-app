@@ -4,15 +4,14 @@ layout: home
 
 hero:
   name: "APLOSE"
-  text: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers"
-#  tagline: My great project tagline
+  tagline: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers"
   actions:
     - theme: brand
       text: Start using APLOSE
       link: /user
     - theme: alt
       text: Join development
-      link: /dev
+      link: /dev/docker
 
 features:
   - title: Annotate audio files

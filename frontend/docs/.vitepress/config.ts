@@ -12,8 +12,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'User', link: '/user' },
-      { text: 'Developer', link: '/dev' },
-      { text: 'Examples', link: '/markdown-examples' },
+      { text: 'Developer', link: '/dev/docker' },
       {
         text: packageJSON.version,
         items: [
@@ -56,28 +55,10 @@ export default defineConfig({
         {
           text: 'Developer',
           items: [
-            { text: 'Presentation', link: '/dev/' },
-            {
-              text: 'Installation',
-              items: [
-                { text: 'Docker', link: '/dev/docker' },
-                { text: 'Initialize the database', link: '/dev/init-database' },
-              ]
-            },
-            {
-              text: 'Contribute',
-              items: []
-            }
+            { text: 'Docker installation', link: '/dev/docker' },
           ],
         },
       ],
-      '/markdown-examples': [ {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      } ]
     },
 
     socialLinks: [
