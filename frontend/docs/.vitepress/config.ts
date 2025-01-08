@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
-import packageJSON from '../../../package.json'
+// @ts-ignore
+import packageJSON from '../../../package.json';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -37,7 +38,7 @@ export default defineConfig({
                 { text: 'Import a dataset', link: '/user/campaign-creator/import-dataset' },
                 { text: 'Create a campaign', link: '/user/campaign-creator/create-campaign' },
                 { text: 'Manage a campaign', link: '/user/campaign-creator/manage-campaign' },
-                { text: 'Export results', link: '/user/campaign-creator/export-results' },
+                { text: 'View results', link: '/user/campaign-creator/view-results' },
               ]
             },
             {
