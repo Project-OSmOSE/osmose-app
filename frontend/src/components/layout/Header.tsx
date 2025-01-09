@@ -7,10 +7,13 @@ import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected } from "@/service/auth";
 import { IonButton, IonIcon } from "@ionic/react";
 import { closeOutline, menuOutline } from "ionicons/icons";
+import { useLocation } from "react-router-dom";
 
 export const Header: React.FC = () => {
 
   const isConnected = useAppSelector(selectIsConnected);
+
+  const location = useLocation();
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
 
@@ -32,7 +35,10 @@ export const Header: React.FC = () => {
 
       <div className={ styles.links }>
         <DocumentationButton/>
-        <Link href={ isConnected ? 'aplose' : 'login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>
+
+        { location.pathname === '/' && <Link href={ isConnected ? 'aplose' : 'login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>}
+        { location.pathname !== '/' && <Link href='/app/' size='large'>Home</Link>}
+
         <Link href='/' size='large'>OSmOSE</Link>
 
       </div>

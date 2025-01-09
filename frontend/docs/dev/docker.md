@@ -63,6 +63,8 @@ The `--env-file` is only useful if you  don't use the default environment file: 
 
 It can take some time before the containers have fully started. All the 4 containers should have a "Up" status before continuing. You can check the status with the `docker-compose ps` command
 
+### Create superuser
+
 In order to access APLOSE you will need to create a first user:
 ```shell
 docker-compose exec osmose_back poetry run python ./manage.py createsuperuser

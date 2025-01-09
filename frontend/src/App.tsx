@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-
-import { Login } from "@/view/login.page.tsx";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
@@ -24,6 +22,7 @@ import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
 import { Home } from "@/view/home/Home.tsx";
+import { Login as NewLogin } from '@/view/auth';
 
 
 setupIonicReact({
@@ -42,7 +41,7 @@ export const App: React.FC = () => {
       <IonApp>
         <Router basename='/app'>
           <Switch>
-            <Route exact path="/login"><Login/></Route>
+            <Route exact path="/login"><NewLogin/></Route>
             <Route exact path='/'><Home/></Route>
 
             <AuthenticatedRoute exact
