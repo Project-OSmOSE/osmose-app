@@ -6,9 +6,9 @@ import { IonIcon } from "@ionic/react";
 import { logoGithub, mailOutline } from "ionicons/icons";
 import style from './layout.module.scss';
 
-export const OSmOSEFooter: React.FC = () => {
+export const Footer: React.FC = () => {
   return (
-    <div className={ style.footer }>
+    <footer className={ style.footer }>
       <Link href={ GITHUB_URL } target='_blank' color='medium'>
         <IonIcon icon={ logoGithub } slot='start'/>
         Github
@@ -23,6 +23,6 @@ export const OSmOSEFooter: React.FC = () => {
         <IonIcon icon={ mailOutline } slot='end'/>
         { CONTACT_MAIL }
       </Link>
-    </div>
+    </footer>
   );
 };

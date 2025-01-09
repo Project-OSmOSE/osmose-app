@@ -30,7 +30,7 @@ import { useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
-import { OSmOSEFooter } from "@/components/new-layout";
+import { Footer } from "@/components/new-layout";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 
 // Component dimensions constants
@@ -204,7 +204,7 @@ export const AudioAnnotator: React.FC = () => {
         <SpectrogramDownloadButton render={ spectrogramRender }/>
       </div>
 
-      <OSmOSEFooter/>
+      <Footer/>
     </div>
   );
 }

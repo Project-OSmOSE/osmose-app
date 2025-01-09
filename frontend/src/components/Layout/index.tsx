@@ -1,9 +1,8 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 
-import { Header } from './Header';
 import './styles.css';
-import { OSmOSEFooter } from "@/components/new-layout";
+import { Footer, Header } from "@/components/new-layout";
 
 export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { pathname } = useLocation();
@@ -17,7 +16,7 @@ export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
       <main>
         { children }
       </main>
-      <OSmOSEFooter/>
+      <Footer/>
     </div>
   );
 }

@@ -1,4 +1,6 @@
-export { OSmOSEFooter } from './OSmOSEFooter'
+export { Header } from './Header'
+
+export { Footer } from './Footer.tsx'
 
 export { Navbar } from './Navbar'
 
