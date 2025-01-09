@@ -16,6 +16,7 @@ import imgGlider from "../../img/illust/GIF.gif";
 import video from "../../img/illust/démo_APLOSE.mp4";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 import { Link } from "@/components/ui";
+import { Footer, Header } from "@/components/layout";
 
 export const Home: React.FC = () => {
     const trainingImages = [step1, step2, step3, step4, step5, step6, step7];
@@ -52,6 +53,7 @@ export const Home: React.FC = () => {
 
     return (
         <div id="aplose-page">
+            <Header/>
             <PageTitle img={imgTitle} imgAlt="Aplose Page Banner">APLOSE</PageTitle>
             <div className="section-content">
                 <h2 className="title">Welcome to the overview page for APLOSE: Annotation Platform for Ocean Sound Explorers</h2>
@@ -150,6 +152,8 @@ export const Home: React.FC = () => {
                 </p>
             </div>
             <CollaboratorsBanner collaborators={collaborators}></CollaboratorsBanner>
+
+            <Footer/>
         </div>
     );
 };

@@ -5,7 +5,7 @@ import { Input } from "@/components/form/inputs/input.tsx";
 import { selectIsConnected, useLoginMutation } from '@/service/auth';
 import { useAppSelector } from '@/service/app';
 import { getErrorMessage } from '@/service/function.ts';
-import { Footer } from "@/components/new-layout";
+import { Footer } from "@/components/layout";
 
 
 export const Login: React.FC = () => {

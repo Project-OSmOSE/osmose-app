@@ -1,5 +1,6 @@
 .footer {
   display: grid;
+  width: 100%;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   font-family: var(--ion-font-family), sans-serif;
@@ -63,6 +64,7 @@
 
 .header {
   display: grid;
+  width: 100%;
   grid-template-columns: 1fr auto;
   align-items: center;
   font-family: var(--ion-font-family), sans-serif;

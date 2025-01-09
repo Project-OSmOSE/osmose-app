@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Footer, Navbar } from "@/components/new-layout";
+import { Footer, Navbar } from "@/components/layout";
 import styles from './layout.module.scss';
 
 export const AploseSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => (
