@@ -22,7 +22,7 @@ import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
 import { Home } from "@/view/home/Home.tsx";
-import { Login as NewLogin } from '@/view/auth';
+import { Account, Login as NewLogin } from '@/view/auth';
 
 
 setupIonicReact({
@@ -49,6 +49,7 @@ export const App: React.FC = () => {
 
             <AploseSkeleton>
               <Switch>
+                <AuthenticatedRoute exact path='/account'><Account/></AuthenticatedRoute>
                 <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
                 <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
                 <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>

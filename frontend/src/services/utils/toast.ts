@@ -29,8 +29,26 @@ export const useToast = () => {
     });
   }
 
+  function presentSuccess(e: any): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      present({
+        message: buildErrorMessage(e),
+        color: 'success',
+        buttons: [
+          {
+            icon: closeCircle, handler: () => {
+              resolve(false)
+              dismiss();
+            }
+          }
+        ]
+      }).catch(console.warn);
+    });
+  }
+
   return {
     presentError,
+    presentSuccess,
     dismiss: () => {
       dismiss().catch(console.warn)
     }

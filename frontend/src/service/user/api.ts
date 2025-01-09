@@ -7,6 +7,17 @@ export const UserAPI = createApi({
   baseQuery: getAuthenticatedBaseQuery('/api/user/'),
   endpoints: (builder) => ({
     getCurrentUser: builder.query<User, void>({ query: () => 'self/', }),
+    updatePassword: builder.mutation<void, {
+      oldPassword: string,
+      newPassword: string,
+    }>({ query: ({oldPassword, newPassword}) => ({
+        url: 'update-password/',
+        method: 'POST',
+        body: {
+          old_password: oldPassword,
+          new_password: newPassword,
+        }
+      }), }),
     list: builder.query<Array<User>, void>({ query: () => '', }),
   })
 })
@@ -14,4 +25,5 @@ export const UserAPI = createApi({
 export const {
   useGetCurrentUserQuery,
   useListQuery: useListUsersQuery,
+  useUpdatePasswordMutation
 } = UserAPI;

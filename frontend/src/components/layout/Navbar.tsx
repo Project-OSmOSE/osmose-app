@@ -45,6 +45,8 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <DocumentationButton/>
 
+        <Link href="account" color='medium'>Account</Link>
+
         <IonButton className={ styles.logoutButton }
                    color={ "medium" }
                    onClick={ () => dispatch(logout()) }>

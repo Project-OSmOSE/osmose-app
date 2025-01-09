@@ -38,7 +38,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             self.get_serializer_class()(request.user).data, status=status.HTTP_200_OK
         )
 
-    @action(detail=False, methods=["POST"])
+    @action(detail=False, methods=["POST"], url_path="update-password")
     def update_password(self, request):
         """Update current user password"""
         user = self.request.user

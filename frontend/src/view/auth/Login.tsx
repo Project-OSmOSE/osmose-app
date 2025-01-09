@@ -8,6 +8,7 @@ import { IonButton } from "@ionic/react";
 import { useHistory, useLocation } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Link } from "@/components/ui";
+import { useToast } from "@/services/utils/toast.ts";
 
 export const Login: React.FC = () => {
 
@@ -21,7 +22,18 @@ export const Login: React.FC = () => {
   const history = useHistory();
   const location = useLocation<any>();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
-  const [ login, { isLoading } ] = useLoginMutation();
+  const [ login, { isLoading, error: loginError } ] = useLoginMutation();
+  const toast = useToast()
+
+  useEffect(() => {
+    return () => {
+      toast.dismiss()
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loginError) toast.presentError(getErrorMessage(loginError));
+  }, [loginError]);
 
   useEffect(() => {
     if (isConnected) history.replace(from);
