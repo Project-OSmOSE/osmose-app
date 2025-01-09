@@ -36,16 +36,16 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <div className={ styles.links }>
           <Link href="/app/">Back to Home</Link>
-          <Link href="annotation-campaign">Annotation campaigns</Link>
+          <Link href="/app/annotation-campaign">Annotation campaigns</Link>
           { currentUser?.is_staff && <Fragment>
-              <Link href="datasets">Datasets</Link>
+              <Link href="/app/datasets">Datasets</Link>
               <Link href="/backend/admin" target="_blank">Admin</Link>
           </Fragment> }
         </div>
 
         <DocumentationButton/>
 
-        <Link href="account" color='medium'>Account</Link>
+        <Link href="/app/account" color='medium'>Account</Link>
 
         <IonButton className={ styles.logoutButton }
                    color={ "medium" }

@@ -158,7 +158,7 @@ const Resources: React.FC = () => (
     <div className={ styles.links }>
       <DocumentationButton/>
       /
-      <Link href="images/campagne.pdf" target="_blank"
+      <Link href="/app/images/campagne.pdf" target="_blank"
             rel="noopener noreferrer" color='medium'>
         Annotation Campaign APOCADO
       </Link>

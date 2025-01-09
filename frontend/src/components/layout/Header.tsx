@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
       <div className={ styles.links }>
         <DocumentationButton/>
 
-        { location.pathname === '/' && <Link href={ isConnected ? 'aplose' : 'login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>}
+        { location.pathname === '/' && <Link href={ isConnected ? '/app/aplose' : '/app/login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>}
         { location.pathname !== '/' && <Link href='/app/' size='large'>Home</Link>}
 
         <Link href='/' size='large'>OSmOSE</Link>
