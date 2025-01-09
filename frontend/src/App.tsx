@@ -1,4 +1,4 @@
-import React, { lazy, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { Login } from "@/view/login.page.tsx";
@@ -23,8 +23,8 @@ import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
+import { Home } from "@/view/home/Home.tsx";
 
-const Home = lazy(() => import("@/view/home/home.page.tsx"));
 
 setupIonicReact({
   mode: 'md',
