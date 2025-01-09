@@ -13,7 +13,13 @@ class ModelFilter(filters.BaseFilterBackend):
         _queryset = queryset
         for param in request.query_params:
             try:
-                _queryset = _queryset.filter(**{param: request.query_params[param]})
+                value = request.query_params[param]
+                if isinstance(value, str):
+                    if value.lower() == "true":
+                        value = True
+                    elif value.lower() == "false":
+                        value = False
+                _queryset = _queryset.filter(**{param: value})
             except FieldError:
                 continue
         return _queryset

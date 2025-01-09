@@ -1,14 +1,15 @@
-import React, { Fragment, KeyboardEvent, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
-import { IonButton, IonChip, IonIcon, IonSearchbar, IonSpinner } from "@ionic/react";
+import { IonButton, IonChip, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
-import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline } from "ionicons/icons";
+import { checkmarkCircle, chevronForwardOutline, closeCircle, ellipseOutline, playOutline } from "ionicons/icons";
 import { Link, useHistory } from "react-router-dom";
 import { WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { Pagination } from "@/components/Pagination/Pagination.tsx";
+import { ActionBar } from "@/ActionBar/ActionBar.tsx";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign: AnnotationCampaign;
@@ -32,18 +33,6 @@ export const DetailPageAnnotationTasks: React.FC<{
     return Math.ceil(files.count / FILES_PAGE_SIZE)
   }, [ files?.count ])
 
-  function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
-    if (event.key === 'Enter') {
-      setSearch(event.currentTarget.value ?? undefined)
-      setPage(1)
-    }
-  }
-
-  function clearSearch() {
-    setSearch(undefined)
-    setPage(1)
-  }
-
   function resume() {
     history.push(`/annotation-campaign/${ campaign.id }/file/${ files?.resume }`);
   }
@@ -66,34 +55,30 @@ export const DetailPageAnnotationTasks: React.FC<{
 
 
   return <Fragment>
-    <div className={ styles.tasksActionBar }>
-      <IonSearchbar placeholder="Search file"
-                    className={ styles.search }
-                    onKeyDown={ doSearch }
-                    onIonClear={ clearSearch }
-                    value={ search }/>
 
-      <IonButton color="primary" fill='outline' disabled={ !files?.resume }
-                 onClick={ resume }>
-        Resume annotation
-        <IonIcon icon={ playOutline } slot="end"/>
-      </IonButton>
-
-      <div className={ styles.filters }>
-        <IonChip outline={ !nonSubmittedFilter }
-                 onClick={ toggleNonSubmittedFilter }
-                 color={ nonSubmittedFilter ? 'primary' : 'medium' }>
-          Non submitted
-          { nonSubmittedFilter && <IonIcon icon={ checkmarkCircle } color='primary'/> }
-        </IonChip>
-        <IonChip outline={ !withAnnotationsFilter }
-                 onClick={ toggleWithAnnotationsFilter }
-                 color={ withAnnotationsFilter ? 'primary' : 'medium' }>
-          With annotations
-          { withAnnotationsFilter && <IonIcon icon={ checkmarkCircle } color='primary'/> }
-        </IonChip>
-      </div>
-    </div>
+    <ActionBar search={ search }
+               onSearchChange={ value => {
+                 setSearch(value);
+                 setPage(1)
+               } }
+               actionButton={ <IonButton color="primary" fill='outline' disabled={ !files?.resume }
+                                   onClick={ resume }>
+                 Resume annotation
+                 <IonIcon icon={ playOutline } slot="end"/>
+               </IonButton> }>
+      <IonChip outline={ !nonSubmittedFilter }
+               onClick={ toggleNonSubmittedFilter }
+               color={ nonSubmittedFilter ? 'primary' : 'medium' }>
+        Non submitted
+        { nonSubmittedFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+      </IonChip>
+      <IonChip outline={ !withAnnotationsFilter }
+               onClick={ toggleWithAnnotationsFilter }
+               color={ withAnnotationsFilter ? 'primary' : 'medium' }>
+        With annotations
+        { withAnnotationsFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+      </IonChip>
+    </ActionBar>
 
     { isLoading && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
@@ -133,7 +118,8 @@ export const DetailPageAnnotationTasks: React.FC<{
 
         </Table>
 
-      { files.results.length > 0 && <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/>}
+      { files.results.length > 0 &&
+          <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/> }
     </Fragment> }
 
   </Fragment>

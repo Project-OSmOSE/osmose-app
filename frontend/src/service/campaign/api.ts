@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { AnnotationCampaign, WriteAnnotationCampaign } from '@/service/campaign';
+import { AnnotationCampaign, AnnotationCampaignUsage, WriteAnnotationCampaign } from '@/service/campaign';
 import { ID } from '@/service/type';
 import { downloadResponseHandler, encodeQueryParams } from '@/service/function';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
@@ -9,7 +9,32 @@ export const CampaignAPI = createApi({
   reducerPath: 'campaignApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotation-campaign/'),
   endpoints: (builder) => ({
-    list: builder.query<Array<AnnotationCampaign>, void>({ query: () => '', }),
+    list: builder.query<Array<AnnotationCampaign>, {
+      onlyArchived?: boolean;
+      usage?: AnnotationCampaignUsage;
+      owner?: ID;
+      annotator?: ID;
+      search?: string;
+    }>({
+      query: (clientParams) => {
+        const params: { [key in string]: any } = {}
+        if (clientParams?.onlyArchived !== undefined) params.archive__isnull = !clientParams.onlyArchived;
+        switch (clientParams?.usage) {
+          case 'Create':
+            params.usage = 0;
+            break;
+          case 'Check':
+            params.usage = 1;
+            break;
+        }
+        if (clientParams?.owner) params.owner = clientParams.owner;
+        if (clientParams?.annotator) params.annotators__id = clientParams.annotator;
+        if (clientParams?.search !== undefined) params.search = clientParams.search;
+        return {
+          url: `/${ encodeQueryParams(params) }`
+        }
+      },
+    }),
     retrieve: builder.query<AnnotationCampaign, ID>({ query: (id) => `${ id }/`, }),
     create: builder.mutation<AnnotationCampaign, WriteAnnotationCampaign>({
       query: (data) => ({

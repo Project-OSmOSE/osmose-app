@@ -39,9 +39,10 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
   }, [ state ]);
 
   const accessDetail = () => history.push(`/annotation-campaign/${ campaign.id }`);
+  const accessAuxDetail = () => window.open(`/app/annotation-campaign/${ campaign.id }`, '_blank');
 
   return (
-    <div className="campaign-card" onClick={ accessDetail }>
+    <div className="campaign-card" onClick={ accessDetail } onAuxClick={ accessAuxDetail }>
 
       <div id="head">
         { state === State.open && <IonBadge color="secondary">Open</IonBadge> }

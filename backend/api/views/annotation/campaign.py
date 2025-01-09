@@ -36,6 +36,7 @@ from backend.api.models import (
 from backend.api.serializers import (
     AnnotationCampaignSerializer,
 )
+from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
 
 REPORT_HEADERS = [  # headers
@@ -81,7 +82,8 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
 
     queryset = AnnotationCampaign.objects.all()
     serializer_class = AnnotationCampaignSerializer
-    filter_backends = (CampaignAccessFilter,)
+    filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
+    search_fields = ("name",)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):

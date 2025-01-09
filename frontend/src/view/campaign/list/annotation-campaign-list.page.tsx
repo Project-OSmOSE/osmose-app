@@ -1,41 +1,34 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { IonButton, IonChip, IonIcon, IonNote, IonSearchbar, IonSpinner } from "@ionic/react";
+import React, { useEffect, useState } from 'react';
+import { IonButton, IonChip, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, swapHorizontal } from "ionicons/icons";
-import { searchFilter } from "@/services/utils/search.ts";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import styles from './annotation-campaign-list.module.scss'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
+import { ActionBar } from "@/ActionBar/ActionBar.tsx";
+import { useGetCurrentUserQuery } from "@/service/user";
 
 
 export const AnnotationCampaignList: React.FC = () => {
-
-  // Services
-  const { data: campaigns, isLoading, error } = useListCampaignsQuery()
 
   // State
   const [ search, setSearch ] = useState<string | undefined>();
   const [ showArchivedFilter, setShowArchivedFilter ] = useState<boolean>(false);
   const [ modeFilter, setModeFilter ] = useState<AnnotationCampaignUsage | undefined>();
+  const [ myWorkFilter, setMyWorkFilter ] = useState<boolean>(true);
+  const [ onlyMineFilter, setonlyMineFilter ] = useState<boolean>(false);
   const { presentError, dismiss: dismissToast } = useToast()
 
-  // Memo
-  const showCampaigns = useMemo(() => {
-    const baseCampaigns = campaigns
-      ?.filter(c => (c.archive !== null) === showArchivedFilter)
-      .filter(c => !modeFilter || c.usage === modeFilter) ?? [];
-    if (!search) return baseCampaigns;
-    const results = searchFilter(
-      baseCampaigns.map(c => ({
-        value: c.id,
-        label: c.name
-      })),
-      search
-    );
-    return baseCampaigns.filter(c => results.find(r => r.value === c.id));
-  }, [ campaigns, search, showArchivedFilter, modeFilter ]);
-  const canAccessArchive = useMemo(() => (campaigns ?? [])?.filter(c => c.archive !== null).length > 0, [ campaigns ]);
+  // Services
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: campaigns, isFetching, error } = useListCampaignsQuery({
+    onlyArchived: showArchivedFilter,
+    usage: modeFilter,
+    search,
+    owner: onlyMineFilter ? currentUser?.id : undefined,
+    annotator: myWorkFilter ? currentUser?.id : undefined,
+  })
 
   useEffect(() => {
     return () => {
@@ -51,8 +44,8 @@ export const AnnotationCampaignList: React.FC = () => {
     window.open("/app/annotation-campaign/create", "_self")
   }
 
-  const toggleArchivedFilter = () => {
-    setShowArchivedFilter(!showArchivedFilter);
+  const openAuxNewCampaign = () => {
+    window.open("/app/annotation-campaign/create", "_blank")
   }
 
   const toggleModeFilter = () => {
@@ -69,48 +62,67 @@ export const AnnotationCampaignList: React.FC = () => {
     }
   }
 
+  function toggleArchiveFilter() {
+    setShowArchivedFilter(prev => !prev)
+  }
+
+  function toggleOnlyMineFilter() {
+    setonlyMineFilter(prev => !prev)
+  }
+
+  function toggleMyWorkFilter() {
+    setMyWorkFilter(prev => !prev)
+  }
+
   return (
     <div className={ styles.page }>
       <h2>Annotation Campaigns</h2>
 
-      <div className={ styles.actionBar }>
-        <div className={ styles.filters }>
-          <IonSearchbar placeholder="Search campaign"
-                        onIonInput={ e => setSearch(e.detail.value ?? undefined) }
-                        value={ search }/>
+      <ActionBar search={ search }
+                 onSearchChange={ setSearch }
+                 actionButton={ <IonButton color="primary" fill='outline'
+                                           onClick={ openNewCampaign } onAuxClick={ openAuxNewCampaign }>
+                   <IonIcon icon={ addOutline } slot="start"/>
+                   New annotation campaign
+                 </IonButton> }>
 
-          { canAccessArchive &&
-              <IonChip className={ showArchivedFilter ? 'active' : 'inactive' }
-                       color="medium"
-                       onClick={ toggleArchivedFilter }>
-                  Show archived
-                { showArchivedFilter && <IonIcon icon={ closeCircle }/> }
-              </IonChip> }
+        <IonChip outline={ !myWorkFilter }
+                 onClick={ toggleMyWorkFilter }
+                 color={ myWorkFilter ? 'primary' : 'medium' }>
+          My work
+          { myWorkFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        </IonChip>
 
-          <IonChip className={ modeFilter ? 'active' : 'inactive' }
-                   color="medium"
-                   onClick={ toggleModeFilter }>
-            Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
-            { modeFilter === 'Create' && <IonIcon icon={ swapHorizontal }/> }
-            { modeFilter === 'Check' && <IonIcon icon={ closeCircle }/> }
-          </IonChip>
-        </div>
+        <IonChip outline={ !showArchivedFilter }
+                 onClick={ toggleArchiveFilter }
+                 color={ showArchivedFilter ? 'primary' : 'medium' }>
+          Only archived
+          { showArchivedFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        </IonChip>
 
-        <div className={ styles.buttons }>
-          <IonButton color="primary" onClick={ openNewCampaign }>
-            <IonIcon icon={ addOutline } slot="start"/>
-            New annotation campaign
-          </IonButton>
-        </div>
-      </div>
+        <IonChip outline={ !modeFilter }
+                 onClick={ toggleModeFilter }
+                 color={ modeFilter ? 'primary' : 'medium' }>
+          Only archived
+          Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
+          { modeFilter === 'Create' && <IonIcon icon={ swapHorizontal }/> }
+          { modeFilter === 'Check' && <IonIcon icon={ closeCircle }/> }
+        </IonChip>
+
+        <IonChip outline={ !onlyMineFilter }
+                 onClick={ toggleOnlyMineFilter }
+                 color={ onlyMineFilter ? 'primary' : 'medium' }>
+          Only mine
+          { onlyMineFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        </IonChip>
+      </ActionBar>
 
       <div className={ styles.content }>
-        { showCampaigns.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map(c => <CampaignCard
+        { campaigns?.map(c => <CampaignCard
           campaign={ c } key={ c.id }/>) }
-        { !isLoading && showCampaigns.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
+        { !isFetching && campaigns?.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
-
-      { isLoading && <div className="d-flex justify-content-center"><IonSpinner/></div> }
+      { isFetching && <IonSpinner/> }
     </div>
   )
 }

@@ -34,23 +34,6 @@
     }
   }
 
-  .tasksActionBar {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 0.5rem;
-
-    .search {
-      justify-self: start;
-      width: auto;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-  }
 
   .filesTable {
     row-gap: 0.25rem;
