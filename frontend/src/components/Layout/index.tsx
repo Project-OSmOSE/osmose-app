@@ -5,8 +5,6 @@ import { Header } from './Header';
 import './styles.css';
 import { OSmOSEFooter } from "@/components/new-layout";
 
-export { AploseSkeleton } from './skeleton/skeleton.component'
-
 export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { pathname } = useLocation();
   useEffect(() => {

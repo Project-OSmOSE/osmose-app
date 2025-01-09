@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 
 import { Login } from "@/view/login.page.tsx";
 import { AudioAnnotator } from "@/view/audio-annotator/audio-annotator.page.tsx";
-import { AploseSkeleton, Layout } from "@/components/Layout";
+import { Layout } from "@/components/Layout";
 
 import './css/fontawesome/css/fontawesome-5.15.4.min.css';
 import './css/fontawesome/css/solid.min.css'
@@ -23,6 +23,7 @@ import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx
 import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
+import { AploseSkeleton } from "@/components/new-layout";
 
 const Home = lazy(() => import("@/view/home/home.page.tsx"));
 

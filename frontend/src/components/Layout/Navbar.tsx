@@ -9,14 +9,14 @@ import { useGetCurrentUserQuery } from '@/service/user';
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 import { Link } from "@/components/ui";
 
-export const Navbar: React.FC = () => {
+export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
 
   const { data: currentUser } = useGetCurrentUserQuery(undefined, { refetchOnMountOrArgChange: true });
   const dispatch = useAppDispatch();
 
   return (
-    <div className={ [ styles.navbar, isOpen ? styles.open : styles.closed ].join(' ') }>
+    <div className={ [ styles.navbar, isOpen ? styles.open : styles.closed, className ].join(' ') }>
 
       <div className={ styles.title }>
         <img src={ logo } alt="APLOSE"/>

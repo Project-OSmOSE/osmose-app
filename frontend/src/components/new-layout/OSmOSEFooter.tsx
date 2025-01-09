@@ -1,11 +1,12 @@
+import React from "react";
 import logo from "/images/ode_logo_192x192.png";
-import style from './layout.module.scss';
 import { CONTACT_MAIL, CONTACT_URI, GITHUB_URL, OSMOSE_URL } from "@/consts/links.ts";
 import { Link } from "@/components/ui";
 import { IonIcon } from "@ionic/react";
 import { logoGithub, mailOutline } from "ionicons/icons";
+import style from './layout.module.scss';
 
-export const OSmOSEFooter = () => {
+export const OSmOSEFooter: React.FC = () => {
   return (
     <div className={ style.footer }>
       <Link href={ GITHUB_URL } target='_blank' color='medium'>
