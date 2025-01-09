@@ -14,6 +14,7 @@ import { AnnotationFileRange, useListAnnotationFileRangeQuery } from "@/service/
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import styles from './modal.module.scss';
 import { Progress } from "@/components/ui/Progress.tsx";
+import { useHistory } from "react-router-dom";
 
 type Progression = {
   user: User;
@@ -33,6 +34,7 @@ export const ProgressModal: React.FC<{
   onClose?(): void;
 }> = ({ campaign, onClose, isOwner }) => {
   const toast = useToast();
+  const history = useHistory();
   const { data: users, isLoading: isLoadingUsers, error: userError } = useListUsersQuery();
   const {
     data: fileRanges,
@@ -101,7 +103,7 @@ export const ProgressModal: React.FC<{
   }
 
   function addAnnotator() {
-    // TODO
+    history.push(`/annotation-campaign/${ campaign.id }/edit`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {

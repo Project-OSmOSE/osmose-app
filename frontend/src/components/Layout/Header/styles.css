@@ -54,6 +54,7 @@ header#main-header nav a.logo img {
 @media (min-width: 768px) {
   .navbar-nav {
     flex-direction: row;
+    align-items: center;
   }
   .navbar-nav .nav-item {
     margin: 0 10px;

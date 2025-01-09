@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './layout.module.scss';
-import logo from '/app/images/ode_logo_192x192.png';
+import logo from '/images/ode_logo_192x192.png';
 import { IoCloseOutline, IoMenuOutline } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { IonButton, IonIcon } from '@ionic/react';
@@ -8,11 +8,12 @@ import { openOutline } from 'ionicons/icons';
 import { logout } from '@/service/auth';
 import { useAppDispatch } from '@/service/app.ts';
 import { useGetCurrentUserQuery } from '@/service/user';
+import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 
 export const Navbar: React.FC = () => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
 
-  const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = useGetCurrentUserQuery(undefined, { refetchOnMountOrArgChange: true });
   const dispatch = useAppDispatch();
 
   return (
@@ -35,6 +36,8 @@ export const Navbar: React.FC = () => {
             <a href="/backend/admin" target="_blank">Admin <IonIcon icon={ openOutline }/></a> }
 
       </div>
+
+      <DocumentationButton/>
 
       <IonButton className={ styles.logoutButton }
                  color={ "medium" }
