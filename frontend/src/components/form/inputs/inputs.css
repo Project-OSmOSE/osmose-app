@@ -50,16 +50,26 @@
 #aplose-input > #input > input.has-start-icon {
     padding-left: 3rem;
 }
+#aplose-input > #input > input.has-end-icon {
+    padding-right: 3rem;
+}
 
-#aplose-input > #input > ion-icon#input-start-icon {
+#aplose-input > #input > ion-icon#input-start-icon ,
+#aplose-input > #input > ion-icon#input-end-icon {
     position: absolute;
-    left: 1rem;
     font-size: 1rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--ion-color-medium);
     --ionicon-stroke-width: 3rem;
+}
+#aplose-input > #input > ion-icon#input-start-icon {
+    left: 1rem;
     pointer-events: none;
+}
+#aplose-input > #input > ion-icon#input-end-icon {
+    right: 1rem;
+    cursor: pointer;
 }
 
 
