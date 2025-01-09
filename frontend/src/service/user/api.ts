@@ -18,6 +18,12 @@ export const UserAPI = createApi({
           new_password: newPassword,
         }
       }), }),
+    patch: builder.mutation<User, Omit<User, 'id' | 'expertise_level' | 'first_name' | 'last_name' | 'is_staff' | 'is_superuser' | 'username'>>(
+      { query: (data) => ({
+        url: 'self/',
+        method: 'PATCH',
+        body: data
+      }), }),
     list: builder.query<Array<User>, void>({ query: () => '', }),
   })
 })
@@ -25,5 +31,6 @@ export const UserAPI = createApi({
 export const {
   useGetCurrentUserQuery,
   useListQuery: useListUsersQuery,
-  useUpdatePasswordMutation
+  useUpdatePasswordMutation,
+  usePatchMutation: usePatchUserMutation
 } = UserAPI;

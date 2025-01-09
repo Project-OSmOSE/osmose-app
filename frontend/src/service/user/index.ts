@@ -2,6 +2,7 @@ export {
   useGetCurrentUserQuery,
   useListUsersQuery,
   useUpdatePasswordMutation,
+  usePatchUserMutation,
   UserAPI
 } from './api.ts';
 

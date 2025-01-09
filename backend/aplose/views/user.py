@@ -8,8 +8,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from backend.aplose.models import User
-from backend.aplose.serializers import UserSerializer
-from backend.aplose.serializers.user import UserPasswordUpdateSerializer
+from backend.aplose.serializers import (
+    UserSerializer,
+    UserPasswordUpdateSerializer,
+)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,11 +33,21 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             "is_staff_response", {"is_staff": serializers.BooleanField()}
         )
     )
-    @action(detail=False)
+    @action(detail=False, methods=["GET", "PATCH"])
     def self(self, request):
         """Informs whether current user is staff or not"""
+
+        serializer = self.get_serializer_class()(request.user)
+        if self.request.data:
+            serializer = self.get_serializer_class()(
+                request.user, data=self.request.data
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
         return Response(
-            self.get_serializer_class()(request.user).data, status=status.HTTP_200_OK
+            serializer.data,
+            status=status.HTTP_200_OK,
         )
 
     @action(detail=False, methods=["POST"], url_path="update-password")

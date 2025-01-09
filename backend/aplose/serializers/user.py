@@ -1,6 +1,8 @@
 """User DRF serializers file"""
 from django.contrib.auth.password_validation import validate_password
+from django.core.validators import EmailValidator
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
@@ -14,7 +16,24 @@ from backend.utils.serializers import EnumField
 class UserSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic User data"""
 
-    expertise_level = EnumField(enum=ExpertiseLevel, source="aplose.expertise_level")
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    username = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all()), EmailValidator()],
+    )
+
+    expertise_level = EnumField(
+        enum=ExpertiseLevel,
+        source="aplose.expertise_level",
+        read_only=True,
+    )
+
+    is_staff = serializers.BooleanField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
