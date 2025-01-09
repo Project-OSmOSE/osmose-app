@@ -1,0 +1,62 @@
+.footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  font-family: var(--ion-font-family), sans-serif;
+  color: var(--ion-text-color);
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 2rem;
+  grid-column: 1 / -1;
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr 1fr;
+
+    .proposition {
+      grid-column: 1 / -1;
+      justify-content: center;
+      grid-row: 1;
+    }
+  }
+
+  a {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--ion-color-primary);
+    gap: 0.25rem;
+
+    &:first-child {
+      justify-content: start;
+    }
+
+    &:last-child {
+      justify-content: end;
+      text-align: end;
+    }
+  }
+
+  .proposition {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 0.5rem;
+
+    p {
+      opacity: 0.8;
+    }
+
+    a, ion-button {
+      font-weight: 600;
+      letter-spacing: 2px;
+      --padding-start: 0.25rem;
+      --padding-end: 0.25rem;
+    }
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+    }
+  }
+}

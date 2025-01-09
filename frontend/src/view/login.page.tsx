@@ -5,7 +5,7 @@ import { Input } from "@/components/form/inputs/input.tsx";
 import { selectIsConnected, useLoginMutation } from '@/service/auth';
 import { useAppSelector } from '@/service/app';
 import { getErrorMessage } from '@/service/function.ts';
-import { OsmoseBarComponent } from '@/components/Layout';
+import { OSmOSEFooter } from "@/components/new-layout";
 
 
 export const Login: React.FC = () => {
@@ -79,7 +79,7 @@ export const Login: React.FC = () => {
 
       <Link to="/">Back to Home</Link>
 
-      <OsmoseBarComponent/>
+      <OSmOSEFooter/>
     </div>
   )
 }

@@ -14,6 +14,8 @@ import step6 from "../../img/illust/etape6.png";
 import step7 from "../../img/illust/etape7.png";
 import imgGlider from "../../img/illust/GIF.gif";
 import video from "../../img/illust/démo_APLOSE.mp4";
+import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
+import { Link } from "@/components/ui";
 
 export const Home: React.FC = () => {
     const trainingImages = [step1, step2, step3, step4, step5, step6, step7];
@@ -126,8 +128,8 @@ export const Home: React.FC = () => {
                 <p>
                     To ensure all new users can effectively exploit APLOSE, we offer a range of tutorials and training documents. These resources are designed to help you quickly become proficient in navigating the interface and using the available tools.
                 </p>
-                <div className="section-content">
-                    <a href="https://github.com/Project-OSmOSE/osmose-app/wiki/Annotator-User-Guide" target="_blank">Annotator user guide</a> / <a href="/app/images/campagne.pdf" target="_blank" rel="noopener noreferrer">Annotation Campaign APOCADO</a>
+                <div className="section-content d-flex flex-row align-items-center">
+                    <DocumentationButton/> / <Link href="/app/images/campagne.pdf" target="_blank" rel="noopener noreferrer" color='medium'>Annotation Campaign APOCADO</Link>
                 </div>
             </div>
 

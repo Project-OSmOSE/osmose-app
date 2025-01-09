@@ -1,12 +1,6 @@
 import React from "react";
-import { IonButton, IonIcon } from "@ionic/react";
-import { openOutline } from "ionicons/icons";
+import { Link } from "@/components/ui";
 
 export const DocumentationButton: React.FC = () => (
-  <a href='/doc/' target='_blank'>
-    <IonButton color='medium' fill='clear'>
-      Documentation
-      <IonIcon icon={ openOutline } slot='end'/>
-    </IonButton>
-  </a>
+  <Link color='medium' href='/doc/' target='_blank'>Documentation</Link>
 )

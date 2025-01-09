@@ -2,11 +2,10 @@ import React, { ReactNode, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 
 import { Header } from './Header';
-import { Footer } from './Footer';
 import './styles.css';
+import { OSmOSEFooter } from "@/components/new-layout";
 
 export { AploseSkeleton } from './skeleton/skeleton.component'
-export { OsmoseBarComponent } from './osmose-bar/osmose-bar.component'
 
 export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { pathname } = useLocation();
@@ -20,7 +19,7 @@ export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
       <main>
         { children }
       </main>
-      <Footer/>
+      <OSmOSEFooter/>
     </div>
   );
 }

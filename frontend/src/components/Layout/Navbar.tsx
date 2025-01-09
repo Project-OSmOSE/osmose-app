@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import styles from './layout.module.scss';
 import logo from '/images/ode_logo_192x192.png';
 import { IoCloseOutline, IoMenuOutline } from 'react-icons/io5';
-import { Link } from 'react-router-dom';
-import { IonButton, IonIcon } from '@ionic/react';
-import { openOutline } from 'ionicons/icons';
+import { IonButton } from '@ionic/react';
 import { logout } from '@/service/auth';
 import { useAppDispatch } from '@/service/app.ts';
 import { useGetCurrentUserQuery } from '@/service/user';
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
+import { Link } from "@/components/ui";
 
 export const Navbar: React.FC = () => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
@@ -29,12 +28,12 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div className={ styles.links }>
-        <a href="/app/">Back to Home</a>
-        <Link to="/annotation-campaign">Annotation campaigns</Link>
-        { currentUser?.is_staff && <Link to="/datasets">Datasets</Link> }
-        { currentUser?.is_staff &&
-            <a href="/backend/admin" target="_blank">Admin <IonIcon icon={ openOutline }/></a> }
-
+        <Link href="/app/">Back to Home</Link>
+        <Link href="annotation-campaign">Annotation campaigns</Link>
+        { currentUser?.is_staff && <Fragment>
+            <Link href="datasets">Datasets</Link>
+            <Link href="/backend/admin" target="_blank">Admin</Link>
+        </Fragment> }
       </div>
 
       <DocumentationButton/>

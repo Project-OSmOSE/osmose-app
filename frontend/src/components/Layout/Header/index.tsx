@@ -6,7 +6,7 @@ import logo from '../../../img/logo/logo_seul_couleur.png';
 import { useAppSelector } from '@/service/app';
 import { selectIsConnected } from '@/service/auth';
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { IonButton } from "@ionic/react";
+import { Link } from "@/components/ui";
 
 export const Header: React.FC = () => {
   const isConnected = useAppSelector(selectIsConnected);
@@ -34,22 +34,13 @@ export const Header: React.FC = () => {
               <DocumentationButton/>
             </li>
             <li className="nav-item">
-              <a href={ isConnected ? 'aplose' : 'login' }>
-                <IonButton color='dark' fill='clear' size='large'>
-                  { isConnected ? 'APLOSE' : 'Login' }
-                </IonButton>
-              </a>
+              <Link href={ isConnected ? 'aplose' : 'login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>
             </li>
             <li className="nav-item">
-              <a href='/'>
-                <IonButton color='dark' fill='clear' size='large'>
-                  OSmOSE
-                </IonButton>
-              </a>
+              <Link href='/' size='large'>OSmOSE</Link>
             </li>
           </ul>
         </div>
-
       </nav>
     </header>
   );
