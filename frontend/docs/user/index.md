@@ -9,7 +9,8 @@ Indeed, no calculation are made through APLOSE, which significantly reduces load
 
 
 ## Login
-You can log into APLOSE [here](/app/login)
+From the APLOSE home page, you can click on the "Login" link in the header.
+You can then enter your credentials to access APLOSE.
 
 You can log out at any time using the "Logout" button
 

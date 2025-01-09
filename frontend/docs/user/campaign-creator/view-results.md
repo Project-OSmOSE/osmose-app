@@ -2,14 +2,14 @@
 
 To view the results, you must access a campaign.
 
-![](../../assets/campaigns/campaign-detail.png)
+![](/campaigns/campaign-detail.png)
 
 All the detail of the campaign can be found here.
 For more information about it, read the [Annotation Campaign detail](../campaign.md#campaign-detail) section.
 
 You can access the "Detailed progression" of all annotators.
 
-![](../../assets/campaign-creator/annotator-progression.png)
+![](/campaign-creator/annotator-progression.png)
 
 From here, you can then download the results and status CSV files.
 

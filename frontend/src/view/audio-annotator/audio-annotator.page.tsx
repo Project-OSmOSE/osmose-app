@@ -20,7 +20,6 @@ import { AudioDownloadButton } from "@/view/audio-annotator/components/buttons/a
 import { BackButton } from "@/view/audio-annotator/components/buttons/back.tsx";
 import { CampaignInstructionsButton } from "@/view/audio-annotator/components/buttons/campaign-instructions.tsx";
 import { SpectrogramDownloadButton } from "@/view/audio-annotator/components/buttons/spectrogram-download.tsx";
-import { UserGuideButton } from "@/view/audio-annotator/components/buttons/user-guide.tsx";
 import { ResultList } from "@/view/audio-annotator/components/bloc/result-list.component.tsx";
 import { SpectrogramConfigurationSelect } from "@/view/audio-annotator/components/select/spectrogram-configuration.tsx";
 import { ZoomButton } from "@/view/audio-annotator/components/buttons/zoom.tsx";
@@ -32,6 +31,7 @@ import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { OsmoseBarComponent } from '@/components/Layout';
+import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -134,7 +134,7 @@ export const AudioAnnotator: React.FC = () => {
         <h1>APLOSE</h1>
 
         <div className="buttons">
-          <UserGuideButton/>
+          <DocumentationButton/>
           <CampaignInstructionsButton/>
         </div>
 

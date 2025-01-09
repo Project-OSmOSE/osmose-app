@@ -8,7 +8,7 @@ A campaign can be configured to show different spectrogram configurations, annot
 ## All campaigns
 
 You can view all campaigns your campaign on the Annotation Campaigns page
-![](../assets/campaigns/all-campaigns_user.png)
+![](/campaigns/all-campaigns_user.png)
 
 You can search a campaign by its name or filter the list my the mode: create annotations or check detectors output.
 
@@ -19,7 +19,7 @@ You can access to the campaign detail by clicking on its card.
 
 
 ## Campaign detail
-![](../assets/campaigns/campaign-detail.png)
+![](/campaigns/campaign-detail.png)
 
 ### Campaign details
 You can read here the purpose of the campaign on its description (if filled).

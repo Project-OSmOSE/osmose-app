@@ -20,12 +20,12 @@ export default (_: ConfigEnv): UserConfig => {
         "/api": "http://localhost:8000",
         "/backend": "http://localhost:8000",
         "/doc": {
-          target: "http://localhost:5174/",
-          prependPath: false,
-          rewrite: (path: string) => {
-            console.debug(path);
-            return ''
-          },
+          target: "http://localhost:5174",
+          // prependPath: false,
+          // rewrite: (path: string) => {
+          //   console.debug(path);
+          //   return ''
+          // },
           configure: (proxy, _options) => {
             proxy.on('error', (err, _req, _res) => {
               console.log('proxy error', err);

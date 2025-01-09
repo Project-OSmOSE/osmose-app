@@ -6,19 +6,21 @@ import packageJSON from '../../../package.json';
 export default defineConfig({
   title: "APLOSE",
   description: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers",
+  cleanUrls: true,
   themeConfig: {
-    logo: '/assets/logo.png',
+    logo: '/logo.png',
     outline: "deep",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'User', link: '/user' },
       { text: 'Developer', link: '/dev/docker' },
-      {
-        text: packageJSON.version,
-        items: [
-          { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank'}
-        ]
-      }
+      // {
+      //   text: packageJSON.version,
+      //   items: [
+          { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank'},
+      //   ]
+      // }
+      { text: 'APLOSE', link: '/../app/', target: '_blank'},
     ],
 
     // https://vitepress.dev/reference/default-theme-sidebar

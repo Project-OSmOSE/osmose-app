@@ -2,7 +2,7 @@
 
 The administrator status enabled new actions like importing datasets, creating annotation campaign
 Administration pages are also available for viewing and interacting with APLOSE data.
-It can be accessed from APLOSE navigation bar through an "Admin" link, when your logged in with an administrator account, or directly [here](/backend/admin).
+It can be accessed from APLOSE navigation bar through an "Admin" link, when your logged in with an administrator account.
 
 
 ## Login
@@ -17,5 +17,5 @@ If you're not authorized to log in with your APLOSE account, you need another ad
 ::: warning No user 
 If no user exist reach the developer document to create the superuser
 
-[Create superuser](../../dev/init-database.md#create-superuser)
+[Developer documentation](../../dev/docker.md)
 :::

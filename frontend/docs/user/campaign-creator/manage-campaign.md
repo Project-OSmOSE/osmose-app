@@ -2,14 +2,14 @@
 
 To manage the campaign, you must access it.
 
-![](../../assets/campaigns/campaign-detail.png)
+![](/campaigns/campaign-detail.png)
 
 ## Update annotators
 
 To update which annotators are on which file range, you must open the "Detailed progression" in the right panel.
 And then "Add annotators".
 
-![](../../assets/campaign-creator/edit.png)
+![](/campaign-creator/edit.png)
 
 You can now edit or remove existing annotators or add new ones thanks to the search bar below the table.
 

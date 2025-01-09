@@ -4,8 +4,8 @@ To annotate a file you must access a campaign and then click on a file access li
 
 ## The annotator page
 
-![](../assets/annotator/create-1.png)
-![](../assets/annotator/create-2.png)
+![](/annotator/create-1.png)
+![](/annotator/create-2.png)
 
 The annotator is the main page of APLOSE. It allows to annotate audio recordings thanks to their spectrogram.
 
@@ -14,7 +14,7 @@ The annotator is the main page of APLOSE. It allows to annotate audio recordings
 The spectrogram is labelled with time and frequency axes.
 A selector above the spectrogram let you should between available FFT parameters for your spectrogram. You can also have different frequency scales.
 
-![](../assets/annotator/spectro-config.png)
+![](/annotator/spectro-config.png)
 
 ::: details Frequency scales
 
@@ -30,7 +30,7 @@ A selector above the spectrogram let you should between available FFT parameters
 A zoom feature is available on time only.
 You can zoom with the zoom buttons next to the spectrogram configuration selector or with the mouse wheel on the spectrogram.
 
-![](../assets/annotator/zoom.png)
+![](/annotator/zoom.png)
 
 The zoom is discrete: each zoom level offers pre-computed spectrogram, meaning zoom levels are decided by the creator of the dataset.
 
@@ -39,7 +39,7 @@ The zoom is discrete: each zoom level offers pre-computed spectrogram, meaning z
 You can listen to the recording thanks to the play/pause button bellow the spectrogram (on the left).
 You can set the time position from which you want to start listen by clicking on the spectrogram.
 
-![](../assets/annotator/audio.png)
+![](/annotator/audio.png)
 
 Next to the play/pause button, you can choose the speed of the playback (from 0.25x to 4x).
 This allows you to hear high frequencies by slowing down the playback, or low frequencies by speeding up the playback.
@@ -68,11 +68,11 @@ In the cas you loaded an already submitted file, your previous submission should
 
 You can add a weak annotation my checking the desired labels in the "Presence / Absence" bloc.
 
-![](../assets/annotator/weak.png)
+![](/annotator/weak.png)
 
 You can see all your annotations on the "Annotations" bloc. In this example we have the two selected labels.
 
-![](../assets/annotator/weak-list.png)
+![](/annotator/weak-list.png)
 
 ::: info Note
 If you uncheck a weak annotation, it will remove all annotations, weak or strong, made using this label.
@@ -83,12 +83,12 @@ If you uncheck a weak annotation, it will remove all annotations, weak or strong
 Each weak annotation made will enable the linked labels for a strong annotation in the "Labels list" bloc. 
 In this bloc, you can select the label you want to use to create your annotation.
 
-![](../assets/annotator/strong.png)
+![](/annotator/strong.png)
 
 To create a box annotation, click on the spectrogram and drag over the area containing the sound of interest.
 On click release, the annotation is created and selected.
 
-![](../assets/annotator/box.png)
+![](/annotator/box.png)
 <small>_This is an example_</small>
 
 On the header of the annotation, you can see:
@@ -100,12 +100,12 @@ On the header of the annotation, you can see:
 The strong annotations are listed in the "Annotations" bloc.
 Each strong annotation is bellow the corresponding weak annotation.
 
-![](../assets/annotator/strong-list.png)
+![](/annotator/strong-list.png)
 
 In the list, you can see the time and frequency coordinates of your annotation.
 The information can also be found in the "Selected annotation" bloc right bellow the spectrogram:
 
-![](../assets/annotator/selected-strong.png)
+![](/annotator/selected-strong.png)
 
 To change the label of your annotation, you must select the annotation and then click on the right label in the "Labels list" bloc.
 
@@ -117,7 +117,7 @@ Please note the boxes cannot be moved or resized for now.
 
 In check mode, the "Annotations" bloc contains all the detector output you need to confirm or infirm.
 
-![](../assets/annotator/check-list.png)
+![](/annotator/check-list.png)
 
 Here is an example with a weak label.
 You can find the same information as in the Create annotations mode plus the name of the detector (here "mthieu).
@@ -134,12 +134,12 @@ Please note the annotations cannot be edited (moved, resized, relabelled) for no
 
 You can add comments on each annotation or on the task.
 
-![](../assets/annotator/comment-bloc.png)
+![](/annotator/comment-bloc.png)
 
 To add a comment to an annotation, first select it (in the "Annotations" bloc or on the spectrogram).
 To add a comment to the task clik on the "Task Comment" button at the bottom of the "Comments" bloc.
 
-![](../assets/annotator/comment-indicators.png)
+![](/annotator/comment-indicators.png)
 
 The comment icon changed based one the existence of a comment: the buble is filled if a comment exists for the annotation or task.
 This information is displayed for each annotation in the "Annotations" bloc or in its header on the spectrogram, and for the task on the "Task Comment" button at the bottom of the "Comments" bloc.
@@ -149,7 +149,7 @@ This information is displayed for each annotation in the "Annotations" bloc or i
 
 If your campaign allows you to, you can specify the confidence level you have on your annotation by selecting the appropriate one in the "Confidence indicator" bloc.
 
-![](../assets/annotator/confidence.png)
+![](/annotator/confidence.png)
 
 ### Acoustic features
 
@@ -160,7 +160,7 @@ If your campaign allows you to, you can specify the confidence level you have on
 ## Submit and navigate
 
 The navigation buttons are located below the spectrogram.
-![](../assets/annotator/submit.png)
+![](/annotator/submit.png)
 
 To save your changes, you must click on the "Submit & load next recording" button once you're done. 
 This will automatically load the next file.
