@@ -205,10 +205,14 @@
 
   @media (max-width: 800px) {
     border-right: none;
-    padding-right: 0;
-    padding-bottom: 1rem;
-    gap: 0.5rem;
+    padding: 1rem;
+    gap: 0;
     border-bottom: solid 1px rgba(var(--ion-color-medium-rgb), 0.25);
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+
     .links {
       padding-bottom: 0;
       gap: 0;
@@ -242,7 +246,8 @@
 
   @media (max-width: 800px) {
     grid-template-columns: 1fr;
-    padding: 1rem 1rem 0.5rem;
+    grid-template-rows: auto 1fr;
+    padding: 0;
     gap: 1rem;
   }
 
@@ -256,6 +261,8 @@
   .content {
     display: grid;
     align-items: start;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .footer {

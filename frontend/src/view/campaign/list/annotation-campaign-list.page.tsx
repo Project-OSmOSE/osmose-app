@@ -6,7 +6,7 @@ import styles from './annotation-campaign-list.module.scss'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
-import { ActionBar } from "@/ActionBar/ActionBar.tsx";
+import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useGetCurrentUserQuery } from "@/service/user";
 
 
@@ -118,12 +118,12 @@ export const AnnotationCampaignList: React.FC = () => {
         </IonChip>
       </ActionBar>
 
+      { isFetching && <IonSpinner/> }
       <div className={ styles.content }>
         { campaigns?.map(c => <CampaignCard
           campaign={ c } key={ c.id }/>) }
         { !isFetching && campaigns?.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
-      { isFetching && <IonSpinner/> }
     </div>
   )
 }

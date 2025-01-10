@@ -9,7 +9,7 @@ import { WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { Pagination } from "@/components/Pagination/Pagination.tsx";
-import { ActionBar } from "@/ActionBar/ActionBar.tsx";
+import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign: AnnotationCampaign;
