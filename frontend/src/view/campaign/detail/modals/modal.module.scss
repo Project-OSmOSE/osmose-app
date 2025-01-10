@@ -81,3 +81,18 @@
     gap: 0.5rem;
   }
 }
+
+.progressModal {
+  @media (max-width: 800px) {
+    .footer {
+      grid-auto-flow: row !important;
+      justify-content: center !important;
+      justify-items: center;
+      gap: 0.5rem;
+    }
+
+    .table.status {
+      grid-template-columns: 1fr minmax(10rem, auto);
+    }
+  }
+}

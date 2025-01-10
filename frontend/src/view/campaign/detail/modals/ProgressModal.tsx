@@ -68,7 +68,6 @@ export const ProgressModal: React.FC<{
     setProgress(progression.map(p => {
       const totalFinished = p.ranges.reduce((v, r) => v + r.finished_tasks_count, 0);
       const total = p.ranges.reduce((v, r) => v + r.files_count, 0);
-      console.debug(totalFinished, total, total > 0 ? Math.trunc(100 * totalFinished / total) : 0)
       return { ...p, progress: total > 0 ? Math.trunc(100 * totalFinished / total) : 0 }
     }));
   }, [ fileRanges, users ]);
@@ -120,7 +119,7 @@ export const ProgressModal: React.FC<{
   }, [ sort ])
 
   return (
-    <Modal onClose={ onClose } className={ styles.modal }>
+    <Modal onClose={ onClose } className={ [ styles.modal, styles.progressModal ].join(' ') }>
       <ModalHeader onClose={ onClose } title='Annotators progression'/>
 
       { isLoadingUsers || isLoadingFileRanges && <IonSpinner/> }
@@ -176,7 +175,7 @@ export const ProgressModal: React.FC<{
           </Table> }
 
       { isOwner && users && fileRanges && (
-        <ModalFooter>
+        <ModalFooter className={ styles.footer }>
           <div className={ styles.buttons }>
             <IonButton fill='outline' onClick={ onDownloadReport }>
               <IonIcon icon={ downloadOutline } slot='start'/>

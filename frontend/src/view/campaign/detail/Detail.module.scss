@@ -6,6 +6,11 @@
   height: 100%;
   position: relative;
 
+  h2 {
+    word-break: break-word;
+    text-align: center;
+  }
+
   .main {
     display: grid;
     gap: 2rem;
@@ -45,5 +50,10 @@
     .fillContent {
       grid-column: 1 / -1;
     }
+  }
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+    gap: 4rem;
   }
 }

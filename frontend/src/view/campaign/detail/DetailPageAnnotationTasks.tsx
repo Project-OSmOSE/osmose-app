@@ -84,7 +84,9 @@ export const DetailPageAnnotationTasks: React.FC<{
     { isLoading && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
-    { files && <Fragment>
+    { files && files.results.length === 0 && <p>You have no files to annotate.</p> }
+
+    { files && files.results.length > 0 && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>
             <TableHead isFirstColumn={ true }>Filename</TableHead>
             <TableHead>Date</TableHead>
@@ -116,12 +118,6 @@ export const DetailPageAnnotationTasks: React.FC<{
               <TableDivider/>
             </Fragment>
           }) }
-          { files.results.length === 0 &&
-              <TableContent isFirstColumn={ true }
-                            className={ styles.fillContent }>
-                  You have no files to annotate.
-              </TableContent> }
-
         </Table>
 
       { files.results.length > 0 &&

@@ -23,6 +23,7 @@
     grid-template-columns: 1fr;
     grid-template-areas: "action" "search" "filters";
     gap: 1rem;
+    justify-items: center;
 
     .search {
       width: 100%;

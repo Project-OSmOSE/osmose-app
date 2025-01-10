@@ -27,8 +27,21 @@ export const AnnotatorsRangeBloc: React.FC = () => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 }, {refetchOnMountOrArgChange: true})
+  const { refetch: fetchFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
   const { data: allDatasets } = useListDatasetQuery();
+
+  useEffect(() => {
+    if (!currentCampaign?.id) return;
+    fetchFileRanges().then(({ data }) => {
+      for (const range of data ?? []) {
+        dispatch(addDraftFileRange({
+          ...range,
+          first_file_index: range.first_file_index + 1,
+          last_file_index: range.last_file_index + 1,
+        }))
+      }
+    })
+  }, []);
 
   // Memo
   const filesCount = useMemo(() => {
@@ -50,17 +63,6 @@ export const AnnotatorsRangeBloc: React.FC = () => {
       }
     ) ?? [];
   }, [ users, filesCount, draftFileRanges ]);
-
-  // Updates
-  useEffect(() => {
-    for (const range of initialFileRanges ?? []) {
-      dispatch(addDraftFileRange({
-        ...range,
-        first_file_index: range.first_file_index + 1,
-        last_file_index: range.last_file_index + 1,
-      }))
-    }
-  }, [ initialFileRanges ]);
 
   if (!users) return <FormBloc label="Annotators"><IonSpinner/></FormBloc>
   return (

@@ -28,7 +28,7 @@ export const AudioMetadataModal: React.FC<{
 
   return (
     <Modal onClose={ onClose } className={ styles.modal }>
-      <ModalHeader onClose={ onClose } title='Spectrogram configuration'/>
+      <ModalHeader onClose={ onClose } title='Audio metadata'/>
 
       { isLoading && <IonSpinner/> }
 
@@ -61,7 +61,7 @@ export const AudioMetadataModal: React.FC<{
         { isOwner && metadata && (
           <IonButton fill='outline' onClick={ onDownload }>
             <IonIcon icon={ downloadOutline } slot='start'/>
-            Download configurations (csv)
+            Download metadata (csv)
           </IonButton>
         ) }
       </ModalFooter>
