@@ -60,13 +60,13 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
         <p>{ campaign.usage }</p>
       </div>
 
-      { campaign.my_total > 0 && <Progress label='My progress' color={ color }
-                                           value={ campaign.my_progress }
-                                           total={ campaign.my_total }/> }
+      { campaign.my_total > 0 ? <Progress label='My progress' color={ color }
+                                          value={ campaign.my_progress }
+                                          total={ campaign.my_total }/> : <div/> }
 
-      { campaign.my_total > 0 && <Progress label='Global progress'
-                                           value={ campaign.progress }
-                                           total={ campaign.total }/> }
+      { campaign.total > 0 && <Progress label='Global progress'
+                                        value={ campaign.progress }
+                                        total={ campaign.total }/> }
     </div>
   );
 }
