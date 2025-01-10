@@ -1,7 +1,7 @@
 .page {
   font-family: var(--ion-font-family), sans-serif;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr minmax(auto, 12rem);
   gap: 2rem;
   height: 100%;
   position: relative;
@@ -32,10 +32,21 @@
     .bloc {
       display: grid;
       gap: 0.5rem;
+      width: 100%;
+      overflow: hidden;
+
+      > div {
+        width: 100%;
+        overflow: hidden;
+      }
     }
 
     p {
       line-height: 0.95rem;
+      word-break: break-word;
+      text-wrap: wrap;
+      overflow: hidden;
+      width: 100%;
     }
   }
 

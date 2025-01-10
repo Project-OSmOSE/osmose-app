@@ -87,7 +87,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
         <p>{ campaign.datasets.join(', ') }</p>
       </div>
 
-      <IonButton fill='outline' color='medium' onClick={ toggleSpectrogramModal }>
+      <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleSpectrogramModal }>
         Spectrogram configuration{ campaign.spectro_configs.length > 1 ? 's' : '' }
       </IonButton>
       { isSpectrogramModalOpen && createPortal(
@@ -96,7 +96,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
                                         onClose={ toggleSpectrogramModal }/>,
         document.body) }
 
-      <IonButton fill='outline' color='medium' onClick={ toggleAudioModal }>
+      <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleAudioModal }>
         Audio metadata
       </IonButton>
       { isAudioModalOpen && createPortal(
@@ -131,7 +131,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
       <Progress label='Global progress'
                 value={ campaign.progress } total={ campaign.total }/>
 
-      <IonButton fill='outline' color='medium' onClick={ toggleProgressModal }>
+      <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleProgressModal }>
         Detailed progression
       </IonButton>
       { isProgressModalOpen && createPortal(

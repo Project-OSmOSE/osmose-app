@@ -51,8 +51,9 @@
     }
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 1000px) {
     grid-template-columns: 1fr 1fr;
+    gap: 0;
 
     .proposition {
       grid-column: 1 / -1;
@@ -63,7 +64,6 @@
 
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
-    gap: 0;
 
     .proposition {
       grid-column: 1 / -1;
