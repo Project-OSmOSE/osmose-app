@@ -1,0 +1,38 @@
+import React, { Fragment, useMemo } from "react";
+import { useAppDispatch, useAppSelector } from '@/service/app';
+import { getScaleName } from '@/service/dataset/spectrogram-configuration';
+import { selectSpectrogramConfiguration, useRetrieveAnnotatorQuery } from '@/service/annotator';
+import { useParams } from "react-router-dom";
+import { Select } from "@/components/form";
+
+export const NFFTSelect: React.FC = () => {
+  const params = useParams<{ campaignID: string, fileID: string }>();
+  const { data } = useRetrieveAnnotatorQuery(params)
+  const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
+
+  const dispatch = useAppDispatch()
+
+  const options = useMemo(() => {
+    if (!data) return []
+    return data.spectrogram_configurations.map(c => {
+      let label = `nfft: ${ c.nfft }`;
+      label += ` | winsize: ${ c.window_size }`
+      label += ` | overlap: ${ c.overlap }`
+      label += ` | scale: ${ getScaleName(c) }`
+      return { value: c.id, label }
+    })
+  }, [ data?.spectrogram_configurations ]);
+
+  function select(value: string | number | undefined) {
+    if (value === undefined) return;
+    dispatch(selectSpectrogramConfiguration(+value))
+  }
+
+  if (!data) return <Fragment/>
+  return <Select placeholder='Select a configuration'
+                 options={ options }
+                 optionsContainer='popover'
+                 value={ selectedID }
+                 required={ true }
+                 onValueSelected={ select }/>
+}

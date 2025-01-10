@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { Footer, Header } from "@/components/layout";
 import styles from './home.module.scss';
 import { IonButton, IonIcon } from "@ionic/react";
@@ -7,34 +7,45 @@ import { createPortal } from "react-dom";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 import { Link } from "@/components/ui";
 import { useListCollaboratorsQuery } from "@/service/collaborator";
+import { useAppSelector } from "@/service/app.ts";
+import { selectIsConnected } from "@/service/auth";
 
 
-export const Home: React.FC = () => (
-  <div className={ styles.page }>
-    <Header/>
-    <img src="images/home/banner.jpg" loading='lazy'
-         alt="Aplose Page Banner"
-         className={ styles.banner }/>
-    <div className={ styles.content }>
+export const Home: React.FC = () => {
+  const isConnected = useAppSelector(selectIsConnected);
 
-      <Intro/>
+  return (
+    <div className={ styles.page }>
+      <Header buttons={ <Fragment>
+        <Link href={ isConnected ? '/app/aplose' : '/app/login' }
+              size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>
+        <Link href='/' size='large'>OSmOSE</Link>
+      </Fragment>
+      }/>
+      <img src="images/home/banner.jpg" loading='lazy'
+           alt="Aplose Page Banner"
+           className={ styles.banner }/>
+      <div className={ styles.content }>
 
-      <ManualAnnotation/>
+        <Intro/>
 
-      <PlatformFeatures/>
+        <ManualAnnotation/>
 
-      <Resources/>
+        <PlatformFeatures/>
 
-      <Collaboration/>
+        <Resources/>
 
-      <Join/>
+        <Collaboration/>
 
-      <Collaborators/>
+        <Join/>
 
+        <Collaborators/>
+
+      </div>
+      <Footer/>
     </div>
-    <Footer/>
-  </div>
-)
+  )
+}
 
 const Intro: React.FC = () => (
   <div className={ styles.bloc }>

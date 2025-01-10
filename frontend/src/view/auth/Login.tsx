@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import styles from './auth.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { Input } from "@/components/form";
@@ -33,7 +33,7 @@ export const Login: React.FC = () => {
 
   useEffect(() => {
     if (loginError) toast.presentError(getErrorMessage(loginError));
-  }, [loginError]);
+  }, [ loginError ]);
 
   useEffect(() => {
     if (isConnected) history.replace(from);
@@ -52,7 +52,10 @@ export const Login: React.FC = () => {
   }
 
   return <div className={ styles.page }>
-    <Header/>
+    <Header buttons={ <Fragment>
+      <Link href='/app/' size='large'>Home</Link>
+      <Link href='/' size='large'>OSmOSE</Link>
+    </Fragment> }/>
     <div className={ styles.content }>
       <h2>Login</h2>
 

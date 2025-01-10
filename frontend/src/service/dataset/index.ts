@@ -7,6 +7,7 @@ export {
 
 export {
   selectAnnotationFileDuration,
+  getDuration
 } from './function';
 
 export type {

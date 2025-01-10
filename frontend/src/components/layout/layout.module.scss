@@ -121,6 +121,23 @@
     display: none;
   }
 
+  .info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+  }
+
+  &.small .title {
+    img {
+      height: 3rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
   @media (max-width: 800px) {
     .toggle {
       display: block;
@@ -131,6 +148,9 @@
       justify-items: center;
       transition: 300ms ease-out;
       overflow: hidden;
+    }
+    .info {
+      display: none;
     }
 
     &.opened .links {

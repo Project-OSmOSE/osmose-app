@@ -21,13 +21,17 @@ export const DetailPageAnnotationTasks: React.FC<{
   const [ nonSubmittedFilter, setNonSubmittedFilter ] = useState<true | undefined>();
   const [ withAnnotationsFilter, setWithAnnotationsFilter ] = useState<true | undefined>();
 
-  const { data: files, isLoading, error } = useListFilesWithPaginationQuery({
+  useListFilesWithPaginationQuery({
+    campaignID: campaign.id,
+    page: 1,
+  }, { refetchOnMountOrArgChange: true });
+  const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
     campaignID: campaign.id,
     page,
     search,
     isSubmitted: nonSubmittedFilter === undefined ? undefined : false,
     withUserAnnotations: withAnnotationsFilter
-  }, { refetchOnMountOrArgChange: true });
+  });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
@@ -81,10 +85,10 @@ export const DetailPageAnnotationTasks: React.FC<{
       </IonChip>
     </ActionBar>
 
-    { isLoading && <IonSpinner/> }
+    { isFetching && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
-    { files && files.results.length === 0 && <p>You have no files to annotate.</p> }
+    { files && files.count === 0 && <p>You have no files to annotate.</p> }
 
     { files && files.results.length > 0 && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>

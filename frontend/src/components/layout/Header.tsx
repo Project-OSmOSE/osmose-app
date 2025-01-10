@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import styles from './layout.module.scss'
 import logo from "/images/ode_logo_192x192.png";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { Link } from "@/components/ui";
-import { useAppSelector } from "@/service/app.ts";
-import { selectIsConnected } from "@/service/auth";
 import { IonButton, IonIcon } from "@ionic/react";
 import { closeOutline, menuOutline } from "ionicons/icons";
-import { useLocation } from "react-router-dom";
 
-export const Header: React.FC = () => {
-
-  const isConnected = useAppSelector(selectIsConnected);
-
-  const location = useLocation();
+export const Header: React.FC<{
+  buttons?: ReactNode;
+  children?: ReactNode;
+  size?: 'small' | 'default';
+}> = ({ children, buttons, size }) => {
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
 
@@ -22,7 +18,8 @@ export const Header: React.FC = () => {
   }
 
   return (
-    <header className={ [ styles.header, isOpen ? styles.opened : styles.closed ].join(' ') }>
+    <header
+      className={ [ styles.header, isOpen ? styles.opened : styles.closed, size === 'small' ? styles.small : '' ].join(' ') }>
       <div className={ styles.title }>
         <img src={ logo } alt="OSmOSE"/>
         <h1>APLOSE</h1>
@@ -30,16 +27,15 @@ export const Header: React.FC = () => {
 
       <IonButton fill='outline' color='medium'
                  className={ styles.toggle } onClick={ toggleOpening }>
-        <IonIcon icon={ isOpen ? closeOutline : menuOutline} slot='icon-only'/>
+        <IonIcon icon={ isOpen ? closeOutline : menuOutline } slot='icon-only'/>
       </IonButton>
 
+      <div className={ styles.info }>{ children }</div>
+
       <div className={ styles.links }>
-        <DocumentationButton/>
+        <DocumentationButton size={ size }/>
 
-        { location.pathname === '/' && <Link href={ isConnected ? '/app/aplose' : '/app/login' } size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>}
-        { location.pathname !== '/' && <Link href='/app/' size='large'>Home</Link>}
-
-        <Link href='/' size='large'>OSmOSE</Link>
+        { buttons }
 
       </div>
     </header>

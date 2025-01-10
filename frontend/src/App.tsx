@@ -23,6 +23,7 @@ import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
 import { Home } from "@/view/home/Home.tsx";
 import { Account, Login as NewLogin } from '@/view/auth';
+import { AnnotatorPage } from "@/view/annotator/AnnotatorPage.tsx";
 
 
 setupIonicReact({
@@ -46,6 +47,8 @@ export const App: React.FC = () => {
 
             <AuthenticatedRoute exact
                                 path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
+            <AuthenticatedRoute exact
+                                path='/annotation-campaign/:campaignID/file/:fileID/new'><AnnotatorPage/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>

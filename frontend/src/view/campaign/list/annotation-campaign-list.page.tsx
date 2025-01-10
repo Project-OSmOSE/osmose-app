@@ -22,7 +22,7 @@ export const AnnotationCampaignList: React.FC = () => {
 
   // Services
   const { data: currentUser } = useGetCurrentUserQuery();
-  const { data: campaigns, isFetching, error } = useListCampaignsQuery({
+  const { currentData: campaigns, isFetching, error } = useListCampaignsQuery({
     onlyArchived: showArchivedFilter,
     usage: modeFilter,
     search,

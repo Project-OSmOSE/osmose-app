@@ -1,0 +1,71 @@
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+
+  .info {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.annotator {
+  display: grid;
+  align-items: center;
+  align-content: start;
+  justify-items: center;
+  grid-template-areas:
+          "spectrogram"
+  "download";
+  gap: 1rem;
+
+  .spectrogramContainer {
+    grid-area: spectrogram;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 0.25rem;
+
+    .spectrogramData {
+      display: grid;
+      align-items: center;
+      grid-template-columns: 1fr auto 1fr;
+      justify-content: space-between;
+      font-size: 0.9rem;
+
+      .spectrogramInfo {
+      }
+
+      .pointerInfo {
+        display: grid;
+        justify-items: center;
+      }
+
+      .campaignInfo {
+        justify-self: end;
+        display: grid;
+
+        > div {
+          display: grid;
+          grid-auto-flow: column;
+          align-items: center;
+          gap: 0.5rem;
+          justify-content: start;
+        }
+      }
+    }
+
+    .spectrogramNavigation {
+    }
+  }
+
+  .downloadButtons {
+    grid-area: download;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    grid-auto-flow: column;
+  }
+}
