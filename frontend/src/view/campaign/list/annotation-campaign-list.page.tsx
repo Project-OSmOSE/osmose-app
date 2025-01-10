@@ -79,6 +79,7 @@ export const AnnotationCampaignList: React.FC = () => {
       <h2>Annotation Campaigns</h2>
 
       <ActionBar search={ search }
+                 searchPlaceholder="Search campaign name"
                  onSearchChange={ setSearch }
                  actionButton={ <IonButton color="primary" fill='outline'
                                            onClick={ openNewCampaign } onAuxClick={ openAuxNewCampaign }>

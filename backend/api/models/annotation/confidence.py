@@ -9,9 +9,6 @@ class ConfidenceIndicatorSet(models.Model):
     A confidence indicator set is created by a staff user.
     """
 
-    class Meta:
-        db_table = "confidence_sets"
-
     def __str__(self):
         return str(self.name)
 
@@ -31,7 +28,6 @@ class ConfidenceIndicator(models.Model):
     """
 
     class Meta:
-        db_table = "confidence_indicator"
         constraints = [
             models.UniqueConstraint(
                 name="one_default_by_confidence_indicator_set",

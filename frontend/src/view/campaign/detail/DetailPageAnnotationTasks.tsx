@@ -57,6 +57,7 @@ export const DetailPageAnnotationTasks: React.FC<{
   return <Fragment>
 
     <ActionBar search={ search }
+               searchPlaceholder="Search filename"
                onSearchChange={ value => {
                  setSearch(value);
                  setPage(1)

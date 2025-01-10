@@ -4,10 +4,11 @@ import { IonSearchbar } from "@ionic/react";
 
 export const ActionBar: React.FC<{
   search?: string;
+  searchPlaceholder?: string;
   onSearchChange(search?: string): void;
   actionButton: ReactNode;
   children: ReactNode;
-}> = ({ search, onSearchChange, actionButton, children }) => {
+}> = ({ search, searchPlaceholder = 'Search', onSearchChange, actionButton, children }) => {
 
   function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
     if (event.key === 'Enter') {
@@ -21,7 +22,7 @@ export const ActionBar: React.FC<{
 
   return (
     <div className={ styles.actionBar }>
-      <IonSearchbar placeholder="Search file"
+      <IonSearchbar placeholder={ searchPlaceholder }
                     className={ styles.search }
                     onKeyDown={ doSearch }
                     onIonClear={ clearSearch }
