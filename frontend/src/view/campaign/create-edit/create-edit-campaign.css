@@ -55,3 +55,14 @@
   opacity: 0;
 }
 
+
+
+@media (max-width: 800px) {
+  #create-campaign-form {
+    padding: 0 1rem;
+  }
+
+  #create-campaign-form h1 {
+    text-align: center;
+  }
+}

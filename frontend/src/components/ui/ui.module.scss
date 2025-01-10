@@ -31,12 +31,16 @@
   left: 0;
   right: 0;
   background: rgba(var(--ion-color-dark-rgb), 0.15);
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 2rem;
+  @media (max-width: 800px) {
+    padding: 1rem;
+    justify-items: stretch;
+  }
 
   .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background: var(--ion-color-light);
     border-radius: 2rem;
     box-shadow: var(--aplose-box-shadow);
@@ -70,6 +74,20 @@
       display: grid;
       grid-auto-flow: column;
       justify-content: space-between;
+    }
+
+    @media (max-width: 800px) {
+      padding: 1rem;
+      min-width: unset;
+      max-width: unset;
+      gap: 1rem;
+
+      .header, .footer {
+        padding: 1rem;
+      }
+      .header {
+        padding-bottom: 0;
+      }
     }
   }
 }

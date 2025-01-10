@@ -141,6 +141,7 @@ const AnnotatorRangeLine: React.FC<{
       </TableContent>
       <TableContent>
         <IonButton disabled={ disabled }
+                   className={ styles.deleteButton }
                    color="danger"
                    data-tooltip={ 'This user as already started to annotate' }
                    onClick={ onDelete }>

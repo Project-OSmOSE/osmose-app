@@ -16,8 +16,18 @@
 .importModal {
   grid-template-rows: auto auto 1fr auto;
 
-  .importModalTable {
+  .tableContainer {
     overflow: auto;
+  }
+
+  .importModalTable {
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    > * {
+      width: 100%;
+      overflow: hidden;
+    }
   }
 
   .item {
@@ -30,6 +40,15 @@
 
     text-align: start;
     cursor: pointer;
+    width: 100%;
+    overflow: hidden;
+
+    span, p {
+      width: 100%;
+      overflow: hidden;
+      text-wrap: wrap;
+      word-break: break-word;
+    }
 
     b {
       font-weight: 600;

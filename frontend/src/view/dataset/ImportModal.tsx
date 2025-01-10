@@ -66,28 +66,29 @@ export const ImportDatasetModal: React.FC<{
 
       <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
 
-      <Table columns={ 1 } className={ styles.importModalTable }>
-        <TableHead isFirstColumn={ true }>
-          <div className={ styles.item } onClick={ toggleSelectAllDatasets }>
-            <IonCheckbox checked={ selectAllDatasets } disabled={ isLoading }/>
-            <span><b>All datasets</b></span>
-          </div>
-        </TableHead>
-        <TableDivider/>
+      <div className={ styles.tableContainer }>
+        <Table columns={ 1 } className={ styles.importModalTable }>
+          <TableHead isFirstColumn={ true }>
+            <div className={ styles.item } onClick={ toggleSelectAllDatasets }>
+              <IonCheckbox checked={ selectAllDatasets } disabled={ isLoading }/>
+              <span><b>All datasets</b></span>
+            </div>
+          </TableHead>
+          <TableDivider/>
 
-        { filteredDatasets.map((dataset: ImportDataset) => <Fragment key={ dataset.dataset }>
-          <TableContent isFirstColumn={ true }>
-            <div className={ styles.item } onClick={ () => toggleDataset(dataset) }>
-              <IonCheckbox checked={ datasetSelection.get(dataset.name) } disabled={ isLoading }/>
-              <span>
+          { filteredDatasets.map((dataset: ImportDataset) => <Fragment key={ dataset.dataset }>
+            <TableContent isFirstColumn={ true }>
+              <div className={ styles.item } onClick={ () => toggleDataset(dataset) }>
+                <IonCheckbox checked={ datasetSelection.get(dataset.name) } disabled={ isLoading }/>
+                <span>
                 <b>{ dataset.name }</b>
                 <p>{ dataset.path }</p>
               </span>
-            </div>
-          </TableContent>
-        </Fragment>) }
-      </Table>
-
+              </div>
+            </TableContent>
+          </Fragment>) }
+        </Table>
+      </div>
 
 
       <ModalFooter className={ styles.buttons }>
@@ -95,7 +96,7 @@ export const ImportDatasetModal: React.FC<{
         <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
         <IonButton onClick={ doImport } disabled={ isLoading } color='primary' fill='solid'>
           <IonIcon slot='start' icon={ cloudUploadOutline }/>
-          Import datasets into APLOSE
+          Import datasets
         </IonButton>
       </ModalFooter>
     </Modal>
