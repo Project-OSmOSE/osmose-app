@@ -41,5 +41,9 @@
     .statusIcon {
       justify-self: center;
     }
+
+    .fillContent {
+      grid-column: 1 / -1;
+    }
   }
 }

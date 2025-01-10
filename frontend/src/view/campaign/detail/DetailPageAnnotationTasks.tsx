@@ -62,7 +62,7 @@ export const DetailPageAnnotationTasks: React.FC<{
                  setPage(1)
                } }
                actionButton={ <IonButton color="primary" fill='outline' disabled={ !files?.resume }
-                                   onClick={ resume }>
+                                         onClick={ resume }>
                  Resume annotation
                  <IonIcon icon={ playOutline } slot="end"/>
                </IonButton> }>
@@ -115,6 +115,11 @@ export const DetailPageAnnotationTasks: React.FC<{
               <TableDivider/>
             </Fragment>
           }) }
+          { files.results.length === 0 &&
+              <TableContent isFirstColumn={ true }
+                            className={ styles.fillContent }>
+                  You have no files to annotate.
+              </TableContent> }
 
         </Table>
 

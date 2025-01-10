@@ -125,8 +125,8 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
     </div>
 
     <div className={ styles.bloc }>
-      <Progress label='My progress' color='primary'
-                value={ campaign.my_progress } total={ campaign.my_total }/>
+      { campaign.my_total > 0 && <Progress label='My progress' color='primary'
+                                           value={ campaign.my_progress } total={ campaign.my_total }/> }
 
       <Progress label='Global progress'
                 value={ campaign.progress } total={ campaign.total }/>
