@@ -14,6 +14,11 @@
     justify-content: center;
     gap: 8rem;
 
+    @media (max-width: 800px) {
+      padding: 2rem 1rem;
+      gap: 4rem;
+    }
+
     .bloc {
       display: grid;
       gap: 1rem;
@@ -97,6 +102,11 @@
     background: var(--aplose-backdrop-color);
     display: grid;
     padding: 8rem;
+    z-index: 1;
+
+    @media (max-width: 800px) {
+      padding: 1rem;
+    }
 
     img {
       cursor: auto;

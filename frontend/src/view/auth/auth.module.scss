@@ -30,17 +30,9 @@
       text-align: center;
       margin: 0;
     }
-  }
 
-  @media (max-width: 800px) {
-    grid-template-rows: 1fr auto;
-    align-items: start;
-    .content {
+    @media (max-width: 800px) {
       width: 80%;
-      position: fixed;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
     }
   }
 }

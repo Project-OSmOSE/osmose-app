@@ -41,8 +41,8 @@ export const App: React.FC = () => {
       <IonApp>
         <Router basename='/app'>
           <Switch>
-            <Route exact path="/login"><NewLogin/></Route>
             <Route exact path='/'><Home/></Route>
+            <Route exact path="/login"><NewLogin/></Route>
 
             <AuthenticatedRoute exact
                                 path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
