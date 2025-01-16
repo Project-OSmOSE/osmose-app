@@ -34,6 +34,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
 
 
 export type AnnotatorData = {
+  is_submitted: boolean;
   campaign: AnnotationCampaign;
   file: DatasetFile;
   user: User;

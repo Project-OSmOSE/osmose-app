@@ -1,6 +1,5 @@
 """Annotator viewset"""
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -102,6 +101,12 @@ class AnnotatorViewSet(viewsets.ViewSet):
 
         return Response(
             {
+                "is_submitted": AnnotationTask.objects.filter(
+                    annotation_campaign_id=campaign_id,
+                    dataset_file_id=file_id,
+                    annotator_id=request.user.id,
+                    status=AnnotationTask.Status.FINISHED,
+                ).exists(),
                 "campaign": campaign,
                 "file": file,
                 "user": user,

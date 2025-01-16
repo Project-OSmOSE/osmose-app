@@ -7,7 +7,7 @@ import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
-import { IoChevronForwardOutline } from "react-icons/io5";
+import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useBlur } from "@/services/utils/clic.ts";
 import { useToast } from "@/services/utils/toast.ts";
 
@@ -49,7 +49,9 @@ export const AnnotatorPage: React.FC = () => {
                 Back to campaign
               </IonButton>
             </Fragment> }>
-      { data && <p className={ styles.info }>{ data.campaign.name } <IoChevronForwardOutline/> { data.file.filename }</p> }
+      { data && <p className={ styles.info }>
+        { data.campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted && <IoCheckmarkCircleOutline/> }
+      </p> }
     </Header>
 
     <Annotator/>
