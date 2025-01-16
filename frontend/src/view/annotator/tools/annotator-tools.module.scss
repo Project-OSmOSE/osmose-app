@@ -93,6 +93,14 @@
   }
 }
 
-.bloc {
-  
+.zoom {
+  cursor: pointer;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.navigation {
+  display: grid;
+  align-items: center;
+  grid-auto-flow: column;
 }

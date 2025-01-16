@@ -8,6 +8,7 @@ import './css/fontawesome/css/regular.min.css'
 import './css/bootstrap-4.1.3.min.css';
 import '@ionic/react/css/core.css';
 import './css/ionic-override.css';
+import './css/annotation-colors.css';
 import './css/app.css';
 
 import { IonApp, setupIonicReact } from '@ionic/react';
@@ -46,9 +47,9 @@ export const App: React.FC = () => {
             <Route exact path="/login"><NewLogin/></Route>
 
             <AuthenticatedRoute exact
-                                path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
+                                path='/annotation-campaign/:campaignID/file/:fileID/old'><AudioAnnotator/></AuthenticatedRoute>
             <AuthenticatedRoute exact
-                                path='/annotation-campaign/:campaignID/file/:fileID/new'><AnnotatorPage/></AuthenticatedRoute>
+                                path='/annotation-campaign/:campaignID/file/:fileID'><AnnotatorPage/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>

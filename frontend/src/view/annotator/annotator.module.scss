@@ -18,6 +18,7 @@
   justify-items: center;
   grid-template-areas:
           "spectrogram"
+          "blocs"
   "download";
   gap: 1rem;
 
@@ -27,14 +28,20 @@
     grid-template-rows: auto 1fr auto;
     gap: 0.25rem;
 
-    .spectrogramData {
+    .spectrogramData,
+    .spectrogramNavigation {
       display: grid;
       align-items: center;
       grid-template-columns: 1fr auto 1fr;
       justify-content: space-between;
       font-size: 0.9rem;
+      justify-items: center;
 
       .spectrogramInfo {
+        display: grid;
+        align-items: center;
+        gap: 0.5rem;
+        grid-auto-flow: column;
       }
 
       .pointerInfo {
@@ -43,7 +50,6 @@
       }
 
       .campaignInfo {
-        justify-self: end;
         display: grid;
 
         > div {
@@ -54,10 +60,23 @@
           justify-content: start;
         }
       }
-    }
 
-    .spectrogramNavigation {
+      > *:last-child {
+        justify-self: end;
+      }
+      > *:first-child {
+        justify-self: start;
+      }
     }
+  }
+
+  .blocContainer {
+    grid-area: blocs;
+    justify-self: stretch;
+    display: grid;
+    padding: 0 2rem;
+    gap: 2rem;
+    grid-template-columns: 32ch auto 1fr;
   }
 
   .downloadButtons {

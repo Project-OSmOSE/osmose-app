@@ -1,6 +1,5 @@
 """User DRF serializers file"""
 from django.contrib.auth.password_validation import validate_password
-from django.core.validators import EmailValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -23,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(read_only=True)
 
     email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all()), EmailValidator()],
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
     expertise_level = EnumField(

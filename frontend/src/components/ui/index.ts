@@ -1,14 +1,22 @@
 export {
-  Link,
-} from './Link'
+  Kbd
+} from './Kbd'
 
 export {
-  FadedText,
-  WarningText,
-} from './Text'
+  Link,
+} from './Link'
 
 export {
   Modal,
   ModalHeader,
   ModalFooter,
-} from './Modal';
+} from './Modal'
+
+export {
+  Progress,
+} from './Progress'
+
+export {
+  FadedText,
+  WarningText,
+} from './Text'

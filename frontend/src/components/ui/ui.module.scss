@@ -100,3 +100,17 @@
     color: var(--ion-color-base);
   }
 }
+
+.kbd {
+  background: var(--ion-color-light-shade);
+  color: var(--ion-color-light-contrast);
+  padding: 0.25rem  0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--ion-color-medium-tint);
+  box-shadow: var(--box-shadow);
+
+  > kbd {
+    background: var(--ion-color-light-shade);
+    color: var(--ion-color-light-contrast);
+  }
+}

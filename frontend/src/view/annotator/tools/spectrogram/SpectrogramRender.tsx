@@ -43,7 +43,7 @@ export interface SpectrogramRender {
   getCanvasData: () => Promise<string>;
 }
 
-export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
+export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
 
@@ -57,6 +57,9 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
   } = useAppSelector(state => state.annotator)
   const duration = useMemo(() => getDuration(data?.file), [ data?.file ])
   const dispatch = useAppDispatch()
+
+  const spectroWidth = useMemo(() => SPECTRO_WIDTH / window.devicePixelRatio, [ window.devicePixelRatio ])
+  const spectroHeight = useMemo(() => SPECTRO_HEIGHT / window.devicePixelRatio, [ window.devicePixelRatio ])
 
   // Ref
   const containerRef = useRef<HTMLDivElement>(null)
@@ -86,7 +89,7 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
     _isDrawingEnabled.current = isDrawingEnabled
   }, [ isDrawingEnabled ]);
 
-  const timeWidth = useMemo(() => SPECTRO_WIDTH * userPreferences.zoomLevel, [ userPreferences.zoomLevel ]);
+  const timeWidth = useMemo(() => spectroWidth * userPreferences.zoomLevel, [ userPreferences.zoomLevel, spectroWidth ]);
   const currentConfiguration = useMemo(() => data?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID), [ data?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ]);
 
   useEffect(() => {
@@ -104,10 +107,10 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
     // If zoom factor has changed
     if (userPreferences.zoomLevel === _zoom) return;
     // New timePxRatio
-    const newTimePxRatio: number = SPECTRO_WIDTH * userPreferences.zoomLevel / duration;
+    const newTimePxRatio: number = spectroWidth * userPreferences.zoomLevel / duration;
 
     // Resize canvases and scroll
-    canvas.width = SPECTRO_WIDTH * userPreferences.zoomLevel;
+    canvas.width = spectroWidth * userPreferences.zoomLevel;
 
     // Compute new center (before resizing)
     let newCenter: number;
@@ -119,7 +122,7 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
     }
-    wrapper.scrollLeft = Math.floor(newCenter - SPECTRO_WIDTH / 2);
+    wrapper.scrollLeft = Math.floor(newCenter - spectroWidth / 2);
     _setZoom(userPreferences.zoomLevel);
     updateCanvas()
   }, [ userPreferences.zoomLevel ]);
@@ -135,8 +138,8 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
     const oldX: number = Math.floor(canvas.width * currentTime.current / duration);
     const newX: number = Math.floor(canvas.width * audio.time / duration);
 
-    if ((oldX - wrapper.scrollLeft) < SPECTRO_WIDTH && (newX - wrapper.scrollLeft) >= SPECTRO_WIDTH) {
-      wrapper.scrollLeft += SPECTRO_WIDTH;
+    if ((oldX - wrapper.scrollLeft) < spectroWidth && (newX - wrapper.scrollLeft) >= spectroWidth) {
+      wrapper.scrollLeft += spectroWidth;
     }
     currentTime.current = audio.time;
 
@@ -206,7 +209,7 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
 
       context.drawImage(spectroImg, Y_WIDTH, 0, spectroImg.width, spectroImg.height);
       context.drawImage(freqImg, 0, 0, freqImg.width, freqImg.height);
-      context.drawImage(timeImg, Y_WIDTH, SPECTRO_HEIGHT, timeImg.width, timeImg.height);
+      context.drawImage(timeImg, Y_WIDTH, spectroHeight, timeImg.width, timeImg.height);
 
       return canvas.toDataURL('image/png')
     }
@@ -302,7 +305,7 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
 
       <YAxis className={ styles.yAxis }
              width={ Y_WIDTH }
-             height={ SPECTRO_HEIGHT }
+             height={ spectroHeight }
              ref={ yAxis }
              linear_scale={ currentConfiguration?.linear_frequency_scale }
              multi_linear_scale={ currentConfiguration?.multi_linear_frequency_scale }
@@ -315,8 +318,8 @@ export const SpectroRender = React.forwardRef<SpectrogramRender, Props>(({ audio
 
         <canvas className={ isDrawingEnabled ? styles.drawable : '' }
                 ref={ canvasRef }
-                height={ SPECTRO_HEIGHT }
-                width={ SPECTRO_WIDTH }
+                height={ spectroHeight }
+                width={ spectroWidth }
                 onClick={ e => audioService.seek(pointerService.getFreqTime(e)?.time ?? 0) }
                 onWheel={ onWheel }/>
 

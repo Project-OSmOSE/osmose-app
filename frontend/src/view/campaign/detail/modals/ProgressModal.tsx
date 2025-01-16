@@ -35,10 +35,10 @@ export const ProgressModal: React.FC<{
 }> = ({ campaign, onClose, isOwner }) => {
   const toast = useToast();
   const history = useHistory();
-  const { data: users, isLoading: isLoadingUsers, error: userError } = useListUsersQuery();
+  const { data: users, isFetching: isLoadingUsers, error: userError } = useListUsersQuery();
   const {
     data: fileRanges,
-    isLoading: isLoadingFileRanges,
+    isFetching: isLoadingFileRanges,
     error: fileRangeError
   } = useListAnnotationFileRangeQuery({ campaignID: campaign.id }, { refetchOnMountOrArgChange: true });
   const [ downloadStatus, { error: statusError } ] = useDownloadCampaignStatusMutation()
@@ -74,7 +74,7 @@ export const ProgressModal: React.FC<{
 
   useEffect(() => {
     if (statusError) toast.presentError(getErrorMessage(statusError));
-    if (statusError) toast.presentError(getErrorMessage(reportError));
+    if (reportError) toast.presentError(getErrorMessage(reportError));
   }, [ statusError, reportError ]);
 
   function toggleAnnotatorSort() {
