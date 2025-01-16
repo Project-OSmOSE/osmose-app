@@ -1,6 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 from datetime import timedelta
 
+from django.db import transaction
 from django.db.models import (
     Q,
     F,
@@ -19,6 +20,7 @@ from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from backend.api.models import (
     AnnotationCampaign,
@@ -130,6 +132,21 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             .order_by("name")
         )
         return queryset
+
+    @transaction.atomic()
+    def create(self, request, *args, **kwargs):
+        response: Response = super().create(request, *args, **kwargs)
+        if response.status_code != status.HTTP_201_CREATED:
+            return response
+
+        response_data: ReturnDict = response.data
+        queryset = self.filter_queryset(self.get_queryset())
+        data = self.serializer_class(queryset.get(pk=response_data.get("id"))).data
+        return Response(
+            data,
+            status=status.HTTP_201_CREATED,
+            headers=self.get_success_headers(data),
+        )
 
     @action(
         detail=True,

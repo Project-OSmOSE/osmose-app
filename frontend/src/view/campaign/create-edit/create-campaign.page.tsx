@@ -58,6 +58,7 @@ export const CreateCampaign: React.FC = () => {
     e.preventDefault();
     try {
       const campaign = createdCampaign ?? await submitCampaign();
+      console.debug()
       await submitResults(campaign)
       if (!await submitFileRanges(campaign)) return;
 
@@ -152,6 +153,7 @@ export const CreateCampaign: React.FC = () => {
       data: draftFileRanges.map(r => {
         const first_file_index = (r.first_file_index === undefined || r.first_file_index === null) ? 0 : (+r.first_file_index - 1);
         const last_file_index = (r.last_file_index === undefined || r.last_file_index === null) ? (campaign.files_count - 1) : (+r.last_file_index - 1);
+        console.debug(r.last_file_index, campaign.files_count, last_file_index)
         return {
           id: r.id >= 0 ? r.id : undefined,
           first_file_index: first_file_index < 0 ? 0 : first_file_index,
@@ -159,7 +161,7 @@ export const CreateCampaign: React.FC = () => {
           annotator: r.annotator
         }
       })
-    })
+    }).unwrap()
   }
 
 
