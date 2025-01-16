@@ -2,19 +2,17 @@
 from datetime import datetime
 
 import pytz
-from django.db.models import Count, Sum
 from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationCampaignUsage,
-    AnnotationTask,
     SpectrogramConfiguration,
     Dataset,
     LabelSet,
+    AnnotationCampaignArchive,
     Label,
     ConfidenceIndicatorSet,
-    AnnotationCampaignArchive,
 )
 from backend.aplose.models import User
 from backend.aplose.serializers import UserSerializer
@@ -34,13 +32,13 @@ class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
 class AnnotationCampaignSerializer(serializers.ModelSerializer):
     """Serializer for annotation campaign"""
 
-    files_count = serializers.SerializerMethodField(read_only=True)
+    files_count = serializers.IntegerField(read_only=True)
     datasets = serializers.SlugRelatedField(
         many=True, queryset=Dataset.objects.all(), slug_field="name"
     )
-    my_progress = serializers.SerializerMethodField(read_only=True)
+    my_progress = serializers.IntegerField(read_only=True)
     my_total = serializers.IntegerField(read_only=True)
-    progress = serializers.SerializerMethodField(read_only=True)
+    progress = serializers.IntegerField(read_only=True)
     total = serializers.IntegerField(read_only=True)
     usage = EnumField(enum=AnnotationCampaignUsage)
 
@@ -71,23 +69,6 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnnotationCampaign
         fields = "__all__"
-
-    def get_files_count(self, campaign: AnnotationCampaign) -> int:
-        """Get dataset files cont"""
-        return campaign.datasets.annotate(count=Count("files")).aggregate(
-            total=Sum("count")
-        )["total"]
-
-    def get_progress(self, campaign: AnnotationCampaign) -> int:
-        """Get progress"""
-        return campaign.tasks.filter(status=AnnotationTask.Status.FINISHED).count()
-
-    def get_my_progress(self, campaign: AnnotationCampaign) -> int:
-        """Get current user progress"""
-        return campaign.tasks.filter(
-            annotator_id=self.context["request"].user.id,
-            status=AnnotationTask.Status.FINISHED,
-        ).count()
 
     def validate_create_usage(self, attrs: dict):
         """Validate attributes for a "create" usage creation"""

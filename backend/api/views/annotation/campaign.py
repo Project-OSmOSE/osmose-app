@@ -9,15 +9,12 @@ from django.db.models import (
     Value,
     FloatField,
     DurationField,
-    Sum,
-    IntegerField,
-    Case,
-    When,
     Exists,
     OuterRef,
     QuerySet,
+    Prefetch,
 )
-from django.db.models.functions import Lower, Cast, Extract, Coalesce
+from django.db.models.functions import Lower, Cast, Extract
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -36,6 +33,7 @@ from backend.api.models import (
 from backend.api.serializers import (
     AnnotationCampaignSerializer,
 )
+from backend.aplose.models import User
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
 
@@ -80,7 +78,17 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
 class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
     """Model viewset for Annotation campaign"""
 
-    queryset = AnnotationCampaign.objects.all()
+    queryset = AnnotationCampaign.objects.select_related(
+        "owner",
+        "archive",
+        "archive__by_user",
+        "archive__by_user__aplose",
+    ).prefetch_related(
+        "datasets",
+        "labels_with_acoustic_features",
+        "spectro_configs",
+        Prefetch("annotators", queryset=User.objects.distinct()),
+    )
     serializer_class = AnnotationCampaignSerializer
     filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
     search_fields = ("name",)
@@ -90,23 +98,33 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
         queryset = (
             super()
             .get_queryset()
-            .annotate(
-                total=Coalesce(
-                    Sum(
-                        "annotation_file_ranges__files_count",
-                        output_field=IntegerField(default=0),
-                    ),
-                    0,
-                ),
-                my_total=Sum(
-                    Case(
-                        When(
-                            annotation_file_ranges__annotator_id=self.request.user.id,
-                            then=F("annotation_file_ranges__files_count"),
-                        ),
-                        default=0,
-                        output_field=IntegerField(),
-                    )
+            .extra(
+                select={
+                    "files_count": """
+                        SELECT count(*) FROM dataset_files f
+                        LEFT JOIN annotation_campaigns_datasets d on d.dataset_id = f.dataset_id
+                        WHERE d.annotationcampaign_id = annotation_campaigns.id
+                    """,
+                    "my_progress": """
+                        SELECT count(*) FROM api_annotationtask t
+                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.annotator_id = %s AND t.status = 'F'
+                    """,
+                    "my_total": """
+                        SELECT sum(files_count) FROM api_annotationfilerange r
+                        WHERE r.annotation_campaign_id = annotation_campaigns.id AND r.annotator_id = %s
+                    """,
+                    "progress": """
+                        SELECT count(*) FROM api_annotationtask t
+                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.status = 'F'
+                    """,
+                    "total": """
+                        SELECT sum(files_count) FROM api_annotationfilerange r
+                        WHERE r.annotation_campaign_id = annotation_campaigns.id
+                    """,
+                },
+                select_params=(
+                    self.request.user.id,
+                    self.request.user.id,
                 ),
             )
             .order_by("name")
