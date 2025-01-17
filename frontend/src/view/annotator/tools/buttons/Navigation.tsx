@@ -93,7 +93,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }`);
+    history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
@@ -101,7 +101,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
       const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
       if (!response) return;
     }
-    history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }`);
+    history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
   }
 
   return (

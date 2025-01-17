@@ -47,9 +47,9 @@ export const App: React.FC = () => {
             <Route exact path="/login"><NewLogin/></Route>
 
             <AuthenticatedRoute exact
-                                path='/annotation-campaign/:campaignID/file/:fileID/old'><AudioAnnotator/></AuthenticatedRoute>
+                                path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>
             <AuthenticatedRoute exact
-                                path='/annotation-campaign/:campaignID/file/:fileID'><AnnotatorPage/></AuthenticatedRoute>
+                                path='/annotation-campaign/:campaignID/file/:fileID/new'><AnnotatorPage/></AuthenticatedRoute>
 
             <AploseSkeleton>
               <Switch>
