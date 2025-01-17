@@ -1,50 +1,49 @@
-import { MutableRefObject, useRef } from "react";
+import { MutableRefObject, useMemo, useRef } from "react";
 import { useAppSelector } from '@/service/app';
 import { buildErrorMessage } from "@/services/utils/format.tsx";
-import { selectAnnotationFileDuration } from '@/service/dataset';
 import { AnnotationResultBounds } from '@/service/campaign/result';
 import { useToast } from '@/services/utils/toast.ts';
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
+import { getDuration } from "@/service/dataset";
+import { useParams } from "react-router-dom";
+import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 
 export const useSpectrogramService = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
   xAxis: MutableRefObject<ScaleMapping | null>,
   yAxis: MutableRefObject<ScaleMapping | null>,
 ) => {
+  const params = useParams<{ campaignID: string, fileID: string }>();
+  const { data } = useRetrieveAnnotatorQuery(params)
 
   const {
     audio,
-    file,
-    spectrogram_configurations,
     userPreferences,
   } = useAppSelector(state => state.annotator);
-  const duration = useAppSelector(selectAnnotationFileDuration)
   const toast = useToast();
+
+  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
 
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
 
   function areAllImagesLoaded(): boolean {
-    const zoom = userPreferences.zoomLevel - 1;
-    const imagesCount = 2 ** zoom;
-    const currentImages = images.current.get(zoom);
-    return currentImages?.filter(i => !!i).length === imagesCount
+    const currentImages = images.current.get(userPreferences.zoomLevel);
+    return currentImages?.filter(i => !!i).length === userPreferences.zoomLevel
   }
 
   async function loadImages() {
-    const currentConfiguration = spectrogram_configurations?.find(c => c.id === userPreferences.spectrogramConfigurationID);
-    if (!currentConfiguration || !file) {
+    const currentConfiguration = data?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID);
+    if (!currentConfiguration || !data) {
       images.current = new Map();
       return;
     }
 
-    const zoom = userPreferences.zoomLevel - 1;
-    const imagesCount = 2 ** zoom;
     if (areAllImagesLoaded()) return;
 
-    const filename = file.filename.split('.')[0]
+    const filename = data.file.filename.split('.')[0]
     return Promise.all(
-      Array.from(new Array<HTMLImageElement | undefined>(imagesCount)).map(async (_, index) => {
-        console.info(`Will load for zoom ${ zoom }, image ${ index }`)
+      Array.from(new Array<HTMLImageElement | undefined>(userPreferences.zoomLevel)).map(async (_, index) => {
+        console.info(`Will load for zoom ${ userPreferences.zoomLevel }, image ${ index }`)
         const image = new Image();
         image.src = `${ currentConfiguration.folder_path }/${ filename }_${ userPreferences.zoomLevel }_${ index }.png`;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {
@@ -60,7 +59,7 @@ export const useSpectrogramService = (
         })
       })
     ).then(loadedImages => {
-      images.current.set(zoom, loadedImages)
+      images.current.set(userPreferences.zoomLevel, loadedImages)
     })
   }
 
@@ -77,7 +76,7 @@ export const useSpectrogramService = (
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
 
-    const currentImages = images.current.get(userPreferences.zoomLevel - 1)
+    const currentImages = images.current.get(userPreferences.zoomLevel)
     if (!currentImages) return;
     for (const i in currentImages) {
       const index: number | undefined = i ? +i : undefined;

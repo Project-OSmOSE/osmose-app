@@ -6,7 +6,7 @@ import { IonChip, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { focusConfidence, useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useParams } from "react-router-dom";
-import styles from '@/view/audio-annotator/components/bloc/bloc.module.scss';
+import styles from './bloc.module.scss';
 
 
 export const ConfidenceIndicator: React.FC = () => {

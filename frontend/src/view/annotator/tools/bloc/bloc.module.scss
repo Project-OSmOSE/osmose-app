@@ -4,6 +4,8 @@
   overflow: hidden;
   display: grid;
   align-self: start;
+  background: white;
+  grid-template-rows: auto 1fr;
 
   .header, .footer {
     background: var(--ion-color-light-shade);
@@ -61,7 +63,8 @@
     }
 
     &.twoColumns {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(12ch, auto)); /* see notes below */
+      //grid-template-columns: 1fr 1fr;
     }
 
     p {
@@ -99,4 +102,64 @@ ion-chip.active {
   &.presenceLabel {
     grid-column: 1 / 4;
   }
+}
+
+
+.features {
+  position: absolute !important;
+  overflow: hidden;
+  user-select: none;
+  z-index: 99;
+
+  h6 {
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .body {
+    overflow: auto;
+    display: grid;
+    grid-auto-flow: row;
+    gap: 1rem;
+
+    .table {
+      overflow: visible;
+    }
+  }
+
+  .line {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.5rem;
+
+  }
+
+  ion-note {
+    text-align: start;
+  }
+
+  .switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-items: stretch;
+    background: var(--ion-color-light-shade);
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    > * {
+      padding: 0.25rem 0.5rem;
+      text-align: center;
+    }
+
+    .active {
+      background: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+
 }

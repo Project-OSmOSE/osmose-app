@@ -16,12 +16,13 @@
     justify-items: center;
     grid-template-columns: auto 1fr auto;
     width: 100%;
-    min-width: 100px;
+    min-width: fit-content;
     margin-left: 50%;
     transform: translateX(-50%);
     padding: 0 0.25rem;
     gap: 0.5rem;
     color: #ffffff;
+    white-space: nowrap;
 
     > * {
       font-size: .9rem;
@@ -72,12 +73,14 @@
     position: sticky;
     left: 0;
     background-color: #fff;
+    z-index: 1;
   }
 
   .spectrogram {
     grid-area: spectrogram;
     user-select: none;
     touch-action: none;
+    position: relative;
 
     canvas {
       display: block;

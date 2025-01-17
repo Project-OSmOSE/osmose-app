@@ -289,6 +289,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onWheel = (event: WheelEvent) => {
+    // Disable zoom if the user wants horizontal scroll
+    if (event.shiftKey) return;
+
     // Prevent page scrolling
     event.stopPropagation(); // TODO: make it work!
 
@@ -301,7 +304,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   return (
     <div className={ styles.spectrogramRender }
-         style={ { width: `${ Y_WIDTH + timeWidth }px` } }>
+         style={ { width: `${ Y_WIDTH + spectroWidth }px` } }>
 
       <YAxis className={ styles.yAxis }
              width={ Y_WIDTH }

@@ -15,7 +15,7 @@ import { Item } from '@/types/item.ts';
 import { SignalTrend, SignalTrends } from '@/service/campaign/result/type.ts';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
 import { useParams } from "react-router-dom";
-import styles from '@/view/audio-annotator/components/bloc/bloc.module.scss';
+import styles from './bloc.module.scss';
 
 export const AcousticFeatures: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
@@ -68,7 +68,7 @@ export const AcousticFeatures: React.FC = () => {
   if (!data?.campaign.labels_with_acoustic_features.includes(currentResult.label)) return;
   if (currentResultType !== 'box') return;
   return (
-    <div className={ "card ml-2 flex-grow-1 mini-content " + styles.features }
+    <div className={ [styles.features, styles.bloc].join(' ') }
          style={ {
            top, right,
            maxHeight: SPECTRO_HEIGHT - 32,
@@ -76,7 +76,7 @@ export const AcousticFeatures: React.FC = () => {
          onMouseDown={ e => e.stopPropagation() }
          onMouseUp={ e => e.stopPropagation() }
          onMouseMove={ e => e.stopPropagation() }>
-      <h6 className="card-header text-center"
+      <h6 className={ styles.header }
           onMouseDown={ onMouseDown }
           onMouseMove={ onMouseMove }
           onMouseLeave={ onMouseUp }
@@ -84,7 +84,7 @@ export const AcousticFeatures: React.FC = () => {
         Acoustic features
         <IoRemoveCircleOutline onClick={ () => dispatch(focusTask()) }/>
       </h6>
-      <div className={ "card-body " + styles.body }>
+      <div className={ styles.body }>
 
         <div className={ styles.line }>
           <b>Quality</b>
