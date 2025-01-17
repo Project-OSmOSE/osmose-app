@@ -19,19 +19,28 @@
 
     &:first-child {
       justify-content: start;
+      justify-self: start;
     }
 
     &:last-child {
       justify-content: end;
+      justify-self: end;
       text-align: end;
     }
   }
 
   .proposition {
+    user-select: none;
     display: grid;
-    grid-auto-flow: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0 0.5rem;
+    justify-content: center;
+    justify-items: center;
+    grid-template-columns: auto auto;
+
+    ion-note {
+      grid-column: 1 / -1;
+    }
 
     p {
       opacity: 0.8;
