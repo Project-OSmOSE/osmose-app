@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import {
   IoAnalyticsOutline,
-  IoChatbubble,
+  IoChatbubbleEllipses,
   IoChatbubbleOutline,
   IoChevronForwardOutline,
   IoPricetag,
@@ -153,7 +153,7 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
   <TableContent className={ className } onClick={ onClick }>
     {
       result.comments.filter(c => c.comment).length > 0 ?
-        <IoChatbubble/> : <IoChatbubbleOutline/>
+        <IoChatbubbleEllipses/> : <IoChatbubbleOutline/>
     }
   </TableContent>
 )

@@ -22,6 +22,7 @@ import { CurrentAnnotation } from "@/view/annotator/tools/bloc/CurrentAnnotation
 import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
+import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 
 export const Annotator: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
@@ -79,7 +80,10 @@ export const Annotator: React.FC = () => {
             <SpectrogramRender ref={ spectrogramRenderRef } audioPlayer={ audioPlayerRef }/>
 
             <div className={ styles.spectrogramNavigation }>
-                <div><PlayPauseButton player={ audioPlayerRef }/></div>
+                <div className={ styles.audioNavigation }>
+                    <PlayPauseButton player={ audioPlayerRef }/>
+                    <PlaybackRateSelect player={ audioPlayerRef }/>
+                </div>
 
                 <NavigationButtons ref={ navigationRef }/>
 

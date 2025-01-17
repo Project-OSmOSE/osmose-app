@@ -21,8 +21,8 @@ export const AcousticFeatures: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
 
-  const [ top, setTop ] = useState<number>(96);
-  const [ right, setRight ] = useState<number>(16);
+  const [ top, setTop ] = useState<number>(128);
+  const [ right, setRight ] = useState<number>(64);
 
   const [ isDragging, setIsDragging ] = useState<boolean>(false);
 

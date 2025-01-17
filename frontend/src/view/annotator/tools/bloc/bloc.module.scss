@@ -96,7 +96,7 @@ ion-chip.active {
   }
 
   &.active {
-    font-weight: 600;
+    font-weight: 700;
   }
 
   &.presenceLabel {
@@ -109,7 +109,7 @@ ion-chip.active {
   position: absolute !important;
   overflow: hidden;
   user-select: none;
-  z-index: 99;
+  z-index: 2;
 
   h6 {
     cursor: move;

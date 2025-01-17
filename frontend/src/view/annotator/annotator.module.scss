@@ -37,6 +37,13 @@
       font-size: 0.9rem;
       justify-items: center;
 
+      .audioNavigation {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
       .spectrogramInfo {
         display: grid;
         align-items: center;
