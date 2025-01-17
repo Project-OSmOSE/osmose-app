@@ -1,4 +1,3 @@
-
 /* Annotation colors */
 
 .ion-color-0 {
@@ -69,4 +68,8 @@
     --ion-color-shade: #009b72;
     --ion-color-base-rgb: 0, 155, 114;
     --ion-color-contrast: #000000;
+}
+
+kbd[class^=ion-color-] {
+    background-color: rgba(var(--ion-color-base-rgb), 0.15);
 }

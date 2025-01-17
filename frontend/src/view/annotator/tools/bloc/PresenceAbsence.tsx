@@ -12,12 +12,10 @@ import {
 import styles from './bloc.module.scss';
 import { KeypressHandler } from "@/view/audio-annotator/audio-annotator.page.tsx";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
-import { TooltipComponent } from "@/view/audio-annotator/components/tooltip.component.tsx";
 import { useParams } from "react-router-dom";
 import { IonChip, IonIcon, useIonAlert } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
+import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 
 export const PresenceAbsence = React.forwardRef<KeypressHandler, any>((_, ref) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
@@ -85,18 +83,18 @@ export const PresenceAbsence = React.forwardRef<KeypressHandler, any>((_, ref) =
   return (
     <div className={ styles.bloc }>
       <h6 className={ styles.header }>Presence / Absence</h6>
-      <div className={ [styles.body, styles.twoColumns].join(' ') }>
+      <div className={ [ styles.body, styles.twoColumns ].join(' ') }>
         { data?.label_set.labels.map((label, key) => {
-          const color = (data?.label_set.labels.indexOf(label) % 10).toString();
+          const color = (key % 10).toString();
           return (
-            <OverlayTrigger overlay={ <Tooltip><TooltipComponent id={ key }/></Tooltip> } key={ key } placement="top">
+            <LabelTooltipOverlay id={ key } key={ key }>
               <IonChip outline={ !presenceLabels.includes(label) }
                        onClick={ () => toggle(label) }
                        color={ color }>
                 { label }
                 { presenceLabels.includes(label) && <IonIcon icon={ closeCircle } color={ color }/> }
               </IonChip>
-            </OverlayTrigger>
+            </LabelTooltipOverlay>
           )
         }) }
       </div>

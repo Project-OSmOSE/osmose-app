@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useRef } from "react";
+import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
 import { useParams } from "react-router-dom";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
@@ -23,6 +23,8 @@ import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
+import { useToast } from "@/services/utils/toast.ts";
+import { useAudioService } from "@/services/annotator/audio.service.ts";
 
 export const Annotator: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
@@ -37,10 +39,57 @@ export const Annotator: React.FC = () => {
   const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
 
   // Refs
+  const localAreShortcutsEnabled = useRef<boolean>(true);
+  const localIsPaused = useRef<boolean>(true);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const spectrogramRenderRef = useRef<SpectrogramRender | null>(null);
   const navigationRef = useRef<KeypressHandler | null>(null);
   const presenceAbsenceRef = useRef<KeypressHandler | null>(null);
+
+  // Services
+  const audioService = useAudioService(audioPlayerRef)
+  const toast = useToast();
+
+  // Slice
+  const {
+    ui,
+    focusedResultID,
+    results
+  } = useAppSelector(state => state.annotator)
+
+  // Memo
+  const focusedResult = useMemo(() => {
+    return results?.find(r => r.id === focusedResultID);
+  }, [ focusedResultID ])
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPressed);
+      toast.dismiss();
+    }
+  }, [])
+
+  useEffect(() => {
+    localAreShortcutsEnabled.current = ui.areShortcutsEnabled;
+  }, [ ui.areShortcutsEnabled ])
+
+  useEffect(() => {
+    localIsPaused.current = audio.isPaused;
+  }, [ audio.isPaused ])
+
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (!localAreShortcutsEnabled.current) return;
+
+    switch (event.code) {
+      case 'Space':
+        event.preventDefault();
+        audioService.playPause(focusedResult);
+    }
+    navigationRef.current?.handleKeyPressed(event);
+    presenceAbsenceRef.current?.handleKeyPressed(event);
+  }
 
   return <div className={ styles.annotator }>
 

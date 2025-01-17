@@ -1,12 +1,11 @@
 import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { IonChip, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { focusConfidence, useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useParams } from "react-router-dom";
 import styles from './bloc.module.scss';
+import { TooltipOverlay } from "@/components/ui";
 
 
 export const ConfidenceIndicator: React.FC = () => {
@@ -20,17 +19,8 @@ export const ConfidenceIndicator: React.FC = () => {
 
   if (!data?.confidence_set) return <div/>;
 
-  const tooltip = (
-    <div className="card">
-      <h3 className={ `card-header p-2 tooltip-header` }>Description</h3>
-      <div className="card-body p-1">
-        <p>{ data.confidence_set.desc }</p>
-      </div>
-    </div>
-  )
-
   return (
-    <OverlayTrigger overlay={ <Tooltip>{ tooltip }</Tooltip> } placement="top">
+    <TooltipOverlay title='Description' tooltipContent={ <p>{ data.confidence_set.desc }</p> }>
       <div className={ styles.bloc }>
         <h6 className={ styles.header }>Confidence indicator</h6>
         <div className={ [styles.body, styles.center].join(' ') }>
@@ -44,6 +34,6 @@ export const ConfidenceIndicator: React.FC = () => {
           )) }
         </div>
       </div>
-    </OverlayTrigger>
+    </TooltipOverlay>
   )
 }

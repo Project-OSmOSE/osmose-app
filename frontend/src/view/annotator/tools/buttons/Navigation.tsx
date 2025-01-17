@@ -1,8 +1,6 @@
-import React, { ReactNode, useEffect, useImperativeHandle, useRef } from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import React, { useEffect, useImperativeHandle, useRef } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { confirm } from "@/view/global-components";
-import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
@@ -10,34 +8,13 @@ import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.t
 import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
-import { Kbd } from "@/components/ui";
+import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
 
-interface Props {
-  shortcut: ReactNode;
-  description: string;
-}
 
 export interface KeypressHandler {
   handleKeyPressed: (event: KeyboardEvent) => void;
 }
-
-export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>(({
-                                                                                    shortcut,
-                                                                                    description,
-                                                                                  }, ref) => (
-  <div className="card" ref={ ref }>
-    <h3 className={ `card-header tooltip-header` }>Shortcut</h3>
-    <div className="card-body p-1">
-      <p>
-        <span className="font-italic">
-          { shortcut }
-        </span>
-        { ` : ${ description }` }<br/>
-      </p>
-    </div>
-  </div>
-))
 
 export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
@@ -129,27 +106,27 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
 
   return (
     <div className={ styles.navigation }>
-      <OverlayTrigger overlay={ <Tooltip><Kbd keys='left'/></Tooltip> }>
+      <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='left'/> : Load previous recording</p> }>
         <IonButton color='medium' fill='clear' size='small'
                    disabled={ isSubmitting.current || previous_file_id.current === null }
                    onClick={ navPrevious }>
           <IonIcon icon={ caretBack } slot='icon-only'/>
         </IonButton>
-      </OverlayTrigger>
-      <OverlayTrigger overlay={ <Tooltip><Kbd keys='enter'/></Tooltip> }>
+      </TooltipOverlay>
+      <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='enter'/> : Submit & load next recording</p> }>
         <IonButton color='medium' fill='outline'
                    disabled={ isSubmitting.current }
                    onClick={ submit }>
           Submit &amp; load next recording
         </IonButton>
-      </OverlayTrigger>
-      <OverlayTrigger overlay={ <Tooltip><Kbd keys='right'/></Tooltip> }>
+      </TooltipOverlay>
+      <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='right'/> : Load next recording</p> }>
         <IonButton color='medium' fill='clear' size='small'
                    disabled={ isSubmitting.current || next_file_id.current === null }
                    onClick={ navNext }>
           <IonIcon icon={ caretForward } slot='icon-only'/>
         </IonButton>
-      </OverlayTrigger>
+      </TooltipOverlay>
     </div>
   )
 })

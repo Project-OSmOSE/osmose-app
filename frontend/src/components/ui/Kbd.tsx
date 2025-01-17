@@ -21,6 +21,7 @@ type Key =
   | "end"
   | "help"
   | "space"
+  | string
   | number;
 const KEY_MAP: Record<Key, string> = {
   command: "⌘",
@@ -44,7 +45,7 @@ const KEY_MAP: Record<Key, string> = {
   space: "␣",
 };
 
-export const Kbd: React.FC<{ keys: Key | Array<Key> }> = ({ keys }) => {
+export const Kbd: React.FC<{ keys: Key | Array<Key>, className?: string }> = ({ keys, className }) => {
 
   const content: string[] = useMemo(() => {
     let data: Array<Key> = [];
@@ -64,6 +65,6 @@ export const Kbd: React.FC<{ keys: Key | Array<Key> }> = ({ keys }) => {
   }, [ keys ])
 
   return (
-    <kbd className={ styles.kbd }>{ content.map(k => <kbd>{ k }</kbd>) }</kbd>
+    <kbd className={ [className, styles.kbd].join(' ') }>{ content.map(k => <kbd>{ k }</kbd>) }</kbd>
   )
 }

@@ -1,14 +1,12 @@
 import React, { useMemo } from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { COLORS } from "@/consts/colors.const.tsx";
-import Tooltip from "react-bootstrap/Tooltip";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { focusLabel, getPresenceLabels, useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import { useParams } from "react-router-dom";
 import styles from './bloc.module.scss';
-import { TooltipComponent } from "@/view/audio-annotator/components/tooltip.component.tsx";
+import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 
 
 export const LabelList: React.FC = () => {
@@ -43,9 +41,7 @@ export const LabelList: React.FC = () => {
             },
           };
           return (
-            <OverlayTrigger
-              overlay={ <Tooltip hidden={ !presenceLabels.includes(label) }><TooltipComponent id={ key }/></Tooltip> }
-              key={ key } placement="top">
+            <LabelTooltipOverlay id={ key }>
               <IonChip
                 style={ focusedLabel === label ? style.active : presenceLabels.includes(label) ? style.inactive : style.disabled }
                 onClick={ () => dispatch(focusLabel(label)) }
@@ -53,7 +49,7 @@ export const LabelList: React.FC = () => {
                 { label }
                 { focusedLabel === label && <IonIcon src={ checkmarkOutline } color="light"/> }
               </IonChip>
-            </OverlayTrigger>
+            </LabelTooltipOverlay>
           )
         }) }
       </div>

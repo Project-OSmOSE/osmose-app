@@ -20,3 +20,7 @@ export {
   FadedText,
   WarningText,
 } from './Text'
+
+export {
+  TooltipOverlay
+} from './Tooltip'

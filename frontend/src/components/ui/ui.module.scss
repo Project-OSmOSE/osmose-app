@@ -104,13 +104,23 @@
 .kbd {
   background: var(--ion-color-light-shade);
   color: var(--ion-color-light-contrast);
-  padding: 0.25rem  0.5rem;
-  border-radius: 0.5rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: 0.25rem;
   border: 1px solid var(--ion-color-medium-tint);
   box-shadow: var(--box-shadow);
 
   > kbd {
-    background: var(--ion-color-light-shade);
+    background: transparent;
     color: var(--ion-color-light-contrast);
   }
+}
+
+.tooltip {
+  background: white;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  box-shadow: var(--aplose-box-shadow);
+  padding: 0.5rem;
+  gap: 0.5rem;
+  display: grid;
 }
