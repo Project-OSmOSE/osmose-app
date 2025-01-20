@@ -321,63 +321,89 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 f"{row.confidence_level}/{max_confidence}"
                 if isinstance(row.confidence_level, int)
                 else "",
-                f"{row.comment_content} |- {row.comment_author}"
+                f'"{row.comment_content} |- {row.comment_author}"'
                 if row.comment_content
                 else "",
             ]
 
         def map_result_features(row):
-            return [
-                row.dataset_name,
-                row.file_name,
-                str(row.start_time) if row.start_time else "0",
-                str(row.end_time) if row.end_time else str(row.file_duration),
-                str(row.start_frequency) if row.start_frequency else "0",
-                str(row.end_frequency)
-                if row.end_frequency
-                else str(row.file_max_frequency),
-                row.label_name,
-                row.annotator_name if row.annotator_name else row.detector_name,
-                (row.file_start + timedelta(seconds=row.start_time or 0)).isoformat(
-                    timespec="milliseconds"
-                ),
-                (row.file_start + timedelta(seconds=row.end_time)).isoformat(
-                    timespec="milliseconds"
-                )
-                if row.end_time
-                else row.file_end.isoformat(timespec="milliseconds"),
-                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0)
-                if isinstance(row.is_weak, bool)
-                else "",
-                row.confidence_label if row.confidence_label else "",
-                f"{row.confidence_level}/{max_confidence}"
-                if isinstance(row.confidence_level, int)
-                else "",
-                f"{row.comment_content} |- {row.comment_author}"
-                if row.comment_content
-                else "",
-                # TODO: Update this field list the final one
-                str(row.feature_min_freq) if row.feature_min_freq else "",
-                str(row.feature_max_freq) if row.feature_max_freq else "",
-                str(row.feature_start_freq) if row.feature_start_freq else "",
-                str(row.feature_end_freq) if row.feature_end_freq else "",
-                str(row.feature_median_freq) if row.feature_median_freq else "",
+            data = map_result(row)
+            data.append(
+                str(row.feature_min_freq)
+                if "feature_min_freq" in vars(row) and row.feature_min_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_max_freq)
+                if "feature_max_freq" in vars(row) and row.feature_max_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_start_freq)
+                if "feature_start_freq" in vars(row) and row.feature_start_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_end_freq)
+                if "feature_end_freq" in vars(row) and row.feature_end_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_median_freq)
+                if "feature_median_freq" in vars(row) and row.feature_median_freq
+                else ""
+            )
+            data.append(
                 str(row.feature_beginning_sweep_slope)
-                if row.feature_beginning_sweep_slope
-                else "",
-                str(row.feature_end_sweep_slope) if row.feature_end_sweep_slope else "",
-                str(row.feature_steps_count) if row.feature_steps_count else "",
+                if "feature_beginning_sweep_slope" in vars(row)
+                and row.feature_beginning_sweep_slope
+                else ""
+            )
+            data.append(
+                str(row.feature_end_sweep_slope)
+                if "feature_end_sweep_slope" in vars(row)
+                and row.feature_end_sweep_slope
+                else ""
+            )
+            data.append(
+                str(row.feature_steps_count)
+                if "feature_steps_count" in vars(row) and row.feature_steps_count
+                else ""
+            )
+            data.append(
                 str(row.feature_relative_peaks_count)
-                if row.feature_relative_peaks_count
-                else "",
-                str(row.feature_has_harmonics) if row.feature_has_harmonics else "",
-                str(row.feature_harmonics_count) if row.feature_harmonics_count else "",
+                if "feature_relative_peaks_count" in vars(row)
+                and row.feature_relative_peaks_count
+                else ""
+            )
+            data.append(
+                str(row.feature_has_harmonics)
+                if "feature_has_harmonics" in vars(row) and row.feature_has_harmonics
+                else ""
+            )
+            data.append(
+                str(row.feature_harmonics_count)
+                if "feature_harmonics_count" in vars(row)
+                and row.feature_harmonics_count
+                else ""
+            )
+            data.append(
                 str(row.feature_level_peak_frequency)
-                if row.feature_level_peak_frequency
-                else "",
-                str(row.feature_duration) if row.feature_duration else "",
-                row.feature_trend if row.feature_trend else "",
-            ]
+                if "feature_level_peak_frequency" in vars(row)
+                and row.feature_level_peak_frequency
+                else ""
+            )
+            data.append(
+                str(row.feature_duration)
+                if "feature_duration" in vars(row) and row.feature_duration
+                else ""
+            )
+            data.append(
+                str(row.feature_trend)
+                if "feature_trend" in vars(row) and row.feature_trend
+                else ""
+            )
+            return data
 
         def map_result_check(row):
             check_data = map_result(row)
