@@ -1,9 +1,14 @@
 import { useAppSelector } from '@/service/app';
 import { useEffect, useRef } from "react";
 import { mapCommentForWriting } from '@/service/campaign/comment';
-import { AnnotatorState, usePostAnnotatorMutation } from '@/service/annotator';
+import { AnnotatorState, usePostAnnotatorMutation, useRetrieveAnnotatorQuery } from '@/service/annotator';
+import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const useAnnotatorSubmitService = () => {
+  const params = useParams<{ campaignID: string, fileID: string }>();
+  const { data } = useRetrieveAnnotatorQuery(params)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
 
   // Interface data
   const [ post ] = usePostAnnotatorMutation()
@@ -14,10 +19,10 @@ export const useAnnotatorSubmitService = () => {
   }, [ annotator ]);
 
   function submit() {
-    if (!_annotator.current.campaign || !_annotator.current.file) return;
+    if (!campaign || !data) return;
     return post({
-      campaign: _annotator.current.campaign,
-      fileID: _annotator.current.file.id,
+      campaign,
+      fileID: data.file.id,
       data: {
         results: (_annotator.current.results ?? []).map(r => ({
           ...r,

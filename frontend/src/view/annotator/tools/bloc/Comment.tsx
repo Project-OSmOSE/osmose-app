@@ -4,7 +4,7 @@ import { focusTask, removeFocusComment, updateFocusComment } from '@/service/ann
 import styles from './bloc.module.scss';
 import { Textarea } from "@/components/form";
 import { IonButton, IonIcon } from "@ionic/react";
-import { chatbubbleEllipsesOutline, chatbubbleOutline, trashBinOutline } from "ionicons/icons";
+import { chatbubbleEllipses, chatbubbleOutline, trashBinOutline } from "ionicons/icons";
 
 
 export const Comment: React.FC = () => {
@@ -53,7 +53,7 @@ export const Comment: React.FC = () => {
                    onClick={ () => dispatch(focusTask()) }>
           Task Comment
           <IonIcon slot='end'
-                   icon={ taskCommentExists ? chatbubbleEllipsesOutline : chatbubbleOutline }/>
+                   icon={ taskCommentExists ? chatbubbleEllipses : chatbubbleOutline }/>
         </IonButton>
       </div>
     </div>
