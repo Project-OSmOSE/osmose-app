@@ -1,15 +1,17 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
-import { IonButton, IonChip, IonIcon, IonSpinner } from "@ionic/react";
+import { IonChip, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
 import { checkmarkCircle, chevronForwardOutline, closeCircle, ellipseOutline, playOutline } from "ionicons/icons";
 import { Link, useHistory } from "react-router-dom";
-import { WarningText } from "@/components/ui";
+import { Button, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { Pagination } from "@/components/Pagination/Pagination.tsx";
 import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
+import { resetFileFilters, setFileFilters } from "@/service/ui";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign: AnnotationCampaign;
@@ -17,71 +19,90 @@ export const DetailPageAnnotationTasks: React.FC<{
 }> = ({ campaign, }) => {
   const history = useHistory();
   const [ page, setPage ] = useState<number>(1);
-  const [ search, setSearch ] = useState<string | undefined>();
-  const [ nonSubmittedFilter, setNonSubmittedFilter ] = useState<true | undefined>();
-  const [ withAnnotationsFilter, setWithAnnotationsFilter ] = useState<true | undefined>();
+
+  const fileFilters = useAppSelector(state => state.ui.fileFilters);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (fileFilters.campaignID !== campaign?.id)
+      dispatch(resetFileFilters())
+  }, []);
 
   useListFilesWithPaginationQuery({
     campaignID: campaign.id,
     page: 1,
   }, { refetchOnMountOrArgChange: true });
   const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
+    ...fileFilters,
     campaignID: campaign.id,
     page,
-    search,
-    isSubmitted: nonSubmittedFilter === undefined ? undefined : false,
-    withUserAnnotations: withAnnotationsFilter
   });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
   }, [ files?.count ])
 
+  const isResumeEnabled = useMemo(() => {
+    return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
+  }, [ fileFilters ]);
+
   function resume() {
     history.push(`/annotation-campaign/${ campaign.id }/file/${ files?.resume }`);
   }
 
   function toggleNonSubmittedFilter() {
-    if (nonSubmittedFilter)
-      setNonSubmittedFilter(undefined)
-    else
-      setNonSubmittedFilter(true)
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      isSubmitted: fileFilters.isSubmitted === undefined ? false : undefined,
+    }))
     setPage(1)
   }
 
   function toggleWithAnnotationsFilter() {
-    if (withAnnotationsFilter)
-      setWithAnnotationsFilter(undefined)
-    else
-      setWithAnnotationsFilter(true)
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      withUserAnnotations: fileFilters.withUserAnnotations === undefined ? true : undefined,
+    }))
+    setPage(1)
+  }
+
+  function updateSearch(search: string) {
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      search,
+    }))
     setPage(1)
   }
 
 
   return <Fragment>
 
-    <ActionBar search={ search }
+    <ActionBar search={ fileFilters.search }
                searchPlaceholder="Search filename"
-               onSearchChange={ value => {
-                 setSearch(value);
-                 setPage(1)
-               } }
-               actionButton={ <IonButton color="primary" fill='outline' disabled={ !files?.resume }
-                                         onClick={ resume }>
+               onSearchChange={ updateSearch }
+               actionButton={ <Button color="primary" fill='outline'
+                                      disabled={ !files?.resume || !isResumeEnabled }
+                                      disabledExplanation='Cannot resume if filters are activated.'
+                                      style={ { pointerEvents: 'unset' } }
+                                      onClick={ resume }>
                  Resume annotation
                  <IonIcon icon={ playOutline } slot="end"/>
-               </IonButton> }>
-      <IonChip outline={ !nonSubmittedFilter }
+               </Button> }>
+
+      <IonChip outline={ fileFilters.isSubmitted === undefined }
                onClick={ toggleNonSubmittedFilter }
-               color={ nonSubmittedFilter ? 'primary' : 'medium' }>
+               color={ fileFilters.isSubmitted === false ? 'primary' : 'medium' }>
         Non submitted
-        { nonSubmittedFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        { fileFilters.isSubmitted === false && <IonIcon icon={ closeCircle } color='primary'/> }
       </IonChip>
-      <IonChip outline={ !withAnnotationsFilter }
+      <IonChip outline={ !fileFilters.withUserAnnotations }
                onClick={ toggleWithAnnotationsFilter }
-               color={ withAnnotationsFilter ? 'primary' : 'medium' }>
+               color={ fileFilters.withUserAnnotations ? 'primary' : 'medium' }>
         With annotations
-        { withAnnotationsFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        { fileFilters.withUserAnnotations && <IonIcon icon={ closeCircle } color='primary'/> }
       </IonChip>
     </ActionBar>
 

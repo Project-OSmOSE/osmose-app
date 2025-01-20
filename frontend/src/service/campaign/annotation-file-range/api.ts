@@ -3,6 +3,7 @@ import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID, Paginated } from '@/service/type.ts';
 import { AnnotationFile, AnnotationFileRange, WriteAnnotationFileRange } from './type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
+import { FileFilters } from "@/service/ui/type.ts";
 
 export const FILES_PAGE_SIZE = 20;
 
@@ -23,12 +24,8 @@ export const AnnotationFileRangeAPI = createApi({
       },
     }),
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume: number }, {
-      campaignID?: ID,
       page: number,
-      search?: string,
-      withUserAnnotations?: boolean,
-      isSubmitted?: boolean,
-    }>({
+    } & FileFilters>({
       query: ({ campaignID, page, search, withUserAnnotations, isSubmitted }) => {
         const params: any = { page, page_size: FILES_PAGE_SIZE }
         if (search) params['search'] = search;

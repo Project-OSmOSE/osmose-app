@@ -1,4 +1,8 @@
 export {
+  Button
+} from './Button'
+
+export {
   Kbd
 } from './Kbd'
 

@@ -15,9 +15,11 @@ import { AnnotatorAPI, AnnotatorSlice } from '@/service/annotator';
 import { AnnotationResultAPI } from '@/service/campaign/result';
 import { CollaboratorAPI } from "@/service/collaborator";
 import { EventSlice } from "@/service/events";
+import { UISlice } from "@/service/ui";
 
 export const AppStore = configureStore({
   reducer: {
+    [UISlice.reducerPath]: UISlice.reducer,
     [EventSlice.reducerPath]: EventSlice.reducer,
     [AuthSlice.reducerPath]: AuthSlice.reducer,
     [CampaignSlice.reducerPath]: CampaignSlice.reducer,
