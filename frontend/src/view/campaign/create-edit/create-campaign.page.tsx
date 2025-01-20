@@ -58,11 +58,10 @@ export const CreateCampaign: React.FC = () => {
     e.preventDefault();
     try {
       const campaign = createdCampaign ?? await submitCampaign();
-      console.debug()
       await submitResults(campaign)
       if (!await submitFileRanges(campaign)) return;
 
-      history.push('/annotation-campaign');
+      history.push(`/annotation-campaign/${ campaign.id }`);
     } catch (e: any) {
       toast.presentError(getErrorMessage(e));
     }
