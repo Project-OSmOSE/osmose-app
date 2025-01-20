@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, useMemo, useState } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import {
   focusTask,
@@ -16,15 +16,17 @@ import { SignalTrend, SignalTrends } from '@/service/campaign/result/type.ts';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
 import { useParams } from "react-router-dom";
 import styles from './bloc.module.scss';
+import { useDraggable } from "@/service/ui";
 
 export const AcousticFeatures: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
 
-  const [ top, setTop ] = useState<number>(128);
-  const [ right, setRight ] = useState<number>(64);
-
-  const [ isDragging, setIsDragging ] = useState<boolean>(false);
+  const {
+    onMouseDown,
+    top,
+    right,
+  } = useDraggable()
 
   const {
     results,
@@ -35,25 +37,6 @@ export const AcousticFeatures: React.FC = () => {
 
   const currentResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ results, focusedResultID ]);
   const currentResultType = useMemo(() => currentResult ? getResultType(currentResult) : undefined, [ currentResult ]);
-
-  const onMouseDown = (event: MouseEvent) => {
-    setIsDragging(true);
-    event.stopPropagation();
-    event.preventDefault();
-  }
-  const onMouseMove = (event: MouseEvent) => {
-    if (isDragging) {
-      setTop(previous => previous + event.movementY);
-      setRight(previous => previous - event.movementX);
-    }
-    event.stopPropagation();
-    event.preventDefault();
-  }
-  const onMouseUp = (event: MouseEvent) => {
-    setIsDragging(false);
-    event.stopPropagation();
-    event.preventDefault();
-  }
 
   function setBad() {
     dispatch(updateCurrentResultAcousticFeatures(null));
@@ -68,19 +51,14 @@ export const AcousticFeatures: React.FC = () => {
   if (!data?.campaign.labels_with_acoustic_features.includes(currentResult.label)) return;
   if (currentResultType !== 'box') return;
   return (
-    <div className={ [styles.features, styles.bloc].join(' ') }
+    <div className={ [ styles.features, styles.bloc ].join(' ') }
          style={ {
            top, right,
            maxHeight: SPECTRO_HEIGHT - 32,
          } }
-         onMouseDown={ e => e.stopPropagation() }
-         onMouseUp={ e => e.stopPropagation() }
-         onMouseMove={ e => e.stopPropagation() }>
+         onMouseDown={ e => e.stopPropagation() }>
       <h6 className={ styles.header }
-          onMouseDown={ onMouseDown }
-          onMouseMove={ onMouseMove }
-          onMouseLeave={ onMouseUp }
-          onMouseUp={ onMouseUp }>
+          onMouseDown={ onMouseDown }>
         Acoustic features
         <IoRemoveCircleOutline onClick={ () => dispatch(focusTask()) }/>
       </h6>

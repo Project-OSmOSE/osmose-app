@@ -2,7 +2,7 @@ import { MutableRefObject, useMemo, useRef } from "react";
 import { useAppSelector } from '@/service/app';
 import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { AnnotationResultBounds } from '@/service/campaign/result';
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import { getDuration } from "@/service/dataset";
 import { useParams } from "react-router-dom";

@@ -1,8 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { IonButton, IonSpinner } from "@ionic/react";
-import { useBlur } from "@/services/utils/clic.ts";
-import { useToast } from "@/services/utils/toast.ts";
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { CampaignBloc } from "@/view/campaign/create-edit/blocs/campaign.bloc.tsx";
 import {
@@ -25,9 +23,9 @@ import { getErrorMessage } from '@/service/function.ts';
 import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 import { useImportResultMutation } from '@/service/campaign/result';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { useToast } from "@/service/ui";
 
 export const CreateCampaign: React.FC = () => {
-  const blurUtil = useBlur();
   const toast = useToast();
 
   // Services
@@ -45,11 +43,8 @@ export const CreateCampaign: React.FC = () => {
   const [ resultFile, setResultFile ] = useState<File | undefined>();
 
   useEffect(() => {
-    document.addEventListener('click', blurUtil.onClick)
     dispatch(clearCampaign())
     return () => {
-      document.removeEventListener('click', blurUtil.onClick);
-      blurUtil.cleanListener();
       toast.dismiss();
     }
   }, [])

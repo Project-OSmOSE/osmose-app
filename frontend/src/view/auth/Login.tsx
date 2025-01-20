@@ -8,7 +8,7 @@ import { IonButton } from "@ionic/react";
 import { useHistory, useLocation } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Link } from "@/components/ui";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 
 export const Login: React.FC = () => {
 

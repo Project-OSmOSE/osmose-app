@@ -19,9 +19,10 @@ import { usePointerService } from "@/services/annotator/pointer.service.ts";
 import { getDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import { AcousticFeatures } from '@/view/audio-annotator/components/bloc/acoustic-features.component.tsx';
+import { useMouseEvents } from "@/service/events";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -65,6 +66,7 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   const spectrogramService = useSpectrogramService(canvasRef, xAxis, yAxis)
   const pointerService = usePointerService(canvasRef, xAxis, yAxis);
   const toast = useToast();
+  const mouse = useMouseEvents();
 
   const [ _zoom, _setZoom ] = useState<number>(1);
   const currentTime = useRef<number>(0)
@@ -209,14 +211,14 @@ export const SpectroRenderComponent = React.forwardRef<SpectrogramRender, Props>
   }), [ canvasRef.current, xAxis.current, yAxis.current ])
 
   useEffect(() => {
-    document.addEventListener('mousedown', e => onStartNewAnnotation(e as any))
-    document.addEventListener('mousemove', e => onUpdateNewAnnotation(e as any))
-    document.addEventListener('mouseup', e => onEndNewAnnotation(e as any))
+    mouse.down.add(onStartNewAnnotation)
+    mouse.move.add(onUpdateNewAnnotation)
+    mouse.up.add(onEndNewAnnotation)
 
     return () => {
-      document.removeEventListener('mousedown', e => onStartNewAnnotation(e as any))
-      document.removeEventListener('mousemove', e => onUpdateNewAnnotation(e as any))
-      document.removeEventListener('mouseup', e => onEndNewAnnotation(e as any))
+      mouse.down.remove(onStartNewAnnotation)
+      mouse.move.remove(onUpdateNewAnnotation)
+      mouse.up.remove(onEndNewAnnotation)
     }
   }, []);
 

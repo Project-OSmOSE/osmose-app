@@ -65,6 +65,6 @@ export const Kbd: React.FC<{ keys: Key | Array<Key>, className?: string }> = ({ 
   }, [ keys ])
 
   return (
-    <kbd className={ [className, styles.kbd].join(' ') }>{ content.map(k => <kbd>{ k }</kbd>) }</kbd>
+    <kbd className={ [ className, styles.kbd ].join(' ') }>{ content.map((k, id) => <kbd key={ id }>{ k }</kbd>) }</kbd>
   )
 }

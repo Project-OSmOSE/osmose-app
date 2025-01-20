@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AnnotationCampaign, useArchiveCampaignMutation } from "@/service/campaign";
-import { IonButton, IonIcon, IonSpinner, useIonAlert } from "@ionic/react";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
 import { FadedText } from "@/components/ui";
 import styles from "./Detail.module.scss";
@@ -9,6 +9,7 @@ import { AudioMetadataModal, ProgressModal, SpectrogramConfigurationsModal } fro
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
 import { Progress } from "@/components/ui/Progress.tsx";
+import { useAlert } from "@/service/ui";
 
 export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: boolean }> = ({ campaign, isOwner }) => {
 
@@ -18,7 +19,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
     isLoading: isLoadingConfidenceSet
   } = useRetrieveConfidenceSetQuery(campaign.confidence_indicator_set ?? -1, { skip: !campaign.confidence_indicator_set });
   const [ archiveCampaign ] = useArchiveCampaignMutation()
-  const [ presentAlert ] = useIonAlert();
+  const alert = useAlert();
 
   const [ isSpectrogramModalOpen, setIsSpectrogramModalOpen ] = useState<boolean>(false);
   const [ isAudioModalOpen, setIsAudioModalOpen ] = useState<boolean>(false);
@@ -45,7 +46,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
   async function archive() {
     if (campaign.progress < campaign.total) {
       // If annotators haven't finished yet, ask for confirmation
-      return await presentAlert({
+      return await alert.present({
         header: 'Archive',
         message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
         cssClass: 'danger-confirm-alert',

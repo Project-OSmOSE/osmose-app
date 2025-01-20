@@ -2,6 +2,8 @@ import React, { Fragment, HTMLInputTypeAttribute, InputHTMLAttributes, useState 
 import { IonIcon, IonNote } from "@ionic/react";
 import './inputs.css';
 import { eyeOffOutline, eyeOutline } from "ionicons/icons";
+import { useAppDispatch } from "@/service/app.ts";
+import { disableShortcuts, enableShortcuts } from "@/service/events";
 
 type InputProperties = {
   label?: string;
@@ -25,6 +27,8 @@ export const Input: React.FC<InputProperties> = ({
 
   const [ type, setType ] = useState<HTMLInputTypeAttribute | undefined>(inputArgs.type);
 
+  const dispatch = useAppDispatch();
+
   function toggleType() {
     if (inputArgs.type !== 'password') return;
     if (type === 'password') setType('text');
@@ -44,6 +48,8 @@ export const Input: React.FC<InputProperties> = ({
              value={ value }
              required={ required }
              disabled={ disabled }
+             onFocus={ () => dispatch(disableShortcuts()) }
+             onBlur={ () => dispatch(enableShortcuts()) }
              className={ `${ className.join(' ') } ${ inputArgs.className }` }/>
 
       { inputArgs.type === 'password' && <Fragment>

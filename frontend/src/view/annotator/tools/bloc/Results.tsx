@@ -50,9 +50,9 @@ export const Results: React.FC = () => {
     <div className={ [ styles.body, styles.vertical ].join(' ') }>
 
       { sorted_results.length > 0 && <Table columns={ 10 }>
-        { sorted_results.map((r, index) => <Fragment>
+        { sorted_results.map((r, index) => <Fragment key={ index }>
           { index > 0 && <TableDivider/> }
-          <Result result={ r } key={ r.id }/>
+          <Result result={ r }/>
         </Fragment>) }
       </Table> }
 

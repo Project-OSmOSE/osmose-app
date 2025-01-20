@@ -4,7 +4,7 @@ import { alertOutline } from "ionicons/icons";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { FormBloc, Select } from "@/components/form";
 import { Detector, useListDetectorQuery } from '@/service/campaign/detector';
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { DetectorSelection, setDetectors as saveDetectors } from '@/service/campaign';
 

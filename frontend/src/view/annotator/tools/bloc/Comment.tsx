@@ -1,12 +1,6 @@
 import React, { useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import {
-  disableShortcuts,
-  enableShortcuts,
-  focusTask,
-  removeFocusComment,
-  updateFocusComment
-} from '@/service/annotator';
+import { focusTask, removeFocusComment, updateFocusComment } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { Textarea } from "@/components/form";
 import { IonButton, IonIcon } from "@ionic/react";
@@ -43,9 +37,7 @@ export const Comment: React.FC = () => {
                   placeholder="Enter your comment"
                   style={ { resize: 'none' } }
                   value={ currentComment ?? '' }
-                  onChange={ e => dispatch(updateFocusComment(e.target.value)) }
-                  onFocus={ () => dispatch(disableShortcuts()) }
-                  onBlur={ () => dispatch(enableShortcuts()) }/>
+                  onChange={ e => dispatch(updateFocusComment(e.target.value)) }/>
 
         <IonButton color='danger' size='small'
                    className={ styles.removeButton }

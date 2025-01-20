@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
 import { useAppSelector } from '@/service/app';
@@ -13,7 +13,6 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
 
 import '../../css/annotator.css';
-import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { PlayPauseButton } from "@/view/audio-annotator/components/buttons/play-pause.tsx";
 import { PlaybackRateSelect } from "@/view/audio-annotator/components/select/playback-rate.tsx";
 import { AudioDownloadButton } from "@/view/audio-annotator/components/buttons/audio-download.tsx";
@@ -27,7 +26,7 @@ import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-
 import { WorkbenchInfoBloc } from "@/view/audio-annotator/components/bloc/workbench-info.tsx";
 import { selectAnnotationFileDuration } from '@/service/dataset';
 import { useRetrieveAnnotatorQuery } from '@/service/annotator';
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { Footer } from "@/components/layout";
@@ -57,43 +56,29 @@ export const AudioAnnotator: React.FC = () => {
     fileID
   }, { refetchOnMountOrArgChange: true })
 
-  const navKeyPress = useRef<KeypressHandler | null>(null);
-  const labelsKeyPress = useRef<KeypressHandler | null>(null);
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
   const [ error, setError ] = useState<string | undefined>();
 
   // Ref
   const localIsPaused = useRef<boolean>(true);
-  const localAreShortcutsEnabled = useRef<boolean>(true);
   const playerRef = useRef<HTMLAudioElement>(null);
 
   // Services
-  const audioService = useAudioService(playerRef)
   const history = useHistory();
 
   // Slice
   const {
     campaign,
     file,
-    ui,
     user,
-    focusedResultID,
-    results,
     audio,
   } = useAppSelector(state => state.annotator)
   const duration = useAppSelector(selectAnnotationFileDuration)
 
-  // Memo
-  const focusedResult = useMemo(() => {
-    return results?.find(r => r.id === focusedResultID);
-  }, [ focusedResultID ])
-
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyPressed);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyPressed);
       toast.dismiss();
     }
   }, [])
@@ -103,24 +88,8 @@ export const AudioAnnotator: React.FC = () => {
   }, [ retrieveError ]);
 
   useEffect(() => {
-    localAreShortcutsEnabled.current = ui.areShortcutsEnabled;
-  }, [ ui.areShortcutsEnabled ])
-
-  useEffect(() => {
     localIsPaused.current = audio.isPaused;
   }, [ audio.isPaused ])
-
-  const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!localAreShortcutsEnabled.current) return;
-
-    switch (event.code) {
-      case 'Space':
-        event.preventDefault();
-        audioService.playPause(focusedResult);
-    }
-    navKeyPress.current?.handleKeyPressed(event);
-    labelsKeyPress.current?.handleKeyPressed(event);
-  }
 
   function tryNewInterface() {
     history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }/new`);
@@ -183,7 +152,7 @@ export const AudioAnnotator: React.FC = () => {
           <PlaybackRateSelect player={ playerRef }/>
         </p>
 
-        <NavigationButtons ref={ navKeyPress } campaignID={ campaignID }/>
+        <NavigationButtons campaignID={ campaignID }/>
 
         <div className="col-sm-3"></div>
         <p className="col-sm-2 text-right">
@@ -203,7 +172,7 @@ export const AudioAnnotator: React.FC = () => {
               <ConfidenceIndicatorBloc/>
           </div>
 
-          <PresenceBloc ref={ labelsKeyPress }/>
+          <PresenceBloc/>
       </div> }
 
       <div className="row justify-content-center">

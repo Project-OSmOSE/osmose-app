@@ -1,26 +1,20 @@
-import React, { useImperativeHandle, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { TooltipComponent } from "../tooltip.component.tsx";
 import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import Tooltip from "react-bootstrap/Tooltip";
 import { confirm } from "@/view/global-components";
-import { KeypressHandler } from "../../audio-annotator.page.tsx";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import {
-  addPresenceResult,
-  disableShortcuts,
-  enableShortcuts,
-  focusLabel,
-  getPresenceLabels,
-  removePresence
-} from '@/service/annotator';
+import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
+import { disableShortcuts, enableShortcuts, useKbdEvents } from "@/service/events";
 
 
-export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
+export const PresenceBloc: React.FC = () => {
+
+  const kbdEvent = useKbdEvents();
 
   const {
-    ui,
     label_set,
     results,
     focusedLabel,
@@ -30,8 +24,16 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
 
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
 
-  const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!ui.areShortcutsEnabled || !label_set) return;
+  useEffect(() => {
+    kbdEvent.down.add(onKbdEvent);
+
+    return () => {
+      kbdEvent.down.remove(onKbdEvent);
+    }
+  }, []);
+
+  function onKbdEvent(event: KeyboardEvent) {
+    if (!label_set) return;
     const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, label_set.labels.length);
 
     if (event.key === "'") {
@@ -47,11 +49,6 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
       } else toggle(calledLabel);
     }
   }
-
-  useImperativeHandle(ref,
-    () => ({ handleKeyPressed }),
-    [ ui.areShortcutsEnabled, label_set?.labels ]
-  );
 
   const toggle = async (label: string) => {
     if (presenceLabels.includes(label)) {
@@ -95,4 +92,4 @@ export const PresenceBloc = React.forwardRef<KeypressHandler, any>((_, ref) => {
       </div>
     </div>
   )
-})
+}

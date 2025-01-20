@@ -1,9 +1,9 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState, } from "react";
 import { IonAlert, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
-import { useBlur } from "@/services/utils/clic.ts";
 import { Item } from '@/types/item.ts';
 import './inputs.css';
+import { useClickEvents } from "@/service/events";
 
 export type SelectValue = number | string | undefined;
 
@@ -39,9 +39,13 @@ export const Select: React.FC<SelectProperties> = ({
                                                      isLoading = false,
                                                      ...props
                                                    }) => {
-  const blurUtil = useBlur();
+  const click = useClickEvents();
 
-  const selectRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLDivElement | null>(null);
+  const selectButtonRef = useRef<HTMLButtonElement | null>(null);
+  const selectLabelRef = useRef<HTMLParagraphElement | null>(null);
+  const iconRef = useRef<HTMLIonIconElement | null>(null);
   const optionsRef = useRef<HTMLDivElement | null>(null);
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
@@ -49,8 +53,24 @@ export const Select: React.FC<SelectProperties> = ({
 
   useEffect(() => {
     setHasSelectedItem(false)
-    blurUtil.addListener(blur)
+
+    click.click.add(blur)
+    click.aux.add(blur)
+    return () => {
+      click.click.remove(blur)
+      click.aux.add(blur)
+    }
   }, [])
+
+  function blur(event: Event) {
+    if (event.target === containerRef.current) return;
+    if (event.target === inputRef.current) return;
+    if (event.target === selectButtonRef.current) return;
+    if (event.target === selectLabelRef.current) return;
+    if (event.target === iconRef.current) return;
+    if (event.target === optionsRef.current) return;
+    setIsOpen(false);
+  }
 
   const getOptions = (): Array<Item> => {
     let values = [ ...parentOptions ];
@@ -77,7 +97,8 @@ export const Select: React.FC<SelectProperties> = ({
   const parentClasses = [ "select", className ]
   if (label) parentClasses.push("has-label")
 
-  return <div id="aplose-input" className={ [...parentClasses, isLoading ? 'loading' : ''].join(' ') } ref={ selectRef } { ...props }
+  return <div id="aplose-input" className={ [ ...parentClasses, isLoading ? 'loading' : '' ].join(' ') }
+              ref={ containerRef } { ...props }
               aria-invalid={ !!error }>
     { label && <div id="label"
                     aria-disabled={ disabled }
@@ -85,10 +106,12 @@ export const Select: React.FC<SelectProperties> = ({
 
     { isLoading && <IonSpinner/> }
 
-    <div id="input"
+    <div id="input" ref={ inputRef }
          className={ isOpen ? 'open' : '' }>
       <select required={ required }
               className="hide-real-input"
+              onChange={ () => {
+              } }
               value={ value }>
         <option></option>
         { getOptions().map(o => <option value={ o.value === -1 ? undefined : value }
@@ -96,13 +119,13 @@ export const Select: React.FC<SelectProperties> = ({
       </select>
 
       <button id={ buttonId } type="button"
+              ref={ selectButtonRef }
               aria-disabled={ disabled }
               disabled={ disabled }
               onClick={ () => !disabled && setIsOpen(!isOpen) }
               className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
-        <p>{ buttonLabel }</p>
-        { !isOpen && <IonIcon icon={ caretDown }/> }
-        { isOpen && <IonIcon icon={ caretUp }/> }
+        <p ref={ selectLabelRef }>{ buttonLabel }</p>
+        <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
       { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>

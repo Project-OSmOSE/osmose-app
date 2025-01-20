@@ -8,21 +8,16 @@ import { Link } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useBlur } from "@/services/utils/clic.ts";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 
 export const AnnotatorPage: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery({ campaignID, fileID });
-  const blurUtil = useBlur();
   const toast = useToast();
   const history = useHistory();
 
   useEffect(() => {
-    document.addEventListener('click', blurUtil.onClick)
     return () => {
-      document.removeEventListener('click', blurUtil.onClick);
-      blurUtil.cleanListener();
       toast.dismiss();
     }
   }, [])

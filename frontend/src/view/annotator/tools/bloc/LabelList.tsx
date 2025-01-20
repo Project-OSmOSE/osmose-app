@@ -24,7 +24,7 @@ export const LabelList: React.FC = () => {
     <div className={ styles.bloc }>
       <h6 className={ styles.header }>Labels list</h6>
       <div className={ styles.body }>
-        { data?.label_set.labels.map((label, key) => {
+        { data?.label_set.labels.map((label, id) => {
           const color = (data?.label_set.labels.indexOf(label) % 10).toString();
           const style = {
             inactive: {
@@ -41,11 +41,10 @@ export const LabelList: React.FC = () => {
             },
           };
           return (
-            <LabelTooltipOverlay id={ key }>
-              <IonChip
-                style={ focusedLabel === label ? style.active : presenceLabels.includes(label) ? style.inactive : style.disabled }
-                onClick={ () => dispatch(focusLabel(label)) }
-                disabled={ !presenceLabels.includes(label) }>
+            <LabelTooltipOverlay key={ id } id={ id }>
+              <IonChip onClick={ () => dispatch(focusLabel(label)) }
+                       style={ focusedLabel === label ? style.active : presenceLabels.includes(label) ? style.inactive : style.disabled }
+                       disabled={ !presenceLabels.includes(label) }>
                 { label }
                 { focusedLabel === label && <IonIcon src={ checkmarkOutline } color="light"/> }
               </IonChip>

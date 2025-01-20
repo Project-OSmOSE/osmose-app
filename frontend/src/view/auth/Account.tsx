@@ -5,7 +5,7 @@ import { FadedText, WarningText } from "@/components/ui";
 import { IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import { FormBloc } from "@/components/form";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 import { UpdatePassword } from "@/view/auth/account-form/UpdatePassword.tsx";
 import { UpdateEmail } from "@/view/auth/account-form/UpdateEmail.tsx";
 

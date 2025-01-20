@@ -7,12 +7,12 @@ import {
   useListDatasetForImportQuery,
   useListDatasetQuery
 } from '@/service/dataset';
-import { useToast } from '@/services/utils/toast.ts';
 import { getErrorMessage } from '@/service/function.ts';
 import styles from './dataset.module.scss'
 import { downloadOutline } from 'ionicons/icons';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { ImportDatasetModal } from '@/view/dataset/ImportModal.tsx';
+import { useToast } from "@/service/ui";
 
 
 export const DatasetList: React.FC = () => {

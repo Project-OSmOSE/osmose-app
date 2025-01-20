@@ -38,9 +38,7 @@ export const AnnotatorSlice = createSlice({
       isPaused: true,
       time: 0,
     },
-    ui: {
-      areShortcutsEnabled: true
-    },
+    ui: {},
     labelColors: {},
     sessionStart: Date.now()
   } satisfies AnnotatorState as AnnotatorState,
@@ -247,12 +245,6 @@ export const AnnotatorSlice = createSlice({
       state.userPreferences.spectrogramConfigurationID = payload;
       state.userPreferences.zoomLevel = 1;
     },
-    enableShortcuts: (state) => {
-      state.ui.areShortcutsEnabled = true;
-    },
-    disableShortcuts: (state) => {
-      state.ui.areShortcutsEnabled = false;
-    },
     setPointerPosition: (state, { payload }: { payload: { time: number, frequency: number } }) => {
       state.ui.pointerPosition = payload;
     },
@@ -368,8 +360,6 @@ export const {
   selectSpectrogramConfiguration,
   setPointerPosition,
   zoom,
-  enableShortcuts,
-  disableShortcuts,
   leavePointerPosition,
   setTime,
   onPause,

@@ -141,9 +141,7 @@ const mockState: AnnotatorState = {
     spectrogramConfigurationID: -1,
     zoomLevel: -1
   },
-  ui: {
-    areShortcutsEnabled: true,
-  },
+  ui: {},
   audio: {
     time: 0,
     isPaused: true

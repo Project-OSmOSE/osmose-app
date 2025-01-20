@@ -4,7 +4,7 @@ import {
   useDownloadCampaignReportLazyQuery,
   useDownloadCampaignStatusMutation
 } from "@/service/campaign";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";

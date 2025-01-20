@@ -1,21 +1,22 @@
-import React, { useEffect, useImperativeHandle, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
+import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
-import { useToast } from '@/services/utils/toast.ts';
+import { useAlert, useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
+import { useKbdEvents } from "@/service/events";
 
 
 export interface KeypressHandler {
   handleKeyPressed: (event: KeyboardEvent) => void;
 }
 
-export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) => {
+export const NavigationButtons: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
 
@@ -23,18 +24,13 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
-  const [ presentAlert ] = useIonAlert();
+  const alert = useAlert();
+  const kbdEvent = useKbdEvents();
 
   // Data
   const {
-    ui,
     hasChanged: _hasChanged,
   } = useAppSelector(state => state.annotator);
-
-  const areShortcutsEnabled = useRef<boolean>(ui.areShortcutsEnabled);
-  useEffect(() => {
-    areShortcutsEnabled.current = ui.areShortcutsEnabled
-  }, [ ui.areShortcutsEnabled ]);
 
   const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
   useEffect(() => {
@@ -52,8 +48,15 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
 
   const isSubmitting = useRef<boolean>(false);
 
-  const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!areShortcutsEnabled.current) return;
+  useEffect(() => {
+    kbdEvent.down.add(onKbdEvent);
+
+    return () => {
+      kbdEvent.down.remove(onKbdEvent);
+    }
+  }, []);
+
+  function onKbdEvent(event: KeyboardEvent) {
     switch (event.code) {
       case 'Enter':
       case 'NumpadEnter':
@@ -69,14 +72,12 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
     }
   }
 
-  useImperativeHandle(ref, () => ({ handleKeyPressed }), [ areShortcutsEnabled ])
-
   const submit = async () => {
     isSubmitting.current = true;
     try {
       await submitService.submit()
       if (next_file_id.current) {
-        history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }`);
+        history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
       } else {
         history.push(`/annotation-campaign/${ params.campaignID }`)
       }
@@ -90,7 +91,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (hasChanged.current) {
-      await presentAlert({
+      await alert.present({
         message: `You have unsaved changes. Are you sure you want to forget all of them?`,
         cssClass: 'danger-confirm-alert',
         buttons: [
@@ -108,7 +109,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (hasChanged.current) {
-      await presentAlert({
+      await alert.present({
         message: `You have unsaved changes. Are you sure you want to forget all of them?`,
         cssClass: 'danger-confirm-alert',
         buttons: [
@@ -149,4 +150,4 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
       </TooltipOverlay>
     </div>
   )
-})
+}

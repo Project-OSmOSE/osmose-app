@@ -15,7 +15,7 @@ import { SpectrogramRender } from "@/view/annotator/tools/spectrogram/Spectrogra
 import { SpectrogramDownloadButton } from "@/view/annotator/tools/buttons/SpectrogramDownload.tsx";
 import { PlayPauseButton } from "@/view/annotator/tools/buttons/PlayPause.tsx";
 import { getDuration } from "@/service/dataset";
-import { KeypressHandler, NavigationButtons } from "@/view/annotator/tools/buttons/Navigation.tsx";
+import { NavigationButtons } from "@/view/annotator/tools/buttons/Navigation.tsx";
 import { PresenceAbsence } from "@/view/annotator/tools/bloc/PresenceAbsence.tsx";
 import { LabelList } from "@/view/annotator/tools/bloc/LabelList.tsx";
 import { CurrentAnnotation } from "@/view/annotator/tools/bloc/CurrentAnnotation.tsx";
@@ -23,8 +23,7 @@ import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
-import { useToast } from "@/services/utils/toast.ts";
-import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { useToast } from "@/service/ui";
 
 export const Annotator: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
@@ -39,57 +38,23 @@ export const Annotator: React.FC = () => {
   const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
 
   // Refs
-  const localAreShortcutsEnabled = useRef<boolean>(true);
   const localIsPaused = useRef<boolean>(true);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const spectrogramRenderRef = useRef<SpectrogramRender | null>(null);
-  const navigationRef = useRef<KeypressHandler | null>(null);
-  const presenceAbsenceRef = useRef<KeypressHandler | null>(null);
 
   // Services
-  const audioService = useAudioService(audioPlayerRef)
   const toast = useToast();
 
-  // Slice
-  const {
-    ui,
-    focusedResultID,
-    results
-  } = useAppSelector(state => state.annotator)
-
-  // Memo
-  const focusedResult = useMemo(() => {
-    return results?.find(r => r.id === focusedResultID);
-  }, [ focusedResultID ])
-
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyPressed);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyPressed);
       toast.dismiss();
     }
   }, [])
 
   useEffect(() => {
-    localAreShortcutsEnabled.current = ui.areShortcutsEnabled;
-  }, [ ui.areShortcutsEnabled ])
-
-  useEffect(() => {
     localIsPaused.current = audio.isPaused;
   }, [ audio.isPaused ])
-
-  const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!localAreShortcutsEnabled.current) return;
-
-    switch (event.code) {
-      case 'Space':
-        event.preventDefault();
-        audioService.playPause(focusedResult);
-    }
-    navigationRef.current?.handleKeyPressed(event);
-    presenceAbsenceRef.current?.handleKeyPressed(event);
-  }
 
   return <div className={ styles.annotator }>
 
@@ -134,7 +99,7 @@ export const Annotator: React.FC = () => {
                     <PlaybackRateSelect player={ audioPlayerRef }/>
                 </div>
 
-                <NavigationButtons ref={ navigationRef }/>
+                <NavigationButtons/>
 
                 <p>{ formatTime(audio.time) }&nbsp;/&nbsp;{ formatTime(duration) }</p>
             </div>
@@ -143,7 +108,7 @@ export const Annotator: React.FC = () => {
         <div className={ styles.blocContainer }>
           { data?.campaign.usage === 'Create' && <Fragment>
               <CurrentAnnotation/>
-              <PresenceAbsence ref={ presenceAbsenceRef }/>
+              <PresenceAbsence/>
               <LabelList/>
               <Comment/>
               <Results/>

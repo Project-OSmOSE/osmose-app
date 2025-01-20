@@ -1,12 +1,11 @@
 import React, { FormEvent, useEffect } from "react";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 import './create-edit-campaign.css';
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { clearDraftCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { useBlur } from '@/services/utils/clic.ts';
 import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 
 
@@ -17,17 +16,13 @@ export const EditCampaign: React.FC = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
   const toast = useToast();
-  const blurUtil = useBlur();
   const draftFileRanges = useAppSelector(selectDraftFileRange)
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
   const [ postFileRanges, { isLoading } ] = usePostAnnotationFileRangeMutation()
 
   useEffect(() => {
-    document.addEventListener('click', blurUtil.onClick)
     dispatch(clearDraftCampaign())
     return () => {
-      document.removeEventListener('click', blurUtil.onClick);
-      blurUtil.cleanListener();
       toast.dismiss();
     }
   }, [])

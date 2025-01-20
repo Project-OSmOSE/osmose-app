@@ -1,5 +1,5 @@
 import React, { FormEvent, Fragment, useEffect, useMemo } from "react";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 import { Select } from "@/components/form";
 import { useListLabelSetQuery } from '@/service/campaign/label-set';
 import { getErrorMessage } from '@/service/function.ts';

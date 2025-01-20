@@ -20,7 +20,6 @@ export type AnnotatorState = Partial<AnnotatorData> & {
     zoomLevel: number;
   },
   ui: {
-    areShortcutsEnabled: boolean;
     pointerPosition?: { time: number, frequency: number },
     zoomOrigin?: { x: number, y: number },
   },

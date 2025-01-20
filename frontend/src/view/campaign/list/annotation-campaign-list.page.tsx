@@ -4,7 +4,7 @@ import { addOutline, closeCircle, swapHorizontal } from "ionicons/icons";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import styles from './annotation-campaign-list.module.scss'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useGetCurrentUserQuery } from "@/service/user";

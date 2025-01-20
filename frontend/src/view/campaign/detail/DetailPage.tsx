@@ -7,7 +7,7 @@ import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { DetailPageSide } from "./DetailPageSide.tsx";
-import { useToast } from "@/services/utils/toast.ts";
+import { useToast } from "@/service/ui";
 import { DetailPageAnnotationTasks } from "./DetailPageAnnotationTasks.tsx";
 
 export const CampaignDetail: React.FC = () => {

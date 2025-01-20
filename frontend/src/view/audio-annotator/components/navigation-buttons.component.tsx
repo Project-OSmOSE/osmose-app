@@ -1,15 +1,15 @@
-import React, { ReactNode, useEffect, useImperativeHandle, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useHistory } from "react-router-dom";
-import { KeypressHandler } from "../audio-annotator.page.tsx";
 import { confirm } from "../../global-components";
 import Tooltip from "react-bootstrap/Tooltip";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
-import { useToast } from '@/services/utils/toast.ts';
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
+import { useKbdEvents } from "@/service/events";
 
 interface Props {
   shortcut: ReactNode;
@@ -33,26 +33,19 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
   </div>
 ))
 
-export const NavigationButtons = React.forwardRef<KeypressHandler, {
-  campaignID: string
-}>(({ campaignID }, ref) => {
+export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignID }) => {
   // Services
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
+  const kbdEvent = useKbdEvents();
 
   // Data
   const {
     previous_file_id: _previous_file_id,
     next_file_id: _next_file_id,
-    ui,
     hasChanged: _hasChanged,
   } = useAppSelector(state => state.annotator);
-
-  const areShortcutsEnabled = useRef<boolean>(ui.areShortcutsEnabled);
-  useEffect(() => {
-    areShortcutsEnabled.current = ui.areShortcutsEnabled
-  }, [ ui.areShortcutsEnabled ]);
 
   const previous_file_id = useRef<number | null>(_previous_file_id ?? null);
   useEffect(() => {
@@ -70,8 +63,15 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
 
   const isSubmitting = useRef<boolean>(false);
 
-  const handleKeyPressed = (event: KeyboardEvent) => {
-    if (!areShortcutsEnabled.current) return;
+  useEffect(() => {
+    kbdEvent.down.add(onKbdEvent);
+
+    return () => {
+      kbdEvent.down.remove(onKbdEvent);
+    }
+  }, []);
+
+  function onKbdEvent(event: KeyboardEvent) {
     switch (event.code) {
       case 'Enter':
       case 'NumpadEnter':
@@ -86,8 +86,6 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
         break;
     }
   }
-
-  useImperativeHandle(ref, () => ({ handleKeyPressed }), [ areShortcutsEnabled ])
 
   const submit = async () => {
     isSubmitting.current = true;
@@ -153,4 +151,4 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {
       </OverlayTrigger>
     </div>
   )
-})
+}
