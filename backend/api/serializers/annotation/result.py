@@ -476,19 +476,20 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
 
         # acoustic_features
         if initial_acoustic_features is None:
-            instance.acoustic_features.delete()
+            if instance.acoustic_features is not None:
+                instance.acoustic_features.delete()
         else:
             acoustic_features = AnnotationResultAcousticFeaturesSerializer(
                 initial_acoustic_features
             ).data
-            instance_acoustic_features = AnnotationResultAcousticFeatures.objects.get(
-                annotation_result__id=instance.id,
-            )
+            instance.acoustic_features
             acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
-                instance_acoustic_features,
-                data={**acoustic_features, "result": instance.id},
+                instance.acoustic_features,
+                data={**acoustic_features, "annotation_result": instance.id},
             )
             acoustic_features_serializer.is_valid(raise_exception=True)
             acoustic_features_serializer.save()
+            instance.acoustic_features = acoustic_features_serializer.instance
+            instance.save()
 
         return self.Meta.model.objects.get(pk=instance_id)

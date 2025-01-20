@@ -308,6 +308,7 @@ export const AnnotatorSlice = createSlice({
           }
         }
       })
+      state.hasChanged = true;
     }
   },
   extraReducers:
