@@ -192,6 +192,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 "confidence_indicator",
                 "annotator",
                 "detector_configuration__detector",
+                "acoustic_features",
             )
             .annotate(
                 file_duration=file_duration,
@@ -217,6 +218,27 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                     ),
                     output_field=BooleanField(),
                 ),
+                # TODO: Update this field list the final one
+                feature_min_freq=F("acoustic_features__min_frequency"),
+                feature_max_freq=F("acoustic_features__max_frequency"),
+                feature_start_freq=F("acoustic_features__start_frequency"),
+                feature_end_freq=F("acoustic_features__end_frequency"),
+                feature_median_freq=F("acoustic_features__median_frequency"),
+                feature_beginning_sweep_slope=F(
+                    "acoustic_features__beginning_sweep_slope"
+                ),
+                feature_end_sweep_slope=F("acoustic_features__end_sweep_slope"),
+                feature_steps_count=F("acoustic_features__steps_count"),
+                feature_relative_peaks_count=F(
+                    "acoustic_features__relative_peaks_count"
+                ),
+                feature_has_harmonics=F("acoustic_features__has_harmonics"),
+                feature_harmonics_count=F("acoustic_features__harmonics_count"),
+                feature_level_peak_frequency=F(
+                    "acoustic_features__level_peak_frequency"
+                ),
+                feature_duration=F("acoustic_features__duration"),
+                feature_trend=F("acoustic_features__trend"),
             )
             .order_by("dataset_file__start", "id")
         )
@@ -304,6 +326,59 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 else "",
             ]
 
+        def map_result_features(row):
+            return [
+                row.dataset_name,
+                row.file_name,
+                str(row.start_time) if row.start_time else "0",
+                str(row.end_time) if row.end_time else str(row.file_duration),
+                str(row.start_frequency) if row.start_frequency else "0",
+                str(row.end_frequency)
+                if row.end_frequency
+                else str(row.file_max_frequency),
+                row.label_name,
+                row.annotator_name if row.annotator_name else row.detector_name,
+                (row.file_start + timedelta(seconds=row.start_time or 0)).isoformat(
+                    timespec="milliseconds"
+                ),
+                (row.file_start + timedelta(seconds=row.end_time)).isoformat(
+                    timespec="milliseconds"
+                )
+                if row.end_time
+                else row.file_end.isoformat(timespec="milliseconds"),
+                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0)
+                if isinstance(row.is_weak, bool)
+                else "",
+                row.confidence_label if row.confidence_label else "",
+                f"{row.confidence_level}/{max_confidence}"
+                if isinstance(row.confidence_level, int)
+                else "",
+                f"{row.comment_content} |- {row.comment_author}"
+                if row.comment_content
+                else "",
+                # TODO: Update this field list the final one
+                str(row.feature_min_freq) if row.feature_min_freq else "",
+                str(row.feature_max_freq) if row.feature_max_freq else "",
+                str(row.feature_start_freq) if row.feature_start_freq else "",
+                str(row.feature_end_freq) if row.feature_end_freq else "",
+                str(row.feature_median_freq) if row.feature_median_freq else "",
+                str(row.feature_beginning_sweep_slope)
+                if row.feature_beginning_sweep_slope
+                else "",
+                str(row.feature_end_sweep_slope) if row.feature_end_sweep_slope else "",
+                str(row.feature_steps_count) if row.feature_steps_count else "",
+                str(row.feature_relative_peaks_count)
+                if row.feature_relative_peaks_count
+                else "",
+                str(row.feature_has_harmonics) if row.feature_has_harmonics else "",
+                str(row.feature_harmonics_count) if row.feature_harmonics_count else "",
+                str(row.feature_level_peak_frequency)
+                if row.feature_level_peak_frequency
+                else "",
+                str(row.feature_duration) if row.feature_duration else "",
+                row.feature_trend if row.feature_trend else "",
+            ]
+
         def map_result_check(row):
             check_data = map_result(row)
             for user in validate_users:
@@ -316,7 +391,25 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             return check_data
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
-            data.extend(map(map_result, list(results) + list(comments)))
+            if campaign.labels_with_acoustic_features.count() > 0:
+                # TODO: Update this field list the final one
+                data[0].append("signal_min_frequency")
+                data[0].append("signal_max_frequency")
+                data[0].append("signal_start_frequency")
+                data[0].append("signal_end_frequency")
+                data[0].append("signal_median_frequency")
+                data[0].append("signal_beginning_sweep_slope")
+                data[0].append("signal_end_sweep_slope")
+                data[0].append("signal_steps_count")
+                data[0].append("signal_relative_peaks_count")
+                data[0].append("signal_has_harmonics")
+                data[0].append("signal_harmonics_count")
+                data[0].append("signal_level_peak_frequency")
+                data[0].append("signal_duration")
+                data[0].append("signal_trend")
+                data.extend(map(map_result_features, list(results) + list(comments)))
+            else:
+                data.extend(map(map_result, list(results) + list(comments)))
 
         if campaign.usage == AnnotationCampaignUsage.CHECK:
             data[0] = data[0] + validate_users
