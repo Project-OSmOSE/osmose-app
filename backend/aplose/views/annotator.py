@@ -1,7 +1,8 @@
 """Annotator viewset"""
+
 from django.db import transaction
 # pylint: disable=protected-access
-from django.db.models import Q
+from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -22,6 +23,7 @@ from backend.api.views import (
     DatasetFileViewSet,
     SpectrogramConfigurationViewSet,
 )
+from backend.utils.filters import get_boolean_query_param
 
 
 # TODO: test !!!! and update result post ones
@@ -36,6 +38,12 @@ class AnnotatorViewSet(viewsets.ViewSet):
     )
     def get_file(self, request: Request, campaign_id: int, file_id: int):
         """Get all data for annotator"""
+
+        search = self.request.query_params.get("search")
+        is_submitted = get_boolean_query_param(self.request, "is_submitted")
+        with_user_annotations = get_boolean_query_param(
+            self.request, "with_user_annotations"
+        )
 
         file = DatasetFileViewSet.as_view({"get": "retrieve"})(
             request._request,
@@ -71,11 +79,46 @@ class AnnotatorViewSet(viewsets.ViewSet):
             pk=campaign_id
         ).get_sorted_files()
         current_file = DatasetFile.objects.get(pk=file_id)
-        previous_file: DatasetFile = campaign_files.filter(
+
+        filtered_files = campaign_files
+        if search is not None:
+            filtered_files = filtered_files.filter(filename__icontains=search)
+        if with_user_annotations is not None:
+            filtered_files = filtered_files.annotate(
+                results=Count(
+                    "annotation_results",
+                    filter=Q(annotation_results__annotator_id=request.user.id)
+                    | Q(annotation_results__detector_configuration__isnull=False),
+                )
+            ).filter(results__gt=0)
+        if is_submitted is not None:
+            if is_submitted:
+                filtered_files = filtered_files.filter(
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=campaign_id,
+                            annotator_id=request.user.id,
+                            dataset_file_id=OuterRef("pk"),
+                            status=AnnotationTask.Status.FINISHED,
+                        )
+                    )
+                )
+            else:
+                filtered_files = filtered_files.filter(
+                    Exists(
+                        AnnotationTask.objects.filter(
+                            annotation_campaign_id=campaign_id,
+                            annotator_id=request.user.id,
+                            dataset_file_id=OuterRef("pk"),
+                        ).filter(~Q(status=AnnotationTask.Status.FINISHED))
+                    )
+                )
+
+        previous_file: DatasetFile = filtered_files.filter(
             Q(start__lt=current_file.start)
             | Q(start=current_file.start, id__lt=current_file.id)
         ).last()
-        next_file = campaign_files.filter(
+        next_file = filtered_files.filter(
             Q(start__gt=current_file.start)
             | Q(start=current_file.start, id__gt=current_file.id)
         ).first()
