@@ -1,7 +1,6 @@
 import React, { useEffect, useImperativeHandle, useRef } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { confirm } from "@/view/global-components";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, useIonAlert } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
@@ -24,6 +23,7 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
+  const [ presentAlert ] = useIonAlert();
 
   // Data
   const {
@@ -90,18 +90,38 @@ export const NavigationButtons = React.forwardRef<KeypressHandler, {}>((_, ref) 
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (hasChanged.current) {
-      const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
-      if (!response) return;
-    }
-    history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`);
+      await presentAlert({
+        message: `You have unsaved changes. Are you sure you want to forget all of them?`,
+        cssClass: 'danger-confirm-alert',
+        buttons: [
+          'Cancel',
+          {
+            text: `Forget my changes`,
+            cssClass: 'ion-color-danger',
+            handler: () => history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`)
+          }
+        ]
+      })
+    } else
+      history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (hasChanged.current) {
-      const response = await confirm(`You have unsaved changes. Are you sure you want to forget all of them ?`, `Forget my changes`);
-      if (!response) return;
-    }
-    history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
+      await presentAlert({
+        message: `You have unsaved changes. Are you sure you want to forget all of them?`,
+        cssClass: 'danger-confirm-alert',
+        buttons: [
+          'Cancel',
+          {
+            text: `Forget my changes`,
+            cssClass: 'ion-color-danger',
+            handler: () => history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`)
+          }
+        ]
+      })
+    } else
+      history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
   }
 
   return (

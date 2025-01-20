@@ -51,7 +51,7 @@
       justify-self: center;
     }
 
-    &.currentAnnotation, &.twoColumns {
+    &.currentAnnotation {
       display: grid;
       justify-items: start;
       align-items: center;
@@ -60,11 +60,6 @@
     &.currentAnnotation {
       gap: 0.5rem;
       grid-template-columns: auto 1fr;
-    }
-
-    &.twoColumns {
-      grid-template-columns: repeat(auto-fill, minmax(12ch, auto)); /* see notes below */
-      //grid-template-columns: 1fr 1fr;
     }
 
     p {

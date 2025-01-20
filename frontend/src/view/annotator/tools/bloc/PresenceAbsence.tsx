@@ -83,7 +83,7 @@ export const PresenceAbsence = React.forwardRef<KeypressHandler, any>((_, ref) =
   return (
     <div className={ styles.bloc }>
       <h6 className={ styles.header }>Presence / Absence</h6>
-      <div className={ [ styles.body, styles.twoColumns ].join(' ') }>
+      <div className={ styles.body }>
         { data?.label_set.labels.map((label, key) => {
           const color = (key % 10).toString();
           return (

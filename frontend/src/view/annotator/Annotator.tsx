@@ -143,11 +143,11 @@ export const Annotator: React.FC = () => {
         <div className={ styles.blocContainer }>
           { data?.campaign.usage === 'Create' && <Fragment>
               <CurrentAnnotation/>
-              <LabelList/>
               <PresenceAbsence ref={ presenceAbsenceRef }/>
+              <LabelList/>
               <Comment/>
-              <ConfidenceIndicator/>
               <Results/>
+              <ConfidenceIndicator/>
           </Fragment> }
           { data?.campaign.usage === 'Check' && <Fragment>
               <CurrentAnnotation/>
