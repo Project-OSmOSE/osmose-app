@@ -7,15 +7,13 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { focusLabel, getPresenceLabels } from '@/service/annotator';
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const LabelListBloc: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
-  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign?.label_set });
+  const {
+    label_set,
+  } = useAnnotator();
 
   const {
     results,

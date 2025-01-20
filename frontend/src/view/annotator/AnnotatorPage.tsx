@@ -2,19 +2,22 @@ import React, { Fragment, useEffect } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { IonButton, IonIcon } from "@ionic/react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useToast } from "@/service/ui";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const AnnotatorPage: React.FC = () => {
-  const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery({ campaignID, fileID });
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const {
+    campaignID,
+    fileID,
+    annotatorData,
+    campaign,
+  } = useAnnotator();
+
   const toast = useToast();
   const history = useHistory();
 
@@ -55,8 +58,8 @@ export const AnnotatorPage: React.FC = () => {
                 Back to campaign
               </IonButton>
             </Fragment> }>
-      { data && campaign && <p className={ styles.info }>
-        { campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted &&
+      { annotatorData && campaign && <p className={ styles.info }>
+        { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
           <IoCheckmarkCircleOutline/> }
       </p> }
     </Header>

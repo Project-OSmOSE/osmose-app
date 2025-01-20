@@ -5,16 +5,14 @@ import { AnnotationResultBounds } from '@/service/campaign/result';
 import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import { getDuration } from "@/service/dataset";
-import { useParams } from "react-router-dom";
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const useSpectrogramService = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
   xAxis: MutableRefObject<ScaleMapping | null>,
   yAxis: MutableRefObject<ScaleMapping | null>,
 ) => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
+  const { annotatorData } = useAnnotator()
 
   const {
     audio,
@@ -22,7 +20,7 @@ export const useSpectrogramService = (
   } = useAppSelector(state => state.annotator);
   const toast = useToast();
 
-  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
+  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
 
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
 
@@ -32,15 +30,15 @@ export const useSpectrogramService = (
   }
 
   async function loadImages() {
-    const currentConfiguration = data?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID);
-    if (!currentConfiguration || !data) {
+    const currentConfiguration = annotatorData?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID);
+    if (!currentConfiguration || !annotatorData) {
       images.current = new Map();
       return;
     }
 
     if (areAllImagesLoaded()) return;
 
-    const filename = data.file.filename.split('.')[0]
+    const filename = annotatorData.file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(userPreferences.zoomLevel)).map(async (_, index) => {
         console.info(`Will load for zoom ${ userPreferences.zoomLevel }, image ${ index }`)

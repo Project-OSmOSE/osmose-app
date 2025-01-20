@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
 import { useAlert, useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
 import { KEY_DOWN_EVENT } from "@/service/events";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export interface KeypressHandler {
@@ -17,8 +17,10 @@ export interface KeypressHandler {
 }
 
 export const NavigationButtons: React.FC = () => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
+  const {
+    campaignID,
+    annotatorData,
+  } = useAnnotator();
 
   // Services
   const history = useHistory();
@@ -31,14 +33,14 @@ export const NavigationButtons: React.FC = () => {
     hasChanged: _hasChanged,
   } = useAppSelector(state => state.annotator);
 
-  const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
+  const previous_file_id = useRef<number | null>(annotatorData?.previous_file_id ?? null);
   useEffect(() => {
-    previous_file_id.current = data?.previous_file_id ?? null;
-  }, [ data?.previous_file_id ]);
-  const next_file_id = useRef<number | null>(data?.next_file_id ?? null);
+    previous_file_id.current = annotatorData?.previous_file_id ?? null;
+  }, [ annotatorData?.previous_file_id ]);
+  const next_file_id = useRef<number | null>(annotatorData?.next_file_id ?? null);
   useEffect(() => {
-    next_file_id.current = data?.next_file_id ?? null;
-  }, [ data?.next_file_id ]);
+    next_file_id.current = annotatorData?.next_file_id ?? null;
+  }, [ annotatorData?.next_file_id ]);
 
   const hasChanged = useRef<boolean>(_hasChanged);
   useEffect(() => {
@@ -75,9 +77,9 @@ export const NavigationButtons: React.FC = () => {
     try {
       await submitService.submit()
       if (next_file_id.current) {
-        history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
+        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
       } else {
-        history.push(`/annotation-campaign/${ params.campaignID }`)
+        history.push(`/annotation-campaign/${ campaignID }`)
       }
     } catch (e: any) {
       toast.presentError(getErrorMessage(e))
@@ -97,12 +99,12 @@ export const NavigationButtons: React.FC = () => {
           {
             text: `Forget my changes`,
             cssClass: 'ion-color-danger',
-            handler: () => history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`)
+            handler: () => history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }/new`)
           }
         ]
       })
     } else
-      history.push(`/annotation-campaign/${ params.campaignID }/file/${ previous_file_id.current }/new`);
+      history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }/new`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
@@ -115,12 +117,12 @@ export const NavigationButtons: React.FC = () => {
           {
             text: `Forget my changes`,
             cssClass: 'ion-color-danger',
-            handler: () => history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`)
+            handler: () => history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`)
           }
         ]
       })
     } else
-      history.push(`/annotation-campaign/${ params.campaignID }/file/${ next_file_id.current }/new`);
+      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
   }
 
   return (

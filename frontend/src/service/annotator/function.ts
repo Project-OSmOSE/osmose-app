@@ -2,9 +2,9 @@ import { AnnotatorState, ResultType } from './type.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 
 export function getDefaultConfidence(state: AnnotatorState) {
-  if (!state.confidence_set) return undefined;
-  const defaultIndicator = state.confidence_set.confidence_indicators.find(c => c.isDefault);
-  return defaultIndicator ?? state.confidence_set.confidence_indicators.find(c => c)
+  if (!state.confidenceIndicators) return undefined;
+  const defaultIndicator = state.confidenceIndicators.find(c => c.isDefault);
+  return defaultIndicator ?? state.confidenceIndicators.find(c => c)
 }
 
 export function getPresenceLabels(results?: Array<AnnotationResult>) {

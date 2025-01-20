@@ -5,15 +5,13 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { IonChip, IonIcon } from "@ionic/react";
 import { checkmarkOutline } from "ionicons/icons";
 import { focusConfidence } from '@/service/annotator';
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
-import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const ConfidenceIndicatorBloc: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
-  const { data: confidence_set } = useRetrieveConfidenceSetQuery(campaign?.confidence_indicator_set ?? -1, { skip: !campaign?.confidence_indicator_set });
+  const {
+    confidence_set,
+  } = useAnnotator();
 
   const dispatch = useAppDispatch();
   const focusedConfidenceLabel = useAppSelector(state => state.annotator.focusedConfidenceLabel);

@@ -2,24 +2,23 @@ import React, { Fragment, useMemo } from "react";
 import { useAppSelector } from '@/service/app';
 import { getDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
-import { useParams } from "react-router-dom";
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import styles from './bloc.module.scss';
 import { IoAnalyticsOutline, IoChevronForwardOutline, IoPricetagOutline, IoTimeOutline } from "react-icons/io5";
 import { FaHandshake } from "react-icons/fa6";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const CurrentAnnotation: React.FC = () => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const {
+    annotatorData,
+    campaign,
+  } = useAnnotator();
 
   const {
     focusedResultID,
     results
   } = useAppSelector(state => state.annotator);
-  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
+  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
   const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID ]);
 
   const startTime = useMemo(() => {
@@ -42,7 +41,7 @@ export const CurrentAnnotation: React.FC = () => {
 
   const endFrequency = useMemo(() => {
     if (!focusedResult) return "-"
-    if (focusedResult.end_frequency === null) return ((data?.file.dataset_sr ?? 0) / 2).toFixed(2);
+    if (focusedResult.end_frequency === null) return ((annotatorData?.file.dataset_sr ?? 0) / 2).toFixed(2);
     return focusedResult.end_frequency.toFixed(2);
   }, [ focusedResult?.end_frequency ])
 

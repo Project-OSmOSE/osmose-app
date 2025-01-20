@@ -1,13 +1,14 @@
 import React, { Fragment, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { useRetrieveAnnotatorQuery, zoom } from '@/service/annotator';
+import { zoom } from '@/service/annotator';
 import { MdZoomIn, MdZoomOut } from "react-icons/md";
 import styles from '../annotator-tools.module.scss'
-import { useParams } from "react-router-dom";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const ZoomButton: React.FC = () => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
+  const {
+    annotatorData,
+  } = useAnnotator();
 
   const {
     zoomLevel,
@@ -15,7 +16,7 @@ export const ZoomButton: React.FC = () => {
   } = useAppSelector(state => state.annotator.userPreferences);
   const dispatch = useAppDispatch()
 
-  const currentConfiguration = useMemo(() => data?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID), [ data?.spectrogram_configurations, spectrogramConfigurationID ]);
+  const currentConfiguration = useMemo(() => annotatorData?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID), [ annotatorData?.spectrogram_configurations, spectrogramConfigurationID ]);
 
   function zoomIn() {
     dispatch(zoom({ direction: 'in' }))

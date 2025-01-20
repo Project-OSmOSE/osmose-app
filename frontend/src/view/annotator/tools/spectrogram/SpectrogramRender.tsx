@@ -14,23 +14,16 @@ import { useSpectrogramService } from "@/services/annotator/spectrogram.service.
 import { usePointerService } from "@/services/annotator/pointer.service.ts";
 import { getDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
-import {
-  addResult,
-  leavePointerPosition,
-  setPointerPosition,
-  useRetrieveAnnotatorQuery,
-  zoom
-} from '@/service/annotator';
+import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
-import { useParams } from "react-router-dom";
 import { Box } from "@/view/annotator/tools/Box.tsx";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -46,9 +39,10 @@ export interface SpectrogramRender {
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const {
+    annotatorData,
+    campaign,
+  } = useAnnotator();
 
   // Data
   const {
@@ -58,7 +52,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     userPreferences,
     ui,
   } = useAppSelector(state => state.annotator)
-  const duration = useMemo(() => getDuration(data?.file), [ data?.file ])
+  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ])
   const dispatch = useAppDispatch()
 
   const spectroWidth = useMemo(() => SPECTRO_WIDTH / window.devicePixelRatio, [ window.devicePixelRatio ])
@@ -93,11 +87,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }, [ isDrawingEnabled ]);
 
   const timeWidth = useMemo(() => spectroWidth * userPreferences.zoomLevel, [ userPreferences.zoomLevel, spectroWidth ]);
-  const currentConfiguration = useMemo(() => data?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID), [ data?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ]);
+  const currentConfiguration = useMemo(() => annotatorData?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID), [ annotatorData?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ]);
 
   useEffect(() => {
     updateCanvas()
-  }, [ data?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ])
+  }, [ annotatorData?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ])
 
 
   // On zoom updated
@@ -321,7 +315,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
              ref={ yAxis }
              linear_scale={ currentConfiguration?.linear_frequency_scale }
              multi_linear_scale={ currentConfiguration?.multi_linear_frequency_scale }
-             max_value={ (data?.file.dataset_sr ?? 0) / 2 }/>
+             max_value={ (annotatorData?.file.dataset_sr ?? 0) / 2 }/>
 
 
       <div ref={ containerRef }

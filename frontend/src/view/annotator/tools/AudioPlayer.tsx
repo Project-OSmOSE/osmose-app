@@ -1,16 +1,17 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
-import { onPause, onPlay, setTime, useRetrieveAnnotatorQuery } from '@/service/annotator';
-import { useParams } from "react-router-dom";
+import { onPause, onPlay, setTime } from '@/service/annotator';
 import styles from './annotator-tools.module.scss'
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
 export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, ref) => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
+  const {
+    annotatorData,
+  } = useAnnotator();
 
   const {
     audio,
@@ -31,7 +32,7 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
-  }, [ data?.file.id ]);
+  }, [ annotatorData?.file.id ]);
 
   useEffect(() => {
     dispatch(onPause())
@@ -61,8 +62,8 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
            onPause={ () => dispatch(onPause()) }
            onPlay={ () => dispatch(onPlay()) }
            preload="auto"
-           src={ data?.file.audio_url }
-           title={ data?.file.audio_url }>
+           src={ annotatorData?.file.audio_url }
+           title={ annotatorData?.file.audio_url }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );

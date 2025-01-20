@@ -10,6 +10,7 @@ import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.t
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { KEY_DOWN_EVENT } from "@/service/events";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 interface Props {
   shortcut: ReactNode;
@@ -33,7 +34,11 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
   </div>
 ))
 
-export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignID }) => {
+export const NavigationButtons: React.FC = () => {
+  const {
+    campaignID,
+  } = useAnnotator();
+
   // Services
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();

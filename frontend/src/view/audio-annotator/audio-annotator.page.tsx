@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { useAppSelector } from '@/service/app';
 
@@ -33,9 +33,7 @@ import { Footer } from "@/components/layout";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 import { IonButton, IonIcon } from "@ionic/react";
 import { sparklesSharp } from "ionicons/icons";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
-import { useGetCurrentUserQuery } from "@/service/user";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -45,19 +43,21 @@ const TIME_AXIS_SIZE: number = 30;
 const FREQ_AXIS_SIZE: number = 35;
 const SCROLLBAR_RESERVED: number = 20;
 
-export interface KeypressHandler {
-  handleKeyPressed: (event: KeyboardEvent) => void;
-}
 
 export const AudioAnnotator: React.FC = () => {
-  const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({
+  const {
+    campaignID,
+    fileID,
+    campaign,
+    user,
+    label_set,
+  } = useAnnotator();
+  const fileFilters = useAppSelector(state => state.ui.fileFilters)
+  const { data: annotatorData, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({
+    ...fileFilters,
     campaignID,
     fileID
   }, { refetchOnMountOrArgChange: true })
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
-  const { data: user } = useGetCurrentUserQuery()
-  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign })
 
   // Service
   const toast = useToast();
@@ -75,7 +75,7 @@ export const AudioAnnotator: React.FC = () => {
 
   // Slice
   const audio = useAppSelector(state => state.annotator.audio)
-  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
+  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
 
   useEffect(() => {
     return () => {
@@ -98,9 +98,9 @@ export const AudioAnnotator: React.FC = () => {
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!label_set || label_set.labels.length === 0) return <p>Error: <code>Label set is empty</code></p>
-  else if (!data?.spectrogram_configurations || data.spectrogram_configurations.length === 0) return <p>Error: <code>Cannot
+  else if (!annotatorData?.spectrogram_configurations || annotatorData.spectrogram_configurations.length === 0) return <p>Error: <code>Cannot
     retrieve spectrograms</code></p>
-  else if (!data || data.file.id !== +fileID) return <p>Unknown error while loading task.</p>
+  else if (!annotatorData || annotatorData.file.id !== +fileID) return <p>Unknown error while loading task.</p>
 
   // Rendering
   return (
@@ -152,7 +152,7 @@ export const AudioAnnotator: React.FC = () => {
           <PlaybackRateSelect player={ playerRef }/>
         </p>
 
-        <NavigationButtons campaignID={ campaignID }/>
+        <NavigationButtons/>
 
         <div className="col-sm-3"></div>
         <p className="col-sm-2 text-right">

@@ -8,15 +8,13 @@ import { confirm } from "@/view/global-components";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
 import { disableShortcuts, enableShortcuts, KEY_DOWN_EVENT } from "@/service/events";
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const PresenceBloc: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
-  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign?.label_set });
+  const {
+    label_set,
+  } = useAnnotator();
 
   const {
     results,

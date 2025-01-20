@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
-import { useParams } from "react-router-dom";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
@@ -24,20 +23,25 @@ import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndic
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useToast } from "@/service/ui";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const Annotator: React.FC = () => {
-  const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
-  const { isFetching, error, data } = useRetrieveAnnotatorQuery({
+  const {
+    campaignID,
+    fileID,
+    campaign,
+  } = useAnnotator();
+  const fileFilters = useAppSelector(state => state.ui.fileFilters)
+  const { isFetching, error, data: annotatorData } = useRetrieveAnnotatorQuery({
+    ...fileFilters,
     campaignID,
     fileID
   }, { refetchOnMountOrArgChange: true })
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const audio = useAppSelector(state => state.annotator.audio)
-  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
+  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
 
   // Refs
   const localIsPaused = useRef<boolean>(true);
@@ -65,7 +69,7 @@ export const Annotator: React.FC = () => {
 
     <AudioPlayer ref={ audioPlayerRef }/>
 
-    { !isFetching && data && <Fragment>
+    { !isFetching && annotatorData && <Fragment>
         <div className={ styles.spectrogramContainer }>
             <div className={ styles.spectrogramData }>
                 <div className={ styles.spectrogramInfo }>
@@ -84,11 +88,11 @@ export const Annotator: React.FC = () => {
                 <div className={ styles.campaignInfo }>
                     <div>
                         <FadedText>Sampling:</FadedText>
-                        <p>{ data.file.dataset_sr }Hz</p>
+                        <p>{ annotatorData.file.dataset_sr }Hz</p>
                     </div>
                     <div>
                         <FadedText>Date:</FadedText>
-                        <p>{ new Date(data.file.start).toLocaleString() }</p>
+                        <p>{ new Date(annotatorData.file.start).toLocaleString() }</p>
                     </div>
                 </div>
             </div>

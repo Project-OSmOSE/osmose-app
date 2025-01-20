@@ -2,10 +2,12 @@ import React, { Fragment } from "react";
 import { useAppSelector } from '@/service/app';
 import { IonButton, IonIcon } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
-import { useGetCurrentUserQuery } from "@/service/user";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const AudioDownloadButton: React.FC = () => {
-  const { data: user } = useGetCurrentUserQuery()
+  const {
+    user,
+  } = useAnnotator();
 
   const file = useAppSelector(state => state.annotator.file);
 

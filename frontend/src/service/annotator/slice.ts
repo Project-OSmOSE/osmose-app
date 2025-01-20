@@ -11,6 +11,7 @@ import { AcousticFeatures } from '@/service/campaign/result/type.ts';
 import { CampaignAPI } from "@/service/campaign";
 import { LabelSetAPI } from "@/service/campaign/label-set";
 import { UserAPI } from "@/service/user";
+import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -352,6 +353,12 @@ export const AnnotatorSlice = createSlice({
             Object.assign(labelColors, { [label]: COLORS[payload.labels.indexOf(label) % COLORS.length] })
           }
           state.labelColors = labelColors;
+        },
+      )
+      builder.addMatcher(
+        ConfidenceSetAPI.endpoints.retrieve.matchFulfilled,
+        (state, { payload }) => {
+          state.confidenceIndicators = payload.confidence_indicators;
         },
       )
       builder.addMatcher(

@@ -11,11 +11,13 @@ import { focusResult, getResultType, invalidateResult, ResultType, validateResul
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { useParams } from "react-router-dom";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const ResultList: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const {
+    campaign,
+  } = useAnnotator();
 
   const results = useAppSelector(state => state.annotator.results);
 
@@ -128,7 +130,7 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, isActive, onClic
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, isActive, onClick }) => {
   const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
   const { data: campaign } = useRetrieveCampaignQuery(campaignID)
-  
+
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     return result.validations.length > 0 ? result.validations[0].is_valid : null

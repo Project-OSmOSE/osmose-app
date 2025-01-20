@@ -5,8 +5,7 @@ import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, getResultType, removeResult } from '@/service/annotator';
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -25,8 +24,9 @@ export const Region: React.FC<RegionProps> = ({
                                                 yAxis, xAxis,
                                                 audioPlayer
                                               }) => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const {
+    campaign,
+  } = useAnnotator();
 
   const {
     labelColors,

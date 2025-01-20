@@ -3,13 +3,22 @@ import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, WriteAnnotatorData } from './type.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotationCampaign } from '@/service/campaign';
+import { FileFilters } from "@/service/ui/type.ts";
+import { encodeQueryParams } from "@/service/function.ts";
 
 export const AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   endpoints: (builder) => ({
-    retrieve: builder.query<AnnotatorData, { campaignID: ID, fileID: ID }>({
-      query: ({ campaignID, fileID }) => `campaign/${ campaignID }/file/${ fileID }/`
+    retrieve: builder.query<AnnotatorData, { campaignID: ID, fileID: ID } & Partial<FileFilters>>({
+      query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted }) => {
+        console.log('[useAnnotator]', campaignID, withUserAnnotations)
+        const params: any = { }
+        if (search) params['search'] = search;
+        if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
+        if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
+        return `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(params) }`;
+      },
     }),
     post: builder.mutation<void, {
       campaign: AnnotationCampaign,

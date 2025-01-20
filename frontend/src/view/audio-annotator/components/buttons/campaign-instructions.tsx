@@ -1,12 +1,12 @@
 import React, { Fragment } from "react";
 import { IonButton, IonIcon } from "@ionic/react";
 import { informationCircle } from "ionicons/icons";
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const CampaignInstructionsButton: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const {
+    campaign,
+  } = useAnnotator();
 
   const open = () => {
     if (!campaign?.instructions_url) return;

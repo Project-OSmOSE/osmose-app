@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import { useAppSelector } from '@/service/app';
 import { selectAnnotationFileDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const {
+    campaign,
+  } = useAnnotator();
 
   const {
     file,

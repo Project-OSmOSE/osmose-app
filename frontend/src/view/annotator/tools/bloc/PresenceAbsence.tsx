@@ -3,19 +3,17 @@ import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import { useParams } from "react-router-dom";
 import { IonChip, IonIcon } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
 import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const PresenceAbsence: React.FC = () => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID);
-  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign?.label_set });
+  const {
+    label_set,
+  } = useAnnotator();
 
   const {
     results,

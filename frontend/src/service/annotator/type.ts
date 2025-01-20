@@ -2,6 +2,7 @@ import { DatasetFile } from '@/service/dataset';
 import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
+import { ConfidenceIndicator } from "@/service/campaign/confidence-set";
 
 export type AnnotatorState = Partial<AnnotatorData> & {
   focusedResultID?: number,
@@ -25,6 +26,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
     stopTime?: number;
   },
   sessionStart: number;
+  confidenceIndicators?: ConfidenceIndicator[];
 }
 
 

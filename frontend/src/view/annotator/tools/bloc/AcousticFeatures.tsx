@@ -1,11 +1,6 @@
 import React, { Fragment, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
-import {
-  focusTask,
-  getResultType,
-  updateCurrentResultAcousticFeatures,
-  useRetrieveAnnotatorQuery
-} from '@/service/annotator';
+import { focusTask, getResultType, updateCurrentResultAcousticFeatures } from '@/service/annotator';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { Input, Select } from '@/components/form';
 import { IonCheckbox, IonNote } from '@ionic/react';
@@ -14,15 +9,15 @@ import { SPECTRO_HEIGHT } from '@/view/audio-annotator/components/spectro-render
 import { Item } from '@/types/item.ts';
 import { SignalTrend, SignalTrends } from '@/service/campaign/result/type.ts';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
-import { useParams } from "react-router-dom";
 import styles from './bloc.module.scss';
 import { useDraggable } from "@/service/ui";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const AcousticFeatures: React.FC = () => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const {
+    annotatorData,
+    campaign,
+  } = useAnnotator();
 
   const {
     onMouseDown,
@@ -88,14 +83,14 @@ export const AcousticFeatures: React.FC = () => {
                        note="In Hz"
                        placeholder={ currentResult.start_frequency }
                        value={ currentResult.acoustic_features?.min_frequency }
-                       min={ 0 } max={ data ? data.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
                        onUpdate={ min_frequency => dispatch(updateCurrentResultAcousticFeatures({ min_frequency })) }/>
 
             <NumberRow label="Max frequency"
                        note="In Hz"
                        placeholder={ currentResult.end_frequency }
                        value={ currentResult.acoustic_features?.max_frequency }
-                       min={ 0 } max={ data ? data?.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData?.file.dataset_sr / 2 : undefined }
                        onUpdate={ max_frequency => dispatch(updateCurrentResultAcousticFeatures({ max_frequency })) }/>
 
             <NumberRow label="Duration"
@@ -113,24 +108,24 @@ export const AcousticFeatures: React.FC = () => {
             <NumberRow label="Start frequency"
                        note="In Hz"
                        value={ currentResult.acoustic_features?.start_frequency }
-                       min={ 0 } max={ data ? data.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
                        onUpdate={ start_frequency => dispatch(updateCurrentResultAcousticFeatures({ start_frequency })) }/>
 
             <NumberRow label="End frequency"
                        note="In Hz"
                        value={ currentResult.acoustic_features?.end_frequency }
-                       min={ 0 } max={ data ? data.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
                        onUpdate={ end_frequency => dispatch(updateCurrentResultAcousticFeatures({ end_frequency })) }/>
 
             <NumberRow label="Median frequency"
                        note="In Hz"
                        value={ currentResult.acoustic_features?.median_frequency }
-                       min={ 0 } max={ data ? data.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
                        onUpdate={ median_frequency => dispatch(updateCurrentResultAcousticFeatures({ median_frequency })) }/>
 
             <NumberRow label="Level peak frequency"
                        note="In Hz"
-                       min={ 0 } max={ data ? data.file.dataset_sr / 2 : undefined }
+                       min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
                        value={ currentResult.acoustic_features?.level_peak_frequency }
                        onUpdate={ level_peak_frequency => dispatch(updateCurrentResultAcousticFeatures({ level_peak_frequency })) }/>
 
