@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { IonButton, IonIcon } from "@ionic/react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
@@ -16,6 +16,7 @@ export const AnnotatorPage: React.FC = () => {
   const { data } = useRetrieveAnnotatorQuery({ campaignID, fileID });
   const blurUtil = useBlur();
   const toast = useToast();
+  const history = useHistory();
 
   useEffect(() => {
     document.addEventListener('click', blurUtil.onClick)
@@ -34,9 +35,17 @@ export const AnnotatorPage: React.FC = () => {
     window.open(`/app/annotation-campaign/${ campaignID }`, "_blank")
   }
 
+  function backToOldInterface() {
+    history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }`);
+  }
+
   return <div className={ styles.page }>
     <Header size='small'
             buttons={ <Fragment>
+              <IonButton fill='outline' size='small' color='medium' onClick={ backToOldInterface }>
+                Back to old annotator
+              </IonButton>
+
               { data?.campaign.instructions_url &&
                   <Link color='medium' target='_blank' href={ data?.campaign.instructions_url }>
                       <IonIcon icon={ helpBuoyOutline } slot='start'/>

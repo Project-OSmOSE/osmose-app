@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 import { useAppSelector } from '@/service/app';
 
@@ -32,6 +32,8 @@ import { getErrorMessage } from '@/service/function.ts';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { Footer } from "@/components/layout";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
+import { IonButton, IonIcon } from "@ionic/react";
+import { sparklesSharp } from "ionicons/icons";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -68,12 +70,14 @@ export const AudioAnnotator: React.FC = () => {
 
   // Services
   const audioService = useAudioService(playerRef)
+  const history = useHistory();
 
   // Slice
   const {
     campaign,
     file,
     ui,
+    user,
     focusedResultID,
     results,
     audio,
@@ -118,6 +122,10 @@ export const AudioAnnotator: React.FC = () => {
     labelsKeyPress.current?.handleKeyPressed(event);
   }
 
+  function tryNewInterface() {
+    history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }/new`);
+  }
+
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
   else if (!data?.label_set || data.label_set.labels.length === 0) return <p>Error: <code>Label set is empty</code></p>
@@ -134,6 +142,10 @@ export const AudioAnnotator: React.FC = () => {
         <h1>APLOSE</h1>
 
         <div className="buttons">
+          { user?.is_staff && <IonButton fill='outline' onClick={ tryNewInterface }>
+              Try new annotator
+              <IonIcon icon={ sparklesSharp } slot='end'/>
+          </IonButton> }
           <DocumentationButton/>
           <CampaignInstructionsButton/>
         </div>
