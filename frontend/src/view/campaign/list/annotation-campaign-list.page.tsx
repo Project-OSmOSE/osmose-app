@@ -28,6 +28,8 @@ export const AnnotationCampaignList: React.FC = () => {
     search,
     owner: onlyMineFilter ? currentUser?.id : undefined,
     annotator: myWorkFilter ? currentUser?.id : undefined,
+  }, {
+    skip: !currentUser
   })
 
   useEffect(() => {
