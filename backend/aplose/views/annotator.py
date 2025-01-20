@@ -17,15 +17,11 @@ from backend.api.serializers import (
     AnnotationSessionSerializer,
 )
 from backend.api.views import (
-    AnnotationCampaignViewSet,
     AnnotationCommentViewSet,
     AnnotationResultViewSet,
-    ConfidenceIndicatorSetViewSet,
     DatasetFileViewSet,
     SpectrogramConfigurationViewSet,
-    LabelSetViewSet,
 )
-from .user import UserViewSet
 
 
 # TODO: test !!!! and update result post ones
@@ -41,15 +37,10 @@ class AnnotatorViewSet(viewsets.ViewSet):
     def get_file(self, request: Request, campaign_id: int, file_id: int):
         """Get all data for annotator"""
 
-        campaign = AnnotationCampaignViewSet.as_view({"get": "retrieve"})(
-            request._request,
-            pk=campaign_id,
-        ).data
         file = DatasetFileViewSet.as_view({"get": "retrieve"})(
             request._request,
             pk=file_id,
         ).data
-        user = UserViewSet.as_view({"get": "self"})(request._request).data
 
         request._request.GET = {
             "annotation_campaign_id": campaign_id,
@@ -69,16 +60,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
             request._request
         ).data
 
-        request._request.GET = {
-            "annotationcampaign__id": campaign_id,
-        }
-        label_set = LabelSetViewSet.as_view({"get": "list"})(request._request).data[0]
-        confidence_set_data = ConfidenceIndicatorSetViewSet.as_view({"get": "list"})(
-            request._request
-        ).data
-        confidence_set = (
-            confidence_set_data[0] if len(confidence_set_data) > 0 else None
-        )
         request._request.GET = {
             "annotation_campaigns__id": campaign_id,
         }
@@ -107,13 +88,9 @@ class AnnotatorViewSet(viewsets.ViewSet):
                     annotator_id=request.user.id,
                     status=AnnotationTask.Status.FINISHED,
                 ).exists(),
-                "campaign": campaign,
                 "file": file,
-                "user": user,
                 "results": results,
                 "task_comments": task_comments,
-                "label_set": label_set,
-                "confidence_set": confidence_set,
                 "spectrogram_configurations": spectrogram_configurations,
                 "previous_file_id": previous_file.id
                 if previous_file is not None

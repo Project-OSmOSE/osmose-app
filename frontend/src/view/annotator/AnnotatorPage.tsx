@@ -9,10 +9,12 @@ import { helpBuoyOutline } from "ionicons/icons";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useToast } from "@/service/ui";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const AnnotatorPage: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery({ campaignID, fileID });
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
   const toast = useToast();
   const history = useHistory();
 
@@ -41,8 +43,8 @@ export const AnnotatorPage: React.FC = () => {
                 Back to old annotator
               </IonButton>
 
-              { data?.campaign.instructions_url &&
-                  <Link color='medium' target='_blank' href={ data?.campaign.instructions_url }>
+              { campaign?.instructions_url &&
+                  <Link color='medium' target='_blank' href={ campaign?.instructions_url }>
                       <IonIcon icon={ helpBuoyOutline } slot='start'/>
                       Campaign instructions
                   </Link>
@@ -53,8 +55,9 @@ export const AnnotatorPage: React.FC = () => {
                 Back to campaign
               </IonButton>
             </Fragment> }>
-      { data && <p className={ styles.info }>
-        { data.campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted && <IoCheckmarkCircleOutline/> }
+      { data && campaign && <p className={ styles.info }>
+        { campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted &&
+          <IoCheckmarkCircleOutline/> }
       </p> }
     </Header>
 

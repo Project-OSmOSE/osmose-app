@@ -17,10 +17,12 @@ import { IoRemoveCircleOutline } from 'react-icons/io5';
 import { useParams } from "react-router-dom";
 import styles from './bloc.module.scss';
 import { useDraggable } from "@/service/ui";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const AcousticFeatures: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
 
   const {
     onMouseDown,
@@ -48,7 +50,7 @@ export const AcousticFeatures: React.FC = () => {
   }
 
   if (!currentResult) return;
-  if (!data?.campaign.labels_with_acoustic_features.includes(currentResult.label)) return;
+  if (!campaign?.labels_with_acoustic_features.includes(currentResult.label)) return;
   if (currentResultType !== 'box') return;
   return (
     <div className={ [ styles.features, styles.bloc ].join(' ') }

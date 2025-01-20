@@ -30,6 +30,7 @@ import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -47,6 +48,7 @@ export interface SpectrogramRender {
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
 
   // Data
   const {
@@ -84,7 +86,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => data?.campaign.usage === 'Create' && !!focusedLabel, [ focusedLabel, data?.campaign.usage ]);
+  const isDrawingEnabled = useMemo(() => campaign?.usage === 'Create' && !!focusedLabel, [ focusedLabel, campaign?.usage ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled

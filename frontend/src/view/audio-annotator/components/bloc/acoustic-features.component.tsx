@@ -10,15 +10,19 @@ import { SPECTRO_HEIGHT } from '@/view/audio-annotator/components/spectro-render
 import { Item } from '@/types/item.ts';
 import { SignalTrend, SignalTrends } from '@/service/campaign/result/type.ts';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
+import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const AcousticFeatures: React.FC = () => {
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+
   const [ top, setTop ] = useState<number>(96);
   const [ right, setRight ] = useState<number>(16);
 
   const [ isDragging, setIsDragging ] = useState<boolean>(false);
 
   const {
-    campaign,
     results,
     focusedResultID,
     file

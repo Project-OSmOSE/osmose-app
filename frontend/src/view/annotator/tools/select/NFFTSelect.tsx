@@ -1,6 +1,6 @@
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { getScaleName } from '@/service/dataset/spectrogram-configuration';
+import { getScaleName, SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 import { selectSpectrogramConfiguration, useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useParams } from "react-router-dom";
 import { Select } from "@/components/form";
@@ -9,8 +9,17 @@ export const NFFTSelect: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
   const { data } = useRetrieveAnnotatorQuery(params)
   const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
+  const spectrogram_configurations = useAppSelector(state => state.annotator.spectrogram_configurations);
 
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (!selectedID) return;
+    const configs: SpectrogramConfiguration[] = spectrogram_configurations ?? [];
+    const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
+    const newID = simpleSpectrogramID ?? Math.min(-1, ...configs.map(s => s.id));
+    dispatch(selectSpectrogramConfiguration(newID))
+  }, [selectedID]);
 
   const options = useMemo(() => {
     if (!data) return []

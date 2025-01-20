@@ -1,11 +1,13 @@
 import React, { Fragment, useMemo } from "react";
 import { useAppSelector } from '@/service/app';
+import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const WorkbenchInfoBloc: React.FC = () => {
-  const {
-    campaign,
-    file
-  } = useAppSelector(state => state.annotator);
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+
+  const file = useAppSelector(state => state.annotator.file);
 
   const filename = useMemo(() => {
     if (!file) return '';

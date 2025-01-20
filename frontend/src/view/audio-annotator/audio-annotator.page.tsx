@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
 import { useAppSelector } from '@/service/app';
@@ -24,7 +24,7 @@ import { SpectrogramConfigurationSelect } from "@/view/audio-annotator/component
 import { ZoomButton } from "@/view/audio-annotator/components/buttons/zoom.tsx";
 import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-position.component.tsx";
 import { WorkbenchInfoBloc } from "@/view/audio-annotator/components/bloc/workbench-info.tsx";
-import { selectAnnotationFileDuration } from '@/service/dataset';
+import { getDuration } from '@/service/dataset';
 import { useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
@@ -33,6 +33,9 @@ import { Footer } from "@/components/layout";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
 import { IonButton, IonIcon } from "@ionic/react";
 import { sparklesSharp } from "ionicons/icons";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { useGetCurrentUserQuery } from "@/service/user";
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -48,13 +51,16 @@ export interface KeypressHandler {
 
 export const AudioAnnotator: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
-
-  // Service
-  const toast = useToast();
   const { data, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({
     campaignID,
     fileID
   }, { refetchOnMountOrArgChange: true })
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const { data: user } = useGetCurrentUserQuery()
+  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign })
+
+  // Service
+  const toast = useToast();
 
   const spectrogramRender = useRef<SpectrogramRender | null>(null);
 
@@ -68,16 +74,10 @@ export const AudioAnnotator: React.FC = () => {
   const history = useHistory();
 
   // Slice
-  const {
-    campaign,
-    file,
-    user,
-    audio,
-  } = useAppSelector(state => state.annotator)
-  const duration = useAppSelector(selectAnnotationFileDuration)
+  const audio = useAppSelector(state => state.annotator.audio)
+  const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
 
   useEffect(() => {
-
     return () => {
       toast.dismiss();
     }
@@ -97,10 +97,10 @@ export const AudioAnnotator: React.FC = () => {
 
   if (isLoading) return <p>Loading...</p>;
   else if (error) return <p>Error while loading task: <code>{ error }</code></p>
-  else if (!data?.label_set || data.label_set.labels.length === 0) return <p>Error: <code>Label set is empty</code></p>
+  else if (!label_set || label_set.labels.length === 0) return <p>Error: <code>Label set is empty</code></p>
   else if (!data?.spectrogram_configurations || data.spectrogram_configurations.length === 0) return <p>Error: <code>Cannot
     retrieve spectrograms</code></p>
-  else if (!file || file.id !== +fileID) return <p>Unknown error while loading task.</p>
+  else if (!data || data.file.id !== +fileID) return <p>Unknown error while loading task.</p>
 
   // Rendering
   return (
@@ -119,7 +119,7 @@ export const AudioAnnotator: React.FC = () => {
           <CampaignInstructionsButton/>
         </div>
 
-        <BackButton campaignID={ campaignID }/>
+        <BackButton/>
       </div>
 
       {/* Audio player (hidden) */ }

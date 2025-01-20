@@ -24,6 +24,7 @@ import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndic
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useToast } from "@/service/ui";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 export const Annotator: React.FC = () => {
   const { campaignID, fileID } = useParams<{ campaignID: string, fileID: string }>();
@@ -31,6 +32,7 @@ export const Annotator: React.FC = () => {
     campaignID,
     fileID
   }, { refetchOnMountOrArgChange: true })
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
@@ -106,7 +108,7 @@ export const Annotator: React.FC = () => {
         </div>
 
         <div className={ styles.blocContainer }>
-          { data?.campaign.usage === 'Create' && <Fragment>
+          { campaign?.usage === 'Create' && <Fragment>
               <CurrentAnnotation/>
               <PresenceAbsence/>
               <LabelList/>
@@ -114,7 +116,7 @@ export const Annotator: React.FC = () => {
               <Results/>
               <ConfidenceIndicator/>
           </Fragment> }
-          { data?.campaign.usage === 'Check' && <Fragment>
+          { campaign?.usage === 'Check' && <Fragment>
               <CurrentAnnotation/>
               <Comment/>
               <Results/>

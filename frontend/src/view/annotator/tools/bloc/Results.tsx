@@ -13,18 +13,12 @@ import {
 import { FaHandshake } from 'react-icons/fa6';
 import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
-import {
-  focusResult,
-  getResultType,
-  invalidateResult,
-  ResultType,
-  useRetrieveAnnotatorQuery,
-  validateResult
-} from '@/service/annotator';
+import { focusResult, getResultType, invalidateResult, ResultType, validateResult } from '@/service/annotator';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import styles from './bloc.module.scss';
 import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
 import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 
 export const Results: React.FC = () => {
@@ -130,8 +124,8 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, type, className, o
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
-  if (!data?.campaign.confidence_indicator_set) return <Fragment/>
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
       <FaHandshake/>
@@ -159,7 +153,8 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 )
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const { campaign } = useAppSelector(state => state.annotator);
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     return result.validations.length > 0 ? result.validations[0].is_valid : null

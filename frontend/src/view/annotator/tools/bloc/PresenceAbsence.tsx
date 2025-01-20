@@ -1,12 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
-import {
-  addPresenceResult,
-  focusLabel,
-  getPresenceLabels,
-  removePresence,
-  useRetrieveAnnotatorQuery
-} from '@/service/annotator';
+import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { useParams } from "react-router-dom";
@@ -15,15 +9,18 @@ import { closeCircle } from "ionicons/icons";
 import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 export const PresenceAbsence: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID);
+  const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign?.label_set });
 
   const {
     results,
     focusedLabel,
   } = useAppSelector(state => state.annotator);
-  const { data } = useRetrieveAnnotatorQuery(params)
   const dispatch = useAppDispatch()
   const alert = useAlert();
 
@@ -37,8 +34,8 @@ export const PresenceAbsence: React.FC = () => {
   }, []);
 
   function onKbdEvent(event: KeyboardEvent) {
-    if (!data) return;
-    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, data?.label_set.labels.length);
+    if (!label_set) return;
+    const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, label_set.labels.length);
 
     if (event.key === "'") {
       event.preventDefault();
@@ -47,7 +44,7 @@ export const PresenceAbsence: React.FC = () => {
     for (const i in active_alphanumeric_keys) {
       if (event.key !== AlphanumericKeys[0][i] && event.key !== AlphanumericKeys[1][i]) continue;
 
-      const calledLabel = data.label_set.labels[i];
+      const calledLabel = label_set.labels[i];
       if (presenceLabels.includes(calledLabel) && focusedLabel !== calledLabel) {
         dispatch(focusLabel(calledLabel))
       } else toggle(calledLabel);
@@ -82,7 +79,7 @@ export const PresenceAbsence: React.FC = () => {
     <div className={ styles.bloc }>
       <h6 className={ styles.header }>Presence / Absence</h6>
       <div className={ styles.body }>
-        { data?.label_set.labels.map((label, key) => {
+        { label_set?.labels.map((label, key) => {
           const color = (key % 10).toString();
           return (
             <LabelTooltipOverlay id={ key } key={ key }>

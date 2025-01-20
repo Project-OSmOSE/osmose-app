@@ -8,6 +8,9 @@ import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
 import { AcousticFeatures } from '@/service/campaign/result/type.ts';
+import { CampaignAPI } from "@/service/campaign";
+import { LabelSetAPI } from "@/service/campaign/label-set";
+import { UserAPI } from "@/service/user";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -138,10 +141,10 @@ export const AnnotatorSlice = createSlice({
         const newComment: AnnotationComment = {
           comment: payload,
           annotation_result: state.focusedResultID ?? null,
-          annotation_campaign: state.campaign?.id ?? -1,
+          annotation_campaign: state.campaignID ?? -1,
           dataset_file: state.file?.id ?? -1,
           id: getNewItemID([ ...(state.results ?? []).flatMap(r => r.comments), ...(state.task_comments ?? []) ]),
-          author: state.user?.id ?? -1
+          author: state.userID ?? -1
         };
         if (newComment.annotation_result) {
           state.results = state.results?.map(r => {
@@ -193,9 +196,9 @@ export const AnnotatorSlice = createSlice({
         if (r.id === payload ||
           (type !== 'presence' && r.label === result.label && getResultType(r) === 'presence')) {
           let validations = r.validations;
-          if (validations.find(v => v.annotator === state.user?.id)) {
+          if (validations.find(v => v.annotator === state.userID)) {
             validations = validations.map(v => {
-              if (v.annotator !== state.user?.id) return v;
+              if (v.annotator !== state.userID) return v;
               return {
                 ...v,
                 is_valid: true
@@ -203,7 +206,7 @@ export const AnnotatorSlice = createSlice({
             })
           } else validations.push({
             id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.user?.id ?? -1,
+            annotator: state.userID ?? -1,
             is_valid: true,
             result: r.id
           })
@@ -221,9 +224,9 @@ export const AnnotatorSlice = createSlice({
         if ((type !== 'presence' && r.id === payload) ||
           (type === 'presence' && r.label === result.label)) {
           let validations = r.validations;
-          if (validations.find(v => v.annotator === state.user?.id)) {
+          if (validations.find(v => v.annotator === state.userID)) {
             validations = validations.map(v => {
-              if (v.annotator !== state.user?.id) return v;
+              if (v.annotator !== state.userID) return v;
               return {
                 ...v,
                 is_valid: false
@@ -231,7 +234,7 @@ export const AnnotatorSlice = createSlice({
             })
           } else validations.push({
             id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.user?.id ?? -1,
+            annotator: state.userID ?? -1,
             is_valid: false,
             result: r.id
           })
@@ -316,13 +319,6 @@ export const AnnotatorSlice = createSlice({
       builder.addMatcher(
         AnnotatorAPI.endpoints.retrieve.matchFulfilled,
         (state, { payload }) => {
-          // Reset user preferences if new campaign
-          if (state.campaign?.id !== payload.campaign.id) {
-            state.userPreferences.audioSpeed = 1;
-            state.userPreferences.zoomLevel = 1;
-            const simpleSpectrogramID = payload.spectrogram_configurations.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
-            state.userPreferences.spectrogramConfigurationID = simpleSpectrogramID ?? Math.min(-1, ...payload.spectrogram_configurations.map(s => s.id));
-          }
           // initialize slice
           Object.assign(state, payload);
           state.focusedCommentID = payload.task_comments && payload.task_comments.length > 0 ? payload.task_comments[0].id : undefined;
@@ -330,16 +326,38 @@ export const AnnotatorSlice = createSlice({
           state.focusedLabel = undefined;
           state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
           state.hasChanged = false;
-          const labelColors = {};
-          for (const label of payload.label_set.labels) {
-            Object.assign(labelColors, { [label]: COLORS[payload.label_set.labels.indexOf(label) % COLORS.length] })
-          }
-          state.labelColors = labelColors;
           state.audio = {
             time: 0,
             isPaused: true,
           }
           state.sessionStart = Date.now()
+        },
+      )
+      builder.addMatcher(
+        CampaignAPI.endpoints.retrieve.matchFulfilled,
+        (state, { payload }) => {
+          // Reset user preferences if new campaign
+          if (state.campaignID !== payload.id) {
+            state.userPreferences.audioSpeed = 1;
+            state.userPreferences.zoomLevel = 1;
+          }
+          state.campaignID = payload.id;
+        },
+      )
+      builder.addMatcher(
+        LabelSetAPI.endpoints.retrieve.matchFulfilled,
+        (state, { payload }) => {
+          const labelColors = {};
+          for (const label of payload.labels) {
+            Object.assign(labelColors, { [label]: COLORS[payload.labels.indexOf(label) % COLORS.length] })
+          }
+          state.labelColors = labelColors;
+        },
+      )
+      builder.addMatcher(
+        UserAPI.endpoints.getCurrentUser.matchFulfilled,
+        (state, { payload }) => {
+          state.userID = payload.id;
         },
       )
     },

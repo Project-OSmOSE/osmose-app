@@ -1,7 +1,9 @@
 import React from "react";
 import { IonButton } from "@ionic/react";
+import { useParams } from "react-router-dom";
 
-export const BackButton: React.FC<{ campaignID: string | number }> = ({ campaignID }) => {
+export const BackButton: React.FC = () => {
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
 
   const open = () => {
     window.open(`/app/annotation-campaign/${ campaignID }`, "_self")

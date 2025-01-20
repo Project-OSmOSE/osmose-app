@@ -3,11 +3,12 @@ import { DEFAULT_COLOR } from "@/consts/colors.const.tsx";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult } from '@/service/campaign/result';
-import { focusResult, getResultType, removeResult, useRetrieveAnnotatorQuery } from '@/service/annotator';
+import { focusResult, getResultType, removeResult } from '@/service/annotator';
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import { useParams } from "react-router-dom";
 import styles from './annotator-tools.module.scss'
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoTrashBin } from "react-icons/io5";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 // Component dimensions constants
 const HEADER_HEIGHT: number = 18;
@@ -27,7 +28,7 @@ export const Box: React.FC<RegionProps> = ({
                                              audioPlayer
                                            }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data } = useRetrieveAnnotatorQuery(params)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
 
   const {
     labelColors,
@@ -76,7 +77,7 @@ export const Box: React.FC<RegionProps> = ({
     <div className={ [
       styles.box,
       isActive ? styles.active : '',
-      data?.campaign.usage === 'Create' ? styles.canBeRemoved : ''
+      campaign?.usage === 'Create' ? styles.canBeRemoved : ''
     ].join(' ') }
          style={ {
            left,

@@ -246,11 +246,6 @@ ion-chip[color=dark]:not([outline=true]) {
     border: 1px solid var(--ion-color-dark);
 }
 
-ion-chip[outline] {
-    /*border-width: 2px;*/
-    border-color: var(--ion-color-dark);
-}
-
 ion-chip[color=dark] ion-icon {
     opacity: 0.5;
 }

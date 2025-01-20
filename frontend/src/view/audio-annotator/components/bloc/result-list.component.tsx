@@ -9,14 +9,15 @@ import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, getResultType, invalidateResult, ResultType, validateResult } from '@/service/annotator';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
+import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 
 export const ResultList: React.FC = () => {
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
 
-  const {
-    campaign,
-    results
-  } = useAppSelector(state => state.annotator);
+  const results = useAppSelector(state => state.annotator.results);
 
   const sorted_results: Array<AnnotationResult> = useMemo(
     () => {
@@ -125,7 +126,9 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, isActive, onClic
 )
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, isActive, onClick }) => {
-  const { campaign } = useAppSelector(state => state.annotator);
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     return result.validations.length > 0 ? result.validations[0].is_valid : null

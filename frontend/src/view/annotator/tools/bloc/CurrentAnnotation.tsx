@@ -7,16 +7,18 @@ import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import styles from './bloc.module.scss';
 import { IoAnalyticsOutline, IoChevronForwardOutline, IoPricetagOutline, IoTimeOutline } from "react-icons/io5";
 import { FaHandshake } from "react-icons/fa6";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 
 export const CurrentAnnotation: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
+  const { data } = useRetrieveAnnotatorQuery(params)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
 
   const {
     focusedResultID,
     results
   } = useAppSelector(state => state.annotator);
-  const { data } = useRetrieveAnnotatorQuery(params)
   const duration = useMemo(() => getDuration(data?.file), [ data?.file ]);
   const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID ]);
 
@@ -57,7 +59,8 @@ export const CurrentAnnotation: React.FC = () => {
   return (
     <div className={ styles.bloc }>
       <h6 className={ styles.header }>Selected annotation</h6>
-      <div className={ [ styles.body, styles.small, styles.vertical, focusedResult ? styles.currentAnnotation : styles.empty ].join(' ') }>
+      <div
+        className={ [ styles.body, styles.small, styles.vertical, focusedResult ? styles.currentAnnotation : styles.empty ].join(' ') }>
         { !focusedResult && <p>-</p> }
 
         { focusedResult && <Fragment>
@@ -81,7 +84,7 @@ export const CurrentAnnotation: React.FC = () => {
                 <span>{ label }</span>
             </p>
 
-          { data?.confidence_set && <Fragment>
+          { campaign?.confidence_indicator_set && <Fragment>
               <FaHandshake/>
               <p><span>{ confidence }</span></p>
           </Fragment> }

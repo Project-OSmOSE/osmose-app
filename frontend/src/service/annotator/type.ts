@@ -1,9 +1,5 @@
-import { AnnotationCampaign } from '@/service/campaign';
 import { DatasetFile } from '@/service/dataset';
-import { User } from '@/service/user';
 import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
-import { LabelSet } from '@/service/campaign/label-set';
-import { ConfidenceIndicatorSet } from '@/service/campaign/confidence-set';
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
 
@@ -34,13 +30,11 @@ export type AnnotatorState = Partial<AnnotatorData> & {
 
 export type AnnotatorData = {
   is_submitted: boolean;
-  campaign: AnnotationCampaign;
+  campaignID: number;
+  userID: number
   file: DatasetFile;
-  user: User;
   results: Array<AnnotationResult>;
   task_comments: Array<AnnotationComment>;
-  label_set: LabelSet;
-  confidence_set: ConfidenceIndicatorSet | null;
   spectrogram_configurations: Array<SpectrogramConfiguration>;
   previous_file_id: number | null;
   next_file_id: number | null;

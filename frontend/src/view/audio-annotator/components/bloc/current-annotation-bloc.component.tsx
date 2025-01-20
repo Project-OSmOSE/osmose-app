@@ -2,12 +2,16 @@ import React, { useMemo } from "react";
 import { useAppSelector } from '@/service/app';
 import { selectAnnotationFileDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
+import { useParams } from "react-router-dom";
+import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
+  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+
   const {
     file,
-    confidence_set,
     focusedResultID,
     results
   } = useAppSelector(state => state.annotator);
@@ -70,7 +74,7 @@ export const CurrentAnnotationBloc: React.FC = () => {
           { endFrequency } Hz<br/>
           <i
             className="fa fa-tag"></i> :&nbsp;{ label }<br/>
-          { confidence_set && <span><i
+          { campaign?.confidence_indicator_set && <span><i
               className="fa fa-handshake"></i> :&nbsp; { confidence }<br/></span> }
         </p>
       </div>
