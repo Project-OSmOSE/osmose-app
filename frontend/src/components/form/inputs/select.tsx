@@ -3,7 +3,7 @@ import { IonAlert, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { Item } from '@/types/item.ts';
 import './inputs.css';
-import { useClickEvents } from "@/service/events";
+import { AUX_CLICK_EVENT, CLICK_EVENT } from "@/service/events";
 
 export type SelectValue = number | string | undefined;
 
@@ -39,8 +39,6 @@ export const Select: React.FC<SelectProperties> = ({
                                                      isLoading = false,
                                                      ...props
                                                    }) => {
-  const click = useClickEvents();
-
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLDivElement | null>(null);
   const selectButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -54,11 +52,11 @@ export const Select: React.FC<SelectProperties> = ({
   useEffect(() => {
     setHasSelectedItem(false)
 
-    click.click.add(blur)
-    click.aux.add(blur)
+    CLICK_EVENT.add(blur)
+    AUX_CLICK_EVENT.add(blur)
     return () => {
-      click.click.remove(blur)
-      click.aux.add(blur)
+      CLICK_EVENT.remove(blur)
+      AUX_CLICK_EVENT.add(blur)
     }
   }, [])
 

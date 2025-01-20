@@ -12,7 +12,7 @@ export const EventSlice = createSlice({
       state.areKbdShortcutsEnabled = true
     },
     disableShortcuts: (state) => {
-      state.areKbdShortcutsEnabled = true
+      state.areKbdShortcutsEnabled = false
     },
   },
 })

@@ -9,7 +9,7 @@ import { getErrorMessage } from '@/service/function.ts';
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
-import { useKbdEvents } from "@/service/events";
+import { KEY_DOWN_EVENT } from "@/service/events";
 
 
 export interface KeypressHandler {
@@ -25,7 +25,6 @@ export const NavigationButtons: React.FC = () => {
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
   const alert = useAlert();
-  const kbdEvent = useKbdEvents();
 
   // Data
   const {
@@ -49,10 +48,9 @@ export const NavigationButtons: React.FC = () => {
   const isSubmitting = useRef<boolean>(false);
 
   useEffect(() => {
-    kbdEvent.down.add(onKbdEvent);
-
+    KEY_DOWN_EVENT.add(onKbdEvent);
     return () => {
-      kbdEvent.down.remove(onKbdEvent);
+      KEY_DOWN_EVENT.remove(onKbdEvent);
     }
   }, []);
 

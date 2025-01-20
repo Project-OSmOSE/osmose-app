@@ -7,12 +7,10 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { confirm } from "@/view/global-components";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
-import { disableShortcuts, enableShortcuts, useKbdEvents } from "@/service/events";
+import { disableShortcuts, enableShortcuts, KEY_DOWN_EVENT } from "@/service/events";
 
 
 export const PresenceBloc: React.FC = () => {
-
-  const kbdEvent = useKbdEvents();
 
   const {
     label_set,
@@ -25,10 +23,9 @@ export const PresenceBloc: React.FC = () => {
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
 
   useEffect(() => {
-    kbdEvent.down.add(onKbdEvent);
-
+    KEY_DOWN_EVENT.add(onKbdEvent);
     return () => {
-      kbdEvent.down.remove(onKbdEvent);
+      KEY_DOWN_EVENT.remove(onKbdEvent);
     }
   }, []);
 

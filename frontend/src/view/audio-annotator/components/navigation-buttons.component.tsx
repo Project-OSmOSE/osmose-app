@@ -9,7 +9,7 @@ import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
-import { useKbdEvents } from "@/service/events";
+import { KEY_DOWN_EVENT } from "@/service/events";
 
 interface Props {
   shortcut: ReactNode;
@@ -38,7 +38,6 @@ export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignI
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
-  const kbdEvent = useKbdEvents();
 
   // Data
   const {
@@ -64,10 +63,9 @@ export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignI
   const isSubmitting = useRef<boolean>(false);
 
   useEffect(() => {
-    kbdEvent.down.add(onKbdEvent);
-
+    KEY_DOWN_EVENT.add(onKbdEvent);
     return () => {
-      kbdEvent.down.remove(onKbdEvent);
+      KEY_DOWN_EVENT.remove(onKbdEvent);
     }
   }, []);
 

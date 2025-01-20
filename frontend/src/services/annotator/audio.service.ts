@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { AnnotationResult } from '@/service/campaign/result';
 import { setAudioSpeed, setStopTime, setTime } from '@/service/annotator';
 import { useToast } from "@/service/ui";
-import { useKbdEvents } from "@/service/events";
+import { KEY_DOWN_EVENT } from "@/service/events";
 
 export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null>) => {
   // Data
@@ -22,11 +22,10 @@ export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null
   }, [ isPaused ]);
 
   // Services
-  const kbdEvent = useKbdEvents()
   useEffect(() => {
-    kbdEvent.down.add(onKbdEvent)
+    KEY_DOWN_EVENT.add(onKbdEvent)
     return () => {
-      kbdEvent.down.remove(onKbdEvent)
+      KEY_DOWN_EVENT.remove(onKbdEvent)
     }
   }, []);
 

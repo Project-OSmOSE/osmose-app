@@ -14,7 +14,7 @@ import { IonChip, IonIcon } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
 import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 import { useAlert } from "@/service/ui";
-import { useKbdEvents } from "@/service/events";
+import { KEY_DOWN_EVENT } from "@/service/events";
 
 export const PresenceAbsence: React.FC = () => {
   const params = useParams<{ campaignID: string, fileID: string }>();
@@ -26,15 +26,13 @@ export const PresenceAbsence: React.FC = () => {
   const { data } = useRetrieveAnnotatorQuery(params)
   const dispatch = useAppDispatch()
   const alert = useAlert();
-  const kbdEvent = useKbdEvents();
 
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
 
   useEffect(() => {
-    kbdEvent.down.add(onKbdEvent);
-
+    KEY_DOWN_EVENT.add(onKbdEvent);
     return () => {
-      kbdEvent.down.remove(onKbdEvent);
+      KEY_DOWN_EVENT.remove(onKbdEvent);
     }
   }, []);
 

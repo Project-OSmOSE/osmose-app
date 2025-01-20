@@ -29,7 +29,7 @@ import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
-import { useMouseEvents } from "@/service/events";
+import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -73,7 +73,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   const spectrogramService = useSpectrogramService(canvasRef, xAxis, yAxis)
   const pointerService = usePointerService(canvasRef, xAxis, yAxis);
   const toast = useToast();
-  const mouse = useMouseEvents();
 
   const [ _zoom, _setZoom ] = useState<number>(1);
   const currentTime = useRef<number>(0)
@@ -218,14 +217,14 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }), [ canvasRef.current, xAxis.current, yAxis.current ])
 
   useEffect(() => {
-    mouse.down.add(onStartNewAnnotation)
-    mouse.move.add(onUpdateNewAnnotation)
-    mouse.up.add(onEndNewAnnotation)
+    MOUSE_DOWN_EVENT.add(onStartNewAnnotation)
+    MOUSE_MOVE_EVENT.add(onUpdateNewAnnotation)
+    MOUSE_UP_EVENT.add(onEndNewAnnotation)
 
     return () => {
-      mouse.down.remove(onStartNewAnnotation)
-      mouse.move.remove(onUpdateNewAnnotation)
-      mouse.up.remove(onEndNewAnnotation)
+      MOUSE_DOWN_EVENT.remove(onStartNewAnnotation)
+      MOUSE_MOVE_EVENT.remove(onUpdateNewAnnotation)
+      MOUSE_UP_EVENT.remove(onEndNewAnnotation)
     }
   }, []);
 

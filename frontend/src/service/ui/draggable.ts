@@ -1,8 +1,7 @@
 import { MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
-import { useMouseEvents } from "@/service/events";
+import { MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 
 export const useDraggable = () => {
-  const mouse = useMouseEvents();
 
   const isDragging = useRef<boolean>(false)
 
@@ -10,14 +9,11 @@ export const useDraggable = () => {
   const [ right, setRight ] = useState<number>(64);
 
   useEffect(() => {
-    mouse.move.add(onMouseMove)
-    mouse.up.add(onMouseUp)
-    // mouse.leave.add(onMouseUp)
-
+    MOUSE_MOVE_EVENT.add(onMouseMove)
+    MOUSE_UP_EVENT.add(onMouseUp)
     return () => {
-      mouse.move.remove(onMouseMove)
-      mouse.up.remove(onMouseUp)
-      // mouse.leave.remove(onMouseUp)
+      MOUSE_MOVE_EVENT.remove(onMouseMove)
+      MOUSE_UP_EVENT.remove(onMouseUp)
     }
   }, []);
 
