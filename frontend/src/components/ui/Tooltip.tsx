@@ -16,7 +16,7 @@ export const TooltipOverlay: React.FC<{
         <div className={ styles.content }>{ tooltipContent }</div>
       </div>
     </BootstrapTooltip>
-  } placement='top'>
+  } placement='bottom'>
     { children }
   </BootstrapOverlayTrigger>
 }

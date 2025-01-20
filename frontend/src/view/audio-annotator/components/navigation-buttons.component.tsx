@@ -123,7 +123,8 @@ export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignI
   return (
     <div className="col-sm-5 d-flex justify-content-center">
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }
-                                                                    description="load previous recording"/></Tooltip> }>
+                                                                    description="load previous recording"/></Tooltip> }
+                      placement='bottom'>
         <IonButton color={ "primary" }
                    disabled={ isSubmitting.current || previous_file_id.current === null }
                    className="rounded-right-0"
@@ -132,7 +133,8 @@ export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignI
         </IonButton>
       </OverlayTrigger>
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut="Enter"
-                                                                    description="Submit & load next recording"/></Tooltip> }>
+                                                                    description="Submit & load next recording"/></Tooltip> }
+                      placement='bottom'>
         <IonButton color={ "primary" }
                    disabled={ isSubmitting.current }
                    className="rounded-0"
@@ -141,7 +143,8 @@ export const NavigationButtons: React.FC<{ campaignID: string; }> = ({ campaignI
         </IonButton>
       </OverlayTrigger>
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretForward }/> }
-                                                                    description="load next recording"/></Tooltip> }>
+                                                                    description="load next recording"/></Tooltip> }
+                      placement='bottom'>
         <IonButton color={ "primary" }
                    disabled={ isSubmitting.current || next_file_id.current === null }
                    className="rounded-left-0"
