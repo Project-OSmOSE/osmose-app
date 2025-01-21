@@ -24,6 +24,7 @@ import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -139,8 +140,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       wrapper.scrollLeft += spectroWidth;
     }
     currentTime.current = audio.time;
-
-    updateCanvas();
   }, [ audio.time ])
 
   // On current newAnnotation changed
@@ -155,7 +154,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       if (!context) throw new Error('Cannot get fake canvas 2D context');
 
       // Get spectro images
-      await updateCanvas(false)
+      await updateCanvas()
       const spectroDataURL = canvasRef.current?.toDataURL('image/png');
       if (!spectroDataURL) throw new Error('Cannot recover spectro dataURL');
       updateCanvas();
@@ -225,14 +224,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }, []);
 
 
-  const updateCanvas = async (withProgressBar: boolean = true): Promise<void> => {
+  const updateCanvas = async (): Promise<void> => {
     spectrogramService.resetCanvas();
     await spectrogramService.drawSpectrogram();
 
-    if (withProgressBar) spectrogramService.drawProgressBar()
     if (newResult) spectrogramService.drawResult(newResult);
   }
-
 
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
     const data = pointerService.getFreqTime(e);
@@ -328,6 +325,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
                 width={ spectroWidth }
                 onClick={ e => audioService.seek(pointerService.getFreqTime(e)?.time ?? 0) }
                 onWheel={ onWheel }/>
+
+        <TimeBar/>
 
         { results?.map((annotation: AnnotationResult, key: number) => (
           <Box key={ key }
