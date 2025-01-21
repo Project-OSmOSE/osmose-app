@@ -17,7 +17,6 @@ import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/res
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
-import { Box } from "./Box.tsx";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
@@ -25,6 +24,7 @@ import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.t
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
+import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annotation.tsx";
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
@@ -329,11 +329,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
         <TimeBar/>
 
         { results?.map((annotation: AnnotationResult, key: number) => (
-          <Box key={ key }
-               annotation={ annotation }
-               yAxis={ yAxis }
-               xAxis={ xAxis }
-               audioPlayer={ audioPlayer }/>
+          <Annotation key={ key }
+                      annotation={ annotation }
+                      yAxis={ yAxis }
+                      xAxis={ xAxis }
+                      audioPlayer={ audioPlayer }/>
         )) }
       </div>
 

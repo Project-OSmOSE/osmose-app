@@ -68,6 +68,19 @@ export const AnnotatorSlice = createSlice({
       state.hasChanged = true;
       _focusResult(state, { payload: newResult.id })
     },
+    updateFocusResultBounds: (state, { payload }: { payload: AnnotationResultBounds }) => {
+      if (!state.focusedResultID) return;
+      if (!state.results) state.results = [];
+      state.results = state.results.map(r => {
+        if (r.id !== state.focusedResultID) return r;
+        return {
+          ...r,
+          ...payload
+        }
+      });
+      state.hasChanged = true;
+      _focusResult(state, { payload: state.focusedResultID })
+    },
     addPresenceResult: (state, { payload }: { payload: string }) => {
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
@@ -393,4 +406,5 @@ export const {
   setStopTime,
   onPlay,
   updateCurrentResultAcousticFeatures,
+  updateFocusResultBounds,
 } = AnnotatorSlice.actions

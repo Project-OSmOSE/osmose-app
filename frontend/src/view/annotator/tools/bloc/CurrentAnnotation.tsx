@@ -19,7 +19,7 @@ export const CurrentAnnotation: React.FC = () => {
     results
   } = useAppSelector(state => state.annotator);
   const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
-  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID ]);
+  const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID, results ]);
 
   const startTime = useMemo(() => {
     if (!focusedResult) return "-"

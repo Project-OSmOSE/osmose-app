@@ -98,14 +98,24 @@ const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, type, className, on
 }
 
 const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, type, className, onClick }) => {
+  const minFrequency = useMemo(() => {
+    if (!result.start_frequency) return;
+    if (!result.end_frequency) return result.start_frequency;
+    return Math.min(result.start_frequency, result.end_frequency)
+  }, [result.start_frequency, result.end_frequency])
+  const maxFrequency = useMemo(() => {
+    if (!result.start_frequency || !result.end_frequency) return;
+    return Math.max(result.start_frequency, result.end_frequency)
+  }, [result.start_frequency, result.end_frequency])
   if (type === 'presence') return <Fragment/>
+
   return <TableContent className={ className } onClick={ onClick }>
     <IoAnalyticsOutline/>
 
     <p>
-      { result.start_frequency?.toFixed(2) }&nbsp;
+      { minFrequency?.toFixed(2) }&nbsp;
       { type === 'box' && <Fragment>
-          <IoChevronForwardOutline/> { result.end_frequency?.toFixed(2) }
+          <IoChevronForwardOutline/> { maxFrequency?.toFixed(2) }
       </Fragment> }
       Hz
     </p>

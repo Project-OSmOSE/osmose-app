@@ -5,6 +5,10 @@
 
   &.active {
     opacity: 1;
+
+    .header {
+      cursor: pointer;
+    }
   }
 
   .header {

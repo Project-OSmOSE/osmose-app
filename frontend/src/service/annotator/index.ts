@@ -38,6 +38,7 @@ export {
   setAudioSpeed,
   onPlay,
   updateCurrentResultAcousticFeatures,
+  updateFocusResultBounds,
 } from './slice';
 
 
