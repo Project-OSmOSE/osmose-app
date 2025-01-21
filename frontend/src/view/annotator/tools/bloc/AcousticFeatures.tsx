@@ -23,7 +23,7 @@ export const AcousticFeatures: React.FC = () => {
     onMouseDown,
     top,
     right,
-  } = useDraggable()
+  } = useDraggable({ top: 128, right: 64})
 
   const {
     results,

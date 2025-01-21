@@ -17,7 +17,7 @@ import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/res
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
-import { Box } from "@/view/annotator/tools/Box.tsx";
+import { Box } from "./Box.tsx";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
