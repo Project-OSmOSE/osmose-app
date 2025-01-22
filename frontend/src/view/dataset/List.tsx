@@ -1,80 +1,43 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { createPortal } from "react-dom";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import {
-  ImportDataset,
-  useImportDatasetMutation,
-  useListDatasetForImportQuery,
-  useListDatasetQuery
-} from '@/service/dataset';
+import React, { Fragment, useEffect } from 'react';
+import { IonNote, IonSpinner } from "@ionic/react";
+import { useImportDatasetMutation, useListDatasetQuery } from '@/service/dataset';
 import { getErrorMessage } from '@/service/function.ts';
 import styles from './dataset.module.scss'
-import { downloadOutline } from 'ionicons/icons';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
-import { ImportDatasetModal } from '@/view/dataset/ImportModal.tsx';
 import { useToast } from "@/service/ui";
+import { ImportDatasetsButton } from "@/view/dataset/buttons/ImportDatasets.tsx";
+import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 
 
 export const DatasetList: React.FC = () => {
-  const [ isImportModalOpen, setIsImportModalOpen ] = useState(false);
 
   // Services
-  const { data: datasets, refetch: refetchDatasets, error: datasetsError, isLoading } = useListDatasetQuery()
-  const {
-    data: datasetsToImport,
-    refetch: refetchDatasetsToImport,
-    error: datasetsToImportError
-  } = useListDatasetForImportQuery()
-  const [ doImportDatasets, { isLoading: isImportInProgress } ] = useImportDatasetMutation()
-  const { presentError, dismiss: dismissToast } = useToast();
+  const { data: datasets, error: datasetsError, isLoading } = useListDatasetQuery()
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [ _, { isLoading: isImportInProgress } ] = useImportDatasetMutation()
+  const toast = useToast();
 
-  const importDatasets = async (importList: Array<ImportDataset>) => {
-    doImportDatasets(importList).unwrap()
-      .then(() => {
-        refetchDatasetsToImport();
-        refetchDatasets();
-        setIsImportModalOpen(false);
-      })
-      .catch(error => presentError(getErrorMessage(error)))
-  }
 
   useEffect(() => {
     return () => {
-      dismissToast()
+      toast.dismiss()
     }
   }, []);
-
-  useEffect(() => {
-    if (datasetsError) presentError(getErrorMessage(datasetsError));
-  }, [ datasetsError ]);
-
-  useEffect(() => {
-    if (datasetsToImportError) presentError(getErrorMessage(datasetsToImportError));
-  }, [ datasetsToImportError ]);
-
-  function openImportModal() {
-    if (!datasetsToImport) return;
-    setIsImportModalOpen(!isImportModalOpen)
-  }
 
   return (
     <div className={ styles.listPage }>
       <h2>Datasets</h2>
 
       <div className={ styles.buttons }>
-        <IonButton color='primary' fill='outline'
-                   disabled={ !datasetsToImport }
-                   data-tooltip={ datasetsToImport ? undefined : "The datasets.csv doesn't contains new datasets" }
-                   onClick={ openImportModal }>
-          <IonIcon icon={ downloadOutline } slot='start'/>
-          Import dataset
-        </IonButton>
+        <ImportDatasetsButton/>
       </div>
 
       { (isLoading || isImportInProgress) && <IonSpinner/> }
+      { datasetsError && <WarningMessage>{ getErrorMessage(datasetsError) }</WarningMessage> }
 
-      { datasets && <Table columns={ 7 } className={ styles.table }>
+      { datasets && datasets.length === 0 && <IonNote color='medium'>No datasets</IonNote> }
+      { datasets && datasets.length > 0 && <Table columns={ 7 } className={ styles.table }>
           <TableHead isFirstColumn={ true }>Name</TableHead>
           <TableHead>Created at</TableHead>
           <TableHead>Type</TableHead>
@@ -95,13 +58,6 @@ export const DatasetList: React.FC = () => {
           <TableDivider/>
         </Fragment>) }
       </Table> }
-
-      { isImportModalOpen && createPortal(
-        <ImportDatasetModal startImport={ (datasets) => importDatasets(datasets) }
-                            onClose={ () => setIsImportModalOpen(false) }
-                            isLoading={ isImportInProgress }
-                            newData={ datasetsToImport ?? [] }/>,
-        document.body) }
     </div>
   )
 };

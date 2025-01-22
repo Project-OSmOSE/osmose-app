@@ -40,12 +40,10 @@ test.describe('Access', () => {
     const title = adminPage.getByRole('heading', { name: 'Datasets' });
     await expect(title).toBeVisible();
 
-    const table = adminPage.getByRole('table')
+    const table = adminPage.locator('.table-aplose')
     await expect(table).toBeVisible();
-    const rowsCount = await table.locator('tr').count()
-    expect(rowsCount).toBeGreaterThan(1);
 
-    const importButton = adminPage.getByRole('button', { name: 'Import' })
+    const importButton = adminPage.getByRole('button', { name: 'Import dataset' })
     await expect(importButton).toBeVisible()
     await expect(importButton).not.toBeDisabled()
   })
@@ -67,7 +65,7 @@ test.describe('Empty states', () => {
     await adminPage.route(/api\/dataset\/list_to_import\/?/, route => route.fulfill({ status: 200, json: [] }))
     await adminPage.getByRole('link', { name: 'Datasets' }).click();
 
-    const importButton = adminPage.getByRole('button', { name: 'Import' })
+    const importButton = adminPage.getByRole('button', { name: 'Import dataset' })
     await expect(importButton).toBeVisible()
     await expect(importButton).toBeDisabled()
   })
@@ -85,13 +83,13 @@ test.describe('Import', () => {
       adminPage.getByRole('link', { name: 'Datasets' }).click()
     ])
 
-    await adminPage.getByRole('button', { name: 'Import' }).click()
+    await adminPage.getByRole('button', { name: 'Import dataset' }).click()
 
-    const modal = adminPage.locator('.modal-dialog').first()
+    const modal = adminPage.getByRole('dialog').first()
     await expect(modal).toBeVisible();
 
-    const itemCounts = await modal.locator('li').count()
-    expect(itemCounts).toBeGreaterThan(1) // Includes "all checkbox"
+    const itemCounts = await modal.locator('.table-content').count()
+    expect(itemCounts).toBeGreaterThanOrEqual(1)
   })
 
   test('incorrect search should have 0 result', async ({ adminPage }) => {
@@ -101,12 +99,12 @@ test.describe('Import', () => {
       adminPage.waitForResponse(resp => resp.url().includes('/api/dataset/list_to_import') && resp.status() === 200),
       adminPage.getByRole('link', { name: 'Datasets' }).click()
     ])
-    await adminPage.getByRole('button', { name: 'Import' }).click()
+    await adminPage.getByRole('button', { name: 'Import dataset' }).click()
 
-    const modal = adminPage.locator('.modal-dialog').first()
+    const modal = adminPage.getByRole('dialog').first()
     await modal.getByPlaceholder('Search').fill('incorrect')
-    const itemCounts = await modal.locator('li').count()
-    expect(itemCounts).toEqual(1) // Includes "all checkbox"
+    const itemCounts = await modal.locator('.table-content').count()
+    expect(itemCounts).toEqual(0)
   })
 
   test('valid search should have 1 result', async ({ adminPage }) => {
@@ -116,12 +114,12 @@ test.describe('Import', () => {
       adminPage.waitForResponse(resp => resp.url().includes('/api/dataset/list_to_import') && resp.status() === 200),
       adminPage.getByRole('link', { name: 'Datasets' }).click()
     ])
-    await adminPage.getByRole('button', { name: 'Import' }).click()
+    await adminPage.getByRole('button', { name: 'Import dataset' }).click()
 
-    const modal = adminPage.locator('.modal-dialog').first()
+    const modal = adminPage.getByRole('dialog').first()
     await modal.getByPlaceholder('Search').fill(TEST_IMPORT_DATASET_NAME)
-    const itemCounts = await modal.locator('li').count()
-    expect(itemCounts).toEqual(2) // Includes "all checkbox"
+    const itemCounts = await modal.locator('.table-content').count()
+    expect(itemCounts).toEqual(1)
   })
 
   test('cancel should not import', async ({ adminPage }) => {
@@ -131,17 +129,17 @@ test.describe('Import', () => {
       adminPage.waitForResponse(resp => resp.url().includes('/api/dataset/list_to_import') && resp.status() === 200),
       adminPage.getByRole('link', { name: 'Datasets' }).click()
     ])
-    const table = adminPage.getByRole('table')
+    const table = adminPage.locator('.table-aplose')
     await expect(table).toBeVisible();
-    const initialRowsCount = await table.locator('tr').count()
-    expect(initialRowsCount).toBeGreaterThan(1);
-    await adminPage.getByRole('button', { name: 'Import' }).click()
+    const initialRowsCount = await table.locator('.table-content').count()
+    expect(initialRowsCount).toBeGreaterThanOrEqual(1);
+    await adminPage.getByRole('button', { name: 'Import dataset' }).click()
 
-    const modal = adminPage.locator('.modal-dialog').first()
-    await modal.getByLabel(TEST_IMPORT_DATASET_NAME).check()
-    await modal.getByText('Close').click()
+    const modal = adminPage.getByRole('dialog').first()
+    await modal.getByRole('paragraph').filter({hasText: TEST_IMPORT_DATASET_NAME}).click()
+    await modal.getByRole('button', { name: 'Cancel' }).click()
 
-    const currentRowsCount = await adminPage.getByRole('table').locator('tr').count()
+    const currentRowsCount = await adminPage.locator('.table-aplose').locator('.table-content').count()
     expect(currentRowsCount).toEqual(initialRowsCount)
   })
 
@@ -154,17 +152,17 @@ test.describe('Import', () => {
       adminPage.waitForResponse(resp => resp.url().includes('/api/dataset/list_to_import') && resp.status() === 200),
       adminPage.getByRole('link', { name: 'Datasets' }).click()
     ])
-    await adminPage.getByRole('button', { name: 'Import' }).click()
+    await adminPage.getByRole('button', { name: 'Import dataset' }).click()
 
-    const modal = adminPage.locator('.modal-dialog').first()
-    await modal.getByLabel(TEST_IMPORT_DATASET_NAME).check()
+    const modal = adminPage.getByRole('dialog').first()
+    await modal.getByRole('paragraph').filter({hasText: TEST_IMPORT_DATASET_NAME}).click()
 
     await adminPage.route(/\/api\/dataset\/datawork_import\/?/g, async route => {
       return route.fulfill({ status: 200 })
     });
     await Promise.all([
       adminPage.waitForRequest(resp => resp.url().includes('/api/dataset/datawork_import') && resp.method() === 'POST'),
-      modal.getByText('Save changes').click()
+      modal.getByRole('button', { name: 'Import datasets' }).click()
     ])
   })
 })
