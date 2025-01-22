@@ -315,7 +315,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
              max_value={ (annotatorData?.file.dataset_sr ?? 0) / 2 }/>
 
 
-      <div ref={ containerRef }
+      <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }
            onPointerLeave={ () => dispatch(leavePointerPosition()) }>
 

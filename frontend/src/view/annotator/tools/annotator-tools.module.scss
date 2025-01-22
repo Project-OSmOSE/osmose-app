@@ -1,53 +1,24 @@
 
-.box {
+.boxHeader {
+  display: grid;
+  align-items: center;
+  align-content: center;
+  justify-items: center;
+  grid-template-columns: auto 1fr auto;
+  width: calc(100% + 4px); /* Box border size */
+  min-width: fit-content;
   position: absolute;
-  opacity: 0.5;
+  left: 50%;
+  top: -0.25rem;
+  transform: translate(-50%, -100%);
+  padding: 0 0.25rem;
+  gap: 0.5rem;
+  color: #ffffff;
+  white-space: nowrap;
+  border-radius: 0.25rem;
+  background: var(--ion-color-base);
 
-  &.active {
-    opacity: 1;
-
-    .header {
-      cursor: pointer;
-    }
-  }
-
-  .header {
-    display: grid;
-    align-items: center;
-    align-content: center;
-    justify-items: center;
-    grid-template-columns: auto 1fr auto;
-    width: 100%;
-    min-width: fit-content;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    padding: 0 0.25rem;
-    gap: 0.5rem;
-    color: #ffffff;
-    white-space: nowrap;
-
-    > * {
-      font-size: .9rem;
-    }
-
-    .button {
-      cursor: pointer;
-    }
-
-    p {
-      font-size: .75rem;
-    }
-
-    .delete {
-      display: none;
-    }
-
-    .outlineIcon path {
-      stroke-width: 3rem;
-    }
-  }
-
-  &.canBeRemoved .header {
+  &.canBeRemoved {
     grid-template-columns: auto 1fr auto auto;
 
     .delete {
@@ -55,11 +26,24 @@
     }
   }
 
-  .body {
-    cursor: crosshair;
-    width: 100%;
-    border-style: solid;
-    border-width: 2px;
+  > * {
+    font-size: .9rem;
+  }
+
+  .button {
+    cursor: pointer;
+  }
+
+  p {
+    font-size: .75rem;
+  }
+
+  .delete {
+    display: none;
+  }
+
+  .outlineIcon path {
+    stroke-width: 3rem;
   }
 }
 
