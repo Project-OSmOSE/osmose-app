@@ -112,16 +112,18 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                         WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.annotator_id = %s AND t.status = 'F'
                     """,
                     "my_total": """
-                        SELECT sum(files_count) FROM api_annotationfilerange r
-                        WHERE r.annotation_campaign_id = annotation_campaigns.id AND r.annotator_id = %s
+                        SELECT case when total notnull then total else 0 end as data FROM 
+                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
+                            WHERE r.annotation_campaign_id = annotation_campaigns.id AND r.annotator_id = %s) as info
                     """,
                     "progress": """
                         SELECT count(*) FROM api_annotationtask t
                         WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.status = 'F'
                     """,
                     "total": """
-                        SELECT sum(files_count) FROM api_annotationfilerange r
-                        WHERE r.annotation_campaign_id = annotation_campaigns.id
+                        SELECT case when total notnull then total else 0 end as data FROM 
+                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
+                            WHERE r.annotation_campaign_id = annotation_campaigns.id) as info
                     """,
                 },
                 select_params=(
@@ -156,7 +158,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
     )
     def report(self, request, pk: int = None):
         """Download annotation results report csv"""
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-statements
         campaign: AnnotationCampaign = self.get_object()
         max_confidence = (
             max(

@@ -482,7 +482,6 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             acoustic_features = AnnotationResultAcousticFeaturesSerializer(
                 initial_acoustic_features
             ).data
-            instance.acoustic_features
             acoustic_features_serializer = AnnotationResultAcousticFeaturesSerializer(
                 instance.acoustic_features,
                 data={**acoustic_features, "annotation_result": instance.id},

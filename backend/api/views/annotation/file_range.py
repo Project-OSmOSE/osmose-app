@@ -96,6 +96,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         return required_campaigns.count() == required_owned_campaigns.count()
 
     def filter_files_list_on_search(self, files: list[any]) -> list[any]:
+        """Filter files on a filename search"""
         search = self.request.query_params.get("search")
         if search is None:
             return files
@@ -104,6 +105,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     def filter_files_list_on_current_user_annotations(
         self, files: list[any], campaign_id: int
     ) -> list[any]:
+        """Filter files on the existence of annotations by the current user"""
         with_user_annotations = get_boolean_query_param(
             self.request, "with_user_annotations"
         )
@@ -137,6 +139,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     def filter_files_list_on_submission_status(
         self, files: list[any], campaign_id: int
     ) -> list[any]:
+        """Filter files on the task submission status for the current user"""
         is_submitted = get_boolean_query_param(self.request, "is_submitted")
         if is_submitted is None:
             return files
