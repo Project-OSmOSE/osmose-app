@@ -1,4 +1,4 @@
-import { MutableRefObject, useMemo, useRef } from "react";
+import { MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { useAppSelector } from '@/service/app';
 import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { AnnotationResultBounds } from '@/service/campaign/result';
@@ -23,6 +23,10 @@ export const useSpectrogramService = (
   const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
 
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
+
+  useEffect(() => {
+    images.current = new Map()
+  }, [userPreferences.spectrogramConfigurationID]);
 
   function areAllImagesLoaded(): boolean {
     const currentImages = images.current.get(userPreferences.zoomLevel);

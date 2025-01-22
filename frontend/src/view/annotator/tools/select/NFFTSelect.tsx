@@ -17,6 +17,7 @@ export const NFFTSelect: React.FC = () => {
   useEffect(() => {
     if (!selectedID) return;
     const configs: SpectrogramConfiguration[] = spectrogram_configurations ?? [];
+    if (configs.find(c => c.id === selectedID)) return;
     const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
     const newID = simpleSpectrogramID ?? Math.min(-1, ...configs.map(s => s.id));
     dispatch(selectSpectrogramConfiguration(newID))
