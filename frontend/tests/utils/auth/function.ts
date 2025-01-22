@@ -12,7 +12,7 @@ export async function login(page: Page, user: TestUser) {
 
   await Promise.all([
     page.waitForRequest(request => request.url().includes('/api/token') && request.method() === 'POST'),
-    page.getByRole('button', { name: 'Submit' }).click()
+    page.getByRole('button', { name: 'Login' }).click()
   ])
 
   await page.waitForLoadState()

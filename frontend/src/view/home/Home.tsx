@@ -105,15 +105,15 @@ const PlatformFeatures: React.FC = () => {
       <p>
         Explore the core functionalities of APLOSE through detailed screenshots that illustrate how our
         platform operates. Among other, APLOSE allows to:
-        <ul>
-          <li>Visualize and zoom on pre-computed spectrogram</li>
-          <li>Play the sound at different speeds</li>
-          <li>Add custom labels on the whole spectrogram or draw boxes around the sounds</li>
-          <li>Specify a confidence indicator on each annotation</li>
-          <li>Add comments on each annotation</li>
-          <li>Easily download the results in a CSV format</li>
-        </ul>
       </p>
+      <ul>
+        <li>Visualize and zoom on pre-computed spectrogram</li>
+        <li>Play the sound at different speeds</li>
+        <li>Add custom labels on the whole spectrogram or draw boxes around the sounds</li>
+        <li>Specify a confidence indicator on each annotation</li>
+        <li>Add comments on each annotation</li>
+        <li>Easily download the results in a CSV format</li>
+      </ul>
 
       <Carousel index={ index } onIndexChange={ setIndex }
                 isModal={ false }
