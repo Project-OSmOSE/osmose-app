@@ -106,7 +106,6 @@ export const AnnotationCampaignList: React.FC = () => {
         <IonChip outline={ !modeFilter }
                  onClick={ toggleModeFilter }
                  color={ modeFilter ? 'primary' : 'medium' }>
-          Only archived
           Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
           { modeFilter === 'Create' && <IonIcon icon={ swapHorizontal }/> }
           { modeFilter === 'Check' && <IonIcon icon={ closeCircle }/> }

@@ -26,10 +26,10 @@ export const BASE_USER: TestUser = {
 }
 
 export const ADMIN: TestUser = {
-  id: 4,
-  displayName: 'User3 Test',
-  username: 'TestUser3',
+  id: 1,
+  displayName: 'admin',
+  username: 'admin',
   password: 'osmose29',
-  email: 'TestUser3@osmose.xyz',
+  email: 'admin@osmose.xyz',
   expertise_level: 'Novice'
 }
