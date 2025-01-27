@@ -30,6 +30,7 @@ interface CellProps {
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  topSticky?: boolean;
 }
 
 export const TableHead: React.FC<CellProps> = ({
@@ -38,8 +39,14 @@ export const TableHead: React.FC<CellProps> = ({
                                                  onClick,
                                                  className,
                                                  disabled,
+                                                 topSticky,
                                                }) => (
   <div className={ `table-head ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
+       style={{
+         position: topSticky ? 'sticky' : undefined,
+         top: topSticky ? '0' : undefined,
+         backgroundColor: topSticky ? 'white' : undefined,
+       }}
        onClick={ onClick }>
     { children }
   </div>
@@ -52,8 +59,9 @@ export const TableContent: React.FC<CellProps> = ({
                                                     className,
                                                     disabled,
                                                   }) => (
-  <div className={ `table-content ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
-       onClick={ onClick }>
+  <div
+    className={ `table-content ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
+    onClick={ onClick }>
     { children }
   </div>
 )

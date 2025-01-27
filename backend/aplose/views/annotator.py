@@ -1,7 +1,6 @@
 """Annotator viewset"""
 
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
@@ -14,6 +13,7 @@ from backend.api.models import (
     AnnotationCampaign,
     DatasetFile,
     AnnotationTask,
+    AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationSessionSerializer,
@@ -80,8 +80,15 @@ class AnnotatorViewSet(viewsets.ViewSet):
             pk=campaign_id
         ).get_sorted_files()
         current_file = DatasetFile.objects.get(pk=file_id)
+        file_ranges = AnnotationFileRange.objects.filter(
+            annotation_campaign_id=campaign_id,
+            annotator_id=request.user.id,
+        )
+        file_ids = []
+        for f_range in file_ranges:
+            file_ids.extend(f_range.get_files().values_list("id", flat=True))
 
-        filtered_files = campaign_files
+        filtered_files = campaign_files.filter(id__in=file_ids)
         if search is not None:
             filtered_files = filtered_files.filter(filename__icontains=search)
         if with_user_annotations is not None:
@@ -124,8 +131,15 @@ class AnnotatorViewSet(viewsets.ViewSet):
             | Q(start=current_file.start, id__gt=current_file.id)
         ).first()
 
+        current_task_index = filtered_files.filter(start__lt=current_file.start).count()
+        current_task_index += filtered_files.filter(
+            start=current_file.start, id__lt=current_file.id
+        ).count()
+
         return Response(
             {
+                "current_task_index": current_task_index,
+                "total_tasks": filtered_files.count(),
                 "is_submitted": AnnotationTask.objects.filter(
                     annotation_campaign_id=campaign_id,
                     dataset_file_id=file_id,

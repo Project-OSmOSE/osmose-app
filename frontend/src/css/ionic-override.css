@@ -64,6 +64,10 @@
     --aplose-backdrop: 0 0 0 200000px var(--aplose-backdrop-color);
 }
 
+html {
+    overflow-y: auto;
+}
+
 .disabled,
 [aria-disabled=true] {
     opacity: 0.5;
@@ -303,19 +307,6 @@ ion-progress-bar::part(progress) {
 
 ion-progress-bar::part(track) {
     background: rgba(var(--ion-color-medium-rgb), 0.3);
-}
-
-ion-progress-bar::part(progress)::after {
-    border-width: 0.2rem 0 0.2rem 0.4rem;
-    height: 0.1rem;
-    border-color: rgba(0, 0, 0, 0) var(--ion-color-base);
-    border-style: solid;
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translateX(100%);
 }
 
 

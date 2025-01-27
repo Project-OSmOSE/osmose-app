@@ -6,7 +6,13 @@ export const UserAPI = createApi({
   reducerPath: 'userApi',
   baseQuery: getAuthenticatedBaseQuery('/api/user/'),
   endpoints: (builder) => ({
-    getCurrentUser: builder.query<User, void>({ query: () => 'self/', }),
+    getCurrentUser: builder.query<User, void>({
+      query: () => 'self/',
+      // forceRefetch({ state }): boolean {
+      //   return false;
+      //   return (state as unknown as AppState).auth.isNewUser;
+      // },
+    }),
     updatePassword: builder.mutation<void, {
       oldPassword: string,
       newPassword: string,

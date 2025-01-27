@@ -5,9 +5,22 @@
 
   .info {
     display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    gap: 1rem;
+    justify-items: center;
+    gap: 0.5rem;
+
+    > p {
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .progress {
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: center;
+      width: 20rem;
+    }
   }
 }
 
@@ -83,7 +96,7 @@
     display: grid;
     padding: 0 2rem;
     gap: 2rem;
-    grid-template-columns: 32ch 1fr auto;
+    grid-template-columns: 32ch auto auto;
   }
 
   .downloadButtons {

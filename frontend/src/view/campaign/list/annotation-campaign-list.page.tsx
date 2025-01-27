@@ -114,7 +114,7 @@ export const AnnotationCampaignList: React.FC = () => {
         <IonChip outline={ !onlyMineFilter }
                  onClick={ toggleOnlyMineFilter }
                  color={ onlyMineFilter ? 'primary' : 'medium' }>
-          Only mine
+          Owned campaigns
           { onlyMineFilter && <IonIcon icon={ closeCircle } color='primary'/> }
         </IonChip>
       </ActionBar>

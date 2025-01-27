@@ -1,24 +1,8 @@
 import { expect, test } from '../../utils/fixture';
-import { accessCampaignFileList, canAccessCampaignDetail, canAccessUserGuide } from "../../utils/campaign/functions";
+import { accessCampaignFileList, canAccessUserGuide } from "../../utils/campaign/functions";
 
-
-test.describe('Empty state', () => {
-  test('show empty list', async ({ annotatorPage }) => {
-    await annotatorPage.route(/\/api\/annotation-file-range\/?/g, route => {
-      return route.fulfill({ status: 200, json: [] })
-    })
-    await accessCampaignFileList(annotatorPage);
-    await expect(annotatorPage.getByText('No files to annotate')).toBeVisible();
-  })
-})
 
 test.describe('Annotator', () => {
-  test('can access detail', {
-    tag: '@essential'
-  }, async ({ annotatorPage }) => {
-    await accessCampaignFileList(annotatorPage);
-    await canAccessCampaignDetail(annotatorPage, annotatorPage);
-  })
 
   test('can access user guide', {
     tag: '@essential'
@@ -31,16 +15,6 @@ test.describe('Annotator', () => {
     await accessCampaignFileList(annotatorPage);
     const button = annotatorPage.getByRole('button', { name: 'Campaign instructions' });
     await expect(button).toBeVisible();
-  })
-
-  test('show file list', {
-    tag: '@essential'
-  }, async ({ annotatorPage }) => {
-    await accessCampaignFileList(annotatorPage);
-    const table = annotatorPage.getByRole('table')
-    await expect(table).toBeVisible();
-    const rowsCount = await table.locator('tr').count()
-    expect(rowsCount).toBeGreaterThan(1);
   })
 
   test('can annotate submitted file', {

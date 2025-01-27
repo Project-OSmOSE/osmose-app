@@ -1,16 +1,16 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
+import { createApi, RootState } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
-import { AnnotatorData, WriteAnnotatorData } from './type.ts';
+import { AnnotatorData, RetrieveParams, WriteAnnotatorData } from './type.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotationCampaign } from '@/service/campaign';
-import { FileFilters } from "@/service/ui/type.ts";
 import { encodeQueryParams } from "@/service/function.ts";
+import { AppState } from "@/service/app.ts";
 
 export const AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   endpoints: (builder) => ({
-    retrieve: builder.query<AnnotatorData, { campaignID: ID, fileID: ID } & Partial<FileFilters>>({
+    retrieve: builder.query<AnnotatorData, RetrieveParams>({
       query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted }) => {
         console.log('[useAnnotator]', campaignID, withUserAnnotations)
         const params: any = { }
@@ -19,6 +19,15 @@ export const AnnotatorAPI = createApi({
         if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
         return `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(params) }`;
       },
+      forceRefetch({ currentArg, state }: {
+        currentArg: RetrieveParams | undefined;
+        state: RootState<any, any, string>
+      }): boolean {
+        const prevCampaignID = (state as unknown as AppState).annotator.campaignID;
+        const prevFileID = (state as unknown as AppState).annotator.file?.id;
+        if (prevCampaignID != currentArg?.campaignID) return true;
+        return prevFileID != currentArg?.fileID;
+      }
     }),
     post: builder.mutation<void, {
       campaign: AnnotationCampaign,

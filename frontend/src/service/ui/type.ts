@@ -6,7 +6,7 @@ export type UIState = {
 
 export type FileFilters = {
   campaignID: ID;
-  search: string | undefined;
-  isSubmitted: boolean | undefined;
-  withUserAnnotations: boolean | undefined;
+  search?: string;
+  isSubmitted?: boolean;
+  withUserAnnotations?: boolean;
 }

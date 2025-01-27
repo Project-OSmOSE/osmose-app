@@ -3,6 +3,8 @@ import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/resu
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
 import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
 import { ConfidenceIndicator } from "@/service/campaign/confidence-set";
+import { ID } from "@/service/type.ts";
+import { FileFilters } from "@/service/ui/type.ts";
 
 export type AnnotatorState = Partial<AnnotatorData> & {
   focusedResultID?: number,
@@ -40,6 +42,8 @@ export type AnnotatorData = {
   spectrogram_configurations: Array<SpectrogramConfiguration>;
   previous_file_id: number | null;
   next_file_id: number | null;
+  current_task_index: number;
+  total_tasks: number;
 }
 
 export type WriteAnnotatorData = {
@@ -52,3 +56,5 @@ export type WriteAnnotatorData = {
 }
 
 export type ResultType = 'presence' | 'point' | 'box';
+
+export type RetrieveParams = { campaignID: ID, fileID: ID } & Partial<FileFilters>

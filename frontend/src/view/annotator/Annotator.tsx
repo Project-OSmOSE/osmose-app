@@ -36,7 +36,7 @@ export const Annotator: React.FC = () => {
     ...fileFilters,
     campaignID,
     fileID
-  }, { refetchOnMountOrArgChange: true })
+  })
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
@@ -80,7 +80,7 @@ export const Annotator: React.FC = () => {
                 <div className={ styles.pointerInfo }>
                   { pointerPosition && <Fragment>
                       <FadedText>Pointer</FadedText>
-                      <p>{ pointerPosition.frequency.toFixed(2) }Hz / { formatTime(pointerPosition.time, false) }</p>
+                      <p>{ pointerPosition.frequency.toFixed(2) }Hz / { formatTime(pointerPosition.time, duration < 60) }</p>
 
                   </Fragment> }
                 </div>
@@ -107,7 +107,7 @@ export const Annotator: React.FC = () => {
 
                 <NavigationButtons/>
 
-                <p>{ formatTime(audio.time) }&nbsp;/&nbsp;{ formatTime(duration) }</p>
+                <p>{ formatTime(audio.time, duration < 60) }&nbsp;/&nbsp;{ formatTime(duration) }</p>
             </div>
         </div>
 

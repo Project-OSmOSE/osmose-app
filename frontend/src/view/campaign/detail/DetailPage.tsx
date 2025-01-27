@@ -17,7 +17,7 @@ export const CampaignDetail: React.FC = () => {
     isLoading: isLoadingCampaign,
     error: errorLoadingCampaign
   } = useRetrieveCampaignQuery(campaignID);
-  const { data: currentUser } = useGetCurrentUserQuery(undefined, { refetchOnMountOrArgChange: true});
+  const { data: currentUser } = useGetCurrentUserQuery();
   const isOwner = useMemo(() => {
     return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
   }, [ currentUser, campaign?.owner ]);

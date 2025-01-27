@@ -1,0 +1,1 @@
+export const ESSENTIAL =  { tag: '@essential' };

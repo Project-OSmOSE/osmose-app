@@ -45,6 +45,8 @@
   color: var(--ion-color-dark);
   font-family: var(--ion-font-family), sans-serif;
   padding: 0 2rem;
+  max-height: 100%;
+  overflow: hidden;
 
   @media (max-width: 800px) {
     padding: 0 1rem;
@@ -52,9 +54,17 @@
   }
 
   .content {
-    width: min(100%, 40rem);
     display: grid;
+    justify-items: center;
     gap: 4rem;
+    width: 100%;
+    min-height: 0;
+    overflow: auto;
+    padding-bottom: 2rem;
+
+    > * {
+      width: min(100%, 40rem);
+    }
 
     .submit {
       justify-self: end;

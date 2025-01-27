@@ -38,13 +38,13 @@ export const DatasetList: React.FC = () => {
 
       { datasets && datasets.length === 0 && <IonNote color='medium'>No datasets</IonNote> }
       { datasets && datasets.length > 0 && <Table columns={ 7 } className={ styles.table }>
-          <TableHead isFirstColumn={ true }>Name</TableHead>
-          <TableHead>Created at</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>File type</TableHead>
-          <TableHead>Number of files</TableHead>
-          <TableHead>Start date</TableHead>
-          <TableHead>End date</TableHead>
+          <TableHead topSticky isFirstColumn={ true }>Name</TableHead>
+          <TableHead topSticky>Created at</TableHead>
+          <TableHead topSticky>Type</TableHead>
+          <TableHead topSticky>File type</TableHead>
+          <TableHead topSticky>Number of files</TableHead>
+          <TableHead topSticky>Start date</TableHead>
+          <TableHead topSticky>End date</TableHead>
           <TableDivider/>
 
         { datasets.map(d => <Fragment key={ d.id }>

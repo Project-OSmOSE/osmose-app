@@ -113,12 +113,12 @@ export const DetailPageAnnotationTasks: React.FC<{
 
     { files && files.results.length > 0 && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>
-            <TableHead isFirstColumn={ true }>Filename</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Annotations</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Access</TableHead>
+            <TableHead topSticky isFirstColumn={ true }>Filename</TableHead>
+            <TableHead topSticky>Date</TableHead>
+            <TableHead topSticky>Duration</TableHead>
+            <TableHead topSticky>Annotations</TableHead>
+            <TableHead topSticky>Status</TableHead>
+            <TableHead topSticky>Access</TableHead>
             <TableDivider/>
 
           { files.results.map(file => {
@@ -135,7 +135,7 @@ export const DetailPageAnnotationTasks: React.FC<{
                 { !file.is_submitted &&
                     <IonIcon icon={ ellipseOutline } className={ styles.statusIcon } color='medium'/> }
               </TableContent>
-              <TableContent disabled={ file.is_submitted }>
+              <TableContent disabled={ file.is_submitted } className={ styles.accessLink }>
                 <Link to={ `/annotation-campaign/${ campaign.id }/file/${ file.id }` }>
                   <IonIcon icon={ chevronForwardOutline } color='primary'/>
                 </Link>

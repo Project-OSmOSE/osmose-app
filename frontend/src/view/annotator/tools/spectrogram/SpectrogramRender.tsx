@@ -1,4 +1,5 @@
 import React, {
+  MouseEvent,
   MutableRefObject,
   PointerEvent,
   useEffect,
@@ -21,7 +22,7 @@ import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
-import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
+import { MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
 import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annotation.tsx";
@@ -212,12 +213,10 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }), [ canvasRef.current, xAxis.current, yAxis.current ])
 
   useEffect(() => {
-    MOUSE_DOWN_EVENT.add(onStartNewAnnotation)
     MOUSE_MOVE_EVENT.add(onUpdateNewAnnotation)
     MOUSE_UP_EVENT.add(onEndNewAnnotation)
 
     return () => {
-      MOUSE_DOWN_EVENT.remove(onStartNewAnnotation)
       MOUSE_MOVE_EVENT.remove(onUpdateNewAnnotation)
       MOUSE_UP_EVENT.remove(onEndNewAnnotation)
     }
@@ -242,7 +241,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     } else dispatch(leavePointerPosition())
   }
 
-  const onStartNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+  const onStartNewAnnotation = (e: MouseEvent<HTMLCanvasElement>) => {
     if (!_isDrawingEnabled.current) return;
     const data = pointerService.getFreqTime(e);
     if (!data) return;
@@ -323,6 +322,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
                 ref={ canvasRef }
                 height={ spectroHeight }
                 width={ spectroWidth }
+                onMouseDown={ onStartNewAnnotation }
                 onClick={ e => audioService.seek(pointerService.getFreqTime(e)?.time ?? 0) }
                 onWheel={ onWheel }/>
 

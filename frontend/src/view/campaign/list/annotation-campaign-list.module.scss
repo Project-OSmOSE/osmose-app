@@ -2,44 +2,22 @@
   display: grid;
   gap: 2rem;
   font-family: var(--ion-font-family), sans-serif;
+  grid-template-rows: auto auto 1fr;
+  max-height: 100%;
+  min-height: 0;
 
   > h2 {
     justify-self: center;
   }
 
-  .actionBar {
-    display: grid;
-    grid-auto-flow: column;
-    gap: 1rem;
-    justify-content: space-between;
-
-    .filters, .buttons {
-      display: grid;
-      gap: 1rem;
-      grid-auto-flow: column;
-      align-items: center;
-    }
-
-    @media (max-width: 1200px) {
-      grid-auto-flow: row;
-      justify-content: stretch;
-
-      .buttons {
-        justify-content: start;
-      }
-
-      .filters {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-      }
-    }
-  }
-
   .content {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
     display: grid;
     grid-template-columns: repeat(auto-fill, 300px);
     gap: 2rem;
     justify-content: center;
+    overflow: auto;
+    max-height: 100%;
   }
 }

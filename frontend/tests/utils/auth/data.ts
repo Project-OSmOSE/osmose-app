@@ -26,10 +26,19 @@ export const BASE_USER: TestUser = {
 }
 
 export const ADMIN: TestUser = {
+  id: 4,
+  displayName: 'User3 Test',
+  username: 'TestUser3',
+  password: 'osmose29',
+  email: 'TestUser3@osmose.xyz',
+  expertise_level: 'Novice'
+}
+
+export const CAMPAIGN_CREATOR: TestUser = {
   id: 1,
   displayName: 'admin',
   username: 'admin',
   password: 'osmose29',
   email: 'admin@osmose.xyz',
-  expertise_level: 'Novice'
+  expertise_level: 'Expert'
 }

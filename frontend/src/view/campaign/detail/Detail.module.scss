@@ -5,6 +5,8 @@
   gap: 2rem;
   height: 100%;
   position: relative;
+  overflow: hidden;
+  max-height: 100%;
 
   h2 {
     word-break: break-word;
@@ -15,6 +17,9 @@
     display: grid;
     gap: 2rem;
     align-content: start;
+    grid-template-rows: auto auto 1fr;
+    min-height: 0;
+    max-height: 100%;
 
     .header {
       display: grid;
@@ -53,9 +58,16 @@
 
   .filesTable {
     row-gap: 0.25rem;
+    max-height: 100%;
+    overflow: auto;
 
     .statusIcon {
       justify-self: center;
+      z-index: -1;
+    }
+
+    .accessLink {
+      z-index: -1;
     }
 
     .fillContent {

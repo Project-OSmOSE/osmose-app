@@ -272,7 +272,8 @@ export const AnnotatorSlice = createSlice({
       payload: { direction: 'in' | 'out', origin?: { x: number; y: number } }
     }) => {
       state.ui.zoomOrigin = action.payload.origin;
-      const max = Math.max(...(state.spectrogram_configurations ?? []).map(s => s.zoom_level))
+      let max = Math.max(...(state.spectrogram_configurations ?? []).map(s => s.zoom_level));
+      max = Math.max(0, max - 1)
       switch (action.payload.direction) {
         case "in":
           state.userPreferences.zoomLevel = Math.min(state.userPreferences.zoomLevel * 2, 2 ** max);

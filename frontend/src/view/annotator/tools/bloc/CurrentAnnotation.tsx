@@ -24,13 +24,13 @@ export const CurrentAnnotation: React.FC = () => {
   const startTime = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.start_time === null) return "00:00.000";
-    return formatTime(focusedResult.start_time);
+    return formatTime(focusedResult.start_time, true);
   }, [ focusedResult?.start_time ])
 
   const endTime = useMemo(() => {
     if (!focusedResult) return "-"
     if (focusedResult.end_time === null) return formatTime(duration);
-    return formatTime(focusedResult.end_time);
+    return formatTime(focusedResult.end_time, true);
   }, [ focusedResult?.end_time ])
 
   const startFrequency = useMemo(() => {

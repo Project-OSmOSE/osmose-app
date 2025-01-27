@@ -4,7 +4,7 @@ import { Footer, Header } from "@/components/layout";
 import { IonButton, IonIcon } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
-import { Link } from "@/components/ui";
+import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useToast } from "@/service/ui";
@@ -58,10 +58,16 @@ export const AnnotatorPage: React.FC = () => {
                 Back to campaign
               </IonButton>
             </Fragment> }>
-      { annotatorData && campaign && <p className={ styles.info }>
-        { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
-          <IoCheckmarkCircleOutline/> }
-      </p> }
+      { annotatorData && campaign && <div className={ styles.info }>
+          <p>
+            { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
+              <IoCheckmarkCircleOutline/> }
+          </p>
+          <Progress label='Progression'
+                    className={styles.progress}
+                    value={ annotatorData.current_task_index }
+                    total={ annotatorData.total_tasks }/>
+      </div> }
     </Header>
 
     <Annotator/>

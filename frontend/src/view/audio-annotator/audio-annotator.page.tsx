@@ -57,7 +57,7 @@ export const AudioAnnotator: React.FC = () => {
     ...fileFilters,
     campaignID,
     fileID
-  }, { refetchOnMountOrArgChange: true })
+  })
 
   // Service
   const toast = useToast();
@@ -111,7 +111,7 @@ export const AudioAnnotator: React.FC = () => {
         <h1>APLOSE</h1>
 
         <div className="buttons">
-          { user?.is_staff && <IonButton fill='outline' onClick={ tryNewInterface }>
+          { (user?.is_staff || user?.is_superuser) && <IonButton fill='outline' onClick={ tryNewInterface }>
               Try new annotator
               <IonIcon icon={ sparklesSharp } slot='end'/>
           </IonButton> }

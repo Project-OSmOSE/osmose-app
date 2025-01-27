@@ -89,9 +89,9 @@ const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, type, className, on
     <IoTimeOutline/>
 
     <p>
-      { formatTime(result.start_time!) }
+      { formatTime(result.start_time!, true) }
       { type === 'box' && <Fragment>
-          <IoChevronForwardOutline/> { formatTime(result.end_time!) }
+          <IoChevronForwardOutline/> { formatTime(result.end_time!, true) }
       </Fragment> }
     </p>
   </TableContent>
