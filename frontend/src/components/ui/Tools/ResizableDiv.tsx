@@ -128,13 +128,29 @@ export const ResizableDiv: React.FC<Props> = ({
     } else if (isRightDragging.current) {
       coords.current = { ...coords.current, x2: coords.current.x2 + event.movementX }
     } else if (isTopLeftDragging.current) {
-      coords.current = { ...coords.current, y1: coords.current.y1 + event.movementY, x1: coords.current.x1 + event.movementX }
+      coords.current = {
+        ...coords.current,
+        y1: coords.current.y1 + event.movementY,
+        x1: coords.current.x1 + event.movementX
+      }
     } else if (isTopRightDragging.current) {
-      coords.current = { ...coords.current, y1: coords.current.y1 + event.movementY, x2: coords.current.x2 + event.movementX }
+      coords.current = {
+        ...coords.current,
+        y1: coords.current.y1 + event.movementY,
+        x2: coords.current.x2 + event.movementX
+      }
     } else if (isBottomLeftDragging.current) {
-      coords.current = { ...coords.current, y2: coords.current.y2 + event.movementY, x1: coords.current.x1 + event.movementX }
+      coords.current = {
+        ...coords.current,
+        y2: coords.current.y2 + event.movementY,
+        x1: coords.current.x1 + event.movementX
+      }
     } else if (isBottomRightDragging.current) {
-      coords.current = { ...coords.current, y2: coords.current.y2 + event.movementY, x2: coords.current.x2 + event.movementX }
+      coords.current = {
+        ...coords.current,
+        y2: coords.current.y2 + event.movementY,
+        x2: coords.current.x2 + event.movementX
+      }
     }
   }
 
@@ -182,7 +198,7 @@ export const ResizableDiv: React.FC<Props> = ({
   }
 
   if (!coords.current) return <Fragment/>
-  return <div className={ [ styles.resizable, className, disabled ? styles.disabled : '' ].join(' ') }
+  return <div className={ [ styles.resizable, className ].join(' ') }
               style={ style }>
     <div className={ styles.inner }>
 

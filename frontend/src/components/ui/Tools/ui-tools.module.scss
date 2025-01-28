@@ -6,10 +6,6 @@
   --ion-color-base: var(--ion-color-dark);
   border: $border-size solid var(--ion-color-base);
 
-  &.disabled {
-    opacity: 0.75;
-  }
-
   .inner {
     position: relative;
     width: 100%;

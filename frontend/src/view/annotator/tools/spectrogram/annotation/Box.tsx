@@ -59,7 +59,7 @@ export const Box: React.FC<RegionProps> = ({
                   minY={ 0 }
                   maxX={ xAxis.current?.canvas?.width }
                   maxY={ yAxis.current?.canvas?.height }
-                  className={ colorClassName }>
+                  className={ [ colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
 
       <div
         className={ [ styles.boxHeader, colorClassName, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
