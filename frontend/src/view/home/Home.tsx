@@ -5,20 +5,28 @@ import { IonButton, IonIcon } from "@ionic/react";
 import { chevronBackOutline, chevronForwardOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
 import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { Link } from "@/components/ui";
+import { Button, Link } from "@/components/ui";
 import { useListCollaboratorsQuery } from "@/service/collaborator";
 import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected } from "@/service/auth";
+import { useHistory } from 'react-router-dom';
 
 
 export const Home: React.FC = () => {
   const isConnected = useAppSelector(selectIsConnected);
+  const history = useHistory();
+
+  function accessAplose() {
+    if (isConnected) history.push('/annotation-campaign');
+    else history.push('/login')
+  }
 
   return (
     <div className={ styles.page }>
       <Header buttons={ <Fragment>
-        <Link href={ isConnected ? '/app/aplose' : '/app/login' }
-              size='large'>{ isConnected ? 'APLOSE' : 'Login' }</Link>
+        <Button color='dark' fill='clear' size='large' onClick={ accessAplose }>
+          { isConnected ? 'APLOSE' : 'Login' }
+        </Button>
         <Link href='/' size='large'>OSmOSE</Link>
       </Fragment>
       }/>

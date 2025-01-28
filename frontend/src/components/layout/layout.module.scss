@@ -258,6 +258,7 @@
         width: 2rem;
         height: 2rem;
       }
+
       h1 {
         font-size: 1.5rem;
       }
@@ -303,6 +304,8 @@
   }
 
   .navbar {
+    grid-row: 1 / -1;
+    padding-bottom: 2rem;
     @media (max-width: 800px) {
       grid-row: unset;
     }
@@ -320,7 +323,9 @@
   }
 
   .footer {
-    grid-column: 1/-1;
+    //grid-column: 1/-1;
+    grid-column: 2;
+    grid-row: 2;
     padding: 0 2rem 0 0;
   }
 }

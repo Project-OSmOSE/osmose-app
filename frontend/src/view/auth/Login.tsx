@@ -7,7 +7,7 @@ import { selectIsConnected, useLoginMutation } from "@/service/auth";
 import { IonButton } from "@ionic/react";
 import { useHistory, useLocation } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
-import { Link } from "@/components/ui";
+import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
 
 export const Login: React.FC = () => {
@@ -51,9 +51,13 @@ export const Login: React.FC = () => {
       .catch(error => setErrors({ global: getErrorMessage(error) }));
   }
 
+  function goHome() {
+    history.push('/');
+  }
+
   return <div className={ styles.page }>
     <Header buttons={ <Fragment>
-      <Link href='/app/' size='large'>Home</Link>
+      <Button color='dark' size='large' fill='clear' onClick={ goHome }>Home</Button>
       <Link href='/' size='large'>OSmOSE</Link>
     </Fragment> }/>
     <div className={ styles.content }>
@@ -78,7 +82,7 @@ export const Login: React.FC = () => {
       </div>
       <div className={ styles.buttons }>
 
-        <Link href='/app/'>Back to Home</Link>
+        <Button color='dark' fill='clear' onClick={ goHome }>Back to Home</Button>
 
         <IonButton color='primary' onClick={ submit }
                    disabled={ isLoading }>

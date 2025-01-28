@@ -23,7 +23,7 @@ import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
 import { Home } from "@/view/home/Home.tsx";
-import { Account, Login as NewLogin } from '@/view/auth';
+import { Account, Login } from '@/view/auth';
 import { AnnotatorPage } from "@/view/annotator/AnnotatorPage.tsx";
 import { useLoadEventService } from "@/service/events";
 
@@ -45,7 +45,7 @@ const AppContent: React.FC = () => {
       <Router basename='/app'>
         <Switch>
           <Route exact path='/'><Home/></Route>
-          <Route exact path="/login"><NewLogin/></Route>
+          <Route exact path="/login"><Login/></Route>
 
           <AuthenticatedRoute exact
                               path='/annotation-campaign/:campaignID/file/:fileID'><AudioAnnotator/></AuthenticatedRoute>

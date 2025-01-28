@@ -45,9 +45,10 @@ const KEY_MAP: Record<Key, string> = {
   space: "␣",
 };
 
-export const Kbd: React.FC<{ keys: Key | Array<Key>, className?: string }> = ({ keys, className }) => {
+export const Kbd: React.FC<{ keys: Key | Array<Key> | undefined, className?: string }> = ({ keys, className }) => {
 
   const content: string[] = useMemo(() => {
+    if (!keys) return []
     let data: Array<Key> = [];
     switch (typeof keys) {
       case "string":

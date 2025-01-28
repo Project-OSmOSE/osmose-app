@@ -1,10 +1,17 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
-import { IonChip, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonChip, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
-import { checkmarkCircle, chevronForwardOutline, closeCircle, ellipseOutline, playOutline } from "ionicons/icons";
-import { Link, useHistory } from "react-router-dom";
+import {
+  checkmarkCircle,
+  chevronForwardOutline,
+  closeCircle,
+  ellipseOutline,
+  playOutline,
+  swapHorizontal
+} from "ionicons/icons";
+import { useHistory } from "react-router-dom";
 import { Button, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
@@ -12,6 +19,9 @@ import { Pagination } from "@/components/Pagination/Pagination.tsx";
 import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { resetFileFilters, setFileFilters } from "@/service/ui";
+import { AnnotationFile } from "@/service/campaign/annotation-file-range/type.ts";
+import { ID } from "@/service/type.ts";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign: AnnotationCampaign;
@@ -37,6 +47,7 @@ export const DetailPageAnnotationTasks: React.FC<{
     campaignID: campaign.id,
     page,
   });
+  const { data: labelSet } = useRetrieveLabelSetQuery(campaign.label_set);
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
@@ -45,6 +56,8 @@ export const DetailPageAnnotationTasks: React.FC<{
   const isResumeEnabled = useMemo(() => {
     return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
   }, [ fileFilters ]);
+
+  const isLastLabel = useMemo(() => [ ...(labelSet?.labels ?? []) ].pop() === fileFilters.label, [ fileFilters.label, labelSet?.labels ]);
 
   function resume() {
     history.push(`/annotation-campaign/${ campaign.id }/file/${ files?.resume }`);
@@ -64,6 +77,24 @@ export const DetailPageAnnotationTasks: React.FC<{
       ...fileFilters,
       campaignID: campaign.id,
       withUserAnnotations: fileFilters.withUserAnnotations === undefined ? true : undefined,
+    }))
+    setPage(1)
+  }
+
+  function toggleLabelFilter() {
+    if (!labelSet || labelSet.labels.length === 0) return;
+    let newLabel = undefined;
+    if (!fileFilters.label) newLabel = labelSet.labels[0]
+    else {
+      const currentIndex = labelSet.labels.indexOf(fileFilters.label);
+      if (labelSet.labels.length > currentIndex + 1) {
+        newLabel = labelSet.labels[currentIndex + 1];
+      }
+    }
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      label: newLabel,
     }))
     setPage(1)
   }
@@ -98,11 +129,20 @@ export const DetailPageAnnotationTasks: React.FC<{
         Non submitted
         { fileFilters.isSubmitted === false && <IonIcon icon={ closeCircle } color='primary'/> }
       </IonChip>
+
       <IonChip outline={ !fileFilters.withUserAnnotations }
                onClick={ toggleWithAnnotationsFilter }
                color={ fileFilters.withUserAnnotations ? 'primary' : 'medium' }>
         With annotations
         { fileFilters.withUserAnnotations && <IonIcon icon={ closeCircle } color='primary'/> }
+      </IonChip>
+
+      <IonChip outline={ !fileFilters.label }
+               onClick={ toggleLabelFilter }
+               color={ fileFilters.label ? 'primary' : 'medium' }>
+        Label filter{ fileFilters.label && `: ${ fileFilters.label }` }
+        { (fileFilters.label && !isLastLabel) && <IonIcon icon={ swapHorizontal }/> }
+        { isLastLabel && <IonIcon icon={ closeCircle }/> }
       </IonChip>
     </ActionBar>
 
@@ -121,33 +161,44 @@ export const DetailPageAnnotationTasks: React.FC<{
             <TableHead topSticky>Access</TableHead>
             <TableDivider/>
 
-          { files.results.map(file => {
-            const startDate = new Date(file.start);
-            const diffTime = new Date(new Date(file.end).getTime() - startDate.getTime());
-            return <Fragment key={ file.id }>
-              <TableContent isFirstColumn={ true } disabled={ file.is_submitted }>{ file.filename }</TableContent>
-              <TableContent disabled={ file.is_submitted }>{ startDate.toLocaleString() }</TableContent>
-              <TableContent disabled={ file.is_submitted }>{ diffTime.toUTCString().split(' ')[4] }</TableContent>
-              <TableContent disabled={ file.is_submitted }>{ file.results_count }</TableContent>
-              <TableContent disabled={ file.is_submitted }>
-                { file.is_submitted &&
-                    <IonIcon icon={ checkmarkCircle } className={ styles.statusIcon } color='primary'/> }
-                { !file.is_submitted &&
-                    <IonIcon icon={ ellipseOutline } className={ styles.statusIcon } color='medium'/> }
-              </TableContent>
-              <TableContent disabled={ file.is_submitted } className={ styles.accessLink }>
-                <Link to={ `/annotation-campaign/${ campaign.id }/file/${ file.id }` }>
-                  <IonIcon icon={ chevronForwardOutline } color='primary'/>
-                </Link>
-              </TableContent>
-              <TableDivider/>
-            </Fragment>
-          }) }
+          { files.results.map(file => <TaskItem key={ file.id } file={ file } campaignID={ campaign.id }/>) }
         </Table>
 
       { files.results.length > 0 &&
           <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/> }
     </Fragment> }
 
+  </Fragment>
+}
+
+const TaskItem: React.FC<{
+  campaignID: ID;
+  file: AnnotationFile;
+}> = ({ campaignID, file }) => {
+  const history = useHistory()
+  const startDate = useMemo(() => new Date(file.start), [ file.start ]);
+  const duration = useMemo(() => new Date(new Date(file.end).getTime() - startDate.getTime()), [ file.end, file.start ]);
+
+  function access() {
+    history.push(`/annotation-campaign/${ campaignID }/file/${ file.id }`);
+  }
+
+  return <Fragment key={ file.id }>
+    <TableContent isFirstColumn={ true } disabled={ file.is_submitted }>{ file.filename }</TableContent>
+    <TableContent disabled={ file.is_submitted }>{ startDate.toLocaleString() }</TableContent>
+    <TableContent disabled={ file.is_submitted }>{ duration.toUTCString().split(' ')[4] }</TableContent>
+    <TableContent disabled={ file.is_submitted }>{ file.results_count }</TableContent>
+    <TableContent disabled={ file.is_submitted }>
+      { file.is_submitted &&
+          <IonIcon icon={ checkmarkCircle } className={ styles.statusIcon } color='primary'/> }
+      { !file.is_submitted &&
+          <IonIcon icon={ ellipseOutline } className={ styles.statusIcon } color='medium'/> }
+    </TableContent>
+    <TableContent disabled={ file.is_submitted } className={ styles.accessLink }>
+      <IonButton color='dark' fill='clear' size='small' onClick={ access }>
+        <IonIcon icon={ chevronForwardOutline } color='primary' slot='icon-only'/>
+      </IonButton>
+    </TableContent>
+    <TableDivider/>
   </Fragment>
 }

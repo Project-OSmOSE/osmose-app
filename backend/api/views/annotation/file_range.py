@@ -155,6 +155,24 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             return list(filter(lambda file: file.id in submitted_tasks_files_id, files))
         return list(filter(lambda file: file.id not in submitted_tasks_files_id, files))
 
+    def filter_files_list_on_label(
+        self, files: list[any], campaign_id: int
+    ) -> list[any]:
+        """Filter files on label"""
+        label_filter = self.request.query_params.get("label")
+        if label_filter is None:
+            return files
+
+        label_file_ids = (
+            AnnotationResult.objects.filter(
+                annotation_campaign_id=campaign_id,
+                label__name=label_filter,
+            )
+            .filter(Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True))
+            .values_list("dataset_file_id", flat=True)
+        )
+        return list(filter(lambda file: file.id in label_file_ids, files))
+
     @action(
         methods=["GET"],
         detail=False,
@@ -173,6 +191,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         files = self.filter_files_list_on_search(files)
         files = self.filter_files_list_on_submission_status(files, campaign_id)
         files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
+        files = self.filter_files_list_on_label(files, campaign_id)
 
         files = self.paginate_queryset(files) or []
         files = DatasetFile.objects.filter(id__in=[file.id for file in files]).annotate(

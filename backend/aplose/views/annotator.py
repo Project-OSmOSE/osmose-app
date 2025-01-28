@@ -14,6 +14,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     AnnotationFileRange,
+    AnnotationResult,
 )
 from backend.api.serializers import (
     AnnotationSessionSerializer,
@@ -41,6 +42,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         """Get all data for annotator"""
 
         search = self.request.query_params.get("search")
+        label_filter = self.request.query_params.get("label")
         is_submitted = get_boolean_query_param(self.request, "is_submitted")
         with_user_annotations = get_boolean_query_param(
             self.request, "with_user_annotations"
@@ -76,9 +78,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
             {"get": "list"}
         )(request._request).data
 
-        campaign_files = AnnotationCampaign.objects.get(
-            pk=campaign_id
-        ).get_sorted_files()
         current_file = DatasetFile.objects.get(pk=file_id)
         file_ranges = AnnotationFileRange.objects.filter(
             annotation_campaign_id=campaign_id,
@@ -88,7 +87,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         for f_range in file_ranges:
             file_ids.extend(f_range.get_files().values_list("id", flat=True))
 
-        filtered_files = campaign_files.filter(id__in=file_ids)
+        filtered_files = DatasetFile.objects.filter(id__in=file_ids)
         if search is not None:
             filtered_files = filtered_files.filter(filename__icontains=search)
         if with_user_annotations is not None:
@@ -121,6 +120,18 @@ class AnnotatorViewSet(viewsets.ViewSet):
                         ).filter(~Q(status=AnnotationTask.Status.FINISHED))
                     )
                 )
+        if label_filter is not None:
+            filtered_files = filtered_files.filter(
+                Exists(
+                    AnnotationResult.objects.filter(
+                        annotation_campaign_id=campaign_id,
+                        dataset_file_id=OuterRef("pk"),
+                        label__name=label_filter,
+                    ).filter(
+                        Q(annotator_id=request.user.id) | Q(annotator__isnull=True)
+                    )
+                )
+            )
 
         previous_file: DatasetFile = filtered_files.filter(
             Q(start__lt=current_file.start)

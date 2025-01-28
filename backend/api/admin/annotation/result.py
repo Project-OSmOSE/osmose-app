@@ -23,6 +23,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "detector_configuration",
     )
     search_fields = (
+        "dataset_file__filename",
         "label__name",
         "confidence_indicator__label",
         "annotator__username",

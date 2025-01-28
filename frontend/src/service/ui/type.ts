@@ -9,4 +9,5 @@ export type FileFilters = {
   search?: string;
   isSubmitted?: boolean;
   withUserAnnotations?: boolean;
+  label?: string;
 }

@@ -65,7 +65,7 @@ export const AnnotatorPage: React.FC = () => {
           </p>
           <Progress label='Progression'
                     className={styles.progress}
-                    value={ annotatorData.current_task_index }
+                    value={ annotatorData.current_task_index + 1 }
                     total={ annotatorData.total_tasks }/>
       </div> }
     </Header>
