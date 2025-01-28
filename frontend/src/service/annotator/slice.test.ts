@@ -15,14 +15,11 @@ import {
 } from "./slice";
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { AnnotatorState } from '@/service/annotator/type.ts';
-import { User } from '@/service/user';
 import { AnnotationComment } from '@/service/campaign/comment';
 
 const mockState: AnnotatorState = {
   hasChanged: false,
-  user: {
-    id: 1,
-  } as User,
+  userID: 1,
   results: [
     {
       "id": 1,
@@ -139,7 +136,11 @@ const mockState: AnnotatorState = {
   userPreferences: {
     audioSpeed: 1,
     spectrogramConfigurationID: -1,
-    zoomLevel: -1
+    zoomLevel: -1,
+    colormap: "none",
+    colormapInverted: false,
+    brightness: 100,
+    contrast: 100,
   },
   ui: {},
   audio: {

@@ -15,6 +15,10 @@ export type AnnotatorState = Partial<AnnotatorData> & {
     audioSpeed: number;
     spectrogramConfigurationID: number;
     zoomLevel: number;
+    colormap: string;
+    colormapInverted: boolean;
+    brightness: number;
+    contrast: number;
   },
   ui: {
     pointerPosition?: { time: number, frequency: number },

@@ -34,6 +34,8 @@ import { DocumentationButton } from "@/components/Buttons/Documentation-button.t
 import { IonButton, IonIcon } from "@ionic/react";
 import { sparklesSharp } from "ionicons/icons";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { ColormapConfiguration } from './components/select/colormap-configuration.tsx';
+import { SpectrogramImage } from './components/select/spectrogram-image.tsx';
 
 // Component dimensions constants
 export const SPECTRO_CANVAS_HEIGHT: number = 512;
@@ -131,10 +133,12 @@ export const AudioAnnotator: React.FC = () => {
              height: `${ CONTROLS_AREA_SIZE + SPECTRO_CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED }px`,
              width: `${ FREQ_AXIS_SIZE + SPECTRO_CANVAS_WIDTH }px`,
            } }>
-        <p className="workbench-controls">
+        <div className="workbench-controls">
           <SpectrogramConfigurationSelect/>
+          <ColormapConfiguration />
+          <SpectrogramImage />
           <ZoomButton/>
-        </p>
+        </div>
 
         <PointerPosition/>
 

@@ -24,6 +24,8 @@ import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useToast } from "@/service/ui";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { ColormapConfiguration } from "../audio-annotator/components/select/colormap-configuration";
+import { SpectrogramImage } from "../audio-annotator/components/select/spectrogram-image";
 
 export const Annotator: React.FC = () => {
   const {
@@ -74,6 +76,8 @@ export const Annotator: React.FC = () => {
             <div className={ styles.spectrogramData }>
                 <div className={ styles.spectrogramInfo }>
                     <NFFTSelect/>
+                    <ColormapConfiguration />
+                    <SpectrogramImage />
                     <ZoomButton/>
                 </div>
 
