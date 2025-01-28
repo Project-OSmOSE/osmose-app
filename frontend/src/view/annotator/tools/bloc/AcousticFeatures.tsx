@@ -1,6 +1,11 @@
 import React, { Fragment, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
-import { focusTask, getResultType, updateCurrentResultAcousticFeatures } from '@/service/annotator';
+import {
+  focusTask,
+  getResultType,
+  updateCurrentResultAcousticFeatures,
+  updateFocusResultBounds
+} from '@/service/annotator';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { Input, Select } from '@/components/form';
 import { IonCheckbox, IonNote } from '@ionic/react';
@@ -23,13 +28,13 @@ export const AcousticFeatures: React.FC = () => {
     onMouseDown,
     top,
     right,
-  } = useDraggable({ top: 128, right: 64})
+  } = useDraggable({ top: 128, right: 64 })
 
   const {
     results,
     focusedResultID,
   } = useAppSelector(state => state.annotator);
-  const duration = useAppSelector(selectAnnotationFileDuration)
+  const fileDuration = useAppSelector(selectAnnotationFileDuration)
   const dispatch = useAppDispatch();
 
   const currentResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ results, focusedResultID ]);
@@ -42,6 +47,51 @@ export const AcousticFeatures: React.FC = () => {
   function setGood() {
     if (currentResult?.acoustic_features) return;
     dispatch(updateCurrentResultAcousticFeatures({}));
+  }
+
+  const minFrequency = useMemo(() => {
+    if (!currentResult) return;
+    return +Math.min(currentResult.start_frequency!, currentResult.end_frequency!).toFixed(0)
+  }, [ currentResult?.start_frequency, currentResult?.end_frequency ]);
+  const maxFrequency = useMemo(() => {
+    if (!currentResult) return;
+    return +Math.max(currentResult.start_frequency!, currentResult.end_frequency!).toFixed(0)
+  }, [ currentResult?.start_frequency, currentResult?.end_frequency ]);
+  const duration = useMemo(() => {
+    if (!currentResult) return;
+    const minTime = Math.min(currentResult.start_time!, currentResult.end_time!)
+    const maxTime = Math.max(currentResult.start_time!, currentResult.end_time!)
+    return +(maxTime - minTime).toFixed(3)
+  }, [ currentResult?.start_frequency, currentResult?.end_frequency ]);
+
+  function updateMinFrequency(value: number) {
+    if (!currentResult) return;
+    dispatch(updateFocusResultBounds({
+      start_frequency: value,
+      end_frequency: currentResult.end_frequency,
+      start_time: currentResult.start_time,
+      end_time: currentResult.end_time,
+    }))
+  }
+
+  function updateMaxFrequency(value: number) {
+    if (!currentResult) return;
+    dispatch(updateFocusResultBounds({
+      start_frequency: currentResult.start_frequency,
+      end_frequency: value,
+      start_time: currentResult.start_time,
+      end_time: currentResult.end_time,
+    }))
+  }
+
+  function updateDuration(value: number) {
+    if (!currentResult) return;
+    dispatch(updateFocusResultBounds({
+      start_frequency: currentResult.start_frequency,
+      end_frequency: currentResult.end_frequency,
+      start_time: currentResult.start_time,
+      end_time: currentResult.start_time! + value,
+    }))
   }
 
   if (!currentResult) return;
@@ -82,23 +132,23 @@ export const AcousticFeatures: React.FC = () => {
             <NumberRow label="Min frequency"
                        note="In Hz"
                        placeholder={ currentResult.start_frequency }
-                       value={ currentResult.acoustic_features?.min_frequency }
+                       value={ minFrequency }
                        min={ 0 } max={ annotatorData ? annotatorData.file.dataset_sr / 2 : undefined }
-                       onUpdate={ min_frequency => dispatch(updateCurrentResultAcousticFeatures({ min_frequency })) }/>
+                       onUpdate={ updateMinFrequency }/>
 
             <NumberRow label="Max frequency"
                        note="In Hz"
                        placeholder={ currentResult.end_frequency }
-                       value={ currentResult.acoustic_features?.max_frequency }
+                       value={ maxFrequency }
                        min={ 0 } max={ annotatorData ? annotatorData?.file.dataset_sr / 2 : undefined }
-                       onUpdate={ max_frequency => dispatch(updateCurrentResultAcousticFeatures({ max_frequency })) }/>
+                       onUpdate={ updateMaxFrequency }/>
 
             <NumberRow label="Duration"
                        note="In s"
                        placeholder={ (currentResult.start_time !== null && currentResult.end_time !== null) ? currentResult.end_time - currentResult.start_time : undefined }
-                       value={ currentResult.acoustic_features?.level_peak_frequency }
-                       min={ 0 } max={ duration }
-                       onUpdate={ level_peak_frequency => dispatch(updateCurrentResultAcousticFeatures({ level_peak_frequency })) }/>
+                       value={ duration }
+                       min={ 0 } max={ fileDuration }
+                       onUpdate={ updateDuration }/>
 
             <SelectRow label="Trend"
                        value={ currentResult.acoustic_features?.trend }

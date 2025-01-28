@@ -21,8 +21,6 @@ export type SignalTrend = typeof SignalTrends[number];
 export interface AcousticFeatures {
   start_frequency: number | null;
   end_frequency: number | null;
-  min_frequency: number | null;
-  max_frequency: number | null;
   median_frequency: number | null;
   beginning_sweep_slope: number | null;
   end_sweep_slope: number | null;
@@ -30,7 +28,6 @@ export interface AcousticFeatures {
   relative_peaks_count: number | null;
   harmonics_count: number | null;
   level_peak_frequency: number | null;
-  duration: number | null;
   has_harmonics: boolean | null;
   trend: SignalTrend | null;
 }

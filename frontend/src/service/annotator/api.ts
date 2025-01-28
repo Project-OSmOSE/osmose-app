@@ -12,8 +12,7 @@ export const AnnotatorAPI = createApi({
   endpoints: (builder) => ({
     retrieve: builder.query<AnnotatorData, RetrieveParams>({
       query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted }) => {
-        console.log('[useAnnotator]', campaignID, withUserAnnotations)
-        const params: any = { }
+        const params: any = {}
         if (search) params['search'] = search;
         if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
         if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;

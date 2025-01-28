@@ -21,9 +21,9 @@ import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/res
 import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
-import { AcousticFeatures } from '@/view/audio-annotator/components/bloc/acoustic-features.component.tsx';
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { AcousticFeatures } from '@/view/annotator/tools/bloc/AcousticFeatures.tsx';
 
 export const SPECTRO_HEIGHT: number = 512;
 export const SPECTRO_WIDTH: number = 1813;
