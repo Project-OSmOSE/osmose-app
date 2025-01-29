@@ -24,9 +24,8 @@ import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale'
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { AcousticFeatures } from '@/view/annotator/tools/bloc/AcousticFeatures.tsx';
+import { SPECTRO_HEIGHT, SPECTRO_WIDTH } from '@/service/annotator/spectrogram';
 
-export const SPECTRO_HEIGHT: number = 512;
-export const SPECTRO_WIDTH: number = 1813;
 export const Y_WIDTH: number = 35;
 export const X_HEIGHT: number = 30;
 export const SCROLLBAR_RESERVED: number = 20;

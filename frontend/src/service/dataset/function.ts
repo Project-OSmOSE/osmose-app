@@ -1,9 +1,4 @@
-import { AppState } from '@/service/app.ts';
 import { DatasetFile } from "@/service/dataset/type.ts";
-
-export function selectAnnotationFileDuration(state: AppState) {
-  return getDuration(state.annotator.file);
-}
 
 export function getDuration(file?: DatasetFile) {
   if (!file) return 0;

@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { useAppSelector } from '@/service/app';
-import { selectAnnotationFileDuration } from '@/service/dataset';
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useFileDuration } from '@/service/annotator/spectrogram';
 
 
 export const CurrentAnnotationBloc: React.FC = () => {
@@ -15,7 +15,7 @@ export const CurrentAnnotationBloc: React.FC = () => {
     focusedResultID,
     results
   } = useAppSelector(state => state.annotator);
-  const duration = useAppSelector(selectAnnotationFileDuration)
+  const duration = useFileDuration()
   const focusedResult = useMemo(() => results?.find(r => r.id === focusedResultID), [ focusedResultID ]);
 
   const startTime = useMemo(() => {

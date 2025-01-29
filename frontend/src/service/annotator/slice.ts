@@ -307,20 +307,16 @@ export const AnnotatorSlice = createSlice({
         return {
           ...r,
           acoustic_features: {
-            beginning_sweep_slope: null,
             start_frequency: null,
             end_frequency: null,
-            end_sweep_slope: null,
-            harmonics_count: null,
             has_harmonics: null,
-            level_peak_frequency: null,
-            median_frequency: null,
-            relative_peaks_count: null,
             steps_count: null,
             trend: null,
+            relative_max_frequency_count: null,
+            relative_min_frequency_count: null,
             ...(r.acoustic_features ?? {}),
             ...payload
-          }
+          } satisfies AcousticFeatures
         }
       })
       state.hasChanged = true;

@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactNode, useEffect, useRef } from 'react';
+import React, { MouseEvent, ReactNode, useRef } from 'react';
 import { MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from '@/service/events';
 import style from './extended.module.scss';
 
@@ -7,32 +7,25 @@ export const Draggable: React.FC<{
   onYMove?(movement: number): void;
   onUp?(): void;
   children?: ReactNode;
-  disabled?: boolean;
+  draggable?: boolean;
   className?: string;
 }> = ({
-        disabled = false,
+        draggable,
         onXMove, onYMove, onUp,
         children, className
       }) => {
   const isDragging = useRef<boolean>(false);
 
-  useEffect(() => {
-    MOUSE_MOVE_EVENT.add(mouseMove)
-    MOUSE_UP_EVENT.add(mouseUp)
-    return () => {
-      MOUSE_MOVE_EVENT.remove(mouseMove)
-      MOUSE_UP_EVENT.remove(mouseUp)
-    }
-  }, []);
-
   function mouseDown(event: MouseEvent) {
     event.stopPropagation();
     event.preventDefault();
     isDragging.current = true;
+    MOUSE_MOVE_EVENT.add(mouseMove)
+    MOUSE_UP_EVENT.add(mouseUp)
   }
 
   function mouseMove(event: MouseEvent) {
-    if (disabled || !isDragging.current) return;
+    if (!draggable || !isDragging.current) return;
     event.stopPropagation();
     event.preventDefault();
     if (onXMove) onXMove(event.movementX);
@@ -42,13 +35,15 @@ export const Draggable: React.FC<{
   function mouseUp() {
     if (isDragging.current) {
       isDragging.current = false;
-      if (onUp && !disabled) onUp()
+      if (onUp && draggable) onUp()
     }
+    MOUSE_MOVE_EVENT.remove(mouseMove)
+    MOUSE_UP_EVENT.remove(mouseUp)
   }
 
   return (
     <div onMouseDown={ mouseDown }
          children={ children }
-         className={ [ disabled ? '' : style.draggable, className ].join(' ') }/>
+         className={ [ draggable ? style.draggable : '', className ].join(' ') }/>
   )
 }

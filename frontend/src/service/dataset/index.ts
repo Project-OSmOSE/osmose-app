@@ -5,10 +5,7 @@ export {
   DatasetAPI,
 } from './api';
 
-export {
-  selectAnnotationFileDuration,
-  getDuration
-} from './function';
+export * from './function';
 
 export type {
   Dataset,

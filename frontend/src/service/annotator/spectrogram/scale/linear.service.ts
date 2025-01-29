@@ -69,8 +69,8 @@ export class LinearScaleService implements AbstractScale {
   }
 
   isRangeContinuouslyOnScale(min: number, max: number): boolean {
-    return min > this.minValue && max > this.minValue
-      && min < this.maxValue && max < this.maxValue
+    return min >= this.minValue && max >= this.minValue
+      && min <= this.maxValue && max <= this.maxValue
   }
 
   private getMinBigStepsRange(): number {

@@ -1,78 +1,18 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import {
-  AbstractScale,
-  AxisProps,
-  LinearScaleService,
-  MultiLinearScaleService,
-  ScaleMapping,
-  Step
-} from '@/service/dataset/spectrogram-configuration/scale';
+import React, { useEffect, useRef } from "react";
+import { LinearScale, Step } from '@/service/dataset/spectrogram-configuration/scale';
+import { useYAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
+import { useCurrentConfiguration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
 
-export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
-                                                                  width,
-                                                                  height,
-                                                                  linear_scale,
-                                                                  multi_linear_scale,
-                                                                  max_value,
-
-                                                                  className
-                                                                }: AxisProps, ref: React.ForwardedRef<ScaleMapping>) => {
+export const YAxis: React.FC<{
+  className?: string;
+}> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const scaleService: AbstractScale = useMemo(() => {
-    if (linear_scale) {
-      return new LinearScaleService(
-        height,
-        linear_scale.max_value,
-        linear_scale.min_value
-      )
-    }
-    if (multi_linear_scale) {
-      return new MultiLinearScaleService(
-        height,
-        multi_linear_scale.inner_scales
-      )
-    }
-    return new LinearScaleService(
-      height,
-      max_value
-    )
-  }, [ linear_scale, multi_linear_scale, max_value, height ]);
+  const yAxis = useYAxis()
+  const { height } = useSpectrogramDimensions()
+  const currentConfiguration = useCurrentConfiguration()
 
-  const valueToPosition = (value: number): number => {
-    let position = height - scaleService.valueToPosition(value);
-    if (position > height) position = height
-    if (position < 0) position = 0
-    return position
-  }
-
-  const positionToValue = (position: number): number => {
-    if (position < 0) position = 0
-    return Math.floor(scaleService.positionToValue(height - position));
-  }
-
-  const valuesToPositionRange = (min: number, max: number): number => {
-    return Math.abs(valueToPosition(max) - valueToPosition(min));
-  }
-
-  const positionsToRange = (min: number, max: number): number => {
-    return Math.abs(positionToValue(max) - positionToValue(min));
-  }
-
-  const scale: ScaleMapping = useMemo(() => ({
-    valueToPosition,
-    valuesToPositionRange,
-    positionToValue,
-    positionsToRange,
-    isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
-    canvas: canvasRef.current ?? undefined
-  }), [ scaleService, canvasRef.current ])
-
-  useImperativeHandle(ref, (): ScaleMapping => scale)
-
-  useEffect(() => {
-    display()
-  }, [ canvasRef, scaleService ]);
+  useEffect(() => display(), [ canvasRef, yAxis ]);
 
   const display = (): void => {
     const canvas = canvasRef.current
@@ -85,7 +25,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
 
     let previousRatio = 0;
     let offset = 0;
-    const scaleSteps = scaleService.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
+    const scaleSteps = yAxis.getSteps().sort((a, b) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
     const maxRatio = Math.max(...scaleSteps.map(s => s.correspondingRatio ?? 0));
     const realSteps = new Array<Step>();
     for (const step of scaleSteps) {
@@ -116,7 +56,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
         tickWidth = 15;
         tickHeight = 2;
       }
-      const allBorders = multi_linear_scale?.inner_scales.flatMap(s => [ s.min_value, s.max_value ]) ?? []
+      const allBorders = currentConfiguration?.multi_linear_frequency_scale?.inner_scales.flatMap((s: LinearScale) => [ s.min_value, s.max_value ]) ?? []
       if (allBorders.includes(step.value)) {
         tickHeight = 4;
         tickWidth = 15;
@@ -150,8 +90,7 @@ export const YAxis = React.forwardRef<ScaleMapping, AxisProps>(({
   }
 
   return <canvas ref={ canvasRef }
-                 width={ width }
+                 width={ Y_WIDTH }
                  height={ height }
                  className={ className }/>
-
-})
+}

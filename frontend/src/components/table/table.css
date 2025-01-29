@@ -44,3 +44,12 @@
     left: 0;
     background: white;
 }
+
+.table-aplose.small {
+    gap: 0.25rem 0;
+}
+
+.table-aplose.small > .table-head,
+.table-aplose.small > .table-content {
+    padding: 0.1rem 0.5rem;
+}

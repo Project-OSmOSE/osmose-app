@@ -21,15 +21,19 @@ export type SignalTrend = typeof SignalTrends[number];
 export interface AcousticFeatures {
   start_frequency: number | null;
   end_frequency: number | null;
-  median_frequency: number | null;
-  beginning_sweep_slope: number | null;
-  end_sweep_slope: number | null;
-  steps_count: number | null;
-  relative_peaks_count: number | null;
-  harmonics_count: number | null;
-  level_peak_frequency: number | null;
+
+  relative_max_frequency_count: number | null;
+  relative_min_frequency_count: number | null;
+
   has_harmonics: boolean | null;
   trend: SignalTrend | null;
+  steps_count: number | null;
+  // median_frequency: number | null;
+  // beginning_sweep_slope: number | null;
+  // end_sweep_slope: number | null;
+  // relative_peaks_count: number | null;
+  // harmonics_count: number | null;
+  // level_peak_frequency: number | null;
 }
 
 export interface AnnotationResult extends AnnotationResultBounds {

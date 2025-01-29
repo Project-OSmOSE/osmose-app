@@ -1,47 +1,25 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import {
-  AbstractScale,
-  AxisProps,
-  formatTime,
-  LinearScaleService,
-  ScaleMapping
-} from '@/service/dataset/spectrogram-configuration/scale';
+import React, { useEffect, useRef } from "react";
+import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
+import { useXAxis, X_HEIGHT } from '@/service/annotator/spectrogram/scale';
+import { useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
 
-export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linear_scale' | 'linear_scale'>>(({
-                                                                                                               width,
-                                                                                                               height,
-                                                                                                               max_value,
-                                                                                                               className
-                                                                                                             }: AxisProps, ref: React.ForwardedRef<ScaleMapping>) => {
+export const XAxis: React.FC<{
+  className?: string;
+}> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  const scaleService: AbstractScale = useMemo(() => {
-    return new LinearScaleService(
-      width,
-      max_value
-    )
-  }, [ max_value, width ]);
-
-  const scale: ScaleMapping = useMemo(() => ({
-    valueToPosition: scaleService.valueToPosition.bind(scaleService),
-    valuesToPositionRange: scaleService.valuesToPositionRange.bind(scaleService),
-    positionToValue: scaleService.positionToValue.bind(scaleService),
-    positionsToRange: scaleService.positionsToRange.bind(scaleService),
-    isRangeContinuouslyOnScale: scaleService.isRangeContinuouslyOnScale.bind(scaleService),
-    canvas: canvasRef.current ?? undefined
-  }), [ scaleService, canvasRef.current ])
-
-  useImperativeHandle(ref, (): ScaleMapping => scale)
+  const xAxis = useXAxis()
+  const { width } = useSpectrogramDimensions()
+  const duration = useFileDuration();
 
   useEffect(() => {
     display()
   }, [ canvasRef, width ]);
 
   const getTimeSteps = () => {
-    if (max_value <= 60) return { step: 1, bigStep: 5 }
-    else if (max_value > 60 && max_value <= 120) return { step: 2, bigStep: 5 }
-    else if (max_value > 120 && max_value <= 500) return { step: 4, bigStep: 5 }
-    else if (max_value > 500 && max_value <= 1000) return { step: 10, bigStep: 60 }
+    if (duration <= 60) return { step: 1, bigStep: 5 }
+    else if (duration > 60 && duration <= 120) return { step: 2, bigStep: 5 }
+    else if (duration > 120 && duration <= 500) return { step: 4, bigStep: 5 }
+    else if (duration > 500 && duration <= 1000) return { step: 10, bigStep: 60 }
     else return { step: 30, bigStep: 120 }
   }
 
@@ -50,16 +28,16 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !width) return;
 
-    context.clearRect(0, 0, width, height);
+    context.clearRect(0, 0, width, X_HEIGHT);
 
     const steps = getTimeSteps();
 
     context.fillStyle = 'rgba(0, 0, 0)';
     context.font = "500 10px 'Exo 2'";
 
-    for (let i = 0; i <= max_value; i++) {
+    for (let i = 0; i <= duration; i++) {
       if (i % steps.step === 0) {
-        const x: number = scaleService.valueToPosition(i);
+        const x: number = xAxis.valueToPosition(i);
 
         if (i % steps.bigStep === 0) {
           // Bar
@@ -87,6 +65,6 @@ export const XAxis = React.forwardRef<ScaleMapping, Omit<AxisProps, 'multi_linea
 
   return <canvas ref={ canvasRef }
                  width={ width }
-                 height={ height }
+                 height={ X_HEIGHT }
                  className={ className }/>
-})
+}

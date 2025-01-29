@@ -1,5 +1,5 @@
 .bloc {
-  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.15);
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.15) !important;
   border-radius: 0.5rem;
   overflow: hidden;
   display: grid;
@@ -11,8 +11,13 @@
     background: var(--ion-color-light-shade);
     text-align: center;
     padding: 0.5rem;
-    border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.15);
-    margin: 0;
+    border: none !important;
+    border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.15) !important;
+    position: initial;
+
+    &h6, h6 {
+      margin: 0;
+    }
   }
 
   .footer {
@@ -105,6 +110,7 @@ ion-chip.active {
   overflow: hidden;
   user-select: none;
   z-index: 2;
+  display: grid;
 
   h6 {
     cursor: move;
@@ -122,6 +128,41 @@ ion-chip.active {
 
     .table {
       overflow: visible;
+
+      .span2ColsStart {
+        grid-column: 1 / 3;
+      }
+
+      .span2ColsEnd {
+        grid-column: 2 / 4;
+      }
+
+      .frequencyCell {
+        grid-row: 3 / 12;
+      }
+
+      .trendCell {
+        grid-row: 15 / 26
+      }
+
+      .cell, .dualCell, .cellButton {
+        display: grid;
+        align-items: center;
+        gap: 0.5rem;
+        justify-items: start;
+      }
+
+      .dualCell {
+        grid-template-columns: 1fr 1fr 2ch;
+      }
+
+      .cell {
+        grid-template-columns: 1fr 2ch;
+      }
+
+      .cellButton {
+        grid-template-columns: 1fr 2ch auto;
+      }
     }
   }
 
@@ -130,7 +171,6 @@ ion-chip.active {
     grid-template-columns: auto 1fr;
     align-items: center;
     gap: 0.5rem;
-
   }
 
   ion-note {
@@ -157,4 +197,12 @@ ion-chip.active {
     }
   }
 
+  ion-button {
+    transition: 150ms ease-in-out;
+  }
+
+  .selectedButton {
+    border-radius: 0.5rem;
+    box-shadow: var(--aplose-box-shadow);
+  }
 }

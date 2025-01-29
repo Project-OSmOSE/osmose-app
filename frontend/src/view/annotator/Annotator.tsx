@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import styles from './annotator.module.scss';
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IonSpinner } from "@ionic/react";
@@ -13,7 +13,6 @@ import { ZoomButton } from "@/view/annotator/tools/buttons/Zoom.tsx";
 import { SpectrogramRender } from "@/view/annotator/tools/spectrogram/SpectrogramRender.tsx";
 import { SpectrogramDownloadButton } from "@/view/annotator/tools/buttons/SpectrogramDownload.tsx";
 import { PlayPauseButton } from "@/view/annotator/tools/buttons/PlayPause.tsx";
-import { getDuration } from "@/service/dataset";
 import { NavigationButtons } from "@/view/annotator/tools/buttons/Navigation.tsx";
 import { PresenceAbsence } from "@/view/annotator/tools/bloc/PresenceAbsence.tsx";
 import { LabelList } from "@/view/annotator/tools/bloc/LabelList.tsx";
@@ -24,6 +23,7 @@ import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useToast } from "@/service/ui";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useFileDuration } from '@/service/annotator/spectrogram';
 
 export const Annotator: React.FC = () => {
   const {
@@ -41,7 +41,7 @@ export const Annotator: React.FC = () => {
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const audio = useAppSelector(state => state.annotator.audio)
-  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ]);
+  const duration = useFileDuration();
 
   // Refs
   const localIsPaused = useRef<boolean>(true);
@@ -80,7 +80,8 @@ export const Annotator: React.FC = () => {
                 <div className={ styles.pointerInfo }>
                   { pointerPosition && <Fragment>
                       <FadedText>Pointer</FadedText>
-                      <p>{ pointerPosition.frequency.toFixed(2) }Hz / { formatTime(pointerPosition.time, duration < 60) }</p>
+                      <p>{ pointerPosition.frequency.toFixed(2) }Hz
+                          / { formatTime(pointerPosition.time, duration < 60) }</p>
 
                   </Fragment> }
                 </div>

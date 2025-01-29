@@ -7,16 +7,18 @@ interface TableProps {
   children: Iterable<ReactNode>;
   isFirstColumnSticky?: boolean;
   className?: string;
+  size?: 'small' | 'medium';
 }
 
 export const Table: React.FC<TableProps> = ({
                                               children,
                                               columns,
                                               className,
-                                              isFirstColumnSticky
+                                              isFirstColumnSticky,
+                                              size = 'medium',
                                             }) => (
   <div
-    className={ [ className, 'table-aplose', isFirstColumnSticky && 'first-column-sticky', `columns-${ columns }` ].join(' ') }
+    className={ [ className, 'table-aplose', isFirstColumnSticky && 'first-column-sticky', `columns-${ columns }`, size ].join(' ') }
     style={ {
       "--content-columns": columns
     } as React.CSSProperties }>
@@ -42,11 +44,11 @@ export const TableHead: React.FC<CellProps> = ({
                                                  topSticky,
                                                }) => (
   <div className={ `table-head ${ isFirstColumn ? 'first' : '' } ${ disabled ? 'disabled' : '' } ${ className ?? '' }` }
-       style={{
+       style={ {
          position: topSticky ? 'sticky' : undefined,
          top: topSticky ? '0' : undefined,
          backgroundColor: topSticky ? 'white' : undefined,
-       }}
+       } }
        onClick={ onClick }>
     { children }
   </div>
@@ -67,4 +69,5 @@ export const TableContent: React.FC<CellProps> = ({
 )
 
 
-export const TableDivider: React.FC = () => <div className="divider"/>
+export const TableDivider: React.FC<{ className?: string }> = ({ className }) => <div
+  className={ [ "divider", className ].join(' ') }/>

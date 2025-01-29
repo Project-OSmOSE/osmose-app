@@ -84,6 +84,7 @@
       > *:last-child {
         justify-self: end;
       }
+
       > *:first-child {
         justify-self: start;
       }
@@ -96,7 +97,7 @@
     display: grid;
     padding: 0 2rem;
     gap: 2rem;
-    grid-template-columns: 32ch auto auto;
+    grid-template-columns: 32ch auto 1fr;
   }
 
   .downloadButtons {

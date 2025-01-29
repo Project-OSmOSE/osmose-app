@@ -1,23 +1,17 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styles from "@/view/annotator/tools/annotator-tools.module.scss";
-import { SPECTRO_WIDTH } from "@/view/annotator/tools/spectrogram/SpectrogramRender.tsx";
 import { useAppSelector } from "@/service/app.ts";
-import { getDuration } from "@/service/dataset";
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
 
 export const TimeBar: React.FC = () => {
   // Data
-  const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
-  const { annotatorData } = useAnnotator();
-  const {
-    audio: { time }
-  } = useAppSelector(state => state.annotator)
+  const { time } = useAppSelector(state => state.annotator.audio)
 
   // Memo
-  const timeWidth = useMemo(() => SPECTRO_WIDTH / window.devicePixelRatio * zoomLevel, [ zoomLevel, window.devicePixelRatio ]);
-  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ])
+  const { width } = useSpectrogramDimensions()
+  const duration = useFileDuration()
 
   return (
-    <div className={ styles.timeBar } style={ { left: time * timeWidth / duration } }/>
+    <div className={ styles.timeBar } style={ { left: time * width / duration } }/>
   )
 }

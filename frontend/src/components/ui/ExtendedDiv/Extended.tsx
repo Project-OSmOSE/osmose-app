@@ -33,20 +33,22 @@ export const Extended: React.FC<{
         resizable,
         className, innerClassName,
         onClick,
-      }) => (
-  <Resizable onLeftMove={ onLeftMove } onTopMove={ onTopMove }
-             onWidthMove={ onWidthMove } onHeightMove={ onHeightMove }
-             top={ top } height={ height }
-             left={ left } width={ width }
-             horizontalResize={ horizontalResizable }
-             verticalResize={ verticalResizable }
-             resizable={ resizable }
-             className={ className }
-             onUp={ onUp }
-             onClick={ onClick }>
-    <Draggable onXMove={ onLeftMove } onYMove={ onTopMove } onUp={ onUp }
-               disabled={ !draggable } className={ [ style.fill, innerClassName ].join(' ') }>
-      { children }
-    </Draggable>
-  </Resizable>
-)
+      }) => {
+  return (
+    <Resizable onLeftMove={ onLeftMove } onTopMove={ onTopMove }
+               onWidthMove={ onWidthMove } onHeightMove={ onHeightMove }
+               top={ top } height={ height }
+               left={ left } width={ width }
+               horizontalResize={ horizontalResizable }
+               verticalResize={ verticalResizable }
+               resizable={ resizable }
+               className={ className }
+               onUp={ onUp }
+               onClick={ onClick }>
+      <Draggable onXMove={ onLeftMove } onYMove={ onTopMove } onUp={ onUp }
+                 draggable={ draggable } className={ [ style.fill, innerClassName ].join(' ') }>
+        { children }
+      </Draggable>
+    </Resizable>
+  )
+}

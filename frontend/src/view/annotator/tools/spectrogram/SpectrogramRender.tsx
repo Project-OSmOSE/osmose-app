@@ -11,13 +11,9 @@ import React, {
 } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
-import { useSpectrogramService } from "@/services/annotator/spectrogram.service.ts";
-import { usePointerService } from "@/services/annotator/pointer.service.ts";
-import { getDuration } from '@/service/dataset';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
-import { addResult, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
+import { addResult, getResultType, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
-import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
@@ -26,11 +22,9 @@ import { MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
 import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annotation.tsx";
-
-export const SPECTRO_HEIGHT: number = 512;
-export const SPECTRO_WIDTH: number = 1813;
-export const Y_WIDTH: number = 35;
-export const X_HEIGHT: number = 30;
+import { usePointerService } from '@/service/annotator/spectrogram/pointer';
+import { useDisplaySpectrogram, useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram';
+import { useAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -41,12 +35,11 @@ export interface SpectrogramRender {
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
+  // Data
   const {
     annotatorData,
     campaign,
   } = useAnnotator();
-
-  // Data
   const {
     focusedLabel,
     results,
@@ -54,31 +47,29 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     userPreferences,
     ui,
   } = useAppSelector(state => state.annotator)
-  const duration = useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ])
   const dispatch = useAppDispatch()
-
-  const spectroWidth = useMemo(() => SPECTRO_WIDTH / window.devicePixelRatio, [ window.devicePixelRatio ])
-  const spectroHeight = useMemo(() => SPECTRO_HEIGHT / window.devicePixelRatio, [ window.devicePixelRatio ])
-
-  // Ref
-  const containerRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const xAxis = useRef<ScaleMapping | null>(null);
-  const yAxis = useRef<ScaleMapping | null>(null);
-
-  // Services
-  const audioService = useAudioService(audioPlayer);
-  const spectrogramService = useSpectrogramService(canvasRef, xAxis, yAxis)
-  const pointerService = usePointerService(canvasRef, xAxis, yAxis);
-  const toast = useToast();
-
-  const [ _zoom, _setZoom ] = useState<number>(1);
-  const currentTime = useRef<number>(0)
   const [ newResult, setNewResult ] = useState<AnnotationResultBounds | undefined>(undefined);
   const _newResult = useRef<AnnotationResultBounds | undefined>(undefined);
   useEffect(() => {
     setNewResult(_newResult.current)
   }, [ _newResult.current ]);
+
+  // Ref
+  const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Services
+  const duration = useFileDuration();
+  const { containerWidth, height, width } = useSpectrogramDimensions()
+  const { xAxis, yAxis } = useAxis()
+  const { resetCanvas, drawSpectrogram, drawResult } = useDisplaySpectrogram(canvasRef);
+
+  const audioService = useAudioService(audioPlayer);
+  const pointerService = usePointerService();
+  const toast = useToast();
+
+  const [ _zoom, _setZoom ] = useState<number>(1);
+  const currentTime = useRef<number>(0)
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
@@ -88,9 +79,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     _isDrawingEnabled.current = isDrawingEnabled
   }, [ isDrawingEnabled ]);
 
-  const timeWidth = useMemo(() => spectroWidth * userPreferences.zoomLevel, [ userPreferences.zoomLevel, spectroWidth ]);
-  const currentConfiguration = useMemo(() => annotatorData?.spectrogram_configurations.find(c => c.id === userPreferences.spectrogramConfigurationID), [ annotatorData?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ]);
-
   useEffect(() => {
     updateCanvas()
   }, [ annotatorData?.spectrogram_configurations, userPreferences.spectrogramConfigurationID ])
@@ -99,17 +87,16 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   // On zoom updated
   useEffect(() => {
     const canvas = canvasRef.current;
-    const timeAxis = xAxis.current;
     const wrapper = containerRef.current;
-    if (!canvas || !timeAxis || !wrapper) return;
+    if (!canvas || !wrapper) return;
 
     // If zoom factor has changed
     if (userPreferences.zoomLevel === _zoom) return;
     // New timePxRatio
-    const newTimePxRatio: number = spectroWidth * userPreferences.zoomLevel / duration;
+    const newTimePxRatio: number = containerWidth * userPreferences.zoomLevel / duration;
 
     // Resize canvases and scroll
-    canvas.width = spectroWidth * userPreferences.zoomLevel;
+    canvas.width = containerWidth * userPreferences.zoomLevel;
 
     // Compute new center (before resizing)
     let newCenter: number;
@@ -121,7 +108,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
     }
-    wrapper.scrollLeft = Math.floor(newCenter - spectroWidth / 2);
+    wrapper.scrollLeft = Math.floor(newCenter - containerWidth / 2);
     _setZoom(userPreferences.zoomLevel);
     updateCanvas()
   }, [ userPreferences.zoomLevel ]);
@@ -137,8 +124,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     const oldX: number = Math.floor(canvas.width * currentTime.current / duration);
     const newX: number = Math.floor(canvas.width * audio.time / duration);
 
-    if ((oldX - wrapper.scrollLeft) < spectroWidth && (newX - wrapper.scrollLeft) >= spectroWidth) {
-      wrapper.scrollLeft += spectroWidth;
+    if ((oldX - wrapper.scrollLeft) < containerWidth && (newX - wrapper.scrollLeft) >= containerWidth) {
+      wrapper.scrollLeft += containerWidth;
     }
     currentTime.current = audio.time;
   }, [ audio.time ])
@@ -162,12 +149,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const spectroImg = new Image();
 
       // Get frequency scale
-      const freqDataURL = yAxis.current?.canvas?.toDataURL('image/png');
+      const freqDataURL = yAxis.canvas?.toDataURL('image/png');
       if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
       const freqImg = new Image();
 
       // Get time scale
-      const timeDataURL = xAxis.current?.canvas?.toDataURL('image/png');
+      const timeDataURL = xAxis.canvas?.toDataURL('image/png');
       if (!timeDataURL) throw new Error('Cannot recover time dataURL');
       const timeImg = new Image();
 
@@ -206,11 +193,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
       context.drawImage(spectroImg, Y_WIDTH, 0, spectroImg.width, spectroImg.height);
       context.drawImage(freqImg, 0, 0, freqImg.width, freqImg.height);
-      context.drawImage(timeImg, Y_WIDTH, spectroHeight, timeImg.width, timeImg.height);
+      context.drawImage(timeImg, Y_WIDTH, height, timeImg.width, timeImg.height);
 
       return canvas.toDataURL('image/png')
     }
-  }), [ canvasRef.current, xAxis.current, yAxis.current ])
+  }), [ canvasRef.current, xAxis, yAxis ])
 
   useEffect(() => {
     MOUSE_MOVE_EVENT.add(onUpdateNewAnnotation)
@@ -224,10 +211,10 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   const updateCanvas = async (): Promise<void> => {
-    spectrogramService.resetCanvas();
-    await spectrogramService.drawSpectrogram();
+    resetCanvas();
+    await drawSpectrogram();
 
-    if (newResult) spectrogramService.drawResult(newResult);
+    if (newResult) drawResult(newResult);
   }
 
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
@@ -255,18 +242,17 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
-    if (!yAxis.current || !xAxis.current) return;
     if (_newResult.current) {
       const data = pointerService.getFreqTime(e);
       if (data) {
         _newResult.current.end_time = data.time;
         _newResult.current.end_frequency = data.frequency;
       }
-      if (_newResult.current.start_frequency === null || _newResult.current.end_frequency === null || _newResult.current.start_time === null || _newResult.current.end_time === null) return;
-      const start_time = Math.min(_newResult.current.start_time, _newResult.current.end_time);
-      const end_time = Math.max(_newResult.current.start_time, _newResult.current.end_time);
-      const start_frequency = Math.min(_newResult.current.start_frequency, _newResult.current.end_frequency);
-      const end_frequency = Math.max(_newResult.current.start_frequency, _newResult.current.end_frequency);
+      if (getResultType(_newResult.current) !== 'box') return;
+      const start_time = Math.min(_newResult.current.start_time!, _newResult.current.end_time!);
+      const end_time = Math.max(_newResult.current.start_time!, _newResult.current.end_time!);
+      const start_frequency = Math.min(_newResult.current.start_frequency!, _newResult.current.end_frequency!);
+      const end_frequency = Math.max(_newResult.current.start_frequency!, _newResult.current.end_frequency!);
       _newResult.current.start_time = start_time;
       _newResult.current.end_time = end_time;
       _newResult.current.start_frequency = start_frequency;
@@ -274,12 +260,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
       const minFreq = Math.min(_newResult.current.start_frequency, _newResult.current.end_frequency);
       const maxFreq = Math.max(_newResult.current.start_frequency, _newResult.current.end_frequency);
-      if (!yAxis.current.isRangeContinuouslyOnScale(minFreq, maxFreq)) {
+      if (!yAxis.isRangeContinuouslyOnScale(minFreq, maxFreq)) {
         toast.presentError(`Be careful, your annotation overlaps a void in the frequency scale.
          Are you sure your annotation goes from ${ minFreq.toFixed(0) }Hz to ${ maxFreq.toFixed(0) }Hz?`)
       }
-      const width = xAxis.current?.valuesToPositionRange(_newResult.current.start_time, _newResult.current.end_time);
-      const height = yAxis.current?.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
+      const width = xAxis.valuesToPositionRange(_newResult.current.start_time, _newResult.current.end_time);
+      const height = yAxis.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (width > 2 && height > 2) {
         dispatch(addResult(_newResult.current))
       }
@@ -303,15 +289,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   return (
     <div className={ styles.spectrogramRender }
-         style={ { width: `${ Y_WIDTH + spectroWidth }px` } }>
+         style={ { width: `${ Y_WIDTH + containerWidth }px` } }>
 
-      <YAxis className={ styles.yAxis }
-             width={ Y_WIDTH }
-             height={ spectroHeight }
-             ref={ yAxis }
-             linear_scale={ currentConfiguration?.linear_frequency_scale }
-             multi_linear_scale={ currentConfiguration?.multi_linear_frequency_scale }
-             max_value={ (annotatorData?.file.dataset_sr ?? 0) / 2 }/>
+      <YAxis className={ styles.yAxis }/>
 
 
       <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
@@ -320,8 +300,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
         <canvas className={ isDrawingEnabled ? styles.drawable : '' }
                 ref={ canvasRef }
-                height={ spectroHeight }
-                width={ spectroWidth }
+                height={ height }
+                width={ width }
                 onMouseDown={ onStartNewAnnotation }
                 onClick={ e => audioService.seek(pointerService.getFreqTime(e)?.time ?? 0) }
                 onWheel={ onWheel }/>
@@ -329,19 +309,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
         <TimeBar/>
 
         { results?.map((annotation: AnnotationResult, key: number) => (
-          <Annotation key={ key }
-                      annotation={ annotation }
-                      yAxis={ yAxis }
-                      xAxis={ xAxis }
-                      audioPlayer={ audioPlayer }/>
+          <Annotation key={ key } annotation={ annotation } audioPlayer={ audioPlayer }/>
         )) }
       </div>
 
-      <XAxis width={ timeWidth }
-             height={ X_HEIGHT }
-             ref={ xAxis }
-             max_value={ duration }
-             className={ styles.xAxis }/>
+      <XAxis className={ styles.xAxis }/>
 
       <AcousticFeatures/>
     </div>)
