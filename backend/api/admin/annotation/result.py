@@ -79,18 +79,11 @@ class AnnotationResultAcousticFeaturesAdmin(admin.ModelAdmin):
         "id",
         "start_frequency",
         "end_frequency",
-        "min_frequency",
-        "max_frequency",
-        "median_frequency",
-        "beginning_sweep_slope",
-        "end_sweep_slope",
-        "steps_count",
-        "relative_peaks_count",
+        "relative_min_frequency_count",
+        "relative_max_frequency_count",
         "has_harmonics",
-        "harmonics_count",
-        "level_peak_frequency",
-        "duration",
         "trend",
+        "steps_count",
     )
     search_fields = ("annotation_result__annotation_campaign__name",)
 

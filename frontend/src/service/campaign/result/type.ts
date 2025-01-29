@@ -28,12 +28,6 @@ export interface AcousticFeatures {
   has_harmonics: boolean | null;
   trend: SignalTrend | null;
   steps_count: number | null;
-  // median_frequency: number | null;
-  // beginning_sweep_slope: number | null;
-  // end_sweep_slope: number | null;
-  // relative_peaks_count: number | null;
-  // harmonics_count: number | null;
-  // level_peak_frequency: number | null;
 }
 
 export interface AnnotationResult extends AnnotationResultBounds {

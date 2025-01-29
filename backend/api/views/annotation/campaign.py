@@ -220,27 +220,18 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                     ),
                     output_field=BooleanField(),
                 ),
-                # TODO: Update this field list the final one
-                feature_min_freq=F("acoustic_features__min_frequency"),
-                feature_max_freq=F("acoustic_features__max_frequency"),
                 feature_start_freq=F("acoustic_features__start_frequency"),
                 feature_end_freq=F("acoustic_features__end_frequency"),
-                feature_median_freq=F("acoustic_features__median_frequency"),
-                feature_beginning_sweep_slope=F(
-                    "acoustic_features__beginning_sweep_slope"
+                feature_relative_max_frequency_count=F(
+                    "acoustic_features__relative_max_frequency_count"
                 ),
-                feature_end_sweep_slope=F("acoustic_features__end_sweep_slope"),
-                feature_steps_count=F("acoustic_features__steps_count"),
-                feature_relative_peaks_count=F(
-                    "acoustic_features__relative_peaks_count"
+                feature_relative_min_frequency_count=F(
+                    "acoustic_features__relative_min_frequency_count"
                 ),
                 feature_has_harmonics=F("acoustic_features__has_harmonics"),
                 feature_harmonics_count=F("acoustic_features__harmonics_count"),
-                feature_level_peak_frequency=F(
-                    "acoustic_features__level_peak_frequency"
-                ),
-                feature_duration=F("acoustic_features__duration"),
                 feature_trend=F("acoustic_features__trend"),
+                feature_steps_count=F("acoustic_features__steps_count"),
             )
             .order_by("dataset_file__start", "id")
         )
@@ -420,21 +411,13 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
             if campaign.labels_with_acoustic_features.count() > 0:
-                # TODO: Update this field list the final one
-                data[0].append("signal_min_frequency")
-                data[0].append("signal_max_frequency")
                 data[0].append("signal_start_frequency")
                 data[0].append("signal_end_frequency")
-                data[0].append("signal_median_frequency")
-                data[0].append("signal_beginning_sweep_slope")
-                data[0].append("signal_end_sweep_slope")
-                data[0].append("signal_steps_count")
-                data[0].append("signal_relative_peaks_count")
+                data[0].append("signal_relative_max_frequency_count")
+                data[0].append("signal_relative_min_frequency_count")
                 data[0].append("signal_has_harmonics")
-                data[0].append("signal_harmonics_count")
-                data[0].append("signal_level_peak_frequency")
-                data[0].append("signal_duration")
                 data[0].append("signal_trend")
+                data[0].append("signal_steps_count")
                 data.extend(map(map_result_features, list(results) + list(comments)))
             else:
                 data.extend(map(map_result, list(results) + list(comments)))
