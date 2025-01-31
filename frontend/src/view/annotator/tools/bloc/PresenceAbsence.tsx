@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
 import styles from './bloc.module.scss';
@@ -22,6 +22,10 @@ export const PresenceAbsence: React.FC = () => {
   const dispatch = useAppDispatch()
   const alert = useAlert();
 
+  const _focused = useRef<string | undefined>(focusedLabel);
+  useEffect(() => {
+    _focused.current = focusedLabel;
+  }, [ focusedLabel ]);
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ]);
 
   useEffect(() => {
@@ -43,9 +47,11 @@ export const PresenceAbsence: React.FC = () => {
       if (event.key !== AlphanumericKeys[0][i] && event.key !== AlphanumericKeys[1][i]) continue;
 
       const calledLabel = label_set.labels[i];
-      if (presenceLabels.includes(calledLabel) && focusedLabel !== calledLabel) {
-        dispatch(focusLabel(calledLabel))
-      } else toggle(calledLabel);
+      if (_focused.current === calledLabel) continue;
+      if (!presenceLabels.includes(calledLabel)) {
+        dispatch(addPresenceResult(calledLabel));
+      }
+      dispatch(focusLabel(calledLabel))
     }
   }
 
