@@ -13,6 +13,7 @@
 
 .table-aplose > .table-head {
     font-weight: 300;
+    z-index: 1;
 }
 
 .table-aplose > .table-head,

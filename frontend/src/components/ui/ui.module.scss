@@ -35,6 +35,8 @@
   align-items: center;
   justify-items: center;
   padding: 2rem;
+  z-index: 2;
+
   @media (max-width: 800px) {
     padding: 1rem;
     justify-items: stretch;
