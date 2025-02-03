@@ -240,7 +240,6 @@ class AnnotationCampaignViewSet(
                     "acoustic_features__relative_min_frequency_count"
                 ),
                 feature_has_harmonics=F("acoustic_features__has_harmonics"),
-                feature_harmonics_count=F("acoustic_features__harmonics_count"),
                 feature_trend=F("acoustic_features__trend"),
                 feature_steps_count=F("acoustic_features__steps_count"),
             )
@@ -333,16 +332,6 @@ class AnnotationCampaignViewSet(
         def map_result_features(row):
             data = map_result(row)
             data.append(
-                str(row.feature_min_freq)
-                if "feature_min_freq" in vars(row) and row.feature_min_freq
-                else ""
-            )
-            data.append(
-                str(row.feature_max_freq)
-                if "feature_max_freq" in vars(row) and row.feature_max_freq
-                else ""
-            )
-            data.append(
                 str(row.feature_start_freq)
                 if "feature_start_freq" in vars(row) and row.feature_start_freq
                 else ""
@@ -353,20 +342,15 @@ class AnnotationCampaignViewSet(
                 else ""
             )
             data.append(
-                str(row.feature_median_freq)
-                if "feature_median_freq" in vars(row) and row.feature_median_freq
+                str(row.feature_relative_max_frequency_count)
+                if "feature_relative_max_frequency_count" in vars(row)
+                and row.feature_relative_max_frequency_count
                 else ""
             )
             data.append(
-                str(row.feature_beginning_sweep_slope)
-                if "feature_beginning_sweep_slope" in vars(row)
-                and row.feature_beginning_sweep_slope
-                else ""
-            )
-            data.append(
-                str(row.feature_end_sweep_slope)
-                if "feature_end_sweep_slope" in vars(row)
-                and row.feature_end_sweep_slope
+                str(row.feature_relative_min_frequency_count)
+                if "feature_relative_min_frequency_count" in vars(row)
+                and row.feature_relative_min_frequency_count
                 else ""
             )
             data.append(
@@ -375,31 +359,8 @@ class AnnotationCampaignViewSet(
                 else ""
             )
             data.append(
-                str(row.feature_relative_peaks_count)
-                if "feature_relative_peaks_count" in vars(row)
-                and row.feature_relative_peaks_count
-                else ""
-            )
-            data.append(
                 str(row.feature_has_harmonics)
                 if "feature_has_harmonics" in vars(row) and row.feature_has_harmonics
-                else ""
-            )
-            data.append(
-                str(row.feature_harmonics_count)
-                if "feature_harmonics_count" in vars(row)
-                and row.feature_harmonics_count
-                else ""
-            )
-            data.append(
-                str(row.feature_level_peak_frequency)
-                if "feature_level_peak_frequency" in vars(row)
-                and row.feature_level_peak_frequency
-                else ""
-            )
-            data.append(
-                str(row.feature_duration)
-                if "feature_duration" in vars(row) and row.feature_duration
                 else ""
             )
             data.append(
