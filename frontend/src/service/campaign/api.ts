@@ -43,6 +43,15 @@ export const CampaignAPI = createApi({
         body: data
       }),
     }),
+    patch: builder.mutation<AnnotationCampaign, Pick<WriteAnnotationCampaign, 'labels_with_acoustic_features'> & {
+      id: ID
+    }>({
+      query: (data) => ({
+        url: `${ data.id }/`,
+        method: 'PATCH',
+        body: data
+      }),
+    }),
     archive: builder.mutation<AnnotationCampaign, ID>({
       query: (id) => ({
         url: `${ id }/archive/`,
@@ -75,4 +84,5 @@ export const {
   useArchiveMutation: useArchiveCampaignMutation,
   useLazyDownloadReportQuery: useDownloadCampaignReportLazyQuery,
   useDownloadStatusMutation: useDownloadCampaignStatusMutation,
+  usePatchMutation: usePatchCampaignMutation,
 } = CampaignAPI;

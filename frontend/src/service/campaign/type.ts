@@ -19,6 +19,7 @@ export type BaseAnnotationCampaign = {
   deadline: string | null; // Date
   datasets: Array<string>; // name
   spectro_configs: Array<number>; //pk
+  labels_with_acoustic_features: Array<string>;
 }
 
 /**
@@ -47,7 +48,6 @@ export type AnnotationCampaign = BaseAnnotationCampaign & {
 export type WriteCreateAnnotationCampaign = BaseAnnotationCampaign & {
   usage: 'Create';
   label_set: number; // pk
-  labels_with_acoustic_features: Array<string>;
   confidence_indicator_set: number | null; // pk
 }
 

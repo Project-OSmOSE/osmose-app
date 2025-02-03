@@ -107,6 +107,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
             self.validate_create_usage(attrs)
         if "labels_with_acoustic_features" in attrs:
             label_set: LabelSet = attrs["label_set"]
+            print(attrs["label_set"])
             for label in attrs["labels_with_acoustic_features"]:
                 if not label_set.labels.filter(name=label).exists():
                     message = "Label with acoustic features should belong to label set"
@@ -121,3 +122,37 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
                 name=f"{validated_data['name']} label set"
             )
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        print(validated_data)
+        return super().update(instance, validated_data)
+
+
+class AnnotationCampaignPatchSerializer(serializers.Serializer):
+    """Serializer for annotation campaign"""
+
+    labels_with_acoustic_features = serializers.SlugRelatedField(
+        queryset=Label.objects.all(),
+        slug_field="name",
+        required=False,
+        many=True,
+    )
+
+    class Meta:
+        fields = "__all__"
+
+    def update(self, instance: AnnotationCampaign, validated_data):
+        if "labels_with_acoustic_features" in validated_data:
+            label_set: LabelSet = instance.label_set
+            for label in validated_data["labels_with_acoustic_features"]:
+                if not label_set.labels.filter(name=label).exists():
+                    message = "Label with acoustic features should belong to label set"
+                    raise serializers.ValidationError(
+                        {"labels_with_acoustic_features": message},
+                    )
+
+        instance.labels_with_acoustic_features.set(
+            validated_data["labels_with_acoustic_features"]
+        )
+        instance.save()
+        return instance

@@ -10,6 +10,7 @@ import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
 import { Progress } from "@/components/ui/Progress.tsx";
 import { useAlert } from "@/service/ui";
+import { LabelSetModal } from "@/view/campaign/detail/modals/LabelSetModal.tsx";
 
 export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: boolean }> = ({ campaign, isOwner }) => {
 
@@ -24,6 +25,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
   const [ isSpectrogramModalOpen, setIsSpectrogramModalOpen ] = useState<boolean>(false);
   const [ isAudioModalOpen, setIsAudioModalOpen ] = useState<boolean>(false);
   const [ isProgressModalOpen, setIsProgressModalOpen ] = useState<boolean>(false);
+  const [ isLabelSetModalOpen, setIsLabelSetModalOpen ] = useState<boolean>(false);
 
 
   function openInstructions() {
@@ -41,6 +43,10 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
 
   function toggleProgressModal() {
     setIsProgressModalOpen(isOpen => !isOpen);
+  }
+
+  function toggleLabelSetModal() {
+    setIsLabelSetModalOpen(isOpen => !isOpen);
   }
 
   async function archive() {
@@ -113,9 +119,14 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
         { isLoadingLabelSet && <IonSpinner/> }
         { labelSet && <p>{ labelSet.name }</p> }
       </div>
-      { campaign.labels_with_acoustic_features.length > 0 && (
-        <div><FadedText>Detailed labels</FadedText><p>{ campaign.labels_with_acoustic_features.join(', ') }</p></div>
-      ) }
+      <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleLabelSetModal }>
+        Detailed label set
+      </IonButton>
+      { isLabelSetModalOpen && createPortal(
+        <LabelSetModal campaign={ campaign }
+                       isOwner={ isOwner }
+                       onClose={ toggleLabelSetModal }/>,
+        document.body) }
 
       <div>
         <FadedText>Confidence indicator set</FadedText>

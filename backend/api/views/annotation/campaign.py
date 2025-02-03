@@ -35,6 +35,9 @@ from backend.api.models import (
 from backend.api.serializers import (
     AnnotationCampaignSerializer,
 )
+from backend.api.serializers.annotation.campaign import (
+    AnnotationCampaignPatchSerializer,
+)
 from backend.aplose.models import User
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
@@ -77,7 +80,9 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
+class AnnotationCampaignViewSet(
+    viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin
+):
     """Model viewset for Annotation campaign"""
 
     queryset = AnnotationCampaign.objects.select_related(
@@ -134,6 +139,12 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             .order_by("name")
         )
         return queryset
+
+    def get_serializer_class(self):
+        print(self.request)
+        if self.request.method == "PATCH":
+            return AnnotationCampaignPatchSerializer
+        return super().get_serializer_class()
 
     @transaction.atomic()
     def create(self, request, *args, **kwargs):
