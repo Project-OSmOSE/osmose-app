@@ -104,11 +104,14 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       // x-coordinate has been given, center on it
       const bounds = canvas.getBoundingClientRect();
       newCenter = (ui.zoomOrigin.x - bounds.left) * userPreferences.zoomLevel / _zoom;
-      const data = pointerService.getFreqTime({
+      const coords = {
         clientX: ui.zoomOrigin.x,
         clientY: ui.zoomOrigin.y
-      });
-      if (data) dispatch(setPointerPosition(data))
+      }
+      if (pointerService.isHoverCanvas(coords)) {
+        const data = pointerService.getFreqTime(coords);
+        if (data) dispatch(setPointerPosition(data))
+      }
     } else {
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
@@ -223,14 +226,16 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onUpdateNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
+    const isHover = pointerService.isHoverCanvas(e)
     const data = pointerService.getFreqTime(e);
     if (data) {
-      dispatch(setPointerPosition(data))
+      if (isHover) dispatch(setPointerPosition(data))
       if (_newResult.current) {
         _newResult.current.end_time = data.time;
         _newResult.current.end_frequency = data.frequency;
       }
-    } else dispatch(leavePointerPosition())
+    }
+    if (!isHover || !data) dispatch(leavePointerPosition())
   }
 
   const onStartNewAnnotation = (e: MouseEvent<HTMLCanvasElement>) => {
@@ -276,6 +281,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       }
     }
     _newResult.current = undefined;
+    if (!pointerService.isHoverCanvas(e)) dispatch(leavePointerPosition())
   }
 
   const onWheel = (event: WheelEvent) => {
@@ -297,7 +303,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
          style={ { width: `${ Y_WIDTH + containerWidth }px` } }>
 
       <YAxis className={ styles.yAxis }/>
-
 
       <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }

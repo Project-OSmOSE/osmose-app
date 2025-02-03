@@ -13,38 +13,49 @@ export const usePointerService = () => {
   const _xAxis = useRef<AbstractScale>(xAxis);
   useEffect(() => {
     _xAxis.current = xAxis
-  }, [xAxis]);
+  }, [ xAxis ]);
 
   const _yAxis = useRef<AbstractScale>(yAxis);
   useEffect(() => {
     _yAxis.current = yAxis
-  }, [yAxis]);
+  }, [ yAxis ]);
 
   const _width = useRef<number>(width);
   useEffect(() => {
     _width.current = width
-  }, [width]);
+  }, [ width ]);
 
   const _height = useRef<number>(height);
   useEffect(() => {
     _height.current = height
-  }, [height]);
+  }, [ height ]);
 
-  function getCanvas(e: Position): HTMLCanvasElement | undefined {
-    return document.elementsFromPoint(e.clientX, e.clientY).find(element => {
+  function isOverCanvas(e: Position): boolean {
+    return document.elementsFromPoint(e.clientX, e.clientY).some(element => {
+      return element instanceof HTMLCanvasElement
+        && element.height === _height.current && element.width === _width.current
+    });
+  }
+
+  function getCanvas(): HTMLCanvasElement | undefined {
+    return [ ...document.getElementsByTagName('canvas') ].find(element => {
       return element instanceof HTMLCanvasElement
         && element.height === _height.current && element.width === _width.current
     }) as HTMLCanvasElement;
   }
 
-  function getCoords(e: Position): { x: number, y: number } | undefined {
-    const canvas = getCanvas(e);
+  function getCoords(e: Position, corrected: boolean = true): { x: number, y: number } | undefined {
+    const canvas = getCanvas();
     if (!canvas) return;
     const bounds = canvas.getBoundingClientRect();
-    return {
-      y: e.clientY - bounds.y,
-      x: e.clientX - bounds.x,
-    }
+    const x = e.clientX - bounds.x
+    const y = e.clientY - bounds.y;
+    if (corrected) {
+      return {
+        x: Math.min(Math.max(0, x), bounds.width),
+        y: Math.min(Math.max(0, y), bounds.height),
+      }
+    } else return { x, y }
   }
 
   function getFreqTime(e: Position): { frequency: number, time: number } | undefined {
@@ -56,5 +67,5 @@ export const usePointerService = () => {
     }
   }
 
-  return { getCoords, getFreqTime }
+  return { isHoverCanvas: isOverCanvas, getCoords, getFreqTime }
 }

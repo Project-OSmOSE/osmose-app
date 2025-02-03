@@ -126,10 +126,6 @@ export const Box: React.FC<RegionProps> = ({
       start_time: _xAxis.current.positionToValue(_left.current),
       end_time: _xAxis.current.positionToValue(_left.current + _width.current),
     }))
-    // updateTop();
-    // updateHeight();
-    // updateLeft();
-    // updateWidth();
   }
 
   if (top === null || left === null || height === null || width === null) return <Fragment/>
