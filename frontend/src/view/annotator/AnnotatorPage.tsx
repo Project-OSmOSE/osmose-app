@@ -9,6 +9,7 @@ import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useToast } from "@/service/ui";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useAppSelector } from "@/service/app.ts";
 
 export const AnnotatorPage: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ export const AnnotatorPage: React.FC = () => {
 
   const toast = useToast();
   const history = useHistory();
+  const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
   useEffect(() => {
     return () => {
@@ -39,7 +41,7 @@ export const AnnotatorPage: React.FC = () => {
     history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }`);
   }
 
-  return <div className={ styles.page }>
+  return <div className={ [styles.page, pointerPosition ? styles.disableScroll : ''].join(' ') }>
     <Header size='small'
             buttons={ <Fragment>
               <IonButton fill='outline' size='small' color='medium' onClick={ backToOldInterface }>

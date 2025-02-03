@@ -104,6 +104,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       // x-coordinate has been given, center on it
       const bounds = canvas.getBoundingClientRect();
       newCenter = (ui.zoomOrigin.x - bounds.left) * userPreferences.zoomLevel / _zoom;
+      const data = pointerService.getFreqTime({
+        clientX: ui.zoomOrigin.x,
+        clientY: ui.zoomOrigin.y
+      });
+      if (data) dispatch(setPointerPosition(data))
     } else {
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
