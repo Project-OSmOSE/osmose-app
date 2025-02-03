@@ -1,4 +1,4 @@
-import React, { FormEvent, Fragment, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useToast } from "@/service/ui";
 import { Select } from "@/components/form";
 import { useListLabelSetQuery } from '@/service/campaign/label-set';
@@ -13,8 +13,7 @@ import {
   WriteCreateAnnotationCampaign
 } from '@/service/campaign';
 import { CampaignErrors } from '@/service/campaign/type.ts';
-import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
-import { IonCheckbox } from '@ionic/react';
+import { LabelSetDisplay } from "@/components/campaign/label/LabelSet.tsx";
 
 export const LabelSetSelect: React.FC = () => {
 
@@ -49,16 +48,8 @@ export const LabelSetSelect: React.FC = () => {
     }
   }, [])
 
-  const onLabelChecked = (event: FormEvent<HTMLIonCheckboxElement>, label: string) => {
-    event.stopPropagation()
-    event.preventDefault()
-    let labels = draftCampaign.labels_with_acoustic_features ?? [];
-    if (event.currentTarget.checked) {
-      labels = [ ...labels, label ]
-    } else {
-      labels = labels.filter(l => l !== label)
-    }
-    dispatch(updateDraftCampaign({ labels_with_acoustic_features: labels }))
+  const onLabelsWithFeaturesUpdated = (value: string[]) => {
+    dispatch(updateDraftCampaign({ labels_with_acoustic_features: value }))
   }
 
   return <Select label="Label set" placeholder="Select a label set"
@@ -70,23 +61,9 @@ export const LabelSetSelect: React.FC = () => {
                  isLoading={ !allLabelSets }
                  disabled={ !!createdCampaign || !allLabelSets?.length }
                  onValueSelected={ value => dispatch(updateDraftCampaign({ label_set: value as number | undefined })) }>
-    { !!selectedLabelSet && (
-      <Fragment>
-        { selectedLabelSet.desc }
+    { !!selectedLabelSet && (<LabelSetDisplay set={ selectedLabelSet }
+                                              labelsWithAcousticFeatures={ draftCampaign.labels_with_acoustic_features ?? [] }
+                                              setLabelsWithAcousticFeatures={ onLabelsWithFeaturesUpdated }/>) }
 
-        <Table columns={ 2 }>
-          <TableHead isFirstColumn={ true }>Label</TableHead>
-          <TableHead>Acoustic features</TableHead>
-          <TableDivider/>
-
-          { selectedLabelSet.labels.map(label => <Fragment key={ label }>
-            <TableContent isFirstColumn={ true }>{ label }</TableContent>
-            <TableContent><IonCheckbox value={ draftCampaign.labels_with_acoustic_features?.includes(label) }
-                                       onClick={ event => onLabelChecked(event, label) }/></TableContent>
-            <TableDivider/>
-          </Fragment>) }
-        </Table>
-      </Fragment>)
-    }
   </Select>
 }
