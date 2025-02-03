@@ -82,6 +82,9 @@ export const AudioAnnotator: React.FC = () => {
       toast.dismiss();
     }
   }, [])
+  useEffect(() => {
+    toast.dismiss();
+  }, [ fileID ])
 
   useEffect(() => {
     if (retrieveError) setError(getErrorMessage(retrieveError));

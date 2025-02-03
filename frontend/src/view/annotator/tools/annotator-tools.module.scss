@@ -107,6 +107,7 @@
   grid-template-rows: 1fr auto;
   grid-template-areas: "y spectrogram" "empty x";
   overflow-x: scroll;
+  padding-bottom: 1rem;
 
   .yAxis {
     grid-area: y;

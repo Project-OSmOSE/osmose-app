@@ -53,9 +53,11 @@ export const useDisplaySpectrogram = (
   const toast = useToast();
 
   const images = useRef<Map<number, Array<HTMLImageElement | undefined>>>(new Map);
+  const failedSources = useRef<string[]>([])
 
   useEffect(() => {
     images.current = new Map()
+    failedSources.current = []
   }, [ spectrogramConfigurationID ]);
 
   function areAllImagesLoaded(): boolean {
@@ -74,15 +76,17 @@ export const useDisplaySpectrogram = (
     const filename = annotatorData.file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(zoomLevel)).map(async (_, index) => {
-        console.info(`Will load for zoom ${ zoomLevel }, image ${ index }`)
+        const src = `${ currentConfiguration.folder_path.replaceAll('%5C', '/') }/${ filename }_${ zoomLevel }_${ index }.png`;
+        if (failedSources.current.includes(src)) return;console.info(`Will load for zoom ${ zoomLevel }, image ${ index }`)
         const image = new Image();
-        image.src = `${ currentConfiguration.folder_path }/${ filename }_${ zoomLevel }_${ index }.png`;
+        image.src = src;
         return await new Promise<HTMLImageElement | undefined>((resolve) => {
           image.onload = () => {
             console.info(`Image loaded: ${ image.src }`)
             resolve(image);
           }
           image.onerror = e => {
+            failedSources.current.push(src)
             console.error(`Cannot load spectrogram image with source: ${ image.src } [${ buildErrorMessage(e as any) }]`, e)
             toast.presentError(`Cannot load spectrogram image with source: ${ image.src } [${ buildErrorMessage(e as any) }]`)
             resolve(undefined);

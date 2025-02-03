@@ -8,6 +8,7 @@ import { useAnnotator } from "@/service/annotator/hook.ts";
 import styles from '../../annotator-tools.module.scss'
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
+import { AbstractScale } from "@/service/dataset/spectrogram-configuration/scale";
 
 type RegionProps = {
   annotation: AnnotationResult,
@@ -26,45 +27,54 @@ export const Box: React.FC<RegionProps> = ({
 
   // Scales
   const { xAxis, yAxis } = useAxis()
+  const _xAxis = useRef<AbstractScale>(xAxis);
+  const _yAxis = useRef<AbstractScale>(yAxis);
+  useEffect(() => {
+    _xAxis.current = xAxis;
+  }, [xAxis]);
+  useEffect(() => {
+    _yAxis.current = yAxis;
+  }, [yAxis]);
+
+  // Annotation time/freq bounds
+  const _start_time = useRef<number | null>(annotation.start_time);
+  const _end_time = useRef<number | null>(annotation.end_time);
+  const _start_frequency = useRef<number | null>(annotation.start_frequency);
+  const _end_frequency = useRef<number | null>(annotation.end_frequency);
+  useEffect(() => {
+    _start_time.current = annotation.start_time;
+    _end_time.current = annotation.end_time;
+    _start_frequency.current = annotation.start_frequency;
+    _end_frequency.current = annotation.end_frequency;
+  }, [annotation.start_time, annotation.end_time, annotation.start_frequency, annotation.end_frequency]);
+
+  // Coords bounds
+  const _left = useRef<number>(0);
+  const _width = useRef<number>(0);
+  const _top = useRef<number>(0);
+  const _height = useRef<number>(0);
 
   // State
   const [ left, setLeft ] = useState<number>(0);
-  useEffect(() => {
-    if (!annotation.start_time) return;
-    const left = xAxis.valueToPosition(annotation.start_time);
-    setLeft(left);
-    _left.current = left;
-  }, [ xAxis, annotation.start_time ]);
-
   const [ width, setWidth ] = useState<number>(0);
-  useEffect(() => {
-    if (!annotation.start_time || !annotation.end_time) return;
-    const width = xAxis.valuesToPositionRange(annotation.start_time, annotation.end_time);
-    setWidth(width);
-    _width.current = width;
-  }, [ xAxis, annotation.start_time, annotation.end_time ]);
-
   const [ top, setTop ] = useState<number>(0);
-  useEffect(() => {
-    if (!annotation.end_frequency) return;
-    const top = yAxis.valueToPosition(annotation.end_frequency);
-    setTop(top);
-    _top.current = top;
-  }, [ yAxis, annotation.end_frequency ]);
-
   const [ height, setHeight ] = useState<number>(0);
-  useEffect(() => {
-    if (!annotation.start_frequency || !annotation.end_frequency) return;
-    const height = yAxis.valuesToPositionRange(annotation.start_frequency, annotation.end_frequency);
-    setHeight(height);
-    _height.current = height;
-  }, [ yAxis, annotation.start_frequency, annotation.end_frequency ]);
 
-  // Ref
-  const _left = useRef<number>(left);
-  const _width = useRef<number>(width);
-  const _top = useRef<number>(top);
-  const _height = useRef<number>(height);
+  // Updates
+  useEffect(() => {
+    updateLeft()
+    updateWidth()
+    updateTop()
+    updateHeight()
+  }, [ ]);
+  useEffect(() => updateLeft, [ _xAxis.current, _start_time.current ]);
+  useEffect(() => updateWidth, [ _xAxis.current, _start_time.current, _end_time.current ]);
+  useEffect(() => updateTop, [ _yAxis.current, _end_frequency.current ]);
+  useEffect(() => updateHeight, [ _yAxis.current, _start_frequency.current, _end_frequency.current ]);
+  useEffect(() => setTop(_top.current), [_top.current]);
+  useEffect(() => setHeight(_height.current), [_height.current]);
+  useEffect(() => setLeft(_left.current), [_left.current]);
+  useEffect(() => setWidth(_width.current), [_width.current]);
 
   // Memo
   const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label) }` : '', [ label_set, annotation.label ]);
@@ -73,45 +83,56 @@ export const Box: React.FC<RegionProps> = ({
   // Service
   const audioService = useAudioService(audioPlayer);
 
+  function updateLeft() {
+    if (_start_time.current === null) return;
+    _left.current = _xAxis.current.valueToPosition(_start_time.current);
+  }
+
+  function updateTop() {
+    if (_end_frequency.current === null) return;
+    _top.current = _yAxis.current.valueToPosition(_end_frequency.current);
+  }
+
+  function updateWidth() {
+    if (_start_time.current === null || _end_time.current === null) return;
+    _width.current = _xAxis.current.valuesToPositionRange(_start_time.current, _end_time.current);
+  }
+
+  function updateHeight() {
+    if (_start_frequency.current === null || _end_frequency.current === null) return;
+    _height.current = _yAxis.current.valuesToPositionRange(_start_frequency.current, _end_frequency.current);
+  }
+
   function onTopMove(movement: number) {
-    setTop(prev => {
-      _top.current = prev + movement;
-      return prev + movement
-    });
+    _top.current += movement;
   }
 
   function onHeightMove(movement: number) {
-    setHeight(prev => {
-      _height.current = prev + movement;
-      return prev + movement
-    });
+    _height.current += movement;
   }
 
   function onLeftMove(movement: number) {
-    setLeft(prev => {
-      _left.current = prev + movement;
-      return prev + movement;
-    });
+    _left.current += movement;
   }
 
   function onWidthMove(movement: number) {
-    setWidth(prev => {
-      _width.current = prev + movement;
-      return prev + movement;
-    });
+    _width.current += movement;
   }
 
   function onValidateMove() {
-    console.log(_top.current, top, yAxis.positionToValue(_top.current))
     dispatch(updateFocusResultBounds({
-      end_frequency: yAxis.positionToValue(_top.current),
-      start_frequency: yAxis.positionToValue(_top.current + _height.current),
-      start_time: xAxis.positionToValue(_left.current),
-      end_time: xAxis.positionToValue(_left.current + _width.current),
+      end_frequency: _yAxis.current.positionToValue(_top.current),
+      start_frequency: _yAxis.current.positionToValue(_top.current + _height.current),
+      start_time: _xAxis.current.positionToValue(_left.current),
+      end_time: _xAxis.current.positionToValue(_left.current + _width.current),
     }))
+    // updateTop();
+    // updateHeight();
+    // updateLeft();
+    // updateWidth();
   }
 
-  if (!top || !left || !height || !width) return <Fragment/>
+  if (top === null || left === null || height === null || width === null) return <Fragment/>
   return <ExtendedDiv resizable={ isActive }
                       top={ top } height={ height }
                       left={ left } width={ width }

@@ -5,7 +5,7 @@ import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 export const LabelTooltipOverlay: React.FC<{ id: number, children: ReactElement }> = ({ id, children }) => {
   const number = AlphanumericKeys[1][id];
   const key = AlphanumericKeys[0][id];
-  if (id > 9) return children;
+  if (id >= 9) return children;
   return (
     <TooltipOverlay title='Shortcut'
                     children={ children }
