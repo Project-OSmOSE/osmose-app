@@ -1,4 +1,5 @@
 """Annotator viewset"""
+from http import HTTPStatus
 
 from django.db import transaction
 # pylint: disable=protected-access
@@ -40,6 +41,22 @@ class AnnotatorViewSet(viewsets.ViewSet):
     )
     def get_file(self, request: Request, campaign_id: int, file_id: int):
         """Get all data for annotator"""
+
+        file_ranges = AnnotationFileRange.objects.filter(
+            annotation_campaign_id=campaign_id,
+            annotator_id=request.user.id,
+        )
+        file_ranges_files = []
+        for file_range in file_ranges:
+            file_ranges_files.extend(
+                file_range.get_files().values_list("id", flat=True)
+            )
+
+        if int(file_id) not in file_ranges_files:
+            return Response(
+                "This task is not assigned to the current user",
+                status=HTTPStatus.FORBIDDEN,
+            )
 
         search = self.request.query_params.get("search")
         label_filter = self.request.query_params.get("label")
