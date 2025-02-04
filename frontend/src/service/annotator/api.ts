@@ -41,7 +41,7 @@ export const AnnotatorAPI = createApi({
           results: campaign.usage === 'Check' ? data.results.map(r => ({
             ...r,
             validations: r.validations.length > 0 ? r.validations : [ {
-              id: null,
+              id: undefined,
               is_valid: false
             } ],
           })) : data.results,

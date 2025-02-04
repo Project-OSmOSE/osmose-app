@@ -50,7 +50,7 @@ export type WriteAnnotationResult =
   confidence_indicator: string | undefined;
   detector_configuration: DetectorConfiguration & { detector: string } | undefined;
   comments: Array<WriteAnnotationComment>;
-  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | null }>;
+  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | undefined }>;
   acoustic_features: AcousticFeatures | null;
 };
 

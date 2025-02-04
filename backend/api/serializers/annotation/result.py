@@ -149,19 +149,30 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             and validated_data["confidence_indicator"] is not None
         ):
             if campaign.confidence_indicator_set is None:
-                campaign.confidence_indicator_set = (
-                    ConfidenceIndicatorSet.objects.create(
-                        name=f"{campaign.name} confidence set"
+                (
+                    campaign.confidence_indicator_set,
+                    _,
+                ) = ConfidenceIndicatorSet.objects.get_or_create(
+                    name=f"{campaign.name} confidence set"
+                )
+                campaign.save()
+            if campaign.confidence_indicator_set.confidence_indicators.filter(
+                label=validated_data["confidence_indicator"]["label"]
+            ).exists():
+                confidence_indicator = (
+                    campaign.confidence_indicator_set.confidence_indicators.get(
+                        label=validated_data["confidence_indicator"]["label"]
                     )
                 )
-            serializer = ConfidenceIndicatorSerializer(
-                data={
-                    **validated_data["confidence_indicator"],
-                    "confidence_indicator_set": campaign.confidence_indicator_set.id,
-                }
-            )
-            serializer.is_valid(raise_exception=True)
-            confidence_indicator = serializer.save()
+            else:
+                serializer = ConfidenceIndicatorSerializer(
+                    data={
+                        **validated_data["confidence_indicator"],
+                        "confidence_indicator_set": campaign.confidence_indicator_set.id,
+                    }
+                )
+                serializer.is_valid(raise_exception=True)
+                confidence_indicator = serializer.save()
         if not is_box and files.count() == 1:
             return AnnotationResult.objects.create(
                 annotation_campaign=campaign,
@@ -291,7 +302,9 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     dataset_file = serializers.PrimaryKeyRelatedField(
         queryset=DatasetFile.objects.all(),
     )
-    detector_configuration = DetectorConfigurationSerializer(required=False)
+    detector_configuration = DetectorConfigurationSerializer(
+        required=False,
+    )
     start_time = serializers.FloatField(
         required=False,
         allow_null=True,
@@ -339,7 +352,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             )
             if campaign.confidence_indicator_set is not None:
                 fields["confidence_indicator"] = serializers.SlugRelatedField(
-                    queryset=campaign.confidence_indicator_set.confidence_indicators,
+                    queryset=campaign.confidence_indicator_set.confidence_indicators.all(),
                     slug_field="label",
                     required=True,
                 )
@@ -372,7 +385,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
 
         return fields
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict):
         # Reorder start/end
         start_time = attrs.get("start_time")
         end_time = attrs.get("end_time")
@@ -386,6 +399,24 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         ):
             attrs["start_frequency"] = end_frequency
             attrs["end_frequency"] = start_frequency
+        campaign: Optional[AnnotationCampaign] = (
+            self.context["campaign"] if "campaign" in self.context else None
+        )
+        if (
+            campaign is not None
+            and campaign.usage == AnnotationCampaignUsage.CHECK
+            and "annotator" in attrs
+        ):
+            attrs.pop("annotator")
+        detector_configuration = attrs.get("detector_configuration")
+        if detector_configuration is not None:
+            (
+                attrs["detector_configuration"],
+                _,
+            ) = DetectorConfiguration.objects.get_or_create(
+                detector_id=detector_configuration["detector"].id,
+                configuration=detector_configuration["configuration"],
+            )
         return super().validate(attrs)
 
     @transaction.atomic
@@ -442,6 +473,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()
 
+        print(instance, validated_data)
         instance_id = super().update(instance, validated_data).id
 
         # Comments

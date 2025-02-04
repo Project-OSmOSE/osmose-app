@@ -57,6 +57,13 @@ REPORT_HEADERS = [  # headers
     "confidence_indicator_label",
     "confidence_indicator_level",
     "comments",
+    "signal_start_frequency",
+    "signal_end_frequency",
+    "signal_relative_max_frequency_count",
+    "signal_relative_min_frequency_count",
+    "signal_has_harmonics",
+    "signal_trend",
+    "signal_steps_count",
 ]
 
 
@@ -141,7 +148,6 @@ class AnnotationCampaignViewSet(
         return queryset
 
     def get_serializer_class(self):
-        print(self.request)
         if self.request.method == "PATCH":
             return AnnotationCampaignPatchSerializer
         return super().get_serializer_class()
@@ -354,11 +360,6 @@ class AnnotationCampaignViewSet(
                 else ""
             )
             data.append(
-                str(row.feature_steps_count)
-                if "feature_steps_count" in vars(row) and row.feature_steps_count
-                else ""
-            )
-            data.append(
                 str(row.feature_has_harmonics)
                 if "feature_has_harmonics" in vars(row) and row.feature_has_harmonics
                 else ""
@@ -368,10 +369,15 @@ class AnnotationCampaignViewSet(
                 if "feature_trend" in vars(row) and row.feature_trend
                 else ""
             )
+            data.append(
+                str(row.feature_steps_count)
+                if "feature_steps_count" in vars(row) and row.feature_steps_count
+                else ""
+            )
             return data
 
         def map_result_check(row):
-            check_data = map_result(row)
+            check_data = map_result_features(row)
             for user in validate_users:
                 validation = validations.filter(
                     result__id=row.id, annotator__username=user
@@ -382,17 +388,7 @@ class AnnotationCampaignViewSet(
             return check_data
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
-            if campaign.labels_with_acoustic_features.count() > 0:
-                data[0].append("signal_start_frequency")
-                data[0].append("signal_end_frequency")
-                data[0].append("signal_relative_max_frequency_count")
-                data[0].append("signal_relative_min_frequency_count")
-                data[0].append("signal_has_harmonics")
-                data[0].append("signal_trend")
-                data[0].append("signal_steps_count")
-                data.extend(map(map_result_features, list(results) + list(comments)))
-            else:
-                data.extend(map(map_result, list(results) + list(comments)))
+            data.extend(map(map_result_features, list(results) + list(comments)))
 
         if campaign.usage == AnnotationCampaignUsage.CHECK:
             data[0] = data[0] + validate_users

@@ -117,8 +117,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         current_results = AnnotationResultViewSet.queryset.filter(
             annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
-            annotator_id=user_id,
-        )
+        ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
         serializer = AnnotationResultViewSet.serializer_class(
             current_results,
             many=True,

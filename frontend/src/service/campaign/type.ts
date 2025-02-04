@@ -86,6 +86,7 @@ export type FileData = {
   datasets: Array<string>;
   detectorsForDatasets: { [key in string]: Array<string> }; // dataset -> Array<detector>
   detectors: Array<string>;
+  labels: Array<string>;
 }
 
 export type CampaignErrors = Errors<WriteCheckAnnotationCampaign> & Errors<WriteCreateAnnotationCampaign>;

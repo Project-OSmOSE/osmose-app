@@ -105,27 +105,25 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
         self.validate_spectro_configs_in_datasets(attrs)
         if attrs["usage"] == AnnotationCampaignUsage.CREATE:
             self.validate_create_usage(attrs)
+        if attrs["usage"] == AnnotationCampaignUsage.CHECK:
+            attrs["label_set"], _ = LabelSet.objects.get_or_create(
+                name=f"{attrs['name']} label set"
+            )
         if "labels_with_acoustic_features" in attrs:
             label_set: LabelSet = attrs["label_set"]
-            print(attrs["label_set"])
             for label in attrs["labels_with_acoustic_features"]:
                 if not label_set.labels.filter(name=label).exists():
-                    message = "Label with acoustic features should belong to label set"
-                    raise serializers.ValidationError(
-                        {"labels_with_acoustic_features": message},
-                    )
+                    if attrs["usage"] == AnnotationCampaignUsage.CREATE:
+                        message = (
+                            "Label with acoustic features should belong to label set"
+                        )
+                        raise serializers.ValidationError(
+                            {"labels_with_acoustic_features": message},
+                        )
+                    if attrs["usage"] == AnnotationCampaignUsage.CHECK:
+                        object, _ = Label.objects.get_or_create(name=label)
+                        label_set.labels.add(object)
         return attrs
-
-    def create(self, validated_data):
-        if validated_data["usage"] == AnnotationCampaignUsage.CHECK:
-            validated_data["label_set"], _ = LabelSet.objects.get_or_create(
-                name=f"{validated_data['name']} label set"
-            )
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        print(validated_data)
-        return super().update(instance, validated_data)
 
 
 class AnnotationCampaignPatchSerializer(serializers.Serializer):

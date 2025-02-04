@@ -15,7 +15,6 @@ interface Props {
 export const DetectorsContent: React.FC<Props> = ({
                                                     cancelButton
                                                   }) => {
-  // const [ csvDetectors, setCsvDetectors ] = useState<Array<string>>([]);
   const [ detectors, setDetectors ] = useState<Map<string, Detector | null | undefined>>(new Map());
   const [ canValidate, setCanValidate ] = useState<boolean>(false);
   const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
@@ -25,8 +24,14 @@ export const DetectorsContent: React.FC<Props> = ({
     if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
   }, [ detectorListError ])
 
+  useEffect(() => {
+    updateCanValidate()
+  }, []);
+
   const updateCanValidate = () => {
-    setCanValidate(detectors.size > 0 && [ ...detectors.values() ].some(v => v !== undefined))
+    setCanValidate(detectors.size > 0 && [ ...detectors.entries() ].some(([k, v]) => {
+      return v !== undefined || allDetectors?.some(d => d.name === k)
+    }))
   }
 
   // Form data

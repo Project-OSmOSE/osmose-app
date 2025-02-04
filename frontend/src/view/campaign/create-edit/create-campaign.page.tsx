@@ -81,6 +81,7 @@ export const CreateCampaign: React.FC = () => {
       deadline: draftCampaign.deadline?.trim() ?? null,
       datasets: draftCampaign.datasets ?? [],
       spectro_configs: draftCampaign.spectro_configs ?? [],
+      labels_with_acoustic_features: draftCampaign.labels_with_acoustic_features ?? [],
     }
 
     if (draftCampaign.usage === 'Check') {
@@ -105,7 +106,6 @@ export const CreateCampaign: React.FC = () => {
       ...data,
       usage: 'Create',
       label_set: draft.label_set!,
-      labels_with_acoustic_features: draft.labels_with_acoustic_features ?? [],
       confidence_indicator_set: draft.confidence_indicator_set ?? null
     }).unwrap().catch(e => {
       if (Object.prototype.hasOwnProperty.call(e, 'data')) dispatch(updateCampaignSubmissionErrors(e.data))
