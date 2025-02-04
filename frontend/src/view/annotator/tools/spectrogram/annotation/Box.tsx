@@ -129,7 +129,7 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   if (top === null || left === null || height === null || width === null) return <Fragment/>
-  return <ExtendedDiv resizable={ isActive }
+  return <ExtendedDiv resizable={ isActive && campaign?.usage === 'Create' }
                       top={ top } height={ height }
                       left={ left } width={ width }
                       onUp={ onValidateMove }
@@ -137,9 +137,10 @@ export const Box: React.FC<RegionProps> = ({
                       onLeftMove={ onLeftMove } onWidthMove={ onWidthMove }
                       className={ [ colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
 
-    <ExtendedDiv draggable={ isActive }
+    <ExtendedDiv draggable={ isActive && campaign?.usage === 'Create' }
                  onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                  onUp={ onValidateMove }
+                 top={ top < 24 ? 24 : -8 }
                  className={ [ styles.boxTitle, colorClassName, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
                  innerClassName={ styles.inner }
                  onClick={ () => dispatch(focusResult(annotation.id)) }>

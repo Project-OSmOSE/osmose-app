@@ -139,6 +139,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ annotation.start_frequency! } type="number"
                      min={ 0 } max={ maxFrequency }
+                     disabled={ campaign?.usage === 'Check' }
                      onChange={ e => updateMinFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -148,6 +149,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ annotation.end_frequency! } type="number"
                      min={ 0 } max={ maxFrequency }
+                     disabled={ campaign?.usage === 'Check' }
                      onChange={ e => updateMaxFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -173,6 +175,7 @@ export const AcousticFeatures: React.FC = () => {
               <Input value={ duration } type="number"
                      step={ 0.001 }
                      min={ 0.01 } max={ fileDuration }
+                     disabled={ campaign?.usage === 'Check' }
                      onChange={ e => updateDuration(+e.currentTarget.value) }/>
               <IonNote>s</IonNote>
           </TableContent>
