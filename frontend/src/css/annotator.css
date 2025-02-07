@@ -59,7 +59,6 @@
 }
 
 
-
 @-webkit-keyframes fadein {
     from {
         bottom: -30px;
@@ -203,9 +202,11 @@
 .region {
     position: absolute;
     opacity: 0.5;
+    pointer-events: none;
 }
 
 .region-header {
+    pointer-events: all;
     width: 100%;
     min-width: 100px;
     margin-left: 50%;
