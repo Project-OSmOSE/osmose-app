@@ -7,6 +7,7 @@ export default defineConfig({
   title: "APLOSE",
   description: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers",
   cleanUrls: true,
+  lastUpdated: true,
   themeConfig: {
     logo: '/logo.png',
     outline: "deep",
@@ -17,21 +18,21 @@ export default defineConfig({
       // {
       //   text: packageJSON.version,
       //   items: [
-          { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank'},
+      { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank' },
       //   ]
       // }
-      { text: 'APLOSE', link: '/../app/', target: '_blank'},
+      { text: 'APLOSE', link: '/../app/', target: '_blank' },
     ],
 
     // https://vitepress.dev/reference/default-theme-sidebar
     sidebar: {
       '/user': [
         {
-          text: 'User',
+          text: 'Annotation',
           items: [
             { text: 'Access APLOSE', link: '/user/' },
             { text: 'Annotation campaign', link: '/user/campaign' },
-            { text: 'Annotation', link: '/user/annotator' },
+            { text: 'Annotate', link: '/user/annotator' },
             {
               text: 'Campaign creator',
               items: [
@@ -52,6 +53,10 @@ export default defineConfig({
             { text: 'Terminology', link: '/user/terminology' },
           ],
         },
+        {
+          text: 'Manage account',
+          link: '/user/account'
+        }
       ],
       '/dev': [
         {
