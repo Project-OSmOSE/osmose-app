@@ -12,7 +12,8 @@ You can fill in the global information.
 
 - Only the name is required.
 - The description can help your annotator to understand the purpose of this campaign for example.
-- If you have web page or a PDF stored online you can give its URL on the "Instruction URL" field. It will be accessible to the campaign annotators
+- If you have web page or a PDF stored online you can give its URL on the "Instruction URL" field. It will be accessible
+  to the campaign annotators
 - The deadline will also be available to the annotators.
 
 ## Data
@@ -26,6 +27,7 @@ You will be able to choose one or more spectrogram configuration among the avail
 ## Annotation
 
 You can select the mode of annotation you need:
+
 - Create annotation: create new annotations on an empty campaign
 - Check annotations: validate and invalidate annotations, from a detector output for example
 
@@ -33,22 +35,26 @@ You can select the mode of annotation you need:
 
 ### Create annotation mode
 
-If you choose the "Create mode" you will need to select a set of labels (read the detailed section below to create a new label set).
-You can also select a confidence indicator set (read the detailed section below to create a new confidence indicator set).
+If you choose the "Create mode" you will need to select a set of labels (read the detailed section below to create a new
+label set).
+You can also select a confidence indicator set (read the detailed section below to create a new confidence indicator
+set).
 
 ![](/campaign-creator/form-annotation-create.png)
 
-Once selected, the information about the set are displayed. You can choose to enable "Acoustic features" for some labels (see [Annotation/Acoustic features](../annotator.md#acoustic-features))
+Once selected, the information about the set are displayed. You can choose to enable "Acoustic features" for some
+labels (see [Annotation/Acoustic features](../annotator.md#acoustic-features))
 
 ::: details Create a label set
 Access APLOSEs administration part with the "Admin" link
 
-Look for “Annotation sets” in the “API” block and click on “Add”
+Look for “Label sets” in the “API” block and click on “Add”
 
 ![](/campaign-creator/label-set/nav.png)
 
-You can fill in the form with the name of your set, the owner (you), and select the tags you need for your annotation campaigns. 
-If you do not find the desired tags, you can click on the “+” button close to the tags list to create a new tag.
+You can fill in the form with the name of your set, the owner (you), and select the labels you need for your annotation
+campaigns.
+If you do not find the desired labels, you can click on the “+” button close to the labels list to create a new label.
 
 ![](/campaign-creator/label-set/form.png)
 
@@ -87,7 +93,8 @@ It will open a modal to really import you annotations
 
 ![](/campaign-creator/form-annotation-check-importcsv.png)
 
-You can either click on the "Import annotation" zone or drag a file in it. The file should be a csv with the following columns:
+You can either click on the "Import annotation" zone or drag a file in it. The file should be a csv with the following
+columns:
 
 | Column                     |          Type          | Description                                                                                                       |
 |----------------------------|:----------------------:|-------------------------------------------------------------------------------------------------------------------|
@@ -108,7 +115,7 @@ After submitting your file, you will need to configure the detectors as they wil
 
 ![](/campaign-creator/form-annotation-check-detector.png)
 
-You will be asked to assign the CSV detectors to an existing one or to create a new one. 
+You will be asked to assign the CSV detectors to an existing one or to create a new one.
 Here you can also select only the detectors you want to check, in case the file contains multiple ones.
 
 You can then specify each detector configuration (existing or new one).
@@ -124,14 +131,20 @@ If you want to fully change it, you can hit the trash button and import a new fi
 ## Annotators
 
 In the last part of the form, you will be able to add annotators on your campaign.
-For each annotator you can specify the range of file he/she can annotate. You can set two different ranges for the same annotator.
+For each annotator you can specify the range of file he/she can annotate. You can set two different ranges for the same
+annotator.
 You can add new annotator with the search input.
 
 ![](/campaign-creator/form-annotator.png)
 
+::: info
 
+You will be able to add annotators or files to an annotator at any time.
+
+:::
 
 ## Submit
+
 You're all set and can submit your new campaign by clicking on the "Create campaign" button.
 After submitting your new campaign, it should appear in the “Annotation campaigns” list.
 

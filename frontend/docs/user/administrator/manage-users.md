@@ -24,14 +24,16 @@ If the user you've created is an annotator. The user creation is done.
 #### Campaign creator
 
 If you created a campaign creator account, in the "Permissions" bloc:
+
 - Check the "Staff status" to allow him/her to log into the Administration part.
-![](/admin/users-status.png)
+  ![](/admin/users-status.png)
 - Grant him/her all permissions related to "label" and "confidence"
-![](/admin/users-permissions.png)
+  ![](/admin/users-permissions.png)
 
 #### Administrator
 
-If you created an administrator creator account, in the "Permissions" bloc:
+If you created an administrator account, in the "Permissions" bloc:
+
 - Check the "Staff status" to allow him/her to log into the Administration part.
 - Check the "Superuser status" to grant him/her all permissions.
 

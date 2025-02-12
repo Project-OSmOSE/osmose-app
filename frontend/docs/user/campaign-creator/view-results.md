@@ -14,6 +14,7 @@ You can access the "Detailed progression" of all annotators.
 From here, you can then download the results and status CSV files.
 
 ### Results
+
 A table containing all annotations and comments left by the campaign annotators.
 
 | Column                     |          Type          | Description                                                        |
@@ -33,12 +34,12 @@ A table containing all annotations and comments left by the campaign annotators.
 | confidence_indicator_level | string<br/>[int]/[int] | The level of confidence on the maximum level available (if exists) |
 | comments                   |         string         | Comment left by the annotator.                                     |
 
-
 ### Status
+
 A table indicating the submission status for all files and by all annotators.
 
-| Column       |          Type          | Description                                                      |
-|--------------|:----------------------:|------------------------------------------------------------------|
-| dataset      |         string         | Name of the dataset.                                             |
-| filename     |         string         | Name of the file.                                                |
-| [Annotators] | CREATED <br/> FINISHED | State of submission of the annotator (column) on the file (line) |
+| Column       |                  Type                  | Description                                                      |
+|--------------|:--------------------------------------:|------------------------------------------------------------------|
+| dataset      |                 string                 | Name of the dataset.                                             |
+| filename     |                 string                 | Name of the file.                                                |
+| [Annotators] | UNASSIGNED <br/>CREATED <br/> FINISHED | State of submission of the annotator (column) on the file (line) |
