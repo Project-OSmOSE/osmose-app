@@ -15,14 +15,10 @@ import {
 } from "./slice";
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { AnnotatorState } from '@/service/annotator/type.ts';
-import { User } from '@/service/user';
 import { AnnotationComment } from '@/service/campaign/comment';
 
 const mockState: AnnotatorState = {
   hasChanged: false,
-  user: {
-    id: 1,
-  } as User,
   results: [
     {
       "id": 1,
@@ -82,18 +78,6 @@ const mockState: AnnotatorState = {
   ],
   focusedResultID: undefined,
 
-  label_set: {
-    "id": 1,
-    "name": "Test SPM campaign",
-    "desc": "Label set made for Test SPM campaign",
-    "labels": [
-      "Mysticetes",
-      "Odoncetes",
-      "Boat",
-      "Rain",
-      "Other"
-    ]
-  },
   labelColors: {
     Mysticetes: "#00b1b9",
     Odoncetes: "#a23b72",
@@ -103,25 +87,6 @@ const mockState: AnnotatorState = {
   },
   focusedLabel: undefined,
 
-  confidence_set: {
-    "id": 1,
-    "name": "Confident/NotConfident",
-    "desc": "Occur box voice student night argue wind. Play street let buy life offer situation. Term perhaps final give something cut cover. Article ready whose call black purpose. Everybody under we generation service week hold produce. Kid put language.",
-    "confidence_indicators": [
-      {
-        "id": 2,
-        "label": "confident",
-        "level": 1,
-        "isDefault": true
-      },
-      {
-        "id": 1,
-        "label": "not confident",
-        "level": 0,
-        "isDefault": false
-      }
-    ]
-  },
   focusedConfidenceLabel: "confident",
 
   focusedCommentID: 1,
