@@ -6,7 +6,7 @@ Pour visualiser les résultats, vous devez accéder à une campagne.
 
 Tous les détails de la campagne se trouvent ici.
 Pour plus d'informations à ce sujet, lisez la
-section [Annotation > Détail de la campagne](../campagne.md#detail-de-la-campagne).
+section [Annotation > Détail de la campagne](../campaign.md#detail-de-la-campagne).
 
 Vous pouvez accéder à la progression détaillée ("Detailed progression") de tous les annotateurs.
 
