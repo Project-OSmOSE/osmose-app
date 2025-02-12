@@ -1,19 +1,20 @@
-import { expect, test } from './utils/fixture';
-import { ESSENTIAL } from "./utils/detail";
+import { ESSENTIAL, expect, test, URL } from './utils';
 
-test.describe.configure({mode: "serial"})
+test('Global', ESSENTIAL, async ({ page }) => {
+  await page.home.go();
 
-test('Can access Login', ESSENTIAL, async ({ annotator: page }) => {
-  await page.getByRole('button', { name: 'Login' }).click()
-  await expect(page.getByRole('heading', { name: 'Login', exact: true }).first()).toBeVisible();
-})
+  await test.step('Has OSmOSE website link', async () => {
+    const url = await page.getByRole('link', { name: 'OSmOSE', exact: true }).getAttribute('href')
+    expect(url).toEqual(URL.OSmOSE)
+  })
 
-test('Can access OSmOSE website', ESSENTIAL, async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'OSmOSE', exact: true }).getAttribute('href')
-  expect(url).toEqual('/')
-})
+  await test.step('Has documentation link', async () => {
+    const url = await page.getByRole('link', { name: 'Documentation', exact: true }).first().getAttribute('href')
+    expect(url).toEqual(URL.doc)
+  })
 
-test('Can access documentation', ESSENTIAL, async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Documentation', exact: true }).first().getAttribute('href')
-  expect(url).toEqual('/doc/')
+  await test.step('Can access Login', async () => {
+    await page.getByRole('button', { name: 'Login' }).click()
+    await expect(page.getByRole('heading', { name: 'Login', exact: true }).first()).toBeVisible();
+  })
 })

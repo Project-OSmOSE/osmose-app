@@ -48,8 +48,8 @@ export const CurrentAnnotationBloc: React.FC = () => {
   }, [ focusedResult?.end_frequency ])
 
   const confidence = useMemo(() => {
-    if (!focusedResult?.label) return "-"
-    return focusedResult.label;
+    if (!focusedResult?.confidence_indicator) return "-"
+    return focusedResult.confidence_indicator;
   }, [ focusedResult?.end_frequency ])
 
   if (!focusedResult) return (

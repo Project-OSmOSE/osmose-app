@@ -35,7 +35,7 @@ export interface AnnotationResult extends AnnotationResultBounds {
   label: string;
   confidence_indicator: string | null;
   annotation_campaign: number; // pk - read only
-  annotator: number; // pk - read only
+  annotator: number | null; // pk - read only
   dataset_file: number; // pk - read only
   detector_configuration: DetectorConfiguration & { detector: string } | null;
   comments: Array<AnnotationComment>;

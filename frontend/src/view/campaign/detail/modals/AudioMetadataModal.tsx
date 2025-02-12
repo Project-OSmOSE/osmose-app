@@ -3,7 +3,7 @@ import { AnnotationCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { useDownloadAudioMetadataMutation, useListAudioMetadataQuery } from "@/service/dataset/audio-metatada";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
@@ -34,6 +34,8 @@ export const AudioMetadataModal: React.FC<{
 
       { loadingError && <WarningText>{ getErrorMessage(loadingError) }</WarningText> }
 
+      { metadata && metadata.length === 0 && <IonNote>No metadata</IonNote> }
+
       { metadata && metadata.length > 0 && <Table columns={ metadata.length + 1 } isFirstColumnSticky={ true }>
           <TableHead isFirstColumn={ true }>Files subtypes</TableHead>
         { metadata.map(c => <TableContent key={ c.id }>{ c.files_subtypes.join(', ') }</TableContent>) }
@@ -58,7 +60,7 @@ export const AudioMetadataModal: React.FC<{
       }
 
       <ModalFooter>
-        { isOwner && metadata && (
+        { isOwner && metadata && metadata.length > 0 && (
           <IonButton fill='outline' onClick={ onDownload }>
             <IonIcon icon={ downloadOutline } slot='start'/>
             Download metadata (csv)

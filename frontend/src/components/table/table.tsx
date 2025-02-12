@@ -4,7 +4,7 @@ import './table.css'
 
 interface TableProps {
   columns: number;
-  children: Iterable<ReactNode>;
+  children: ReactNode;
   isFirstColumnSticky?: boolean;
   className?: string;
   size?: 'small' | 'medium';

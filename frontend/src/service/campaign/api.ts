@@ -49,7 +49,10 @@ export const CampaignAPI = createApi({
       query: (data) => ({
         url: `${ data.id }/`,
         method: 'PATCH',
-        body: data
+        body: {
+          ...data,
+          id: undefined
+        }
       }),
     }),
     archive: builder.mutation<AnnotationCampaign, ID>({

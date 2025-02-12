@@ -12,10 +12,6 @@ import { KEY_DOWN_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
-export interface KeypressHandler {
-  handleKeyPressed: (event: KeyboardEvent) => void;
-}
-
 export const NavigationButtons: React.FC = () => {
   const {
     campaignID,

@@ -1,64 +1,68 @@
-import { expect, test } from './utils/fixture';
-import { DEFAULT_CAMPAIGN_NAME } from "./utils/campaign/data";
-import { Mock } from "./utils/mock";
-import { ESSENTIAL } from "./utils/detail";
+import { ESSENTIAL, expect, test } from './utils';
+import { CAMPAIGN } from './fixtures';
 
-test.describe.configure({ mode: "serial" })
 
-test.beforeEach(async ({ annotator: page }) => {
-  await page.nav.goAnnotationCampaigns()
-})
+test.describe('Annotator', () => {
+  test('Can see campaigns and access first', ESSENTIAL, async ({ page }) => {
+    await page.campaign.list.go('annotator');
+    await page.campaign.list.card.click()
+    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }`)
+  })
 
-test('Can see campaigns and access first', ESSENTIAL, async ({ annotator: page }) => {
-  await page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?annotator/g)
-  const card = page.locator('.campaign-card').first();
-  await expect(card).toBeVisible();
-  await card.click()
-  await expect(page.getByRole('heading', { name: Mock.CAMPAIGN.name })).toBeVisible()
-})
+  test('Can filter campaigns', async ({ page }) => {
+    await page.campaign.list.go('annotator');
+    await test.step('Search', async () => {
+      await Promise.all([
+        page.waitForRequest(/.*\/api\/annotation-campaign\/?\?.*search/g),
+        page.campaign.list.search(CAMPAIGN.name),
+      ])
+    })
 
-test('Cannot see campaigns if empty', ESSENTIAL, async ({ annotator: page }) => {
-  await page.nav.goAnnotationCampaigns({ campaigns: [] });
-  await expect(page.locator('.campaign-card')).not.toBeVisible();
-  await expect(page.getByText('No campaigns')).toBeVisible();
+    await test.step('Remove My work filter', async () => {
+      await Promise.all([
+        page.waitForRequest(/\/api\/annotation-campaign\/\?((?!annotator).)*$/g),
+        page.getByText('My work').click()
+      ])
+    })
 
-})
+    await test.step('Add Only archived filter', async () => {
+      await Promise.all([
+        page.waitForRequest(/\/api\/annotation-campaign\/x?\?.*archive__isnull=false.*$/g),
+        page.getByText('Only archived').click()
+      ])
+    })
 
-test('Can search campaign', async ({ annotator: page }) => {
-  await page.getByRole('search').locator('input').fill(DEFAULT_CAMPAIGN_NAME)
-  await page.keyboard.press('Enter')
-  await page.waitForRequest(/.*\/api\/annotation-campaign\/?\?.*search/g)
-})
+    await test.step('Add Campaign mode to Create filter', async () => {
+      await Promise.all([
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=0/g),
+        page.getByText('Campaign mode filter').click()
+      ])
+    })
 
-test('Can toggle My work filter', async ({ annotator: page }) => {
-  await page.getByText('My work').click()
-  await page.waitForRequest(/\/api\/annotation-campaign\/\?((?!annotator).)*$/g)
-})
+    await test.step('Change Campaign mode to Check filter', async () => {
+      await Promise.all([
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=1/g),
+        page.getByText('Campaign mode filter').click()
+      ])
+    })
 
-test('Can toggle Only archived filter', async ({ annotator: page }) => {
-  await page.getByText('Only archived').click()
-  await page.waitForRequest(/\/api\/annotation-campaign\/x?\?.*archive__isnull=false.*$/g)
-})
+    await test.step('Add Owned campaigns filter', async () => {
+      await Promise.all([
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?owner/g),
+        page.getByText('Owned campaigns').click()
+      ])
+    })
+  })
 
-test('Can toggle Campaign mode filter to Create', async ({ annotator: page }) => {
-  await page.getByText('Campaign mode filter').click()
-  await page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=0/g)
-})
+  test('Can access campaign creation', ESSENTIAL, async ({ page }) => {
+    await page.campaign.list.go('annotator');
+    await page.campaign.list.createButton.click()
+    await expect(page.getByRole('heading', { name: 'Create Annotation Campaign' })).toBeVisible();
+  })
 
-test('Can toggle Campaign mode filter to Check', async ({ annotator: page }) => {
-  await page.getByText('Campaign mode filter').click()
-  await Promise.all([
-    page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=1/g),
-    page.getByText('Campaign mode filter').click(),
-  ])
-})
-
-test('Can toggle Only mine filter', async ({ annotator: page }) => {
-  await page.getByText('Only mine').click()
-  await page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?owner/g)
-})
-
-test('Can access campaign creation', ESSENTIAL, async ({ annotator: page }) => {
-  await page.getByRole('button', { name: 'New annotation campaign' }).click()
-  await expect(page.getByRole('heading', { name: 'Create Annotation Campaign' })).toBeVisible();
+  test('Cannot see campaigns if empty', ESSENTIAL, async ({ page }) => {
+    await page.campaign.list.go('annotator', { empty: true });
+    await expect(page.campaign.list.card).not.toBeVisible();
+    await expect(page.getByText('No campaigns')).toBeVisible();
+  })
 })

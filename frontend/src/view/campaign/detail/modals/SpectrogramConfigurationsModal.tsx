@@ -7,7 +7,7 @@ import { AnnotationCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { LinearScale, MultiLinearScale } from "@/service/dataset/spectrogram-configuration/scale";
@@ -42,6 +42,8 @@ export const SpectrogramConfigurationsModal: React.FC<{
       { isLoading && <IonSpinner/> }
 
       { loadingError && <WarningText>{ getErrorMessage(loadingError) }</WarningText> }
+
+      { configurations && configurations.length === 0 && <IonNote>No spectrogram configuration</IonNote> }
 
       { configurations && configurations.length > 0 && (
         <div className={ styles.table }>
@@ -161,7 +163,7 @@ export const SpectrogramConfigurationsModal: React.FC<{
       }
 
       <ModalFooter>
-        { isOwner && configurations && (
+        { isOwner && configurations && configurations.length > 0 && (
           <IonButton fill='outline' onClick={ onDownload }>
             <IonIcon icon={ downloadOutline } slot='start'/>
             Download configurations (csv)

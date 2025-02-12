@@ -39,7 +39,8 @@ export const Results: React.FC = () => {
     },
     [ results ])
 
-  return <div className={ styles.bloc }>
+  // 'results' class is for playwright tests
+  return <div className={ [ styles.bloc, 'results' ].join(' ') }>
     <h6 className={ styles.header }>Annotations</h6>
     <div className={ [ styles.body, styles.vertical ].join(' ') }>
 
@@ -102,11 +103,11 @@ const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, type, classNam
     if (!result.start_frequency) return;
     if (!result.end_frequency) return result.start_frequency;
     return Math.min(result.start_frequency, result.end_frequency)
-  }, [result.start_frequency, result.end_frequency])
+  }, [ result.start_frequency, result.end_frequency ])
   const maxFrequency = useMemo(() => {
     if (!result.start_frequency || !result.end_frequency) return;
     return Math.max(result.start_frequency, result.end_frequency)
-  }, [result.start_frequency, result.end_frequency])
+  }, [ result.start_frequency, result.end_frequency ])
   if (type === 'presence') return <Fragment/>
 
   return <TableContent className={ className } onClick={ onClick }>

@@ -50,7 +50,7 @@ export const LabelSetModal: React.FC<{
 
   return (
     <Modal onClose={ onClose } className={ styles.modal }>
-      <ModalHeader onClose={ onClose } title='Audio metadata'/>
+      <ModalHeader onClose={ onClose } title='Label set'/>
 
       { isFetching && <IonSpinner/> }
 

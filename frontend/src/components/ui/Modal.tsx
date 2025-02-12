@@ -22,7 +22,8 @@ export const ModalHeader: React.FC<{
 }> = ({ onClose, title }) => (
   <div className={ styles.header }>
     <h3>{ title }</h3>
-    <IoCloseOutline onClick={ onClose } className={ styles.icon }/>
+    <IoCloseOutline onClick={ onClose } className={ [ styles.icon, 'close' ].join(' ') } role='button'/>
+    {/* 'close' classname is for playwright tests */ }
   </div>
 )
 
@@ -30,5 +31,5 @@ export const ModalFooter: React.FC<{
   children: ReactNode;
   className?: string;
 }> = ({ children, className }) => (
-  <div className={ [styles.footer, className].join(' ') }>{ children }</div>
+  <div className={ [ styles.footer, className ].join(' ') }>{ children }</div>
 )

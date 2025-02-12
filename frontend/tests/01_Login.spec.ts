@@ -1,34 +1,22 @@
-import { expect, test } from './utils/fixture';
-import { ESSENTIAL } from "./utils/detail";
+import { ESSENTIAL, expect, test } from './utils';
+import { LoginPage } from './utils/pages';
+import { AUTH } from './fixtures';
 
-test.describe.configure({mode: "serial"})
+test('Login', ESSENTIAL, async ({ page }) => {
+  await page.login.go();
+  await page.login.fillForm();
 
-test.beforeEach(({annotator: page}) => page.nav.goLogin())
+  await test.step('401 - Unauthorized', async () => {
+    await page.login.submit(401);
+    await expect(page.getByText(LoginPage.SERVER_ERROR)).toBeVisible();
+  })
 
-test('can go back regular', async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Back to Home' }).getAttribute('href')
-  expect(url).toEqual('/app/')
-})
-
-test('logs in with good credentials', ESSENTIAL, async ({ annotator: page }) => {
-  await page.auth.login();
-  await expect(page.getByRole('heading', { name: 'Annotation Campaigns' })).toBeVisible();
-})
-
-test('logs in with invalid password', async ({ annotator: page }) => {
-  await page.auth.login(undefined, 'incorrect password', false);
-  await expect(page.getByText('No active account found with the given credentials')).toBeVisible();
-})
-
-test('logs in with invalid username', async ({ annotator: page }) => {
-  await page.auth.login('incorrect username', undefined, false);
-  await expect(page.getByText('No active account found with the given credentials')).toBeVisible();
-})
-
-test('logs in after error', async ({ annotator: page }) => {
-  await page.auth.login('invalid username', 'incorrect password', false);
-  await expect(page.getByText('No active account found with the given credentials')).toBeVisible();
-
-  await page.auth.login();
-  await expect(page.getByRole('heading', { name: 'Annotation Campaigns' })).toBeVisible();
+  await test.step('200 - Success', async () => {
+    const request = await page.login.submit(200);
+    expect(await request.postDataJSON()).toEqual({
+      username: AUTH.username,
+      password: AUTH.password
+    })
+    await expect(page.getByRole('heading', { name: 'Annotation Campaigns' })).toBeVisible();
+  })
 })

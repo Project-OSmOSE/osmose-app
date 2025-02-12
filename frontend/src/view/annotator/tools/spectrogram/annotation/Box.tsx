@@ -31,10 +31,10 @@ export const Box: React.FC<RegionProps> = ({
   const _yAxis = useRef<AbstractScale>(yAxis);
   useEffect(() => {
     _xAxis.current = xAxis;
-  }, [xAxis]);
+  }, [ xAxis ]);
   useEffect(() => {
     _yAxis.current = yAxis;
-  }, [yAxis]);
+  }, [ yAxis ]);
 
   // Annotation time/freq bounds
   const _start_time = useRef<number | null>(annotation.start_time);
@@ -46,7 +46,7 @@ export const Box: React.FC<RegionProps> = ({
     _end_time.current = annotation.end_time;
     _start_frequency.current = annotation.start_frequency;
     _end_frequency.current = annotation.end_frequency;
-  }, [annotation.start_time, annotation.end_time, annotation.start_frequency, annotation.end_frequency]);
+  }, [ annotation.start_time, annotation.end_time, annotation.start_frequency, annotation.end_frequency ]);
 
   // Coords bounds
   const _left = useRef<number>(0);
@@ -66,15 +66,15 @@ export const Box: React.FC<RegionProps> = ({
     updateWidth()
     updateTop()
     updateHeight()
-  }, [ ]);
+  }, []);
   useEffect(() => updateLeft, [ _xAxis.current, _start_time.current ]);
   useEffect(() => updateWidth, [ _xAxis.current, _start_time.current, _end_time.current ]);
   useEffect(() => updateTop, [ _yAxis.current, _end_frequency.current ]);
   useEffect(() => updateHeight, [ _yAxis.current, _start_frequency.current, _end_frequency.current ]);
-  useEffect(() => setTop(_top.current), [_top.current]);
-  useEffect(() => setHeight(_height.current), [_height.current]);
-  useEffect(() => setLeft(_left.current), [_left.current]);
-  useEffect(() => setWidth(_width.current), [_width.current]);
+  useEffect(() => setTop(_top.current), [ _top.current ]);
+  useEffect(() => setHeight(_height.current), [ _height.current ]);
+  useEffect(() => setLeft(_left.current), [ _left.current ]);
+  useEffect(() => setWidth(_width.current), [ _width.current ]);
 
   // Memo
   const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label) }` : '', [ label_set, annotation.label ]);
@@ -153,8 +153,9 @@ export const Box: React.FC<RegionProps> = ({
         <IoChatbubbleEllipses/> :
         <IoChatbubbleOutline className={ styles.outlineIcon }/> }
 
+      {/* 'remove-box' class is for playwright tests*/ }
       { campaign?.usage === 'Create' && (
-        <IoTrashBin className={ [ styles.button, styles.delete ].join(' ') }
+        <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') }
                     onClick={ () => dispatch(removeResult(annotation.id)) }/>
       ) }
 

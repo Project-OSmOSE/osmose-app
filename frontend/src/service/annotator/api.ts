@@ -47,7 +47,7 @@ export const AnnotatorAPI = createApi({
           })) : data.results,
           session: {
             start: data.session.start.toISOString(),
-            end: data.session.start.toISOString(),
+            end: data.session.end.toISOString(),
           }
         }
       })

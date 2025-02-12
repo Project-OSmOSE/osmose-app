@@ -24,7 +24,7 @@ import { ID } from "@/service/type.ts";
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 export const DetailPageAnnotationTasks: React.FC<{
-  campaign: AnnotationCampaign;
+  campaign?: AnnotationCampaign;
   isOwner: boolean;
 }> = ({ campaign, }) => {
   const history = useHistory();
@@ -39,15 +39,15 @@ export const DetailPageAnnotationTasks: React.FC<{
   }, []);
 
   useListFilesWithPaginationQuery({
-    campaignID: campaign.id,
+    campaignID: campaign!.id,
     page: 1,
-  }, { refetchOnMountOrArgChange: true });
+  }, { refetchOnMountOrArgChange: true, skip: !campaign });
   const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
     ...fileFilters,
-    campaignID: campaign.id,
+    campaignID: campaign!.id,
     page,
-  });
-  const { data: labelSet } = useRetrieveLabelSetQuery(campaign.label_set);
+  }, { skip: !campaign });
+  const { data: labelSet } = useRetrieveLabelSetQuery(campaign!.label_set, { skip: !campaign });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
@@ -60,10 +60,12 @@ export const DetailPageAnnotationTasks: React.FC<{
   const isLastLabel = useMemo(() => [ ...(labelSet?.labels ?? []) ].pop() === fileFilters.label, [ fileFilters.label, labelSet?.labels ]);
 
   function resume() {
-    history.push(`/annotation-campaign/${ campaign.id }/file/${ files?.resume }`);
+    if (!campaign || !files) return;
+    history.push(`/annotation-campaign/${ campaign.id }/file/${ files.resume }`);
   }
 
   function toggleNonSubmittedFilter() {
+    if (!campaign) return;
     dispatch(setFileFilters({
       ...fileFilters,
       campaignID: campaign.id,
@@ -73,6 +75,7 @@ export const DetailPageAnnotationTasks: React.FC<{
   }
 
   function toggleWithAnnotationsFilter() {
+    if (!campaign) return;
     dispatch(setFileFilters({
       ...fileFilters,
       campaignID: campaign.id,
@@ -82,6 +85,7 @@ export const DetailPageAnnotationTasks: React.FC<{
   }
 
   function toggleLabelFilter() {
+    if (!campaign) return;
     if (!labelSet || labelSet.labels.length === 0) return;
     let newLabel = undefined;
     if (!fileFilters.label) newLabel = labelSet.labels[0]
@@ -100,6 +104,7 @@ export const DetailPageAnnotationTasks: React.FC<{
   }
 
   function updateSearch(search: string) {
+    if (!campaign) return;
     dispatch(setFileFilters({
       ...fileFilters,
       campaignID: campaign.id,
@@ -151,7 +156,7 @@ export const DetailPageAnnotationTasks: React.FC<{
 
     { files && files.count === 0 && <p>You have no files to annotate.</p> }
 
-    { files && files.results.length > 0 && <Fragment>
+    { campaign && files && files.results.length > 0 && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>
             <TableHead topSticky isFirstColumn={ true }>Filename</TableHead>
             <TableHead topSticky>Date</TableHead>

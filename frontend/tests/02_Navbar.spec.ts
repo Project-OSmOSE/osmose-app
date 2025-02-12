@@ -1,61 +1,60 @@
-import { expect, ExtendedPage, test } from './utils/fixture';
-import { ESSENTIAL } from "./utils/detail";
+import { ESSENTIAL, expect, Page, test, URL } from './utils';
 
-test.describe.configure({ mode: "serial" })
+// Utils
 
-test.beforeEach(({ annotator: page }) => page.nav.goAnnotationCampaigns())
-
-test('can go back regular', async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Back to Home' }).getAttribute('href')
-  expect(url).toEqual('/app/')
-})
-
-test('can access campaign', ESSENTIAL, async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Annotation campaigns' }).getAttribute('href')
-  expect(url).toEqual('/app/annotation-campaign')
-})
-
-test('cannot access datasets', async ({ annotator: page }) => {
-  await expect(page.getByRole('link', { name: 'Datasets' })).not.toBeVisible();
-})
-
-test('cannot access administration', async ({ annotator: page }) => {
-  await expect(page.getByRole('link', { name: 'Admin' })).not.toBeVisible();
-})
-
-test('Can access documentation', async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Documentation', exact: true }).first().getAttribute('href')
-  expect(url).toEqual('/doc/')
-})
-
-test('Can access account', async ({ annotator: page }) => {
-  const url = await page.getByRole('link', { name: 'Account', exact: true }).first().getAttribute('href')
-  expect(url).toEqual('/app/account')
-})
-
-test('Can logout', ESSENTIAL, async ({ annotator: page }) => {
-  await page.getByRole('button', { name: 'Logout' }).click()
-  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
-})
-
-async function superCanAccessDataset(page: ExtendedPage) {
-  const url = await page.getByRole('link', { name: 'Datasets' }).getAttribute('href')
-  expect(url).toEqual('/app/datasets')
+const STEP = {
+  hasAdminLink: (page: Page) => test.step('Has admin link', async () => {
+    const url = await page.getByRole('link', { name: 'Admin' }).getAttribute('href')
+    expect(url).toEqual(URL.admin)
+  }),
+  canAccessDataset: (page: Page) => test.step('Can access datasets', async () => {
+    await page.getByRole('button', { name: 'Datasets' }).click()
+    await expect(page.getByRole('heading', { name: 'Datasets' })).toBeVisible();
+  })
 }
 
-async function superCanAccessAdmin(page: ExtendedPage) {
-  const url = await page.getByRole('link', { name: 'Admin' }).getAttribute('href')
-  expect(url).toEqual('/backend/admin')
-}
+// Tests
 
-test.describe('Staff', ESSENTIAL, () => {
-  test.beforeEach(({ staff: page }) => page.nav.goAnnotationCampaigns())
-  test('can access datasets', ({ staff: page }) => superCanAccessDataset(page))
-  test('can access administration', ({ staff: page }) => superCanAccessAdmin(page))
+test('Annotator', ESSENTIAL, async ({ page }) => {
+  await page.campaign.list.go('annotator');
+
+  await test.step('can access campaign', async () => {
+    await page.getByRole('button', { name: 'Annotation campaigns' }).click()
+    await expect(page.getByRole('heading', { name: 'Annotation campaigns' })).toBeVisible()
+  })
+
+  await test.step('Can access documentation', async () => {
+    const url = await page.getByRole('link', { name: 'Documentation', exact: true }).first().getAttribute('href')
+    expect(url).toEqual(URL.doc)
+  })
+
+  await test.step('Can access account', async () => {
+    await page.getByRole('button', { name: 'Account', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible()
+  })
+
+  await test.step('cannot access datasets', async () => {
+    await expect(page.getByRole('button', { name: 'Datasets' })).not.toBeVisible();
+  })
+
+  await test.step('cannot access administration', async () => {
+    await expect(page.getByRole('link', { name: 'Admin' })).not.toBeVisible();
+  })
+
+  await test.step('Can logout', async () => {
+    await page.getByRole('button', { name: 'Logout' }).click()
+    await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
+  })
 })
 
-test.describe('Superuser', ESSENTIAL, () => {
-  test.beforeEach(({ superuser: page }) => page.nav.goAnnotationCampaigns())
-  test('can access datasets', ({ superuser: page }) => superCanAccessDataset(page))
-  test('can access administration', ({ superuser: page }) => superCanAccessAdmin(page))
+test('Staff', ESSENTIAL, async ({ page }) => {
+  await page.campaign.list.go('staff');
+  await STEP.hasAdminLink(page);
+  await STEP.canAccessDataset(page)
+})
+
+test('Superuser', ESSENTIAL, async ({ page }) => {
+  await page.campaign.list.go('superuser');
+  await STEP.hasAdminLink(page);
+  await STEP.canAccessDataset(page)
 })

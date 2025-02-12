@@ -12,13 +12,19 @@ import { Progress } from "@/components/ui/Progress.tsx";
 import { useAlert } from "@/service/ui";
 import { LabelSetModal } from "@/view/campaign/detail/modals/LabelSetModal.tsx";
 
-export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: boolean }> = ({ campaign, isOwner }) => {
+export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: boolean }> = ({
+                                                                                                campaign,
+                                                                                                isOwner
+                                                                                              }) => {
 
-  const { data: labelSet, isLoading: isLoadingLabelSet } = useRetrieveLabelSetQuery(campaign.label_set);
+  const {
+    data: labelSet,
+    isLoading: isLoadingLabelSet
+  } = useRetrieveLabelSetQuery(campaign!.label_set, { skip: !campaign });
   const {
     data: confidenceSet,
     isLoading: isLoadingConfidenceSet
-  } = useRetrieveConfidenceSetQuery(campaign.confidence_indicator_set ?? -1, { skip: !campaign.confidence_indicator_set });
+  } = useRetrieveConfidenceSetQuery(campaign?.confidence_indicator_set ?? -1, { skip: !campaign?.confidence_indicator_set });
   const [ archiveCampaign ] = useArchiveCampaignMutation()
   const alert = useAlert();
 
@@ -29,8 +35,8 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
 
 
   function openInstructions() {
-    if (!campaign.instructions_url) return;
-    window.open(campaign.instructions_url, "_blank", "noopener, noreferrer")
+    if (!campaign?.instructions_url) return;
+    window.open(campaign?.instructions_url, "_blank", "noopener, noreferrer")
   }
 
   function toggleSpectrogramModal() {
@@ -50,6 +56,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
   }
 
   async function archive() {
+    if (!campaign) return;
     if (campaign.progress < campaign.total) {
       // If annotators haven't finished yet, ask for confirmation
       return await alert.present({
@@ -70,34 +77,35 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
 
   return <div className={ styles.side }>
 
-    { (isOwner || campaign.instructions_url) && (
+    { (isOwner || campaign?.instructions_url) && (
       <div className={ [ styles.bloc, styles.last ].join(' ') }>
         { isOwner && <IonButton color='medium' fill='outline' onClick={ archive }>
             <IonIcon icon={ archiveOutline } slot='start'/>
             Archive
         </IonButton> }
-        { campaign.instructions_url && <IonButton color="warning" fill="outline" onClick={ openInstructions }>
+        { campaign?.instructions_url && <IonButton color="warning" fill="outline" onClick={ openInstructions }>
             <IonIcon icon={ helpBuoyOutline } slot="start"/> Instructions
         </IonButton> }
       </div>
     ) }
 
     <div className={ styles.bloc }>
-      { campaign.deadline && <div><FadedText>Deadline</FadedText><p>{ campaign.deadline }</p></div> }
+      { campaign?.deadline &&
+          <div><FadedText>Deadline</FadedText><p>{ new Date(campaign.deadline).toLocaleDateString() }</p></div> }
 
-      <div><FadedText>Annotation mode</FadedText><p>{ campaign.usage } annotations</p></div>
+      <div><FadedText>Annotation mode</FadedText><p>{ campaign?.usage } annotations</p></div>
     </div>
 
     <div className={ styles.bloc }>
       <div>
-        <FadedText>Dataset{ campaign.datasets.length > 1 ? 's' : '' }</FadedText>
-        <p>{ campaign.datasets.join(', ') }</p>
+        <FadedText>Dataset{ campaign && campaign.datasets.length > 1 ? 's' : '' }</FadedText>
+        <p>{ campaign?.datasets.join(', ') }</p>
       </div>
 
       <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleSpectrogramModal }>
-        Spectrogram configuration{ campaign.spectro_configs.length > 1 ? 's' : '' }
+        Spectrogram configuration{ campaign && campaign.spectro_configs.length > 1 ? 's' : '' }
       </IonButton>
-      { isSpectrogramModalOpen && createPortal(
+      { campaign && isSpectrogramModalOpen && createPortal(
         <SpectrogramConfigurationsModal campaign={ campaign }
                                         isOwner={ isOwner }
                                         onClose={ toggleSpectrogramModal }/>,
@@ -106,7 +114,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
       <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleAudioModal }>
         Audio metadata
       </IonButton>
-      { isAudioModalOpen && createPortal(
+      { campaign && isAudioModalOpen && createPortal(
         <AudioMetadataModal campaign={ campaign }
                             isOwner={ isOwner }
                             onClose={ toggleAudioModal }/>,
@@ -122,7 +130,7 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
       <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleLabelSetModal }>
         Detailed label set
       </IonButton>
-      { isLabelSetModalOpen && createPortal(
+      { campaign && isLabelSetModalOpen && createPortal(
         <LabelSetModal campaign={ campaign }
                        isOwner={ isOwner }
                        onClose={ toggleLabelSetModal }/>,
@@ -137,16 +145,16 @@ export const DetailPageSide: React.FC<{ campaign: AnnotationCampaign, isOwner: b
     </div>
 
     <div className={ styles.bloc }>
-      { campaign.my_total > 0 && <Progress label='My progress' color='primary'
-                                           value={ campaign.my_progress } total={ campaign.my_total }/> }
+      { campaign && campaign.my_total > 0 && <Progress label='My progress' color='primary'
+                                                       value={ campaign.my_progress } total={ campaign.my_total }/> }
 
-      <Progress label='Global progress'
-                value={ campaign.progress } total={ campaign.total }/>
+      { campaign && <Progress label='Global progress'
+                              value={ campaign.progress } total={ campaign.total }/> }
 
       <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleProgressModal }>
         Detailed progression
       </IonButton>
-      { isProgressModalOpen && createPortal(
+      { campaign && isProgressModalOpen && createPortal(
         <ProgressModal campaign={ campaign }
                        isOwner={ isOwner }
                        onClose={ toggleProgressModal }/>,

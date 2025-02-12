@@ -60,6 +60,13 @@ def check_report_check(test: APITestCase, response: Response):
             "no Confident",
             "1/1",
             "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
             "True",
             "False",
         ],
@@ -112,6 +119,7 @@ class ReportEmptyAdminAuthenticatedTestCase(AuthenticatedTestCase):
 class ReportFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     username = "admin"
     fixtures = all_fixtures
+    maxDiff = None
 
     def test_report(self):
         response = self.client.get(URL)

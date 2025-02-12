@@ -7,8 +7,8 @@ import {
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { addOutline, caretDown, caretUp, downloadOutline } from "ionicons/icons";
+import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
+import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { getDisplayName, useListUsersQuery, User } from "@/service/user";
 import { AnnotationFileRange, useListAnnotationFileRangeQuery } from "@/service/campaign/annotation-file-range";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
@@ -101,7 +101,7 @@ export const ProgressModal: React.FC<{
     downloadReport(campaign)
   }
 
-  function addAnnotator() {
+  function manageAnnotator() {
     history.push(`/annotation-campaign/${ campaign.id }/edit`);
   }
 
@@ -122,10 +122,12 @@ export const ProgressModal: React.FC<{
     <Modal onClose={ onClose } className={ [ styles.modal, styles.progressModal ].join(' ') }>
       <ModalHeader onClose={ onClose } title='Annotators progression'/>
 
-      { isLoadingUsers || isLoadingFileRanges && <IonSpinner/> }
+      { (isLoadingUsers || isLoadingFileRanges) && <IonSpinner/> }
 
       { userError && <WarningText>{ getErrorMessage(userError) }</WarningText> }
       { fileRangeError && <WarningText>{ getErrorMessage(fileRangeError) }</WarningText> }
+
+      { (!isLoadingUsers && !isLoadingFileRanges) && progress.length === 0 && <IonNote>No annotators</IonNote> }
 
       { progress.length > 0 &&
           <Table columns={ 2 } className={ [ styles.table, styles.status ].join(' ') }>
@@ -177,23 +179,23 @@ export const ProgressModal: React.FC<{
       { isOwner && users && fileRanges && (
         <ModalFooter className={ styles.footer }>
           <div className={ styles.buttons }>
-            <IonButton fill='outline' onClick={ onDownloadReport }>
-              <IonIcon icon={ downloadOutline } slot='start'/>
-              Results (csv)
-            </IonButton>
+            { progress.length > 0 && <Fragment>
+                <IonButton fill='outline' onClick={ onDownloadReport }>
+                    <IonIcon icon={ downloadOutline } slot='start'/>
+                    Results (csv)
+                </IonButton>
 
-            <IonButton fill='outline' onClick={ onDownloadStatus }>
-              <IonIcon icon={ downloadOutline } slot='start'/>
-              Status (csv)
-            </IonButton>
+                <IonButton fill='outline' onClick={ onDownloadStatus }>
+                    <IonIcon icon={ downloadOutline } slot='start'/>
+                    Status (csv)
+                </IonButton>
+            </Fragment> }
           </div>
 
-          <IonButton onClick={ addAnnotator }>
-            <IonIcon icon={ addOutline } slot='start'/>
-            Add annotator
-          </IonButton>
+          <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton>
         </ModalFooter>
-      ) }
+      )
+      }
     </Modal>
   )
 }

@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
@@ -49,8 +49,7 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [])
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const campaign = createdCampaign ?? await submitCampaign();
       await submitResults(campaign)
@@ -74,11 +73,13 @@ export const CreateCampaign: React.FC = () => {
       dispatch(updateCampaignSubmissionErrors(errors))
       throw new Error("Missing required fields");
     }
+    let deadline = draftCampaign.deadline ?? null;
+    if (deadline) deadline = new Date(deadline).toISOString();
     const data: BaseAnnotationCampaign = {
       name: draftCampaign.name?.trim() ?? '',
       desc: draftCampaign.desc?.trim() ?? null,
       instructions_url: draftCampaign.instructions_url?.trim() ?? null,
-      deadline: draftCampaign.deadline?.trim() ?? null,
+      deadline,
       datasets: draftCampaign.datasets ?? [],
       spectro_configs: draftCampaign.spectro_configs ?? [],
       labels_with_acoustic_features: draftCampaign.labels_with_acoustic_features ?? [],
@@ -142,6 +143,7 @@ export const CreateCampaign: React.FC = () => {
   }
 
   const submitFileRanges = (campaign: AnnotationCampaign) => {
+    if (draftFileRanges.length === 0) return;
     return postFileRanges({
       campaignID: campaign.id,
       data: draftFileRanges.map(r => {
@@ -159,8 +161,7 @@ export const CreateCampaign: React.FC = () => {
 
 
   return (
-    <form id="create-campaign-form"
-          onSubmit={ handleSubmit }>
+    <div id="create-campaign-form">
       <h1>Create Annotation Campaign</h1>
 
       <CampaignBloc/>
@@ -172,10 +173,11 @@ export const CreateCampaign: React.FC = () => {
       <AnnotatorsRangeBloc/>
 
       <IonButton color="primary" type="submit"
+                 onClick={ handleSubmit }
                  disabled={ isSubmittingCampaign || isSubmittingFileRanges || isImportingResults }>
         Create campaign
         { (isSubmittingCampaign || isSubmittingFileRanges || isImportingResults) && <IonSpinner/> }
       </IonButton>
-    </form>
+    </div>
   )
 }

@@ -15,24 +15,12 @@ interface Props {
 export const DetectorsContent: React.FC<Props> = ({
                                                     cancelButton
                                                   }) => {
-  const [ detectors, setDetectors ] = useState<Map<string, Detector | null | undefined>>(new Map());
-  const [ canValidate, setCanValidate ] = useState<boolean>(false);
+  const [ selectedDetectors, setSelectedDetectors ] = useState<string[]>([]);
+  const [ detectorsMap, setDetectorsMap ] = useState<Map<string, Detector>>(new Map());
+  const canValidate = useMemo(() => selectedDetectors.length > 0, [ selectedDetectors ]);
+
   const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
   const toast = useToast();
-
-  useEffect(() => {
-    if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
-  }, [ detectorListError ])
-
-  useEffect(() => {
-    updateCanValidate()
-  }, []);
-
-  const updateCanValidate = () => {
-    setCanValidate(detectors.size > 0 && [ ...detectors.entries() ].some(([k, v]) => {
-      return v !== undefined || allDetectors?.some(d => d.name === k)
-    }))
-  }
 
   // Form data
   const {
@@ -41,48 +29,53 @@ export const DetectorsContent: React.FC<Props> = ({
   } = useAppSelector(state => state.campaign);
   const dispatch = useAppDispatch();
 
-  const availableDetectors = useMemo(() => {
+  useEffect(() => {
+    if (detectorListError) toast.presentError(getErrorMessage(detectorListError));
+  }, [ detectorListError ])
+
+  const availableDetectors: string[] | undefined = useMemo(() => {
     const data = resultImport.fileData;
     const filterDatasets = resultImport.filterDatasets;
     if (!data || !filterDatasets) return;
     const availableEntries = filterDatasets.flatMap(d => data.detectorsForDatasets[d])
-    return [...new Set(availableEntries)]
+    return [ ...new Set(availableEntries) ]
   }, [])
 
+  useEffect(() => {
+    if (!availableDetectors || !allDetectors) return;
+    const knownDetectors: [string, Detector][] = availableDetectors
+      .map(d => [d, allDetectors.find(k => k.name === d)])
+      .filter(([_, d]) => !!d) as [string, Detector][]
+    setDetectorsMap(new Map(knownDetectors))
+    setSelectedDetectors(knownDetectors.map(([d]) =>  d))
+  }, [ allDetectors, availableDetectors ]);
+
   const _save = () => {
-    const entries: DetectorSelection[] = [ ...detectors.entries() ].map(([ initialName, detector ]) => {
-      const selection: DetectorSelection = {
-        initialName,
-        isNew: !detector,
-        knownDetector: detector ?? undefined,
-      };
-      return selection
-    })
+    const entries: DetectorSelection[] = selectedDetectors.map(( detector) => ({
+      initialName: detector,
+      knownDetector: detectorsMap.get(detector),
+      isNew: !detectorsMap.has(detector),
+    }))
     dispatch(saveDetectors(entries))
   }
 
-  const onDetectorSelected = (detector: string) => {
-    setDetectors(previous => {
-      previous.set(detector, previous.get(detector));
-      return previous;
-    })
-    updateCanValidate()
+  function setIsDetectorSelected(state: boolean, detector: string) {
+    if (state) {
+      setSelectedDetectors(prevState => {
+        if (prevState.includes(detector)) return prevState;
+        return [ ...prevState, detector ]
+      })
+    } else {
+      setSelectedDetectors(prev => prev.filter(d => d !== detector))
+    }
   }
 
-  const onDetectorUnselected = (detector: string) => {
-    setDetectors(previous => {
-      previous.delete(detector);
-      return previous;
+  function setDetectors(detector: string, knownDetector?: Detector) {
+    setDetectorsMap(prevState => {
+      if (knownDetector) prevState.set(detector, knownDetector);
+      else prevState.delete(detector);
+      return prevState;
     })
-    updateCanValidate()
-  }
-
-  const onDetectorChoiceUpdated = (detector: string, choice: Detector | null) => {
-    setDetectors(previous => {
-      previous.set(detector, choice);
-      return previous;
-    })
-    updateCanValidate()
   }
 
   if (!allDetectors) return <IonSpinner/>
@@ -99,9 +92,11 @@ export const DetectorsContent: React.FC<Props> = ({
             <DetectorEntry csvDetector={ d }
                            allDetectors={ allDetectors }
                            key={ d }
-                           onSelected={ () => onDetectorSelected(d) }
-                           onUnselected={ () => onDetectorUnselected(d) }
-                           onDetectorUpdated={ (choice) => onDetectorChoiceUpdated(d, choice) }/>)) }
+
+                           isSelected={ selectedDetectors.includes(d) }
+                           setIsSelected={ state => setIsDetectorSelected(state, d) }
+                           detector={ detectorsMap.get(d) }
+                           setDetector={ detector => setDetectors(d, detector) }/>)) }
         </FormBloc>
       </div>
 
@@ -121,48 +116,33 @@ export const DetectorsContent: React.FC<Props> = ({
 interface DetectorEntryProps {
   allDetectors: Array<Detector>,
   csvDetector: string;
-  onSelected: () => void;
-  onDetectorUpdated: (detector: Detector | null) => void;
-  onUnselected: () => void;
+
+  isSelected: boolean;
+  setIsSelected: (value: boolean) => void;
+  detector?: Detector;
+  setDetector: (detector?: Detector) => void;
 }
 
 const DetectorEntry: React.FC<DetectorEntryProps> = ({
                                                        allDetectors,
                                                        csvDetector,
-                                                       onSelected,
-                                                       onDetectorUpdated,
-                                                       onUnselected
+                                                       isSelected, setIsSelected,
+                                                       detector, setDetector
                                                      }) => {
   const doesExists = useMemo(() => allDetectors.some(d => d.name === csvDetector), [ allDetectors, csvDetector ])
   const [ isUpdated, setIsUpdated ] = useState<boolean>(false);
 
-  const [ isSelected, setIsSelected ] = useState(doesExists);
-  const [ selectedDetector, setSelectedDetector ] = useState<Detector | null | undefined>();
-
-  useEffect(() => {
-    if (doesExists) onDetectorUpdated(allDetectors.find(d => d.name === csvDetector)!)
-  }, [ doesExists ]);
-
   const onChange = (e: CustomEvent<CheckboxChangeEventDetail>) => {
-    if (e.detail.checked) {
-      onSelected()
-      setIsSelected(true)
-    } else {
-      onUnselected()
-      setIsSelected(false)
-    }
+    setIsSelected(e.detail.checked);
+    setIsSelected(e.detail.checked)
   }
 
   const onDetectorChange = (id: string | number | undefined) => {
     if (typeof id === 'undefined' || (typeof id === 'string' && isNaN(+id)) || (typeof id === 'number' && id === -1)) {
-      onDetectorUpdated(null);
-      setSelectedDetector(null);
+      setDetector(undefined);
     } else {
-      const detector = allDetectors.find(d => d.id === +id)!;
-      setSelectedDetector(detector);
-      onDetectorUpdated(detector);
+      setDetector(allDetectors.find(d => d.id === +id)!);
     }
-    onSelected()
     setIsSelected(true)
     setIsUpdated(true)
   }
@@ -183,7 +163,7 @@ const DetectorEntry: React.FC<DetectorEntryProps> = ({
       { !doesExists && <div className="unknown">
           <IonNote color={ !doesExists && !isUpdated ? 'danger' : "medium" }>Unknown detector</IonNote>
 
-          <Select value={ selectedDetector?.id }
+          <Select value={ detector?.id }
                   onValueSelected={ onDetectorChange }
                   options={ allDetectors.map(d => ({ value: d.id, label: d.name })) }
                   optionsContainer="popover"

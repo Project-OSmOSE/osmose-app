@@ -12,21 +12,13 @@ from backend.api.serializers import AnnotationResultSerializer
 from backend.aplose.models import User
 from backend.utils.tests import all_fixtures
 
-# TODO: update with definitive fields
 features = {
     "start_frequency": 10.0,
     "end_frequency": 50.0,
-    "min_frequency": 5.0,
-    "max_frequency": 500.0,
-    "median_frequency": 25.0,
-    "beginning_sweep_slope": 25.0,
-    "end_sweep_slope": 25.0,
+    "relative_max_frequency_count": 5,
+    "relative_min_frequency_count": 4,
     "steps_count": 2,
-    "relative_peaks_count": 2,
     "has_harmonics": True,
-    "harmonics_count": 3,
-    "level_peak_frequency": 53.0,
-    "duration": 53.0,
     "trend": "Modulated",
 }
 presence_result = {

@@ -41,7 +41,8 @@ export const AnnotatorPage: React.FC = () => {
     history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }`);
   }
 
-  return <div className={ [styles.page, pointerPosition ? styles.disableScroll : ''].join(' ') }>
+  // 'page' class is for playwright tests
+  return <div className={ [ styles.page, pointerPosition ? styles.disableScroll : '', 'page' ].join(' ') }>
     <Header size='small'
             buttons={ <Fragment>
               <IonButton fill='outline' size='small' color='medium' onClick={ backToOldInterface }>
@@ -66,7 +67,7 @@ export const AnnotatorPage: React.FC = () => {
               <IoCheckmarkCircleOutline/> }
           </p>
           <Progress label='Progression'
-                    className={styles.progress}
+                    className={ styles.progress }
                     value={ annotatorData.current_task_index + 1 }
                     total={ annotatorData.total_tasks }/>
       </div> }

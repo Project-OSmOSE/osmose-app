@@ -35,6 +35,7 @@ export const ResultList: React.FC = () => {
 
   return <div className={ [
     styles.results,
+    'results',
     campaign?.usage === 'Check' ? styles.check : '',
     'mt-2', 'shadow-double', 'border__black--125'
   ].join(' ') }>

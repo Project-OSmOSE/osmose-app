@@ -18,7 +18,7 @@ import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
-import { MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
+import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
 import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annotation.tsx";
@@ -208,10 +208,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }), [ canvasRef.current, xAxis, yAxis ])
 
   useEffect(() => {
+    MOUSE_DOWN_EVENT.add(onStartNewAnnotation)
     MOUSE_MOVE_EVENT.add(onUpdateNewAnnotation)
     MOUSE_UP_EVENT.add(onEndNewAnnotation)
 
     return () => {
+      MOUSE_DOWN_EVENT.remove(onStartNewAnnotation)
       MOUSE_MOVE_EVENT.remove(onUpdateNewAnnotation)
       MOUSE_UP_EVENT.remove(onEndNewAnnotation)
     }
@@ -289,7 +291,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     if (event.shiftKey) return;
 
     // Prevent page scrolling
-    event.stopPropagation(); // TODO: make it work!
+    event.stopPropagation();
 
     const origin = pointerService.getCoords(event);
 
@@ -308,7 +310,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
            className={ styles.spectrogram }
            onPointerLeave={ () => dispatch(leavePointerPosition()) }>
 
-        <canvas className={ isDrawingEnabled ? styles.drawable : '' }
+        {/* 'drawable' class is for playwright tests */ }
+        <canvas className={ isDrawingEnabled ? `drawable ${ styles.drawable }` : '' }
                 ref={ canvasRef }
                 height={ height }
                 width={ width }

@@ -28,7 +28,7 @@ export const AnnotatorsRangeBloc: React.FC = () => {
   // Services
   const { data: users } = useListUsersQuery()
   const { refetch: fetchFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
-  const { data: allDatasets } = useListDatasetQuery();
+  const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
 
   useEffect(() => {
     if (!currentCampaign?.id) return;
@@ -125,7 +125,7 @@ const AnnotatorRangeLine: React.FC<{
           { disabled &&
               <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index! }</span> }
           { !disabled && <Input type="number"
-                                value={ range.first_file_index }
+                                value={ range.first_file_index ?? '' }
                                 onChange={ e => onFirstIndexChange(+e.target.value) }
                                 placeholder="1"
                                 min={ 1 } max={ filesCount }
@@ -134,7 +134,7 @@ const AnnotatorRangeLine: React.FC<{
           { disabled &&
               <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index! }</span> }
           { !disabled && <Input type="number"
-                                value={ range.last_file_index }
+                                value={ range.last_file_index ?? '' }
                                 onChange={ e => onLastIndexChange(+e.target.value) }
                                 placeholder={ filesCount?.toString() }
                                 min={ 1 } max={ filesCount }

@@ -34,6 +34,7 @@ export const useToast = () => {
       present({
         message: buildErrorMessage(e),
         color: 'success',
+        duration: 3_000,
         buttons: [
           {
             icon: closeCircle, handler: () => {

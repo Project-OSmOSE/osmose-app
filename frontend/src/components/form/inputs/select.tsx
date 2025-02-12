@@ -1,9 +1,23 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState, } from "react";
-import { IonAlert, IonIcon, IonNote, IonSpinner } from "@ionic/react";
+import {
+  IonButton,
+  IonIcon,
+  IonNote,
+  IonRadio,
+  IonRadioGroup,
+  IonSearchbar,
+  IonSpinner,
+  RadioGroupChangeEventDetail,
+  SearchbarInputEventDetail
+} from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { Item } from '@/types/item.ts';
 import './inputs.css';
 import { AUX_CLICK_EVENT, CLICK_EVENT } from "@/service/events";
+import { createPortal } from "react-dom";
+import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
+import styles from './inputs.module.scss'
+import { IonRadioGroupCustomEvent } from "@ionic/core/dist/types/components";
 
 export type SelectValue = number | string | undefined;
 
@@ -74,7 +88,7 @@ export const Select: React.FC<SelectProperties> = ({
     let values = [ ...parentOptions ];
     if (!required) {
       const none = {
-        value: -1,
+        value: -9,
         label: noneLabel
       }
       if (noneFirst) values = [ none, ...values ]
@@ -84,7 +98,7 @@ export const Select: React.FC<SelectProperties> = ({
   }
 
   const buttonLabel = useMemo(() => {
-    if (value === undefined || value === -1) {
+    if (value === undefined || value === -9) {
       if (hasSelectedItem) return noneLabel;
       else return placeholder;
     }
@@ -112,7 +126,7 @@ export const Select: React.FC<SelectProperties> = ({
               } }
               value={ value }>
         <option></option>
-        { getOptions().map(o => <option value={ o.value === -1 ? undefined : value }
+        { getOptions().map(o => <option value={ o.value === -9 ? undefined : value }
                                         key={ o.value }>{ o.label }</option>) }
       </select>
 
@@ -128,33 +142,72 @@ export const Select: React.FC<SelectProperties> = ({
 
       { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>
         { getOptions().map(v => <div className="item" onClick={ () => {
-          onValueSelected(v.value === -1 ? undefined : v.value)
+          onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
         } } key={ v.value }>{ v.label }</div>) }
       </div> }
 
-      { optionsContainer === 'alert' && <IonAlert
-          trigger={ buttonId }
-          header={ placeholder }
-          buttons={ [ 'OK' ] }
-          inputs={ getOptions().map(o => ({
-            type: 'radio',
-            ...o,
-            checked: value === o.value
-          })) }
-          onWillDismiss={ data => {
-            const value = data.detail.data?.values
-            if (value !== undefined) {
-              onValueSelected(value !== -1 ? value : undefined)
-              setHasSelectedItem(true)
-            }
-            setIsOpen(false)
-          } }
-      ></IonAlert> }
+      { optionsContainer === 'alert' && isOpen && <SelectModal header={ placeholder } options={ getOptions() } onClose={ option => {
+        if (option !== undefined) {
+          onValueSelected(option.value !== 9 ? option.value : undefined)
+          setHasSelectedItem(true)
+        }
+        setIsOpen(false)
+      } }/> }
     </div>
 
     { !!children && <div id="inner-content">{ children }</div> }
     { error && <IonNote color="danger">{ error }</IonNote> }
   </div>
+}
+
+const SelectModal: React.FC<{
+  header: string;
+  options: Item[];
+  onClose: (value?: Item) => void;
+}> = ({ header, onClose, options }) => {
+  const [ selected, setSelected ] = useState<Item | undefined>();
+  const [ search, setSearch ] = useState<string | undefined>();
+
+
+  const filteredOptions = useMemo(() => {
+    if (!search) return options;
+    return options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
+  }, [ options, search ]);
+
+  function onSearchUpdated(event: CustomEvent<SearchbarInputEventDetail>) {
+    setSearch(event.detail.value ?? undefined);
+  }
+
+  function onSearchCleared() {
+    setSearch(undefined);
+  }
+
+  function onSelect(event: IonRadioGroupCustomEvent<RadioGroupChangeEventDetail>) {
+    setSelected(options.find(o => o.value === (event.detail.value ?? undefined)))
+  }
+
+  return createPortal(<Modal className={ styles.selectAlert }>
+    <ModalHeader title={ header } onClose={ onClose }/>
+
+    <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+
+    <IonRadioGroup className={ styles.radioGroup }
+                   value={ selected?.value }
+                   onIonChange={onSelect}>
+      { filteredOptions.map((option, i) => (
+        <IonRadio key={ i }
+                  value={ option.value }
+                  labelPlacement='end'>
+          { option.label }
+        </IonRadio>
+      )) }
+    </IonRadioGroup>
+
+    <ModalFooter>
+      <IonButton fill='clear' color='medium' onClick={ () => onClose() }>Cancel</IonButton>
+      <IonButton fill='clear' onClick={ () => onClose(selected) }>Ok</IonButton>
+    </ModalFooter>
+  </Modal>, document.body)
 }

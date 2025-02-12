@@ -1,90 +1,102 @@
-import { expect, ExtendedPage, test } from './utils/fixture';
-import { Mock } from "./utils/mock";
-import { ESSENTIAL } from "./utils/detail";
-import { expectNoRequestsOnAction } from "./utils/functions";
+import { API_URL, ESSENTIAL, expect, expectNoRequestsOnAction, Page, test } from './utils';
+import { DATASET, IMPORT_DATASET } from './fixtures';
+import { ImportModal } from './utils/pages';
 
-test.describe.configure({ mode: "serial" })
+// Utils
 
-test.beforeEach(async ({ staff, superuser }) => {
-  await staff.nav.goDatasets()
-  await superuser.nav.goDatasets()
-})
-
-async function openImport(page: ExtendedPage) {
-  await page.getByRole('button', { name: 'Import dataset' }).click()
-
-  const modal = page.getByRole('dialog').first()
-  await expect(modal).toBeVisible();
-  return modal;
-}
-
-async function empty(page: ExtendedPage) {
-  await page.nav.goDatasets({ datasets: [], importDatasets: [] });
-  await expect(page.locator('.table-content')).not.toBeVisible();
-  await expect(page.getByText('No datasets')).toBeVisible();
-  const importButton = page.getByRole('button', { name: 'Import dataset' })
-  await expect(importButton).toBeVisible()
-  await expect(importButton).toBeDisabled()
-}
-
-async function seeDatasets(page: ExtendedPage) {
-  const content = page.locator('.table-content')
-  await expect(content.first()).toBeVisible();
-  const textContent = await Promise.all((await content.all()).map(c => c.textContent()))
-  expect(textContent).toContain(Mock.DATASET.name)
-}
-
-async function seeImportDataset(page: ExtendedPage) {
-  const modal = await openImport(page);
-  const content = modal.locator('.table-content')
-  await expect(content.first()).toBeVisible();
-  const textContent = (await Promise.all((await content.all()).map(c => c.textContent()))).join(' ')
-  expect(textContent).toContain(Mock.IMPORT_DATASET.name)
-}
-
-async function searchImport(page: ExtendedPage, isValid: boolean) {
-  const modal = await openImport(page);
-  await modal.getByPlaceholder('Search').fill(isValid ? Mock.IMPORT_DATASET.name : 'incorrect')
-
-  const content = await modal.locator('.table-content').count()
-  expect(content).toEqual(isValid ? 1 : 0)
-}
-
-async function doImport(page: ExtendedPage, finalize: boolean) {
-  const modal = await openImport(page);
-  await modal.getByText(Mock.IMPORT_DATASET.name).click()
-  if (finalize) {
-    await Promise.all([
-      page.waitForRequest(/\/api\/dataset\/datawork_import\/?/g),
-      modal.getByRole('button', { name: 'Import datasets' }).click()
-    ])
-  } else {
+const STEP = {
+  displayDatasets: (page: Page) => test.step('Display datasets', async () => {
+    const content = page.locator('.table-content')
+    await expect(content.first()).toBeVisible();
+    const textContent = await Promise.all((await content.all()).map(c => c.textContent()))
+    expect(textContent).toContain(DATASET.name)
+  }),
+  displayImport: (modal: ImportModal) => test.step('Display imports', async () => {
+    const content = modal.locator('.table-content')
+    await expect(content.first()).toBeVisible();
+    const textContent = (await Promise.all((await content.all()).map(c => c.textContent()))).join(' ')
+    expect(textContent).toContain(IMPORT_DATASET.name)
+  }),
+  importSearchIncorrect: (modal: ImportModal) => test.step('Incorrect import search has no result', async () => {
+    await modal.search('incorrect')
+    const content = await modal.locator('.table-content').count()
+    expect(content).toEqual(0)
+  }),
+  importSearchCorrect: (modal: ImportModal) => test.step('Correct import search has one result', async () => {
+    await modal.search(IMPORT_DATASET.name)
+    const content = await modal.locator('.table-content').count()
+    expect(content).toEqual(1)
+  }),
+  importCancel: (modal: ImportModal, page: Page) => test.step('Cancel import will have no effect', async () => {
+    await modal.getByText(IMPORT_DATASET.name).click()
     await expectNoRequestsOnAction(
       page,
       () => page.getByRole('button', { name: 'Cancel' }).click(),
-      /\/api\/dataset\/datawork_import\/?/g
+      API_URL.dataset.import
     )
+  }),
+  import: (modal: ImportModal, page: Page) => test.step('Can import dataset', async () => {
+    await modal.getByText(IMPORT_DATASET.name).click()
+    await Promise.all([
+      page.waitForRequest(API_URL.dataset.import),
+      modal.getByRole('button', { name: 'Import datasets' }).click()
+    ])
+  })
+}
+
+const TEST = {
+  empty: async (page: Page) => {
+    await expect(page.locator('.table-content')).not.toBeVisible();
+    await expect(page.getByText('No datasets')).toBeVisible();
+    const importButton = page.getByRole('button', { name: 'Import dataset' })
+    await expect(importButton).toBeVisible()
+    await expect(importButton).toBeDisabled()
+  },
+  display: async (page: Page) => {
+    await STEP.displayDatasets(page);
+    const modal = await page.dataset.openImportModal()
+    await STEP.displayImport(modal);
+  },
+  manageImport: async (page: Page) => {
+    let modal = await page.dataset.openImportModal()
+    await STEP.importSearchIncorrect(modal);
+    await STEP.importSearchCorrect(modal);
+
+    await STEP.importCancel(modal, page);
+    modal = await page.dataset.openImportModal()
+    await STEP.import(modal, page);
   }
 }
 
-// Annotator user does not have access to this page (see navigation tests)
 
-test.describe('Staff', () => {
-  test('Empty state', ({ staff: page }) => empty(page));
-  test('See datasets', ESSENTIAL, ({ staff: page }) => seeDatasets(page));
-  test('See available import datasets', ({ staff: page }) => seeImportDataset(page));
-  test('Incorrect import search has no result', ({ staff: page }) => searchImport(page, false));
-  test('Correct import search has one result', ({ staff: page }) => searchImport(page, true));
-  test('Can cancel an import', ({ staff: page }) => doImport(page, false));
-  test('Can import', ESSENTIAL, ({ staff: page }) => doImport(page, true));
+// Tests
+
+test.describe('Staff', ESSENTIAL, () => {
+  test('Should display empty state', async ({ page }) => {
+    await page.dataset.go('staff', { empty: true });
+    await TEST.empty(page)
+  });
+  test('Should display loaded data', async ({ page }) => {
+    await page.dataset.go('staff');
+    await TEST.display(page)
+  })
+  test('Should manage import', async ({ page }) => {
+    await page.dataset.go('staff');
+    await TEST.manageImport(page)
+  })
 })
 
-test.describe('Superuser', () => {
-  test('Empty state', ({ superuser: page }) => empty(page));
-  test('See datasets', ESSENTIAL, ({ superuser: page }) => seeDatasets(page));
-  test('See available import datasets', ({ superuser: page }) => seeImportDataset(page));
-  test('Incorrect import search has no result', ({ superuser: page }) => searchImport(page, false));
-  test('Correct import search has one result', ({ superuser: page }) => searchImport(page, true));
-  test('Can cancel an import', ({ superuser: page }) => doImport(page, false));
-  test('Can import', ESSENTIAL, ({ superuser: page }) => doImport(page, true));
+test.describe('Superuser', ESSENTIAL, () => {
+  test('Should display empty state', async ({ page }) => {
+    await page.dataset.go('superuser', { empty: true });
+    await TEST.empty(page)
+  });
+  test('Should display loaded data', async ({ page }) => {
+    await page.dataset.go('superuser');
+    await TEST.display(page)
+  })
+  test('Should manage import', async ({ page }) => {
+    await page.dataset.go('superuser');
+    await TEST.manageImport(page)
+  })
 })

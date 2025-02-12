@@ -2,6 +2,7 @@
 from http import HTTPStatus
 
 from django.db import transaction
+
 # pylint: disable=protected-access
 from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
@@ -40,6 +41,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         url_name="campaign-file",
     )
     def get_file(self, request: Request, campaign_id: int, file_id: int):
+        # pylint: disable=too-many-locals
         """Get all data for annotator"""
 
         file_ranges = AnnotationFileRange.objects.filter(

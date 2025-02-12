@@ -121,8 +121,8 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
                             {"labels_with_acoustic_features": message},
                         )
                     if attrs["usage"] == AnnotationCampaignUsage.CHECK:
-                        object, _ = Label.objects.get_or_create(name=label)
-                        label_set.labels.add(object)
+                        label_obj, _ = Label.objects.get_or_create(name=label)
+                        label_set.labels.add(label_obj)
         return attrs
 
 
@@ -138,6 +138,9 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
 
     class Meta:
         fields = "__all__"
+
+    def create(self, validated_data):
+        pass
 
     def update(self, instance: AnnotationCampaign, validated_data):
         if "labels_with_acoustic_features" in validated_data:

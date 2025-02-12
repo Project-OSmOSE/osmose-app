@@ -12,7 +12,10 @@ export const ActionBar: React.FC<{
 
   function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
     if (event.key === 'Enter') {
-      onSearchChange(event.currentTarget.value ?? undefined)
+      const search = event.currentTarget.value?.trim()
+      if (search && search.length > 0)
+        onSearchChange(search)
+      else onSearchChange(undefined)
     }
   }
 

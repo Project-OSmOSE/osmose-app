@@ -18,7 +18,7 @@ import { AppStore } from "@/service/app";
 import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
 import { CreateCampaign } from "@/view/campaign/create-edit/create-campaign.page.tsx";
 import { EditCampaign } from "@/view/campaign/create-edit/edit-campaign.page.tsx";
-import { AuthenticatedRoute, StaffOnlyRoute } from '@/routes';
+import { AuthenticatedRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
 import { AploseSkeleton } from "@/components/layout";
@@ -58,9 +58,7 @@ const AppContent: React.FC = () => {
               <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
               <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
               <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaign/:id/edit'>
-                <StaffOnlyRoute><EditCampaign/></StaffOnlyRoute>
-              </AuthenticatedRoute>
+              <AuthenticatedRoute exact path='/annotation-campaign/:id/edit'><EditCampaign/></AuthenticatedRoute>
               <AuthenticatedRoute exact
                                   path='/annotation-campaign/:id'><CampaignDetail/></AuthenticatedRoute>
               <Route path="**"><Redirect to="/annotation-campaign"/></Route>
