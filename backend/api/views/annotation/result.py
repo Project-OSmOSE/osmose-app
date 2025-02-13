@@ -78,7 +78,9 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 **r,
                 "annotation_campaign": campaign_id,
                 "dataset_file": file_id,
-                "annotator": user_id,
+                "annotator": user_id
+                if r.get("detector_configuration") is None
+                else None,
                 "comments": [
                     {
                         **c,

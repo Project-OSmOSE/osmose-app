@@ -15,7 +15,7 @@ export const PlaybackRateSelect: React.FC<{ player: MutableRefObject<HTMLAudioEl
     audioService.setAudioSpeed(+e.target.value)
   }
 
-  if (!player || !player.current?.preservesPitch) return <Fragment/>
+  if (!player || player.current?.preservesPitch === undefined) return <Fragment/>
   return <select className="form-control select-rate"
                  defaultValue={ audioSpeed }
                  onChange={ onSelect }>

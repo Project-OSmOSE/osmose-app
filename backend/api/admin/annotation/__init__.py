@@ -8,6 +8,7 @@ from backend.api.models.annotation import (
     AnnotationResultValidation,
 )
 from .campaign import AnnotationCampaignAdmin
+from .confidence import ConfidenceIndicatorAdmin, ConfidenceIndicatorSetAdmin
 from .detector import (
     DetectorAdmin,
     DetectorConfigurationAdmin,

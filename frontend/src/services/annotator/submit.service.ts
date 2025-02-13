@@ -20,10 +20,10 @@ export const useAnnotatorSubmitService = () => {
   }, [ annotator ]);
 
   function submit() {
-    if (!campaign || !annotatorData) return;
+    if (!_annotator.current.campaign || !_annotator.current.file) return;
     return post({
-      campaign,
-      fileID: annotatorData.file.id,
+      campaign: _annotator.current.campaign,
+      fileID: _annotator.current.file.id,
       data: {
         results: (_annotator.current.results ?? []).map(r => ({
           ...r,
@@ -32,16 +32,23 @@ export const useAnnotatorSubmitService = () => {
           validations: r.validations.map(v => ({
             is_valid: v.is_valid,
             id: v.id > -1 ? v.id : undefined,
-          } satisfies Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id: number | undefined })),
+          })),
           confidence_indicator: r.confidence_indicator ?? undefined,
           detector_configuration: r.detector_configuration ?? undefined,
-        } satisfies WriteAnnotationResult)),
+          annotation_campaign: undefined,
+          dataset_file: undefined,
+          annotator: undefined,
+        })),
         task_comments: transformCommentsForWriting(_annotator.current.task_comments ?? []),
-        session: {
-          start: new Date(_annotator.current.sessionStart),
-          end: new Date()
-        }
-      } satisfies WriteAnnotatorData
+        session:
+          {
+            start: new Date(_annotator.current.sessionStart),
+            end:
+              new Date()
+          }
+      }
+      satisfies
+      WriteAnnotatorData
     }).unwrap()
   }
 

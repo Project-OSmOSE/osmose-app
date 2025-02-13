@@ -3,9 +3,8 @@
 # pylint: disable=too-many-function-args, R0801
 
 from django import forms
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
 from django.http import JsonResponse
 from django.urls import reverse
@@ -21,8 +20,6 @@ from backend.api.models import (
     DatasetType,
     AudioMetadatum,
     GeoMetadatum,
-    ConfidenceIndicator,
-    ConfidenceIndicatorSet,
 )
 from .__utils__ import get_many_to_many
 from .annotation import (
@@ -45,36 +42,6 @@ class NewItemsForm(forms.ModelForm):
     """NewItem need a textarea form for intro field for UX"""
 
     intro = forms.CharField(widget=forms.Textarea)
-
-
-class ConfidenceIndicatorAdmin(admin.ModelAdmin):
-    """ConfidenceIndicator presentation in DjangoAdmin"""
-
-    list_display = (
-        "id",
-        "label",
-        "level",
-        "confidence_indicator_set",
-        "is_default",
-    )
-
-    def save_model(self, request, obj, form, change):
-        try:
-            with transaction.atomic():
-                super().save_model(request, obj, form, change)
-        except IntegrityError as error:
-            messages.set_level(request, messages.ERROR)
-            messages.error(request, error)
-
-
-class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
-    """ConfidenceIndicatorSet presentation in DjangoAdmin"""
-
-    list_display = (
-        "id",
-        "name",
-        "desc",
-    )
 
 
 class DatasetTypeAdmin(admin.ModelAdmin):
@@ -239,8 +206,6 @@ class GeoMetadatumAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
-admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)

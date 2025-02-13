@@ -29,6 +29,7 @@ presence_result = {
     "start_frequency": None,
     "end_frequency": None,
     "dataset_file": 9,
+    "detector_configuration": None,
     "annotation_campaign": 1,
     "annotator": 4,
     "validations": [],
@@ -43,6 +44,7 @@ box_result = {
     "start_frequency": 5.0,
     "end_frequency": 25.0,
     "dataset_file": 9,
+    "detector_configuration": None,
     "annotation_campaign": 1,
     "annotator": 4,
     "validations": [],
@@ -55,11 +57,11 @@ class CreateTestCase(TestCase):
     fixtures = all_fixtures
     maxDiff = None  # See all differences on failed tests
 
-    def _get_serializer(self, data):
+    def _get_serializer(self, data, campaign_id=1):
         return AnnotationResultSerializer(
             data=data,
             context={
-                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "campaign": AnnotationCampaign.objects.get(pk=campaign_id),
                 "file": DatasetFile.objects.get(pk=9),
             },
         )
@@ -67,12 +69,12 @@ class CreateTestCase(TestCase):
     def test_presence(self):
         serializer = self._get_serializer(presence_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), presence_result)
+        self.assertDictEqual(dict(serializer.data), {**presence_result, "id": None})
 
     def test_box(self):
         serializer = self._get_serializer(box_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), box_result)
+        self.assertDictEqual(dict(serializer.data), {**box_result, "id": None})
 
     # Corrected
     def test_wrong_order(self):
@@ -111,7 +113,7 @@ class CreateTestCase(TestCase):
                 "label": None,
                 "dataset_file": None,
                 "annotation_campaign": None,
-                "confidence_indicator": None,  # Cannot be null since campaign as a confidence indicator set
+                "confidence_indicator": None,  # Cannot be null since campaign has a confidence indicator set
                 "comments": [],
                 "validations": [],
             }
@@ -134,6 +136,16 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
         self.assertEqual(serializer.errors["annotator"][0].code, "null")
         self.assertEqual(serializer.errors["detector_configuration"][0].code, "null")
+
+    def test_null_confidence_in_campaign_without_confidence(self):
+        serializer = self._get_serializer(
+            {
+                "confidence_indicator": None,  # Can be null since campaign has no confidence indicator set
+            },
+            campaign_id=2,
+        )
+        self.assertFalse(serializer.is_valid(raise_exception=False))
+        self.assertNotIn("confidence_indicator", list(serializer.errors.keys()))
 
     def test_does_not_exist(self):
         serializer = self._get_serializer(
@@ -196,7 +208,7 @@ class UpdateTestCase(CreateTestCase):
         self.instance = AnnotationResult.objects.create(
             annotation_campaign=campaign,
             dataset_file=campaign.datasets.first().files.first(),
-            annotator=User.objects.get(pk=4),
+            annotator=campaign.annotators.first(),
             label=campaign.label_set.labels.first(),
             confidence_indicator=campaign.confidence_indicator_set.confidence_indicators.first(),
             start_time=1,
@@ -224,12 +236,12 @@ class UpdateTestCase(CreateTestCase):
             else None,
         }
 
-    def _get_serializer(self, data):
+    def _get_serializer(self, data, campaign_id=1):
         return AnnotationResultSerializer(
             instance=self.instance,
             data=data,
             context={
-                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "campaign": AnnotationCampaign.objects.get(pk=campaign_id),
                 "file": DatasetFile.objects.get(pk=9),
             },
         )

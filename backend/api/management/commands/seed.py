@@ -26,6 +26,7 @@ from backend.api.models import (
     AnnotationTask,
     SpectrogramConfiguration,
     AnnotationFileRange,
+    ConfidenceIndicatorSetIndicator,
 )
 from backend.aplose.models import AploseUser
 from backend.aplose.models.user import ExpertiseLevel
@@ -339,11 +340,17 @@ class Command(management.BaseCommand):
         confidence_0 = ConfidenceIndicator.objects.create(
             label="not confident",
             level=0,
+        )
+        ConfidenceIndicatorSetIndicator.objects.create(
+            confidence_indicator=confidence_0,
             confidence_indicator_set=self.confidence_indicator_set,
         )
         confidence_1 = ConfidenceIndicator.objects.create(
             label="confident",
             level=1,
+        )
+        ConfidenceIndicatorSetIndicator.objects.create(
+            confidence_indicator=confidence_1,
             confidence_indicator_set=self.confidence_indicator_set,
             is_default=True,
         )

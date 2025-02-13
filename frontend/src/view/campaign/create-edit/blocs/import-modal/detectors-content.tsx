@@ -92,7 +92,6 @@ export const DetectorsContent: React.FC<Props> = ({
             <DetectorEntry csvDetector={ d }
                            allDetectors={ allDetectors }
                            key={ d }
-
                            isSelected={ selectedDetectors.includes(d) }
                            setIsSelected={ state => setIsDetectorSelected(state, d) }
                            detector={ detectorsMap.get(d) }
@@ -116,7 +115,6 @@ export const DetectorsContent: React.FC<Props> = ({
 interface DetectorEntryProps {
   allDetectors: Array<Detector>,
   csvDetector: string;
-
   isSelected: boolean;
   setIsSelected: (value: boolean) => void;
   detector?: Detector;
