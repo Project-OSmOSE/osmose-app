@@ -16,6 +16,14 @@ export const Publications: React.FC = () => {
 
           <ul>
             <li>
+              <a href="https://doi.org/10.1016/j.softx.2025.102055" target="_blank" rel="noreferrer">
+                <strong>Dubus, G., M. Torterotot, J. Béesau, M. Dupont, A. Gros-Martial, M. Michel, E. Morin, P. Nguyen
+                  Hong Duc, P.-Y. Raumer</strong>, O. Adam, <strong>F. Samaran, and D. Cazau</strong>. (2025). APLOSE: A
+                web-based annotation platform for underwater passive acoustic monitoring. <em>SoftwareX Volume 29</em>,
+                102055
+              </a>
+            </li>
+            <li>
               <a href="https://doi.org/10.1016/j.ecoinf.2024.102642" target="_blank" rel="noreferrer"><strong>Dubus, G.,
                 Cazau, D., Torterotot, M., Gros-Martial, A., Duc, P. N. H.</strong>, & Adam, O. (2024). From citizen
                 science to AI models: Advancing cetacean vocalization automatic detection through multi-annotator
@@ -59,6 +67,12 @@ export const Publications: React.FC = () => {
 
           <ul>
             <li>
+              <strong>Martin-Marin, S., Michel, M.</strong>, Izard, L., Cotté, C., <strong>Samaran, F.</strong> (2024).
+              Combine passive and active acoustic approaches to the study of prey-predator relationships of blue whales
+              in the southern Indian Ocean, <em>Working Group on Fisheries Acoustics Science and Technology
+              (WGFAST)</em>, Brest, France
+            </li>
+            <li>
               <a href="https://doi.org/10.13140/RG.2.2.28165.36320" target="_blank" rel="noreferrer">
                 <strong>Beesau, J., Torterotot, M., Gicquel, C., & Samaran, F.</strong> (2024). Comparing F-POD
                 delphinid
@@ -100,7 +114,8 @@ export const Publications: React.FC = () => {
               <a href="https://doi.org/10.13140/RG.2.2.28637.22240" target="_blank" rel="noreferrer"><strong>Dupont, M.,
                 Béesau, J., Torterotot</strong>, M., Loirat, V.,
                 Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins'
-                behaviour around fishing nets in bycatch context. <em>Detection, Classification, Localization and Density Estimation of marine mammals using
+                behaviour around fishing nets in bycatch context. <em>Detection, Classification, Localization and
+                  Density Estimation of marine mammals using
                   passive acoustics 2024</em>, Rotterdam, The Netherlands.
               </a>
             </li>
@@ -123,11 +138,13 @@ export const Publications: React.FC = () => {
                   conference</em>, O’Grove, Spain.</a>
             </li>
             <li>
-              <a href="https://www.researchgate.net/publication/374088531_Using_passive_acoustic_to_better_understand_dolphins'_behaviour_around_fishing_nets_in_bycatch_context" target="_blank" rel="noreferrer">
+              <a
+                href="https://www.researchgate.net/publication/374088531_Using_passive_acoustic_to_better_understand_dolphins'_behaviour_around_fishing_nets_in_bycatch_context"
+                target="_blank" rel="noreferrer">
                 <strong>Dupont, M., Béesau, J., Torterotot</strong>, M., Loirat, V.,
                 Lagarde, V., <strong>Samaran, F.</strong> (2023) Using passive acoustic to better understand dolphins'
                 behaviour around fishing nets in bycatch context. <em>34th European Cetacean Society annual
-                  conference</em>, O’Grove, Spain.
+                conference</em>, O’Grove, Spain.
               </a>
             </li>
             <li>
