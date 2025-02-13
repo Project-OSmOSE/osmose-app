@@ -95,12 +95,19 @@ ion-chip.active {
     gap: 0.25rem;
   }
 
-  &.active {
-    font-weight: 700;
+  &:not(.active) {
+    opacity: 0.5;
   }
 
   &.presenceLabel {
     grid-column: 1 / 4;
+  }
+
+  &.strongLabel p {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
   }
 }
 

@@ -124,7 +124,7 @@ const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, type, classNam
 }
 
 const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, type, className, onClick }) => (
-  <TableContent className={ [ className, type === 'presence' ? styles.presenceLabel : '' ].join(' ') }
+  <TableContent className={ [ className, type === 'presence' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
                 isFirstColumn={ true }
                 onClick={ onClick }>
     <IoPricetag/>
