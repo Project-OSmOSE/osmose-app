@@ -92,8 +92,8 @@ export const ImportDatasetModal: React.FC<{
 
 
       <ModalFooter className={ styles.buttons }>
-        { isLoading && <IonSpinner/> }
         <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
+        { isLoading && <IonSpinner/> }
         <IonButton onClick={ doImport } disabled={ isLoading } color='primary' fill='solid'>
           <IonIcon slot='start' icon={ cloudUploadOutline }/>
           Import datasets
