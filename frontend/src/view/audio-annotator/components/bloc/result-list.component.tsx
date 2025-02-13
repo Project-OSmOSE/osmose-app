@@ -134,7 +134,8 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, isActive, o
 
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
-    return result.validations.length > 0 ? result.validations[0].is_valid : null
+    if (result.validations.length === 0) return true;
+    else return result.validations[0].is_valid;
   }, [ result.validations ]);
 
   const onValidate = (event: MouseEvent) => {

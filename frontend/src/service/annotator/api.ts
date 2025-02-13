@@ -42,7 +42,7 @@ export const AnnotatorAPI = createApi({
             ...r,
             validations: r.validations.length > 0 ? r.validations : [ {
               id: undefined,
-              is_valid: false
+              is_valid: true
             } ],
           })) : data.results,
           session: {

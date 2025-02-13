@@ -139,21 +139,6 @@ export class Mock {
   public async fileRanges(empty: boolean = false) {
     const json = empty ? [] : [ FILE_RANGE.range ]
     await this.page.route(API_URL.fileRanges.list, route => route.fulfill({ status: 200, json }))
-    // await this.page.route(API_URL.fileRanges.list, (route, request) => {
-    //   if (/\/api\/annotation-file-range\/campaign\/-?\d\/files/g.test(request.url())) {
-    //     console.debug('file')
-    //     return route.fulfill({
-    //       status: 200, json: {
-    //         results,
-    //         count: results.length,
-    //         resume: results.find(r => r.is_submitted === false)?.id
-    //       } satisfies Partial<Paginated<AnnotationFile>> & { resume?: number }
-    //     })
-    //   } else {
-    //     console.debug('all')
-    //     return route.fulfill({ status: 200, json })
-    //   }
-    // })
   }
 
 
