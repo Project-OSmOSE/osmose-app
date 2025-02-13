@@ -165,28 +165,31 @@ export const AudioAnnotator: React.FC = () => {
         </p>
       </div>
 
-      {/* Label and annotations management */ }
-      { campaign?.usage === 'Create' && <div className="row justify-content-around m-2">
-          <CurrentAnnotationBloc/>
+      { annotatorData?.is_assigned && <div>
+        {/* Label and annotations management */ }
+        { campaign?.usage === 'Create' && <div className="row justify-content-around m-2">
+            <CurrentAnnotationBloc/>
 
-          <div className="col-5 flex-shrink-2">
-              <LabelListBloc/>
+            <div className="col-5 flex-shrink-2">
+                <LabelListBloc/>
 
-              <ConfidenceIndicatorBloc/>
+                <ConfidenceIndicatorBloc/>
+            </div>
+
+            <PresenceBloc/>
+        </div> }
+
+          <div className="row justify-content-center">
+              <ResultList/>
+              <CommentBloc/>
           </div>
 
-          <PresenceBloc/>
+          <div className="justify-content-center buttons">
+              <AudioDownloadButton/>
+              <SpectrogramDownloadButton render={ spectrogramRender }/>
+          </div>
       </div> }
-
-      <div className="row justify-content-center">
-        <ResultList/>
-        <CommentBloc/>
-      </div>
-
-      <div className="justify-content-center buttons">
-        <AudioDownloadButton/>
-        <SpectrogramDownloadButton render={ spectrogramRender }/>
-      </div>
+      { !annotatorData?.is_assigned && <div/> }
 
       <Footer/>
     </div>

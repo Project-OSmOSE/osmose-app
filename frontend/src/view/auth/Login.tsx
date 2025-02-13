@@ -9,6 +9,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
+import { useGetCurrentUserQuery } from "@/service/user";
 
 export const Login: React.FC = () => {
 
@@ -24,6 +25,7 @@ export const Login: React.FC = () => {
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
   const [ login, { isLoading, error: loginError } ] = useLoginMutation();
   const toast = useToast()
+  const { refetch } = useGetCurrentUserQuery()
 
   useEffect(() => {
     return () => {
@@ -45,8 +47,8 @@ export const Login: React.FC = () => {
     if (!password) setErrors(prev => ({ ...prev, password: "This field is required." }))
     if (!username || !password) return;
 
-    await login({ username, password })
-      .unwrap()
+    await login({ username, password }).unwrap()
+      .then(() => refetch().unwrap())
       .then(() => history.replace(from))
       .catch(error => setErrors({ global: getErrorMessage(error) }));
   }

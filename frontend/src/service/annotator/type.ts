@@ -34,6 +34,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
 
 export type AnnotatorData = {
   is_submitted: boolean;
+  is_assigned: boolean; // Is the user allowed to edit this file
   campaignID: number;
   userID: number
   file: DatasetFile;

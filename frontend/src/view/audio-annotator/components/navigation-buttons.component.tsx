@@ -37,6 +37,7 @@ export const NavigationShortcutOverlay = React.forwardRef<HTMLDivElement, Props>
 export const NavigationButtons: React.FC = () => {
   const {
     campaignID,
+    annotatorData,
   } = useAnnotator();
 
   // Services
@@ -123,6 +124,7 @@ export const NavigationButtons: React.FC = () => {
     history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
   }
 
+  if (!annotatorData?.is_assigned) return <div className="col-sm-5"/>
   return (
     <div className="col-sm-5 d-flex justify-content-center">
       <OverlayTrigger overlay={ <Tooltip><NavigationShortcutOverlay shortcut={ <IonIcon icon={ caretBack }/> }

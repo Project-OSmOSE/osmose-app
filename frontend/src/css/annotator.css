@@ -446,6 +446,11 @@ select {
 }
 
 
+#aplose-annotator {
+    display: grid;
+    min-height: 100vh;
+    grid-template-rows: auto auto auto 1fr auto;
+}
 #aplose-annotator #header {
     display: grid;
     grid-template-columns: auto 1fr auto;

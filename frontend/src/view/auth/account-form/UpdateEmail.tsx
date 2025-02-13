@@ -19,6 +19,9 @@ export const UpdateEmail: React.FC = () => {
   const [ email, setEmail ] = useState<string>(currentUser?.email ?? '');
   const [ errors, setErrors ] = useState<{email?: string[]}>({});
 
+  useEffect(() => {
+    setEmail(currentUser?.email ?? '')
+  }, [currentUser]);
 
   useEffect(() => {
     if (patchError) {

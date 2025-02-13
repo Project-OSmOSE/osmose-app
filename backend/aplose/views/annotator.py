@@ -1,8 +1,6 @@
 """Annotator viewset"""
-from http import HTTPStatus
 
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
@@ -54,11 +52,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 file_range.get_files().values_list("id", flat=True)
             )
 
-        if int(file_id) not in file_ranges_files:
-            return Response(
-                "This task is not assigned to the current user",
-                status=HTTPStatus.FORBIDDEN,
-            )
+        is_assigned = int(file_id) in file_ranges_files
 
         search = self.request.query_params.get("search")
         label_filter = self.request.query_params.get("label")
@@ -72,23 +66,26 @@ class AnnotatorViewSet(viewsets.ViewSet):
             pk=file_id,
         ).data
 
-        request._request.GET = {
-            "annotation_campaign_id": campaign_id,
-            "dataset_file_id": file_id,
-            "for_current_user": True,
-        }
-        results = AnnotationResultViewSet.as_view({"get": "list"})(
-            request._request
-        ).data
-        request._request.GET = {
-            "annotation_campaign_id": campaign_id,
-            "dataset_file_id": file_id,
-            "annotation_result__isnull": True,
-            "for_current_user": True,
-        }
-        task_comments = AnnotationCommentViewSet.as_view({"get": "list"})(
-            request._request
-        ).data
+        results = []
+        task_comments = []
+        if is_assigned:
+            request._request.GET = {
+                "annotation_campaign_id": campaign_id,
+                "dataset_file_id": file_id,
+                "for_current_user": True,
+            }
+            results = AnnotationResultViewSet.as_view({"get": "list"})(
+                request._request
+            ).data
+            request._request.GET = {
+                "annotation_campaign_id": campaign_id,
+                "dataset_file_id": file_id,
+                "annotation_result__isnull": True,
+                "for_current_user": True,
+            }
+            task_comments = AnnotationCommentViewSet.as_view({"get": "list"})(
+                request._request
+            ).data
 
         request._request.GET = {
             "annotation_campaigns__id": campaign_id,
@@ -184,6 +181,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 if previous_file is not None
                 else None,
                 "next_file_id": next_file.id if next_file is not None else None,
+                "is_assigned": int(file_id) in file_ranges_files,
             },
             status=status.HTTP_200_OK,
         )

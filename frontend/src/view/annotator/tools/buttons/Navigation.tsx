@@ -121,6 +121,7 @@ export const NavigationButtons: React.FC = () => {
       history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
   }
 
+  if (!annotatorData?.is_assigned) return <div/>
   return (
     <div className={ styles.navigation }>
       <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='left'/> : Load previous recording</p> }>

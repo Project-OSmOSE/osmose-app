@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
@@ -66,10 +66,12 @@ export const AnnotatorPage: React.FC = () => {
             { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
               <IoCheckmarkCircleOutline/> }
           </p>
-          <Progress label='Progression'
-                    className={ styles.progress }
-                    value={ annotatorData.current_task_index + 1 }
-                    total={ annotatorData.total_tasks }/>
+        { annotatorData.is_assigned &&
+            <Progress label='Progression'
+                      className={ styles.progress }
+                      value={ annotatorData.current_task_index + 1 }
+                      total={ annotatorData.total_tasks }/> }
+        { !annotatorData.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote>}
       </div> }
     </Header>
 
