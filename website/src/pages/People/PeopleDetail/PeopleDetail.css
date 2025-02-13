@@ -27,6 +27,7 @@
     width: 16rem;
     height: 16rem;
     border-radius: 8rem;
+    object-fit: cover;
 }
 
 #member-page blockquote {
