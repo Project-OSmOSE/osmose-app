@@ -125,6 +125,13 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
                         label_set.labels.add(label_obj)
         return attrs
 
+    def create(self, validated_data):
+        if validated_data["usage"] == AnnotationCampaignUsage.CHECK:
+            validated_data["label_set"], _ = LabelSet.objects.get_or_create(
+                name=f"{validated_data['name']} label set"
+            )
+        return super().create(validated_data)
+
 
 class AnnotationCampaignPatchSerializer(serializers.Serializer):
     """Serializer for annotation campaign"""

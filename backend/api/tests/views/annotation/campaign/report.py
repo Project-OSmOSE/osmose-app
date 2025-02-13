@@ -119,7 +119,6 @@ class ReportEmptyAdminAuthenticatedTestCase(AuthenticatedTestCase):
 class ReportFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     username = "admin"
     fixtures = all_fixtures
-    maxDiff = None
 
     def test_report(self):
         response = self.client.get(URL)

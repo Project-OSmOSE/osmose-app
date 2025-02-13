@@ -77,10 +77,10 @@ const TEST = {
         ])
         const submittedResults = request.postDataJSON().results;
         expect(submittedResults[0]).toEqual(expect.objectContaining({
-          validations: [ { is_valid: false, id: null } ]
+          validations: [ { is_valid: false } ]
         }));
         expect(submittedResults[1]).toEqual(expect.objectContaining({
-          validations: [ { is_valid: false, id: null } ]
+          validations: [ { is_valid: false } ]
         }));
       })
     })

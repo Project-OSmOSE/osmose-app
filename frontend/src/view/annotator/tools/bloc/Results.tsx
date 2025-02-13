@@ -100,12 +100,12 @@ const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, type, className, on
 
 const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, type, className, onClick }) => {
   const minFrequency = useMemo(() => {
-    if (!result.start_frequency) return;
-    if (!result.end_frequency) return result.start_frequency;
+    if (result.start_frequency === null) return;
+    if (result.end_frequency === null) return result.start_frequency;
     return Math.min(result.start_frequency, result.end_frequency)
   }, [ result.start_frequency, result.end_frequency ])
   const maxFrequency = useMemo(() => {
-    if (!result.start_frequency || !result.end_frequency) return;
+    if (result.start_frequency === null || result.end_frequency === null) return;
     return Math.max(result.start_frequency, result.end_frequency)
   }, [ result.start_frequency, result.end_frequency ])
   if (type === 'presence') return <Fragment/>

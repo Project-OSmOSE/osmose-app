@@ -14,11 +14,45 @@ class ConfidenceIndicatorSet(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
+    confidence_indicators = models.ManyToManyField(
+        "ConfidenceIndicator",
+        related_name="confidence_indicator_sets",
+        through="ConfidenceIndicatorSetIndicator",
+    )
 
     @property
     def max_level(self):
         """Give the max level among confidence indicators"""
         return max(i.level for i in self.confidence_indicators.all())
+
+
+class ConfidenceIndicatorSetIndicator(models.Model):
+    """This table describe the link between confidence indicator set and confidence indicator"""
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="one_default_indicator_by_set",
+                fields=["is_default", "confidence_indicator_set"],
+                condition=Q(is_default=True),
+            ),
+            models.UniqueConstraint(
+                name="no_duplicate_indicator_in_set",
+                fields=["confidence_indicator", "confidence_indicator_set"],
+            ),
+        ]
+
+    confidence_indicator = models.ForeignKey(
+        "ConfidenceIndicator",
+        related_name="set_relations",
+        on_delete=models.CASCADE,
+    )
+    confidence_indicator_set = models.ForeignKey(
+        "ConfidenceIndicatorSet",
+        related_name="indicator_relations",
+        on_delete=models.CASCADE,
+    )
+    is_default = models.BooleanField(default=False)
 
 
 class ConfidenceIndicator(models.Model):
@@ -27,25 +61,8 @@ class ConfidenceIndicator(models.Model):
     to annotate files for annotation campaign.
     """
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name="one_default_by_confidence_indicator_set",
-                fields=["is_default", "confidence_indicator_set"],
-                condition=Q(is_default=True),
-            ),
-        ]
-        unique_together = ("confidence_indicator_set", "label")
-
     def __str__(self):
         return str(self.label)
 
     label = models.CharField(max_length=255)
     level = models.IntegerField()
-    confidence_indicator_set = models.ForeignKey(
-        ConfidenceIndicatorSet,
-        verbose_name="Included in this set :",
-        on_delete=models.CASCADE,
-        related_name="confidence_indicators",
-    )
-    is_default = models.BooleanField(default=False)

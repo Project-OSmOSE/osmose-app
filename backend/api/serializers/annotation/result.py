@@ -31,7 +31,7 @@ from backend.utils.serializers import (
     EnumField,
 )
 from .comment import AnnotationCommentSerializer
-from ..confidence_indicator_set import ConfidenceIndicatorSerializer
+from .confidence_indicator_set import ConfidenceIndicatorSerializer
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -471,12 +471,6 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             validated_data.pop("validations", []), many=True
         ).data
         initial_acoustic_features = validated_data.pop("acoustic_features", None)
-
-        initial_detector_config = validated_data.get("detector_configuration", None)
-        if initial_detector_config is not None:
-            validated_data[
-                "detector_configuration"
-            ] = DetectorConfiguration.objects.filter(**initial_detector_config).first()
 
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()

@@ -345,20 +345,6 @@ export const AnnotatorSlice = createSlice({
             isPaused: true,
           }
           state.sessionStart = Date.now();
-          if (state.campaign?.usage === 'Check') {
-            state.results = state.results?.map(r => {
-              if (r.validations.length > 0) return r;
-              return {
-                ...r,
-                validations: [ {
-                  id: -1,
-                  annotator: state.user?.id ?? -1,
-                  is_valid: true,
-                  result: r.id
-                } ]
-              }
-            })
-          }
         },
       )
       builder.addMatcher(

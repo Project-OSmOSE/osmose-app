@@ -7,6 +7,7 @@ from .campaign import (
 from .confidence import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
+    ConfidenceIndicatorSetIndicator,
 )
 from .detector import (
     Detector,

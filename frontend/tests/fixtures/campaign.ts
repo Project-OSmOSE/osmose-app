@@ -23,13 +23,13 @@ export const LABEL = {
 const notSure: ConfidenceIndicator = {
   id: -1,
   level: 0,
-  isDefault: false,
+  is_default: false,
   label: 'not sure'
 }
 const sure: ConfidenceIndicator = {
   id: -2,
   level: 1,
-  isDefault: true,
+  is_default: true,
   label: 'sure'
 }
 export const CONFIDENCE = {

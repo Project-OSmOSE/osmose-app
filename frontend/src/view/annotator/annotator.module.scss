@@ -103,7 +103,13 @@
     display: grid;
     padding: 0 2rem;
     gap: 2rem;
-    grid-template-columns: 32ch 1fr auto;
+
+    &.create {
+      grid-template-columns: 32ch 1fr auto;
+    }
+    &.check {
+      grid-template-columns: 32ch minmax(32ch, auto) 1fr;
+    }
   }
 
   .downloadButtons {

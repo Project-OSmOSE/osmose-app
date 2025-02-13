@@ -9,7 +9,6 @@ from backend.api.models import (
     AnnotationResultAcousticFeatures,
 )
 from backend.api.serializers import AnnotationResultSerializer
-from backend.aplose.models import User
 from backend.utils.tests import all_fixtures
 
 features = {
@@ -122,20 +121,16 @@ class CreateTestCase(TestCase):
         self.assertListEqual(
             list(serializer.errors.keys()),
             [
+                "annotation_campaign",
                 "label",
                 "confidence_indicator",
-                "annotator",
                 "dataset_file",
-                "detector_configuration",
-                "annotation_campaign",
             ],
         )
-        self.assertEqual(serializer.errors["label"][0].code, "null")
-        self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
         self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
+        self.assertEqual(serializer.errors["label"][0].code, "null")
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
-        self.assertEqual(serializer.errors["annotator"][0].code, "null")
-        self.assertEqual(serializer.errors["detector_configuration"][0].code, "null")
+        self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
 
     def test_null_confidence_in_campaign_without_confidence(self):
         serializer = self._get_serializer(
