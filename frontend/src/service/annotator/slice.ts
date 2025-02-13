@@ -81,7 +81,12 @@ export const AnnotatorSlice = createSlice({
       state.hasChanged = true;
       _focusResult(state, { payload: state.focusedResultID })
     },
-    addPresenceResult: (state, { payload }: { payload: string }) => {
+    addPresenceResult: (state, { payload }: {
+      payload: {
+        label: string,
+        focus?: boolean
+      }
+    }) => {
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
         annotator: -1,
@@ -91,7 +96,7 @@ export const AnnotatorSlice = createSlice({
         comments: [],
         validations: [],
         confidence_indicator: state.focusedConfidenceLabel ?? null,
-        label: payload,
+        label: payload.label,
         end_frequency: null,
         end_time: null,
         start_time: null,
@@ -101,6 +106,7 @@ export const AnnotatorSlice = createSlice({
       if (!state.results) state.results = [];
       state.results.push(newResult);
       state.hasChanged = true;
+      if (payload.focus === false) return;
       _focusResult(state, { payload: newResult.id })
     },
     removeResult: (state, { payload }: { payload: number }) => {

@@ -205,7 +205,7 @@ describe("Filled state - not focused result", () => {
   })
 
   test("Should add presence", () => {
-    const response = AnnotatorSlice.reducer(previousState, addPresenceResult(newPresence));
+    const response = AnnotatorSlice.reducer(previousState, addPresenceResult({ label: newPresence }));
     const expectedNewResult: AnnotationResult = {
       id: -1,
       start_frequency: null,

@@ -49,7 +49,7 @@ export const PresenceAbsence: React.FC = () => {
       const calledLabel = label_set.labels[i];
       if (_focused.current === calledLabel) continue;
       if (!presenceLabels.includes(calledLabel)) {
-        dispatch(addPresenceResult(calledLabel));
+        dispatch(addPresenceResult({ label: calledLabel, focus: false }));
       }
       dispatch(focusLabel(calledLabel))
     }
@@ -75,7 +75,7 @@ export const PresenceAbsence: React.FC = () => {
       }
     } else {
       // Add presence
-      dispatch(addPresenceResult(label));
+      dispatch(addPresenceResult({ label }));
     }
   }
 
