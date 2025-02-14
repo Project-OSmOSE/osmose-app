@@ -392,7 +392,7 @@ class Command(management.BaseCommand):
                         first_file_index=0,
                         first_file_id=dataset.files.all()[0].id,
                         last_file_index=last_index,
-                        last_file_id=dataset.files.all()[last_index].id,
+                        last_file_id=dataset.files.all()[last_index - 1].id,
                         files_count=dataset.files.count(),
                     )
                 )
