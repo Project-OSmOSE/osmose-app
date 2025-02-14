@@ -12,7 +12,7 @@
   .info {
     display: grid;
     justify-items: center;
-    gap: 0.5rem;
+    align-content: center;
 
     > p {
       display: grid;
@@ -108,6 +108,7 @@
     &.create {
       grid-template-columns: 32ch 2fr 1fr;
     }
+
     &.check {
       grid-template-columns: 32ch minmax(32ch, auto) 1fr;
     }

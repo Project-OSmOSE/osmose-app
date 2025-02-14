@@ -200,7 +200,7 @@ const TaskItem: React.FC<{
           <IonIcon icon={ ellipseOutline } className={ styles.statusIcon } color='medium'/> }
     </TableContent>
     <TableContent disabled={ file.is_submitted }>
-      <IonButton color='dark' fill='clear' size='small' onClick={ access }>
+      <IonButton color='dark' fill='clear' size='small' className={ styles.submit } onClick={ access }>
         <IonIcon icon={ chevronForwardOutline } color='primary' slot='icon-only'/>
       </IonButton>
     </TableContent>

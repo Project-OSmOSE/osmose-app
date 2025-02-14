@@ -30,18 +30,18 @@ export const usePointerService = () => {
     _height.current = height
   }, [ height ]);
 
+  function isSpectroCanvas(element: Element): boolean {
+    return element instanceof HTMLCanvasElement
+      && element.height === Math.floor(_height.current)
+      && element.width === Math.floor(_width.current)
+  }
+
   function isOverCanvas(e: Position): boolean {
-    return document.elementsFromPoint(e.clientX, e.clientY).some(element => {
-      return element instanceof HTMLCanvasElement
-        && element.height === _height.current && element.width === _width.current
-    });
+    return document.elementsFromPoint(e.clientX, e.clientY).some(isSpectroCanvas);
   }
 
   function getCanvas(): HTMLCanvasElement | undefined {
-    return [ ...document.getElementsByTagName('canvas') ].find(element => {
-      return element instanceof HTMLCanvasElement
-        && element.height === _height.current && element.width === _width.current
-    }) as HTMLCanvasElement;
+    return [ ...document.getElementsByTagName('canvas') ].find(isSpectroCanvas) as HTMLCanvasElement;
   }
 
   function getCoords(e: Position, corrected: boolean = true): { x: number, y: number } | undefined {

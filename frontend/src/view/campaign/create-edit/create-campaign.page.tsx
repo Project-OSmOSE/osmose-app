@@ -162,7 +162,7 @@ export const CreateCampaign: React.FC = () => {
 
   return (
     <div id="create-campaign-form">
-      <h1>Create Annotation Campaign</h1>
+      <h2>Create Annotation Campaign</h2>
 
       <CampaignBloc/>
 

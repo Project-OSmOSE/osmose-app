@@ -59,7 +59,7 @@ export const EditCampaign: React.FC = () => {
     <form id="create-campaign-form"
           onSubmit={ handleSubmit }>
       <div className="title">
-        <h1>Edit Annotation Campaign</h1>
+        <h2>Edit Annotation Campaign</h2>
         { campaign && <h5>{ campaign.name }</h5> }
       </div>
 

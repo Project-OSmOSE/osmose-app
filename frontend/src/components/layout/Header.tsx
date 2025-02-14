@@ -19,7 +19,7 @@ export const Header: React.FC<{
 
   return (
     <header
-      className={ [ styles.header, isOpen ? styles.opened : styles.closed, size === 'small' ? styles.small : '' ].join(' ') }>
+      className={ [ styles.header, isOpen ? styles.opened : styles.closed, size === 'small' ? styles.small : '', children ? styles.withInfo : '' ].join(' ') }>
       <div className={ styles.title }>
         <img src={ logo } alt="OSmOSE"/>
         <h1>APLOSE</h1>

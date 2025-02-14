@@ -1,14 +1,10 @@
 .page {
   display: grid;
-  gap: 2rem;
+  gap: 1rem;
   font-family: var(--ion-font-family), sans-serif;
   grid-template-rows: auto auto 1fr;
   max-height: 100%;
   min-height: 0;
-
-  > h2 {
-    justify-self: center;
-  }
 
   .content {
     padding-top: 2rem;

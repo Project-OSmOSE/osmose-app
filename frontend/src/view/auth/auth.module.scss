@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rem;
+  gap: 2rem;
   color: var(--ion-color-dark);
   font-family: var(--ion-font-family), sans-serif;
   padding: 0 2rem;
@@ -56,7 +56,7 @@
   .content {
     display: grid;
     justify-items: center;
-    gap: 4rem;
+    gap: 2rem;
     width: 100%;
     min-height: 0;
     overflow: auto;
