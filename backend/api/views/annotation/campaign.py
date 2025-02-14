@@ -1,6 +1,7 @@
 """Annotation campaign DRF-Viewset file"""
 from datetime import timedelta
 
+from django.db import transaction
 from django.db.models import (
     Q,
     F,
@@ -9,19 +10,17 @@ from django.db.models import (
     Value,
     FloatField,
     DurationField,
-    Sum,
-    IntegerField,
-    Case,
-    When,
     Exists,
     OuterRef,
     QuerySet,
+    Prefetch,
 )
-from django.db.models.functions import Lower, Cast, Extract, Coalesce
+from django.db.models.functions import Lower, Cast, Extract
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from backend.api.models import (
     AnnotationCampaign,
@@ -34,8 +33,13 @@ from backend.api.models import (
     DatasetFile,
 )
 from backend.api.serializers import (
-    AnnotationCampaignBasicSerializer,
+    AnnotationCampaignSerializer,
 )
+from backend.api.serializers.annotation.campaign import (
+    AnnotationCampaignPatchSerializer,
+)
+from backend.aplose.models import User
+from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
 
 REPORT_HEADERS = [  # headers
@@ -53,6 +57,13 @@ REPORT_HEADERS = [  # headers
     "confidence_indicator_label",
     "confidence_indicator_level",
     "comments",
+    "signal_start_frequency",
+    "signal_end_frequency",
+    "signal_relative_max_frequency_count",
+    "signal_relative_min_frequency_count",
+    "signal_has_harmonics",
+    "signal_trend",
+    "signal_steps_count",
 ]
 
 
@@ -76,40 +87,85 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
+class AnnotationCampaignViewSet(
+    viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin
+):
     """Model viewset for Annotation campaign"""
 
-    queryset = AnnotationCampaign.objects.all()
-    serializer_class = AnnotationCampaignBasicSerializer
-    filter_backends = (CampaignAccessFilter,)
+    queryset = AnnotationCampaign.objects.select_related(
+        "owner",
+        "archive",
+        "archive__by_user",
+        "archive__by_user__aplose",
+    ).prefetch_related(
+        "datasets",
+        "labels_with_acoustic_features",
+        "spectro_configs",
+        Prefetch("annotators", queryset=User.objects.distinct()),
+    )
+    serializer_class = AnnotationCampaignSerializer
+    filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
+    search_fields = ("name",)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         queryset = (
             super()
             .get_queryset()
-            .annotate(
-                total=Coalesce(
-                    Sum(
-                        "annotation_file_ranges__files_count",
-                        output_field=IntegerField(default=0),
-                    ),
-                    0,
-                ),
-                my_total=Sum(
-                    Case(
-                        When(
-                            annotation_file_ranges__annotator_id=self.request.user.id,
-                            then=F("annotation_file_ranges__files_count"),
-                        ),
-                        default=0,
-                        output_field=IntegerField(),
-                    )
+            .extra(
+                select={
+                    "files_count": """
+                        SELECT count(*) FROM dataset_files f
+                        LEFT JOIN annotation_campaigns_datasets d on d.dataset_id = f.dataset_id
+                        WHERE d.annotationcampaign_id = annotation_campaigns.id
+                    """,
+                    "my_progress": """
+                        SELECT count(*) FROM api_annotationtask t
+                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.annotator_id = %s AND t.status = 'F'
+                    """,
+                    "my_total": """
+                        SELECT case when total notnull then total else 0 end as data FROM 
+                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
+                            WHERE r.annotation_campaign_id = annotation_campaigns.id AND r.annotator_id = %s) as info
+                    """,
+                    "progress": """
+                        SELECT count(*) FROM api_annotationtask t
+                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.status = 'F'
+                    """,
+                    "total": """
+                        SELECT case when total notnull then total else 0 end as data FROM 
+                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
+                            WHERE r.annotation_campaign_id = annotation_campaigns.id) as info
+                    """,
+                },
+                select_params=(
+                    self.request.user.id,
+                    self.request.user.id,
                 ),
             )
             .order_by("name")
         )
         return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == "PATCH":
+            return AnnotationCampaignPatchSerializer
+        return super().get_serializer_class()
+
+    @transaction.atomic()
+    def create(self, request, *args, **kwargs):
+        response: Response = super().create(request, *args, **kwargs)
+        if response.status_code != status.HTTP_201_CREATED:
+            return response
+
+        response_data: ReturnDict = response.data
+        queryset = self.filter_queryset(self.get_queryset())
+        data = self.serializer_class(queryset.get(pk=response_data.get("id"))).data
+        return Response(
+            data,
+            status=status.HTTP_201_CREATED,
+            headers=self.get_success_headers(data),
+        )
 
     @action(
         detail=True,
@@ -119,7 +175,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
     )
     def report(self, request, pk: int = None):
         """Download annotation results report csv"""
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-statements
         campaign: AnnotationCampaign = self.get_object()
         max_confidence = (
             max(
@@ -155,6 +211,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 "confidence_indicator",
                 "annotator",
                 "detector_configuration__detector",
+                "acoustic_features",
             )
             .annotate(
                 file_duration=file_duration,
@@ -180,6 +237,17 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                     ),
                     output_field=BooleanField(),
                 ),
+                feature_start_freq=F("acoustic_features__start_frequency"),
+                feature_end_freq=F("acoustic_features__end_frequency"),
+                feature_relative_max_frequency_count=F(
+                    "acoustic_features__relative_max_frequency_count"
+                ),
+                feature_relative_min_frequency_count=F(
+                    "acoustic_features__relative_min_frequency_count"
+                ),
+                feature_has_harmonics=F("acoustic_features__has_harmonics"),
+                feature_trend=F("acoustic_features__trend"),
+                feature_steps_count=F("acoustic_features__steps_count"),
             )
             .order_by("dataset_file__start", "id")
         )
@@ -262,13 +330,54 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
                 f"{row.confidence_level}/{max_confidence}"
                 if isinstance(row.confidence_level, int)
                 else "",
-                f"{row.comment_content} |- {row.comment_author}"
+                f'"{row.comment_content} |- {row.comment_author}"'
                 if row.comment_content
                 else "",
             ]
 
+        def map_result_features(row):
+            data = map_result(row)
+            data.append(
+                str(row.feature_start_freq)
+                if "feature_start_freq" in vars(row) and row.feature_start_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_end_freq)
+                if "feature_end_freq" in vars(row) and row.feature_end_freq
+                else ""
+            )
+            data.append(
+                str(row.feature_relative_max_frequency_count)
+                if "feature_relative_max_frequency_count" in vars(row)
+                and row.feature_relative_max_frequency_count
+                else ""
+            )
+            data.append(
+                str(row.feature_relative_min_frequency_count)
+                if "feature_relative_min_frequency_count" in vars(row)
+                and row.feature_relative_min_frequency_count
+                else ""
+            )
+            data.append(
+                str(row.feature_has_harmonics)
+                if "feature_has_harmonics" in vars(row) and row.feature_has_harmonics
+                else ""
+            )
+            data.append(
+                str(row.feature_trend)
+                if "feature_trend" in vars(row) and row.feature_trend
+                else ""
+            )
+            data.append(
+                str(row.feature_steps_count)
+                if "feature_steps_count" in vars(row) and row.feature_steps_count
+                else ""
+            )
+            return data
+
         def map_result_check(row):
-            check_data = map_result(row)
+            check_data = map_result_features(row)
             for user in validate_users:
                 validation = validations.filter(
                     result__id=row.id, annotator__username=user
@@ -279,7 +388,7 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             return check_data
 
         if campaign.usage == AnnotationCampaignUsage.CREATE:
-            data.extend(map(map_result, list(results) + list(comments)))
+            data.extend(map(map_result_features, list(results) + list(comments)))
 
         if campaign.usage == AnnotationCampaignUsage.CHECK:
             data[0] = data[0] + validate_users

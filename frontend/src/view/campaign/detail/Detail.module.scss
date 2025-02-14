@@ -1,0 +1,79 @@
+.page {
+  font-family: var(--ion-font-family), sans-serif;
+  display: grid;
+  grid-template-columns: 1fr minmax(auto, 12rem);
+  gap: 2rem;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  max-height: 100%;
+
+  h2 {
+    word-break: break-word;
+    text-align: center;
+  }
+
+  .main {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+    grid-template-rows: auto auto auto 1fr;
+    min-height: 0;
+    max-height: 100%;
+
+    .header {
+      display: grid;
+      align-items: center;
+      justify-items: center;
+    }
+  }
+
+  .side {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+    grid-template-rows: repeat(5, auto) 1fr;
+
+    .bloc {
+      display: grid;
+      gap: 0.5rem;
+      width: 100%;
+      overflow: hidden;
+
+      > div {
+        width: 100%;
+        overflow: hidden;
+      }
+    }
+
+    p {
+      line-height: 0.95rem;
+      word-break: break-word;
+      text-wrap: wrap;
+      overflow: hidden;
+      width: 100%;
+    }
+  }
+
+
+  .filesTable {
+    row-gap: 0.25rem;
+    max-height: 100%;
+    align-self: start;
+    overflow: auto;
+
+    .statusIcon {
+      justify-self: center;
+      z-index: -1;
+    }
+
+    .fillContent {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+}

@@ -27,8 +27,21 @@ export const AnnotatorsRangeBloc: React.FC = () => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
-  const { data: allDatasets } = useListDatasetQuery();
+  const { refetch: fetchFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
+  const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
+
+  useEffect(() => {
+    if (!currentCampaign?.id) return;
+    fetchFileRanges().then(({ data }) => {
+      for (const range of data ?? []) {
+        dispatch(addDraftFileRange({
+          ...range,
+          first_file_index: range.first_file_index + 1,
+          last_file_index: range.last_file_index + 1,
+        }))
+      }
+    })
+  }, []);
 
   // Memo
   const filesCount = useMemo(() => {
@@ -51,23 +64,12 @@ export const AnnotatorsRangeBloc: React.FC = () => {
     ) ?? [];
   }, [ users, filesCount, draftFileRanges ]);
 
-  // Updates
-  useEffect(() => {
-    for (const range of initialFileRanges ?? []) {
-      dispatch(addDraftFileRange({
-        ...range,
-        first_file_index: range.first_file_index + 1,
-        last_file_index: range.last_file_index + 1,
-      }))
-    }
-  }, [ initialFileRanges ]);
-
   if (!users) return <FormBloc label="Annotators"><IonSpinner/></FormBloc>
   return (
     <FormBloc label="Annotators">
 
       { draftFileRanges.length > 0 &&
-          <Table columns={ 2 }>
+          <Table columns={ 3 }>
               <TableHead isFirstColumn={ true }>Annotator</TableHead>
               <TableHead>
                   File range
@@ -123,7 +125,7 @@ const AnnotatorRangeLine: React.FC<{
           { disabled &&
               <span data-tooltip={ 'This user as already started to annotate' }>{ range.first_file_index! }</span> }
           { !disabled && <Input type="number"
-                                value={ range.first_file_index }
+                                value={ range.first_file_index ?? '' }
                                 onChange={ e => onFirstIndexChange(+e.target.value) }
                                 placeholder="1"
                                 min={ 1 } max={ filesCount }
@@ -132,7 +134,7 @@ const AnnotatorRangeLine: React.FC<{
           { disabled &&
               <span data-tooltip={ 'This user as already started to annotate' }>{ range.last_file_index! }</span> }
           { !disabled && <Input type="number"
-                                value={ range.last_file_index }
+                                value={ range.last_file_index ?? '' }
                                 onChange={ e => onLastIndexChange(+e.target.value) }
                                 placeholder={ filesCount?.toString() }
                                 min={ 1 } max={ filesCount }
@@ -141,6 +143,7 @@ const AnnotatorRangeLine: React.FC<{
       </TableContent>
       <TableContent>
         <IonButton disabled={ disabled }
+                   className={ styles.deleteButton }
                    color="danger"
                    data-tooltip={ 'This user as already started to annotate' }
                    onClick={ onDelete }>

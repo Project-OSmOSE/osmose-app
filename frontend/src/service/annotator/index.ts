@@ -30,16 +30,15 @@ export {
   addResult,
   zoom,
   setPointerPosition,
-  enableShortcuts,
   selectSpectrogramConfiguration,
-  disableShortcuts,
   leavePointerPosition,
   setTime,
   onPause,
   setStopTime,
   setAudioSpeed,
   onPlay,
-
+  updateCurrentResultAcousticFeatures,
+  updateFocusResultBounds,
 } from './slice';
 
 

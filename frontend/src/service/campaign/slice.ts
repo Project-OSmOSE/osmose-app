@@ -2,7 +2,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { CampaignAPI } from './api.ts';
 import {
   CampaignState,
-  CannotFormatCSVError, DetectorSelection,
+  CannotFormatCSVError,
+  DetectorSelection,
   FileData,
   UnreadableFileError,
   UnsupportedCSVError,
@@ -59,6 +60,7 @@ export const loadFile = createAsyncThunk(
             type: file.type,
             datasets, detectorsForDatasets,
             detectors: getDetectors(data),
+            labels: [ ...new Set(data.map(d => d.annotation)) ].sort()
           })
         } catch (e) {
           reject(e)

@@ -1,0 +1,23 @@
+.page {
+  display: grid;
+  gap: 2rem;
+  font-family: var(--ion-font-family), sans-serif;
+  grid-template-rows: auto auto 1fr;
+  max-height: 100%;
+  min-height: 0;
+
+  > h2 {
+    justify-self: center;
+  }
+
+  .content {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 300px);
+    gap: 2rem;
+    justify-content: center;
+    overflow: auto;
+    max-height: 100%;
+  }
+}

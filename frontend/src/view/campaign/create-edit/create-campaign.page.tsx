@@ -1,8 +1,6 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { IonButton, IonSpinner } from "@ionic/react";
-import { useBlur } from "@/services/utils/clic.ts";
-import { useToast } from "@/services/utils/toast.ts";
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { CampaignBloc } from "@/view/campaign/create-edit/blocs/campaign.bloc.tsx";
 import {
@@ -25,9 +23,9 @@ import { getErrorMessage } from '@/service/function.ts';
 import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
 import { useImportResultMutation } from '@/service/campaign/result';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { useToast } from "@/service/ui";
 
 export const CreateCampaign: React.FC = () => {
-  const blurUtil = useBlur();
   const toast = useToast();
 
   // Services
@@ -45,23 +43,19 @@ export const CreateCampaign: React.FC = () => {
   const [ resultFile, setResultFile ] = useState<File | undefined>();
 
   useEffect(() => {
-    document.addEventListener('click', blurUtil.onClick)
     dispatch(clearCampaign())
     return () => {
-      document.removeEventListener('click', blurUtil.onClick);
-      blurUtil.cleanListener();
       toast.dismiss();
     }
   }, [])
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const campaign = createdCampaign ?? await submitCampaign();
       await submitResults(campaign)
       if (!await submitFileRanges(campaign)) return;
 
-      history.push('/annotation-campaign');
+      history.push(`/annotation-campaign/${ campaign.id }`);
     } catch (e: any) {
       toast.presentError(getErrorMessage(e));
     }
@@ -79,13 +73,16 @@ export const CreateCampaign: React.FC = () => {
       dispatch(updateCampaignSubmissionErrors(errors))
       throw new Error("Missing required fields");
     }
+    let deadline = draftCampaign.deadline ?? null;
+    if (deadline) deadline = new Date(deadline).toISOString();
     const data: BaseAnnotationCampaign = {
       name: draftCampaign.name?.trim() ?? '',
       desc: draftCampaign.desc?.trim() ?? null,
       instructions_url: draftCampaign.instructions_url?.trim() ?? null,
-      deadline: draftCampaign.deadline?.trim() ?? null,
+      deadline,
       datasets: draftCampaign.datasets ?? [],
       spectro_configs: draftCampaign.spectro_configs ?? [],
+      labels_with_acoustic_features: draftCampaign.labels_with_acoustic_features ?? [],
     }
 
     if (draftCampaign.usage === 'Check') {
@@ -146,6 +143,7 @@ export const CreateCampaign: React.FC = () => {
   }
 
   const submitFileRanges = (campaign: AnnotationCampaign) => {
+    if (draftFileRanges.length === 0) return;
     return postFileRanges({
       campaignID: campaign.id,
       data: draftFileRanges.map(r => {
@@ -158,13 +156,12 @@ export const CreateCampaign: React.FC = () => {
           annotator: r.annotator
         }
       })
-    })
+    }).unwrap()
   }
 
 
   return (
-    <form id="create-campaign-form"
-          onSubmit={ handleSubmit }>
+    <div id="create-campaign-form">
       <h1>Create Annotation Campaign</h1>
 
       <CampaignBloc/>
@@ -176,10 +173,11 @@ export const CreateCampaign: React.FC = () => {
       <AnnotatorsRangeBloc/>
 
       <IonButton color="primary" type="submit"
+                 onClick={ handleSubmit }
                  disabled={ isSubmittingCampaign || isSubmittingFileRanges || isImportingResults }>
         Create campaign
         { (isSubmittingCampaign || isSubmittingFileRanges || isImportingResults) && <IonSpinner/> }
       </IonButton>
-    </form>
+    </div>
   )
 }

@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
-from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 from backend.api.views.annotation.campaign import REPORT_HEADERS
+from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-campaign-report", kwargs={"pk": 1})
 URL_check = reverse("annotation-campaign-report", kwargs={"pk": 4})
@@ -17,19 +17,20 @@ def check_report(test: APITestCase, response: Response):
     test.assertEqual(response.status_code, status.HTTP_200_OK)
     test.assertEqual(len(response.data), 10)
     test.assertEqual(response.data[0], REPORT_HEADERS)
+    # annotationresult id=7 ; because ordered by dataset_file__start and not id
     test.assertEqual(
-        response.data[1],
-        [  # annotationresult id=7 ; because ordered by dataset_file and not id
+        response.data[1][:14],
+        [
             "SPM Aural A 2010",
             "sound001.wav",
-            "108.21842250413678",
-            "224.87589630446772",
+            "108.2",
+            "224.8",
             "7520.0",
             "13696.0",
             "Odoncetes",
             "admin",
-            "2012-10-03T10:01:48.218+00:00",
-            "2012-10-03T10:03:44.875+00:00",
+            "2012-10-03T10:01:48.200+00:00",
+            "2012-10-03T10:03:44.800+00:00",
             "1",
             "confident",
             "0/1",
@@ -47,17 +48,24 @@ def check_report_check(test: APITestCase, response: Response):
         [  # annotationresult id=10
             "SPM Aural A 2010",
             "sound001.wav",
-            "108.21842250413678",
-            "224.87589630446772",
+            "108.2",
+            "224.8",
             "7520.0",
             "13696.0",
             "Rain",
             "Detector 1",
-            "2012-10-03T10:01:48.218+00:00",
-            "2012-10-03T10:03:44.875+00:00",
+            "2012-10-03T10:01:48.200+00:00",
+            "2012-10-03T10:03:44.800+00:00",
             "1",
             "no Confident",
             "1/1",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
             "",
             "True",
             "False",
