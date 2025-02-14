@@ -57,12 +57,8 @@ class AnnotationFileRange(models.Model):
 
     first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    first_file_id = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)], null=True
-    )
-    last_file_id = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)], null=True
-    )
+    first_file_id = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    last_file_id = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     files_count = models.PositiveIntegerField()
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
