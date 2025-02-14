@@ -113,7 +113,7 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationFileRange
-        fields = "__all__"
+        exclude = ("first_file_id", "last_file_id")
         list_serializer_class = AnnotationFileRangeListSerializer
 
     def get_finished_tasks_count(self, file_range: AnnotationFileRange) -> int:
