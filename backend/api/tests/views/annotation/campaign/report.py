@@ -1,12 +1,17 @@
 """Test AnnotationCampaignViewSet"""
+import csv
+import io
+
+from django.http import HttpResponse
+
 # pylint: disable=missing-class-docstring, missing-function-docstring
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
-from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 from backend.api.views.annotation.campaign import REPORT_HEADERS
+from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-campaign-report", kwargs={"pk": 1})
 URL_check = reverse("annotation-campaign-report", kwargs={"pk": 4})
@@ -65,16 +70,18 @@ def check_report_check(test: APITestCase, response: Response):
     )
 
 
-def check_report_status(test: APITestCase, response: Response):
+def check_report_status(test: APITestCase, response: HttpResponse):
     test.assertEqual(response.status_code, status.HTTP_200_OK)
-    test.assertEqual(len(response.data), 12)
-    test.assertEqual(response.data[0], ["dataset", "filename", "admin", "user2"])
+    reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
+    data = list(reader)
+    test.assertEqual(len(data), 12)
+    test.assertEqual(data[0], ["dataset", "filename", "admin", "user2"])
     test.assertEqual(
-        response.data[1],
+        data[1],
         ["SPM Aural A 2010", "sound001.wav", "FINISHED", "UNASSIGNED"],
     )
     test.assertEqual(
-        response.data[2],
+        data[2],
         ["SPM Aural A 2010", "sound002.wav", "CREATED", "UNASSIGNED"],
     )
 

@@ -1,6 +1,8 @@
 """Annotation campaign DRF-Viewset file"""
+import csv
 from datetime import timedelta
 
+from django.db import models
 from django.db.models import (
     Q,
     F,
@@ -16,8 +18,10 @@ from django.db.models import (
     Exists,
     OuterRef,
     QuerySet,
+    Subquery,
 )
 from django.db.models.functions import Lower, Cast, Extract, Coalesce
+from django.http import HttpResponse
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -302,6 +306,10 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
         # pylint: disable=unused-argument
         campaign: AnnotationCampaign = self.get_object()
 
+        response = HttpResponse(content_type="text/csv")
+        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
         # Headers
         header = ["dataset", "filename"]
         file_ranges: QuerySet[AnnotationFileRange] = campaign.annotation_file_ranges
@@ -311,38 +319,48 @@ class AnnotationCampaignViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateMode
             .order_by(Lower("annotator__username"))
             .values_list("annotator__username", flat=True)
         )
-        data = [header + list(annotators)]
+        header += annotators
+        writer = csv.DictWriter(response, fieldnames=header)
+        writer.writeheader()
 
         # Content
-        files: QuerySet[DatasetFile] = campaign.get_sorted_files().select_related(
+        all_files: QuerySet[DatasetFile] = campaign.get_sorted_files().select_related(
             "dataset"
         )
         finished_tasks: QuerySet[AnnotationTask] = campaign.tasks.filter(
-            status=AnnotationTask.Status.FINISHED
+            status=AnnotationTask.Status.FINISHED,
         )
-        for [index, file] in enumerate(files):
-            row = []
-            row.append(file.dataset.name)
-            row.append(file.filename)
-            for annotator in annotators:
-                annotation_status = "UNASSIGNED"
-                if finished_tasks.filter(
-                    annotator__username=annotator, dataset_file_id=file.id
-                ).exists():
-                    annotation_status = "FINISHED"
-                elif file_ranges.filter(
-                    annotator__username=annotator,
-                    first_file_index__lte=index,
-                    last_file_index__gte=index,
-                ).exists():
-                    annotation_status = "CREATED"
-                row.append(annotation_status)
-            data.append(row)
 
-        response = Response(data)
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}_status.csv"'
+        def map_annotators(user: str) -> [str, Case]:
+            task_sub = Subquery(
+                finished_tasks.filter(
+                    dataset_file_id=OuterRef("pk"), annotator__username=user
+                )
+            )
+            range_sub = Subquery(
+                file_ranges.filter(
+                    first_file_id__lte=OuterRef("pk"),
+                    last_file_id__gte=OuterRef("pk"),
+                    annotator__username=user,
+                )
+            )
+            query = Case(
+                When(Exists(Subquery(task_sub)), then=models.Value("FINISHED")),
+                When(Exists(Subquery(range_sub)), then=models.Value("CREATED")),
+                default=models.Value("UNASSIGNED"),
+                output_field=models.CharField(),
+            )
+            return [user, query]
+
+        data = dict(map(map_annotators, annotators))
+
+        writer.writerows(
+            list(
+                all_files.values("dataset__name", "filename", "pk")
+                .annotate(dataset=F("dataset__name"), **data)
+                .values(*header)
+            )
+        )
         return response
 
     @action(

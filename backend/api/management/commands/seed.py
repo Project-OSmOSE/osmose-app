@@ -384,12 +384,15 @@ class Command(management.BaseCommand):
             for user in self.users:
                 if user.username in ["TestUser2", "TestUser3"]:
                     continue
+                last_index = dataset.files.count()
                 file_ranges.append(
                     AnnotationFileRange(
                         annotation_campaign_id=campaign.id,
                         annotator_id=user.id,
                         first_file_index=0,
-                        last_file_index=dataset.files.count() - 1,
+                        first_file_id=dataset.files.all()[0].id,
+                        last_file_index=last_index,
+                        last_file_id=dataset.files.all()[last_index].id,
                         files_count=dataset.files.count(),
                     )
                 )
