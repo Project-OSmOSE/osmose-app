@@ -16,7 +16,7 @@ from backend.api.models import (
 )
 from backend.aplose.models import User
 from backend.aplose.serializers import UserSerializer
-from backend.utils.serializers import EnumField
+from backend.utils.serializers import EnumField, SlugRelatedGetOrCreateField
 
 
 class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
@@ -46,7 +46,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
         queryset=LabelSet.objects.all(),
         required=False,
     )
-    labels_with_acoustic_features = serializers.SlugRelatedField(
+    labels_with_acoustic_features = SlugRelatedGetOrCreateField(
         queryset=Label.objects.all(),
         slug_field="name",
         required=False,
@@ -91,7 +91,9 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"spectro_configs": error})
 
     def validate(self, attrs):
+        print("before", attrs)
         attrs = super().validate(attrs)
+        print("after", attrs)
         attrs["owner"] = self.context["request"].user
         if (
             "deadline" in attrs

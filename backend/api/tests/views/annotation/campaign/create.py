@@ -130,10 +130,11 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
             {**creation_data, "labels_with_acoustic_features": ["Invalid"]},
             format="json",
         )
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count)
         self.assertEqual(
-            response.data["labels_with_acoustic_features"][0].code, "does_not_exist"
+            response.data["labels_with_acoustic_features"][0].code, "invalid"
         )
 
     def test_create_create_usage_with_filled_invalid_in_set_acoustic_features(self):

@@ -1,6 +1,7 @@
 """Annotator viewset"""
 
 from django.db import transaction
+
 # pylint: disable=protected-access
 from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
