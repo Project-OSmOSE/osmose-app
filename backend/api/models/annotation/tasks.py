@@ -77,7 +77,7 @@ class AnnotationFileRange(models.Model):
             dataset_id__in=self.annotation_campaign.datasets.values_list(
                 "id", flat=True
             )
-        ).order_by("start", "id")
+        )
         self.first_file_id = files[self.first_file_index].id
         self.last_file_id = files[self.last_file_index].id
         super().save(*args, **kwargs)
@@ -89,7 +89,7 @@ class AnnotationFileRange(models.Model):
             dataset__in=self.annotation_campaign.datasets.values_list("id", flat=True),
             id__gte=self.first_file_id,
             id__lte=self.last_file_id,
-        ).order_by("start", "id")
+        )
 
     def get_finished_tasks(self) -> QuerySet[AnnotationTask]:
         """Finished tasks within this file range"""
