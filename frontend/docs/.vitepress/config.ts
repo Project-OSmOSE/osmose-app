@@ -53,6 +53,10 @@ export default defineConfig({
             {
               text: 'Manage account',
               link: '/user/account'
+            },
+            {
+              text: 'FAQ',
+              link: '/faq'
             }
           ],
           '/dev': [
@@ -107,6 +111,10 @@ export default defineConfig({
             {
               text: 'Gestion du compte',
               link: '/fr/user/account'
+            },
+            {
+              text: 'FAQ',
+              link: '/fr/user/faq'
             }
           ],
         },
