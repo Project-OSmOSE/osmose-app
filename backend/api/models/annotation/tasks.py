@@ -78,18 +78,28 @@ class AnnotationFileRange(models.Model):
                 "id", flat=True
             )
         )
-        self.first_file_id = files[self.first_file_index].id
-        self.last_file_id = files[self.last_file_index].id
+        new_first_file_id = files[self.first_file_index].id
+        new_last_file_id = files[self.last_file_index].id
+
+        # When updating: remove tasks not related anymore
+        if self.first_file_id is not None and self.last_file_id is not None:
+            self._get_tasks().filter(
+                Q(dataset_file_id__gt=new_last_file_id)
+                | Q(dataset_file_id__lt=new_first_file_id)
+            ).filter(other_range_exist=False).delete()
+
+        self.first_file_id = new_first_file_id
+        self.last_file_id = new_last_file_id
         super().save(*args, **kwargs)
 
-    def delete(self, using=None, keep_parents=False):
-        tasks = AnnotationTask.objects.filter(
+    def _get_tasks(self) -> QuerySet[AnnotationTask]:
+        return AnnotationTask.objects.filter(
             annotation_campaign_id=self.annotation_campaign_id,
             annotator_id=self.annotator_id,
             dataset_file_id__gte=self.first_file_id,
             dataset_file_id__lte=self.last_file_id,
         ).annotate(
-            range_exist=Exists(
+            other_range_exist=Exists(
                 Subquery(
                     AnnotationFileRange.objects.filter(
                         ~Q(id=self.id)
@@ -103,7 +113,9 @@ class AnnotationFileRange(models.Model):
                 )
             )
         )
-        tasks.filter(range_exist=False).delete()
+
+    def delete(self, using=None, keep_parents=False):
+        self._get_tasks().filter(other_range_exist=False).delete()
         return super().delete(using, keep_parents)
 
     def get_files(self) -> QuerySet[DatasetFile]:
@@ -117,11 +129,11 @@ class AnnotationFileRange(models.Model):
 
     def get_finished_tasks(self) -> QuerySet[AnnotationTask]:
         """Finished tasks within this file range"""
-        dataset_files_id = self.get_files().values_list("id", flat=True)
         return AnnotationTask.objects.filter(
             annotator_id=self.annotator_id,
             annotation_campaign_id=self.annotation_campaign_id,
-            dataset_file_id__in=dataset_files_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
             status=AnnotationTask.Status.FINISHED,
         )
 

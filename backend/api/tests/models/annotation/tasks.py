@@ -8,6 +8,17 @@ from backend.utils.tests import all_fixtures
 class AnnotationFileRangeTestCase(TestCase):
     fixtures = all_fixtures
 
+    def test_update_delete_unrelated_tasks(self):
+        file_range = AnnotationFileRange.objects.get(pk=1)
+        self.assertEqual(AnnotationTask.objects.count(), 13)
+        self.assertEqual(AnnotationFileRange.objects.count(), 6)
+
+        file_range.last_file_index -= 1
+        file_range.save()
+
+        self.assertEqual(AnnotationFileRange.objects.count(), 6)
+        self.assertEqual(AnnotationTask.objects.count(), 12)
+
     def test_delete_also_delete_tasks(self):
         self.assertEqual(AnnotationTask.objects.count(), 13)
         self.assertEqual(AnnotationFileRange.objects.count(), 6)
