@@ -49,9 +49,12 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "confidence_indicator_set",
         "usage",
     )
-    search_fields = ("name", "desc")
+    search_fields = ("name", "desc", "datasets__name")
 
-    list_filter = ("datasets", "usage", IsArchivedFilter)
+    list_filter = (
+        "usage",
+        IsArchivedFilter,
+    )
 
     actions = [
         "archive",
