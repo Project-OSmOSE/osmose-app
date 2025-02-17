@@ -30,7 +30,7 @@ export const Header: React.FC<{
         <IonIcon icon={ isOpen ? closeOutline : menuOutline } slot='icon-only'/>
       </IonButton>
 
-      <div className={ styles.info }>{ children }</div>
+      { children && <div className={ styles.info }>{ children }</div> }
 
       <div className={ styles.links }>
         <DocumentationButton size={ size }/>
