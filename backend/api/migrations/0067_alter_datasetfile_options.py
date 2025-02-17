@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0066_file_range_limits'),
+        ("api", "0066_file_range_limits"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='datasetfile',
-            options={'ordering': ('start', 'id')},
+            name="datasetfile",
+            options={"ordering": ("start", "id")},
         ),
     ]

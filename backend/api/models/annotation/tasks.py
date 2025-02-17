@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef
 
 from ..datasets import DatasetFile
 
@@ -81,6 +81,30 @@ class AnnotationFileRange(models.Model):
         self.first_file_id = files[self.first_file_index].id
         self.last_file_id = files[self.last_file_index].id
         super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        tasks = AnnotationTask.objects.filter(
+            annotation_campaign_id=self.annotation_campaign_id,
+            annotator_id=self.annotator_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
+        ).annotate(
+            range_exist=Exists(
+                Subquery(
+                    AnnotationFileRange.objects.filter(
+                        ~Q(id=self.id)
+                        & Q(
+                            annotator_id=self.annotator_id,
+                            annotation_campaign_id=self.annotation_campaign_id,
+                            first_file_id__lte=OuterRef("pk"),
+                            last_file_id__gte=OuterRef("pk"),
+                        )
+                    )
+                )
+            )
+        )
+        tasks.filter(range_exist=False).delete()
+        return super().delete(using, keep_parents)
 
     def get_files(self) -> QuerySet[DatasetFile]:
         """Get corresponding dataset files"""
