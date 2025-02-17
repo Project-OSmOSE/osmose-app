@@ -5,7 +5,7 @@ import { FILE_RANGE_URL } from '../../utils/url';
 import { WriteAnnotationFileRange } from '../../../src/service/campaign/annotation-file-range';
 
 async function submit(page: Page): Promise<Array<WriteAnnotationFileRange>> {
-  await page.route(FILE_RANGE_URL, route => route.fulfill({ status: 200, json: [] }))
+  await page.route(/api\/annotation-file-range\/?\??.*$/g, route => route.fulfill({ status: 200 }))
   const [ request ] = await Promise.all([
     page.waitForRequest(FILE_RANGE_URL),
     page.getByRole('button', { name: 'Update campaign' }).click()
