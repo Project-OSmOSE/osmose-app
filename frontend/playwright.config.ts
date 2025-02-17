@@ -11,15 +11,17 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 
+const isCI = process.env.CI === "true"
+
 let grep: RegExp[] | undefined = []
 /* Limit test to essential (tagged) ones [full: 10m - essential: 6m] */
-if (process.env.CI === "true") grep.push(/essential/)
+if (isCI) grep.push(/essential/)
 if (grep.length === 0) grep = undefined;
 
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: !isCI,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   grep,

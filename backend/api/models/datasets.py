@@ -95,6 +95,7 @@ class DatasetFile(models.Model):
 
     class Meta:
         db_table = "dataset_files"
+        ordering = ("start", "id")
 
     def __str__(self):
         return str(self.filename)

@@ -60,8 +60,7 @@ export async function canAccessCampaignFileList(page: Page, locator: Locator | P
 }
 
 export async function accessCampaignDetail(page: Page) {
-  await page.getByPlaceholder('Search campaign').locator('input').fill(DEFAULT_CAMPAIGN_NAME);
-  const card = page.locator('.campaign-card').first()
+  const card = page.locator('.campaign-card').filter({ hasText: DEFAULT_CAMPAIGN_NAME }).first()
   await card.waitFor()
   await Promise.all([
     canAccessCampaignDetail(page, card),
@@ -73,8 +72,7 @@ export async function accessCampaignDetail(page: Page) {
 }
 
 export async function accessCampaignFileList(page: Page) {
-  await page.getByPlaceholder('Search campaign').locator('input').fill(DEFAULT_CAMPAIGN_NAME);
-  const card = page.locator('.campaign-card').first()
+  const card = page.locator('.campaign-card').filter({ hasText: DEFAULT_CAMPAIGN_NAME }).first()
   await card.waitFor()
   await Promise.all([
     canAccessCampaignFileList(page, card),

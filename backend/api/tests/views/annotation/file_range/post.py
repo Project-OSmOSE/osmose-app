@@ -236,9 +236,10 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
         self.assertEqual(AnnotationFileRange.objects.count(), initial_count)
 
     def test_post_delete_all_with_finished_task(self):
+        initial_count = AnnotationFileRange.objects.count()
         response = self.post([])
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data[0].code, "invalid_deletion")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(AnnotationFileRange.objects.count(), initial_count - 2)
 
     def test_post_delete_all(self):
         initial_count = AnnotationFileRange.objects.count()
