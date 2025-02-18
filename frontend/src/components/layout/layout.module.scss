@@ -9,6 +9,18 @@
   padding: 0.5rem 2rem;
   grid-column: 1 / -1;
 
+  > div:first-child {
+    justify-content: start;
+    justify-self: start;
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+
+    ion-note {
+      opacity: 0.5;
+    }
+  }
+
   a {
     display: grid;
     grid-auto-flow: column;
@@ -36,11 +48,7 @@
     gap: 0 0.5rem;
     justify-content: center;
     justify-items: center;
-    grid-template-columns: auto auto;
-
-    ion-note {
-      grid-column: 1 / -1;
-    }
+    grid-auto-flow: column;
 
     p {
       opacity: 0.8;
