@@ -95,12 +95,14 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             id=campaign_id,
         )
 
+        print(request.data)
+
         data = [
             {
                 **d,
                 "annotation_campaign": campaign.id,
             }
-            for d in request.data
+            for d in request.data["data"]
         ]
 
         if not self.can_user_post_data(data):
@@ -109,6 +111,9 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = AnnotationFileRangeSerializer(
             campaign.annotation_file_ranges,
             data=data,
+            context={
+                "force": request.data["force"] if "force" in request.data else False
+            },
             many=True,
         )
         serializer.is_valid(raise_exception=True)

@@ -1,6 +1,7 @@
 """Test AnnotationFileRangeViewSet"""
 # pylint: disable=missing-class-docstring, missing-function-docstring
 import json
+from typing import Optional
 
 from django.urls import reverse
 from rest_framework import status
@@ -58,7 +59,7 @@ class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     def test_post(self):
         response = self.client.post(
             URL,
-            data=json.dumps([basic_create_range]),
+            data=json.dumps({"data": [basic_create_range]}),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -83,10 +84,10 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
     username = "user1"
     fixtures = all_fixtures
 
-    def post(self, data: list[dict]) -> Response:
+    def post(self, data: list[dict], force: Optional[bool] = None) -> Response:
         response = self.client.post(
             URL,
-            data=json.dumps(data),
+            data=json.dumps({"data": data, "force": force}),
             content_type="application/json",
         )
         return response
@@ -236,8 +237,13 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
         self.assertEqual(AnnotationFileRange.objects.count(), initial_count)
 
     def test_post_delete_all_with_finished_task(self):
-        initial_count = AnnotationFileRange.objects.count()
         response = self.post([])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0].code, "invalid_deletion")
+
+    def test_post_delete_all_with_finished_task_forced(self):
+        initial_count = AnnotationFileRange.objects.count()
+        response = self.post([], force=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationFileRange.objects.count(), initial_count - 2)
 
@@ -245,7 +251,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
         initial_count = AnnotationFileRange.objects.count()
         response = self.client.post(
             reverse("annotation-file-range-campaign", kwargs={"campaign_id": 2}),
-            data=json.dumps([]),
+            data=json.dumps({"data": []}),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
