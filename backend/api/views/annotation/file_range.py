@@ -95,8 +95,6 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             id=campaign_id,
         )
 
-        print(request.data)
-
         data = [
             {
                 **d,
