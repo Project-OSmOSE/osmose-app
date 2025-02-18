@@ -41,6 +41,7 @@ from backend.api.serializers.annotation.campaign import (
     AnnotationCampaignPatchSerializer,
 )
 from backend.aplose.models import User
+from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
 
@@ -53,6 +54,7 @@ REPORT_HEADERS = [  # headers
     "end_frequency",
     "annotation",
     "annotator",
+    "annotator_expertise",
     "start_datetime",
     "end_datetime",
     "is_box",
@@ -218,6 +220,7 @@ class AnnotationCampaignViewSet(
                 "dataset_file",
                 "dataset_file__dataset",
                 "annotator",
+                "annotator__aplose",
                 "label",
                 "confidence_indicator",
                 "acoustic_features",
@@ -233,6 +236,22 @@ class AnnotationCampaignViewSet(
                 dataset=F("dataset_file__dataset__name"),
                 filename=F("dataset_file__filename"),
                 annotation=F("label__name"),
+                annotator_expertise=Case(
+                    When(
+                        annotator__aplose__expertise_level=ExpertiseLevel.NOVICE,
+                        then=Value("NOVICE"),
+                    ),
+                    When(
+                        annotator__aplose__expertise_level=ExpertiseLevel.AVERAGE,
+                        then=Value("AVERAGE"),
+                    ),
+                    When(
+                        annotator__aplose__expertise_level=ExpertiseLevel.EXPERT,
+                        then=Value("EXPERT"),
+                    ),
+                    default=F("annotator__aplose__expertise_level"),
+                    output_field=models.CharField(),
+                ),
                 is_box=is_box,
                 confidence_indicator_label=F("confidence_indicator__label"),
                 confidence_indicator_level=Concat(
