@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSpinner } from "@ionic/react";
-import { addOutline, closeCircle, swapHorizontal } from "ionicons/icons";
+import { addOutline, closeCircle, refreshOutline, swapHorizontal } from "ionicons/icons";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import styles from './annotation-campaign-list.module.scss'
 import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
@@ -76,6 +76,13 @@ export const AnnotationCampaignList: React.FC = () => {
     setMyWorkFilter(prev => !prev)
   }
 
+  function resetFilters() {
+    setMyWorkFilter(false);
+    setonlyMineFilter(false);
+    setShowArchivedFilter(false);
+    setModeFilter(undefined);
+  }
+
   return (
     <div className={ styles.page }>
       <h2>Annotation Campaigns</h2>
@@ -117,6 +124,12 @@ export const AnnotationCampaignList: React.FC = () => {
           Owned campaigns
           { onlyMineFilter && <IonIcon icon={ closeCircle } color='primary'/> }
         </IonChip>
+
+        { (onlyMineFilter || modeFilter || showArchivedFilter || myWorkFilter) &&
+            <IonButton fill='clear' color='medium' onClick={ resetFilters }>
+                <IonIcon icon={ refreshOutline } slot='start'/>
+                Reset
+            </IonButton> }
       </ActionBar>
 
       { isFetching && <IonSpinner/> }

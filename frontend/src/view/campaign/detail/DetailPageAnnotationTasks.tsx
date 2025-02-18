@@ -9,6 +9,7 @@ import {
   closeCircle,
   ellipseOutline,
   playOutline,
+  refreshOutline,
   swapHorizontal
 } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
@@ -113,6 +114,17 @@ export const DetailPageAnnotationTasks: React.FC<{
     setPage(1)
   }
 
+  function resetFilters() {
+    if (!campaign) return;
+    dispatch(setFileFilters({
+      campaignID: campaign.id,
+      isSubmitted: undefined,
+      label: undefined,
+      withUserAnnotations: undefined,
+    }))
+    setPage(1)
+  }
+
 
   return <Fragment>
 
@@ -151,6 +163,12 @@ export const DetailPageAnnotationTasks: React.FC<{
         { (fileFilters.label && !isLastLabel) && <IonIcon icon={ swapHorizontal }/> }
         { isLastLabel && <IonIcon icon={ closeCircle }/> }
       </IonChip>
+
+      { (fileFilters.label !== undefined || fileFilters.isSubmitted !== undefined || fileFilters.withUserAnnotations !== undefined) &&
+          <IonButton fill='clear' color='medium' onClick={ resetFilters }>
+              <IonIcon icon={ refreshOutline } slot='start'/>
+              Reset
+          </IonButton> }
     </ActionBar>
 
     { isFetching && <IonSpinner/> }
