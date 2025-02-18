@@ -1,12 +1,10 @@
 """Annotation campaign DRF-Viewset file"""
 import csv
-from datetime import timedelta
 
 from django.db import models, transaction
 from django.db.models import (
     Q,
     F,
-    BooleanField,
     ExpressionWrapper,
     Value,
     FloatField,
@@ -19,7 +17,7 @@ from django.db.models import (
     Subquery,
     Prefetch,
 )
-from django.db.models.functions import Lower, Cast, Extract
+from django.db.models.functions import Lower, Cast, Extract, Concat
 from django.http import HttpResponse
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
@@ -33,7 +31,6 @@ from backend.api.models import (
     AnnotationResultValidation,
     AnnotationTask,
     AnnotationComment,
-    AnnotationCampaignUsage,
     AnnotationFileRange,
     DatasetFile,
 )
@@ -62,6 +59,7 @@ REPORT_HEADERS = [  # headers
     "confidence_indicator_label",
     "confidence_indicator_level",
     "comments",
+    "signal_quality",
     "signal_start_frequency",
     "signal_end_frequency",
     "signal_relative_max_frequency_count",
@@ -172,26 +170,8 @@ class AnnotationCampaignViewSet(
             headers=self.get_success_headers(data),
         )
 
-    @action(
-        detail=True,
-        url_path="report",
-        url_name="report",
-        renderer_classes=[CSVRenderer],
-    )
-    def report(self, request, pk: int = None):
-        """Download annotation results report csv"""
-        # pylint: disable=too-many-locals, too-many-statements
+    def _report_get_results(self) -> QuerySet[AnnotationResult]:
         campaign: AnnotationCampaign = self.get_object()
-        max_confidence = (
-            max(
-                campaign.confidence_indicator_set.confidence_indicators.values_list(
-                    "level", flat=True
-                )
-            )
-            if campaign.confidence_indicator_set
-            else 0
-        )
-
         file_duration = Cast(
             Extract(
                 ExpressionWrapper(
@@ -206,203 +186,196 @@ class AnnotationCampaignViewSet(
             F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
             output_field=FloatField(),
         )
-        results = (
-            AnnotationResult.objects.filter(annotation_campaign_id=pk)
+        is_box = Case(
+            When(
+                (Q(start_time__isnull=True) | Q(start_time=0))
+                & (Q(end_time__isnull=True) | Q(end_time=file_duration))
+                & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
+                & (Q(end_frequency__isnull=True) | Q(end_frequency=file_max_frequency)),
+                then=0,
+            ),
+            default=1,
+            output_field=models.IntegerField(),
+        )
+        max_confidence = (
+            max(
+                campaign.confidence_indicator_set.confidence_indicators.values_list(
+                    "level", flat=True
+                )
+            )
+            if campaign.confidence_indicator_set
+            else 0
+        )
+        comments = Subquery(
+            AnnotationComment.objects.select_related("author")
+            .filter(annotation_result_id=OuterRef("id"))
+            .annotate(data=Concat(F("comment"), Value(" |- "), F("author__username")))
+            .values_list("data", flat=True)
+        )
+        return (
+            AnnotationResult.objects.filter(annotation_campaign_id=campaign.id)
             .select_related(
                 "dataset_file",
                 "dataset_file__dataset",
-                "dataset_file__dataset__audio_metadatum",
+                "annotator",
                 "label",
                 "confidence_indicator",
-                "annotator",
-                "detector_configuration__detector",
                 "acoustic_features",
+                "detector_configuration__detector",
             )
+            .prefetch_related(
+                "comments",
+                "comments__author",
+            )
+            .order_by("dataset_file__start", "dataset_file__id", "id")
+            .distinct()
             .annotate(
-                file_duration=file_duration,
-                file_max_frequency=file_max_frequency,
-                file_name=F("dataset_file__filename"),
-                dataset_name=F("dataset_file__dataset__name"),
-                file_start=F("dataset_file__start"),
-                file_end=F("dataset_file__end"),
-                label_name=F("label__name"),
-                annotator_name=F("annotator__username"),
-                detector_name=F("detector_configuration__detector__name"),
-                comment_content=F("comments__comment"),
-                comment_author=F("comments__author__username"),
-                confidence_label=F("confidence_indicator__label"),
-                confidence_level=F("confidence_indicator__level"),
-                is_weak=ExpressionWrapper(
-                    (Q(start_time__isnull=True) | Q(start_time=0))
-                    & (Q(end_time__isnull=True) | Q(end_time=file_duration))
-                    & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
-                    & (
-                        Q(end_frequency__isnull=True)
-                        | Q(end_frequency=file_max_frequency)
-                    ),
-                    output_field=BooleanField(),
+                dataset=F("dataset_file__dataset__name"),
+                filename=F("dataset_file__filename"),
+                annotation=F("label__name"),
+                is_box=is_box,
+                confidence_indicator_label=F("confidence_indicator__label"),
+                confidence_indicator_level=Concat(
+                    F("confidence_indicator__level"),
+                    Value("/"),
+                    max_confidence,
+                    output_field=models.CharField(),
                 ),
-                feature_start_freq=F("acoustic_features__start_frequency"),
-                feature_end_freq=F("acoustic_features__end_frequency"),
-                feature_relative_max_frequency_count=F(
+                comments_data=comments,
+                signal_quality=Case(
+                    When(acoustic_features__isnull=False, then=Value("GOOD")),
+                    default=Value("BAD"),
+                    output_field=models.CharField(),
+                ),
+                signal_start_frequency=F("acoustic_features__start_frequency"),
+                signal_end_frequency=F("acoustic_features__end_frequency"),
+                signal_relative_max_frequency_count=F(
                     "acoustic_features__relative_max_frequency_count"
                 ),
-                feature_relative_min_frequency_count=F(
+                signal_relative_min_frequency_count=F(
                     "acoustic_features__relative_min_frequency_count"
                 ),
-                feature_has_harmonics=F("acoustic_features__has_harmonics"),
-                feature_trend=F("acoustic_features__trend"),
-                feature_steps_count=F("acoustic_features__steps_count"),
-            )
-            .order_by("dataset_file__start", "id")
-        )
-        comments = (
-            AnnotationComment.objects.filter(
-                annotation_campaign_id=pk,
-                annotation_result__isnull=True,
-            )
-            .select_related(
-                "dataset_file",
-                "dataset_file__dataset",
-                "author",
-            )
-            .annotate(
-                file_name=F("dataset_file__filename"),
-                dataset_name=F("dataset_file__dataset__name"),
-                annotator_name=F("author__username"),
-                comment_content=F("comment"),
-                comment_author=F("author__username"),
-                start_time=Value(""),
-                end_time=Value(""),
-                start_frequency=Value(""),
-                end_frequency=Value(""),
-                label_name=Value(""),
-                confidence_label=Value(""),
-                confidence_level=Value(""),
-                is_weak=Value(""),
-                file_start=F("dataset_file__start"),
-                file_end=F("dataset_file__end"),
-                file_max_frequency=ExpressionWrapper(
-                    F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
-                    output_field=FloatField(),
-                ),
+                signal_has_harmonics=F("acoustic_features__has_harmonics"),
+                signal_trend=F("acoustic_features__trend"),
+                signal_steps_count=F("acoustic_features__steps_count"),
             )
             .extra(
                 select={
-                    "file_duration": 'SELECT EXTRACT(EPOCH FROM ("end" - start)) '
-                    "FROM dataset_files f "
-                    "WHERE f.id = annotation_comment.dataset_file_id"
+                    "start_datetime": """
+                    SELECT 
+                        to_char ((f.start + annotation_results.start_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                    FROM dataset_files f
+                    WHERE annotation_results.dataset_file_id = f.id
+                    """,
+                    "end_datetime": """
+                    SELECT 
+                        to_char ((f.start + annotation_results.end_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                    FROM dataset_files f
+                    WHERE annotation_results.dataset_file_id = f.id
+                    """,
                 },
             )
+            .values(
+                *[i for i in REPORT_HEADERS if i not in ("annotator", "comments")],
+                "annotator__username",
+                "comments_data",
+                "validations",
+            )
+            .annotate(
+                annotator=Case(
+                    When(annotator__isnull=False, then=F("annotator__username")),
+                    When(
+                        detector_configuration__detector__isnull=False,
+                        then=F("detector_configuration__detector__name"),
+                    ),
+                    default=Value(""),
+                    output_field=models.CharField(),
+                ),
+                comments=F("comments_data"),
+            )
         )
-        validations = (
+
+    def _report_get_task_comments(self) -> QuerySet[AnnotationComment]:
+        campaign: AnnotationCampaign = self.get_object()
+        return (
+            AnnotationComment.objects.filter(
+                annotation_campaign_id=campaign.id,
+                annotation_result__isnull=True,
+            )
+            .select_related("dataset_file", "dataset_file__dataset", "author")
+            .annotate(
+                dataset=F("dataset_file__dataset__name"),
+                filename=F("dataset_file__filename"),
+                annotator=F("author__username"),
+                start_datetime=F("dataset_file__start"),
+                end_datetime=F("dataset_file__end"),
+                comments=Concat(F("comment"), Value(" |- "), F("author__username")),
+            )
+        )
+
+    @action(
+        detail=True,
+        url_path="report",
+        url_name="report",
+        renderer_classes=[CSVRenderer],
+    )
+    def report(self, request, pk: int = None):
+        """Download annotation results report csv"""
+        # pylint: disable=unused-argument
+        campaign: AnnotationCampaign = self.get_object()
+
+        response = HttpResponse(content_type="text/csv")
+        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        validate_users = list(
             AnnotationResultValidation.objects.filter(
                 result__annotation_campaign=campaign
             )
-            .prefetch_related("annotator")
+            .select_related("annotator")
             .order_by("annotator__username")
-        )
-        validate_users = list(
-            validations.values_list("annotator__username", flat=True).distinct()
+            .values_list("annotator__username", flat=True)
+            .distinct()
         )
 
-        data = [REPORT_HEADERS]
+        # CSV
+        headers = REPORT_HEADERS + validate_users
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
 
-        def map_result(row):
-            return [
-                row.dataset_name,
-                row.file_name,
-                str(row.start_time) if row.start_time else "0",
-                str(row.end_time) if row.end_time else str(row.file_duration),
-                str(row.start_frequency) if row.start_frequency else "0",
-                str(row.end_frequency)
-                if row.end_frequency
-                else str(row.file_max_frequency),
-                row.label_name,
-                row.annotator_name if row.annotator_name else row.detector_name,
-                (row.file_start + timedelta(seconds=row.start_time or 0)).isoformat(
-                    timespec="milliseconds"
+        def map_validations(user: str) -> [str, Case]:
+            validation_sub = AnnotationResultValidation.objects.filter(
+                annotator__username=user,
+                result_id=OuterRef("id"),
+            )
+
+            query = Case(
+                When(Exists(Subquery(validation_sub.filter(is_valid=True))), then=True),
+                When(
+                    Exists(Subquery(validation_sub.filter(is_valid=False))), then=False
                 ),
-                (row.file_start + timedelta(seconds=row.end_time)).isoformat(
-                    timespec="milliseconds"
-                )
-                if row.end_time
-                else row.file_end.isoformat(timespec="milliseconds"),
-                str(1 if campaign.annotation_scope == 1 or not row.is_weak else 0)
-                if isinstance(row.is_weak, bool)
-                else "",
-                row.confidence_label if row.confidence_label else "",
-                f"{row.confidence_level}/{max_confidence}"
-                if isinstance(row.confidence_level, int)
-                else "",
-                f'"{row.comment_content} |- {row.comment_author}"'
-                if row.comment_content
-                else "",
-            ]
+                default=None,
+                output_field=models.BooleanField(null=True),
+            )
+            return [user, query]
 
-        def map_result_features(row):
-            data = map_result(row)
-            data.append(
-                str(row.feature_start_freq)
-                if "feature_start_freq" in vars(row) and row.feature_start_freq
-                else ""
-            )
-            data.append(
-                str(row.feature_end_freq)
-                if "feature_end_freq" in vars(row) and row.feature_end_freq
-                else ""
-            )
-            data.append(
-                str(row.feature_relative_max_frequency_count)
-                if "feature_relative_max_frequency_count" in vars(row)
-                and row.feature_relative_max_frequency_count
-                else ""
-            )
-            data.append(
-                str(row.feature_relative_min_frequency_count)
-                if "feature_relative_min_frequency_count" in vars(row)
-                and row.feature_relative_min_frequency_count
-                else ""
-            )
-            data.append(
-                str(row.feature_has_harmonics)
-                if "feature_has_harmonics" in vars(row) and row.feature_has_harmonics
-                else ""
-            )
-            data.append(
-                str(row.feature_trend)
-                if "feature_trend" in vars(row) and row.feature_trend
-                else ""
-            )
-            data.append(
-                str(row.feature_steps_count)
-                if "feature_steps_count" in vars(row) and row.feature_steps_count
-                else ""
-            )
-            return data
+        results = (
+            self._report_get_results()
+            .annotate(**dict(map(map_validations, validate_users)))
+            .values(*headers)
+        )
+        comments = self._report_get_task_comments().values(
+            "dataset",
+            "filename",
+            "annotator",
+            "start_datetime",
+            "end_datetime",
+            "comments",
+        )
 
-        def map_result_check(row):
-            check_data = map_result_features(row)
-            for user in validate_users:
-                validation = validations.filter(
-                    result__id=row.id, annotator__username=user
-                )
-                check_data.append(
-                    str(validation.first().is_valid) if validation.count() > 0 else ""
-                )
-            return check_data
+        # TODO: check mode
+        writer.writerows(list(results) + list(comments))
 
-        if campaign.usage == AnnotationCampaignUsage.CREATE:
-            data.extend(map(map_result_features, list(results) + list(comments)))
-
-        if campaign.usage == AnnotationCampaignUsage.CHECK:
-            data[0] = data[0] + validate_users
-            data.extend(map(map_result_check, list(results) + list(comments)))
-
-        response = Response(data)
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="{campaign.name.replace(" ", "_")}.csv"'
         return response
 
     @action(
@@ -442,17 +415,13 @@ class AnnotationCampaignViewSet(
         )
 
         def map_annotators(user: str) -> [str, Case]:
-            task_sub = Subquery(
-                finished_tasks.filter(
-                    dataset_file_id=OuterRef("pk"), annotator__username=user
-                )
+            task_sub = finished_tasks.filter(
+                dataset_file_id=OuterRef("pk"), annotator__username=user
             )
-            range_sub = Subquery(
-                file_ranges.filter(
-                    first_file_id__lte=OuterRef("pk"),
-                    last_file_id__gte=OuterRef("pk"),
-                    annotator__username=user,
-                )
+            range_sub = file_ranges.filter(
+                first_file_id__lte=OuterRef("pk"),
+                last_file_id__gte=OuterRef("pk"),
+                annotator__username=user,
             )
             query = Case(
                 When(Exists(Subquery(task_sub)), then=models.Value("FINISHED")),

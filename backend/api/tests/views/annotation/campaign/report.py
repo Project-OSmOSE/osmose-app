@@ -3,7 +3,6 @@ import csv
 import io
 
 from django.http import HttpResponse
-
 # pylint: disable=missing-class-docstring, missing-function-docstring
 from django.urls import reverse
 from rest_framework import status
@@ -20,11 +19,13 @@ URL_status = reverse("annotation-campaign-report-status", kwargs={"pk": 1})
 
 def check_report(test: APITestCase, response: Response):
     test.assertEqual(response.status_code, status.HTTP_200_OK)
-    test.assertEqual(len(response.data), 10)
-    test.assertEqual(response.data[0], REPORT_HEADERS)
+    reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
+    data = list(reader)
+    test.assertEqual(len(data), 10)
+    test.assertEqual(data[0], REPORT_HEADERS)
     # annotationresult id=7 ; because ordered by dataset_file__start and not id
     test.assertEqual(
-        response.data[1][:14],
+        data[1][:14],
         [
             "SPM Aural A 2010",
             "sound001.wav",
@@ -46,10 +47,12 @@ def check_report(test: APITestCase, response: Response):
 
 def check_report_check(test: APITestCase, response: Response):
     test.assertEqual(response.status_code, status.HTTP_200_OK)
-    test.assertEqual(len(response.data), 2)
-    test.assertEqual(response.data[0], REPORT_HEADERS + ["admin", "user2"])
+    reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
+    data = list(reader)
+    test.assertEqual(len(data), 2)
+    test.assertEqual(data[0], REPORT_HEADERS + ["admin", "user2"])
     test.assertEqual(
-        response.data[1],
+        data[1],
         [  # annotationresult id=10
             "SPM Aural A 2010",
             "sound001.wav",
@@ -65,6 +68,7 @@ def check_report_check(test: APITestCase, response: Response):
             "no Confident",
             "1/1",
             "",
+            "BAD",
             "",
             "",
             "",
