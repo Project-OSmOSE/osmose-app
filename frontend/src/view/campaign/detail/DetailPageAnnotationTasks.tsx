@@ -35,9 +35,10 @@ export const DetailPageAnnotationTasks: React.FC<{
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (fileFilters.campaignID !== campaign?.id)
+    if (!campaign) return;
+    if (fileFilters.campaignID !== campaign.id)
       dispatch(resetFileFilters())
-  }, []);
+  }, [ campaign?.id ]);
 
   useListFilesWithPaginationQuery({
     campaignID: campaign!.id,

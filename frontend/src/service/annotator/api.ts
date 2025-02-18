@@ -11,11 +11,12 @@ export const AnnotatorAPI = createApi({
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   endpoints: (builder) => ({
     retrieve: builder.query<AnnotatorData, RetrieveParams>({
-      query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted }) => {
+      query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted, label }) => {
         const params: any = {}
         if (search) params['search'] = search;
         if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
         if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
+        if (label !== undefined) params['label'] = label;
         return `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(params) }`;
       },
       forceRefetch({ currentArg, state }: {
