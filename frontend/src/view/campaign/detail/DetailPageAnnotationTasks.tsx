@@ -119,14 +119,16 @@ export const DetailPageAnnotationTasks: React.FC<{
     <ActionBar search={ fileFilters.search }
                searchPlaceholder="Search filename"
                onSearchChange={ updateSearch }
-               actionButton={ <Button color="primary" fill='outline'
-                                      disabled={ !files?.resume || !isResumeEnabled }
-                                      disabledExplanation='Cannot resume if filters are activated.'
-                                      style={ { pointerEvents: 'unset' } }
-                                      onClick={ resume }>
-                 Resume annotation
-                 <IonIcon icon={ playOutline } slot="end"/>
-               </Button> }>
+               actionButton={ <Fragment>
+                 { files && files.count > 0 && <Button color="primary" fill='outline'
+                                                       disabled={ !files?.resume || !isResumeEnabled }
+                                                       disabledExplanation='Cannot resume if filters are activated.'
+                                                       style={ { pointerEvents: 'unset' } }
+                                                       onClick={ resume }>
+                     Resume annotation
+                     <IonIcon icon={ playOutline } slot="end"/>
+                 </Button> }
+               </Fragment> }>
 
       <IonChip outline={ fileFilters.isSubmitted === undefined }
                onClick={ toggleNonSubmittedFilter }
