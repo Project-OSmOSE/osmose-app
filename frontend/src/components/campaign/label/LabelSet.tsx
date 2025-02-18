@@ -8,7 +8,8 @@ export const LabelSetDisplay: React.FC<{
   labelsWithAcousticFeatures: string[];
   setLabelsWithAcousticFeatures: (value: string[]) => void
   disabled?: boolean;
-}> = ({ set, labelsWithAcousticFeatures, setLabelsWithAcousticFeatures, disabled = false }) => {
+  allDisabled?: boolean;
+}> = ({ set, labelsWithAcousticFeatures, setLabelsWithAcousticFeatures, disabled = false, allDisabled = false }) => {
 
   const onLabelChecked = (event: FormEvent<HTMLIonCheckboxElement>, label: string) => {
     event.stopPropagation()
@@ -21,9 +22,9 @@ export const LabelSetDisplay: React.FC<{
   }
 
   return <Fragment>
-    { set.desc }
+    <p className={ allDisabled ? 'disabled' : '' }>{ set.desc }</p>
 
-    <Table columns={ 2 }>
+    <Table columns={ 2 } className={ allDisabled ? 'disabled' : '' }>
       <TableHead isFirstColumn={ true }>Label</TableHead>
       <TableHead>Acoustic features</TableHead>
       <TableDivider/>
@@ -32,7 +33,7 @@ export const LabelSetDisplay: React.FC<{
         <TableContent isFirstColumn={ true }>{ label }</TableContent>
         <TableContent>
           <IonCheckbox checked={ labelsWithAcousticFeatures.includes(label) }
-                       disabled={ disabled }
+                       disabled={ disabled || allDisabled }
                        onClick={ event => onLabelChecked(event, label) }/></TableContent>
         <TableDivider/>
       </Fragment>) }

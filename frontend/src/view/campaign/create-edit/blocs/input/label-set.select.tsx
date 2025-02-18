@@ -62,6 +62,7 @@ export const LabelSetSelect: React.FC = () => {
                  disabled={ !!createdCampaign || !allLabelSets?.length }
                  onValueSelected={ value => dispatch(updateDraftCampaign({ label_set: value as number | undefined })) }>
     { !!selectedLabelSet && (<LabelSetDisplay set={ selectedLabelSet }
+                                              allDisabled={ !!createdCampaign }
                                               labelsWithAcousticFeatures={ draftCampaign.labels_with_acoustic_features ?? [] }
                                               setLabelsWithAcousticFeatures={ onLabelsWithFeaturesUpdated }/>) }
 

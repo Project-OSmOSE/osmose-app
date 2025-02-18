@@ -53,7 +53,9 @@ export const CreateCampaign: React.FC = () => {
     try {
       const campaign = createdCampaign ?? await submitCampaign();
       await submitResults(campaign)
-      if (!await submitFileRanges(campaign)) return;
+      if (draftFileRanges.length > 0) {
+        await submitFileRanges(campaign);
+      }
 
       history.push(`/annotation-campaign/${ campaign.id }`);
     } catch (e: any) {
@@ -73,8 +75,9 @@ export const CreateCampaign: React.FC = () => {
       dispatch(updateCampaignSubmissionErrors(errors))
       throw new Error("Missing required fields");
     }
-    let deadline = draftCampaign.deadline ?? null;
-    if (deadline) deadline = new Date(deadline).toISOString();
+    let deadline = draftCampaign.deadline?.trim() ?? null;
+    if (deadline) deadline = new Date(deadline).toISOString().split('T')[0];
+    else deadline = null;
     const data: BaseAnnotationCampaign = {
       name: draftCampaign.name?.trim() ?? '',
       desc: draftCampaign.desc?.trim() ?? null,
@@ -107,7 +110,7 @@ export const CreateCampaign: React.FC = () => {
       ...data,
       usage: 'Create',
       label_set: draft.label_set!,
-      confidence_indicator_set: draft.confidence_indicator_set ?? null
+      confidence_indicator_set: draft.confidence_indicator_set && draft.confidence_indicator_set > -1 ? draft.confidence_indicator_set : null
     }).unwrap().catch(e => {
       if (Object.prototype.hasOwnProperty.call(e, 'data')) dispatch(updateCampaignSubmissionErrors(e.data))
       throw e
