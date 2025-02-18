@@ -91,9 +91,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"spectro_configs": error})
 
     def validate(self, attrs):
-        print("before", attrs)
         attrs = super().validate(attrs)
-        print("after", attrs)
         attrs["owner"] = self.context["request"].user
         if (
             "deadline" in attrs

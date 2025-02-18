@@ -171,6 +171,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 confidence_indicator_set=campaign.confidence_indicator_set,
                 is_default=is_default or False,
             )
+
         if not is_box and files.count() == 1:
             return AnnotationResult.objects.create(
                 annotation_campaign=campaign,
@@ -194,23 +195,46 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             else:
                 end_time = to_seconds(end - file.start)
 
-            instances.append(
-                AnnotationResult(
-                    annotation_campaign=campaign,
-                    detector_configuration=detector_config,
-                    label=label,
-                    confidence_indicator=confidence_indicator,
-                    dataset_file=file,
-                    start_frequency=validated_data["min_frequency"]
-                    if "min_frequency" in validated_data and is_box
-                    else 0,
-                    end_frequency=validated_data["max_frequency"]
-                    if "max_frequency" in validated_data and is_box
-                    else dataset.audio_metadatum.dataset_sr / 2,
-                    start_time=start_time,
-                    end_time=end_time,
-                )
+            start_frequency = (
+                validated_data["min_frequency"]
+                if "min_frequency" in validated_data and is_box
+                else 0
             )
+            end_frequency = (
+                validated_data["max_frequency"]
+                if "max_frequency" in validated_data and is_box
+                else dataset.audio_metadatum.dataset_sr / 2
+            )
+
+            if (
+                start_time == 0
+                and end_time == to_seconds(file.end - file.start)
+                and start_frequency == 0
+                and end_frequency == dataset.audio_metadatum.dataset_sr / 2
+            ):
+                instances.append(
+                    AnnotationResult(
+                        annotation_campaign=campaign,
+                        detector_configuration=detector_config,
+                        label=label,
+                        confidence_indicator=confidence_indicator,
+                        dataset_file=file,
+                    )
+                )
+            else:
+                instances.append(
+                    AnnotationResult(
+                        annotation_campaign=campaign,
+                        detector_configuration=detector_config,
+                        label=label,
+                        confidence_indicator=confidence_indicator,
+                        dataset_file=file,
+                        start_frequency=start_frequency,
+                        end_frequency=end_frequency,
+                        start_time=start_time,
+                        end_time=end_time,
+                    )
+                )
 
         return AnnotationResult.objects.bulk_create(instances)
 

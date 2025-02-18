@@ -130,7 +130,6 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
             {**creation_data, "labels_with_acoustic_features": ["Invalid"]},
             format="json",
         )
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(AnnotationCampaign.objects.count(), old_count)
         self.assertEqual(

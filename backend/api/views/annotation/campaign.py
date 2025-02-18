@@ -11,8 +11,6 @@ from django.db.models import (
     Value,
     FloatField,
     DurationField,
-    Sum,
-    IntegerField,
     Case,
     When,
     Exists,
@@ -21,7 +19,7 @@ from django.db.models import (
     Subquery,
     Prefetch,
 )
-from django.db.models.functions import Lower, Cast, Extract, Coalesce
+from django.db.models.functions import Lower, Cast, Extract
 from django.http import HttpResponse
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
