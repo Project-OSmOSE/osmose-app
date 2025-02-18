@@ -12,18 +12,22 @@ export const LabelSetModal: React.FC<{
   campaign: AnnotationCampaign;
   isOwner: boolean;
   onClose?(): void;
-}> = ({ campaign, onClose, isOwner }) => {
+}> = ({ campaign: _campaign, onClose, isOwner }) => {
   const toast = useToast();
-  const { data: labelSet, isFetching, error } = useRetrieveLabelSetQuery(campaign.label_set);
+  const { data: labelSet, isFetching, error } = useRetrieveLabelSetQuery(_campaign.label_set);
   const [ patchCampaign, {
     isLoading: isSubmitting,
     error: patchError,
     isSuccess: isPatchSuccessful
   } ] = usePatchCampaignMutation();
-  const { refetch: refetchCampaign } = useRetrieveCampaignQuery(campaign.id);
+  const { data: campaign, refetch: refetchCampaign } = useRetrieveCampaignQuery(_campaign.id);
 
-  const [ labelsWithAcousticFeatures, setLabelsWithAcousticFeatures ] = useState<string[]>(campaign.labels_with_acoustic_features);
+  const [ labelsWithAcousticFeatures, setLabelsWithAcousticFeatures ] = useState<string[]>(campaign?.labels_with_acoustic_features ?? []);
   const [ disabled, setDisabled ] = useState<boolean>(true);
+
+  useEffect(() => {
+    setLabelsWithAcousticFeatures(campaign?.labels_with_acoustic_features ?? []);
+  }, [ campaign?.labels_with_acoustic_features ]);
 
   useEffect(() => {
     if (patchError) toast.presentError(getErrorMessage(patchError));
@@ -35,7 +39,7 @@ export const LabelSetModal: React.FC<{
   async function onSave() {
     try {
       await patchCampaign({
-        id: campaign.id,
+        id: _campaign.id,
         labels_with_acoustic_features: labelsWithAcousticFeatures,
       }).unwrap();
       await refetchCampaign().unwrap();
