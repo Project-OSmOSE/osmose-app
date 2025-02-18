@@ -14,12 +14,14 @@ import { usePointerService } from '@/service/annotator/spectrogram/pointer/';
 import { useCurrentAnnotation, useFileDuration, useMaxFrequency } from '@/service/annotator/spectrogram';
 import { SignalTrends } from '@/service/campaign/result';
 import { Item } from '@/types/item.ts';
+import { useXAxis } from '@/service/annotator/spectrogram/scale';
 
 export const AcousticFeatures: React.FC = () => {
   const {
     annotatorData,
     campaign,
   } = useAnnotator();
+  const xAxis = useXAxis();
 
   const initialLeft = useMemo(() => window.innerWidth - 500, [])
 
@@ -40,6 +42,13 @@ export const AcousticFeatures: React.FC = () => {
 
   const { annotation, type, duration } = useCurrentAnnotation()
   const maxFrequency = useMaxFrequency();
+
+  useEffect(() => {
+    if (!annotation?.end_time) return;
+    const newLeft = xAxis.valueToPosition(annotation.end_time) + 80;
+    _left.current = newLeft;
+    setLeft(newLeft);
+  }, [ annotation?.id ]);
 
   function setBad() {
     dispatch(updateCurrentResultAcousticFeatures(null));
