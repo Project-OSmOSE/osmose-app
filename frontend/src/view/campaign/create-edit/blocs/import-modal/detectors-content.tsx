@@ -35,23 +35,23 @@ export const DetectorsContent: React.FC<Props> = ({
 
   const availableDetectors: string[] | undefined = useMemo(() => {
     const data = resultImport.fileData;
-    const filterDatasets = resultImport.filterDatasets;
-    if (!data || !filterDatasets) return;
+    if (!data) return;
+    const filterDatasets = resultImport.filterDatasets ?? Object.keys(data.detectorsForDatasets);
     const availableEntries = filterDatasets.flatMap(d => data.detectorsForDatasets[d])
     return [ ...new Set(availableEntries) ]
   }, [])
 
   useEffect(() => {
     if (!availableDetectors || !allDetectors) return;
-    const knownDetectors: [string, Detector][] = availableDetectors
-      .map(d => [d, allDetectors.find(k => k.name === d)])
-      .filter(([_, d]) => !!d) as [string, Detector][]
+    const knownDetectors: [ string, Detector ][] = availableDetectors
+      .map(d => [ d, allDetectors.find(k => k.name === d) ])
+      .filter(([ _, d ]) => !!d) as [ string, Detector ][]
     setDetectorsMap(new Map(knownDetectors))
-    setSelectedDetectors(knownDetectors.map(([d]) =>  d))
+    setSelectedDetectors(knownDetectors.map(([ d ]) => d))
   }, [ allDetectors, availableDetectors ]);
 
   const _save = () => {
-    const entries: DetectorSelection[] = selectedDetectors.map(( detector) => ({
+    const entries: DetectorSelection[] = selectedDetectors.map((detector) => ({
       initialName: detector,
       knownDetector: detectorsMap.get(detector),
       isNew: !detectorsMap.has(detector),
