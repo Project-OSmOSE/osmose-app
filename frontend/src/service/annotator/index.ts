@@ -14,32 +14,7 @@ export {
   getDefaultConfidence,
 } from './function';
 
-export {
-  AnnotatorSlice,
-  focusResult,
-  focusTask,
-  updateFocusComment,
-  focusConfidence,
-  focusLabel,
-  invalidateResult,
-  validateResult,
-  addPresenceResult,
-  removePresence,
-  removeFocusComment,
-  removeResult,
-  addResult,
-  zoom,
-  setPointerPosition,
-  selectSpectrogramConfiguration,
-  leavePointerPosition,
-  setTime,
-  onPause,
-  setStopTime,
-  setAudioSpeed,
-  onPlay,
-  updateCurrentResultAcousticFeatures,
-  updateFocusResultBounds,
-} from './slice';
+export * from './slice';
 
 
 export type {

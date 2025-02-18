@@ -1,6 +1,6 @@
 import React, { Fragment, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '@/service/app.ts';
-import { focusTask, updateCurrentResultAcousticFeatures, updateFocusResultBounds } from '@/service/annotator';
+import { focusPresence, updateCurrentResultAcousticFeatures, updateFocusResultBounds } from '@/service/annotator';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { Input, Select } from '@/components/form';
 import { IonButton, IonCheckbox, IonIcon, IonNote } from '@ionic/react';
@@ -109,7 +109,7 @@ export const AcousticFeatures: React.FC = () => {
     <ExtendedDiv draggable={ true } onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                  className={ styles.header }><h6>
       Acoustic features
-      <IoRemoveCircleOutline onClick={ () => dispatch(focusTask()) }/>
+      <IoRemoveCircleOutline onClick={ () => dispatch(focusPresence(annotation.label)) }/>
     </h6></ExtendedDiv>
     <div className={ styles.body }>
 

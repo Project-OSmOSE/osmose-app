@@ -147,6 +147,11 @@ export const AnnotatorSlice = createSlice({
         state.hasChanged = true;
       }
     },
+    focusPresence: (state, { payload }: { payload: string }) => {
+      const result = state.results?.find(r => r.label === payload && getResultType(r) === 'presence');
+      if (result) _focusResult(state, { payload: result.id })
+      else _focusTask(state)
+    },
     focusConfidence: (state, { payload }: { payload: string }) => {
       state.focusedConfidenceLabel = payload;
       state.hasChanged = true;
@@ -385,6 +390,7 @@ export const AnnotatorSlice = createSlice({
 
 export const {
   focusResult,
+  focusPresence,
   focusTask,
   updateFocusComment,
   focusConfidence,
