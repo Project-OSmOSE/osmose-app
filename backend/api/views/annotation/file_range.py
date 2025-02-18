@@ -193,8 +193,9 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
         files = self.filter_files_list_on_label(files, campaign_id)
 
-        files = self.paginate_queryset(files) or []
-        files = DatasetFile.objects.filter(id__in=[file.id for file in files]).annotate(
+        annotated_files = DatasetFile.objects.filter(
+            id__in=[file.id for file in files]
+        ).annotate(
             is_submitted=Exists(
                 AnnotationTask.objects.filter(
                     annotation_campaign_id=campaign_id,
@@ -202,7 +203,10 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                     dataset_file_id=OuterRef("pk"),
                     status=AnnotationTask.Status.FINISHED,
                 )
-            ),
+            )
+        )
+        files = self.paginate_queryset(files) or []
+        files = annotated_files.filter(id__in=[file.id for file in files]).annotate(
             results_count=Subquery(
                 AnnotationResult.objects.filter(
                     annotation_campaign_id=campaign_id,
@@ -216,7 +220,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 .values("count")
             ),
         )
-        filtered_list = list(filter(lambda x: not x.is_submitted, files))
+        filtered_list = list(filter(lambda x: not x.is_submitted, annotated_files))
         next_file = filtered_list.pop(0) if len(filtered_list) > 0 else None
         serializer = FileRangeDatasetFileSerializer(files, many=True)
         return self.paginator.get_paginated_response(
