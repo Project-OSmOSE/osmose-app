@@ -14,10 +14,12 @@ import {
   selectDraftFileRange,
   updateDraftFileRange
 } from '@/service/campaign';
-import { useListAnnotationFileRangeQuery, WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
+import { AnnotationFileRange, WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
 import { useListDatasetQuery } from '@/service/dataset';
 
-export const AnnotatorsRangeBloc: React.FC = () => {
+export const AnnotatorsRangeBloc: React.FC<{
+  initialRanges?: AnnotationFileRange[]
+}> = ({ initialRanges = [] }) => {
 
   // State
   const dispatch = useAppDispatch();
@@ -27,21 +29,17 @@ export const AnnotatorsRangeBloc: React.FC = () => {
 
   // Services
   const { data: users } = useListUsersQuery()
-  const { refetch: fetchFileRanges } = useListAnnotationFileRangeQuery({ campaignID: currentCampaign?.id ?? -1 })
   const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
 
   useEffect(() => {
-    if (!currentCampaign?.id) return;
-    fetchFileRanges().then(({ data }) => {
-      for (const range of data ?? []) {
-        dispatch(addDraftFileRange({
-          ...range,
-          first_file_index: range.first_file_index + 1,
-          last_file_index: range.last_file_index + 1,
-        }))
-      }
-    })
-  }, []);
+    for (const range of initialRanges) {
+      dispatch(addDraftFileRange({
+        ...range,
+        first_file_index: range.first_file_index + 1,
+        last_file_index: range.last_file_index + 1,
+      }))
+    }
+  }, [ initialRanges ]);
 
   // Memo
   const filesCount = useMemo(() => {

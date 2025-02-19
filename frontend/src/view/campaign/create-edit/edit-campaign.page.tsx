@@ -6,7 +6,10 @@ import './create-edit-campaign.css';
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
 import { clearDraftCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { usePostAnnotationFileRangeMutation } from '@/service/campaign/annotation-file-range';
+import {
+  useListAnnotationFileRangeQuery,
+  usePostAnnotationFileRangeMutation
+} from '@/service/campaign/annotation-file-range';
 
 
 export const EditCampaign: React.FC = () => {
@@ -19,6 +22,7 @@ export const EditCampaign: React.FC = () => {
   const draftFileRanges = useAppSelector(selectDraftFileRange)
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
   const [ postFileRanges, { isLoading } ] = usePostAnnotationFileRangeMutation()
+  const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: campaignID })
 
   useEffect(() => {
     dispatch(clearDraftCampaign())
@@ -63,7 +67,7 @@ export const EditCampaign: React.FC = () => {
         { campaign && <h5>{ campaign.name }</h5> }
       </div>
 
-      <AnnotatorsRangeBloc/>
+      <AnnotatorsRangeBloc initialRanges={ initialFileRanges }/>
 
       <IonButton color="primary"
                  disabled={ isLoading }
