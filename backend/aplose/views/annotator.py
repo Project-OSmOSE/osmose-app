@@ -104,6 +104,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         for f_range in file_ranges:
             file_ids.extend(f_range.get_files().values_list("id", flat=True))
 
+        all_files = DatasetFile.objects.filter(id__in=file_ids)
         filtered_files = DatasetFile.objects.filter(id__in=file_ids)
         if search is not None:
             filtered_files = filtered_files.filter(filename__icontains=search)
@@ -159,15 +160,19 @@ class AnnotatorViewSet(viewsets.ViewSet):
             | Q(start=current_file.start, id__gt=current_file.id)
         ).first()
 
-        current_task_index = filtered_files.filter(start__lt=current_file.start).count()
-        current_task_index += filtered_files.filter(
+        index_filter = Q(start__lt=current_file.start) | Q(
             start=current_file.start, id__lt=current_file.id
-        ).count()
+        )
+
+        current_task_index_in_filter = filtered_files.filter(index_filter).count()
+        current_task_index = all_files.filter(index_filter).count()
 
         return Response(
             {
+                "current_task_index_in_filter": current_task_index_in_filter,
+                "total_tasks_in_filter": filtered_files.count(),
                 "current_task_index": current_task_index,
-                "total_tasks": filtered_files.count(),
+                "total_tasks": all_files.count(),
                 "is_submitted": AnnotationTask.objects.filter(
                     annotation_campaign_id=campaign_id,
                     dataset_file_id=file_id,

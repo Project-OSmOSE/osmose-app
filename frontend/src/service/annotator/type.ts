@@ -43,8 +43,11 @@ export type AnnotatorData = {
   spectrogram_configurations: Array<SpectrogramConfiguration>;
   previous_file_id: number | null;
   next_file_id: number | null;
+
   current_task_index: number;
   total_tasks: number;
+  current_task_index_in_filter: number;
+  total_tasks_in_filter: number;
 }
 
 export type WriteAnnotatorData = {

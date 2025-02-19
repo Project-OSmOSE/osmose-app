@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0067_alter_datasetfile_options'),
-        ('api', '0070_merge_0066_file_range_limits_0069_merge_20250213_1409'),
+        ("api", "0067_alter_datasetfile_options"),
+        ("api", "0070_merge_0066_file_range_limits_0069_merge_20250213_1409"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -67,11 +67,11 @@ export const AnnotatorPage: React.FC = () => {
               <IoCheckmarkCircleOutline/> }
           </p>
         { annotatorData.is_assigned &&
-            <Progress label='Progression'
+            <Progress label='Position'
                       className={ styles.progress }
                       value={ annotatorData.current_task_index + 1 }
                       total={ annotatorData.total_tasks }/> }
-        { !annotatorData.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote>}
+        { !annotatorData.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote> }
       </div> }
     </Header>
 
