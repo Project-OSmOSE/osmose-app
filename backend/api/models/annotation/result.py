@@ -177,6 +177,7 @@ class AnnotationResult(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        # Save expertise level
         if self.annotator:
             aplose_user: Optional[AploseUser] = AploseUser.objects.filter(
                 user_id=self.annotator.id, expertise_level__isnull=False
@@ -187,6 +188,14 @@ class AnnotationResult(models.Model):
                 self.annotator_expertise_level = None
         else:
             self.annotator_expertise_level = None
+
+        # Save type
+        if self.start_time is None:
+            self.type = AnnotationResultType.WEAK
+        elif self.end_time is None:
+            self.type = AnnotationResultType.POINT
+        else:
+            self.type = AnnotationResultType.BOX
         super().save(*args, **kwargs)
 
 
