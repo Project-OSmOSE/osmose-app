@@ -23,9 +23,18 @@ class AnnotationFileRangeListSerializer(serializers.ListSerializer):
         validated_data: list[dict],
     ) -> QuerySet[AnnotationFileRange]:
         """Check deletions and recover deleted items"""
-        return original_ranges.exclude(
+        deleted_ranges = original_ranges.exclude(
             id__in=[data["id"] for data in validated_data if "id" in data]
         )
+        if "force" in self.context and self.context["force"] is True:
+            return deleted_ranges
+        for file_range in deleted_ranges:
+            if file_range.get_finished_tasks().count() > 0:
+                raise serializers.ValidationError(
+                    "Cannot delete range with finished tasks",
+                    code="invalid_deletion",
+                )
+        return deleted_ranges
 
     def prepare_updates_and_creates(
         self,

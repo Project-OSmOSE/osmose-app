@@ -103,7 +103,7 @@ test('Default with annotators', {
     "last_file_index": 98
   } ]
   expect(submittedData).toEqual(expectedData);
-  expect(submittedAnnotatorData.postDataJSON()).toEqual(expectedAnnotatorData);
+  expect(submittedAnnotatorData.postDataJSON().data).toEqual(expectedAnnotatorData);
 })
 
 test('Only needed info', {

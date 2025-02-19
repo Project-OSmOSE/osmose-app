@@ -10,7 +10,7 @@ async function submit(page: Page): Promise<Array<WriteAnnotationFileRange>> {
     page.waitForRequest(FILE_RANGE_URL),
     page.getByRole('button', { name: 'Update campaign' }).click()
   ])
-  return request.postDataJSON()
+  return request.postDataJSON().data
 }
 
 test.describe('Loading', () => {
