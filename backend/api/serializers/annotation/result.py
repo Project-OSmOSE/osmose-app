@@ -181,6 +181,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 label=label,
                 confidence_indicator=confidence_indicator,
                 dataset_file=files.first(),
+                type=AnnotationResultType.WEAK,
             )
 
         instances = []
@@ -221,6 +222,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                         label=label,
                         confidence_indicator=confidence_indicator,
                         dataset_file=file,
+                        type=AnnotationResultType.WEAK,
                     )
                 )
             else:
@@ -235,6 +237,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                         end_frequency=end_frequency,
                         start_time=start_time,
                         end_time=end_time,
+                        type=AnnotationResultType.BOX,
                     )
                 )
 
