@@ -36,11 +36,11 @@ export const AnnotationFileRangeAPI = createApi({
       },
     }),
 
-    post: builder.mutation<Array<AnnotationFileRange>, { campaignID: ID, data: Array<WriteAnnotationFileRange> }>({
-      query: ({ campaignID, data }) => ({
+    post: builder.mutation<Array<AnnotationFileRange>, { campaignID: ID, data: Array<WriteAnnotationFileRange>, force?: boolean }>({
+      query: ({ campaignID, data, force }) => ({
         url: `campaign/${ campaignID }/`,
         method: 'POST',
-        body: data
+        body: { data, force }
       })
     })
   })
