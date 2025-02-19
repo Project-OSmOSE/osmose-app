@@ -40,6 +40,7 @@ interface Props {
 
 export interface SpectrogramRender {
   getCanvasData: () => Promise<string>;
+  onResultSelected: (result: AnnotationResult) => void;
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
@@ -63,6 +64,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }, [ _newResult.current ]);
 
   // Ref
+  const renderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -212,8 +214,16 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       context.drawImage(timeImg, Y_WIDTH, height, timeImg.width, timeImg.height);
 
       return canvas.toDataURL('image/png')
+    },
+    onResultSelected: (result: AnnotationResult) => {
+      if (result.start_time === null) return;
+      let time = 0;
+      if (result.end_time === null) time = result.start_time;
+      else time = result.start_time! + Math.abs(result.end_time! - result.start_time!) / 2;
+      const left = xAxis.valueToPosition(time) - containerWidth / 2;
+      renderRef.current?.scrollTo({ left })
     }
-  }), [ canvasRef.current, xAxis, yAxis ])
+  }), [ canvasRef.current, renderRef.current, width, xAxis, yAxis ])
 
   useEffect(() => {
     MOUSE_DOWN_EVENT.add(onStartNewAnnotation)
@@ -317,6 +327,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   return (
     <div className={ styles.spectrogramRender }
+         ref={ renderRef }
          onScroll={ onContainerScrolled }
          style={ { width: `${ Y_WIDTH + containerWidth }px` } }>
 

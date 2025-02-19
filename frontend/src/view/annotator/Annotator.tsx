@@ -117,12 +117,12 @@ export const Annotator: React.FC = () => {
               <Labels/>
               <ConfidenceIndicator/>
               <CurrentAnnotation/>
-              <Results/>
+              <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
           { annotatorData?.is_assigned && campaign?.usage === 'Check' && <Fragment>
               <CurrentAnnotation/>
               <Comment/>
-              <Results/>
+              <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
         </div>
 
