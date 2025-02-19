@@ -1,9 +1,12 @@
 """Results model"""
+from typing import Optional
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from backend.aplose.models import User
+from backend.aplose.models import User, AploseUser
+from backend.aplose.models.user import ExpertiseLevel
 from .campaign import AnnotationCampaign
 from .confidence import ConfidenceIndicator
 from .detector import DetectorConfiguration
@@ -105,6 +108,13 @@ class AnnotationResult(models.Model):
         null=True,
         blank=True,
     )
+    annotator_expertise_level = models.TextField(
+        choices=ExpertiseLevel.choices,
+        blank=True,
+        null=True,
+        help_text="Expertise level of the annotator.",
+    )
+
     dataset_file = models.ForeignKey(
         "DatasetFile",
         on_delete=models.CASCADE,
@@ -127,6 +137,19 @@ class AnnotationResult(models.Model):
         null=True,
         help_text="Acoustic features add a better description to the signal",
     )
+
+    def save(self, *args, **kwargs):
+        if self.annotator:
+            aplose_user: Optional[AploseUser] = AploseUser.objects.filter(
+                user_id=self.annotator.id, expertise_level__isnull=False
+            ).first()
+            if aplose_user is not None:
+                self.annotator_expertise_level = aplose_user.expertise_level
+            else:
+                self.annotator_expertise_level = None
+        else:
+            self.annotator_expertise_level = None
+        super().save(*args, **kwargs)
 
 
 class AnnotationResultValidation(models.Model):
