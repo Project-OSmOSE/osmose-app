@@ -39,9 +39,15 @@
     pointer-events: none;
 }
 
+[data-tooltip] {
+    position: relative;
+}
+
 [data-tooltip]:hover::after {
     display: block;
     position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     content: attr(data-tooltip);
     border: 1px solid var(--ion-color-dark);
     background: #eee;
@@ -49,4 +55,11 @@
     padding: .25rem 0.5rem;
     z-index: 99;
     border-radius: 0.5rem;
+    pointer-events: none;
+}
+
+[data-tooltip].tooltip-right:hover::after {
+    left: unset;
+    right: 0;
+    transform: none;
 }

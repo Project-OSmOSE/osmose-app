@@ -7,6 +7,10 @@
   overflow: hidden;
   max-height: 100%;
 
+  .importButton {
+    z-index: 2;
+  }
+
   .table {
     overflow: auto;
     max-height: 100%;

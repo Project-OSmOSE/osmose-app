@@ -11,6 +11,7 @@ import { IonButton, IonIcon } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
 import { ImportDatasetModal } from "@/view/dataset/ImportModal.tsx";
+import styles from '../dataset.module.scss'
 
 export const ImportDatasetsButton: React.FC = () => {
   // State
@@ -56,6 +57,7 @@ export const ImportDatasetsButton: React.FC = () => {
   return <Fragment>
     <IonButton color='primary' fill='outline'
                disabled={ !canImportDatasets }
+               className={ styles.importButton }
                data-tooltip={ canImportDatasets ? undefined : "The datasets.csv doesn't contains new datasets" }
                onClick={ openImportModal }>
       <IonIcon icon={ downloadOutline } slot='start'/>

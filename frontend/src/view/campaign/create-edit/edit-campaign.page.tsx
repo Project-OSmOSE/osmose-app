@@ -1,10 +1,15 @@
-import React, { FormEvent, useEffect } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import './create-edit-campaign.css';
 import { AnnotatorsRangeBloc } from "@/view/campaign/create-edit/blocs/annotators-range.bloc.tsx";
-import { clearDraftCampaign, selectDraftFileRange, useRetrieveCampaignQuery } from '@/service/campaign';
+import {
+  clearDraftCampaign,
+  loadDraftFileRange,
+  selectDraftFileRange,
+  useRetrieveCampaignQuery
+} from '@/service/campaign';
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import {
   useListAnnotationFileRangeQuery,
@@ -23,13 +28,19 @@ export const EditCampaign: React.FC = () => {
   const { data: campaign } = useRetrieveCampaignQuery(campaignID);
   const [ postFileRanges, { isLoading } ] = usePostAnnotationFileRangeMutation()
   const { data: initialFileRanges } = useListAnnotationFileRangeQuery({ campaignID: campaignID })
+  const [ isForced, setIsForced ] = useState<true | undefined>();
 
   useEffect(() => {
     dispatch(clearDraftCampaign())
+    dispatch(loadDraftFileRange(initialFileRanges ?? []))
     return () => {
       toast.dismiss();
     }
   }, [])
+
+  useEffect(() => {
+    dispatch(loadDraftFileRange(initialFileRanges ?? []))
+  }, [ initialFileRanges ]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,8 +66,9 @@ export const EditCampaign: React.FC = () => {
           last_file_index: last_file_index < 0 ? campaign.files_count! - 1 : last_file_index,
           annotator: r.annotator
         }
-      })
-    })
+      }),
+      force: isForced
+    }).unwrap()
   }
 
   return (
@@ -67,7 +79,7 @@ export const EditCampaign: React.FC = () => {
         { campaign && <h5>{ campaign.name }</h5> }
       </div>
 
-      <AnnotatorsRangeBloc initialRanges={ initialFileRanges }/>
+      <AnnotatorsRangeBloc setIsForced={ setIsForced }/>
 
       <IonButton color="primary"
                  disabled={ isLoading }

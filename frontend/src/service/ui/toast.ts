@@ -1,7 +1,7 @@
 import { useIonToast } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
-import { buildErrorMessage } from "@/services/utils/format.tsx";
 import { ToastButton } from "@ionic/core/dist/types/components/toast/toast-interface";
+import { getErrorMessage } from "@/service/function.ts";
 
 export const useToast = () => {
   const [present, dismiss] = useIonToast();
@@ -22,7 +22,7 @@ export const useToast = () => {
         }
       });
       present({
-        message: buildErrorMessage(e),
+        message: getErrorMessage(e),
         color: 'danger',
         buttons,
       }).catch(console.warn);
@@ -32,7 +32,7 @@ export const useToast = () => {
   function presentSuccess(e: any): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       present({
-        message: buildErrorMessage(e),
+        message: getErrorMessage(e),
         color: 'success',
         duration: 3_000,
         buttons: [
