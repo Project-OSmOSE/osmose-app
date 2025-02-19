@@ -36,7 +36,7 @@ def check_report(test: APITestCase, response: Response):
             "13696.0",
             "Odoncetes",
             "admin",
-            "EXPERT",
+            "",
             "2012-10-03T10:01:48.200+00:00",
             "2012-10-03T10:03:44.800+00:00",
             "1",

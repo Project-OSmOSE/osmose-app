@@ -238,18 +238,18 @@ class AnnotationCampaignViewSet(
                 annotation=F("label__name"),
                 annotator_expertise=Case(
                     When(
-                        annotator__aplose__expertise_level=ExpertiseLevel.NOVICE,
+                        annotator_expertise_level=ExpertiseLevel.NOVICE,
                         then=Value("NOVICE"),
                     ),
                     When(
-                        annotator__aplose__expertise_level=ExpertiseLevel.AVERAGE,
+                        annotator_expertise_level=ExpertiseLevel.AVERAGE,
                         then=Value("AVERAGE"),
                     ),
                     When(
-                        annotator__aplose__expertise_level=ExpertiseLevel.EXPERT,
+                        annotator_expertise_level=ExpertiseLevel.EXPERT,
                         then=Value("EXPERT"),
                     ),
-                    default=F("annotator__aplose__expertise_level"),
+                    default=F("annotator_expertise_level"),
                     output_field=models.CharField(),
                 ),
                 is_box=is_box,

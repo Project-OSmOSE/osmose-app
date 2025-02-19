@@ -68,12 +68,18 @@ class CreateTestCase(TestCase):
     def test_presence(self):
         serializer = self._get_serializer(presence_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), {**presence_result, "id": None})
+        self.assertDictEqual(
+            dict(serializer.data),
+            {**presence_result, "id": None, "annotator_expertise_level": None},
+        )
 
     def test_box(self):
         serializer = self._get_serializer(box_result)
         self.assertTrue(serializer.is_valid(raise_exception=True))
-        self.assertDictEqual(dict(serializer.data), {**box_result, "id": None})
+        self.assertDictEqual(
+            dict(serializer.data),
+            {**box_result, "id": None, "annotator_expertise_level": None},
+        )
 
     # Corrected
     def test_wrong_order(self):
@@ -229,6 +235,7 @@ class UpdateTestCase(CreateTestCase):
             }
             if result["acoustic_features"] is not None
             else None,
+            "annotator_expertise_level": None,
         }
 
     def _get_serializer(self, data, campaign_id=1):
