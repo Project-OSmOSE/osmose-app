@@ -16,6 +16,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
 
     list_display = (
         "id",
+        "type",
         "start_time",
         "end_time",
         "start_frequency",
@@ -38,6 +39,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "detector_configuration__detector__name",
     )
     list_filter = (
+        "type",
         "annotator_expertise_level",
         "annotation_campaign",
         "annotator",
