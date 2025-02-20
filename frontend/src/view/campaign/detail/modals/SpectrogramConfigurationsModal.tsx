@@ -123,7 +123,7 @@ export const SpectrogramConfigurationsModal: React.FC<{
 
             <TableHead isFirstColumn={ true }>High pass filter minimum frequency</TableHead>
             { configurations.map(c => <TableContent key={ c.id }>
-              { c.hp_filter_min_freq } kHz
+              { c.hp_filter_min_freq } Hz
             </TableContent>) }
             <TableDivider/>
 
