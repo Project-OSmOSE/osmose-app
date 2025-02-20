@@ -45,6 +45,14 @@ export const AudioMetadataModal: React.FC<{
         { metadata.map(c => <TableContent key={ c.id }>{ c.channel_count }</TableContent>) }
           <TableDivider/>
 
+          <TableHead isFirstColumn={ true }>Files count</TableHead>
+        { metadata.map(c => <TableContent key={ c.id }>{ c.audio_file_count }</TableContent>) }
+          <TableDivider/>
+
+          <TableHead isFirstColumn={ true }>Files durations</TableHead>
+        { metadata.map(c => <TableContent key={ c.id }>{ c.audio_file_dataset_duration }</TableContent>) }
+          <TableDivider/>
+
           <TableHead isFirstColumn={ true }>Start</TableHead>
         { metadata.map(c => <TableContent key={ c.id }>{ new Date(c.start).toLocaleString() }</TableContent>) }
           <TableDivider/>
