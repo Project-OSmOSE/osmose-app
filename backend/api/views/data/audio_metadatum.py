@@ -62,8 +62,8 @@ class AudioMetadatumViewSet(viewsets.ReadOnlyModelViewSet):
                     all_datasets = metadatum.dataset_set
                     if "dataset__annotation_campaigns" in request.query_params:
                         all_datasets = all_datasets.filter(
-                            annotation_campaigns__in=request.query_params.get(
-                                "dataset__annotation_campaigns", []
+                            annotation_campaigns=request.query_params.get(
+                                "dataset__annotation_campaigns", None
                             )
                         )
                     metadatum_data.append(
