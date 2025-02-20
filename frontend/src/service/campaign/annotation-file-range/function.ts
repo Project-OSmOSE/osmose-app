@@ -1,7 +1,6 @@
 import { FileFilters } from "@/service/ui/type.ts";
 
 export function getQueryParamsForFilters(filters: Partial<FileFilters>): any {
-  console.log('getQueryParamsForFilters', filters)
   const params: any = { }
   if (filters.search) params['filename__icontains'] = filters.search;
   if (filters.withUserAnnotations !== undefined) params['with_user_annotations'] = filters.withUserAnnotations;

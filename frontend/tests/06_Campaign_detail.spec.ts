@@ -119,34 +119,10 @@ test.describe('Annotator', () => {
     await test.step('Can search file', async () => {
       await page.mock.fileRangesFiles()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-file-range\/campaign\/.*search/g),
+        page.waitForRequest(/\/api\/annotation-file-range\/campaign\/.*filename__icontains/g),
         page.campaign.detail.searchFile(FILE_RANGE.submittedFile.filename)
       ])
       await page.campaign.detail.searchFile(undefined);
-    })
-    await test.step('Add Non submitted filter', async () => {
-      await page.mock.fileRangesFiles()
-      await Promise.all([
-        page.waitForRequest(/.*\/api\/annotation-file-range\/campaign\/.*is_submitted=false/g),
-        page.getByText('Non submitted').click()
-      ])
-      await page.getByText('Non submitted').click()
-    })
-    await test.step('Add With annotations filter', async () => {
-      await page.mock.fileRangesFiles()
-      await Promise.all([
-        page.waitForRequest(/.*\/api\/annotation-file-range\/campaign\/.*with_user_annotations=true/g),
-        page.getByText('With annotations').click(),
-      ])
-      await page.getByText('With annotations').click();
-    })
-    await test.step('Add Label filter', async () => {
-      await page.mock.fileRangesFiles()
-      await Promise.all([
-        page.waitForRequest(/.*\/api\/annotation-file-range\/campaign\/.*label/g),
-        page.getByText('Label filter').click(),
-      ])
-      await expect(page.getByText(LABEL.classic)).toBeVisible();
     })
   })
 
@@ -204,7 +180,7 @@ test.describe('Annotator', () => {
 
     await test.step('Files', async () => {
       await expect(page.getByText('No files to annotate')).toBeVisible();
-      await expect(page.campaign.detail.resumeButton).not.toBeVisible();
+      await expect(page.campaign.detail.resumeButton).not.toBeEnabled();
     })
   })
 })

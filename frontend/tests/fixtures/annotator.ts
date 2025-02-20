@@ -7,7 +7,7 @@ import { DATASET } from './dataset';
 
 export const COMMENT = {
   task: {
-    id: -1,
+    id: 1,
     comment: 'A task comment',
     annotation_campaign: CAMPAIGN.id,
     annotation_result: null,
@@ -15,17 +15,17 @@ export const COMMENT = {
     dataset_file: FILE_RANGE.unsubmittedFile.id
   } satisfies AnnotationComment,
   presence: {
-    id: -2,
+    id: 2,
     comment: 'A presence comment',
     annotation_campaign: CAMPAIGN.id,
-    annotation_result: -1, // RESULTS.presence.id
+    annotation_result: 1, // RESULTS.presence.id
     author: USERS.annotator.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id
   } satisfies AnnotationComment
 }
 export const RESULTS: { [key in string]: AnnotationResult } = {
   presence: {
-    id: -1,
+    id: 1,
     label: LABEL.classic,
     start_time: null,
     end_time: null,
@@ -41,7 +41,7 @@ export const RESULTS: { [key in string]: AnnotationResult } = {
     detector_configuration: null,
   },
   box: {
-    id: -2,
+    id: 2,
     label: LABEL.classic,
     start_time: 5,
     end_time: 10,
@@ -59,19 +59,23 @@ export const RESULTS: { [key in string]: AnnotationResult } = {
 }
 export const CREATE_DATA: (empty?: boolean) => AnnotatorData = empty => ({
   is_submitted: false,
+  is_assigned: true,
   task_comments: empty ? [] : [ COMMENT.task ],
   campaignID: CAMPAIGN.id,
   results: empty ? [] : [ RESULTS.presence, RESULTS.box ],
   file: FILE_RANGE.unsubmittedFile,
   current_task_index: 2,
+  current_task_index_in_filter: 2,
   previous_file_id: FILE_RANGE.submittedFile.id,
   next_file_id: null,
   spectrogram_configurations: DATASET.spectros,
   userID: USERS.annotator.id,
-  total_tasks: FILE_RANGE.range.files_count
+  total_tasks: FILE_RANGE.range.files_count,
+  total_tasks_in_filter: FILE_RANGE.range.files_count
 })
 export const CHECK_DATA: (empty?: boolean) => AnnotatorData = empty => ({
   is_submitted: false,
+  is_assigned: true,
   task_comments: empty ? [] : [ COMMENT.task ],
   campaignID: CAMPAIGN.id,
   results: empty ? [] : [ {
@@ -85,9 +89,11 @@ export const CHECK_DATA: (empty?: boolean) => AnnotatorData = empty => ({
   } ],
   file: FILE_RANGE.unsubmittedFile,
   current_task_index: 2,
+  current_task_index_in_filter: 2,
   previous_file_id: FILE_RANGE.submittedFile.id,
   next_file_id: null,
   spectrogram_configurations: DATASET.spectros,
   userID: USERS.annotator.id,
-  total_tasks: FILE_RANGE.range.files_count
+  total_tasks: FILE_RANGE.range.files_count,
+  total_tasks_in_filter: FILE_RANGE.range.files_count
 })

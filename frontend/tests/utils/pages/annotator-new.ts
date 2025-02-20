@@ -30,10 +30,10 @@ export class AnnotatorNewPage extends AnnotatorPage {
     return {
       ...superLabel,
       addPresence: async () => {
-        await this.page.locator('.presence ion-chip').filter({ hasText: label }).click()
+        await this.page.locator('.label ion-chip').filter({ hasText: label }).click()
       },
       remove: async () => {
-        await this.page.locator('.presence ion-chip').filter({ hasText: label }).click()
+        await this.page.locator('.label ion-chip').filter({ hasText: label }).locator('svg').last().click()
         const alert = this.page.getByRole('alertdialog')
         await alert.getByRole('button', { name: `Remove "${ label }" annotations` }).click()
       },
@@ -41,8 +41,8 @@ export class AnnotatorNewPage extends AnnotatorPage {
         await this.page.locator('.label ion-chip').filter({ hasText: label }).click()
       },
       getLabelState: async () => {
-        const disabled = await this.page.locator('.label ion-chip').filter({ hasText: label }).getAttribute('disabled');
-        return disabled !== 'true';
+        const outline = await this.page.locator('.label ion-chip').filter({ hasText: label }).getAttribute('outline');
+        return outline !== 'true';
       }
     }
   }

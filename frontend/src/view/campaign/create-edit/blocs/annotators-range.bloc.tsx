@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
@@ -31,10 +31,6 @@ export const AnnotatorsRangeBloc: React.FC<{
   // Services
   const { data: users } = useListUsersQuery()
   const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
-
-  useEffect(() => {
-    console.log('updated', draftFileRanges?.length)
-  }, [ draftFileRanges ]);
 
   // Memo
   const filesCount = useMemo(() => {

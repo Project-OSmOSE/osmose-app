@@ -111,9 +111,6 @@ export const DetailPageAnnotationTasks: React.FC<{
                  </Button>
                </div> }/>
 
-    { isFetching && <IonSpinner/> }
-    { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
-
     { campaign && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>
             <TableHead topSticky isFirstColumn={ true }>
@@ -145,6 +142,9 @@ export const DetailPageAnnotationTasks: React.FC<{
       { files && files.results.length > 0 &&
           <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/> }
     </Fragment> }
+
+    { isFetching && <IonSpinner/> }
+    { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
     { files && files.count === 0 && <p>You have no files to annotate.</p> }
 
