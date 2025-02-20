@@ -1165,6 +1165,20 @@ files = [
 ]
 
 [[package]]
+name = "whitenoise"
+version = "6.9.0"
+description = "Radically simplified static file serving for WSGI applications"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "whitenoise-6.9.0-py3-none-any.whl", hash = "sha256:c8a489049b7ee9889617bb4c274a153f3d979e8f51d2efd0f5b403caf41c57df"},
+    {file = "whitenoise-6.9.0.tar.gz", hash = "sha256:8c4a7c9d384694990c26f3047e118c691557481d624f069b7f7752a2f735d609"},
+]
+
+[package.extras]
+brotli = ["brotli"]
+
+[[package]]
 name = "wrapt"
 version = "1.17.0"
 description = "Module for decorators, wrappers and monkey patching."
@@ -1241,4 +1255,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a5fe43a7955b47ccc9e98b7a2d3bfded1e955497839d73302e7863eaf44a2ba7"
+content-hash = "f01de6210453b4915887eeac988a9a5a76af410990596796e9f2dccb791c8613"
