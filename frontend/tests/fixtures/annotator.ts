@@ -2,7 +2,7 @@ import { AnnotatorData } from '../../src/service/annotator';
 import { AnnotationComment } from '../../src/service/campaign/comment';
 import { CAMPAIGN, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
 import { USERS } from './user';
-import { AnnotationResult } from '../../src/service/campaign/result';
+import { BoxResult, WeakResult } from '../../src/service/campaign/result';
 import { DATASET } from './dataset';
 
 export const COMMENT = {
@@ -23,10 +23,11 @@ export const COMMENT = {
     dataset_file: FILE_RANGE.unsubmittedFile.id
   } satisfies AnnotationComment
 }
-export const RESULTS: { [key in string]: AnnotationResult } = {
+export const RESULTS: { presence: WeakResult, box: BoxResult } = {
   presence: {
     id: 1,
     label: LABEL.classic,
+    type: 'Weak',
     start_time: null,
     end_time: null,
     start_frequency: null,
@@ -43,6 +44,7 @@ export const RESULTS: { [key in string]: AnnotationResult } = {
   box: {
     id: 2,
     label: LABEL.classic,
+    type: 'Box',
     start_time: 5,
     end_time: 10,
     start_frequency: 12,

@@ -110,6 +110,7 @@
 
     &.check {
       grid-template-columns: 32ch minmax(32ch, auto) 1fr;
+      grid-template-areas: "current comments results";
     }
   }
 

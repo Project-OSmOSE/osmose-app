@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { AnnotatorState, } from './type';
 import { COLORS } from '@/consts/colors.const.tsx';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
-import { getDefaultConfidence, getPresenceLabels, getResultType } from './function.ts';
+import { getDefaultConfidence, getPresenceLabels } from './function.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
@@ -88,7 +88,7 @@ export const AnnotatorSlice = createSlice({
         focus?: boolean
       }
     }) => {
-      const existingPresence = state.results?.find(r => r.label === payload.label && getResultType(r) === 'presence')
+      const existingPresence = state.results?.find(r => r.label === payload.label && r.type === 'Weak')
       if (existingPresence) {
         if (payload.focus) _focusResult(state, { payload: existingPresence.id })
         return
@@ -107,6 +107,7 @@ export const AnnotatorSlice = createSlice({
         end_time: null,
         start_time: null,
         start_frequency: null,
+        type: 'Weak',
         acoustic_features: null,
       }
       if (!state.results) state.results = [];
@@ -119,17 +120,17 @@ export const AnnotatorSlice = createSlice({
       const result = state.results?.find(r => r.id === payload);
       if (!result) return _focusTask(state);
       state.hasChanged = true;
-      if (getResultType(result) === 'presence') {
+      if (result.type === 'Weak') {
         state.results = state.results!.filter(r => r.label !== result.label);
         return _focusTask(state);
       }
       state.results = state.results!.filter(r => r.id !== result.id);
-      const presenceResult = state.results!.find(r => r.label === result.label && getResultType(r) === 'presence');
+      const presenceResult = state.results!.find(r => r.label === result.label && r.type === 'Weak');
       if (presenceResult) _focusResult(state, { payload: presenceResult.id });
       else _focusTask(state);
     },
     removePresence: (state, { payload }: { payload: string }) => {
-      const presenceResult = state.results!.find(r => r.label === payload && getResultType(r) === 'presence');
+      const presenceResult = state.results!.find(r => r.label === payload && r.type === 'Weak');
       if (presenceResult) {
         state.hasChanged = true;
         state.results = state.results!.filter(r => r.label !== presenceResult.label);
@@ -140,8 +141,7 @@ export const AnnotatorSlice = createSlice({
       state.focusedLabel = payload;
       const result = state.results?.find(r => r.id === state.focusedResultID);
       if (!result) return;
-      const type = getResultType(result);
-      if (type !== 'presence') {
+      if (result.type !== 'Weak') {
         state.results = state.results?.map(r => {
           if (r.id !== state.focusedResultID) return r;
           return {
@@ -153,7 +153,7 @@ export const AnnotatorSlice = createSlice({
       }
     },
     focusPresence: (state, { payload }: { payload: string }) => {
-      const result = state.results?.find(r => r.label === payload && getResultType(r) === 'presence');
+      const result = state.results?.find(r => r.label === payload && r.type === 'Weak');
       if (result) _focusResult(state, { payload: result.id })
       else _focusTask(state)
     },
@@ -221,10 +221,9 @@ export const AnnotatorSlice = createSlice({
     validateResult: (state, { payload }: { payload: number }) => {
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
-      const type = getResultType(result);
       state.results = state.results?.map(r => {
         if (r.id === payload ||
-          (type !== 'presence' && r.label === result.label && getResultType(r) === 'presence')) {
+          (result.type !== 'Weak' && r.label === result.label && r.type === 'Weak')) {
           let validations = r.validations;
           if (validations.find(v => v.annotator === state.userID)) {
             validations = validations.map(v => {
@@ -249,10 +248,9 @@ export const AnnotatorSlice = createSlice({
     invalidateResult: (state, { payload }: { payload: number }) => {
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
-      const type = getResultType(result);
       state.results = state.results?.map(r => {
-        if ((type !== 'presence' && r.id === payload) ||
-          (type === 'presence' && r.label === result.label)) {
+        if ((result.type !== 'Weak' && r.id === payload) ||
+          (result.type === 'Weak' && r.label === result.label)) {
           let validations = r.validations;
           if (validations.find(v => v.annotator === state.userID)) {
             validations = validations.map(v => {

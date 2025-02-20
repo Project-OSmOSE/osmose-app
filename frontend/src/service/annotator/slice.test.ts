@@ -28,6 +28,7 @@ const mockState: AnnotatorState = {
       "annotator": 1,
       "dataset_file": 1,
       "detector_configuration": null,
+      type: 'Weak',
       "start_time": null,
       "end_time": null,
       "start_frequency": null,
@@ -58,6 +59,7 @@ const mockState: AnnotatorState = {
       "annotator": 1,
       "dataset_file": 1,
       "detector_configuration": null,
+      type: 'Box',
       "start_time": 288.0,
       "end_time": 331.0,
       "start_frequency": 8179.0,
@@ -116,6 +118,7 @@ const mockState: AnnotatorState = {
 }
 const newPresence: string = "Boat";
 const newBoxResult: AnnotationResultBounds = {
+  type: 'Box',
   "start_time": 10.0,
   "end_time": 20.0,
   "start_frequency": 50.0,
@@ -209,6 +212,7 @@ describe("Filled state - not focused result", () => {
     const response = AnnotatorSlice.reducer(previousState, addPresenceResult({ label: newPresence }));
     const expectedNewResult: AnnotationResult = {
       id: 1,
+      type: 'Weak',
       start_frequency: null,
       start_time: null,
       end_frequency: null,
