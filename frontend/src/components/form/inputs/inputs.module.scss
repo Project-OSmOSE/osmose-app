@@ -10,6 +10,10 @@
     grid-column: 1 / -1;
   }
 
+  &.inline {
+    grid-template-columns: 1fr auto;
+  }
+
   .label {
     font-weight: 300;
     padding-left: 0.5rem;
@@ -40,6 +44,14 @@
       &.hasEndIcon {
         padding-right: 3rem;
       }
+    }
+
+    /* Range specific */
+    input[type=range] {
+      /* Other inputs have a padding: 0.5rem 1rem; rule
+        but it does not work well with ranges on Chrome */
+      padding: 0.5rem 0;
+      margin-right: 0.5rem;
     }
 
     .startIcon, .endIcon {
@@ -148,6 +160,8 @@
           max-width: 20rem;
           overflow: hidden;
           text-overflow: ellipsis;
+          display: flex;
+          gap: 1rem;
         }
       }
     }
