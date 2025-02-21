@@ -10,4 +10,5 @@ export type FileFilters = {
   isSubmitted?: boolean;
   withUserAnnotations?: boolean;
   label?: string;
+  confidence?: string;
 }

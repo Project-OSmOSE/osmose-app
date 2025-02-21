@@ -173,6 +173,24 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return list(filter(lambda file: file.id in label_file_ids, files))
 
+    def filter_files_list_on_confidence(
+        self, files: list[any], campaign_id: int
+    ) -> list[any]:
+        """Filter files on confidence"""
+        confidence_filter = self.request.query_params.get("confidence")
+        if confidence_filter is None:
+            return files
+
+        confidence_file_ids = (
+            AnnotationResult.objects.filter(
+                annotation_campaign_id=campaign_id,
+                confidence_indicator__label=confidence_filter,
+            )
+            .filter(Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True))
+            .values_list("dataset_file_id", flat=True)
+        )
+        return list(filter(lambda file: file.id in confidence_file_ids, files))
+
     @action(
         methods=["GET"],
         detail=False,
@@ -192,6 +210,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         files = self.filter_files_list_on_submission_status(files, campaign_id)
         files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
         files = self.filter_files_list_on_label(files, campaign_id)
+        files = self.filter_files_list_on_confidence(files, campaign_id)
 
         annotated_files = DatasetFile.objects.filter(
             id__in=[file.id for file in files]
