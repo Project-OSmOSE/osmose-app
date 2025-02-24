@@ -53,8 +53,10 @@ export const NavigationButtons: React.FC = () => {
   }, []);
 
   function onKbdEvent(event: KeyboardEvent) {
+    console.log(event.code)
     switch (event.code) {
       case 'Enter':
+      case 'Tab':
       case 'NumpadEnter':
         event.preventDefault();
         submit();
