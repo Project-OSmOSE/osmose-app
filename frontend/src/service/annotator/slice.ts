@@ -44,7 +44,8 @@ export const AnnotatorSlice = createSlice({
     },
     ui: {},
     labelColors: {},
-    sessionStart: Date.now()
+    sessionStart: Date.now(),
+    didSeeAllFile: false,
   } satisfies AnnotatorState as AnnotatorState,
   reducers: {
     focusResult: _focusResult,
@@ -293,6 +294,12 @@ export const AnnotatorSlice = createSlice({
           state.userPreferences.zoomLevel = Math.max(state.userPreferences.zoomLevel / 2, 1);
           break;
       }
+      if (state.userPreferences.zoomLevel === 1) {
+        state.didSeeAllFile = true;
+      }
+    },
+    setFileIsSeen: (state) => {
+      state.didSeeAllFile = true;
     },
     onPlay: (state) => {
       state.audio.isPaused = false;
@@ -350,6 +357,7 @@ export const AnnotatorSlice = createSlice({
             isPaused: true,
           }
           state.sessionStart = Date.now();
+          state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
         },
       )
       builder.addMatcher(
@@ -413,4 +421,5 @@ export const {
   onPlay,
   updateCurrentResultAcousticFeatures,
   updateFocusResultBounds,
+  setFileIsSeen,
 } = AnnotatorSlice.actions

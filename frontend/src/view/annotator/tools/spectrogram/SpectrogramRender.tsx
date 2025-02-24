@@ -2,6 +2,7 @@ import React, {
   MouseEvent,
   MutableRefObject,
   PointerEvent,
+  UIEvent,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -12,7 +13,14 @@ import React, {
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
-import { addResult, getResultType, leavePointerPosition, setPointerPosition, zoom } from '@/service/annotator';
+import {
+  addResult,
+  getResultType,
+  leavePointerPosition,
+  setFileIsSeen,
+  setPointerPosition,
+  zoom
+} from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
@@ -300,8 +308,16 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     else if (event.deltaY > 0) dispatch(zoom({ direction: 'out', origin }))
   }
 
+  const onContainerScrolled = (event: UIEvent<HTMLDivElement>) => {
+    if (event.type !== 'scroll') return;
+    const div = event.currentTarget;
+    const left = div.scrollWidth - div.scrollLeft - div.clientWidth;
+    if (left === 0) dispatch(setFileIsSeen())
+  }
+
   return (
     <div className={ styles.spectrogramRender }
+         onScroll={ onContainerScrolled }
          style={ { width: `${ Y_WIDTH + containerWidth }px` } }>
 
       <YAxis className={ styles.yAxis }/>

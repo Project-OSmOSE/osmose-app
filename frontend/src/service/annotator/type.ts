@@ -22,6 +22,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
     pointerPosition?: { time: number, frequency: number },
     zoomOrigin?: { x: number, y: number },
   },
+  didSeeAllFile: boolean,
   audio: {
     time: number;
     isPaused: boolean;

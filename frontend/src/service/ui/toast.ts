@@ -6,12 +6,12 @@ import { getErrorMessage } from "@/service/function.ts";
 export const useToast = () => {
   const [present, dismiss] = useIonToast();
 
-  function presentError(e: any, canForce: boolean = false): Promise<boolean> {
+  function presentError(e: any, canForce: boolean = false, forceText: string = 'Create anyway'): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       const buttons: Array<ToastButton> = [];
       if (canForce) {
         buttons.push({
-          text: 'Create anyway',
+          text: forceText,
           handler: () => resolve(true)
         })
       }

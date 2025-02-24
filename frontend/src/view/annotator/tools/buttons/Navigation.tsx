@@ -27,6 +27,7 @@ export const NavigationButtons: React.FC = () => {
   // Data
   const {
     hasChanged: _hasChanged,
+    didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
 
   const previous_file_id = useRef<number | null>(annotatorData?.previous_file_id ?? null);
@@ -37,6 +38,11 @@ export const NavigationButtons: React.FC = () => {
   useEffect(() => {
     next_file_id.current = annotatorData?.next_file_id ?? null;
   }, [ annotatorData?.next_file_id ]);
+  const didSeeAllFile = useRef<boolean>(_didSeeAllFile);
+  useEffect(() => {
+    didSeeAllFile.current = _didSeeAllFile;
+  }, [ _didSeeAllFile ]);
+
 
   const hasChanged = useRef<boolean>(_hasChanged);
   useEffect(() => {
@@ -53,7 +59,6 @@ export const NavigationButtons: React.FC = () => {
   }, []);
 
   function onKbdEvent(event: KeyboardEvent) {
-    console.log(event.code)
     switch (event.code) {
       case 'Enter':
       case 'Tab':
@@ -71,6 +76,10 @@ export const NavigationButtons: React.FC = () => {
   }
 
   const submit = async () => {
+    if (!didSeeAllFile.current) {
+      const force = await toast.presentError('Be careful, you haven\' see all of the file yet. Try scrolling to the end or changing the zoom level', true, 'Force');
+      if (!force) return;
+    }
     isSubmitting.current = true;
     try {
       await submitService.submit()
