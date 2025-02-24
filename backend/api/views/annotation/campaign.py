@@ -277,28 +277,54 @@ class AnnotationCampaignViewSet(
                 signal_has_harmonics=F("acoustic_features__has_harmonics"),
                 signal_trend=F("acoustic_features__trend"),
                 signal_steps_count=F("acoustic_features__steps_count"),
+                _start_time=F("start_time"),
+                _end_time=F("end_time"),
+                _start_frequency=F("start_frequency"),
+                _end_frequency=F("end_frequency"),
             )
             .extra(
                 select={
                     "start_datetime": """
                     SELECT 
-                        to_char ((f.start + annotation_results.start_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        CASE
+                            WHEN start_time isnull THEN to_char(f.start::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                            ELSE to_char((f.start + annotation_results.start_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        END
                     FROM dataset_files f
                     WHERE annotation_results.dataset_file_id = f.id
                     """,
                     "end_datetime": """
                     SELECT 
-                        to_char ((f.start + annotation_results.end_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        CASE
+                            WHEN end_time isnull THEN to_char(f.end::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                            ELSE to_char ((f.start + annotation_results.end_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        END
                     FROM dataset_files f
                     WHERE annotation_results.dataset_file_id = f.id
                     """,
                 },
             )
             .values(
-                *[i for i in REPORT_HEADERS if i not in ("annotator", "comments")],
+                *[
+                    i
+                    for i in REPORT_HEADERS
+                    if i
+                    not in (
+                        "annotator",
+                        "comments",
+                        "start_time",
+                        "end_time",
+                        "start_frequency",
+                        "end_frequency",
+                    )
+                ],
                 "annotator__username",
                 "comments_data",
                 "validations",
+                "_start_time",
+                "_end_time",
+                "_start_frequency",
+                "_end_frequency",
             )
             .annotate(
                 annotator=Case(
@@ -311,6 +337,31 @@ class AnnotationCampaignViewSet(
                     output_field=models.CharField(),
                 ),
                 comments=F("comments_data"),
+                start_time=Case(
+                    When(_start_time__isnull=True, then=Value(0.0)),
+                    default=F("_start_time"),
+                ),
+                end_time=Case(
+                    When(
+                        _end_time__isnull=True,
+                        then=Extract(F("dataset_file__end"), lookup_name="epoch")
+                        - Extract(F("dataset_file__start"), lookup_name="epoch"),
+                    ),
+                    default=F("_end_time"),
+                    output_field=models.FloatField(),
+                ),
+                start_frequency=Case(
+                    When(_start_frequency__isnull=True, then=Value(0.0)),
+                    default=F("_start_frequency"),
+                ),
+                end_frequency=Case(
+                    When(
+                        _end_frequency__isnull=True,
+                        then=F("dataset_file__dataset__audio_metadatum__dataset_sr")
+                        / 2,
+                    ),
+                    default=F("_end_frequency"),
+                ),
             )
         )
 
@@ -326,9 +377,23 @@ class AnnotationCampaignViewSet(
                 dataset=F("dataset_file__dataset__name"),
                 filename=F("dataset_file__filename"),
                 annotator=F("author__username"),
-                start_datetime=F("dataset_file__start"),
-                end_datetime=F("dataset_file__end"),
                 comments=Concat(F("comment"), Value(" |- "), F("author__username")),
+            )
+            .extra(
+                select={
+                    "start_datetime": """
+                    SELECT 
+                        to_char(f.start::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                    FROM dataset_files f
+                    WHERE annotation_comment.dataset_file_id = f.id
+                    """,
+                    "end_datetime": """
+                    SELECT 
+                        to_char(f.end::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                    FROM dataset_files f
+                    WHERE annotation_comment.dataset_file_id = f.id
+                    """,
+                },
             )
         )
 
