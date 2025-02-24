@@ -12,4 +12,5 @@ export type FileFilters = {
   label?: string;
   confidence?: string;
   detector?: number;
+  hasAcousticFeatures?: boolean;
 }

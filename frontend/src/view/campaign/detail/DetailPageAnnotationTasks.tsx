@@ -82,6 +82,16 @@ export const DetailPageAnnotationTasks: React.FC<{
     setPage(1)
   }
 
+  function toggleAcousticFeaturesFilter() {
+    if (!campaign) return;
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      hasAcousticFeatures: fileFilters.hasAcousticFeatures === undefined ? true : undefined,
+    }))
+    setPage(1)
+  }
+
   function toggleWithAnnotationsFilter() {
     if (!campaign) return;
     dispatch(setFileFilters({
@@ -233,6 +243,13 @@ export const DetailPageAnnotationTasks: React.FC<{
               <IonIcon icon={ refreshOutline } slot='start'/>
               Reset
           </IonButton> }
+
+      <IonChip outline={ fileFilters.hasAcousticFeatures === undefined }
+               onClick={ toggleAcousticFeaturesFilter }
+               color={ fileFilters.hasAcousticFeatures === true ? 'primary' : 'medium' }>
+        With acoustic features
+        { fileFilters.hasAcousticFeatures === true && <IonIcon icon={ closeCircle } color='primary'/> }
+      </IonChip>
     </ActionBar>
 
     { isFetching && <IonSpinner/> }

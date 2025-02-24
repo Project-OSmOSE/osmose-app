@@ -155,6 +155,21 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             return list(filter(lambda file: file.id in submitted_tasks_files_id, files))
         return list(filter(lambda file: file.id not in submitted_tasks_files_id, files))
 
+    def filter_files_list_on_acoustic_features(
+        self, files: list[any], campaign_id: int
+    ) -> list[any]:
+        """Filter files on present of acoustic features"""
+        acoustic_features = get_boolean_query_param(self.request, "acoustic_features")
+        if acoustic_features is None:
+            return files
+
+        features_file_ids = AnnotationResult.objects.filter(
+            annotation_campaign_id=campaign_id,
+            acoustic_features__isnull=not acoustic_features,
+        ).values_list("dataset_file_id", flat=True)
+
+        return list(filter(lambda file: file.id in features_file_ids, files))
+
     def filter_files_list_on_label(
         self, files: list[any], campaign_id: int
     ) -> list[any]:
@@ -226,6 +241,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
         files = self.filter_files_list_on_label(files, campaign_id)
         files = self.filter_files_list_on_confidence(files, campaign_id)
+        files = self.filter_files_list_on_acoustic_features(files, campaign_id)
 
         annotated_files = DatasetFile.objects.filter(
             id__in=[file.id for file in files]
