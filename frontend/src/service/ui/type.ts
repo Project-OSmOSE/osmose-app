@@ -11,4 +11,5 @@ export type FileFilters = {
   withUserAnnotations?: boolean;
   label?: string;
   confidence?: string;
+  detector?: number;
 }

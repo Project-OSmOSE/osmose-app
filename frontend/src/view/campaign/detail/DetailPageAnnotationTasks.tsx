@@ -24,6 +24,7 @@ import { AnnotationFile } from "@/service/campaign/annotation-file-range/type.ts
 import { ID } from "@/service/type.ts";
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
+import { useListDetectorQuery } from "@/service/campaign/detector";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign?: AnnotationCampaign;
@@ -52,6 +53,7 @@ export const DetailPageAnnotationTasks: React.FC<{
   }, { skip: !campaign });
   const { data: labelSet } = useRetrieveLabelSetQuery(campaign!.label_set, { skip: !campaign });
   const { data: confidenceSet } = useRetrieveConfidenceSetQuery(campaign!.confidence_indicator_set!, { skip: !campaign?.confidence_indicator_set });
+  const { data: detectors } = useListDetectorQuery({ campaign: campaign!.id }, { skip: !campaign });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
@@ -63,6 +65,7 @@ export const DetailPageAnnotationTasks: React.FC<{
 
   const isLastLabel = useMemo(() => [ ...(labelSet?.labels ?? []) ].pop() === fileFilters.label, [ fileFilters.label, labelSet?.labels ]);
   const isLastConfidence = useMemo(() => [ ...(confidenceSet?.confidence_indicators ?? []) ].pop() === fileFilters.confidence, [ fileFilters.confidence, confidenceSet?.confidence_indicators ]);
+  const isLastDetector = useMemo(() => [ ...(detectors ?? []) ].map(d => d.id).pop() === fileFilters.detector, [ fileFilters.detector, detectors ]);
 
   function resume() {
     if (!campaign || !files) return;
@@ -111,7 +114,6 @@ export const DetailPageAnnotationTasks: React.FC<{
   function toggleConfidenceFilter() {
     if (!campaign) return;
     if (!confidenceSet || confidenceSet.confidence_indicators.length === 0) return;
-    console.log(confidenceSet)
     let newConfidence = undefined;
     if (!fileFilters.confidence) newConfidence = confidenceSet.confidence_indicators[0].label
     else {
@@ -124,6 +126,25 @@ export const DetailPageAnnotationTasks: React.FC<{
       ...fileFilters,
       campaignID: campaign.id,
       confidence: newConfidence,
+    }))
+    setPage(1)
+  }
+
+  function toggleDetectorFilter() {
+    if (!campaign) return;
+    if (!detectors || detectors.length === 0) return;
+    let newDetector = undefined;
+    if (!fileFilters.detector) newDetector = detectors[0].id
+    else {
+      const currentIndex = detectors.map(c => c.id).indexOf(fileFilters.detector);
+      if (detectors.length > currentIndex + 1) {
+        newDetector = detectors[currentIndex + 1].id;
+      }
+    }
+    dispatch(setFileFilters({
+      ...fileFilters,
+      campaignID: campaign.id,
+      detector: newDetector,
     }))
     setPage(1)
   }
@@ -196,6 +217,15 @@ export const DetailPageAnnotationTasks: React.FC<{
               Confidence filter{ fileFilters.confidence && `: ${ fileFilters.confidence }` }
             { (fileFilters.confidence && !isLastConfidence) && <IonIcon icon={ swapHorizontal }/> }
             { isLastConfidence && <IonIcon icon={ closeCircle }/> }
+          </IonChip> }
+
+      { campaign?.usage === 'Check' && detectors && detectors.length > 1 &&
+          <IonChip outline={ !fileFilters.detector }
+                   onClick={ toggleDetectorFilter }
+                   color={ fileFilters.detector ? 'primary' : 'medium' }>
+              Detector filter{ fileFilters.detector && `: ${ detectors?.find(d => d.id === fileFilters.detector)?.name }` }
+            { (fileFilters.detector && !isLastDetector) && <IonIcon icon={ swapHorizontal }/> }
+            { isLastDetector && <IonIcon icon={ closeCircle }/> }
           </IonChip> }
 
       { (fileFilters.label !== undefined || fileFilters.isSubmitted !== undefined || fileFilters.withUserAnnotations !== undefined) &&
