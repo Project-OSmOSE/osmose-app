@@ -1,7 +1,16 @@
 """Viewset for annotation file range"""
 from typing import Optional
 
-from django.db.models import QuerySet, Q, Exists, OuterRef, Subquery, Func, F
+from django.db.models import (
+    QuerySet,
+    Q,
+    Exists,
+    OuterRef,
+    Count,
+    Subquery,
+    Func,
+    F,
+)
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
@@ -13,7 +22,6 @@ from backend.api.models import (
     AnnotationFileRange,
     AnnotationCampaign,
     AnnotationTask,
-    AnnotationResult,
     DatasetFile,
 )
 from backend.api.serializers import (
@@ -23,14 +31,79 @@ from backend.api.serializers.annotation.file_range import FileRangeDatasetFileSe
 from backend.utils.filters import ModelFilter, get_boolean_query_param
 
 
+class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
+    """Filter dataset files from file ranges"""
+
+    def filter_queryset(
+        self, request: Request, queryset: QuerySet[AnnotationFileRange], view
+    ) -> QuerySet[DatasetFile]:
+        """Get filtered dataset files"""
+        if not queryset.exists():
+            return DatasetFile.objects.none()
+        campaign_ids = queryset.values_list("annotation_campaign", flat=True)
+
+        files = (
+            DatasetFile.objects.select_related("dataset")
+            .prefetch_related("dataset__annotation_campaigns")
+            .filter(
+                dataset__annotation_campaigns__in=campaign_ids,
+                id__gte=min(queryset.values_list("first_file_id", flat=True) or []),
+                id__lte=min(queryset.values_list("last_file_id", flat=True)),
+            )
+        )
+
+        files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
+            request, files, view
+        )
+
+        # TODO: replace query_params
+        #  - "search" -> "filename__icontains"
+        #  - "label" -> "annotation_results__label__name"
+        #  - "confidence" -> "annotation_results__confidence_indicator__label"
+        #  - "acoustic_features" -> "annotation_results__acoustic_features__isnull"
+        #  - "detector" -> "annotation_results__detector_configuration__detector__name"
+
+        with_user_annotations = get_boolean_query_param(
+            request, "with_user_annotations"
+        )
+        if with_user_annotations is not None:
+            with_user_annotations_filter = Q(
+                annotation_results__annotator=request.user
+            ) | Q(annotation_results__detector_configuration__isnull=False)
+            if with_user_annotations:
+                files = files.filter(with_user_annotations_filter)
+            else:
+                files = files.filter(~with_user_annotations_filter)
+
+        is_submitted = get_boolean_query_param(request, "is_submitted")
+        if is_submitted is not None:
+            is_submitted_filter = Exists(
+                AnnotationTask.objects.filter(
+                    dataset_file_id=OuterRef("id"),
+                    status=AnnotationTask.Status.FINISHED,
+                    annotator=request.user,
+                )
+            )
+            if is_submitted:
+                files = files.filter(is_submitted_filter)
+            else:
+                files = files.filter(~is_submitted_filter)
+
+        return files.order_by("start", "id")
+
+
 class AnnotationFilePagination(PageNumberPagination):
     """Custom pagination to allow the front to select the page size"""
 
     page_size_query_param = "page_size"
 
     def get_paginated_response(self, data, next_file: Optional[int] = None):
+        try:
+            count = self.page.paginator.count
+        except AttributeError:
+            return Response(data)
         response = {
-            "count": self.page.paginator.count,
+            "count": count,
             "next": self.get_next_link(),
             "previous": self.get_previous_link(),
             "results": data,
@@ -80,8 +153,22 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset: QuerySet[AnnotationFileRange] = super().get_queryset()
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
-        if self.action in ["list", "retrieve"] and for_current_user:
-            queryset = queryset.filter(annotator_id=self.request.user.id)
+        if self.action in ["list", "retrieve"]:
+            if for_current_user:
+                queryset = queryset.filter(annotator_id=self.request.user.id)
+            queryset = queryset.annotate(
+                finished_tasks_count=Subquery(
+                    AnnotationTask.objects.filter(
+                        annotator_id=OuterRef("annotator_id"),
+                        annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                        dataset_file_id__gte=OuterRef("first_file_id"),
+                        dataset_file_id__lte=OuterRef("last_file_id"),
+                        status=AnnotationTask.Status.FINISHED,
+                    )
+                    .annotate(count=Func(F("id"), function="Count"))
+                    .values("count")
+                )
+            )
         return queryset
 
     def can_user_post_data(self, request_data: list[dict]) -> bool:
@@ -95,131 +182,6 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         # Check if non-staff user is owner of all campaigns where changes are requested
         return required_campaigns.count() == required_owned_campaigns.count()
 
-    def filter_files_list_on_search(self, files: list[any]) -> list[any]:
-        """Filter files on a filename search"""
-        search = self.request.query_params.get("search")
-        if search is None:
-            return files
-        return list(filter(lambda file: search in file.filename, files))
-
-    def filter_files_list_on_current_user_annotations(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on the existence of annotations by the current user"""
-        with_user_annotations = get_boolean_query_param(
-            self.request, "with_user_annotations"
-        )
-        if with_user_annotations is None:
-            return files
-
-        current_annotator_results_files_id = (
-            AnnotationResult.objects.filter(
-                Q(annotator_id=self.request.user.id)
-                | Q(detector_configuration__isnull=False)
-            )
-            .filter(
-                annotation_campaign__id=campaign_id,
-                dataset_file__in=files,
-            )
-            .values_list("dataset_file_id", flat=True)
-        )
-
-        if with_user_annotations:
-            return list(
-                filter(
-                    lambda file: file.id in current_annotator_results_files_id, files
-                )
-            )
-        return list(
-            filter(
-                lambda file: file.id not in current_annotator_results_files_id, files
-            )
-        )
-
-    def filter_files_list_on_submission_status(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on the task submission status for the current user"""
-        is_submitted = get_boolean_query_param(self.request, "is_submitted")
-        if is_submitted is None:
-            return files
-
-        submitted_tasks_files_id = AnnotationTask.objects.filter(
-            annotation_campaign_id=campaign_id,
-            annotator_id=self.request.user.id,
-            dataset_file_id__in=[f.id for f in files],
-            status=AnnotationTask.Status.FINISHED,
-        ).values_list("dataset_file_id", flat=True)
-
-        if is_submitted:
-            return list(filter(lambda file: file.id in submitted_tasks_files_id, files))
-        return list(filter(lambda file: file.id not in submitted_tasks_files_id, files))
-
-    def filter_files_list_on_acoustic_features(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on present of acoustic features"""
-        acoustic_features = get_boolean_query_param(self.request, "acoustic_features")
-        if acoustic_features is None:
-            return files
-
-        features_file_ids = AnnotationResult.objects.filter(
-            annotation_campaign_id=campaign_id,
-            acoustic_features__isnull=not acoustic_features,
-        ).values_list("dataset_file_id", flat=True)
-
-        return list(filter(lambda file: file.id in features_file_ids, files))
-
-    def filter_files_list_on_label(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on label"""
-        label_filter = self.request.query_params.get("label")
-        if label_filter is None:
-            return files
-
-        label_file_ids = (
-            AnnotationResult.objects.filter(
-                annotation_campaign_id=campaign_id,
-                label__name=label_filter,
-            )
-            .filter(Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True))
-            .values_list("dataset_file_id", flat=True)
-        )
-        return list(filter(lambda file: file.id in label_file_ids, files))
-
-    def filter_files_list_on_confidence(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on confidence"""
-        confidence_filter = self.request.query_params.get("confidence")
-        if confidence_filter is None:
-            return files
-
-        confidence_file_ids = (
-            AnnotationResult.objects.filter(
-                annotation_campaign_id=campaign_id,
-                confidence_indicator__label=confidence_filter,
-            )
-            .filter(Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True))
-            .values_list("dataset_file_id", flat=True)
-        )
-        return list(filter(lambda file: file.id in confidence_file_ids, files))
-
-    def filter_files_list_on_detector(
-        self, files: list[any], campaign_id: int
-    ) -> list[any]:
-        """Filter files on confidence"""
-        detector_filter = self.request.query_params.get("detector")
-        if detector_filter is None:
-            return files
-
-        confidence_file_ids = AnnotationResult.objects.filter(
-            annotation_campaign_id=campaign_id,
-            detector_configuration__detector_id=detector_filter,
-        ).values_list("dataset_file_id", flat=True)
-        return list(filter(lambda file: file.id in confidence_file_ids, files))
-
     @action(
         methods=["GET"],
         detail=False,
@@ -231,47 +193,31 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         queryset: QuerySet[AnnotationFileRange] = self.filter_queryset(
             self.get_queryset()
         ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
-        files: list[any] = []
-        for file_range in queryset:
-            files.extend(file_range.get_files())
 
-        files = self.filter_files_list_on_search(files)
-        files = self.filter_files_list_on_detector(files, campaign_id)
-        files = self.filter_files_list_on_submission_status(files, campaign_id)
-        files = self.filter_files_list_on_current_user_annotations(files, campaign_id)
-        files = self.filter_files_list_on_label(files, campaign_id)
-        files = self.filter_files_list_on_confidence(files, campaign_id)
-        files = self.filter_files_list_on_acoustic_features(files, campaign_id)
-
-        annotated_files = DatasetFile.objects.filter(
-            id__in=[file.id for file in files]
-        ).annotate(
+        files: QuerySet[DatasetFile] = AnnotationFileRangeFilesFilter().filter_queryset(
+            request, queryset, self
+        )
+        paginated_files = self.paginate_queryset(files)
+        if paginated_files is not None:
+            files = files.filter(id__in=[file.id for file in paginated_files])
+        files = files.select_related("dataset", "dataset__audio_metadatum").annotate(
             is_submitted=Exists(
                 AnnotationTask.objects.filter(
+                    dataset_file_id=OuterRef("pk"),
                     annotation_campaign_id=campaign_id,
                     annotator_id=self.request.user.id,
-                    dataset_file_id=OuterRef("pk"),
                     status=AnnotationTask.Status.FINISHED,
                 )
-            )
-        )
-        files = self.paginate_queryset(files) or []
-        files = annotated_files.filter(id__in=[file.id for file in files]).annotate(
-            results_count=Subquery(
-                AnnotationResult.objects.filter(
-                    annotation_campaign_id=campaign_id,
-                    dataset_file_id=OuterRef("pk"),
-                )
-                .filter(
-                    Q(annotator_id=self.request.user.id)
-                    | Q(detector_configuration__isnull=False)
-                )
-                .annotate(count=Func(F("id"), function="Count"))
-                .values("count")
+            ),
+            results_count=Count(
+                "annotation_results",
+                filter=Q(
+                    annotation_results__annotator_id=self.request.user.id,
+                    annotation_results__annotation_campaign_id=campaign_id,
+                ),
             ),
         )
-        filtered_list = list(filter(lambda x: not x.is_submitted, annotated_files))
-        next_file = filtered_list.pop(0) if len(filtered_list) > 0 else None
+        next_file = files.filter(is_submitted=False).first()
         serializer = FileRangeDatasetFileSerializer(files, many=True)
         return self.paginator.get_paginated_response(
             serializer.data, next_file=next_file.id if next_file is not None else None

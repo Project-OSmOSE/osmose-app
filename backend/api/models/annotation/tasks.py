@@ -128,16 +128,6 @@ class AnnotationFileRange(models.Model):
             id__lte=self.last_file_id,
         )
 
-    def get_finished_tasks(self) -> QuerySet[AnnotationTask]:
-        """Finished tasks within this file range"""
-        return AnnotationTask.objects.filter(
-            annotator_id=self.annotator_id,
-            annotation_campaign_id=self.annotation_campaign_id,
-            dataset_file_id__gte=self.first_file_id,
-            dataset_file_id__lte=self.last_file_id,
-            status=AnnotationTask.Status.FINISHED,
-        )
-
     @staticmethod
     def get_connected_ranges(data):
         """Recover connected ranges"""

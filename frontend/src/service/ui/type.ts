@@ -11,6 +11,8 @@ export type FileFilters = {
   withUserAnnotations?: boolean;
   label?: string;
   confidence?: string;
-  detector?: number;
+  detector?: string;
   hasAcousticFeatures?: boolean;
+  minDate?: string;
+  maxDate?: string;
 }

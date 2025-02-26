@@ -115,6 +115,7 @@
     annotation_campaign: 1
     confidence_indicator: 2
     dataset_file: 1
+    acoustic_features: 1
 - model: api.annotationresult
   pk: 10
   fields:
@@ -214,3 +215,13 @@
       task_end_time: 1643037163
       task_start_time: 1643037155
     annotation_task: 1
+- model: api.annotationresultacousticfeatures
+  pk: 1
+  fields:
+    start_frequency: 200
+    end_frequency: 150
+    relative_max_frequency_count: 3
+    relative_min_frequency_count: 2
+    has_harmonics: False
+    trend: FLAT
+    steps_count:

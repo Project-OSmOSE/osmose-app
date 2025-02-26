@@ -1,17 +1,9 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
-import { IonButton, IonChip, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
-import {
-  checkmarkCircle,
-  chevronForwardOutline,
-  closeCircle,
-  ellipseOutline,
-  playOutline,
-  refreshOutline,
-  swapHorizontal
-} from "ionicons/icons";
+import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { Button, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -22,9 +14,14 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { resetFileFilters, setFileFilters } from "@/service/ui";
 import { AnnotationFile } from "@/service/campaign/annotation-file-range/type.ts";
 import { ID } from "@/service/type.ts";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
-import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
-import { useListDetectorQuery } from "@/service/campaign/detector";
+import { DateFilter } from "@/view/campaign/detail/filters/DateFilter.tsx";
+import { AnnotationFilter } from "@/view/campaign/detail/filters/AnnotationFilter.tsx";
+import { LabelFilter } from "@/view/campaign/detail/filters/LabelFilter.tsx";
+import { ConfidenceFilter } from "@/view/campaign/detail/filters/ConfidenceFilter.tsx";
+import { DetectorFilter } from "@/view/campaign/detail/filters/DetectorFilter.tsx";
+import { AcousticFeaturesFilter } from "@/view/campaign/detail/filters/AcousticFeaturesFilter.tsx";
+import { StatusFilter } from "@/view/campaign/detail/filters/StatusFilter.tsx";
+import { IoFunnelOutline } from "react-icons/io5";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign?: AnnotationCampaign;
@@ -51,9 +48,6 @@ export const DetailPageAnnotationTasks: React.FC<{
     campaignID: campaign!.id,
     page,
   }, { skip: !campaign });
-  const { data: labelSet } = useRetrieveLabelSetQuery(campaign!.label_set, { skip: !campaign });
-  const { data: confidenceSet } = useRetrieveConfidenceSetQuery(campaign!.confidence_indicator_set!, { skip: !campaign?.confidence_indicator_set });
-  const { data: detectors } = useListDetectorQuery({ campaign: campaign!.id }, { skip: !campaign });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
@@ -63,100 +57,11 @@ export const DetailPageAnnotationTasks: React.FC<{
     return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
   }, [ fileFilters ]);
 
-  const isLastLabel = useMemo(() => [ ...(labelSet?.labels ?? []) ].pop() === fileFilters.label, [ fileFilters.label, labelSet?.labels ]);
-  const isLastConfidence = useMemo(() => [ ...(confidenceSet?.confidence_indicators ?? []) ].pop() === fileFilters.confidence, [ fileFilters.confidence, confidenceSet?.confidence_indicators ]);
-  const isLastDetector = useMemo(() => [ ...(detectors ?? []) ].map(d => d.id).pop() === fileFilters.detector, [ fileFilters.detector, detectors ]);
+  const hasFilters = useMemo(() => Object.values(fileFilters).filter(v => v !== undefined && v != campaign?.id).length > 0, [ fileFilters ]);
 
   function resume() {
     if (!campaign || !files) return;
     history.push(`/annotation-campaign/${ campaign.id }/file/${ files.resume }`);
-  }
-
-  function toggleNonSubmittedFilter() {
-    if (!campaign) return;
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      isSubmitted: fileFilters.isSubmitted === undefined ? false : undefined,
-    }))
-    setPage(1)
-  }
-
-  function toggleAcousticFeaturesFilter() {
-    if (!campaign) return;
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      hasAcousticFeatures: fileFilters.hasAcousticFeatures === undefined ? true : undefined,
-    }))
-    setPage(1)
-  }
-
-  function toggleWithAnnotationsFilter() {
-    if (!campaign) return;
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      withUserAnnotations: fileFilters.withUserAnnotations === undefined ? true : undefined,
-    }))
-    setPage(1)
-  }
-
-  function toggleLabelFilter() {
-    if (!campaign) return;
-    if (!labelSet || labelSet.labels.length === 0) return;
-    let newLabel = undefined;
-    if (!fileFilters.label) newLabel = labelSet.labels[0]
-    else {
-      const currentIndex = labelSet.labels.indexOf(fileFilters.label);
-      if (labelSet.labels.length > currentIndex + 1) {
-        newLabel = labelSet.labels[currentIndex + 1];
-      }
-    }
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      label: newLabel,
-    }))
-    setPage(1)
-  }
-
-  function toggleConfidenceFilter() {
-    if (!campaign) return;
-    if (!confidenceSet || confidenceSet.confidence_indicators.length === 0) return;
-    let newConfidence = undefined;
-    if (!fileFilters.confidence) newConfidence = confidenceSet.confidence_indicators[0].label
-    else {
-      const currentIndex = confidenceSet.confidence_indicators.map(c => c.label).indexOf(fileFilters.confidence);
-      if (confidenceSet.confidence_indicators.length > currentIndex + 1) {
-        newConfidence = confidenceSet.confidence_indicators[currentIndex + 1].label;
-      }
-    }
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      confidence: newConfidence,
-    }))
-    setPage(1)
-  }
-
-  function toggleDetectorFilter() {
-    if (!campaign) return;
-    if (!detectors || detectors.length === 0) return;
-    let newDetector = undefined;
-    if (!fileFilters.detector) newDetector = detectors[0].id
-    else {
-      const currentIndex = detectors.map(c => c.id).indexOf(fileFilters.detector);
-      if (detectors.length > currentIndex + 1) {
-        newDetector = detectors[currentIndex + 1].id;
-      }
-    }
-    dispatch(setFileFilters({
-      ...fileFilters,
-      campaignID: campaign.id,
-      detector: newDetector,
-    }))
-    setPage(1)
   }
 
   function updateSearch(search: string) {
@@ -181,6 +86,9 @@ export const DetailPageAnnotationTasks: React.FC<{
     setPage(1)
   }
 
+  function onFilterUpdated() {
+    setPage(1)
+  }
 
   return <Fragment>
 
@@ -198,58 +106,21 @@ export const DetailPageAnnotationTasks: React.FC<{
                  </Button> }
                </Fragment> }>
 
-      <IonChip outline={ fileFilters.isSubmitted === undefined }
-               onClick={ toggleNonSubmittedFilter }
-               color={ fileFilters.isSubmitted === false ? 'primary' : 'medium' }>
-        Non submitted
-        { fileFilters.isSubmitted === false && <IonIcon icon={ closeCircle } color='primary'/> }
-      </IonChip>
+      <DateFilter onUpdate={ onFilterUpdated }/>
 
-      <IonChip outline={ !fileFilters.withUserAnnotations }
-               onClick={ toggleWithAnnotationsFilter }
-               color={ fileFilters.withUserAnnotations ? 'primary' : 'medium' }>
-        With annotations
-        { fileFilters.withUserAnnotations && <IonIcon icon={ closeCircle } color='primary'/> }
-      </IonChip>
+      <AnnotationFilter onUpdate={ onFilterUpdated }/>
+      <LabelFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
+      <ConfidenceFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
+      <DetectorFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
+      <AcousticFeaturesFilter onUpdate={ onFilterUpdated }/>
 
-      <IonChip outline={ !fileFilters.label }
-               onClick={ toggleLabelFilter }
-               color={ fileFilters.label ? 'primary' : 'medium' }>
-        Label filter{ fileFilters.label && `: ${ fileFilters.label }` }
-        { (fileFilters.label && !isLastLabel) && <IonIcon icon={ swapHorizontal }/> }
-        { isLastLabel && <IonIcon icon={ closeCircle }/> }
-      </IonChip>
+      <StatusFilter onUpdate={ onFilterUpdated }/>
 
-      { campaign?.confidence_indicator_set &&
-          <IonChip outline={ !fileFilters.confidence }
-                   onClick={ toggleConfidenceFilter }
-                   color={ fileFilters.confidence ? 'primary' : 'medium' }>
-              Confidence filter{ fileFilters.confidence && `: ${ fileFilters.confidence }` }
-            { (fileFilters.confidence && !isLastConfidence) && <IonIcon icon={ swapHorizontal }/> }
-            { isLastConfidence && <IonIcon icon={ closeCircle }/> }
-          </IonChip> }
+      { hasFilters && <IonButton fill='clear' color='medium' onClick={ resetFilters }>
+          <IonIcon icon={ refreshOutline } slot='start'/>
+          Reset
+      </IonButton> }
 
-      { campaign?.usage === 'Check' && detectors && detectors.length > 1 &&
-          <IonChip outline={ !fileFilters.detector }
-                   onClick={ toggleDetectorFilter }
-                   color={ fileFilters.detector ? 'primary' : 'medium' }>
-              Detector filter{ fileFilters.detector && `: ${ detectors?.find(d => d.id === fileFilters.detector)?.name }` }
-            { (fileFilters.detector && !isLastDetector) && <IonIcon icon={ swapHorizontal }/> }
-            { isLastDetector && <IonIcon icon={ closeCircle }/> }
-          </IonChip> }
-
-      { (fileFilters.label !== undefined || fileFilters.isSubmitted !== undefined || fileFilters.withUserAnnotations !== undefined) &&
-          <IonButton fill='clear' color='medium' onClick={ resetFilters }>
-              <IonIcon icon={ refreshOutline } slot='start'/>
-              Reset
-          </IonButton> }
-
-      <IonChip outline={ fileFilters.hasAcousticFeatures === undefined }
-               onClick={ toggleAcousticFeaturesFilter }
-               color={ fileFilters.hasAcousticFeatures === true ? 'primary' : 'medium' }>
-        With acoustic features
-        { fileFilters.hasAcousticFeatures === true && <IonIcon icon={ closeCircle } color='primary'/> }
-      </IonChip>
     </ActionBar>
 
     { isFetching && <IonSpinner/> }

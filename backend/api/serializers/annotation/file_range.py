@@ -25,11 +25,23 @@ class AnnotationFileRangeListSerializer(serializers.ListSerializer):
         """Check deletions and recover deleted items"""
         deleted_ranges = original_ranges.exclude(
             id__in=[data["id"] for data in validated_data if "id" in data]
+        ).annotate(
+            finished_tasks_count=Subquery(
+                AnnotationTask.objects.filter(
+                    annotator_id=OuterRef("annotator_id"),
+                    annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                    dataset_file_id__gte=OuterRef("first_file_id"),
+                    dataset_file_id__lte=OuterRef("last_file_id"),
+                    status=AnnotationTask.Status.FINISHED,
+                )
+                .annotate(count=Func(F("id"), function="Count"))
+                .values("count")
+            )
         )
         if "force" in self.context and self.context["force"] is True:
             return deleted_ranges
         for file_range in deleted_ranges:
-            if file_range.get_finished_tasks().count() > 0:
+            if file_range.finished_tasks_count > 0:
                 raise serializers.ValidationError(
                     "Cannot delete range with finished tasks",
                     code="invalid_deletion",
@@ -102,17 +114,13 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
     )
 
     # Read only
-    finished_tasks_count = serializers.SerializerMethodField(read_only=True)
+    finished_tasks_count = serializers.IntegerField(read_only=True)
     files_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = AnnotationFileRange
         exclude = ("first_file_id", "last_file_id")
         list_serializer_class = AnnotationFileRangeListSerializer
-
-    def get_finished_tasks_count(self, file_range: AnnotationFileRange) -> int:
-        """Count finished tasks within this file range"""
-        return file_range.get_finished_tasks().count()
 
     def check_max_value(self, data: dict):
         """Check file indexes doesn't go higher than campaign has files"""

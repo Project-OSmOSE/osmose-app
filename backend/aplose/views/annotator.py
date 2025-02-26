@@ -1,7 +1,6 @@
 """Annotator viewset"""
 
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
@@ -43,18 +42,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         # pylint: disable=too-many-locals
         """Get all data for annotator"""
 
-        file_ranges = AnnotationFileRange.objects.filter(
-            annotation_campaign_id=campaign_id,
-            annotator_id=request.user.id,
-        )
-        file_ranges_files = []
-        for file_range in file_ranges:
-            file_ranges_files.extend(
-                file_range.get_files().values_list("id", flat=True)
-            )
-
-        is_assigned = int(file_id) in file_ranges_files
-
+        # Query params
         search = self.request.query_params.get("search")
         label_filter = self.request.query_params.get("label")
         is_submitted = get_boolean_query_param(self.request, "is_submitted")
@@ -62,11 +50,16 @@ class AnnotatorViewSet(viewsets.ViewSet):
             self.request, "with_user_annotations"
         )
 
-        file = DatasetFileViewSet.as_view({"get": "retrieve"})(
-            request._request,
-            pk=file_id,
-        ).data
+        file_ranges = AnnotationFileRange.objects.filter(
+            annotation_campaign_id=campaign_id,
+            annotator_id=request.user.id,
+        )
+        is_assigned = file_ranges.filter(
+            first_file_id__lte=file_id,
+            last_file_id__gte=file_id,
+        ).exists()
 
+        # User previous results
         results = []
         task_comments = []
         if is_assigned:
@@ -88,6 +81,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 request._request
             ).data
 
+        # Spectrogram configurations
         request._request.GET = {
             "annotation_campaigns__id": campaign_id,
         }
@@ -96,16 +90,17 @@ class AnnotatorViewSet(viewsets.ViewSet):
         )(request._request).data
 
         current_file = DatasetFile.objects.get(pk=file_id)
-        file_ranges = AnnotationFileRange.objects.filter(
-            annotation_campaign_id=campaign_id,
-            annotator_id=request.user.id,
-        )
-        file_ids = []
-        for f_range in file_ranges:
-            file_ids.extend(f_range.get_files().values_list("id", flat=True))
 
-        all_files = DatasetFile.objects.filter(id__in=file_ids)
-        filtered_files = DatasetFile.objects.filter(id__in=file_ids)
+        min_id = min(file_ranges.values_list("first_file_id", flat=True))
+        max_id = max(file_ranges.values_list("last_file_id", flat=True))
+
+        all_files = DatasetFile.objects.filter(
+            dataset__annotation_campaigns=campaign_id,
+            id__gte=min_id,
+            id__lte=max_id,
+        )
+
+        filtered_files = all_files
         if search is not None:
             filtered_files = filtered_files.filter(filename__icontains=search)
         if with_user_annotations is not None:
@@ -179,7 +174,10 @@ class AnnotatorViewSet(viewsets.ViewSet):
                     annotator_id=request.user.id,
                     status=AnnotationTask.Status.FINISHED,
                 ).exists(),
-                "file": file,
+                "file": DatasetFileViewSet.as_view({"get": "retrieve"})(
+                    request._request,
+                    pk=file_id,
+                ).data,
                 "results": results,
                 "task_comments": task_comments,
                 "spectrogram_configurations": spectrogram_configurations,
@@ -187,7 +185,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 if previous_file is not None
                 else None,
                 "next_file_id": next_file.id if next_file is not None else None,
-                "is_assigned": int(file_id) in file_ranges_files,
+                "is_assigned": is_assigned,
             },
             status=status.HTTP_200_OK,
         )

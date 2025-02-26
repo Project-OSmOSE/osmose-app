@@ -26,16 +26,17 @@ export const AnnotationFileRangeAPI = createApi({
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume?: number }, {
       page: number,
     } & FileFilters>({
-      query: ({ campaignID, page, search, withUserAnnotations, isSubmitted, label, confidence, detector, hasAcousticFeatures }) => {
+      query: ({ campaignID, page, ...filters }, ) => {
         const params: any = { page, page_size: FILES_PAGE_SIZE }
-        if (search) params['search'] = search;
-        if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
-        if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
-        if (label !== undefined) params['label'] = label;
-        if (confidence !== undefined) params['confidence'] = confidence;
-        if (detector !== undefined) params['detector'] = detector;
-        if (detector !== undefined) params['detector'] = detector;
-        if (hasAcousticFeatures !== undefined) params['acoustic_features'] = hasAcousticFeatures;
+        if (filters.search) params['filename__icontains'] = filters.search;
+        if (filters.withUserAnnotations !== undefined) params['with_user_annotations'] = filters.withUserAnnotations;
+        if (filters.isSubmitted !== undefined) params['is_submitted'] = filters.isSubmitted;
+        if (filters.label !== undefined) params['annotation_results__label__name'] = filters.label;
+        if (filters.confidence !== undefined) params['annotation_results__confidence_indicator__label'] = filters.confidence;
+        if (filters.detector !== undefined) params['annotation_results__detector_configuration__detector__name'] = filters.detector;
+        if (filters.hasAcousticFeatures !== undefined) params['annotation_results__acoustic_features__isnull'] = !filters.hasAcousticFeatures;
+        if (filters.minDate !== undefined) params['end__gte'] = filters.minDate;
+        if (filters.maxDate !== undefined) params['start__lte'] = filters.maxDate;
         return `campaign/${ campaignID }/files/${ encodeQueryParams(params) }`;
       },
     }),
