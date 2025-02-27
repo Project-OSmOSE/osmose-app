@@ -41,6 +41,9 @@ définir la position temporelle à partir de laquelle vous souhaitez commencer l
 ::: tip Raccourci :keyboard:
 La touche “espace” de votre clavier est un raccourci pour lire et mettre en pause le fichier audio
 :::
+::: tip Recommendation :bulb:
+Utilisez un casque ou des écouteurs pour une meilleure qualité !
+:::
 
 À côté du bouton play/pause, vous pouvez choisir la vitesse de lecture (de 0,25x à 4x). Cela vous permet
 d'entendre les hautes fréquences en ralentissant la lecture, ou les basses fréquences en l'accélérant.

@@ -56,7 +56,7 @@ export default defineConfig({
             },
             {
               text: 'FAQ',
-              link: '/faq'
+              link: '/user/faq'
             }
           ],
           '/dev': [

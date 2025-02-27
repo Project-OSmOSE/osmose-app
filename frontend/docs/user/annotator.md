@@ -49,6 +49,9 @@ Files with a really high sampling rate may not be compatible with your browser.
 The compatibility limit depends on the browser.
 Firefox tends to have the wider compatibility.
 :::
+::: tip Tips :bulb:
+Use a headset for a better listening experience!
+:::
 
 ## Annotate
 We differentiate several types of annotations:
