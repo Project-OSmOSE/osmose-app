@@ -22,12 +22,17 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
   const elementRef = useRef<HTMLAudioElement | null>(null);
   const audioService = useAudioService(elementRef);
 
+  const stopTimeRef = useRef<number | undefined>(audio.stopTime);
+  useEffect(() => {
+    stopTimeRef.current = audio.stopTime
+  }, [audio.stopTime]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (!elementRef.current || elementRef.current?.paused) return;
 
       const time = elementRef.current?.currentTime;
-      if (audio.stopTime && time && time > audio.stopTime) audioService.pause();
+      if (stopTimeRef.current && time && time > stopTimeRef.current) audioService.pause();
       else dispatch(setTime(time))
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
