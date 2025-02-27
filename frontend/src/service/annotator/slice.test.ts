@@ -19,6 +19,7 @@ import { AnnotationComment } from '@/service/campaign/comment';
 
 const mockState: AnnotatorState = {
   hasChanged: false,
+  didSeeAllFile: true,
   results: [
     {
       "id": 1,

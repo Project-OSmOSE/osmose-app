@@ -19,7 +19,7 @@ export const DetectorsContent: React.FC<Props> = ({
   const [ detectorsMap, setDetectorsMap ] = useState<Map<string, Detector>>(new Map());
   const canValidate = useMemo(() => selectedDetectors.length > 0, [ selectedDetectors ]);
 
-  const { data: allDetectors, error: detectorListError } = useListDetectorQuery();
+  const { data: allDetectors, error: detectorListError } = useListDetectorQuery({});
   const toast = useToast();
 
   // Form data
