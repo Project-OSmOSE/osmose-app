@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import styles from './auth.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { Input } from "@/components/form";
@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
 import { useGetCurrentUserQuery } from "@/service/user";
+import { KEY_DOWN_EVENT } from "@/service/events";
 
 export const Login: React.FC = () => {
 
@@ -18,6 +19,11 @@ export const Login: React.FC = () => {
   const [ username, setUsername ] = useState<string>('');
   const [ password, setPassword ] = useState<string>('');
   const [ errors, setErrors ] = useState<{ global?: string, username?: string, password?: string }>({});
+
+  const ref = useRef<{ username: string, password: string }>({ username, password });
+  useEffect(() => {
+    ref.current = { username, password }
+  }, [ username, password ]);
 
   // Service
   const history = useHistory();
@@ -28,7 +34,10 @@ export const Login: React.FC = () => {
   const { refetch } = useGetCurrentUserQuery()
 
   useEffect(() => {
+    KEY_DOWN_EVENT.add(onKbdEvent);
+
     return () => {
+      KEY_DOWN_EVENT.remove(onKbdEvent);
       toast.dismiss()
     }
   }, []);
@@ -41,13 +50,22 @@ export const Login: React.FC = () => {
     if (isConnected) history.replace(from);
   }, [ isConnected ]);
 
+  function onKbdEvent(event: KeyboardEvent) {
+    switch (event.code) {
+      case 'Enter':
+      case 'NumpadEnter':
+        submit();
+        break;
+    }
+  }
+
   const submit = async () => {
     setErrors({})
-    if (!username) setErrors({ username: "This field is required." })
-    if (!password) setErrors(prev => ({ ...prev, password: "This field is required." }))
-    if (!username || !password) return;
+    if (!ref.current.username) setErrors({ username: "This field is required." })
+    if (!ref.current.password) setErrors(prev => ({ ...prev, password: "This field is required." }))
+    if (!ref.current.username || !ref.current.password) return;
 
-    await login({ username, password }).unwrap()
+    await login(ref.current).unwrap()
       .then(() => refetch().unwrap())
       .then(() => history.replace(from))
       .catch(error => setErrors({ global: getErrorMessage(error) }));
