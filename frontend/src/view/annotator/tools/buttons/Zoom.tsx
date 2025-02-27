@@ -26,7 +26,7 @@ export const ZoomButton: React.FC = () => {
     <MdZoomOut className={ [ styles.zoom, zoomLevel > 1 ? '' : styles.disabled ].join(' ') }
                onClick={ zoomOut }/>
     <MdZoomIn
-      className={ [ styles.zoom, (zoomLevel + 1) < (currentConfiguration?.zoom_level ?? 1) ? '' : styles.disabled ].join(' ') }
+      className={ [ styles.zoom, (zoomLevel * 2) <= (2 ** ((currentConfiguration?.zoom_level ?? 1) - 1)) ? '' : styles.disabled ].join(' ') }
       onClick={ zoomIn }/>
     <p>{ zoomLevel }x</p>
   </Fragment>
