@@ -254,16 +254,26 @@ class AnnotationCampaignViewSet(
                 ),
                 is_box=is_box,
                 confidence_indicator_label=F("confidence_indicator__label"),
-                confidence_indicator_level=Concat(
-                    F("confidence_indicator__level"),
-                    Value("/"),
-                    max_confidence,
-                    output_field=models.CharField(),
+                confidence_indicator_level=Case(
+                    When(
+                        confidence_indicator__isnull=False,
+                        then=Concat(
+                            F("confidence_indicator__level"),
+                            Value("/"),
+                            max_confidence,
+                            output_field=models.CharField(),
+                        ),
+                    ),
+                    default=None,
                 ),
                 comments_data=comments,
                 signal_quality=Case(
                     When(acoustic_features__isnull=False, then=Value("GOOD")),
-                    default=Value("BAD"),
+                    When(
+                        label__in=campaign.labels_with_acoustic_features.all(),
+                        then=Value("BAD"),
+                    ),
+                    default=None,
                     output_field=models.CharField(),
                 ),
                 signal_start_frequency=F("acoustic_features__start_frequency"),
@@ -457,7 +467,6 @@ class AnnotationCampaignViewSet(
             "comments",
         )
 
-        # TODO: check mode
         writer.writerows(list(results) + list(comments))
 
         return response
