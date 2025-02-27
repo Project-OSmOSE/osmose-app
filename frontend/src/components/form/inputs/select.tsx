@@ -12,12 +12,12 @@ import {
 } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { Item } from '@/types/item.ts';
-import './inputs.css';
 import { AUX_CLICK_EVENT, CLICK_EVENT } from "@/service/events";
 import { createPortal } from "react-dom";
 import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import styles from './inputs.module.scss'
 import { IonRadioGroupCustomEvent } from "@ionic/core/dist/types/components";
+import { Label } from "@/components/form/inputs/Label.tsx";
 
 export type SelectValue = number | string | undefined;
 
@@ -106,22 +106,21 @@ export const Select: React.FC<SelectProperties> = ({
   }, [ value, parentOptions, required, hasSelectedItem, placeholder ])
   const buttonId = useMemo(() => `button-${ placeholder.toLowerCase().replace(' ', '-') }`, [ placeholder ])
 
-  const parentClasses = [ "select", className ]
-  if (label) parentClasses.push("has-label")
+  const parentClasses = [ styles.select, className ]
+  if (label) parentClasses.push(styles.hasLabel)
 
-  return <div id="aplose-input" className={ [ ...parentClasses, isLoading ? 'loading' : '' ].join(' ') }
+  return <div id="aplose-input"
+              className={ [ styles.default, ...parentClasses, isLoading ? styles.loading : '' ].join(' ') }
               ref={ containerRef } { ...props }
               aria-invalid={ !!error }>
-    { label && <div id="label"
-                    aria-disabled={ disabled }
-                    className={ required ? 'required' : '' }>{ label }{ required && '*' }</div> }
+    <Label required={ required } label={ label }/>
 
     { isLoading && <IonSpinner/> }
 
-    <div id="input" ref={ inputRef }
-         className={ isOpen ? 'open' : '' }>
+    <div className={ [ styles.input, isOpen ? styles.open : '' ].join(' ') }
+         ref={ inputRef }>
       <select required={ required }
-              className="hide-real-input"
+              className={ styles.realInput }
               onChange={ () => {
               } }
               value={ value }>
@@ -135,29 +134,30 @@ export const Select: React.FC<SelectProperties> = ({
               aria-disabled={ disabled }
               disabled={ disabled }
               onClick={ () => !disabled && setIsOpen(!isOpen) }
-              className={ !value && !hasSelectedItem ? ' placeholder' : '' }>
+              className={ !value && !hasSelectedItem ? styles.placeholder : '' }>
         <p ref={ selectLabelRef }>{ buttonLabel }</p>
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
-      { optionsContainer === 'popover' && <div id="options" ref={ optionsRef }>
-        { getOptions().map(v => <div className="item" onClick={ () => {
+      { optionsContainer === 'popover' && <div id="options" className={ styles.options } ref={ optionsRef }>
+        { getOptions().map(v => <div className={ styles.item } onClick={ () => {
           onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
         } } key={ v.value }>{ v.label }</div>) }
       </div> }
 
-      { optionsContainer === 'alert' && isOpen && <SelectModal header={ placeholder } options={ getOptions() } onClose={ option => {
-        if (option !== undefined) {
-          onValueSelected(option.value !== 9 ? option.value : undefined)
-          setHasSelectedItem(true)
-        }
-        setIsOpen(false)
-      } }/> }
+      { optionsContainer === 'alert' && isOpen &&
+          <SelectModal header={ placeholder } options={ getOptions() } onClose={ option => {
+            if (option !== undefined) {
+              onValueSelected(option.value !== 9 ? option.value : undefined)
+              setHasSelectedItem(true)
+            }
+            setIsOpen(false)
+          } }/> }
     </div>
 
-    { !!children && <div id="inner-content">{ children }</div> }
+    { !!children && <div className={ styles.inner }>{ children }</div> }
     { error && <IonNote color="danger">{ error }</IonNote> }
   </div>
 }
@@ -195,7 +195,7 @@ const SelectModal: React.FC<{
 
     <IonRadioGroup className={ styles.radioGroup }
                    value={ selected?.value }
-                   onIonChange={onSelect}>
+                   onIonChange={ onSelect }>
       { filteredOptions.map((option, i) => (
         <IonRadio key={ i }
                   value={ option.value }

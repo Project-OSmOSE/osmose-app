@@ -15,13 +15,8 @@ import { resetFileFilters, setFileFilters } from "@/service/ui";
 import { AnnotationFile } from "@/service/campaign/annotation-file-range/type.ts";
 import { ID } from "@/service/type.ts";
 import { DateFilter } from "@/view/campaign/detail/filters/DateFilter.tsx";
-import { AnnotationFilter } from "@/view/campaign/detail/filters/AnnotationFilter.tsx";
-import { LabelFilter } from "@/view/campaign/detail/filters/LabelFilter.tsx";
-import { ConfidenceFilter } from "@/view/campaign/detail/filters/ConfidenceFilter.tsx";
-import { DetectorFilter } from "@/view/campaign/detail/filters/DetectorFilter.tsx";
-import { AcousticFeaturesFilter } from "@/view/campaign/detail/filters/AcousticFeaturesFilter.tsx";
 import { StatusFilter } from "@/view/campaign/detail/filters/StatusFilter.tsx";
-import { IoFunnelOutline } from "react-icons/io5";
+import { AnnotationsFilter } from "@/view/campaign/detail/filters/AnnotationsFilter.tsx";
 
 export const DetailPageAnnotationTasks: React.FC<{
   campaign?: AnnotationCampaign;
@@ -95,55 +90,59 @@ export const DetailPageAnnotationTasks: React.FC<{
     <ActionBar search={ fileFilters.search }
                searchPlaceholder="Search filename"
                onSearchChange={ updateSearch }
-               actionButton={ <Fragment>
-                 { files && files.count > 0 && <Button color="primary" fill='outline'
-                                                       disabled={ !files?.resume || !isResumeEnabled }
-                                                       disabledExplanation='Cannot resume if filters are activated.'
-                                                       style={ { pointerEvents: 'unset' } }
-                                                       onClick={ resume }>
-                     Resume annotation
-                     <IonIcon icon={ playOutline } slot="end"/>
-                 </Button> }
-               </Fragment> }>
+               actionButton={ <div className={ styles.filterButtons }>
 
-      <DateFilter onUpdate={ onFilterUpdated }/>
+                 { hasFilters && <IonButton fill='clear' color='medium' onClick={ resetFilters }>
+                     <IonIcon icon={ refreshOutline } slot='start'/>
+                     Reset
+                 </IonButton> }
 
-      <AnnotationFilter onUpdate={ onFilterUpdated }/>
-      <LabelFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
-      <ConfidenceFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
-      <DetectorFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
-      <AcousticFeaturesFilter onUpdate={ onFilterUpdated }/>
-
-      <StatusFilter onUpdate={ onFilterUpdated }/>
-
-      { hasFilters && <IonButton fill='clear' color='medium' onClick={ resetFilters }>
-          <IonIcon icon={ refreshOutline } slot='start'/>
-          Reset
-      </IonButton> }
-
-    </ActionBar>
+                 <Button color="primary" fill='outline'
+                         disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
+                         disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
+                         style={ { pointerEvents: 'unset' } }
+                         onClick={ resume }>
+                   Resume annotation
+                   <IonIcon icon={ playOutline } slot="end"/>
+                 </Button>
+               </div> }/>
 
     { isFetching && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
-    { files && files.count === 0 && <p>You have no files to annotate.</p> }
-
-    { campaign && files && files.results.length > 0 && <Fragment>
+    { campaign && <Fragment>
         <Table columns={ 6 } className={ styles.filesTable }>
-            <TableHead topSticky isFirstColumn={ true }>Filename</TableHead>
-            <TableHead topSticky>Date</TableHead>
-            <TableHead topSticky>Duration</TableHead>
-            <TableHead topSticky>Annotations</TableHead>
-            <TableHead topSticky>Status</TableHead>
-            <TableHead topSticky>Access</TableHead>
+            <TableHead topSticky isFirstColumn={ true }>
+                Filename
+            </TableHead>
+            <TableHead topSticky className={ styles.filteredTableHead }>
+                Date
+                <DateFilter onUpdate={ onFilterUpdated }/>
+            </TableHead>
+            <TableHead topSticky>
+                Duration
+            </TableHead>
+            <TableHead topSticky className={ styles.filteredTableHead }>
+                Annotations
+                <AnnotationsFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
+            </TableHead>
+            <TableHead topSticky className={ styles.filteredTableHead }>
+                Status
+                <StatusFilter onUpdate={ onFilterUpdated }/>
+            </TableHead>
+            <TableHead topSticky>
+                Access
+            </TableHead>
             <TableDivider/>
 
-          { files.results.map(file => <TaskItem key={ file.id } file={ file } campaignID={ campaign.id }/>) }
+          { files?.results.map(file => <TaskItem key={ file.id } file={ file } campaignID={ campaign.id }/>) }
         </Table>
 
-      { files.results.length > 0 &&
+      { files && files.results.length > 0 &&
           <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/> }
     </Fragment> }
+
+    { files && files.count === 0 && <p>You have no files to annotate.</p> }
 
   </Fragment>
 }

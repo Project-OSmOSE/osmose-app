@@ -1,9 +1,10 @@
 import React, { Fragment, HTMLInputTypeAttribute, InputHTMLAttributes, useState } from "react";
 import { IonIcon, IonNote } from "@ionic/react";
-import './inputs.css';
 import { eyeOffOutline, eyeOutline } from "ionicons/icons";
 import { useAppDispatch } from "@/service/app.ts";
 import { disableShortcuts, enableShortcuts } from "@/service/events";
+import styles from './inputs.module.scss'
+import { Label } from "@/components/form/inputs/Label.tsx";
 
 type InputProperties = {
   label?: string;
@@ -22,8 +23,8 @@ export const Input: React.FC<InputProperties> = ({
                                                    ...inputArgs
                                                  }) => {
   const className = [];
-  if (startIcon) className.push('has-start-icon');
-  if (inputArgs.type === 'password') className.push('has-end-icon');
+  if (startIcon) className.push(styles.hasStartIcon);
+  if (inputArgs.type === 'password') className.push(styles.hasEndIcon);
 
   const [ type, setType ] = useState<HTMLInputTypeAttribute | undefined>(inputArgs.type);
 
@@ -35,14 +36,11 @@ export const Input: React.FC<InputProperties> = ({
     else setType('password');
   }
 
-  return <div id="aplose-input" aria-disabled={ disabled } aria-invalid={ !!error }>
-    { label && <label id="label"
-                      className={ required ? 'required' : '' }>
-      { label }{ required ? '*' : '' }
-    </label> }
+  return <div id="aplose-input" className={ styles.default } aria-disabled={ disabled } aria-invalid={ !!error }>
+    <Label required={ required } label={ label }/>
 
-    <div id="input">
-      { startIcon && <IonIcon id="input-start-icon" icon={ startIcon }/> }
+    <div className={ styles.input }>
+      { startIcon && <IonIcon className={ styles.startIcon } icon={ startIcon }/> }
       <input { ...inputArgs }
              type={ type }
              value={ value }
@@ -53,8 +51,8 @@ export const Input: React.FC<InputProperties> = ({
              className={ `${ className.join(' ') } ${ inputArgs.className }` }/>
 
       { inputArgs.type === 'password' && <Fragment>
-        { type === 'password' && <IonIcon id='input-end-icon' icon={ eyeOutline } onClick={ toggleType }/> }
-        { type === 'text' && <IonIcon id='input-end-icon' icon={ eyeOffOutline } onClick={ toggleType }/> }
+        { type === 'password' && <IonIcon className={ styles.endIcon } icon={ eyeOutline } onClick={ toggleType }/> }
+        { type === 'text' && <IonIcon className={ styles.endIcon } icon={ eyeOffOutline } onClick={ toggleType }/> }
       </Fragment> }
     </div>
 

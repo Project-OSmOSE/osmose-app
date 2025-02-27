@@ -12,6 +12,7 @@ import {
   updateDraftCampaign
 } from '@/service/campaign';
 import { LabelSetDisplay } from "@/components/campaign/label/LabelSet.tsx";
+import styles from "@/components/form/inputs/inputs.module.scss";
 
 export const CheckAnnotationsInputs: React.FC<{
   onFileImported: (file: File) => void,
@@ -74,7 +75,8 @@ export const CheckAnnotationsInputs: React.FC<{
                   Import annotations
                   <IonIcon icon={ cloudUploadOutline } slot="end"/>
               </IonButton>
-              <input required={ true } className="hide-real-input"
+              <input required={ true }
+                     className={ styles.realInput }
                      value={ detectors?.length ? "ok" : undefined }
                      onChange={ () => {
                      } }/>

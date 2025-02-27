@@ -1,9 +1,12 @@
-import React, { ChangeEvent, Fragment, useMemo } from "react";
+import React, { ChangeEvent, Fragment, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { setFileFilters } from "@/service/ui";
+import { Modal } from "@/components/ui";
 import { Input } from "@/components/form";
-import styles from '../Detail.module.scss'
+import { IonIcon } from "@ionic/react";
+import { funnel, funnelOutline } from "ionicons/icons";
+import { createPortal } from "react-dom";
 
 export const DateFilter: React.FC<{
   onUpdate: () => void
@@ -12,6 +15,9 @@ export const DateFilter: React.FC<{
 
   const { fileFilters: filters } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
+
+  const hasDateFilter = useMemo(() => !!filters.minDate || !!filters.maxDate, [ filters ]);
+  const [ filterModalOpen, setFilterModalOpen ] = useState<boolean>(false);
 
   const minDate: string = useMemo(() => {
     if (!filters.minDate) return '';
@@ -62,10 +68,16 @@ export const DateFilter: React.FC<{
 
 
   return <Fragment>
-    <div><Input label="Minimum date" type="datetime-local" placeholder="Min date" step="1"
-             value={ minDate } onChange={ setMin }/></div>
+    { hasDateFilter ?
+      <IonIcon onClick={ () => setFilterModalOpen(true) } color='primary' icon={ funnel }/> :
+      <IonIcon onClick={ () => setFilterModalOpen(true) } color='dark' icon={ funnelOutline }/> }
 
-    <div className={ styles.dateFilter }><Input label="Maximum date" type="datetime-local" placeholder="Max date" step="1"
-             value={ maxDate } onChange={ setMax }/></div>
+    { filterModalOpen && createPortal(<Modal onClose={ () => setFilterModalOpen(false) }>
+      <Input label="Minimum date" type="datetime-local" placeholder="Min date" step="1"
+             value={ minDate } onChange={ setMin }/>
+
+      <Input label="Maximum date" type="datetime-local" placeholder="Max date" step="1"
+             value={ maxDate } onChange={ setMax }/>
+    </Modal>, document.body) }
   </Fragment>
 }

@@ -21,6 +21,7 @@
     padding: 0.25rem 1rem;
     display: grid;
     align-content: center;
+    align-items: center;
 }
 
 .table-aplose > .table-head,

@@ -7,7 +7,7 @@ export const ActionBar: React.FC<{
   searchPlaceholder?: string;
   onSearchChange(search?: string): void;
   actionButton: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
 }> = ({ search, searchPlaceholder = 'Search', onSearchChange, actionButton, children }) => {
 
   function doSearch(event: KeyboardEvent<HTMLIonSearchbarElement>) {
@@ -33,6 +33,6 @@ export const ActionBar: React.FC<{
 
       { actionButton }
 
-      <div className={ styles.filters }>{ children }</div>
+      { children && <div className={ styles.filters }>{ children }</div> }
     </div>)
 }

@@ -56,13 +56,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             request, files, view
         )
 
-        # TODO: replace query_params
-        #  - "search" -> "filename__icontains"
-        #  - "label" -> "annotation_results__label__name"
-        #  - "confidence" -> "annotation_results__confidence_indicator__label"
-        #  - "acoustic_features" -> "annotation_results__acoustic_features__isnull"
-        #  - "detector" -> "annotation_results__detector_configuration__detector__name"
-
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
         )
