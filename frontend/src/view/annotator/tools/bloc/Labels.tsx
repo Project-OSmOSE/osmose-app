@@ -10,6 +10,7 @@ import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { LabelSet } from "@/service/campaign/label-set";
+import { useCurrentAnnotation } from "@/service/annotator/spectrogram";
 
 
 export const Labels: React.FC = () => {
@@ -19,9 +20,10 @@ export const Labels: React.FC = () => {
 
   const {
     results,
-    focusedLabel
+    focusedLabel,
   } = useAppSelector(state => state.annotator);
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
+  const { type: currentAnnotationType } = useCurrentAnnotation()
   const dispatch = useAppDispatch()
   const alert = useAlert();
 
@@ -48,7 +50,6 @@ export const Labels: React.FC = () => {
   }, [ presenceLabels ]);
 
   function onKbdEvent(event: KeyboardEvent) {
-    console.log('onKbdEvent', event.key, _labelSet.current)
     if (!_labelSet.current) return;
     const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, _labelSet.current.labels.length);
 
@@ -74,7 +75,9 @@ export const Labels: React.FC = () => {
     if (presenceLabels.includes(label)) {
       dispatch(focusLabel(label));
     } else {
-      dispatch(addPresenceResult({ label }));
+      const shouldUpdateStrongLabel = currentAnnotationType !== undefined && currentAnnotationType !== 'presence';
+      dispatch(addPresenceResult({ label, focus: !shouldUpdateStrongLabel }));
+      if (shouldUpdateStrongLabel) dispatch(focusLabel(label));
     }
   }
 
@@ -99,7 +102,7 @@ export const Labels: React.FC = () => {
   // 'label' class is for playwright tests
   return (
     <div className={ [ styles.bloc, 'label' ].join(' ') }>
-      <h6 className={ styles.header }>Labels list</h6>
+      <h6 className={ styles.header }>Labels</h6>
       <div className={ styles.body }>
         { label_set?.labels.map((label, key) => {
           const color = (key % 10).toString();

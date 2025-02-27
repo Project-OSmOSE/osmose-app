@@ -134,17 +134,14 @@ export const AnnotatorSlice = createSlice({
         state.hasChanged = true;
         state.results = state.results!.filter(r => r.label !== presenceResult.label);
       }
-      const currentResult = state.results?.find(r => r.id === state.focusedResultID);
-      if (currentResult?.label === payload) _focusTask(state);
+      _focusTask(state);
     },
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
       const result = state.results?.find(r => r.id === state.focusedResultID);
       if (!result) return;
       const type = getResultType(result);
-      if (type === 'presence') {
-        _focusTask(state);
-      } else {
+      if (type !== 'presence') {
         state.results = state.results?.map(r => {
           if (r.id !== state.focusedResultID) return r;
           return {
