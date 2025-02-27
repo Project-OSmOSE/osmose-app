@@ -67,8 +67,8 @@ export const LabelSetModal: React.FC<{
         { isOwner && (
           <IonButton fill='outline'
                      onClick={ toggleDisabled }
-                     disabled={ isSubmitting }>
-            Update
+                     disabled={ isSubmitting || !disabled }>
+            Update labels with features
           </IonButton>
         ) }
         { isOwner && !disabled && (
