@@ -114,10 +114,10 @@ export const Annotator: React.FC = () => {
 
         <div className={ [styles.blocContainer, campaign?.usage === 'Check' ? styles.check : styles.create ].join(' ') }>
           { annotatorData?.is_assigned && campaign?.usage === 'Create' && <Fragment>
-              <CurrentAnnotation/>
+              <Comment/>
               <PresenceAbsence/>
               <LabelList/>
-              <Comment/>
+              <CurrentAnnotation/>
               <Results/>
               <ConfidenceIndicator/>
           </Fragment> }
