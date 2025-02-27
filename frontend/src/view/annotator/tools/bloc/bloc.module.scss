@@ -213,3 +213,8 @@ ion-chip.active {
     box-shadow: var(--aplose-box-shadow);
   }
 }
+
+.activeLabel {
+  background: var(--ion-color-base);
+  color: white;
+}

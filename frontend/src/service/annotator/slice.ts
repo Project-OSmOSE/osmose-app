@@ -88,6 +88,11 @@ export const AnnotatorSlice = createSlice({
         focus?: boolean
       }
     }) => {
+      const existingPresence = state.results?.find(r => r.label === payload.label && getResultType(r) === 'presence')
+      if (existingPresence) {
+        if (payload.focus) _focusResult(state, { payload: existingPresence.id })
+        return
+      }
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
         annotator: -1,
@@ -125,10 +130,12 @@ export const AnnotatorSlice = createSlice({
     },
     removePresence: (state, { payload }: { payload: string }) => {
       const presenceResult = state.results!.find(r => r.label === payload && getResultType(r) === 'presence');
-      if (!presenceResult) return _focusTask(state);
-      state.hasChanged = true;
-      state.results = state.results!.filter(r => r.label !== presenceResult.label);
-      return _focusTask(state);
+      if (presenceResult) {
+        state.hasChanged = true;
+        state.results = state.results!.filter(r => r.label !== presenceResult.label);
+      }
+      const currentResult = state.results?.find(r => r.id === state.focusedResultID);
+      if (currentResult?.label === payload) _focusTask(state);
     },
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
