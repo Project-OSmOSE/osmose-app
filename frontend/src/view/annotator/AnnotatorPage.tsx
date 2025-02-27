@@ -8,7 +8,7 @@ import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useToast } from "@/service/ui";
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
 
 export const AnnotatorPage: React.FC = () => {
@@ -23,14 +23,17 @@ export const AnnotatorPage: React.FC = () => {
   const history = useHistory();
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
+  const canNavigate = useCanNavigate()
+
   useEffect(() => {
     return () => {
       toast.dismiss();
     }
   }, [])
 
-  function backToCampaign() {
-    window.open(`/app/annotation-campaign/${ campaignID }`, "_self")
+  async function backToCampaign() {
+    if (await canNavigate())
+      window.open(`/app/annotation-campaign/${ campaignID }`, "_self")
   }
 
   function auxBackToCampaign() {
@@ -44,6 +47,7 @@ export const AnnotatorPage: React.FC = () => {
   // 'page' class is for playwright tests
   return <div className={ [ styles.page, pointerPosition ? styles.disableScroll : '', 'page' ].join(' ') }>
     <Header size='small'
+            canNavigate={ canNavigate }
             buttons={ <Fragment>
               <IonButton fill='outline' size='small' color='medium' onClick={ backToOldInterface }>
                 Back to old annotator

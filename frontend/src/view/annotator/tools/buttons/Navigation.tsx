@@ -4,12 +4,12 @@ import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
 import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
-import { useAlert, useToast } from "@/service/ui";
+import { useToast } from "@/service/ui";
 import { getErrorMessage } from '@/service/function.ts';
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
 import { KEY_DOWN_EVENT } from "@/service/events";
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
 
 
 export const NavigationButtons: React.FC = () => {
@@ -22,11 +22,9 @@ export const NavigationButtons: React.FC = () => {
   const history = useHistory();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
-  const alert = useAlert();
 
   // Data
   const {
-    hasChanged: _hasChanged,
     didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
 
@@ -43,13 +41,9 @@ export const NavigationButtons: React.FC = () => {
     didSeeAllFile.current = _didSeeAllFile;
   }, [ _didSeeAllFile ]);
 
-
-  const hasChanged = useRef<boolean>(_hasChanged);
-  useEffect(() => {
-    hasChanged.current = _hasChanged
-  }, [ _hasChanged ]);
-
   const isSubmitting = useRef<boolean>(false);
+
+  const canNavigate = useCanNavigate()
 
   useEffect(() => {
     KEY_DOWN_EVENT.add(onKbdEvent);
@@ -97,38 +91,12 @@ export const NavigationButtons: React.FC = () => {
 
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
-    if (hasChanged.current) {
-      await alert.present({
-        message: `You have unsaved changes. Are you sure you want to forget all of them?`,
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: `Forget my changes`,
-            cssClass: 'ion-color-danger',
-            handler: () => history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }/new`)
-          }
-        ]
-      })
-    } else
+    if (await canNavigate())
       history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }/new`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
-    if (hasChanged.current) {
-      await alert.present({
-        message: `You have unsaved changes. Are you sure you want to forget all of them?`,
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: `Forget my changes`,
-            cssClass: 'ion-color-danger',
-            handler: () => history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`)
-          }
-        ]
-      })
-    } else
+    if (await canNavigate())
       history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
   }
 

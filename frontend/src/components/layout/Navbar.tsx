@@ -41,10 +41,10 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
     <div className={ [ styles.navbar, isOpen ? styles.opened : styles.closed, className ].join(' ') }>
 
       <div className={ styles.title }>
-        <Link href="/app/">
+        <IonButton fill='clear' color='dark' onClick={ accessCampaigns }>
           <img src={ logo } alt="APLOSE"/>
           <h1>APLOSE</h1>
-        </Link>
+        </IonButton>
 
         <IonButton fill='outline' color='medium'
                    className={ styles.toggle } onClick={ toggleOpening }>
