@@ -35,13 +35,17 @@ export const DetailPageAnnotationTasks: React.FC<{
   }, [ campaign?.id ]);
 
   useListFilesWithPaginationQuery({
-    campaignID: campaign!.id,
     page: 1,
+    filters: {
+      campaignID: campaign!.id,
+    }
   }, { refetchOnMountOrArgChange: true, skip: !campaign });
   const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
-    ...fileFilters,
-    campaignID: campaign!.id,
     page,
+    filters: {
+      ...fileFilters,
+      campaignID: campaign!.id,
+    }
   }, { skip: !campaign });
   const maxPage = useMemo(() => {
     if (!files) return 1;

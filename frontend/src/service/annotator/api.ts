@@ -5,20 +5,18 @@ import { ID } from '@/service/type.ts';
 import { AnnotationCampaign } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
 import { AppState } from "@/service/app.ts";
+import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
 
 export const AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   endpoints: (builder) => ({
     retrieve: builder.query<AnnotatorData, RetrieveParams>({
-      query: ({ campaignID, fileID, search, withUserAnnotations, isSubmitted, label }) => {
-        const params: any = {}
-        if (search) params['search'] = search;
-        if (withUserAnnotations !== undefined) params['with_user_annotations'] = withUserAnnotations;
-        if (isSubmitted !== undefined) params['is_submitted'] = isSubmitted;
-        if (label !== undefined) params['label'] = label;
-        return `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(params) }`;
-      },
+      query: ({
+                campaignID,
+                fileID,
+                filters
+              }) => `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(getQueryParamsForFilters(filters)) }`,
       forceRefetch({ currentArg, state }: {
         currentArg: RetrieveParams | undefined;
         state: RootState<any, any, string>

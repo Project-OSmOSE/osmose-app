@@ -62,4 +62,4 @@ export type WriteAnnotatorData = {
 
 export type ResultType = 'presence' | 'point' | 'box';
 
-export type RetrieveParams = { campaignID: ID, fileID: ID } & Partial<FileFilters>
+export type RetrieveParams = { campaignID: ID, fileID: ID, filters: Partial<FileFilters> }

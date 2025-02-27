@@ -19,7 +19,6 @@ export const StatusFilter: React.FC<{
   const dispatch = useAppDispatch();
 
   function setState(option: string) {
-    console.log(option)
     let newState = undefined;
     switch (option) {
       case 'Created':
@@ -38,16 +37,12 @@ export const StatusFilter: React.FC<{
   }
 
   function valueToBooleanOption(value: boolean | undefined): 'Unset' | 'Created' | 'Finished' {
-    console.log(value)
     switch (value) {
       case true:
-        console.log('> Finished')
         return 'Finished';
       case false:
-        console.log('> Created')
         return 'Created';
       case undefined:
-        console.log('> Unset')
         return 'Unset';
     }
   }

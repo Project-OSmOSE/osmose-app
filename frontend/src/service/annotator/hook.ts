@@ -21,7 +21,7 @@ export const useAnnotator = () => {
   }, [campaignID, fileFilters.campaignID]);
 
   // API
-  const { data } = useRetrieveAnnotatorQuery({ ...fileFilters, campaignID, fileID });
+  const { data } = useRetrieveAnnotatorQuery({ filters: fileFilters, campaignID, fileID });
   const { data: campaign } = useRetrieveCampaignQuery(campaignID)
   const { data: user } = useGetCurrentUserQuery()
   const { data: label_set } = useRetrieveLabelSetQuery(campaign?.label_set ?? -1, { skip: !campaign?.label_set });

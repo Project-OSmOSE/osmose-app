@@ -2,7 +2,7 @@
 
 from django.db import transaction
 # pylint: disable=protected-access
-from django.db.models import Q, Count, Exists, OuterRef
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -14,7 +14,6 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     AnnotationFileRange,
-    AnnotationResult,
 )
 from backend.api.serializers import (
     AnnotationSessionSerializer,
@@ -25,7 +24,7 @@ from backend.api.views import (
     DatasetFileViewSet,
     SpectrogramConfigurationViewSet,
 )
-from backend.utils.filters import get_boolean_query_param
+from backend.api.views.annotation.file_range import AnnotationFileRangeFilesFilter
 
 
 # TODO: test !!!! and update result post ones
@@ -42,14 +41,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
         # pylint: disable=too-many-locals
         """Get all data for annotator"""
 
-        # Query params
-        search = self.request.query_params.get("search")
-        label_filter = self.request.query_params.get("label")
-        is_submitted = get_boolean_query_param(self.request, "is_submitted")
-        with_user_annotations = get_boolean_query_param(
-            self.request, "with_user_annotations"
-        )
-
         file_ranges = AnnotationFileRange.objects.filter(
             annotation_campaign_id=campaign_id,
             annotator_id=request.user.id,
@@ -58,6 +49,9 @@ class AnnotatorViewSet(viewsets.ViewSet):
             first_file_id__lte=file_id,
             last_file_id__gte=file_id,
         ).exists()
+        filtered_files = AnnotationFileRangeFilesFilter().filter_queryset(
+            request, file_ranges, self
+        )
 
         # User previous results
         results = []
@@ -99,52 +93,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
             id__gte=min_id,
             id__lte=max_id,
         )
-
-        filtered_files = all_files
-        if search is not None:
-            filtered_files = filtered_files.filter(filename__icontains=search)
-        if with_user_annotations is not None:
-            filtered_files = filtered_files.annotate(
-                results=Count(
-                    "annotation_results",
-                    filter=Q(annotation_results__annotator_id=request.user.id)
-                    | Q(annotation_results__detector_configuration__isnull=False),
-                )
-            ).filter(results__gt=0)
-        if is_submitted is not None:
-            if is_submitted:
-                filtered_files = filtered_files.filter(
-                    Exists(
-                        AnnotationTask.objects.filter(
-                            annotation_campaign_id=campaign_id,
-                            annotator_id=request.user.id,
-                            dataset_file_id=OuterRef("pk"),
-                            status=AnnotationTask.Status.FINISHED,
-                        )
-                    )
-                )
-            else:
-                filtered_files = filtered_files.filter(
-                    Exists(
-                        AnnotationTask.objects.filter(
-                            annotation_campaign_id=campaign_id,
-                            annotator_id=request.user.id,
-                            dataset_file_id=OuterRef("pk"),
-                        ).filter(~Q(status=AnnotationTask.Status.FINISHED))
-                    )
-                )
-        if label_filter is not None:
-            filtered_files = filtered_files.filter(
-                Exists(
-                    AnnotationResult.objects.filter(
-                        annotation_campaign_id=campaign_id,
-                        dataset_file_id=OuterRef("pk"),
-                        label__name=label_filter,
-                    ).filter(
-                        Q(annotator_id=request.user.id) | Q(annotator__isnull=True)
-                    )
-                )
-            )
 
         previous_file: DatasetFile = filtered_files.filter(
             Q(start__lt=current_file.start)

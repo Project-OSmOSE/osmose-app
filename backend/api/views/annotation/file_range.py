@@ -82,6 +82,12 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             else:
                 files = files.filter(~is_submitted_filter)
 
+        print(
+            "AnnotationFileRangeFilesFilter",
+            queryset.count(),
+            files.count(),
+            request.query_params,
+        )
         return files.order_by("start", "id")
 
 

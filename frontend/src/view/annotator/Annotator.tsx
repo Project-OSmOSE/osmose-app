@@ -33,7 +33,7 @@ export const Annotator: React.FC = () => {
   } = useAnnotator();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
   const { isFetching, error, data: annotatorData } = useRetrieveAnnotatorQuery({
-    ...fileFilters,
+    filters: fileFilters,
     campaignID,
     fileID
   })

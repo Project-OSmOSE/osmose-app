@@ -54,7 +54,7 @@ export const AudioAnnotator: React.FC = () => {
   } = useAnnotator();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
   const { data: annotatorData, isLoading, error: retrieveError } = useRetrieveAnnotatorQuery({
-    ...fileFilters,
+    filters: fileFilters,
     campaignID,
     fileID
   })
