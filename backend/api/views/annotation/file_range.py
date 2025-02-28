@@ -174,30 +174,32 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             self.get_queryset()
         ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
 
-        files: QuerySet[DatasetFile] = AnnotationFileRangeFilesFilter().filter_queryset(
-            request, queryset, self
+        files: QuerySet[DatasetFile] = (
+            AnnotationFileRangeFilesFilter()
+            .filter_queryset(request, queryset, self)
+            .select_related("dataset", "dataset__audio_metadatum")
+            .annotate(
+                is_submitted=Exists(
+                    AnnotationTask.objects.filter(
+                        dataset_file_id=OuterRef("pk"),
+                        annotation_campaign_id=campaign_id,
+                        annotator_id=self.request.user.id,
+                        status=AnnotationTask.Status.FINISHED,
+                    )
+                ),
+                results_count=Count(
+                    "annotation_results",
+                    filter=Q(
+                        annotation_results__annotator_id=self.request.user.id,
+                        annotation_results__annotation_campaign_id=campaign_id,
+                    ),
+                ),
+            )
         )
+        next_file = files.filter(is_submitted=False).first()
         paginated_files = self.paginate_queryset(files)
         if paginated_files is not None:
             files = files.filter(id__in=[file.id for file in paginated_files])
-        files = files.select_related("dataset", "dataset__audio_metadatum").annotate(
-            is_submitted=Exists(
-                AnnotationTask.objects.filter(
-                    dataset_file_id=OuterRef("pk"),
-                    annotation_campaign_id=campaign_id,
-                    annotator_id=self.request.user.id,
-                    status=AnnotationTask.Status.FINISHED,
-                )
-            ),
-            results_count=Count(
-                "annotation_results",
-                filter=Q(
-                    annotation_results__annotator_id=self.request.user.id,
-                    annotation_results__annotation_campaign_id=campaign_id,
-                ),
-            ),
-        )
-        next_file = files.filter(is_submitted=False).first()
         serializer = FileRangeDatasetFileSerializer(files, many=True)
         return self.paginator.get_paginated_response(
             serializer.data, next_file=next_file.id if next_file is not None else None
