@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef
+from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef, Func, F
 
 from .campaign import AnnotationCampaign
 from ..datasets import DatasetFile
@@ -206,6 +206,21 @@ class AnnotationFileRange(models.Model):
                 return_ids.append(instance.id)
                 connected_ranges.exclude(id=instance.id).delete()
         return AnnotationFileRange.objects.filter(id__in=return_ids)
+
+    @staticmethod
+    def get_finished_task_count_query() -> Subquery:
+        """Avoid duplicated code"""
+        return Subquery(
+            AnnotationTask.objects.filter(
+                annotator_id=OuterRef("annotator_id"),
+                annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                dataset_file_id__gte=OuterRef("first_file_id"),
+                dataset_file_id__lte=OuterRef("last_file_id"),
+                status=AnnotationTask.Status.FINISHED,
+            )
+            .annotate(count=Func(F("id"), function="Count"))
+            .values("count")
+        )
 
 
 class AnnotationSession(models.Model):

@@ -7,9 +7,6 @@ from django.db.models import (
     Exists,
     OuterRef,
     Count,
-    Subquery,
-    Func,
-    F,
 )
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions, filters
@@ -82,12 +79,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             else:
                 files = files.filter(~is_submitted_filter)
 
-        print(
-            "AnnotationFileRangeFilesFilter",
-            queryset.count(),
-            files.count(),
-            request.query_params,
-        )
         return files.order_by("start", "id")
 
 
@@ -156,17 +147,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             if for_current_user:
                 queryset = queryset.filter(annotator_id=self.request.user.id)
             queryset = queryset.annotate(
-                finished_tasks_count=Subquery(
-                    AnnotationTask.objects.filter(
-                        annotator_id=OuterRef("annotator_id"),
-                        annotation_campaign_id=OuterRef("annotation_campaign_id"),
-                        dataset_file_id__gte=OuterRef("first_file_id"),
-                        dataset_file_id__lte=OuterRef("last_file_id"),
-                        status=AnnotationTask.Status.FINISHED,
-                    )
-                    .annotate(count=Func(F("id"), function="Count"))
-                    .values("count")
-                )
+                finished_tasks_count=AnnotationFileRange.get_finished_task_count_query()
             )
         return queryset
 

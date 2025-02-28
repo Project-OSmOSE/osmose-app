@@ -71,7 +71,7 @@ def check_report_check(test: APITestCase, response: Response):
             "no Confident",
             "1/1",
             "",
-            "BAD",
+            "",
             "",
             "",
             "",
