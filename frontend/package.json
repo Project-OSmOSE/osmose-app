@@ -6,8 +6,6 @@
   "homepage": ".",
   "proxy": "http://localhost:8000",
   "scripts": {
-    "run:all": "concurrently --kill-others-on-fail \"npm run run:server\" \"npm run dev\"",
-    "run:server": "cd .. && poetry run python manage.py runserver",
     "dev": "vite",
     "wait:all": "wait-on http://localhost:8000/backend/admin && wait-on http://localhost:5173/app",
     "wait:server": "wait-on http://localhost:8000/backend/admin",
@@ -15,7 +13,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "jest",
-    "test:playwright": "concurrently --kill-others -s=first \"npm run run:all\" \"npm run wait:server && npx playwright test -c ./playwright.config.ts ./tests/front\"",
+    "test:playwright": "concurrently --kill-others -s=first \"npm run dev\" \"npx playwright test -c ./playwright.config.ts ./tests/front\"",
     "docs:dev": "vitepress dev docs --base \"/doc/\"",
     "docs:build": "vitepress build docs --base \"/doc/\"",
     "docs:preview": "vitepress preview docs"
