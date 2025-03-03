@@ -12,7 +12,8 @@ And then "Add annotators".
 ![](/campaign-creator/edit.png)
 
 You can now edit or remove existing annotators or add new ones thanks to the search bar below the table.
+To edit or remove an annotator file range when the annotator already started to annotate, you must unlock it first to prevent unwanted edits.
 
-:::info Note
-You cannot edit or remove an annotator with his/her file range if he/she has already started to annotated within the given file range.
+:::warning
+If you unassigned already annotated files, the annotations will be lost.
 :::

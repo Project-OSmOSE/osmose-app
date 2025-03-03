@@ -13,11 +13,10 @@ Puis cliquez sur "Add annotators".
 ![](/campaign-creator/edit.png)
 
 Vous pouvez maintenant éditer ou supprimer des annotateurs existants ou en ajouter de nouveaux grâce à la barre de
-recherche située sous le tableau.
+recherche située sous le tableau. Si l'annotateur a déjà commencé à annoter, vous devez déverrouiller sa plage de fichier pour pouvoir l'éditer ou la supprimer.
 
-:::info Note
+:::warning Attention
 
-Vous ne pouvez pas éditer ou supprimer un annotateur avec sa plage de fichiers s'il a déjà commencé à annoter dans la
-plage de fichiers donnée.
+Si vous désassignez des fichiers déjà annotés, les annotations seront perdues.
 
 :::
