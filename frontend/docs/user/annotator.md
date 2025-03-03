@@ -16,15 +16,7 @@ A selector above the spectrogram let you should between available FFT parameters
 
 ![](/annotator/spectro-config.png)
 
-::: details Frequency scales
-
-| Scale      | Description                                                                                                                     |
-|------------|---------------------------------------------------------------------------------------------------------------------------------|
-| linear     | Linear scale from 0 to sample rate / 2                                                                                          |
-| audible    | Linear scale from 0 to 22kHz                                                                                                    |
-| porp_delph | Multi-linear scale:<ul><li>0-50%: 0 to 30kHz</li><li>50-70%: 30kHz to 80kHz</li><li>70-100%: 80kHz to sample rate / 2</li></ul> |
-| dual_lf_hf | Multi-linear scale:<ul><li>0-50%: 0 to 22kHz</li><li>50-100%: 22kHz to sample rate / 2</li></ul>                                |
-:::
+<!--@include: ../parts/frequency-scales.md-->
 
 ### Zoom in spectrogram
 A zoom feature is available on time only.

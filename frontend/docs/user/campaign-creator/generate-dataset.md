@@ -94,8 +94,8 @@ This file list the available datasets and give information to recover the audio 
 |------------------|:------:|-------------------------------------------------------------------------------------------------------------------------|
 | path             | string | Path from the dataset root folder (ie: {Acquisition campaign}/{Dataset} or {Dataset})                                   |
 | dataset          | string | The name to display the dataset in APLOSE, this name can be different from the folder name and must be unique in APLOSE |
-| spectro_duration |  int   | The duration of the files                                                                                               |
-| dataset_sr       |  int   | The sample rate                                                                                                         |
+| spectro_duration |  int   | The duration of the files (in seconds)                                                                                  |
+| dataset_sr       |  int   | The sample rate (in Hz)                                                                                                 |
 | file_type        | string | The type of file used (example: .wav)                                                                                   |
 
 
@@ -104,28 +104,16 @@ _Located at ./{Dataset}/data/audio/{Spectrogram duration}\_{Sample rate}/metadat
 
 This file describe the audio files. It gives information about the process they had.
 
-| Column                      |      Type       | Description                                 |
-|-----------------------------|:---------------:|---------------------------------------------|
-| origin_sr                   |       int       | Sample rate of the original audio files     |
-| sample_bits                 | array of string | Files subtypes (example: ['PCM-16'])        |
-| channel_count               |       int       | Number of channels in the file              |
-| start_date                  |    timestamp    | Start of the dataset                        |
-| end_date                    |    timestamp    | End of the dataset                          |
-| audio_file_origin_duration  |       int       | Duration of the original files              |
-| audio_file_origin_volume    |      float      |                                             |
-| dataset_origin_volume       |       int       |                                             |
-| dataset_origin_duration     |       int       | Total duration of the dataset               |
-| is_built                    |     boolean     |                                             |
-| audio_file_dataset_overlap  |       int       | The time overlap between two files          |
-| lat                         |      float      | Latitude of the recording                   |
-| long                        |      float      | Longitude of the recording                  |
-| depth                       |    int (>0)     | Depth of the instrument (in positive meter) |
-| dataset_sr                  |       int       | Sample rate of the processed files          |
-| audio_file_dataset_duration |       int       | Duration of the processed files             |
+| Column                      |      Type       | Description                                |
+|-----------------------------|:---------------:|--------------------------------------------|
+| sample_bits                 | array of string | Files subtypes (example: ['PCM-16'])       |
+| channel_count               |       int       | Number of channels in the file             |
+| start_date                  |    timestamp    | Start of the dataset                       |
+| end_date                    |    timestamp    | End of the dataset                         |
+| dataset_sr                  |       int       | Sample rate of the processed files (in Hz) |
+| audio_file_dataset_duration |       int       | Duration of each files (in seconds)        |
+| audio_file_count            |       int       | Number of files                            |
 
-::: danger TODO
-Check information
-:::
 
 #### [Audio] timestamp.csv
 _Located at ./{Dataset}/data/audio/{Spectrogram duration}\_{Sample rate}/timestamp.csv_
@@ -147,46 +135,28 @@ _Located at ./{Dataset}/processed/spectrogram/{Spectrogram duration}\_{Sample ra
 
 This files describe the spectrogram generation process.
 
-| Column                        |  Type  | Description                               |
-|-------------------------------|:------:|-------------------------------------------|
-| dataset_name                  | string | Name of the dataset                       |
-| dataset_sr                    |  int   | Sample rate                               |
-| nfft                          |  int   |                                           |
-| window_size                   |  int   |                                           |
-| overlap                       |  int   | Time overlap between two files            |
-| colormap                      | string | Colormap used to generate the spectrogram |
-| zoom_level                    |  int   | Available zoom levels                     |
-| number_adjustment_spectrogram |  int   |                                           |
-| dynamic_min                   |  int   |                                           |
-| dynamic_max                   |  int   |                                           |
-| spectro_duration              |  int   | Duration of the spectrogram (in seconds)  |
-| audio_file_folder_name        | string |                                           |
-| data_normalization            | string |                                           |
-| hp_filter_min_freq            |  int   |                                           |
-| sensitivity_dB                | float  | Sensitivity of the instrument, in dB      |
-| peak_voltage                  | float  |                                           |
-| spectro_normalization         | string |                                           |
-| gain_dB                       |  int   | Gain of the instrument, in dB             |
-| zscore_duration               | string |                                           |
-| window_type                   | string |                                           |
-| number_spectra                |  int   |                                           |
-| frequency_resolution          | float  |                                           |
-| temporal_resolution           | float  |                                           |
-| audio_file_dataset_overlap    |  int   |                                           |
-| custom_frequency_scale        | string | Name of the frequency scale to apply      |
+| Column                        |  Type  | Description                                                                                                                                                     |
+|-------------------------------|:------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| dataset_sr                    |  int   | Sample rate (in Hz)                                                                                                                                             |
+| nfft                          |  int   | Number of frequency bins in the fft                                                                                                                             |
+| window_size                   |  int   | Number of audio samples  in each fft bin                                                                                                                        |
+| overlap                       |  int   | Number of overlapping samples between two fft bins                                                                                                              |
+| colormap                      | string | Colormap used to generate the spectrogram                                                                                                                       |
+| zoom_level                    |  int   | Number of available zoom levels                                                                                                                                 |
+| dynamic_min                   |  int   | Lower limit of noise level scale (in dB)                                                                                                                        |
+| dynamic_max                   |  int   | Upper limit of noise level scale (in dB)                                                                                                                        |
+| spectro_duration              |  int   | Duration of the spectrogram (in seconds)                                                                                                                        |
+| data_normalization            | string | Type of data normalization (2 possible values :  if the sensitivity and gain values are available chose 'instrument' else, chose zscore)                        |
+| hp_filter_min_freq            |  int   | Cut-off frequency of the high pass filter (in Hz)                                                                                                               |
+| sensitivity_dB                | float  | Sensitivity of the instrument (in dB)                                                                                                                           |
+| peak_voltage                  | float  | Peak voltage of the instrument (in Volt)                                                                                                                        |
+| spectro_normalization         | string | Type of normalization for the spectrogram computation (should be set at density if data_normalization = instrument and spectrum if data_normalization = zscore) |
+| gain_dB                       |  int   | Gain of the instrument (in dB)                                                                                                                                  |
+| zscore_duration               | string | Duration over which noise level is averaged in zscore configuration (in seconds)                                                                                |
+| window_type                   | string | Type of analysis window (eg : 'Hammin', 'Hanning', 'Blackman')                                                                                                  |
+| frequency_resolution          | float  | Frequency resolution of spectrogram (in Hz)                                                                                                                     |
+| temporal_resolution           | float  | Temporal resolution of spectrogram (in seconds)                                                                                                                 |
+| audio_file_dataset_overlap    |  int   | Temporal overlap between each spectrogram (in seconds)                                                                                                          |
+| custom_frequency_scale        | string | Name of the frequency scale to apply                                                                                                                            |
 
-
-::: details Available frequency scales
-
-| Scale      | Description                                                                                                                     |
-|------------|---------------------------------------------------------------------------------------------------------------------------------|
-| linear     | Linear scale from 0 to sample rate / 2                                                                                          |
-| audible    | Linear scale from 0 to 22kHz                                                                                                    |
-| porp_delph | Multi-linear scale:<ul><li>0-50%: 0 to 30kHz</li><li>50-70%: 30kHz to 80kHz</li><li>70-100%: 80kHz to sample rate / 2</li></ul> |
-| dual_lf_hf | Multi-linear scale:<ul><li>0-50%: 0 to 22kHz</li><li>50-100%: 22kHz to sample rate / 2</li></ul>                                |
-:::
-
-
-::: danger TODO
-Check information
-:::
+<!--@include: ../../parts/frequency-scales.md-->
