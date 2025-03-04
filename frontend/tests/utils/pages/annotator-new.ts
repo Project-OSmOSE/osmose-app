@@ -55,12 +55,6 @@ export class AnnotatorNewPage extends AnnotatorPage {
     }
   }
 
-  protected async scrollTop(): Promise<void> {
-    await this.page.locator('.page').first().evaluate((element) => {
-      element.scrollTo({ left: 0, top: 0 })
-    })
-  }
-
   async drawBox(): Promise<AnnotationResultBounds> {
     await super.drawBox();
     return {

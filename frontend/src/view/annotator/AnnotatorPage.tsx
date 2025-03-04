@@ -44,8 +44,16 @@ export const AnnotatorPage: React.FC = () => {
     history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }`);
   }
 
+  useEffect(() => {
+    if (pointerPosition) { // Disable scroll
+      document.getElementsByTagName('html')[0].style.overflowY = 'hidden';
+    } else { // Enable scroll
+      document.getElementsByTagName('html')[0].style.overflowY = 'unset';
+    }
+  }, [pointerPosition]);
+
   // 'page' class is for playwright tests
-  return <div className={ [ styles.page, pointerPosition ? styles.disableScroll : '', 'page' ].join(' ') }>
+  return <div className={ [ styles.page, 'page' ].join(' ') }>
     <Header size='small'
             canNavigate={ canNavigate }
             buttons={ <Fragment>
