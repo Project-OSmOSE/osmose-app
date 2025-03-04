@@ -119,13 +119,7 @@ export const CampaignSlice = createSlice({
     addDraftFileRange: _addDraftFileRange,
     loadDraftFileRange: (state, { payload }: { payload: AnnotationFileRange[] }) => {
       for (const range of payload) {
-        _addDraftFileRange(state, {
-          payload: {
-            ...range,
-            first_file_index: range.first_file_index + 1,
-            last_file_index: range.last_file_index + 1,
-          }
-        })
+        _addDraftFileRange(state, { payload: range })
       }
     },
     updateDraftFileRange: (state, { payload }: { payload: Partial<WriteAnnotationFileRange> & { id: number } }) => {

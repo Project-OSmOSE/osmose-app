@@ -11,7 +11,7 @@ export class CampaignEditPage {
 
 
   get lastIndexInputs() {
-    return this.page.getByPlaceholder((CAMPAIGN.files_count - 1).toString())
+    return this.page.getByPlaceholder((CAMPAIGN.files_count).toString())
   }
 
   constructor(private page: Page,

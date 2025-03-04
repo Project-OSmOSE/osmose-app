@@ -162,10 +162,10 @@ export const ProgressModal: React.FC<{
                     <div>
                       { p.ranges.map(r => (
                         <Fragment key={ r.id }>
-                          <p>{ r.first_file_index + 1 }</p>
+                          <p>{ r.first_file_index }</p>
                           <Progress value={ r.finished_tasks_count } total={ r.files_count }
                                     color={ r.finished_tasks_count === r.files_count ? 'success' : 'medium' }/>
-                          <p>{ r.last_file_index + 1 }</p>
+                          <p>{ r.last_file_index }</p>
                         </Fragment>
                       )) }
                       <p className={ styles.total }>{ p.progress }%</p>

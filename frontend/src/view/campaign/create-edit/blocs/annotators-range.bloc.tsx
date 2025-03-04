@@ -34,11 +34,11 @@ export const AnnotatorsRangeBloc: React.FC<{
 
   // Memo
   const filesCount = useMemo(() => {
-    if (currentCampaign?.files_count) return currentCampaign.files_count - 1;
+    if (currentCampaign?.files_count) return currentCampaign.files_count;
     if (!draftCampaign.datasets || draftCampaign.datasets.length === 0) return undefined;
     const dataset = allDatasets?.find(d => draftCampaign.datasets![0] === d.name);
     if (!dataset) return undefined;
-    return dataset.files_count - 1;
+    return dataset.files_count;
   }, [ currentCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
   const availableUsers = useMemo(() => {
     if (!filesCount) return users ?? [];

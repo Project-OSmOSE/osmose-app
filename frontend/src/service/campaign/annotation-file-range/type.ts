@@ -17,5 +17,8 @@ export type AnnotationFile = DatasetFile & {
 }
 
 export type WriteAnnotationFileRange =
-  Omit<AnnotationFileRange, "id" | "files_count" | "annotation_campaign" | "finished_tasks_count">
-  & { id?: number; }
+  Omit<AnnotationFileRange, "id" | "first_file_index" | "last_file_index" | "files_count" | "annotation_campaign" | "finished_tasks_count">
+  & Partial<Pick<AnnotationFileRange, "id" | "first_file_index" | "last_file_index">>
+
+export type PostAnnotationFileRange =
+  WriteAnnotationFileRange & Pick<AnnotationFileRange, "id">

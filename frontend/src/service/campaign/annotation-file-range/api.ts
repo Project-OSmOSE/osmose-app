@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID, Paginated } from '@/service/type.ts';
-import { AnnotationFile, AnnotationFileRange, WriteAnnotationFileRange } from './type.ts';
+import { AnnotationFile, AnnotationFileRange, PostAnnotationFileRange } from './type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
 import { FileFilters } from "@/service/ui/type.ts";
 import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
@@ -23,6 +23,14 @@ export const AnnotationFileRangeAPI = createApi({
         if (forCurrentUser) params.for_current_user = true;
         return encodeQueryParams(params);
       },
+      transformResponse: (baseQueryReturnValue: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
+        console.debug(baseQueryReturnValue)
+        return baseQueryReturnValue.map(range => ({
+          ...range,
+          first_file_index: range.first_file_index + 1,
+          last_file_index: range.last_file_index + 1
+        }));
+      }
     }),
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume?: number }, {
       page: number,
@@ -37,14 +45,29 @@ export const AnnotationFileRangeAPI = createApi({
 
     post: builder.mutation<Array<AnnotationFileRange>, {
       campaignID: ID,
-      data: Array<WriteAnnotationFileRange>,
+      filesCount: number,
+      data: Array<PostAnnotationFileRange>,
       force?: boolean
     }>({
-      query: ({ campaignID, data, force }) => ({
-        url: `campaign/${ campaignID }/`,
-        method: 'POST',
-        body: { data, force }
-      })
+      query: ({ campaignID, filesCount, data, force }) => {
+        return {
+          url: `campaign/${ campaignID }/`,
+          method: 'POST',
+          body: {
+            data: data.map(range => {
+              const first_file_index = !range.first_file_index ? 1 : range.first_file_index;
+              const last_file_index = !range.last_file_index ? filesCount : range.last_file_index;
+              return {
+                id: range.id >= 0 ? range.id : undefined,
+                first_file_index: first_file_index - 1,
+                last_file_index: last_file_index - 1,
+                annotator: range.annotator
+              }
+            }),
+            force
+          }
+        }
+      }
     })
   })
 })
