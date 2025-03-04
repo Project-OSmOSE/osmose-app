@@ -3,9 +3,14 @@ from typing import Optional
 
 from django.contrib import admin
 
-from backend.api.models import AnnotationResultAcousticFeatures, SignalTrend
+from backend.api.models import (
+    AnnotationResultAcousticFeatures,
+    SignalTrend,
+    AnnotationResult,
+)
 
 
+@admin.register(AnnotationResult)
 class AnnotationResultAdmin(admin.ModelAdmin):
     """AnnotationResult presentation in DjangoAdmin"""
 
@@ -21,6 +26,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "dataset_file",
         "annotator",
         "detector_configuration",
+        "annotator_expertise_level",
     )
     search_fields = (
         "dataset_file__filename",
@@ -32,6 +38,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "detector_configuration__detector__name",
     )
     list_filter = (
+        "annotator_expertise_level",
         "annotation_campaign",
         "annotator",
     )
