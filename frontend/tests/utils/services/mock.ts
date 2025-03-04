@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import { Serializable } from 'playwright-core/types/structs';
 import { API_URL } from '../const';
 import {
+  ANNOTATOR_GROUP,
   AUDIO_METADATA,
   AUTH,
   CAMPAIGN,
@@ -139,6 +140,11 @@ export class Mock {
   public async fileRanges(empty: boolean = false) {
     const json = empty ? [] : [ FILE_RANGE.range ]
     await this.page.route(API_URL.fileRanges.list, route => route.fulfill({ status: 200, json }))
+  }
+
+  public async annotatorGroups(empty: boolean = false) {
+    const json = empty ? [] : [ ANNOTATOR_GROUP ]
+    await this.page.route(API_URL.annotatorGroup.list, route => route.fulfill({ status: 200, json }))
   }
 
 
