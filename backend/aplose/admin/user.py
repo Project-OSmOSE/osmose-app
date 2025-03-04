@@ -51,6 +51,8 @@ admin.site.register(User, UserAdmin)
 
 @admin.register(AnnotatorGroup)
 class AnnotatorGroupAdmin(admin.ModelAdmin):
+    """Administration of AnnotatorGroup"""
+
     list_display = (
         "name",
         "show_annotators",

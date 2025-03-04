@@ -93,3 +93,12 @@
     date_joined: 2022-01-13 11:23:55.327920+00:00
     groups: []
     user_permissions: []
+- model: aplose.annotatorgroup
+  pk: 1
+  fields:
+    name: Annotators group
+    annotators:
+      - 3
+      - 4
+      - 5
+      - 6

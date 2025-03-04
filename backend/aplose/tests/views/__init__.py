@@ -6,4 +6,8 @@ from .annotator import (
     PostBaseUserAuthenticatedTestCase,
     PostCampaignOwnerAuthenticatedTestCase,
 )
+from .annotator_group import (
+    AnnotatorGroupViewSetUnauthenticatedTestCase,
+    AnnotatorGroupViewSetTestCase,
+)
 from .user import UserViewSetTestCase, UserViewSetUnauthenticatedTestCase
