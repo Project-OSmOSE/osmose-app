@@ -5,6 +5,7 @@ import { LabelSet } from '../../src/service/campaign/label-set';
 import { ConfidenceIndicator, ConfidenceIndicatorSet } from '../../src/service/campaign/confidence-set';
 import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range/type';
 import { Detector } from '../../src/service/campaign/detector';
+import { AnnotatorGroup } from "../../src/service/annotator-group";
 
 const deadline = new Date()
 deadline.setTime(0)
@@ -102,6 +103,12 @@ export const FILE_RANGE = {
     annotation_campaign: CAMPAIGN.id,
     annotator: USERS.annotator.id
   } satisfies AnnotationFileRange,
+}
+
+export const ANNOTATOR_GROUP: AnnotatorGroup = {
+  id: 1,
+  name: 'Staff group',
+  annotators: [ USERS.staff ]
 }
 
 export const DETECTOR_CONFIGURATION = 'Test configuration';

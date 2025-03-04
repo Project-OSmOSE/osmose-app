@@ -24,6 +24,7 @@ export class CampaignEditPage {
       await this.detail.go(as, options)
       const modal = await this.detail.openProgressModal();
       await this.mock.fileRanges(options?.empty)
+      await this.mock.annotatorGroups(options?.empty)
       await modal.manageButton.click();
     });
   }

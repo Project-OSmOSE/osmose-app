@@ -1,5 +1,5 @@
 import { API_URL, ESSENTIAL, expect, test } from './utils';
-import { CAMPAIGN, FILE_RANGE, USERS } from './fixtures';
+import { ANNOTATOR_GROUP, CAMPAIGN, FILE_RANGE, USERS } from './fixtures';
 import { WriteAnnotationFileRange } from '../src/service/campaign/annotation-file-range';
 
 
@@ -58,6 +58,14 @@ test.describe('Campaign creator', () => {
       await expect(page.locator('#searchbar-results').getByText(USERS.superuser.first_name)).not.toBeVisible();
     })
 
+    await test.step('Can annotator group', async () => {
+      await page.getByPlaceholder('Search annotator').locator('input').fill(ANNOTATOR_GROUP.name);
+      await page.locator('#searchbar-results').getByText(ANNOTATOR_GROUP.name).click();
+      await expect(page.getByText(`${ USERS.staff.first_name } ${ USERS.staff.last_name }`)).toBeVisible()
+      await expect(page.campaign.edit.firstIndexInputs.nth(3)).toBeVisible()
+      await expect(page.campaign.edit.lastIndexInputs.nth(3)).toBeVisible()
+    })
+
     await test.step('Can submit', async () => {
       const [ request ] = await Promise.all([
         page.waitForRequest(API_URL.fileRanges.post),
@@ -74,6 +82,10 @@ test.describe('Campaign creator', () => {
         "last_file_index": 14
       }, {
         "annotator": USERS.superuser.id,
+        "first_file_index": 0,
+        "last_file_index": CAMPAIGN.files_count - 1
+      }, {
+        "annotator": USERS.staff.id,
         "first_file_index": 0,
         "last_file_index": CAMPAIGN.files_count - 1
       } ]

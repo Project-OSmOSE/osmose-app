@@ -17,6 +17,14 @@ import {
 import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
 import { useListDatasetQuery } from '@/service/dataset';
 import { useAlert } from "@/service/ui";
+import { AnnotatorGroupAPI } from "@/service/annotator-group";
+import { Item } from "@/types/item.ts";
+
+type SearchItem = {
+  type: 'user' | 'group';
+  id: number;
+  display: string;
+}
 
 export const AnnotatorsRangeBloc: React.FC<{
   setIsForced?: (value: true) => void
@@ -30,6 +38,7 @@ export const AnnotatorsRangeBloc: React.FC<{
 
   // Services
   const { data: users } = useListUsersQuery()
+  const { data: groups } = AnnotatorGroupAPI.useListQuery();
   const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
 
   // Memo
@@ -40,9 +49,12 @@ export const AnnotatorsRangeBloc: React.FC<{
     if (!dataset) return undefined;
     return dataset.files_count;
   }, [ currentCampaign?.files_count, draftCampaign.datasets, allDatasets ]);
-  const availableUsers = useMemo(() => {
-    if (!filesCount) return users ?? [];
-    return users?.filter(u => {
+
+  const availableUsers: SearchItem[] = useMemo(() => {
+    const items: SearchItem[] = [];
+    if (users) {
+      items.push(...users.filter(u => {
+        if (!filesCount) return true;
         const count = draftFileRanges
           .filter(r => r.annotator === u.id)
           .reduce((count, range) => {
@@ -51,9 +63,26 @@ export const AnnotatorsRangeBloc: React.FC<{
             return count + (last_index - first_index)
           }, 0) + 1
         return count < filesCount
+      }).map(u => ({ id: u.id, display: getDisplayName(u, true), type: 'user' } satisfies SearchItem)));
+    }
+    if (groups) {
+      items.push(...groups.map(g => ({ id: g.id, display: g.name, type: 'group' } satisfies SearchItem)))
+    }
+    return items;
+  }, [ users, filesCount, draftFileRanges, groups ]);
+
+  function onAddItem(item: Item) {
+    const [type, id] = (item.value as string).split('-');
+    if (type === 'user') dispatch(addDraftFileRange({ annotator: +id }))
+    else if (type === 'group') {
+      const group = groups?.find(g => g.id === +id)
+      for (const user of group?.annotators ?? [] ) {
+        if (availableUsers.find(a => a.type === 'user' && a.id === user.id)) {
+          dispatch(addDraftFileRange({ annotator: user.id }))
+        }
       }
-    ) ?? [];
-  }, [ users, filesCount, draftFileRanges ]);
+    }
+  }
 
   if (!users) return <FormBloc label="Annotators"><IonSpinner/></FormBloc>
   return (
@@ -88,8 +117,8 @@ export const AnnotatorsRangeBloc: React.FC<{
       }
 
       <Searchbar placeholder="Search annotator..."
-                 values={ availableUsers.map(a => ({ value: a.id, label: getDisplayName(a, true) })) }
-                 onValueSelected={ item => dispatch(addDraftFileRange({ annotator: item.value as number })) }/>
+                 values={ availableUsers.map(a => ({ value: `${ a.type }-${ a.id }`, label: a.display })) }
+                 onValueSelected={ onAddItem }/>
 
     </FormBloc>
   )

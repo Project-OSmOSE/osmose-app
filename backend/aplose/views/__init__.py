@@ -1,5 +1,4 @@
 """Aplose authentication views"""
 from .annotator import AnnotatorViewSet
-
-# noinspection PyUnresolvedReferences
-from .user import UserViewSet, UserPasswordUpdateSerializer
+from .annotator_group import AnnotatorGroupViewSet
+from .user import UserViewSet

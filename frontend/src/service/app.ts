@@ -16,6 +16,7 @@ import { AnnotationResultAPI } from '@/service/campaign/result';
 import { CollaboratorAPI } from "@/service/collaborator";
 import { EventSlice } from "@/service/events";
 import { UISlice } from "@/service/ui";
+import { AnnotatorGroupAPI } from "@/service/annotator-group";
 
 export const AppStore = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const AppStore = configureStore({
 
     [AuthAPI.reducerPath]: AuthAPI.reducer,
     [UserAPI.reducerPath]: UserAPI.reducer,
+    [AnnotatorGroupAPI.reducerPath]: AnnotatorGroupAPI.reducer,
     [CollaboratorAPI.reducerPath]: CollaboratorAPI.reducer,
     [CampaignAPI.reducerPath]: CampaignAPI.reducer,
     [AnnotationFileRangeAPI.reducerPath]: AnnotationFileRangeAPI.reducer,
@@ -44,6 +46,7 @@ export const AppStore = configureStore({
     getDefaultMiddleware()
       .concat(AuthAPI.middleware)
       .concat(UserAPI.middleware)
+      .concat(AnnotatorGroupAPI.middleware)
       .concat(CollaboratorAPI.middleware)
       .concat(CampaignAPI.middleware)
       .concat(AnnotationFileRangeAPI.middleware)

@@ -25,3 +25,11 @@ class AploseUser(models.Model):
         default=ExpertiseLevel.NOVICE,
         help_text="Expertise level of the user.",
     )
+
+
+class AnnotatorGroup(models.Model):
+    """Used to manage group of annotators in APLOSE"""
+
+    name = models.CharField(unique=True, max_length=255)
+
+    annotators = models.ManyToManyField(User, related_name="annotator_groups")

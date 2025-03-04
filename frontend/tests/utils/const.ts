@@ -31,6 +31,10 @@ export const API_URL = {
     file: /\/api\/annotation-file-range\/campaign\/-?\d\/files/g,
     post: /\/api\/annotation-file-range\/campaign\/-?\d\//g,
   },
+  annotatorGroup: {
+    list: /\/api\/annotator-group\/?/g,
+    detail: /\/api\/annotator-group\/-?\d\//g,
+  },
   spectrogram: {
     list: /\/api\/spectrogram-configuration\/?/g,
     export: /\/api\/spectrogram-configuration\/export\/?/g,
