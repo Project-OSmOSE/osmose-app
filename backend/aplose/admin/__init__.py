@@ -1,2 +1,2 @@
 """APLOSE Authentication models"""
-from .user import AploseUser
+from .user import UserAdmin, AnnotatorGroupAdmin
