@@ -149,16 +149,8 @@ export const CreateCampaign: React.FC = () => {
     if (draftFileRanges.length === 0) return;
     return postFileRanges({
       campaignID: campaign.id,
-      data: draftFileRanges.map(r => {
-        const first_file_index = (r.first_file_index === undefined || r.first_file_index === null) ? 0 : (+r.first_file_index - 1);
-        const last_file_index = (r.last_file_index === undefined || r.last_file_index === null) ? (campaign.files_count - 1) : (+r.last_file_index - 1);
-        return {
-          id: r.id >= 0 ? r.id : undefined,
-          first_file_index: first_file_index < 0 ? 0 : first_file_index,
-          last_file_index: last_file_index < 0 ? campaign.files_count! - 1 : last_file_index,
-          annotator: r.annotator
-        }
-      })
+      filesCount: campaign.files_count,
+      data: draftFileRanges
     }).unwrap()
   }
 
