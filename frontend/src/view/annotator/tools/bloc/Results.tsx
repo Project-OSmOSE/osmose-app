@@ -21,7 +21,9 @@ import { useParams } from "react-router-dom";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
 
 
-export const Results: React.FC = () => {
+export const Results: React.FC<{
+  onSelect: (annotation: AnnotationResult) => void;
+}> = ({ onSelect }) => {
 
   const {
     results
@@ -47,7 +49,7 @@ export const Results: React.FC = () => {
       { sorted_results.length > 0 && <Table columns={ 10 }>
         { sorted_results.map((r, index) => <Fragment key={ index }>
           { index > 0 && <TableDivider/> }
-          <Result result={ r }/>
+          <Result result={ r } onSelect={ onSelect }/>
         </Fragment>) }
       </Table> }
 
@@ -57,13 +59,17 @@ export const Results: React.FC = () => {
 }
 
 const Result: React.FC<{
-  result: AnnotationResult
-}> = ({ result }) => {
+  result: AnnotationResult;
+  onSelect: (annotation: AnnotationResult) => void;
+}> = ({ result, onSelect }) => {
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch()
   const type = useMemo(() => getResultType(result), [ result ]);
   const isActive = useMemo(() => result.id === focusedResultID ? styles.active : undefined, [ result.id, focusedResultID ])
-  const onClick = () => dispatch(focusResult(result.id))
+  const onClick = () => {
+    dispatch(focusResult(result.id))
+    onSelect(result)
+  }
 
   const params: ResultItemProps = { result, type, className: [ styles.item, isActive ].join(' '), onClick }
   return <Fragment>
