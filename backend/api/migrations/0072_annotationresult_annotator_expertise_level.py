@@ -20,4 +20,13 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
+        migrations.RunSQL(
+            """
+                UPDATE annotation_results r
+                SET annotator_expertise_level=u.expertise_level
+                FROM aplose_aploseuser u
+                WHERE r.annotator_id = u.user_id;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
+        ),
     ]
