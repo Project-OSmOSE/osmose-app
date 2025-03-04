@@ -20,7 +20,7 @@ export default defineConfig({
           { text: 'User', link: '/user' },
           { text: 'Developer', link: '/dev/docker' },
           { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank' },
-          { text: 'APLOSE', link: '/../app/', target: '_blank' },
+          { text: 'OSmOSE', link: 'https://osmose.ifremer.fr/', target: '_blank' },
         ],
         sidebar: {
           '/user': [
@@ -78,7 +78,7 @@ export default defineConfig({
           { text: 'Utilisateur', link: '/fr/user' },
           { text: 'Developer', link: '/dev/docker' },
           { text: 'Changelog', link: 'https://github.com/Project-OSmOSE/osmose-app/releases', target: '_blank' },
-          { text: 'APLOSE', link: '/../app/', target: '_blank' },
+          { text: 'OSmOSE', link: 'https://osmose.ifremer.fr/', target: '_blank' },
         ],
         sidebar: {
           '/fr/user': [
