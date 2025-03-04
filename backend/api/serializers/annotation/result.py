@@ -25,6 +25,7 @@ from backend.api.models import (
     SignalTrend,
 )
 from backend.aplose.models import User
+from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.serializers import (
     ListSerializer,
     SlugRelatedGetOrCreateField,
@@ -323,6 +324,12 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     )
     annotator = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=False, allow_null=True
+    )
+    annotator_expertise_level = EnumField(
+        enum=ExpertiseLevel,
+        required=False,
+        allow_null=True,
+        read_only=True,
     )
     dataset_file = serializers.PrimaryKeyRelatedField(
         queryset=DatasetFile.objects.all(),

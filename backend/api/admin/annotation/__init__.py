@@ -4,7 +4,6 @@ from django.contrib import admin
 from backend.api.models.annotation import (
     Detector,
     DetectorConfiguration,
-    AnnotationResult,
     AnnotationResultValidation,
 )
 from .campaign import AnnotationCampaignAdmin
@@ -22,5 +21,4 @@ from .task import AnnotationTaskAdmin
 admin.site.register(Detector, DetectorAdmin)
 admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)
 
-admin.site.register(AnnotationResult, AnnotationResultAdmin)
 admin.site.register(AnnotationResultValidation, AnnotationResultValidationAdmin)
