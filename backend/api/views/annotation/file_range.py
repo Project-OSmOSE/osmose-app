@@ -190,8 +190,11 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 results_count=Count(
                     "annotation_results",
                     filter=Q(
-                        annotation_results__annotator_id=self.request.user.id,
                         annotation_results__annotation_campaign_id=campaign_id,
+                    )
+                    & (
+                        Q(annotation_results__annotator_id=self.request.user.id)
+                        | Q(annotation_results__detector_configuration__isnull=False)
                     ),
                 ),
             )
