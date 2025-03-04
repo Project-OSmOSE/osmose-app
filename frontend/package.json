@@ -13,7 +13,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "jest",
-    "test:playwright": "concurrently --kill-others -s=first \"npm run dev\" \"npx playwright test -c ./playwright.config.ts ./tests/front\"",
+    "test:playwright": "concurrently --kill-others -s=first \"npm run dev\" \"npx playwright test -c ./playwright.config.ts ./tests\"",
     "docs:dev": "vitepress dev docs --base \"/doc/\"",
     "docs:build": "vitepress build docs --base \"/doc/\"",
     "docs:preview": "vitepress preview docs"
