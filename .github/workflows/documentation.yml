@@ -48,7 +48,7 @@ jobs:
         run: npm ci # or pnpm install / yarn install / bun install
       - name: Build with VitePress
         working-directory: frontend
-        run: vitepress build docs --base "/osmose-app/"
+        run: npx vitepress build docs --base "/osmose-app/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
