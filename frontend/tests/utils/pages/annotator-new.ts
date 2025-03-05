@@ -59,7 +59,7 @@ export class AnnotatorNewPage extends AnnotatorPage {
     await super.draw(type);
     return {
       type,
-      start_time: 1.90292333149476,
+      start_time: type === 'Box' ? 1.90292333149476 : 3.1715388858246003,
       end_time: type === 'Box' ? 3.1715388858246003 : null,
       start_frequency: type === 'Box' ? 67 : 99,
       end_frequency: type === 'Box' ? 99 : null,

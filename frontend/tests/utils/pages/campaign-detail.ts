@@ -43,11 +43,12 @@ export class CampaignDetailPage {
     empty?: boolean,
     mode?: AnnotationCampaignUsage,
     noConfidence?: boolean
+    allowPoint?: boolean
   }) {
     await test.step('Navigate to Campaign detail', async () => {
       await this.list.go(as)
 
-      await this.mock.campaignDetail(options?.empty, options?.mode, !options?.noConfidence)
+      await this.mock.campaignDetail(options?.empty, options?.mode, !options?.noConfidence, options.allowPoint)
       await this.mock.fileRanges(options?.empty)
       await this.mock.fileRangesFiles(options?.empty)
       await this.mock.spectrograms(options?.empty)

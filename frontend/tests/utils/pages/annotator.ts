@@ -86,13 +86,14 @@ export class AnnotatorPage {
   async go(as: UserType, options: {
     mode: AnnotationCampaignUsage,
     empty?: boolean,
-    noConfidence?: boolean
+    noConfidence?: boolean,
+    allowPoint?: boolean
   }) {
     await test.step('Navigate to Annotator', async () => {
-      await this.detail.go(as, { noConfidence: options.noConfidence, mode: options.mode })
+      await this.detail.go(as, { noConfidence: options.noConfidence, mode: options.mode, allowPoint: options.allowPoint })
       await this.mock.confidenceSetDetail()
       await this.mock.labelSetDetail()
-      await this.mock.campaignDetail(false, options?.mode, !options.noConfidence)
+      await this.mock.campaignDetail(false, options?.mode, !options.noConfidence, options.allowPoint)
       await this.mock.annotator(options.mode, options.empty)
       await this.detail.resumeButton.click()
     });

@@ -48,6 +48,7 @@ export const CAMPAIGN = {
   owner: USERS.creator.username,
   name: 'Test campaign',
   desc: 'Test campaign description',
+  allow_point_annotation: false,
   deadline: deadline.toISOString().split('T')[0],
   files_count: DATASET.files_count,
   created_at: new Date().toISOString(),
