@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("api", "0071_merge_20250218_1502"),
+        ("api", "0072_annotationresult_annotator_expertise_level"),
     ]
 
     operations = [

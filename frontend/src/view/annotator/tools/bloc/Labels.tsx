@@ -23,7 +23,7 @@ export const Labels: React.FC = () => {
     focusedLabel,
   } = useAppSelector(state => state.annotator);
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
-  const { type: currentAnnotationType } = useCurrentAnnotation()
+  const { annotation } = useCurrentAnnotation()
   const dispatch = useAppDispatch()
   const alert = useAlert();
 
@@ -75,7 +75,7 @@ export const Labels: React.FC = () => {
     if (presenceLabels.includes(label)) {
       dispatch(focusLabel(label));
     } else {
-      const shouldUpdateStrongLabel = currentAnnotationType !== undefined && currentAnnotationType !== 'presence';
+      const shouldUpdateStrongLabel = !annotation || annotation.type !== 'Weak';
       dispatch(addPresenceResult({ label, focus: !shouldUpdateStrongLabel }));
       if (shouldUpdateStrongLabel) dispatch(focusLabel(label));
     }
@@ -101,7 +101,7 @@ export const Labels: React.FC = () => {
 
   // 'label' class is for playwright tests
   return (
-    <div className={ [ styles.bloc, 'label' ].join(' ') }>
+    <div className={ [ styles.bloc, styles.labels, 'label' ].join(' ') }>
       <h6 className={ styles.header }>Labels</h6>
       <div className={ styles.body }>
         { label_set?.labels.map((label, key) => {
