@@ -42,14 +42,18 @@ class AnnotatorViewSet(viewsets.ViewSet):
         # pylint: disable=too-many-locals
         """Get all data for annotator"""
 
+        campaign = AnnotationCampaign.objects.get(pk=campaign_id)
         file_ranges = AnnotationFileRange.objects.filter(
             annotation_campaign_id=campaign_id,
             annotator_id=request.user.id,
         )
-        is_assigned = file_ranges.filter(
-            first_file_id__lte=file_id,
-            last_file_id__gte=file_id,
-        ).exists()
+        is_assigned = (
+            campaign.archive is None
+            and file_ranges.filter(
+                first_file_id__lte=file_id,
+                last_file_id__gte=file_id,
+            ).exists()
+        )
         filtered_files = AnnotationFileRangeFilesFilter().filter_queryset(
             request, file_ranges, self
         )
@@ -57,7 +61,14 @@ class AnnotatorViewSet(viewsets.ViewSet):
         # User previous results
         results = []
         task_comments = []
+        current_task_index = 0
+        current_task_index_in_filter = 0
+        next_file = None
+        previous_file = None
+        total_tasks = 0
+        total_tasks_in_filter = 0
         if is_assigned:
+            total_tasks_in_filter = filtered_files.count()
             request._request.GET = {
                 "annotation_campaign_id": campaign_id,
                 "dataset_file_id": file_id,
@@ -76,6 +87,34 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 request._request
             ).data
 
+            current_file = DatasetFile.objects.get(pk=file_id)
+
+            min_id = min(file_ranges.values_list("first_file_id", flat=True))
+            max_id = max(file_ranges.values_list("last_file_id", flat=True))
+
+            all_files = DatasetFile.objects.filter(
+                dataset__annotation_campaigns=campaign_id,
+                id__gte=min_id,
+                id__lte=max_id,
+            )
+            total_tasks = all_files.count()
+
+            previous_file: DatasetFile = filtered_files.filter(
+                Q(start__lt=current_file.start)
+                | Q(start=current_file.start, id__lt=current_file.id)
+            ).last()
+            next_file = filtered_files.filter(
+                Q(start__gt=current_file.start)
+                | Q(start=current_file.start, id__gt=current_file.id)
+            ).first()
+
+            index_filter = Q(start__lt=current_file.start) | Q(
+                start=current_file.start, id__lt=current_file.id
+            )
+
+            current_task_index_in_filter = filtered_files.filter(index_filter).count()
+            current_task_index = all_files.filter(index_filter).count()
+
         # Spectrogram configurations
         request._request.GET = {
             "annotation_campaigns__id": campaign_id,
@@ -84,39 +123,12 @@ class AnnotatorViewSet(viewsets.ViewSet):
             {"get": "list"}
         )(request._request).data
 
-        current_file = DatasetFile.objects.get(pk=file_id)
-
-        min_id = min(file_ranges.values_list("first_file_id", flat=True))
-        max_id = max(file_ranges.values_list("last_file_id", flat=True))
-
-        all_files = DatasetFile.objects.filter(
-            dataset__annotation_campaigns=campaign_id,
-            id__gte=min_id,
-            id__lte=max_id,
-        )
-
-        previous_file: DatasetFile = filtered_files.filter(
-            Q(start__lt=current_file.start)
-            | Q(start=current_file.start, id__lt=current_file.id)
-        ).last()
-        next_file = filtered_files.filter(
-            Q(start__gt=current_file.start)
-            | Q(start=current_file.start, id__gt=current_file.id)
-        ).first()
-
-        index_filter = Q(start__lt=current_file.start) | Q(
-            start=current_file.start, id__lt=current_file.id
-        )
-
-        current_task_index_in_filter = filtered_files.filter(index_filter).count()
-        current_task_index = all_files.filter(index_filter).count()
-
         return Response(
             {
                 "current_task_index_in_filter": current_task_index_in_filter,
-                "total_tasks_in_filter": filtered_files.count(),
+                "total_tasks_in_filter": total_tasks_in_filter,
                 "current_task_index": current_task_index,
-                "total_tasks": all_files.count(),
+                "total_tasks": total_tasks,
                 "is_submitted": AnnotationTask.objects.filter(
                     annotation_campaign_id=campaign_id,
                     dataset_file_id=file_id,
