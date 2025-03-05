@@ -85,6 +85,7 @@ export const CreateCampaign: React.FC = () => {
       datasets: draftCampaign.datasets ?? [],
       spectro_configs: draftCampaign.spectro_configs ?? [],
       labels_with_acoustic_features: draftCampaign.labels_with_acoustic_features ?? [],
+      allow_point_annotation: draftCampaign.allow_point_annotation ?? false,
     }
 
     if (draftCampaign.usage === 'Check') {
