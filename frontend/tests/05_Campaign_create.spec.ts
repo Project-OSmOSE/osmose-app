@@ -30,7 +30,8 @@ test.describe('Annotator', () => {
         confidence_indicator_set: null,
         label_set: LABEL.set.id,
         usage: 'Create',
-        labels_with_acoustic_features: []
+        labels_with_acoustic_features: [],
+        allow_point_annotation: false,
       }
       expect(data).toEqual(expectedData);
     })
@@ -60,7 +61,8 @@ test.describe('Annotator', () => {
         confidence_indicator_set: CONFIDENCE.set.id,
         label_set: LABEL.set.id,
         usage: 'Create',
-        labels_with_acoustic_features: [ LABEL.withFeatures ]
+        labels_with_acoustic_features: [ LABEL.withFeatures ],
+        allow_point_annotation: true,
       }
       expect(campaignData).toEqual(expectedCampaign);
     })
@@ -153,6 +155,7 @@ test.describe('Annotator', () => {
       spectro_configs: DATASET.spectros.map(s => s.id),
       labels_with_acoustic_features: [ LABEL.withFeatures ],
       usage: 'Check',
+      allow_point_annotation: false,
     }
     expect(await submittedCampaign.postDataJSON()).toEqual(expectedCampaign);
     expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(DATASET.name) }`)
