@@ -108,6 +108,15 @@ To change the label of your annotation, you must select the annotation and then 
 Please note the boxes cannot be moved or resized for now.
 :::
 
+### Add a point annotation
+
+To add a point, select the desired label and then click on the spectrogram at the point of interest.
+
+![](/annotator/point.png)
+<small>_This is an example_</small>
+
+You'll then have the same information as for a box annotation.
+
 ### Check an annotation
 
 In check mode, the "Annotations" bloc contains all the detector output you need to confirm or infirm.

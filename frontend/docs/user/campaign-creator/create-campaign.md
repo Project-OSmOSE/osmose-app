@@ -43,7 +43,9 @@ set).
 ![](/campaign-creator/form-annotation-create.png)
 
 Once selected, the information about the set are displayed. You can choose to enable "Acoustic features" for some
-labels (see [Annotation/Acoustic features](../annotator.md#acoustic-features))
+labels (see [Annotator/Acoustic features](../annotator.md#acoustic-features))
+
+You can also choose to allow "Point" annotations. (see [Annotation/Add a point annotation](../annotator.md#add-a-box-annotation))
 
 ::: details Create a label set
 Access APLOSEs administration part with the "Admin" link

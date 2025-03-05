@@ -135,6 +135,15 @@ Veuillez noter que les boîtes ne peuvent pas être déplacées ou redimensionn�
 
 :::
 
+### Ajouter un point
+
+Pour ajouter un point, sélectionnez le label souhaité puis cliquez sur le spectrogram à l'endroit d'intérêt
+
+![](/annotator/point.png)
+<small>_This is an example_</small>
+
+Vous aurez ensuite les mêmes informations que pour une boîte.
+
 ### Valider une annotation
 
 En mode vérification, le bloc "Annotations" contient toutes les données du détecteur que vous devez confirmer ou

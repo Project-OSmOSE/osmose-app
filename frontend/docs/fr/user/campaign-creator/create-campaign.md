@@ -34,7 +34,7 @@ Vous pouvez sélectionner le mode d'annotation dont vous avez besoin :
 
 ![](/campaign-creator/form-annotation.png)
 
-### Mode de création d'annotations
+### Mode création d'annotations
 
 Si vous choisissez le mode "Create annotations", vous devrez sélectionner un ensemble de labels (voir la section
 détaillée ci-dessous pour créer un nouvel ensemble de labels).
@@ -46,6 +46,8 @@ créer un nouvel ensemble d'indicateurs de confiance).
 Une fois la sélection effectuée, les informations relatives à l'ensemble de labels s'affichent. Vous pouvez choisir
 d'activer les « caractéristiques acoustiques » pour certains labels (cf. labels (
 voir [Annotation/Caractéristiques acoustiques](../annotator.md#caracteristiques-acoustiques))
+
+Vous pouvez également choisir d'autoriser les annotations par "point". (Allow annotations of type "Point") (see [Annotation/Ajouter un point](../annotator.md#ajouter-un-point))
 
 ::: details Créer un jeu d'étiquettes
 
