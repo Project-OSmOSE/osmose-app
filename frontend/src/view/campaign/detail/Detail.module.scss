@@ -18,7 +18,7 @@
     display: grid;
     gap: 1rem;
     align-content: start;
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-rows: auto auto 1fr;
     min-height: 0;
     max-height: 100%;
 
@@ -26,6 +26,19 @@
       display: grid;
       align-items: center;
       justify-items: center;
+    }
+
+    .tasks {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+      max-height: 100%;
+
+      &.empty {
+        grid-template-rows: auto auto 1fr;
+      }
     }
   }
 

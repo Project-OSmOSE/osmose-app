@@ -192,7 +192,7 @@ export const ProgressModal: React.FC<{
             </Fragment> }
           </div>
 
-          <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton>
+          {  !campaign?.archive && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
         </ModalFooter>
       )
       }

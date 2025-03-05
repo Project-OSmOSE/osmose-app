@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
 import styles from './Detail.module.scss'
 import { useParams } from 'react-router-dom';
-import { AnnotationCampaign, useRetrieveCampaignQuery } from '@/service/campaign';
-import { getDisplayName, useGetCurrentUserQuery } from '@/service/user';
+import { useRetrieveCampaignQuery } from '@/service/campaign';
+import { useGetCurrentUserQuery } from '@/service/user';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -41,7 +41,9 @@ export const CampaignDetail: React.FC = () => {
 
         <div className={ styles.header }>
           <h2>{ campaign.name }</h2>
-          <StateDescription campaign={ campaign }/>
+          <FadedText>
+            Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner }
+          </FadedText>
         </div>
 
         { campaign.desc && <div><FadedText>Description</FadedText><p>{ campaign.desc }</p></div> }
@@ -53,18 +55,4 @@ export const CampaignDetail: React.FC = () => {
       <DetailPageSide campaign={ campaign } isOwner={ isOwner }/>
     </div>
   )
-}
-
-const StateDescription: React.FC<{ campaign: AnnotationCampaign }> = ({ campaign }) => {
-  const archivedDate = useMemo(() => {
-    if (!campaign.archive) return undefined;
-    new Date(campaign.archive.date).toLocaleDateString()
-  }, [ campaign.archive ]);
-
-  if (archivedDate) return <FadedText>
-    Archived on { archivedDate } by { getDisplayName(campaign.archive?.by_user) }
-  </FadedText>
-  else return <FadedText>
-    Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner }
-  </FadedText>
 }

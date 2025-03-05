@@ -64,7 +64,7 @@ export const LabelSetModal: React.FC<{
                                      labelsWithAcousticFeatures={ labelsWithAcousticFeatures }
                                      setLabelsWithAcousticFeatures={ setLabelsWithAcousticFeatures }/> }
       <ModalFooter>
-        { isOwner && (
+        { isOwner && !campaign?.archive && (
           <IonButton fill='outline'
                      onClick={ toggleDisabled }
                      disabled={ isSubmitting || !disabled }>
