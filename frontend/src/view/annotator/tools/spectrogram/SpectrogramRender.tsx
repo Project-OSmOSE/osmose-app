@@ -17,7 +17,7 @@ import { addResult, leavePointerPosition, setFileIsSeen, setPointerPosition, zoo
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
-import { XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
+import { AxisRef, XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
@@ -60,6 +60,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   const renderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const yAxisCanvasRef = useRef<AxisRef | null>(null);
+  const xAxisCanvasRef = useRef<AxisRef | null>(null);
+
 
   // Services
   const duration = useFileDuration();
@@ -160,12 +163,14 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const spectroImg = new Image();
 
       // Get frequency scale
-      const freqDataURL = yAxis.canvas?.toDataURL('image/png');
+      if (!yAxisCanvasRef.current?.toDataURL) throw new Error('Cannot recover frequency dataURL');
+      const freqDataURL = yAxisCanvasRef.current.toDataURL('image/png');
       if (!freqDataURL) throw new Error('Cannot recover frequency dataURL');
       const freqImg = new Image();
 
       // Get time scale
-      const timeDataURL = xAxis.canvas?.toDataURL('image/png');
+      if (!xAxisCanvasRef.current?.toDataURL) throw new Error('Cannot recover time dataURL');
+      const timeDataURL = xAxisCanvasRef.current.toDataURL('image/png');
       if (!timeDataURL) throw new Error('Cannot recover time dataURL');
       const timeImg = new Image();
 
@@ -216,7 +221,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const left = xAxis.valueToPosition(time) - containerWidth / 2;
       renderRef.current?.scrollTo({ left })
     }
-  }), [ canvasRef.current, renderRef.current, width, xAxis, yAxis ])
+  }), [ canvasRef.current, renderRef.current, width, xAxisCanvasRef.current, yAxisCanvasRef.current ])
 
   useEffect(() => {
     MOUSE_DOWN_EVENT.add(onStartNewAnnotation)
@@ -338,7 +343,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
          onScroll={ onContainerScrolled }
          style={ { width: `${ Y_WIDTH + containerWidth }px` } }>
 
-      <YAxis className={ styles.yAxis }/>
+      <YAxis className={ styles.yAxis } ref={ yAxisCanvasRef }/>
 
       <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }
@@ -360,7 +365,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
         )) }
       </div>
 
-      <XAxis className={ styles.xAxis }/>
+      <XAxis className={ styles.xAxis } ref={ xAxisCanvasRef }/>
 
       <AcousticFeatures/>
     </div>)

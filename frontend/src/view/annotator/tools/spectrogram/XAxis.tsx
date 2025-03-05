@@ -1,12 +1,21 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useImperativeHandle, useRef } from "react";
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { useXAxis, X_HEIGHT } from '@/service/annotator/spectrogram/scale';
 import { useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
 
-export const XAxis: React.FC<{
+export type AxisRef = {
+  toDataURL?(type?: string, quality?: any): string;
+}
+
+export const XAxis = React.forwardRef<AxisRef, {
   className?: string;
-}> = ({ className }) => {
+}>(({ className }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    toDataURL: canvasRef.current?.toDataURL
+  }), [ canvasRef.current ]);
+
   const xAxis = useXAxis()
   const { width } = useSpectrogramDimensions()
   const duration = useFileDuration();
@@ -67,4 +76,4 @@ export const XAxis: React.FC<{
                  width={ width }
                  height={ X_HEIGHT }
                  className={ className }/>
-}
+})

@@ -1,12 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useImperativeHandle, useRef } from "react";
 import { LinearScale, Step } from '@/service/dataset/spectrogram-configuration/scale';
 import { useYAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
 import { useCurrentConfiguration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
+import { AxisRef } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 
-export const YAxis: React.FC<{
+export const YAxis = React.forwardRef<AxisRef, {
   className?: string;
-}> = ({ className }) => {
+}>(({ className }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    toDataURL: canvasRef.current?.toDataURL
+  }), [ canvasRef.current ]);
 
   const yAxis = useYAxis()
   const { height } = useSpectrogramDimensions()
@@ -93,4 +98,4 @@ export const YAxis: React.FC<{
                  width={ Y_WIDTH }
                  height={ height }
                  className={ className }/>
-}
+})
