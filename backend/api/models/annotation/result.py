@@ -66,6 +66,14 @@ class AnnotationResultAcousticFeatures(models.Model):
     )
 
 
+class AnnotationResultType(models.TextChoices):
+    """Type of annotation result"""
+
+    WEAK = ("W", "Weak")
+    POINT = ("P", "Point")
+    BOX = ("B", "Box")
+
+
 class AnnotationResult(models.Model):
     """
     This table contains the resulting label associations for specific annotation_tasks
@@ -84,9 +92,39 @@ class AnnotationResult(models.Model):
                         annotator__isnull=False, detector_configuration__isnull=True
                     )
                 ),
-            )
+            ),
+            models.CheckConstraint(
+                name="Annotation type",
+                check=(
+                    models.Q(
+                        type=AnnotationResultType.WEAK,
+                        start_time__isnull=True,
+                        end_time__isnull=True,
+                        start_frequency__isnull=True,
+                        end_frequency__isnull=True,
+                    )
+                    | models.Q(
+                        type=AnnotationResultType.POINT,
+                        start_time__isnull=False,
+                        end_time__isnull=True,
+                        start_frequency__isnull=False,
+                        end_frequency__isnull=True,
+                    )
+                    | models.Q(
+                        type=AnnotationResultType.BOX,
+                        start_time__isnull=False,
+                        end_time__isnull=False,
+                        start_frequency__isnull=False,
+                        end_frequency__isnull=False,
+                    )
+                ),
+            ),
         ]
 
+    type = models.TextField(
+        choices=AnnotationResultType.choices,
+        help_text="Type of the annotation",
+    )
     start_time = models.FloatField(null=True, blank=True)
     end_time = models.FloatField(null=True, blank=True)
     start_frequency = models.FloatField(null=True, blank=True)
@@ -139,6 +177,7 @@ class AnnotationResult(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        # Save expertise level
         if self.annotator:
             aplose_user: Optional[AploseUser] = AploseUser.objects.filter(
                 user_id=self.annotator.id, expertise_level__isnull=False
@@ -149,6 +188,14 @@ class AnnotationResult(models.Model):
                 self.annotator_expertise_level = None
         else:
             self.annotator_expertise_level = None
+
+        # Save type
+        if self.start_time is None:
+            self.type = AnnotationResultType.WEAK
+        elif self.end_time is None:
+            self.type = AnnotationResultType.POINT
+        else:
+            self.type = AnnotationResultType.BOX
         super().save(*args, **kwargs)
 
 

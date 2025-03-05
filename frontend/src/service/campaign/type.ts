@@ -20,6 +20,7 @@ export type BaseAnnotationCampaign = {
   datasets: Array<string>; // name
   spectro_configs: Array<number>; //pk
   labels_with_acoustic_features: Array<string>;
+  allow_point_annotation: boolean;
 }
 
 /**

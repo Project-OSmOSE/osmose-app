@@ -65,6 +65,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
         many=True,
     )
     archive = AnnotationCampaignArchiveSerializer(read_only=True)
+    allow_point_annotation = serializers.BooleanField(default=False)
 
     class Meta:
         model = AnnotationCampaign

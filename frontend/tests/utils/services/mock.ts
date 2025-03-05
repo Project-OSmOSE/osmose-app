@@ -80,7 +80,8 @@ export class Mock {
 
   public async campaignDetail(empty: boolean = false,
                               mode: AnnotationCampaignUsage = 'Create',
-                              hasConfidence: boolean = true) {
+                              hasConfidence: boolean = true,
+                              allowPoint: boolean = false) {
     const json: AnnotationCampaign = CAMPAIGN;
     if (empty) {
       json.progress = 0;
@@ -92,6 +93,7 @@ export class Mock {
     if (!hasConfidence) {
       json.confidence_indicator_set = null;
     }
+    if (allowPoint) json.allow_point_annotation = true;
     await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
   }
 

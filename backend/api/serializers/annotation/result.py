@@ -33,6 +33,7 @@ from backend.utils.serializers import (
 )
 from .comment import AnnotationCommentSerializer
 from .confidence_indicator_set import ConfidenceIndicatorSerializer
+from ...models.annotation.result import AnnotationResultType
 
 
 def to_seconds(delta: timedelta) -> float:
@@ -53,7 +54,11 @@ class AnnotationResultImportSerializer(serializers.Serializer):
     start_datetime = serializers.DateTimeField()
     end_datetime = serializers.DateTimeField()
     min_frequency = serializers.FloatField(min_value=0)
-    max_frequency = serializers.FloatField(min_value=0)
+    max_frequency = serializers.FloatField(
+        min_value=0,
+        allow_null=True,
+        required=False,
+    )
     label = SlugRelatedGetOrCreateField(
         queryset=Label.objects,
         slug_field="name",
@@ -84,7 +89,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 required=False, min_value=0.0, max_value=max_frequency
             )
             fields["max_frequency"] = serializers.FloatField(
-                required=False, min_value=0.0, max_value=max_frequency
+                required=False, min_value=0.0, max_value=max_frequency, allow_null=True
             )
 
         return fields
@@ -122,7 +127,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 },
                 code="max_value",
             )
-        if attrs["max_frequency"] > max_freq:
+        if attrs["max_frequency"] is not None and attrs["max_frequency"] > max_freq:
             raise serializers.ValidationError(
                 {
                     "max_frequency": f"Ensure this value is less than or equal to {max_freq}."
@@ -180,6 +185,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 label=label,
                 confidence_indicator=confidence_indicator,
                 dataset_file=files.first(),
+                type=AnnotationResultType.WEAK,
             )
 
         instances = []
@@ -220,6 +226,25 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                         label=label,
                         confidence_indicator=confidence_indicator,
                         dataset_file=file,
+                        type=AnnotationResultType.WEAK,
+                    )
+                )
+            elif start_time == end_time and (
+                start_frequency == end_frequency
+                or validated_data["max_frequency"] is None
+            ):
+                instances.append(
+                    AnnotationResult(
+                        annotation_campaign=campaign,
+                        detector_configuration=detector_config,
+                        label=label,
+                        confidence_indicator=confidence_indicator,
+                        dataset_file=file,
+                        start_frequency=start_frequency,
+                        end_frequency=None,
+                        start_time=start_time,
+                        end_time=None,
+                        type=AnnotationResultType.POINT,
                     )
                 )
             else:
@@ -234,6 +259,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                         end_frequency=end_frequency,
                         start_time=start_time,
                         end_time=end_time,
+                        type=AnnotationResultType.BOX,
                     )
                 )
 
@@ -362,6 +388,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     acoustic_features = AnnotationResultAcousticFeaturesSerializer(
         allow_null=True, required=False
     )
+    type = EnumField(enum=AnnotationResultType, read_only=True)
 
     class Meta:
         model = AnnotationResult

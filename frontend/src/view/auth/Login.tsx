@@ -43,7 +43,7 @@ export const Login: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (loginError) toast.presentError(getErrorMessage(loginError));
+    if (loginError) toast.presentError(loginError);
   }, [ loginError ]);
 
   useEffect(() => {

@@ -5,10 +5,7 @@ from django.db import models, transaction
 from django.db.models import (
     Q,
     F,
-    ExpressionWrapper,
     Value,
-    FloatField,
-    DurationField,
     Case,
     When,
     Exists,
@@ -17,7 +14,7 @@ from django.db.models import (
     Subquery,
     Prefetch,
 )
-from django.db.models.functions import Lower, Cast, Extract, Concat
+from django.db.models.functions import Lower, Concat, Extract
 from django.http import HttpResponse
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
@@ -34,6 +31,7 @@ from backend.api.models import (
     AnnotationFileRange,
     DatasetFile,
 )
+from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers import (
     AnnotationCampaignSerializer,
 )
@@ -58,6 +56,7 @@ REPORT_HEADERS = [  # headers
     "start_datetime",
     "end_datetime",
     "is_box",
+    "type",
     "confidence_indicator_label",
     "confidence_indicator_level",
     "comments",
@@ -174,30 +173,17 @@ class AnnotationCampaignViewSet(
 
     def _report_get_results(self) -> QuerySet[AnnotationResult]:
         campaign: AnnotationCampaign = self.get_object()
-        file_duration = Cast(
-            Extract(
-                ExpressionWrapper(
-                    F("dataset_file__end") - F("dataset_file__start"),
-                    output_field=DurationField(),
-                ),
-                "epoch",
-            ),
-            FloatField(),
-        )
-        file_max_frequency = ExpressionWrapper(
-            F("dataset_file__dataset__audio_metadatum__dataset_sr") / 2,
-            output_field=FloatField(),
-        )
         is_box = Case(
-            When(
-                (Q(start_time__isnull=True) | Q(start_time=0))
-                & (Q(end_time__isnull=True) | Q(end_time=file_duration))
-                & (Q(start_frequency__isnull=True) | Q(start_frequency=0))
-                & (Q(end_frequency__isnull=True) | Q(end_frequency=file_max_frequency)),
-                then=0,
-            ),
+            When(type=AnnotationResultType.WEAK, then=0),
             default=1,
             output_field=models.IntegerField(),
+        )
+        result_type = Case(
+            When(type=AnnotationResultType.WEAK, then=Value("WEAK")),
+            When(type=AnnotationResultType.POINT, then=Value("POINT")),
+            When(type=AnnotationResultType.BOX, then=Value("BOX")),
+            default=None,
+            output_field=models.CharField(),
         )
         max_confidence = (
             max(
@@ -253,6 +239,7 @@ class AnnotationCampaignViewSet(
                     output_field=models.CharField(),
                 ),
                 is_box=is_box,
+                type_label=result_type,
                 confidence_indicator_label=F("confidence_indicator__label"),
                 confidence_indicator_level=Case(
                     When(
@@ -296,8 +283,8 @@ class AnnotationCampaignViewSet(
                 select={
                     "start_datetime": """
                     SELECT 
-                        CASE
-                            WHEN start_time isnull THEN to_char(f.start::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        CASE 
+                            WHEN annotation_results.start_time isnull THEN to_char(f.start::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
                             ELSE to_char((f.start + annotation_results.start_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
                         END
                     FROM dataset_files f
@@ -305,9 +292,9 @@ class AnnotationCampaignViewSet(
                     """,
                     "end_datetime": """
                     SELECT 
-                        CASE
-                            WHEN end_time isnull THEN to_char(f.end::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
-                            ELSE to_char ((f.start + annotation_results.end_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                        CASE 
+                            WHEN annotation_results.end_time isnull THEN to_char(f.end::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
+                            ELSE to_char((f.start + annotation_results.end_time * interval '1 second')::timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MSOF":00"')
                         END
                     FROM dataset_files f
                     WHERE annotation_results.dataset_file_id = f.id
@@ -326,6 +313,7 @@ class AnnotationCampaignViewSet(
                         "end_time",
                         "start_frequency",
                         "end_frequency",
+                        "type",
                     )
                 ],
                 "annotator__username",
@@ -335,6 +323,7 @@ class AnnotationCampaignViewSet(
                 "_end_time",
                 "_start_frequency",
                 "_end_frequency",
+                "type_label",
             )
             .annotate(
                 annotator=Case(
@@ -348,12 +337,13 @@ class AnnotationCampaignViewSet(
                 ),
                 comments=F("comments_data"),
                 start_time=Case(
-                    When(_start_time__isnull=True, then=Value(0.0)),
+                    When(type=AnnotationResultType.WEAK, then=Value(0.0)),
                     default=F("_start_time"),
                 ),
                 end_time=Case(
+                    When(type=AnnotationResultType.POINT, then=F("_start_time")),
                     When(
-                        _end_time__isnull=True,
+                        type=AnnotationResultType.WEAK,
                         then=Extract(F("dataset_file__end"), lookup_name="epoch")
                         - Extract(F("dataset_file__start"), lookup_name="epoch"),
                     ),
@@ -361,17 +351,19 @@ class AnnotationCampaignViewSet(
                     output_field=models.FloatField(),
                 ),
                 start_frequency=Case(
-                    When(_start_frequency__isnull=True, then=Value(0.0)),
+                    When(type=AnnotationResultType.WEAK, then=Value(0.0)),
                     default=F("_start_frequency"),
                 ),
                 end_frequency=Case(
+                    When(type=AnnotationResultType.POINT, then=F("_start_frequency")),
                     When(
-                        _end_frequency__isnull=True,
+                        type=AnnotationResultType.WEAK,
                         then=F("dataset_file__dataset__audio_metadatum__dataset_sr")
                         / 2,
                     ),
                     default=F("_end_frequency"),
                 ),
+                type=F("type_label"),
             )
         )
 

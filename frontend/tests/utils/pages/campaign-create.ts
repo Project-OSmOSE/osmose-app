@@ -86,6 +86,8 @@ export class CampaignCreatePage {
         // Confidence
         await this.page.getByRole('button', { name: 'Select a confidence set' }).click();
         await selectInAlert(this.page, CONFIDENCE.set.name);
+        // Point
+        await this.page.getByText('Allow annotations of type "Point"').click();
       }
     })
   }

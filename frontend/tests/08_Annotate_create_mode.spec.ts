@@ -1,6 +1,6 @@
 import { ESSENTIAL, expect, test } from './utils';
 import { CAMPAIGN, COMMENT, CONFIDENCE, FILE_RANGE, LABEL, UserType } from './fixtures';
-import { AnnotationResultBounds } from '../src/service/campaign/result';
+import { BoxBounds } from '../src/service/campaign/result';
 
 // Utils
 
@@ -41,7 +41,7 @@ const TEST = {
         const label = annotator.getLabel(LABEL.classic);
         expect(await label.getLabelState()).toBeFalsy();
         await label.addPresence();
-        await expect(label.getPresenceResult()).toBeVisible();
+        await expect(label.getWeakResult()).toBeVisible();
         expect(await label.getLabelState()).toBeTruthy();
       })
 
@@ -49,20 +49,20 @@ const TEST = {
         const label = annotator.getLabel(LABEL.withFeatures);
         expect(await label.getLabelState()).toBeFalsy();
         await page.keyboard.press('2')
-        await expect(label.getPresenceResult()).toBeVisible();
+        await expect(label.getWeakResult()).toBeVisible();
         expect(await label.getLabelState()).toBeTruthy();
       })
 
       await test.step('Can remove presence', async () => {
         const label = annotator.getLabel(LABEL.classic);
         await label.remove();
-        await expect(label.getPresenceResult()).not.toBeVisible();
+        await expect(label.getWeakResult()).not.toBeVisible();
         expect(await label.getLabelState()).toBeFalsy();
       })
 
       await test.step('Can update confidence', async () => {
         const label = annotator.getLabel(LABEL.withFeatures);
-        await label.getPresenceResult().click();
+        await label.getWeakResult().click();
         await expect(page.getByText(CONFIDENCE.sure.label, { exact: true }).nth(1)).toBeVisible()
         await expect(page.getByText(CONFIDENCE.notSure.label, { exact: true }).nth(1)).not.toBeVisible()
         const confidence = annotator.getConfidence(CONFIDENCE.notSure.label);
@@ -85,38 +85,48 @@ const TEST = {
 
       await test.step('Can switch to presence comment', async () => {
         const label = annotator.getLabel(LABEL.withFeatures);
-        await label.getPresenceResult().click();
+        await label.getWeakResult().click();
         await expect(page.getByText(COMMENT.task.comment)).not.toBeVisible();
         await expect(page.getByText(COMMENT.presence.comment)).toBeVisible();
       })
 
       await test.step('Can add box', async () => {
         const label = annotator.getLabel(LABEL.withFeatures);
-        await label.getPresenceResult().click();
+        await label.getWeakResult().click();
 
-        const bounds: AnnotationResultBounds = await annotator.drawBox();
+        const bounds = await annotator.draw('Box') as BoxBounds;
+        console.log('Bounds', JSON.stringify(bounds));
 
-        await expect(label.getNthBoxResult(0)).toBeVisible();
-        await expect(annotator.resultsBlock.getByText(Math.floor(bounds.start_time!).toString()).first()).toBeVisible();
-        await expect(annotator.resultsBlock.getByText(Math.floor(bounds.end_time!).toString()).first()).toBeVisible();
-        await expect(annotator.resultsBlock.getByText(bounds.start_frequency!.toString()).first()).toBeVisible();
-        await expect(annotator.resultsBlock.getByText(bounds.end_frequency!.toString()).first()).toBeVisible();
+        await expect(label.getNthStrongResult(0)).toBeVisible();
+        await expect(annotator.resultsBlock.getByText(Math.floor(bounds.start_time).toString()).first()).toBeVisible();
+        await expect(annotator.resultsBlock.getByText(Math.floor(bounds.end_time).toString()).first()).toBeVisible();
+        await expect(annotator.resultsBlock.getByText(bounds.start_frequency.toString()).first()).toBeVisible();
+        await expect(annotator.resultsBlock.getByText(bounds.end_frequency.toString()).first()).toBeVisible();
       })
 
       await test.step('Can remove box', async () => {
-        await annotator.removeBox()
+        await annotator.removeStrong()
         const label = annotator.getLabel(LABEL.withFeatures);
-        await expect(label.getNthBoxResult(0)).not.toBeVisible();
+        await expect(label.getNthStrongResult(0)).not.toBeVisible();
       })
+
+      if (isNew) {
+        await test.step('Cannot add point', async () => {
+          const label = annotator.getLabel(LABEL.withFeatures);
+          await label.getWeakResult().click();
+          await annotator.draw('Point');
+          await expect(label.getNthStrongResult(0)).not.toBeVisible();
+        })
+      }
 
       await test.step('Can remove presence with boxes', async () => {
         const label = annotator.getLabel(LABEL.withFeatures);
-        await label.getPresenceResult().click();
+        await label.getWeakResult().click();
 
-        await annotator.drawBox();
+        await annotator.draw('Box');
         await label.remove();
-        await expect(label.getPresenceResult()).not.toBeVisible();
-        await expect(label.getNthBoxResult(0)).not.toBeVisible();
+        await expect(label.getWeakResult()).not.toBeVisible();
+        await expect(label.getNthStrongResult(0)).not.toBeVisible();
         expect(await label.getLabelState()).toBeFalsy();
       })
 
@@ -139,6 +149,39 @@ const TEST = {
         expect(submittedData.results).toEqual([]);
         expect(submittedData.task_comments).toEqual([ { comment: COMMENT.task.comment } ]);
       })
+    })
+  },
+  emptyWithPoint: (as: UserType, { isNew }: { isNew: true }) => {
+    return test(`${ getTag(isNew) } Empty | allow point annotation`, ESSENTIAL, async ({ page }) => {
+      const annotator = isNew ? page.annotatorNew : page.annotator;
+      await annotator.go(as, { mode: 'Create', empty: true, allowPoint: true });
+
+      await test.step('Can add presence - mouse', async () => {
+        const label = annotator.getLabel(LABEL.classic);
+        expect(await label.getLabelState()).toBeFalsy();
+        await label.addPresence();
+        await expect(label.getWeakResult()).toBeVisible();
+        expect(await label.getLabelState()).toBeTruthy();
+      })
+
+      if (isNew) {
+        await test.step('Can add point', async () => {
+          const label = annotator.getLabel(LABEL.classic);
+          await label.getWeakResult().click();
+
+          const bounds = await annotator.draw('Point');
+
+          await expect(label.getNthStrongResult(0)).toBeVisible();
+          await expect(annotator.resultsBlock.getByText(Math.floor(bounds.start_time).toString()).first()).toBeVisible();
+          await expect(annotator.resultsBlock.getByText(bounds.start_frequency.toString()).first()).toBeVisible();
+        })
+
+        await test.step('Can remove point', async () => {
+          await annotator.removeStrong()
+          const label = annotator.getLabel(LABEL.withFeatures);
+          await expect(label.getNthStrongResult(0)).not.toBeVisible();
+        })
+      }
     })
   },
   noConfidence: (as: UserType, { isNew }: { isNew: boolean }) => {
@@ -170,6 +213,7 @@ test.describe('Staff', () => {
 
   TEST.canGoBack('staff', { isNew: true })
   TEST.empty('staff', { isNew: true })
+  TEST.emptyWithPoint('staff', { isNew: true })
   TEST.noConfidence('staff', { isNew: true })
 })
 

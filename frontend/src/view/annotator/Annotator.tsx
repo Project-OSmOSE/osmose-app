@@ -111,12 +111,13 @@ export const Annotator: React.FC = () => {
             </div>
         </div>
 
-        <div className={ [styles.blocContainer, campaign?.usage === 'Check' ? styles.check : styles.create ].join(' ') }>
+        <div
+            className={ [ styles.blocContainer, campaign?.usage === 'Check' ? styles.check : styles.create ].join(' ') }>
           { annotatorData?.is_assigned && campaign?.usage === 'Create' && <Fragment>
-              <Comment/>
+              <CurrentAnnotation/>
               <Labels/>
               <ConfidenceIndicator/>
-              <CurrentAnnotation/>
+              <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
           { annotatorData?.is_assigned && campaign?.usage === 'Check' && <Fragment>

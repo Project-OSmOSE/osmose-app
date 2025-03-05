@@ -142,6 +142,10 @@ export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: 
         { !confidenceSet && <p>No confidence</p> }
         { confidenceSet && <p>{ confidenceSet.name }</p> }
       </div>
+      <div>
+        <FadedText>Annotation types</FadedText>
+        <p>Weak, box{ campaign?.allow_point_annotation ? ', point' : '' }</p>
+      </div>
     </div>
 
     <div className={ styles.bloc }>
