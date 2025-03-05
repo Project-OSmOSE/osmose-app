@@ -11,6 +11,7 @@ import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set
 import { Progress } from "@/components/ui/Progress.tsx";
 import { useAlert } from "@/service/ui";
 import { LabelSetModal } from "@/view/campaign/detail/modals/LabelSetModal.tsx";
+import { getDisplayName } from "@/service/user";
 
 export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: boolean }> = ({
                                                                                                 campaign,
@@ -79,10 +80,13 @@ export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: 
 
     { (isOwner || campaign?.instructions_url) && (
       <div className={ [ styles.bloc, styles.last ].join(' ') }>
-        { isOwner && <IonButton color='medium' fill='outline' onClick={ archive }>
+        { isOwner && !campaign?.archive && <IonButton color='medium' fill='outline' onClick={ archive }>
             <IonIcon icon={ archiveOutline } slot='start'/>
             Archive
         </IonButton> }
+        { isOwner && campaign?.archive && <FadedText>
+            Archived on { new Date(campaign.archive.date).toLocaleDateString() } by { getDisplayName(campaign.archive?.by_user) }
+        </FadedText> }
         { campaign?.instructions_url && <IonButton color="warning" fill="outline" onClick={ openInstructions }>
             <IonIcon icon={ helpBuoyOutline } slot="start"/> Instructions
         </IonButton> }

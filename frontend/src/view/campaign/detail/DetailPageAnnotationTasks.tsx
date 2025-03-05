@@ -39,18 +39,20 @@ export const DetailPageAnnotationTasks: React.FC<{
     filters: {
       campaignID: campaign!.id,
     }
-  }, { refetchOnMountOrArgChange: true, skip: !campaign });
+  }, { refetchOnMountOrArgChange: true, skip: !campaign || !!campaign.archive });
   const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
     page,
     filters: {
       ...fileFilters,
       campaignID: campaign!.id,
     }
-  }, { skip: !campaign });
+  }, { skip: !campaign || !!campaign.archive });
   const maxPage = useMemo(() => {
     if (!files) return 1;
     return Math.ceil(files.count / FILES_PAGE_SIZE)
   }, [ files?.count ])
+
+  const isEmpty = useMemo(() => error || (files && files.count === 0) || campaign?.archive, [ error, files, campaign ])
 
   const isResumeEnabled = useMemo(() => {
     return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
@@ -89,7 +91,7 @@ export const DetailPageAnnotationTasks: React.FC<{
     setPage(1)
   }
 
-  return <Fragment>
+  return <div className={ [ styles.tasks, isEmpty ? styles.empty : '' ].join(' ') }>
 
     <ActionBar search={ fileFilters.search }
                searchPlaceholder="Search filename"
@@ -101,14 +103,14 @@ export const DetailPageAnnotationTasks: React.FC<{
                      Reset
                  </IonButton> }
 
-                 <Button color="primary" fill='outline'
-                         disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
-                         disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
-                         style={ { pointerEvents: 'unset' } }
-                         onClick={ resume }>
-                   Resume annotation
-                   <IonIcon icon={ playOutline } slot="end"/>
-                 </Button>
+                 { !(error || campaign?.archive) && <Button color="primary" fill='outline'
+                                                            disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
+                                                            disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
+                                                            style={ { pointerEvents: 'unset' } }
+                                                            onClick={ resume }>
+                     Resume annotation
+                     <IonIcon icon={ playOutline } slot="end"/>
+                 </Button> }
                </div> }/>
 
     { campaign && <Fragment>
@@ -147,8 +149,9 @@ export const DetailPageAnnotationTasks: React.FC<{
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
     { files && files.count === 0 && <p>You have no files to annotate.</p> }
+    { campaign?.archive && <p>The campaign is archived. No more annotation can be done.</p> }
 
-  </Fragment>
+  </div>
 }
 
 const TaskItem: React.FC<{
