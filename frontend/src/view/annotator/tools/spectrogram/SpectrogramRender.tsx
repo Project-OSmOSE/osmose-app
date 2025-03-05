@@ -13,13 +13,7 @@ import React, {
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, BoxBounds } from '@/service/campaign/result';
-import {
-  addResult,
-  leavePointerPosition,
-  setFileIsSeen,
-  setPointerPosition,
-  zoom
-} from '@/service/annotator';
+import { addResult, leavePointerPosition, setFileIsSeen, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
@@ -299,7 +293,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const height = yAxis.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (width > 2 && height > 2) {
         dispatch(addResult(_newResult.current))
-      } else {
+      } else if (campaign?.allow_point_annotation) {
         dispatch(addResult({
           type: 'Point',
           start_time: _newResult.current.start_time,
