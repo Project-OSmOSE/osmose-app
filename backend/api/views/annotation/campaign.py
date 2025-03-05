@@ -411,7 +411,7 @@ class AnnotationCampaignViewSet(
         campaign: AnnotationCampaign = self.get_object()
 
         response = HttpResponse(content_type="text/csv")
-        filename = f"{campaign.name.replaceAll(' ', '_')}_status.csv"
+        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         validate_users = list(
