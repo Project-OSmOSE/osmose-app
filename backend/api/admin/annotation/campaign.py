@@ -42,6 +42,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "deadline",
         "label_set",
         "show_labels_with_acoustic_features",
+        "allow_point_annotation",
         "annotation_scope",
         "owner",
         "show_spectro_configs",
@@ -54,6 +55,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
     list_filter = (
         "usage",
         IsArchivedFilter,
+        "allow_point_annotation",
     )
 
     actions = [

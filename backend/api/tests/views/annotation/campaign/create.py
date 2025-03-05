@@ -23,6 +23,7 @@ creation_data = {
     "spectro_configs": [1],
     "created_at": "2012-01-14T00:00:00Z",
     "usage": "Create",
+    "allow_point_annotation": True,
 }
 check_creation_data = {
     "name": "string",
@@ -72,6 +73,7 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         )
         self.assertEqual(response.data["datasets"], ["SPM Aural A 2010"])
         self.assertEqual(response.data["archive"], None)
+        self.assertEqual(response.data["allow_point_annotation"], True)
         self.assertEqual(
             list(campaign.spectro_configs.values_list("id", flat=True)), [1]
         )

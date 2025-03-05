@@ -68,6 +68,7 @@ class AnnotationCampaign(models.Model):
 
     label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
     labels_with_acoustic_features = models.ManyToManyField(Label, blank=True)
+    allow_point_annotation = models.BooleanField(default=False)
     datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
     spectro_configs = models.ManyToManyField(
         "SpectrogramConfiguration", related_name="annotation_campaigns"
