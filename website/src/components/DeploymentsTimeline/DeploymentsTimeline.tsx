@@ -14,13 +14,18 @@ export const DeploymentsTimeline: React.FC<{
   const chart = useRef<ReactApexChart | null>(null);
 
   const series: ApexAxisChartSeries = useMemo(() => {
-    const campaigns = new Array<DeploymentAPI['campaign']>();
+    const campaigns = new Array<DeploymentAPI['campaign'] | null>();
     for (const deployment of deployments) {
-      if (!campaigns.find(c => c.id === deployment.campaign?.id))
+      if (!deployment.campaign) {
+        if (campaigns.find(c => !c) !== null) campaigns.push(null)
+        continue;
+      }
+      if (!campaigns.find(c => c?.id === deployment.campaign.id))
         campaigns.push(deployment.campaign)
     }
+    console.log(campaigns)
     return campaigns.map(c => ({
-      name: c?.name,
+      name: c?.name ?? 'No campaign',
       data: deployments.filter(d => d.campaign?.id === c?.id && d.deployment_date && d.recovery_date).map(d => ({
         x: d.site?.name ?? "No site",
         y: [
