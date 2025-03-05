@@ -124,6 +124,7 @@ class DatasetFileAdmin(admin.ModelAdmin):
     """DatasetFile presentation in DjangoAdmin"""
 
     list_display = (
+        "id",
         "filename",
         "filepath",
         "size",
@@ -131,6 +132,7 @@ class DatasetFileAdmin(admin.ModelAdmin):
         "start",
         "end",
     )
+    search_fields = ("dataset__name",)
 
 
 class LabelAdmin(admin.ModelAdmin):
