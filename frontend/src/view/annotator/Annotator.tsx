@@ -92,7 +92,7 @@ export const Annotator: React.FC = () => {
                     </div>
                     <div>
                         <FadedText>Date:</FadedText>
-                        <p>{ new Date(annotatorData.file.start).toLocaleString() }</p>
+                        <p>{ new Date(annotatorData.file.start).toUTCString() }</p>
                     </div>
                 </div>
             </div>

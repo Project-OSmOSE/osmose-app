@@ -53,8 +53,8 @@ export const DatasetList: React.FC = () => {
           <TableContent>{ d.type }</TableContent>
           <TableContent>{ d.files_type }</TableContent>
           <TableContent>{ d.files_count }</TableContent>
-          <TableContent>{ new Date(d.start_date).toLocaleDateString() }</TableContent>
-          <TableContent>{ new Date(d.end_date).toLocaleDateString() }</TableContent>
+          <TableContent>{ new Date(d.start_date).toUTCString() }</TableContent>
+          <TableContent>{ new Date(d.end_date).toUTCString() }</TableContent>
           <TableDivider/>
         </Fragment>) }
       </Table> }

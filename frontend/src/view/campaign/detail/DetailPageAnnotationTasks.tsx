@@ -168,7 +168,7 @@ const TaskItem: React.FC<{
 
   return <Fragment key={ file.id }>
     <TableContent isFirstColumn={ true } disabled={ file.is_submitted }>{ file.filename }</TableContent>
-    <TableContent disabled={ file.is_submitted }>{ startDate.toLocaleString() }</TableContent>
+    <TableContent disabled={ file.is_submitted }>{ startDate.toUTCString() }</TableContent>
     <TableContent disabled={ file.is_submitted }>{ duration.toUTCString().split(' ')[4] }</TableContent>
     <TableContent disabled={ file.is_submitted }>{ file.results_count }</TableContent>
     <TableContent disabled={ file.is_submitted }>
