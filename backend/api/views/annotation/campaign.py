@@ -337,12 +337,13 @@ class AnnotationCampaignViewSet(
                 ),
                 comments=F("comments_data"),
                 start_time=Case(
-                    When(_start_time__isnull=True, then=Value(0.0)),
+                    When(type=AnnotationResultType.WEAK, then=Value(0.0)),
                     default=F("_start_time"),
                 ),
                 end_time=Case(
+                    When(type=AnnotationResultType.POINT, then=F("_start_time")),
                     When(
-                        _end_time__isnull=True,
+                        type=AnnotationResultType.WEAK,
                         then=Extract(F("dataset_file__end"), lookup_name="epoch")
                         - Extract(F("dataset_file__start"), lookup_name="epoch"),
                     ),
@@ -350,12 +351,13 @@ class AnnotationCampaignViewSet(
                     output_field=models.FloatField(),
                 ),
                 start_frequency=Case(
-                    When(_start_frequency__isnull=True, then=Value(0.0)),
+                    When(type=AnnotationResultType.WEAK, then=Value(0.0)),
                     default=F("_start_frequency"),
                 ),
                 end_frequency=Case(
+                    When(type=AnnotationResultType.POINT, then=F("_start_frequency")),
                     When(
-                        _end_frequency__isnull=True,
+                        type=AnnotationResultType.WEAK,
                         then=F("dataset_file__dataset__audio_metadatum__dataset_sr")
                         / 2,
                     ),
