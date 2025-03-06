@@ -39,14 +39,24 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             return DatasetFile.objects.none()
         campaign_ids = queryset.values_list("annotation_campaign", flat=True)
 
+        id_filter = None
+        for file_range in queryset:
+            file_range_filter = Q(
+                id__gte=file_range.first_file_id, id__lte=file_range.last_file_id
+            )
+            if id_filter is None:
+                id_filter = file_range_filter
+            else:
+                id_filter = id_filter | file_range_filter
+
+        if id_filter is None:
+            return DatasetFile.objects.none()
+
         files = (
             DatasetFile.objects.select_related("dataset")
             .prefetch_related("dataset__annotation_campaigns")
-            .filter(
-                dataset__annotation_campaigns__in=campaign_ids,
-                id__gte=min(queryset.values_list("first_file_id", flat=True) or []),
-                id__lte=min(queryset.values_list("last_file_id", flat=True)),
-            )
+            .filter(dataset__annotation_campaigns__in=campaign_ids)
+            .filter(id_filter)
         )
 
         files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
