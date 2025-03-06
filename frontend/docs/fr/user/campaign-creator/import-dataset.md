@@ -15,3 +15,12 @@ Vous pouvez rechercher celui que vous souhaitez, sélectionner un ou plusieurs d
 Lorsque vous avez fait votre choix, cliquez sur “Import datasets into APLOSE” pour confirmer l'importation.
 
 Les datasets nouvellement importés devraient alors apparaître sur la page des datasets.
+
+:::info
+
+Si vous utilisez déjà la base de donnée Metadatax pour stocker vos métadonnées d'acquisition. Vous pouvez lier votre
+dataset a un ou plusieurs "Channel configuration", grâce à l'administration d'APLOSE (accessible via le lien "Admin").
+
+Plus d'info sur Metadatax: https://osmose.ensta-bretagne.fr
+
+:::
