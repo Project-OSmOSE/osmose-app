@@ -9,12 +9,15 @@ export const Draggable: React.FC<{
   children?: ReactNode;
   draggable?: boolean;
   className?: string;
+  onMouseDown?: (event: MouseEvent) => void;
 }> = ({
         draggable,
         onXMove, onYMove, onUp,
-        children, className
+        children, className,
+        onMouseDown,
       }) => {
   const isDragging = useRef<boolean>(false);
+  const div = useRef<HTMLDivElement | null>(null);
 
   function mouseDown(event: MouseEvent) {
     event.stopPropagation();
@@ -22,6 +25,9 @@ export const Draggable: React.FC<{
     isDragging.current = true;
     MOUSE_MOVE_EVENT.add(mouseMove)
     MOUSE_UP_EVENT.add(mouseUp)
+
+    if (!onMouseDown) return;
+    if ((event.target as any)?.className == div.current?.className) onMouseDown(event);
   }
 
   function mouseMove(event: MouseEvent) {
@@ -42,7 +48,8 @@ export const Draggable: React.FC<{
   }
 
   return (
-    <div onMouseDown={ mouseDown }
+    <div ref={ div }
+         onMouseDown={ mouseDown }
          children={ children }
          className={ [ draggable ? style.draggable : '', className ].join(' ') }/>
   )

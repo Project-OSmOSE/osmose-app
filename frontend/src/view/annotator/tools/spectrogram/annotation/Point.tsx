@@ -45,6 +45,7 @@ export const Point: React.FC<{
   // State
   const [ left, setLeft ] = useState<number>(0);
   const [ top, setTop ] = useState<number>(0);
+  const [ isMouseHover, setIsMouseHover ] = useState<boolean>(false);
 
   // Updates
   useEffect(() => {
@@ -94,16 +95,19 @@ export const Point: React.FC<{
                       onUp={ onValidateMove }
                       onTopMove={ onTopMove }
                       onLeftMove={ onLeftMove }
+                      onMouseEnter={ () => setIsMouseHover(true) }
+                      onMouseLeave={ () => setIsMouseHover(false) }
                       className={ [ styles.point, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
 
-    <AnnotationHeader active={ isActive }
-                      onTopMove={ onTopMove }
-                      onLeftMove={ onLeftMove }
-                      onValidateMove={ onValidateMove }
-                      top={ top }
-                      className={ colorClassName }
-                      annotation={ annotation }
-                      audioPlayer={ audioPlayer }/>
+    { (isMouseHover || isActive) &&
+        <AnnotationHeader active={ isActive }
+                          onTopMove={ onTopMove }
+                          onLeftMove={ onLeftMove }
+                          onValidateMove={ onValidateMove }
+                          top={ top }
+                          className={ colorClassName }
+                          annotation={ annotation }
+                          audioPlayer={ audioPlayer }/> }
 
     <div className={ styles.vertical }/>
     <div className={ styles.horizontal }/>

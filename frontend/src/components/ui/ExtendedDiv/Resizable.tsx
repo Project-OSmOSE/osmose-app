@@ -1,4 +1,4 @@
-import React, { Fragment, ReactNode } from 'react';
+import React, { Fragment, HTMLProps, ReactNode } from 'react';
 import style from './extended.module.scss';
 import {
   BottomHandle,
@@ -27,7 +27,7 @@ export const Resizable: React.FC<{
   left?: number;
   width?: number;
   onClick?: () => void;
-}> = ({
+} & HTMLProps<HTMLDivElement>> = ({
         resizable = false,
         horizontalResize = false,
         verticalResize = false,
@@ -37,7 +37,8 @@ export const Resizable: React.FC<{
         className,
         children,
         top, height, left, width,
-        onClick
+        onClick,
+  ...props
       }) => {
 
   function onLeftMove(movement: number) {
@@ -51,7 +52,8 @@ export const Resizable: React.FC<{
   }
 
   return (
-    <div className={ [ style.resizable, className ].join(' ') }
+    <div {...props}
+         className={ [ style.resizable, className ].join(' ') }
          onClick={ onClick }
          style={ { top, left, height, width } }>
       <div className={ style.inner }>

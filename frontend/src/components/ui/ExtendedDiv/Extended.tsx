@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { HTMLProps, MouseEvent, ReactNode } from 'react';
 import { Resizable } from '@/components/ui/ExtendedDiv/Resizable.tsx';
 import { Draggable } from '@/components/ui/ExtendedDiv/Draggable.tsx';
 import style from './extended.module.scss';
@@ -21,21 +21,25 @@ export const Extended: React.FC<{
   className?: string;
   innerClassName?: string;
   onClick?: () => void;
-}> = ({
-        draggable = false,
-        children,
-        onTopMove, onLeftMove,
-        onWidthMove, onHeightMove,
-        onUp,
-        top, height, left, width,
-        verticalResizable,
-        horizontalResizable,
-        resizable,
-        className, innerClassName,
-        onClick,
-      }) => {
+  onInnerMouseDown?: (event: MouseEvent) => void;
+} & HTMLProps<HTMLDivElement>> = ({
+                                    draggable = false,
+                                    children,
+                                    onTopMove, onLeftMove,
+                                    onWidthMove, onHeightMove,
+                                    onUp,
+                                    top, height, left, width,
+                                    verticalResizable,
+                                    horizontalResizable,
+                                    resizable,
+                                    className, innerClassName,
+                                    onClick,
+                                    onInnerMouseDown,
+                                    ...props
+                                  }) => {
   return (
-    <Resizable onLeftMove={ onLeftMove } onTopMove={ onTopMove }
+    <Resizable { ...props }
+               onLeftMove={ onLeftMove } onTopMove={ onTopMove }
                onWidthMove={ onWidthMove } onHeightMove={ onHeightMove }
                top={ top } height={ height }
                left={ left } width={ width }
@@ -46,6 +50,7 @@ export const Extended: React.FC<{
                onUp={ onUp }
                onClick={ onClick }>
       <Draggable onXMove={ onLeftMove } onYMove={ onTopMove } onUp={ onUp }
+                 onMouseDown={ onInnerMouseDown }
                  draggable={ draggable } className={ [ style.fill, innerClassName ].join(' ') }>
         { children }
       </Draggable>

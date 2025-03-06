@@ -24,7 +24,6 @@ export const AnnotationFileRangeAPI = createApi({
         return encodeQueryParams(params);
       },
       transformResponse: (baseQueryReturnValue: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
-        console.debug(baseQueryReturnValue)
         return baseQueryReturnValue.map(range => ({
           ...range,
           first_file_index: range.first_file_index + 1,
