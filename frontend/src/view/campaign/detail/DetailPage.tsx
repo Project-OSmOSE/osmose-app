@@ -6,9 +6,9 @@ import { useGetCurrentUserQuery } from '@/service/user';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
-import { DetailPageSide } from "./DetailPageSide.tsx";
 import { useToast } from "@/service/ui";
 import { DetailPageAnnotationTasks } from "./DetailPageAnnotationTasks.tsx";
+import { Annotation, Data, Global, Progression } from "@/view/campaign/detail/bloc";
 
 export const CampaignDetail: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -52,7 +52,12 @@ export const CampaignDetail: React.FC = () => {
 
       </div>
 
-      <DetailPageSide campaign={ campaign } isOwner={ isOwner }/>
+      <div className={ styles.side }>
+        <Global/>
+        <Data/>
+        <Annotation/>
+        <Progression/>
+      </div>
     </div>
   )
 }

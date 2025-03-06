@@ -1,20 +1,16 @@
 import React, { Fragment, useCallback, useEffect, useState } from "react";
-import {
-  AnnotationCampaign,
-  useDownloadCampaignReportLazyQuery,
-  useDownloadCampaignStatusMutation
-} from "@/service/campaign";
+import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
 import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
-import { getDisplayName, useListUsersQuery, User } from "@/service/user";
-import { AnnotationFileRange, useListAnnotationFileRangeQuery } from "@/service/campaign/annotation-file-range";
+import { getDisplayName, User, UserAPI } from "@/service/user";
+import { AnnotationFileRange, AnnotationFileRangeAPI } from "@/service/campaign/annotation-file-range";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import styles from './modal.module.scss';
 import { Progress } from "@/components/ui/Progress.tsx";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 type Progression = {
   user: User;
@@ -29,20 +25,21 @@ type Sort = {
 }
 
 export const ProgressModal: React.FC<{
-  campaign: AnnotationCampaign;
-  isOwner: boolean;
   onClose?(): void;
-}> = ({ campaign, onClose, isOwner }) => {
+}> = ({ onClose }) => {
+  const { id: campaignID } = useParams<{ id: string }>();
+  const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
   const toast = useToast();
   const history = useHistory();
-  const { data: users, isFetching: isLoadingUsers, error: userError } = useListUsersQuery();
+  const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.useListQuery();
   const {
     data: fileRanges,
     isFetching: isLoadingFileRanges,
     error: fileRangeError
-  } = useListAnnotationFileRangeQuery({ campaignID: campaign.id }, { refetchOnMountOrArgChange: true });
-  const [ downloadStatus, { error: statusError } ] = useDownloadCampaignStatusMutation()
-  const [ downloadReport, { error: reportError } ] = useDownloadCampaignReportLazyQuery()
+  } = AnnotationFileRangeAPI.useListQuery({ campaignID }, { refetchOnMountOrArgChange: true });
+  const [ downloadStatus, { error: statusError } ] = CampaignAPI.useLazyDownloadStatusQuery()
+  const [ downloadReport, { error: reportError } ] = CampaignAPI.useLazyDownloadReportQuery()
+  const { hasAdminAccess } = useHasAdminAccessToCampaign(campaign)
 
   const [ progress, setProgress ] = useState<Array<Progression>>([]);
   const [ sort, setSort ] = useState<Sort>({ entry: 'Progress', sort: 'DESC' });
@@ -94,15 +91,15 @@ export const ProgressModal: React.FC<{
   }
 
   function onDownloadStatus() {
-    downloadStatus(campaign)
+    if (campaign) downloadStatus(campaign)
   }
 
   function onDownloadReport() {
-    downloadReport(campaign)
+    if (campaign) downloadReport(campaign)
   }
 
   function manageAnnotator() {
-    history.push(`/annotation-campaign/${ campaign.id }/edit`);
+    history.push(`/annotation-campaign/${ campaignID }/edit`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {
@@ -176,7 +173,7 @@ export const ProgressModal: React.FC<{
             }) }
           </Table> }
 
-      { isOwner && users && fileRanges && (
+      { hasAdminAccess && users && fileRanges && (
         <ModalFooter className={ styles.footer }>
           <div className={ styles.buttons }>
             { progress.length > 0 && <Fragment>
@@ -192,7 +189,7 @@ export const ProgressModal: React.FC<{
             </Fragment> }
           </div>
 
-          {  !campaign?.archive && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
+          { !campaign?.archive && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
         </ModalFooter>
       )
       }
