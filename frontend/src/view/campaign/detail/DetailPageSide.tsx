@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/Progress.tsx";
 import { useAlert } from "@/service/ui";
 import { LabelSetModal } from "@/view/campaign/detail/modals/LabelSetModal.tsx";
 import { getDisplayName } from "@/service/user";
+import { Dataset } from "@/view/campaign/detail/bloc/info/Dataset.tsx";
 
 export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: boolean }> = ({
                                                                                                 campaign,
@@ -101,10 +102,7 @@ export const DetailPageSide: React.FC<{ campaign?: AnnotationCampaign, isOwner: 
     </div>
 
     <div className={ styles.bloc }>
-      <div>
-        <FadedText>Dataset{ campaign && campaign.datasets.length > 1 ? 's' : '' }</FadedText>
-        <p>{ campaign?.datasets.join(', ') }</p>
-      </div>
+      <Dataset/>
 
       <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ toggleSpectrogramModal }>
         Spectrogram configuration{ campaign && campaign.spectro_configs.length > 1 ? 's' : '' }

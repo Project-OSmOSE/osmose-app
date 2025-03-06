@@ -1,4 +1,5 @@
 import { SpectrogramConfiguration } from './spectrogram-configuration';
+import { ChannelConfiguration } from "@pam-standardization/metadatax-ts";
 
 export type Dataset = {
   id: number;
@@ -10,6 +11,7 @@ export type Dataset = {
   type: string;
   spectros: Array<SpectrogramConfiguration>;
   created_at: string;
+  related_channel_configuration: Array<ChannelConfiguration>
 }
 
 export type ImportDataset = {

@@ -15,40 +15,41 @@ from backend.api.actions.check_new_spectro_config_errors import (
 )
 from backend.api.models import Dataset
 from backend.api.serializers import DatasetSerializer
+from backend.utils.filters import ModelFilter
 
 
-class DatasetViewSet(viewsets.ViewSet):
+class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for dataset-related actions
     """
 
     serializer_class = DatasetSerializer
-
-    def list(self, request):
-        """List available datasets"""
-        queryset = Dataset.objects.raw(
-            """
-            SELECT datasets.id,
-            datasets.name,
-            files_type,
-            start_date,
-            end_date,
-            created_at,
-            files.count               as files_count,
-            type.name                 as type
-            FROM datasets
-            LEFT OUTER JOIN (SELECT dataset_id, count(*)
-                      FROM dataset_files group by dataset_id) files
-                     on files.dataset_id = datasets.id
-            LEFT OUTER JOIN (SELECT id, name
-                      FROM dataset_types) type
-                     on type.id = datasets.dataset_type_id
-            ORDER BY datasets.id DESC
-            """
-        ).prefetch_related("spectro_configs")
-
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+    queryset = (
+        Dataset.objects.select_related(
+            "dataset_type",
+        )
+        .prefetch_related(
+            "spectro_configs",
+            "related_channel_configuration",
+            "related_channel_configuration__deployment",
+            "related_channel_configuration__deployment__platform",
+            "related_channel_configuration__deployment__platform__type",
+            "related_channel_configuration__deployment__project",
+            "related_channel_configuration__deployment__project__responsible_parties",
+            "related_channel_configuration__deployment__provider",
+            "related_channel_configuration__deployment__campaign",
+            "related_channel_configuration__deployment__site",
+            "related_channel_configuration__hydrophone",
+            "related_channel_configuration__hydrophone__model",
+            "related_channel_configuration__hydrophone__model__provider",
+            "related_channel_configuration__recorder",
+            "related_channel_configuration__recorder__model",
+            "related_channel_configuration__recorder__model__provider",
+            "related_channel_configuration__recording_format",
+        )
+        .annotate(files_count=Count("files"))
+    )
+    filter_backends = (ModelFilter,)
 
     @action(detail=False)
     def list_to_import(self, request):

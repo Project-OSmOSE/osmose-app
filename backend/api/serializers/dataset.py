@@ -1,14 +1,14 @@
 """Dataset DRF serializers file"""
-
-# Serializers have too many false-positives on the following warnings:
-# pylint: disable=missing-function-docstring, abstract-method
-
+from metadatax.serializers.acquisition import ChannelConfigurationSerializer
 from rest_framework import serializers
 
 from backend.api.models import (
     Dataset,
 )
 from .data import SpectrogramConfigurationSerializer
+
+# Serializers have too many false-positives on the following warnings:
+# pylint: disable=missing-function-docstring, abstract-method
 
 DATASET_FIELDS = [
     "id",
@@ -20,6 +20,7 @@ DATASET_FIELDS = [
     "type",
     "spectros",
     "created_at",
+    "related_channel_configuration",
 ]
 
 
@@ -27,8 +28,9 @@ class DatasetSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic Dataset data"""
 
     files_count = serializers.IntegerField()
-    type = serializers.CharField()
+    type = serializers.SlugRelatedField(read_only=True, slug_field="dataset_type__name")
     spectros = SpectrogramConfigurationSerializer(many=True, source="spectro_configs")
+    related_channel_configuration = ChannelConfigurationSerializer(many=True)
 
     class Meta:
         model = Dataset
