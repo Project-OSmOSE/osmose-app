@@ -4,6 +4,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from metadatax.models import ChannelConfiguration
 
 
 class DatasetType(models.Model):
@@ -64,6 +65,10 @@ class Dataset(models.Model):
         "GeoMetadatum", on_delete=models.CASCADE, null=True, blank=True
     )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    related_channel_configuration = models.ManyToManyField(
+        ChannelConfiguration, related_name="aplose_datasets"
+    )
 
     def get_files(self, start: datetime, end: datetime):
         """Get dataset files from absolute start and ends"""
