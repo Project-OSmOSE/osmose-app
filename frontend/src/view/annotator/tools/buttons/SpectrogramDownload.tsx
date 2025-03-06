@@ -20,7 +20,6 @@ export const SpectrogramDownloadButton: React.FC<{
   } = useAppSelector(state => state.annotator);
 
   const download = async () => {
-    console.log("Download", annotatorData?.file.audio_url);
     if (!annotatorData?.file.audio_url) return;
     const link = document.createElement('a');
     setIsLoading(true);

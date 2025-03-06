@@ -1,6 +1,6 @@
 import React, { MutableRefObject } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
-import styles from '@/view/annotator/tools/annotator-tools.module.scss';
+import styles from './annotation.module.scss';
 import { focusResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoTrashBin } from 'react-icons/io5';
 import { useAnnotator } from '@/service/annotator/hook.ts';
@@ -25,7 +25,7 @@ export const AnnotationHeader: React.FC<{
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
                       top={ top < 24 ? 24 : -8 }
-                      className={ [ styles.boxTitle, className, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
+                      className={ [ styles.header, className, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
                       innerClassName={ styles.inner }
                       onClick={ () => dispatch(focusResult(annotation.id)) }>
 

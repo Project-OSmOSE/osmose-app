@@ -23,7 +23,6 @@ export const DeploymentsTimeline: React.FC<{
       if (!campaigns.find(c => c?.id === deployment.campaign.id))
         campaigns.push(deployment.campaign)
     }
-    console.log(campaigns)
     return campaigns.map(c => ({
       name: c?.name ?? 'No campaign',
       data: deployments.filter(d => d.campaign?.id === c?.id && d.deployment_date && d.recovery_date).map(d => ({

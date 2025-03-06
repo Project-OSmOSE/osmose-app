@@ -7,6 +7,8 @@ import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale } from "@/service/dataset/spectrogram-configuration/scale";
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
+import styles from './annotation.module.scss'
+import { MOUSE_DOWN_EVENT } from "@/service/events";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -57,6 +59,7 @@ export const Box: React.FC<RegionProps> = ({
   const [ width, setWidth ] = useState<number>(0);
   const [ top, setTop ] = useState<number>(0);
   const [ height, setHeight ] = useState<number>(0);
+  const [ isMouseHover, setIsMouseHover ] = useState<boolean>(false);
 
   // Updates
   useEffect(() => {
@@ -131,16 +134,21 @@ export const Box: React.FC<RegionProps> = ({
                       onUp={ onValidateMove }
                       onTopMove={ onTopMove } onHeightMove={ onHeightMove }
                       onLeftMove={ onLeftMove } onWidthMove={ onWidthMove }
-                      className={ [ colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
+                      onMouseEnter={ () => setIsMouseHover(true) }
+                      onMouseLeave={ () => setIsMouseHover(false) }
+                      innerClassName={ styles.inner }
+                      onInnerMouseDown={ MOUSE_DOWN_EVENT.emit.bind(MOUSE_DOWN_EVENT) }
+                      className={ [ styles.annotation, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
 
-    <AnnotationHeader active={ isActive }
-                      onTopMove={ onTopMove }
-                      onLeftMove={ onLeftMove }
-                      onValidateMove={ onValidateMove }
-                      top={ top }
-                      className={ colorClassName }
-                      annotation={ annotation }
-                      audioPlayer={ audioPlayer }/>
+    { (isMouseHover || isActive) &&
+        <AnnotationHeader active={ isActive }
+                          onTopMove={ onTopMove }
+                          onLeftMove={ onLeftMove }
+                          onValidateMove={ onValidateMove }
+                          top={ top }
+                          className={ colorClassName }
+                          annotation={ annotation }
+                          audioPlayer={ audioPlayer }/> }
 
   </ExtendedDiv>
 }

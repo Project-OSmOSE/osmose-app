@@ -95,7 +95,6 @@ const TEST = {
         await label.getWeakResult().click();
 
         const bounds = await annotator.draw('Box') as BoxBounds;
-        console.log('Bounds', JSON.stringify(bounds));
 
         await expect(label.getNthStrongResult(0)).toBeVisible();
         await expect(annotator.resultsBlock.getByText(Math.floor(bounds.start_time).toString()).first()).toBeVisible();

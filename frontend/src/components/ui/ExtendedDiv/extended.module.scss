@@ -8,7 +8,6 @@ $handle-thick: 0.75rem;
   $handle-thick: 0.75rem;
   position: absolute;
   border: $border-size solid var(--ion-color-base, var(--ion-color-dark));
-  pointer-events: none;
 
   .inner {
     position: relative;
