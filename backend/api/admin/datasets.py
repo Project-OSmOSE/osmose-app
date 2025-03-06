@@ -1,3 +1,4 @@
+"""Dataset related administration classes"""
 from django.contrib import admin
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
@@ -64,7 +65,7 @@ class DatasetAdmin(admin.ModelAdmin):
         return format_html(
             "<br>".join(
                 [
-                    channel.__str__()
+                    str(channel)
                     for channel in dataset.related_channel_configuration.all()
                 ]
             )

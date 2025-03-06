@@ -5,7 +5,7 @@ import { InstitutionLink } from "../InstitutionLink";
 import styles from './panel.module.scss'
 
 export const DeploymentPanel: React.FC<{
-  deployment: DeploymentAPI | undefined,
+  deployment: DeploymentAPI & { annotated_labels?: { [key in string]: number } } | undefined,
   onClose: () => void,
   disableProjectLink?: boolean;
 }> = ({
@@ -50,6 +50,8 @@ export const DeploymentPanel: React.FC<{
       <BathymetricDepth depth={ deployment.bathymetric_depth }/>
 
       { isOpenAccess && <Platform platform={ deployment.platform }/> }
+
+      { isOpenAccess && <Labels annotated_labels={ deployment.annotated_labels }/> }
 
       { isOpenAccess && <Description description={ deployment.description }/> }
     </div>
@@ -166,6 +168,16 @@ const Platform: React.FC<{ platform: DeploymentAPI['platform'] }> = ({ platform 
   return <Fragment>
     <small>Platform</small>
     <p>{ platform.name }</p>
+  </Fragment>
+}
+
+const Labels: React.FC<{ annotated_labels?: { [key in string]: number } }> = ({ annotated_labels }) => {
+  if (!annotated_labels) return <Fragment/>
+  return <Fragment>
+    <small>Labels</small>
+    { Object.entries(annotated_labels).map(([ label, count ]) => <p key={ label }>
+      { label } ({ count })
+    </p>) }
   </Fragment>
 }
 
