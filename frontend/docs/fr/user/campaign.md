@@ -35,6 +35,7 @@ Le panneau latéral droit affiche toutes les informations relatives à la campag
 | Deadline                  | Date limite d'annotation                                                                                                                               |
 | Annotation mode           | Le type de campagne : créer des annotations ou vérifier la sortie des détecteurs                                                                       |
 | Dataset                   | Jeu de donnée à annoter                                                                                                                                |
+| Acquisition information   | Informations autour de l'acquisition de la donnée : projet, déploiement et équipements utilisés                                                        |
 | Spectrogram configuration | Paramètres utilisés pour générer les spectrogrammes disponibles. Ils peuvent être utilisés pour recréer la campagne                                    |
 | Audio metadata            | Métadonnées du segmentation audio. Elles peuvent être utilisés pour recréer la campagne                                                                |
 | Label set                 | Nom de l'ensemble de labels utilisés pour l'annotation.                                                                                                |
