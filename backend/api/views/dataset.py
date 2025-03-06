@@ -48,6 +48,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
             "related_channel_configuration__recording_format",
         )
         .annotate(files_count=Count("files"))
+        .order_by("name")
     )
     filter_backends = (ModelFilter,)
 

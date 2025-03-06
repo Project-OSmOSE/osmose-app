@@ -28,7 +28,9 @@ class DatasetSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic Dataset data"""
 
     files_count = serializers.IntegerField()
-    type = serializers.SlugRelatedField(read_only=True, slug_field="dataset_type__name")
+    type = serializers.SlugRelatedField(
+        read_only=True, default=None, slug_field="dataset_type__name"
+    )
     spectros = SpectrogramConfigurationSerializer(many=True, source="spectro_configs")
     related_channel_configuration = ChannelConfigurationSerializer(many=True)
 
