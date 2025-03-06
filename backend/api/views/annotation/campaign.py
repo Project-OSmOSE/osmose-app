@@ -149,7 +149,7 @@ class AnnotationCampaignViewSet(
             )
             .order_by("name")
         )
-        return queryset
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":
