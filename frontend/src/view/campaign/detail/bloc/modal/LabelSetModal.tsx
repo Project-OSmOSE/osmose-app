@@ -1,32 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { AnnotationCampaign, usePatchCampaignMutation, useRetrieveCampaignQuery } from "@/service/campaign";
+import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
 import { IonButton, IonSpinner } from "@ionic/react";
 import styles from './modal.module.scss';
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { LabelSetAPI } from "@/service/campaign/label-set";
 import { LabelSetDisplay } from "@/components/campaign/label/LabelSet.tsx";
+import { useParams } from "react-router-dom";
 
 export const LabelSetModal: React.FC<{
-  campaign: AnnotationCampaign;
-  isOwner: boolean;
   onClose?(): void;
-}> = ({ campaign: _campaign, onClose, isOwner }) => {
+}> = ({ onClose }) => {
+  const { id: campaignID } = useParams<{ id: string }>();
+  const { data: campaign, refetch: refetchCampaign } = CampaignAPI.useRetrieveQuery(campaignID);
+  const {
+    data: labelSet,
+    isFetching, error
+  } = LabelSetAPI.useRetrieveQuery(campaign!.label_set, { skip: !campaign });
   const toast = useToast();
-  const { data: labelSet, isFetching, error } = useRetrieveLabelSetQuery(_campaign.label_set);
   const [ patchCampaign, {
     isLoading: isSubmitting,
     error: patchError,
     isSuccess: isPatchSuccessful
-  } ] = usePatchCampaignMutation();
-  const { data: campaign, refetch: refetchCampaign } = useRetrieveCampaignQuery(_campaign.id);
+  } ] = CampaignAPI.usePatchMutation();
+  const { hasAdminAccess } = useHasAdminAccessToCampaign(campaign)
 
-  const [ labelsWithAcousticFeatures, setLabelsWithAcousticFeatures ] = useState<string[]>((campaign ?? _campaign).labels_with_acoustic_features);
+  const [ labelsWithAcousticFeatures, setLabelsWithAcousticFeatures ] = useState<string[]>(campaign?.labels_with_acoustic_features ?? []);
   const [ disabled, setDisabled ] = useState<boolean>(true);
 
   useEffect(() => {
-    setLabelsWithAcousticFeatures((campaign ?? _campaign).labels_with_acoustic_features);
+    setLabelsWithAcousticFeatures(campaign?.labels_with_acoustic_features ?? []);
   }, [ campaign?.labels_with_acoustic_features ]);
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export const LabelSetModal: React.FC<{
   async function onSave() {
     try {
       await patchCampaign({
-        id: _campaign.id,
+        id: campaignID,
         labels_with_acoustic_features: labelsWithAcousticFeatures,
       }).unwrap();
       await refetchCampaign().unwrap();
@@ -64,14 +68,14 @@ export const LabelSetModal: React.FC<{
                                      labelsWithAcousticFeatures={ labelsWithAcousticFeatures }
                                      setLabelsWithAcousticFeatures={ setLabelsWithAcousticFeatures }/> }
       <ModalFooter>
-        { isOwner && !campaign?.archive && (
+        { hasAdminAccess && !campaign?.archive && (
           <IonButton fill='outline'
                      onClick={ toggleDisabled }
                      disabled={ isSubmitting || !disabled }>
             Update labels with features
           </IonButton>
         ) }
-        { isOwner && !disabled && (
+        { hasAdminAccess && !disabled && (
           <IonButton fill='outline'
                      disabled={ isSubmitting }
                      onClick={ onSave }>

@@ -53,3 +53,7 @@ export async function downloadResponseHandler(response: Response) {
   if (!type) throw new Error('No file type provided')
   downloadFile(filename, type, await response.text())
 }
+
+export function pluralize(data: any[]) {
+  return data.length > 1 ? 's' : ''
+}

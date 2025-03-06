@@ -34,6 +34,7 @@ The right side panel display all the relevant information of the campaign:
 | Deadline                  | The final date to annotate                                                                                                                            |
 | Annotation mode           | Either the campaign is made to create new annotations or to check detectors outputs                                                                   |
 | Dataset                   | Dataset to annotate                                                                                                                                   |
+| Acquisition information   | Information around the data acquisition: project, deployment and equipment used                                                                       |
 | Spectrogram configuration | Parameters used to generate all available spectrogram. Can be used to recreate the campaign                                                           |
 | Audio metadata            | Metadata of the audio used to generate all available spectrogram. Can be used to recreate the campaign                                                |
 | Label set                 | Name of the label set used for annotation. The labels are used to describe each annotation.                                                           |

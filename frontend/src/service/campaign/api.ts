@@ -69,7 +69,7 @@ export const CampaignAPI = createApi({
         responseHandler: downloadResponseHandler
       }),
     }),
-    downloadStatus: builder.mutation<void, AnnotationCampaign>({
+    downloadStatus: builder.query<void, AnnotationCampaign>({
       query: (campaign) => ({
         url: `${ campaign.id }/report-status/${ encodeQueryParams({
           filename: campaign.name.replaceAll(' ', '_') + '_status.csv',
@@ -84,8 +84,4 @@ export const {
   useListQuery: useListCampaignsQuery,
   useRetrieveQuery: useRetrieveCampaignQuery,
   useCreateMutation: useCreateCampaignMutation,
-  useArchiveMutation: useArchiveCampaignMutation,
-  useLazyDownloadReportQuery: useDownloadCampaignReportLazyQuery,
-  useDownloadStatusMutation: useDownloadCampaignStatusMutation,
-  usePatchMutation: usePatchCampaignMutation,
 } = CampaignAPI;
