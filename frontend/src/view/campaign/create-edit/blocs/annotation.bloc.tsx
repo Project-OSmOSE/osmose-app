@@ -11,7 +11,7 @@ import {
   updateCampaignSubmissionErrors,
   updateDraftCampaign,
 } from '@/service/campaign';
-import { useListDatasetQuery } from '@/service/dataset';
+import { DatasetAPI } from '@/service/dataset';
 import { IonCheckbox } from "@ionic/react";
 import styles from './bloc.module.scss'
 
@@ -21,7 +21,7 @@ export const AnnotationBloc: React.FC<{
 }> = ({ onFileImported, onFileRemoved }) => {
   // Services
   const dispatch = useAppDispatch();
-  const { data: allDatasets } = useListDatasetQuery();
+  const { data: allDatasets } = DatasetAPI.useListQuery({});
 
   // State
   const draftCampaign = useAppSelector(selectDraftCampaign)

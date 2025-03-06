@@ -13,7 +13,7 @@ export const DatasetAPI = createApi({
     list: builder.query<Array<Dataset>, {
       campaign?: ID
     } | undefined>({
-      query: (arg) => {
+      query: (arg = undefined) => {
         if (!arg) return ''
         const params: any = {}
         if (arg.campaign) params.annotation_campaigns=arg.campaign
@@ -36,9 +36,3 @@ export const DatasetAPI = createApi({
     })
   })
 })
-
-export const {
-  useListQuery: useListDatasetQuery,
-  useListForImportQuery: useListDatasetForImportQuery,
-  useImportMutation: useImportDatasetMutation,
-} = DatasetAPI;

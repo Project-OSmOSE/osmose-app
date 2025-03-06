@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import { IonNote, IonSpinner } from "@ionic/react";
-import { useImportDatasetMutation, useListDatasetQuery } from '@/service/dataset';
+import { DatasetAPI } from '@/service/dataset';
 import { getErrorMessage } from '@/service/function.ts';
 import styles from './dataset.module.scss'
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
@@ -12,10 +12,10 @@ import { WarningMessage } from "@/components/warning/warning-message.component.t
 export const DatasetList: React.FC = () => {
 
   // Services
-  const { data: datasets, error: datasetsError, isLoading } = useListDatasetQuery()
+  const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.useListQuery({})
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [ _, { isLoading: isImportInProgress } ] = useImportDatasetMutation()
+  const [ _, { isLoading: isImportInProgress } ] = DatasetAPI.useImportMutation()
   const toast = useToast();
 
 

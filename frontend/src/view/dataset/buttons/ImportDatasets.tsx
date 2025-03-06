@@ -1,10 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import {
-  ImportDataset,
-  useImportDatasetMutation,
-  useListDatasetForImportQuery,
-  useListDatasetQuery
-} from "@/service/dataset";
+import { DatasetAPI, ImportDataset } from "@/service/dataset";
 import { useToast } from "@/service/ui";
 import { IonButton, IonIcon } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
@@ -17,13 +12,13 @@ export const ImportDatasetsButton: React.FC = () => {
   const [ isImportModalOpen, setIsImportModalOpen ] = useState(false);
 
   // API
-  const { refetch: refetchDatasets } = useListDatasetQuery()
+  const { refetch: refetchDatasets } = DatasetAPI.useListQuery({})
   const {
     data: datasetsToImport,
     refetch: refetchDatasetsToImport,
     error: datasetsToImportError
-  } = useListDatasetForImportQuery()
-  const [ doImportDatasets, { isLoading: isImportInProgress } ] = useImportDatasetMutation()
+  } = DatasetAPI.useListForImportQuery()
+  const [ doImportDatasets, { isLoading: isImportInProgress } ] = DatasetAPI.useImportMutation()
 
   // Memo
   const canImportDatasets = useMemo(() => datasetsToImport && datasetsToImport.length > 0, [ datasetsToImport ]);

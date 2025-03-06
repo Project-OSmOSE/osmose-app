@@ -15,10 +15,10 @@ import {
   updateDraftFileRange
 } from '@/service/campaign';
 import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
-import { useListDatasetQuery } from '@/service/dataset';
 import { useAlert } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { Item } from "@/types/item.ts";
+import { DatasetAPI } from "@/service/dataset";
 
 type SearchItem = {
   type: 'user' | 'group';
@@ -39,7 +39,7 @@ export const AnnotatorsRangeBloc: React.FC<{
   // Services
   const { data: users } = useListUsersQuery()
   const { data: groups } = AnnotatorGroupAPI.useListQuery();
-  const { data: allDatasets } = useListDatasetQuery(undefined, { skip: !!currentCampaign });
+  const { data: allDatasets } = DatasetAPI.useListQuery(undefined, { skip: !!currentCampaign });
 
   // Memo
   const filesCount = useMemo(() => {

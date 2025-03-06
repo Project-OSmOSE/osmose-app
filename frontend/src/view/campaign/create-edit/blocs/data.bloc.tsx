@@ -8,12 +8,12 @@ import {
   updateCampaignSubmissionErrors,
   updateDraftCampaign,
 } from '@/service/campaign';
-import { useListDatasetQuery } from '@/service/dataset';
+import { DatasetAPI } from '@/service/dataset';
 
 export const DataBloc: React.FC = () => {
   // Services
   const dispatch = useAppDispatch();
-  const { data: allDatasets } = useListDatasetQuery();
+  const { data: allDatasets } = DatasetAPI.useListQuery({});
 
   // State
   const draftCampaign = useAppSelector(selectDraftCampaign)
