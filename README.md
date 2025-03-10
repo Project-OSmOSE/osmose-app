@@ -14,6 +14,8 @@
 In this repository there are actually 2 projets : APLOSE software and OSmOSE team's website.
 The backend is shared by the 2 projects but is located in distincts Django apps.
 
+\> Read the [documentation](https://project-osmose.github.io/osmose-app/)
+
 ### APLOSE
 APLOSE is a scalable web-based annotation tool for marine bioacoustics.
 It allows the annotations of audio spectrograms. It is currently used for
