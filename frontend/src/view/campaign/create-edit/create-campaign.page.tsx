@@ -89,6 +89,7 @@ export const CreateCampaign: React.FC = () => {
       allow_point_annotation: draftCampaign.allow_point_annotation ?? false,
       allow_image_tuning: draftCampaign.allow_image_tuning ?? false,
       allow_colormap_tuning: draftCampaign.allow_colormap_tuning ?? false,
+      colormap_tuning_default: draftCampaign.colormap_tuning_default ?? null,
     }
 
     if (draftCampaign.usage === 'Check') {

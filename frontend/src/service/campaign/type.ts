@@ -23,6 +23,7 @@ export type BaseAnnotationCampaign = {
   allow_point_annotation: boolean;
   allow_image_tuning: boolean;
   allow_colormap_tuning: boolean;
+  colormap_tuning_default: string | null;
 }
 
 /**

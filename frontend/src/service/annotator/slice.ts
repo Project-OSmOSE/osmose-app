@@ -12,7 +12,6 @@ import { CampaignAPI } from "@/service/campaign";
 import { LabelSetAPI } from "@/service/campaign/label-set";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
-import { COLORMAP_GREYS } from '@/services/utils/color.ts';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -38,7 +37,7 @@ export const AnnotatorSlice = createSlice({
       audioSpeed: 1,
       zoomLevel: 1,
       spectrogramConfigurationID: 1,
-      colormap: COLORMAP_GREYS,
+      colormap: undefined,
       colormapInverted: false,
       brightness: 50,
       contrast: 50,
@@ -280,13 +279,14 @@ export const AnnotatorSlice = createSlice({
     selectSpectrogramConfiguration: (state, { payload }: { payload: number }) => {
       state.userPreferences.spectrogramConfigurationID = payload;
       state.userPreferences.zoomLevel = 1;
-      state.userPreferences.colormap = COLORMAP_GREYS;
+      state.userPreferences.colormap = undefined;
       state.userPreferences.colormapInverted = false;
       state.userPreferences.brightness = 50;
       state.userPreferences.contrast = 50;
     },
     setColormap: (state, { payload }: { payload: string }) => {
       state.userPreferences.colormap = payload;
+      state.userPreferences.colormapInverted = false;
     },
     invertColormap: (state) => {
       state.userPreferences.colormapInverted = !state.userPreferences.colormapInverted;
@@ -379,6 +379,11 @@ export const AnnotatorSlice = createSlice({
             time: 0,
             isPaused: true,
           }
+          state.userPreferences = {
+            ...state.userPreferences,
+            brightness: 50,
+            contrast: 50,
+          }
           state.sessionStart = Date.now();
           state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
         },
@@ -390,6 +395,10 @@ export const AnnotatorSlice = createSlice({
           if (state.campaignID !== payload.id) {
             state.userPreferences.audioSpeed = 1;
             state.userPreferences.zoomLevel = 1;
+            state.userPreferences.brightness = 50;
+            state.userPreferences.contrast = 50;
+            state.userPreferences.colormap = undefined;
+            state.userPreferences.colormapInverted = false;
           }
           state.campaignID = payload.id;
         },
