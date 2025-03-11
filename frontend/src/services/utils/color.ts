@@ -1,4 +1,4 @@
-export function colorSpectro(canvas: HTMLCanvasElement, colormapName: string, invert: boolean = false) {
+export function colorSpectro(canvas: HTMLCanvasElement, colormapName: string = COLORMAP_GREYS, invert: boolean = false) {
   const context = canvas.getContext('2d');
   if (!context) return;
 

@@ -1,5 +1,6 @@
 import { Select } from "@/components/form";
 import { invertColormap, setColormap } from "@/service/annotator/slice";
+import { useCurrentConfiguration } from "@/service/annotator/spectrogram";
 import { useAppDispatch, useAppSelector } from "@/service/app";
 import { COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
 import { IonButton, IonIcon } from "@ionic/react";
@@ -12,16 +13,17 @@ export const ColormapConfiguration: React.FC = () => {
   const [changeAllowed, setChangeAllowed] = useState<boolean>(false);
 
   const campaign = useAppSelector(state => state.campaign.currentCampaign);
-  const selectedConfigID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
-  const configs = useAppSelector(state => state.annotator.spectrogram_configurations);
+  const currentConfiguration = useCurrentConfiguration();
   const colormap = useAppSelector(state => state.annotator.userPreferences.colormap);
   const colormapInverted = useAppSelector(state => state.annotator.userPreferences.colormapInverted);
 
   useEffect(() => {
-    const currentConfig = configs?.find((config) => config.id === selectedConfigID);
-    console.log("currentConfig", currentConfig);
-    setChangeAllowed(!!campaign?.allow_colormap_tuning && !!currentConfig && currentConfig.colormap === COLORMAP_GREYS);
-  }, [campaign, selectedConfigID, configs])
+    const computedAllowed: boolean = !!campaign?.allow_colormap_tuning && !!currentConfiguration && currentConfiguration.colormap === COLORMAP_GREYS
+    setChangeAllowed(computedAllowed)
+    if (computedAllowed) {
+      dispatch(setColormap(colormap ?? campaign?.colormap_tuning_default ?? COLORMAP_GREYS))
+    }
+  }, [campaign, currentConfiguration])
 
   if (!changeAllowed) return;
 

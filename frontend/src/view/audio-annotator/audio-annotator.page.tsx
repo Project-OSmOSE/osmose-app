@@ -13,6 +13,8 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
 
 import '../../css/annotator.css';
+import { ColormapConfiguration } from '@/view/annotator/tools/select/ColormapConfiguration.tsx';
+import { SpectrogramImage } from '@/view/annotator/tools/input/SpectrogramImage.tsx';
 import { PlayPauseButton } from "@/view/audio-annotator/components/buttons/play-pause.tsx";
 import { PlaybackRateSelect } from "@/view/audio-annotator/components/select/playback-rate.tsx";
 import { AudioDownloadButton } from "@/view/audio-annotator/components/buttons/audio-download.tsx";
@@ -21,8 +23,6 @@ import { CampaignInstructionsButton } from "@/view/audio-annotator/components/bu
 import { SpectrogramDownloadButton } from "@/view/audio-annotator/components/buttons/spectrogram-download.tsx";
 import { ResultList } from "@/view/audio-annotator/components/bloc/result-list.component.tsx";
 import { SpectrogramConfigurationSelect } from "@/view/audio-annotator/components/select/spectrogram-configuration.tsx";
-import { ColormapConfiguration } from '@/view/audio-annotator/components/select/colormap-configuration.tsx';
-import { SpectrogramImage } from '@/view/audio-annotator/components/select/spectrogram-image.tsx';
 import { ZoomButton } from "@/view/audio-annotator/components/buttons/zoom.tsx";
 import { PointerPosition } from "@/view/audio-annotator/components/bloc/pointer-position.component.tsx";
 import { WorkbenchInfoBloc } from "@/view/audio-annotator/components/bloc/workbench-info.tsx";

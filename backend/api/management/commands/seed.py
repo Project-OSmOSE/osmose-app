@@ -170,11 +170,11 @@ class Command(management.BaseCommand):
         dataset_names.append("dual_lf_hf")
         dataset_names.append("audible")
         datasets_colormap = {
-            "Test Dataset": "Greys", # +3 viridis added manually below
+            "Test Dataset": "Greys",  # +3 viridis added manually below
             "Test archived": "Greys",
             "porp_delph": "viridis",
             "dual_lf_hf": "Greys",
-            "audible": "yiorrd"
+            "audible": "yiorrd",
         }
         for name in dataset_names:
             dataset = Dataset(

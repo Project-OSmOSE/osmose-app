@@ -9,8 +9,8 @@ import { AudioDownloadButton } from "@/view/annotator/tools/buttons/AudioDownloa
 import { useAppSelector } from "@/service/app.ts";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { NFFTSelect } from "@/view/annotator/tools/select/NFFTSelect.tsx";
-import { ColormapConfiguration } from '@/view/audio-annotator/components/select/colormap-configuration.tsx';
-import { SpectrogramImage } from '@/view/audio-annotator/components/select/spectrogram-image.tsx';
+import { ColormapConfiguration } from '@/view/annotator/tools/select/ColormapConfiguration.tsx';
+import { SpectrogramImage } from '@/view/annotator/tools/input/SpectrogramImage.tsx';
 import { ZoomButton } from "@/view/annotator/tools/buttons/Zoom.tsx";
 import { SpectrogramRender } from "@/view/annotator/tools/spectrogram/SpectrogramRender.tsx";
 import { SpectrogramDownloadButton } from "@/view/annotator/tools/buttons/SpectrogramDownload.tsx";
