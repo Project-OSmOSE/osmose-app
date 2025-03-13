@@ -78,7 +78,7 @@ export const EditAnnotators: React.FC = () => {
     }
     return items;
   }, [ allUsers, campaign, fileRanges, allGroups ]);
-  const [ isForced, setIsForced ] = useState<boolean>(false);
+  const [ isForced, setIsForced ] = useState<boolean | undefined>();
   useEffect(() => {
     if (initialFileRanges) setFileRanges(initialFileRanges);
   }, [ initialFileRanges ]);
@@ -122,7 +122,7 @@ export const EditAnnotators: React.FC = () => {
       data: fileRanges,
       force: isForced
     })
-  }, [])
+  }, [fileRanges, campaign, campaignID, isForced])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);
