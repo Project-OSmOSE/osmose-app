@@ -233,6 +233,24 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         result = AnnotationResult.objects.latest("id")
         self.__check_weak_one_file_annotation(response.data[0], result, campaign_id)
 
+    def test_empty_post_weak_one_file_twice(self):
+        url, _ = self._get_url()
+        old_count = AnnotationResult.objects.count()
+        response = upload_csv_file(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        response = upload_csv_file(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+
     def test_empty_post_weak_two_file(self):
         url, campaign_id = self._get_url()
         old_results = AnnotationResult.objects.all()
