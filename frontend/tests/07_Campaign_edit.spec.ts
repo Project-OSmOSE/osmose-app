@@ -69,7 +69,7 @@ test.describe('Campaign creator', () => {
     await test.step('Can submit', async () => {
       const [ request ] = await Promise.all([
         page.waitForRequest(API_URL.fileRanges.post),
-        page.getByRole('button', { name: 'Update campaign' }).click()
+        page.getByRole('button', { name: 'Update annotators' }).click()
       ])
       const expectedData: Array<WriteAnnotationFileRange> = [ {
         id: FILE_RANGE.range.id,
