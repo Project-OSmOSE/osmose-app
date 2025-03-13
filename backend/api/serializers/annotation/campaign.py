@@ -14,7 +14,6 @@ from backend.api.models import (
     Label,
     ConfidenceIndicatorSet,
 )
-from backend.aplose.models import User
 from backend.aplose.serializers import UserSerializer
 from backend.utils.serializers import EnumField, SlugRelatedGetOrCreateField
 
@@ -55,11 +54,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     confidence_indicator_set = serializers.PrimaryKeyRelatedField(
         queryset=ConfidenceIndicatorSet.objects.all(), required=False, allow_null=True
     )
-    owner = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field="username",
-        required=False,
-    )
+    owner = UserSerializer(read_only=True)
     spectro_configs = serializers.PrimaryKeyRelatedField(
         queryset=SpectrogramConfiguration.objects.all(),
         many=True,

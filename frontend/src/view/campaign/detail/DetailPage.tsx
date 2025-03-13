@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import styles from './Detail.module.scss'
 import { useParams } from 'react-router-dom';
 import { useRetrieveCampaignQuery } from '@/service/campaign';
-import { useGetCurrentUserQuery } from '@/service/user';
+import { getDisplayName, useGetCurrentUserQuery } from '@/service/user';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -20,7 +20,7 @@ export const CampaignDetail: React.FC = () => {
   const { data: currentUser } = useGetCurrentUserQuery();
   const isOwner = useMemo(() => {
     if (!currentUser) return false;
-    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
+    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner?.id === currentUser?.id
   }, [ currentUser, campaign?.owner ]);
 
   const toast = useToast();
@@ -42,7 +42,7 @@ export const CampaignDetail: React.FC = () => {
         <div className={ styles.header }>
           <h2>{ campaign.name }</h2>
           <FadedText>
-            Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner }
+            Created on { new Date(campaign.created_at).toLocaleDateString() } by { getDisplayName(campaign.owner) }
           </FadedText>
         </div>
 
