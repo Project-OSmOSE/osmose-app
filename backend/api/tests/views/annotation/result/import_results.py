@@ -16,7 +16,7 @@ from backend.api.models import (
     SpectrogramConfiguration,
     ConfidenceIndicatorSet,
 )
-from backend.utils.tests import AuthenticatedTestCase, upload_csv_file
+from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
 URL = reverse("annotation-result-campaign-import", kwargs={"campaign_id": 1})
 URL_unknown_campaign = reverse(
@@ -32,7 +32,7 @@ class ImportUnauthenticatedTestCase(APITestCase):
 
     def test_unauthenticated(self):
         """ViewSet returns 401 if no user is authenticated"""
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             URL,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -76,7 +76,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         )
 
     def test_post_unknown_campaign(self):
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             URL,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -85,7 +85,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
 
     def test_empty_post_strong_one_file(self):
         url, _ = self._get_url()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -222,7 +222,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_weak_one_file(self):
         url, campaign_id = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
@@ -236,14 +236,14 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_weak_one_file_twice(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
@@ -256,7 +256,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         old_results = AnnotationResult.objects.all()
         old_count = old_results.count()
         old_ids = list(old_results.values_list("id", flat=True))
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_two_files_annotation.csv",
@@ -270,7 +270,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_point(self):
         url, campaign_id = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/point_annotation.csv",
@@ -284,7 +284,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_point_no_end_frequency(self):
         url, campaign_id = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/point_annotation_no_end_frequency.csv",
@@ -298,7 +298,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_strong_one_file(self):
         url, campaign_id = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -314,7 +314,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         old_results = AnnotationResult.objects.all()
         old_count = old_results.count()
         old_ids = list(old_results.values_list("id", flat=True))
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_two_files_annotation.csv",
@@ -330,7 +330,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_without_is_box(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/no_is_box.csv",
@@ -343,7 +343,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_unknown_dataset(self):
         url, _ = self._get_url(_dataset_name="Another Dataset")
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -356,7 +356,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_empty_dataset(self):
         url, _ = self._get_url(_dataset_name="")
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -369,7 +369,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_without_detector(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/no_detector.csv",
@@ -380,7 +380,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_map_empty(self):
         url, _ = self._get_url(_detectors_map={})
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -393,7 +393,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             _detectors_map={"detector1": {"detector": "", "configuration": "test"}}
         )
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -409,7 +409,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             _detectors_map={"detector1": {"detector": None, "configuration": "test"}}
         )
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -423,7 +423,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_map_detector_missing(self):
         url, _ = self._get_url(_detectors_map={"detector1": {"configuration": "test"}})
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -439,7 +439,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             _detectors_map={"detector1": {"detector": "nnini", "configuration": ""}}
         )
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -454,7 +454,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             _detectors_map={"detector1": {"detector": "nnini", "configuration": None}}
         )
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -467,7 +467,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_map_config_missing(self):
         url, _ = self._get_url(_detectors_map={"detector1": {"detector": "nnini"}})
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
@@ -480,7 +480,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_without_time(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/no_time.csv",
@@ -494,7 +494,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_incorrect_time(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/incorrect_time.csv",
@@ -507,7 +507,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_incorrect_time_forced(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url + "&force=true",
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/incorrect_time.csv",
@@ -518,7 +518,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_without_frequency(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/no_frequency.csv",
@@ -531,7 +531,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_bellow_frequency(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/bellow_frequency.csv",
@@ -545,7 +545,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_over_frequency(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/over_frequency.csv",
@@ -559,7 +559,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     def test_empty_post_without_label(self):
         url, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
-        response = upload_csv_file(
+        response = upload_csv_file_as_string(
             self,
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/no_label.csv",
