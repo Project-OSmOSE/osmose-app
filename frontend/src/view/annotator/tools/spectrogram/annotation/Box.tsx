@@ -135,6 +135,7 @@ export const Box: React.FC<RegionProps> = ({
                       onTopMove={ onTopMove } onHeightMove={ onHeightMove }
                       onLeftMove={ onLeftMove } onWidthMove={ onWidthMove }
                       onMouseEnter={ () => setIsMouseHover(true) }
+                      onMouseMove={ () => setIsMouseHover(true) }
                       onMouseLeave={ () => setIsMouseHover(false) }
                       innerClassName={ styles.inner }
                       onInnerMouseDown={ MOUSE_DOWN_EVENT.emit.bind(MOUSE_DOWN_EVENT) }
@@ -146,6 +147,7 @@ export const Box: React.FC<RegionProps> = ({
                           onLeftMove={ onLeftMove }
                           onValidateMove={ onValidateMove }
                           top={ top }
+                          setIsMouseHover={ setIsMouseHover }
                           className={ colorClassName }
                           annotation={ annotation }
                           audioPlayer={ audioPlayer }/> }
