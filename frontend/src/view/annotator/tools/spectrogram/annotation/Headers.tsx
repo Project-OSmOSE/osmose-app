@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from 'react';
+import React, { MutableRefObject, useCallback } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
 import { focusResult, removeResult } from '@/service/annotator';
@@ -14,18 +14,25 @@ export const AnnotationHeader: React.FC<{
   onTopMove?(value: number): void;
   onLeftMove?(value: number): void;
   onValidateMove?(): void;
+  setIsMouseHover?: (isMouseHover: boolean) => void;
   className?: string;
   annotation: AnnotationResult,
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
-}> = ({ active, top, onTopMove, onLeftMove, onValidateMove, className, annotation, audioPlayer }) => {
+}> = ({ active, top, onTopMove, onLeftMove, setIsMouseHover, onValidateMove, className, annotation, audioPlayer }) => {
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
   const audioService = useAudioService(audioPlayer);
+  const _setIsMouseHover = useCallback((value: boolean) => {
+    if (!setIsMouseHover) return;
+    setIsMouseHover(value);
+  }, [ setIsMouseHover, ])
   return <ExtendedDiv draggable={ active && campaign?.usage === 'Create' }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
-                      top={ top < 24 ? 24 : -8 }
-                      className={ [ styles.header, className, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
+                      onMouseEnter={ () => _setIsMouseHover(true) }
+                      onMouseMove={ () => _setIsMouseHover(true) }
+                      onMouseLeave={ () => _setIsMouseHover(false) }
+                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
                       innerClassName={ styles.inner }
                       onClick={ () => dispatch(focusResult(annotation.id)) }>
 

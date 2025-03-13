@@ -6,9 +6,17 @@
   color: #ffffff;
   position: absolute;
   left: 50%;
-  transform: translate(-50%, -100%);
   width: calc(100% + 4px); /* Box border size */
   min-width: fit-content;
+
+  &.over {
+    top: 0;
+    transform: translate(-50%, -100%);
+  }
+  &.bellow {
+    bottom: 0;
+    transform: translate(-50%, 100%);
+  }
 
   &.canBeRemoved {
     .inner {
