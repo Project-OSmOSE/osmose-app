@@ -37,11 +37,15 @@ export const CampaignAPI = createApi({
     }),
     retrieve: builder.query<AnnotationCampaign, ID>({ query: (id) => `${ id }/`, }),
     create: builder.mutation<AnnotationCampaign, WriteAnnotationCampaign>({
-      query: (data) => ({
-        url: '',
-        method: 'POST',
-        body: data
-      }),
+      query: (data) => {
+        if (data.deadline?.trim()) data.deadline = new Date(data.deadline).toISOString().split('T')[0];
+        else data.deadline = null
+        return {
+          url: '',
+            method: 'POST',
+          body: data
+        }
+      },
     }),
     patch: builder.mutation<AnnotationCampaign, Pick<WriteAnnotationCampaign, 'labels_with_acoustic_features'> & {
       id: ID

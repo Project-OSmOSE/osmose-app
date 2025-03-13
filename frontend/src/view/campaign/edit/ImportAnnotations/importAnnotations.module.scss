@@ -1,0 +1,112 @@
+.dragNDropZone {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='%23238583FF' stroke-width='4' stroke-dasharray='16%2c 16' stroke-dashoffset='2' stroke-linecap='square'/%3e%3c/svg%3e");
+  border-radius: 8px;
+  padding: 1rem;
+
+  display: grid;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  transition: 300ms;
+  max-width: 100%;
+  overflow: hidden;
+
+  text-wrap: wrap;
+  word-wrap: break-word;
+
+  &.initial {
+    height: 100%;
+    cursor: pointer;
+    display: grid;
+    gap: 1rem;
+    align-items: center;
+    grid-auto-flow: column;
+    color: var(--ion-color-primary);
+
+    ion-icon {
+      font-size: 1.5rem;
+    }
+
+    &.dragging {
+      height: 100%;
+      cursor: pointer;
+      background: rgba(var(--ion-color-primary-rgb), 0.25);
+    }
+  }
+
+  &.loading {
+    height: 100%;
+  }
+
+  &.loaded, &.error {
+    height: fit-content;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    justify-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    > p {
+      max-width: 100%;
+      overflow: hidden;
+      text-wrap: wrap;
+      word-wrap: break-word;
+    }
+  }
+
+}
+
+.detectorEntry, .configEntry {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 0 1rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+  position: relative;
+
+  .line {
+    grid-column: 2 / 4;
+    justify-self: stretch;
+    border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.25);
+    margin-top: 0.5rem;
+  }
+}
+
+.detectorEntry {
+  &.unknown {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .exclamation {
+    position: absolute;
+    z-index: 2;
+    margin-left: 0.05rem;
+    top: 0.25rem;
+  }
+
+  ion-checkbox[color=danger] {
+    --border-color: var(--ion-color-danger);
+  }
+
+  .unknown {
+    --border-color: var(--ion-color-danger);
+    grid-column: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.configEntry {
+  grid-template-columns: auto 1fr;
+  row-gap: 0.5rem;
+  padding: 0 0.5rem;
+
+  .line, > *:nth-last-child(1) {
+    grid-column: 1/3;
+    margin: 0;
+  }
+}

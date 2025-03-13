@@ -5,3 +5,5 @@ export { Footer } from './Footer.tsx'
 export { Navbar } from './Navbar'
 
 export { AploseSkeleton } from './Skeleton';
+
+export * from './Breadcrumbs';

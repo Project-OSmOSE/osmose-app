@@ -3,7 +3,6 @@ import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { AnnotationResult } from '@/service/campaign/result/type.ts';
 import { ID } from '@/service/type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
-import { DetectorSelection } from '@/service/campaign';
 
 export const AnnotationResultAPI = createApi({
   reducerPath: 'annotationResultApi',
@@ -13,20 +12,11 @@ export const AnnotationResultAPI = createApi({
     import: builder.mutation<Array<AnnotationResult>, {
       campaignID: ID,
       datasetName: string,
-      detectors: Array<DetectorSelection>,
-      file: File,
+      detectors_map: { [key in string]: { detector: string, configuration: string } },
+      data: string[][],
       force?: boolean
     }>({
-      query: ({ campaignID, datasetName, file, force, detectors }) => {
-        const detectors_map: { [key in string]: { detector: string, configuration: string } } = {}
-        for (const d of detectors) {
-          detectors_map[d.initialName] = {
-            detector: d.knownDetector?.name ?? d.initialName,
-            configuration: d.knownConfiguration?.configuration ?? d.newConfiguration ?? ''
-          }
-        }
-        const body = new FormData()
-        body.append('file', file)
+      query: ({ campaignID, datasetName, data, force, detectors_map }) => {
         return {
           url: `campaign/${ campaignID }/import/${ encodeQueryParams({
             dataset_name: datasetName,
@@ -34,7 +24,7 @@ export const AnnotationResultAPI = createApi({
             force: force ?? false
           }) }`,
           method: 'POST',
-          body,
+          body: data,
         }
       }
     }),
