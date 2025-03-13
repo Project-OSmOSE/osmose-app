@@ -1,6 +1,8 @@
 
 .fadedText {
   color: rgba(var(--ion-color-medium-rgb), 0.5);
+  display: flex;
+  align-items: center;
   font-size: 0.9rem;
   font-weight: 400;
 }

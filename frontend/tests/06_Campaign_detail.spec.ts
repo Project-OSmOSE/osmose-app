@@ -2,6 +2,7 @@ import { API_URL, ESSENTIAL, expect, Page, Request, test } from './utils';
 import { AUDIO_METADATA, CAMPAIGN, CONFIDENCE, FILE_RANGE, LABEL, SPECTROGRAM_CONFIGURATION, USERS } from './fixtures';
 import { LabelModal } from './utils/pages';
 import { WriteAnnotationCampaign } from '../src/service/campaign';
+import { getDisplayName } from "../src/service/user";
 
 // Utils
 
@@ -49,7 +50,7 @@ test.describe('Annotator', () => {
   test('Global', async ({ page }) => {
     await page.campaign.detail.go('annotator');
     await expect(page.getByRole('heading', { name: CAMPAIGN.name })).toBeVisible();
-    await expect(page.getByText(`Created on ${ new Date(CAMPAIGN.created_at).toLocaleDateString() } by ${ CAMPAIGN.owner }`)).toBeVisible();
+    await expect(page.getByText(`Created on ${ new Date(CAMPAIGN.created_at).toLocaleDateString() } by ${ getDisplayName(CAMPAIGN.owner) }`)).toBeVisible();
     await expect(page.getByText(CAMPAIGN.desc)).toBeVisible();
     await expect(page.getByText(new Date(CAMPAIGN.deadline).toLocaleDateString())).toBeVisible();
     await expect(page.getByText(`${ CAMPAIGN.usage } annotations`)).toBeVisible();

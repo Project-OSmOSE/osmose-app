@@ -45,7 +45,7 @@ export const CONFIDENCE = {
 
 export const CAMPAIGN = {
   id: 1,
-  owner: USERS.creator.username,
+  owner: USERS.creator,
   name: 'Test campaign',
   desc: 'Test campaign description',
   allow_point_annotation: false,

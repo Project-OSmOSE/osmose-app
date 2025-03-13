@@ -7,7 +7,7 @@ export const useHasAdminAccessToCampaign = (campaign?: AnnotationCampaign) => {
 
   const hasAdminAccess = useMemo(() => {
     if (!currentUser) return false;
-    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner === currentUser?.username
+    return currentUser?.is_staff || currentUser?.is_superuser || campaign?.owner?.id === currentUser?.id
   }, [ currentUser, campaign?.owner ]);
 
   return { hasAdminAccess }

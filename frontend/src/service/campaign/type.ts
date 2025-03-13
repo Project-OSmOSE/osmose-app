@@ -32,7 +32,7 @@ export type AnnotationCampaign = BaseAnnotationCampaign & {
   label_set: number; // pk
   labels_with_acoustic_features: Array<string>; // Labels
   usage: AnnotationCampaignUsage;
-  owner: string; // username
+  owner: User;
   confidence_indicator_set: number | null; // pk
   archive: AnnotationCampaignArchive | null; // read_only
 
