@@ -126,6 +126,19 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             self.get_create_instances(validated_data)
         )
 
+    def _get_time_limits(self, validated_data, file: DatasetFile) -> (float, float):
+        start: datetime = validated_data["start_datetime"]
+        end: datetime = validated_data["end_datetime"]
+        if start < file.start:
+            start_time = 0
+        else:
+            start_time = to_seconds(start - file.start)
+        if end > file.end:
+            end_time = to_seconds(file.end - file.start)
+        else:
+            end_time = to_seconds(end - file.start)
+        return start_time, end_time
+
     def get_create_instances(self, validated_data) -> list[AnnotationResult]:
         """Get instances to be created"""
         is_box: bool = validated_data["is_box"]
@@ -162,30 +175,22 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             )
 
         if not is_box and files.count() == 1:
-            return [
-                AnnotationResult(
-                    annotation_campaign=campaign,
-                    detector_configuration=detector_config,
-                    label=label,
-                    confidence_indicator=confidence_indicator,
-                    dataset_file=files.first(),
-                    type=AnnotationResultType.WEAK,
-                )
-            ]
+            params = {
+                "annotation_campaign": campaign,
+                "detector_configuration": detector_config,
+                "label": label,
+                "confidence_indicator": confidence_indicator,
+                "dataset_file": files.first(),
+                "type": AnnotationResultType.WEAK,
+            }
+            if AnnotationResult.objects.filter(**params).exists():
+                return []
+            return [AnnotationResult(**params)]
 
         instances = []
-        start: datetime = validated_data["start_datetime"]
-        end: datetime = validated_data["end_datetime"]
         dataset: Dataset = validated_data["dataset"]
         for file in files:
-            if start < file.start:
-                start_time = 0
-            else:
-                start_time = to_seconds(start - file.start)
-            if end > file.end:
-                end_time = to_seconds(file.end - file.start)
-            else:
-                end_time = to_seconds(end - file.start)
+            start_time, end_time = self._get_time_limits(validated_data, file)
 
             start_frequency = (
                 validated_data["min_frequency"]
@@ -198,55 +203,35 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 else dataset.audio_metadatum.dataset_sr / 2
             )
 
+            params = {
+                "annotation_campaign": campaign,
+                "detector_configuration": detector_config,
+                "label": label,
+                "confidence_indicator": confidence_indicator,
+                "dataset_file": file,
+            }
             if (
                 start_time == 0
                 and end_time == to_seconds(file.end - file.start)
                 and start_frequency == 0
                 and end_frequency == dataset.audio_metadatum.dataset_sr / 2
             ):
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        type=AnnotationResultType.WEAK,
-                    )
-                )
+                params["type"] = AnnotationResultType.WEAK
             elif start_time == end_time and (
                 start_frequency == end_frequency
                 or validated_data["max_frequency"] is None
             ):
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        start_frequency=start_frequency,
-                        end_frequency=None,
-                        start_time=start_time,
-                        end_time=None,
-                        type=AnnotationResultType.POINT,
-                    )
-                )
+                params["type"] = AnnotationResultType.POINT
+                params["start_frequency"] = start_frequency
+                params["start_time"] = start_time
             else:
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        start_frequency=start_frequency,
-                        end_frequency=end_frequency,
-                        start_time=start_time,
-                        end_time=end_time,
-                        type=AnnotationResultType.BOX,
-                    )
-                )
+                params["type"] = AnnotationResultType.BOX
+                params["start_frequency"] = start_frequency
+                params["end_frequency"] = end_frequency
+                params["start_time"] = start_time
+                params["end_time"] = end_time
+            if not AnnotationResult.objects.filter(**params).exists():
+                instances.append(AnnotationResult(**params))
 
         return instances
 
