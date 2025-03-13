@@ -72,7 +72,9 @@ class Dataset(models.Model):
     )
 
 
-class DatasetFileManage(models.Manager):
+class DatasetFileManager(models.Manager):
+    """Specific ma,nager for dataset files"""
+
     def filter_matches_time_range(
         self, start: datetime, end: datetime
     ) -> QuerySet["DatasetFile"]:
@@ -111,7 +113,7 @@ class DatasetFile(models.Model):
     def __str__(self):
         return str(self.filename)
 
-    objects = DatasetFileManage()
+    objects = DatasetFileManager()
 
     filename = models.CharField(max_length=255)
     filepath = models.CharField(max_length=255)
