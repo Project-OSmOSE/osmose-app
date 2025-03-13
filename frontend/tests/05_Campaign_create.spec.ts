@@ -32,6 +32,9 @@ test.describe('Annotator', () => {
         usage: 'Create',
         labels_with_acoustic_features: [],
         allow_point_annotation: false,
+        allow_image_tuning: false,
+        allow_colormap_tuning: false,
+        colormap_tuning_default: null,
       }
       expect(data).toEqual(expectedData);
     })
@@ -63,6 +66,9 @@ test.describe('Annotator', () => {
         usage: 'Create',
         labels_with_acoustic_features: [ LABEL.withFeatures ],
         allow_point_annotation: true,
+        allow_image_tuning: false,
+        allow_colormap_tuning: false,
+        colormap_tuning_default: null,
       }
       expect(campaignData).toEqual(expectedCampaign);
     })
@@ -156,6 +162,9 @@ test.describe('Annotator', () => {
       labels_with_acoustic_features: [ LABEL.withFeatures ],
       usage: 'Check',
       allow_point_annotation: false,
+      allow_image_tuning: false,
+      allow_colormap_tuning: false,
+      colormap_tuning_default: null,
     }
     expect(await submittedCampaign.postDataJSON()).toEqual(expectedCampaign);
     expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(DATASET.name) }`)
