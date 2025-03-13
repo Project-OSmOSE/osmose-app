@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0075_dataset_related_channel_configuration'),
+        ("api", "0075_dataset_related_channel_configuration"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='allow_colormap_tuning',
+            model_name="annotationcampaign",
+            name="allow_colormap_tuning",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='allow_image_tuning',
+            model_name="annotationcampaign",
+            name="allow_image_tuning",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='annotationcampaign',
-            name='colormap_tuning_default',
+            model_name="annotationcampaign",
+            name="colormap_tuning_default",
             field=models.TextField(blank=True, null=True),
         ),
     ]
