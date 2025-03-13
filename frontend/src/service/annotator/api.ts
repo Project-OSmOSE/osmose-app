@@ -25,6 +25,14 @@ export const AnnotatorAPI = createApi({
         const prevFileID = (state as unknown as AppState).annotator.file?.id;
         if (prevCampaignID != currentArg?.campaignID) return true;
         return prevFileID != currentArg?.fileID;
+      },
+      transformResponse(baseQueryReturnValue: AnnotatorData,): AnnotatorData {
+        return {
+          ...baseQueryReturnValue,
+          spectrogram_configurations: baseQueryReturnValue.spectrogram_configurations.map(s => ({
+            ...s, zoom_level: s.zoom_level + 1
+          }))
+        }
       }
     }),
     post: builder.mutation<void, {
