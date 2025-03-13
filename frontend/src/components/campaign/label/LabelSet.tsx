@@ -37,6 +37,22 @@ export const LabelSetDisplay: React.FC<{
                        onClick={ event => onLabelChecked(event, label) }/></TableContent>
         <TableDivider/>
       </Fragment>) }
+      { set.labels.map(label => <Fragment key={ label }>
+        <TableContent isFirstColumn={ true }>{ label }</TableContent>
+        <TableContent>
+          <IonCheckbox checked={ labelsWithAcousticFeatures.includes(label) }
+                       disabled={ disabled || allDisabled }
+                       onClick={ event => onLabelChecked(event, label) }/></TableContent>
+        <TableDivider/>
+      </Fragment>) }
+      { set.labels.map(label => <Fragment key={ label }>
+        <TableContent isFirstColumn={ true }>{ label }</TableContent>
+        <TableContent>
+          <IonCheckbox checked={ labelsWithAcousticFeatures.includes(label) }
+                       disabled={ disabled || allDisabled }
+                       onClick={ event => onLabelChecked(event, label) }/></TableContent>
+        <TableDivider/>
+      </Fragment>) }
     </Table>
   </Fragment>
 }

@@ -2,6 +2,14 @@
 .modal {
   grid-template-rows: auto 1fr auto;
 
+  &.label {
+    grid-template-rows: auto auto 1fr auto;
+
+    > div:nth-last-child(2) {
+      overflow: auto;
+    }
+  }
+
   .table {
     overflow: auto;
 
