@@ -1,6 +1,7 @@
 import React, { HTMLProps, } from "react";
 import styles from './inputs.module.scss'
 import { Label } from "@/components/form/inputs/Label.tsx";
+import { IonNote } from "@ionic/react";
 
 
 type SelectProperties = {
@@ -9,6 +10,7 @@ type SelectProperties = {
   label?: string;
   required?: boolean;
   onValueSelected: (value: string) => void;
+  error?: string;
 } & Omit<HTMLProps<HTMLDivElement>, 'id' | 'ref'>
 
 export const Switch: React.FC<SelectProperties> = ({
@@ -19,6 +21,7 @@ export const Switch: React.FC<SelectProperties> = ({
                                                      onValueSelected,
                                                      disabled,
                                                      className,
+                                                     error,
                                                      ...props
                                                    }) => {
 
@@ -42,6 +45,8 @@ export const Switch: React.FC<SelectProperties> = ({
         left: `${ options.indexOf(value) * 100 / options.length }%`
       } }/>
     </div>
+
+    { error && <IonNote color="danger">{ error }</IonNote> }
   </div>
 }
 

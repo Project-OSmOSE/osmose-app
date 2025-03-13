@@ -184,7 +184,7 @@ export const CreateCampaign: React.FC = () => {
         <Input label="Deadline" type="date" placeholder="Deadline" error={ errors.deadline }
                value={ deadline } onChange={ onDeadlineChange }/>
 
-        <Switch label="Annotation mode" options={ [ 'Create annotations', 'Check annotations' ] }
+        <Switch label="Annotation mode" options={ [ 'Create annotations', 'Check annotations' ] } error={ errors.usage }
                 value={ `${ usage } annotations` } onValueSelected={ onUsageChange }
                 required={ true }/>
       </FormBloc>
