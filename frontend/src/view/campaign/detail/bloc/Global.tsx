@@ -1,6 +1,6 @@
 import styles from "../Detail.module.scss";
 import React, { Fragment, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { FadedText } from "@/components/ui";
 import { IonButton, IonIcon } from "@ionic/react";
@@ -14,6 +14,7 @@ export const Global: React.FC = () => {
   const { hasAdminAccess } = useHasAdminAccessToCampaign(campaign)
   const [ archiveCampaign ] = CampaignAPI.useArchiveMutation()
   const alert = useAlert();
+  const history = useHistory();
 
   const archive = useCallback(async () => {
     if (!campaign) return;
@@ -38,6 +39,11 @@ export const Global: React.FC = () => {
   const openInstructions = useCallback(() => {
     if (!campaign?.instructions_url) return;
     window.open(campaign?.instructions_url, "_blank", "noopener, noreferrer")
+  }, [ campaign ]);
+
+  const importAnnotations = useCallback(() => {
+    if (!campaign) return;
+    history.push(`/annotation-campaign/${ campaign.id }/import-annotations`)
   }, [ campaign ]);
 
   if (!campaign) return <Fragment/>
@@ -70,6 +76,11 @@ export const Global: React.FC = () => {
       <FadedText>Annotation mode</FadedText>
       <p>{ campaign?.usage } annotations</p>
     </div>
+
+    {/* Import annotations */}
+    <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ importAnnotations }>
+      Import annotations
+    </IonButton>
 
   </div>
 }

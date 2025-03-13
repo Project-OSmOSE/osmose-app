@@ -4,21 +4,21 @@ import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import './drag-n-drop-file-input.css';
 
 type Props = {
-  state: DragNDropState.available;
-  label: string;
-  accept: string;
-  onFileImported: (file: File) => void;
-  filename?: undefined;
-  onReset?: undefined;
-} | {
-  state: DragNDropState.loading;
+  state: 'loading';
   filename?: undefined;
   label?: undefined;
   accept?: undefined;
   onReset?: undefined;
   onFileImported?: undefined;
 } | {
-  state: DragNDropState.fileLoaded;
+  state: 'available';
+  label: string;
+  accept: string;
+  onFileImported: (file: File) => void;
+  filename?: undefined;
+  onReset?: undefined;
+} | {
+  state: 'file-loaded';
   filename: string;
   onReset: () => void;
   label?: undefined;
@@ -42,11 +42,9 @@ export const DragNDropFileInput: React.FC<Props> = ({
                                                     }) => {
   const [isDraggingHover, setIsDraggingHover] = useState<boolean>(false);
 
-  const dragZoneClass = [state.toString()];
-  if (state === DragNDropState.available && isDraggingHover) dragZoneClass.push('dragging')
 
   const handleClick = () => {
-    if (state !== DragNDropState.available) return;
+    if (state !== 'available') return;
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = accept;
@@ -58,7 +56,7 @@ export const DragNDropFileInput: React.FC<Props> = ({
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    if (state !== DragNDropState.available) return;
+    if (state !== 'available') return;
     setIsDraggingHover(false);
     handleInput(event.dataTransfer.files)
   }
@@ -83,14 +81,14 @@ export const DragNDropFileInput: React.FC<Props> = ({
          onDragEnd={ () => setIsDraggingHover(false) }
          className={ dragZoneClass.join(' ') }>
 
-      { state === DragNDropState.available && <Fragment>
+      { state === 'available' && <Fragment>
           <IonIcon icon={ cloudUploadOutline }/>
         { label }
       </Fragment> }
 
-      { state === DragNDropState.loading && <IonSpinner color="primary"/> }
+      { state === 'loading' && <IonSpinner color="primary"/> }
 
-      { state === DragNDropState.fileLoaded && <Fragment>
+      { state === 'file-loaded' && <Fragment>
           <p>{ filename }</p>
 
           <IonButton onClick={ onReset } className='ion-text-wrap'>
