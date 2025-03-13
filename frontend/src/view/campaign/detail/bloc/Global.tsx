@@ -72,10 +72,11 @@ export const Global: React.FC = () => {
       <p>{ campaign?.usage } annotations</p>
     </div>
 
-    {/* Import annotations */}
-    <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ importAnnotations }>
-      Import annotations
-    </IonButton>
+    {/* Import annotations */ }
+    { campaign?.usage === 'Check' && hasAdminAccess &&
+        <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ importAnnotations }>
+            Import annotations
+        </IonButton> }
 
   </div>
 }
