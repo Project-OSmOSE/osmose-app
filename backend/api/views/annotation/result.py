@@ -20,7 +20,6 @@ from backend.api.serializers import (
     AnnotationResultImportListSerializer,
 )
 from backend.utils.filters import ModelFilter, get_boolean_query_param
-from backend.utils.serializers import FileUploadSerializer
 
 
 # pylint: disable=duplicate-code
@@ -143,19 +142,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if campaign.owner_id != request.user.id and not request.user.is_staff:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        upload_serializer = FileUploadSerializer(data=request.data)
-        upload_serializer.is_valid(raise_exception=True)
-
-        file = upload_serializer.validated_data["file"]
-
         force = get_boolean_query_param(self.request, "force")
 
         dataset_name = request.query_params.get("dataset_name")
         detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))
 
-        decoded_file = file.read().decode()
-        io_string = StringIO(decoded_file)
-        reader = csv.DictReader(io_string)
+        reader = csv.DictReader(StringIO(request.data.get("data")))
         data = []
         for row in reader:
             annotator = row["annotator"] if "annotator" in row else None

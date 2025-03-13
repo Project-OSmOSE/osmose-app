@@ -1,8 +1,8 @@
 """Util test case classes with common behavior"""
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
-
 
 all_fixtures = [
     "users",
@@ -31,6 +31,13 @@ class AuthenticatedTestCase(APITestCase):
     def tearDown(self):
         """Logout when tests ends"""
         self.client.logout()
+
+
+def upload_csv_file_as_string(self: APITestCase, url: str, path: str) -> Response:
+    """Upload a CSV file to the given URL"""
+    with open(path, "rb") as data:
+        data = data.read().decode("utf-8")
+        return self.client.post(url, {"data": data})
 
 
 def upload_csv_file(self: APITestCase, url: str, path: str) -> Response:
