@@ -57,7 +57,7 @@ export const LabelSetModal: React.FC<{
   }
 
   return (
-    <Modal onClose={ onClose } className={ styles.modal }>
+    <Modal onClose={ onClose } className={ [styles.modal, styles.label].join(' ') }>
       <ModalHeader onClose={ onClose } title='Label set'/>
 
       { isFetching && <IonSpinner/> }
