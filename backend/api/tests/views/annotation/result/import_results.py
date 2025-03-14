@@ -15,6 +15,7 @@ from backend.api.models import (
     Dataset,
     SpectrogramConfiguration,
     ConfidenceIndicatorSet,
+    AnnotationTask,
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
@@ -63,6 +64,12 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             label_set=LabelSet.objects.create(name="string label set"),
             owner_id=3,
         )
+        task = AnnotationTask.objects.create(
+            annotation_campaign_id=campaign.id,
+            dataset_file_id=2,
+            annotator_id=1,
+            status=AnnotationTask.Status.FINISHED,
+        )
         campaign.datasets.add(Dataset.objects.get(pk=1))
         campaign.spectro_configs.add(SpectrogramConfiguration.objects.get(pk=1))
 
@@ -73,6 +80,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             )
             + f"?dataset_name={_dataset_name}&detectors_map={_detectors_map}",
             campaign.id,
+            task.id,
         )
 
     def test_post_unknown_campaign(self):
@@ -84,7 +92,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_empty_post_strong_one_file(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         response = upload_csv_file_as_string(
             self,
             url,
@@ -220,7 +228,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     # Common
 
     def test_empty_post_weak_one_file(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, task_id = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -229,12 +237,16 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
 
         result = AnnotationResult.objects.latest("id")
         self.__check_weak_one_file_annotation(response.data[0], result, campaign_id)
 
     def test_empty_post_weak_one_file_twice(self):
-        url, _ = self._get_url()
+        url, _, task_id = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -248,11 +260,15 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             url,
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
         )
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
 
     def test_empty_post_weak_two_file(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, task_id = self._get_url()
         old_results = AnnotationResult.objects.all()
         old_count = old_results.count()
         old_ids = list(old_results.values_list("id", flat=True))
@@ -263,12 +279,16 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 2)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.CREATED,
+        )
 
         results = AnnotationResult.objects.exclude(id__in=old_ids)
         self.__check_weak_two_files_annotation(response.data, results, campaign_id)
 
     def test_empty_point(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, task_id = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -277,12 +297,16 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
 
         result = AnnotationResult.objects.latest("id")
         self.__check_point_annotation(response.data[0], result, campaign_id)
 
     def test_empty_point_no_end_frequency(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -296,7 +320,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.__check_point_annotation(response.data[0], result, campaign_id)
 
     def test_empty_post_strong_one_file(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, task_id = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -305,12 +329,16 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
 
         result = AnnotationResult.objects.latest("id")
         self.__check_strong_one_file_annotation(response.data[0], result, campaign_id)
 
     def test_empty_post_strong_two_file(self):
-        url, campaign_id = self._get_url()
+        url, campaign_id, task_id = self._get_url()
         old_results = AnnotationResult.objects.all()
         old_count = old_results.count()
         old_ids = list(old_results.values_list("id", flat=True))
@@ -321,6 +349,10 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(AnnotationResult.objects.count(), old_count + 2)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.CREATED,
+        )
 
         results = AnnotationResult.objects.exclude(id__in=old_ids)
         self.__check_strong_two_files_annotation(response.data, results, campaign_id)
@@ -328,7 +360,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     # Errors
 
     def test_empty_post_without_is_box(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -341,7 +373,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("is_box")[0].code, "invalid")
 
     def test_empty_post_unknown_dataset(self):
-        url, _ = self._get_url(_dataset_name="Another Dataset")
+        url, _, _ = self._get_url(_dataset_name="Another Dataset")
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -354,7 +386,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("dataset")[0].code, "does_not_exist")
 
     def test_empty_post_empty_dataset(self):
-        url, _ = self._get_url(_dataset_name="")
+        url, _, _ = self._get_url(_dataset_name="")
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -367,7 +399,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("dataset")[0].code, "null")
 
     def test_empty_post_without_detector(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -378,7 +410,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(AnnotationResult.objects.count(), old_count)
 
     def test_empty_post_map_empty(self):
-        url, _ = self._get_url(_detectors_map={})
+        url, _, _ = self._get_url(_detectors_map={})
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -389,7 +421,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(AnnotationResult.objects.count(), old_count)
 
     def test_empty_post_map_detector_empty_string(self):
-        url, _ = self._get_url(
+        url, _, _ = self._get_url(
             _detectors_map={"detector1": {"detector": "", "configuration": "test"}}
         )
         old_count = AnnotationResult.objects.count()
@@ -405,7 +437,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
 
     def test_empty_post_map_detector_none(self):
-        url, _ = self._get_url(
+        url, _, _ = self._get_url(
             _detectors_map={"detector1": {"detector": None, "configuration": "test"}}
         )
         old_count = AnnotationResult.objects.count()
@@ -421,7 +453,9 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
 
     def test_empty_post_map_detector_missing(self):
-        url, _ = self._get_url(_detectors_map={"detector1": {"configuration": "test"}})
+        url, _, _ = self._get_url(
+            _detectors_map={"detector1": {"configuration": "test"}}
+        )
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -435,7 +469,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
 
     def test_empty_post_map_config_empty_string(self):
-        url, _ = self._get_url(
+        url, _, _ = self._get_url(
             _detectors_map={"detector1": {"detector": "nnini", "configuration": ""}}
         )
         old_count = AnnotationResult.objects.count()
@@ -450,7 +484,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("detector_config")[0].code, "blank")
 
     def test_empty_post_map_config_none(self):
-        url, _ = self._get_url(
+        url, _, _ = self._get_url(
             _detectors_map={"detector1": {"detector": "nnini", "configuration": None}}
         )
         old_count = AnnotationResult.objects.count()
@@ -465,7 +499,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("detector_config")[0].code, "null")
 
     def test_empty_post_map_config_missing(self):
-        url, _ = self._get_url(_detectors_map={"detector1": {"detector": "nnini"}})
+        url, _, _ = self._get_url(_detectors_map={"detector1": {"detector": "nnini"}})
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -478,7 +512,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("detector_config")[0].code, "null")
 
     def test_empty_post_without_time(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -492,7 +526,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("end_datetime")[0].code, "invalid")
 
     def test_empty_post_incorrect_time(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -505,7 +539,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("non_field_errors")[0].code, "invalid")
 
     def test_empty_post_incorrect_time_forced(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -516,7 +550,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(AnnotationResult.objects.count(), old_count)
 
     def test_empty_post_without_frequency(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -529,7 +563,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("min_frequency")[0].code, "invalid")
 
     def test_empty_post_bellow_frequency(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -543,7 +577,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("max_frequency")[0].code, "min_value")
 
     def test_empty_post_over_frequency(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
@@ -557,7 +591,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("max_frequency")[0].code, "max_value")
 
     def test_empty_post_without_label(self):
-        url, _ = self._get_url()
+        url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,

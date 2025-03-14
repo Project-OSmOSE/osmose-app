@@ -14,6 +14,7 @@ from backend.api.models import (
     AnnotationResult,
     AnnotationCampaign,
     DatasetFile,
+    AnnotationTask,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -199,5 +200,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        list_serializer = self.get_serializer_class()(serializer.instance, many=True)
+        instances: list[AnnotationResult] = serializer.instance
+        AnnotationTask.objects.filter(
+            annotation_campaign=campaign,
+            dataset_file_id__in=[r.dataset_file_id for r in instances],
+        ).update(status=AnnotationTask.Status.CREATED)
+        list_serializer: AnnotationResultSerializer = self.get_serializer_class()(
+            instances, many=True
+        )
         return Response(list_serializer.data, status=status.HTTP_201_CREATED)
