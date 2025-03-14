@@ -29,6 +29,10 @@ export class CampaignDetailPage {
     return this.page.getByRole('button', { name: 'Archive' });
   }
 
+  get importAnnotationsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Import annotations' });
+  }
+
   get resumeButton(): Locator {
     return this.page.getByRole('button', { name: 'Resume annotation' });
   }

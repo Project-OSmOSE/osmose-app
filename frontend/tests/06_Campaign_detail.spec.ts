@@ -12,6 +12,11 @@ const STEP = {
   }),
 
   accessArchive: (page: Page) => test.step('Access archive', () => expect(page.campaign.detail.archiveButton).toBeEnabled()),
+  accessImportAnnotations: (page: Page) => {
+    return test.step('Can import annotations', async () => {
+      await expect(page.campaign.detail.importAnnotationsButton).toBeEnabled();
+    })
+  },
   accessDownloadCSV: async (page: Page) => {
     await test.step('Access spectrogram configuration download', async () => {
       const modal = await page.campaign.detail.openSpectrogramModal();
@@ -56,6 +61,10 @@ test.describe('Annotator', () => {
 
     await test.step('Cannot archive', async () => {
       await expect(page.campaign.detail.archiveButton).not.toBeVisible();
+    })
+
+    await test.step('Cannot import annotations', async () => {
+      await expect(page.campaign.detail.importAnnotationsButton).not.toBeVisible();
     })
   })
 
@@ -198,6 +207,11 @@ test.describe('Campaign creator', () => {
     ])
   })
 
+  test('Can import annotations', async ({ page }) => {
+    await page.campaign.detail.go('creator', { mode: 'Check' });
+    await STEP.accessImportAnnotations(page)
+  })
+
   test('Can update labels with features', async ({ page }) => {
     await page.campaign.detail.go('creator');
     const modal = await page.campaign.detail.openLabelModal()
@@ -313,18 +327,20 @@ test.describe('Campaign creator', () => {
 })
 
 test('Staff', async ({ page }) => {
-  await page.campaign.detail.go('staff');
+  await page.campaign.detail.go('staff', { mode: 'Check' });
 
   await STEP.accessArchive(page)
+  await STEP.accessImportAnnotations(page)
   await STEP.accessDownloadCSV(page)
   await STEP.accessLabelUpdate(page)
   await STEP.accessManageAnnotators(page)
 })
 
 test('Superuser', ESSENTIAL, async ({ page }) => {
-  await page.campaign.detail.go('superuser');
+  await page.campaign.detail.go('superuser', { mode: 'Check' });
 
   await STEP.accessArchive(page)
+  await STEP.accessImportAnnotations(page)
   await STEP.accessDownloadCSV(page)
   await STEP.accessLabelUpdate(page)
   await STEP.accessManageAnnotators(page)
