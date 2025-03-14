@@ -142,7 +142,7 @@ export const CreateCampaign: React.FC = () => {
         createCampaign({ ...base, usage })
         break;
     }
-  }, [ name, desc, instructions_url, deadline, dataset, spectro_configs, labelSet, labels_with_acoustic_features, confidenceSet, allow_point_annotation ])
+  }, [ name, desc, instructions_url, deadline, dataset, spectro_configs, labelSet, labels_with_acoustic_features, confidenceSet, allow_point_annotation, usage ])
   useEffect(() => {
     if (errorSubmittingCampaign) {
       toast.presentError(errorSubmittingCampaign)
@@ -154,7 +154,7 @@ export const CreateCampaign: React.FC = () => {
   }, [ errorSubmittingCampaign ]);
   useEffect(() => {
     if (!createdCampaign) return;
-    switch (createdCampaign.usage) {
+    switch (usage) {
       case 'Create':
         history.push(`/annotation-campaign/${ createdCampaign.id }/edit-annotators`, { fromCreateCampaign: true })
         break;
@@ -162,7 +162,7 @@ export const CreateCampaign: React.FC = () => {
         history.push(`/annotation-campaign/${ createdCampaign.id }/import-annotations`, { fromCreateCampaign: true })
         break;
     }
-  }, [ createdCampaign ]);
+  }, [ createdCampaign, usage ]);
 
   return (
     <div className={ styles.page } ref={ page }>
