@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import { CampaignAPI } from "@/service/campaign";
@@ -8,9 +8,11 @@ import { AnnotationResultAPI } from "@/service/campaign/result";
 import { FileSelectorContent } from "@/view/campaign/edit/ImportAnnotations/FileSelectorContent.tsx";
 import { DetectorsContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsContent.tsx";
 import { DetectorsConfigContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsConfigContent.tsx";
-import { useAppSelector } from "@/service/app.ts";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { Progress } from "@/components/ui";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { ResultImportSlice } from "@/service/campaign/result/import";
+import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 
 const CHUNK_SIZE = 200;
 
@@ -30,17 +32,23 @@ export const ImportAnnotations: React.FC = () => {
   const [ errorSubmitting, setErrorSubmitting ] = useState<any | undefined>();
   const [ uploadDuration, setUploadDuration ] = useState<number>(0);
   const [ totalUploaded, setTotalUploaded ] = useState<number>(0);
-  const totalLines = useMemo(() => file.state === 'loaded' ? file.rows.length : 0, [ file ])
+  const rows = useMemo(() => file.state === 'loaded' ? file.rows.filter(r => r.some(cell => detectors.selection.includes(cell))) : [], [ file, detectors.selection ])
+  const totalLines = useMemo(() => rows.length, [ rows ])
   const remainingTime = useMemo(() => {
     const remainingLines = totalLines - totalUploaded;
     return remainingLines * uploadDuration / totalUploaded;
   }, [ totalLines, totalUploaded, uploadDuration ])
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(ResultImportSlice.actions.clear())
+  }, []);
 
   // Navigation
   const page = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!campaign || !(location.state as any)?.fromCreateCampaign) return;
-    toast.presentSuccess(`Campaign ${ campaign.name }' was successfully created`)
+    toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
   }, [ location, campaign ]);
   const back = useCallback(() => {
     if (campaign) history.push(`/annotation-campaign/${ campaign.id }`)
@@ -55,9 +63,10 @@ export const ImportAnnotations: React.FC = () => {
       const chunkCount = Math.ceil(totalLines / CHUNK_SIZE);
       const detectors_map: { [key in string]: { detector: string, configuration: string } } = {}
       for (const d of detectors.selection) {
-        const config = detectors.mapToConfiguration[d];
+        const detector = detectors.mapToKnown[d]?.name ?? d;
+        const config = detectors.mapToConfiguration[detector];
         detectors_map[d] = {
-          detector: detectors.mapToKnown[d]?.name ?? d,
+          detector,
           configuration: typeof config === 'string' ? config : config?.configuration ?? '',
         }
       }
@@ -65,15 +74,15 @@ export const ImportAnnotations: React.FC = () => {
         const start = Date.now()
         const lowIndex = CHUNK_SIZE * chunk;
         const highIndex = CHUNK_SIZE * (chunk + 1);
-        const rows = file.rows.slice(lowIndex, highIndex);
+        const chunkRows = rows.slice(lowIndex, highIndex);
         await importResults({
           campaignID: campaign.id,
           datasetName: campaign.datasets![0],
           detectors_map,
-          data: [ file.header, ...rows ],
+          data: [ file.header, ...chunkRows ],
           force
         }).unwrap()
-        setTotalUploaded(prev => prev + rows.length);
+        setTotalUploaded(prev => prev + chunkRows.length);
         setUploadDuration(prev => prev + (Date.now() - start))
       }
       setIsSubmitting(false)
@@ -94,28 +103,30 @@ export const ImportAnnotations: React.FC = () => {
       }
       setErrorSubmitting(e)
     }
-  }, [])
+  }, [ location.state, totalUploaded, detectors.mapToKnown, detectors.selection, detectors.mapToConfiguration ])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);
 
   return (
-    <div className={ [styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : ''].join(' ') } ref={ page }>
+    <div
+      className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }
+      ref={ page }>
 
       <div className={ styles.title }>
         <h2>Import annotations</h2>
         { campaign && <h5>{ campaign.name }</h5> }
       </div>
 
-      <FileSelectorContent/>
-      <DetectorsContent/>
-      <DetectorsConfigContent/>
+      <FileSelectorContent disabled={ isSubmitting }/>
+      <DetectorsContent disabled={ isSubmitting }/>
+      <DetectorsConfigContent disabled={ isSubmitting }/>
 
-      { isSubmitting && file.state === 'loaded' && <Fragment>
-          <Progress value={ Math.trunc(totalUploaded / totalLines) } total={ 100 }/>
+      { isSubmitting && file.state === 'loaded' && <div>
+          <Progress label='Upload' value={ totalUploaded } total={ totalLines }/>
         { uploadDuration > 0 && totalLines > totalUploaded &&
-            <IonNote>Estimated remaining time: { remainingTime }</IonNote> }
-      </Fragment> }
+            <IonNote>Estimated remaining time: { formatTime(remainingTime / 1000) } minutes</IonNote> }
+      </div> }
 
       <div className={ styles.buttons }>
         <IonButton color='medium' fill='outline' onClick={ back }>
