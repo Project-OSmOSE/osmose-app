@@ -13,6 +13,8 @@ import { CurrentAnnotationBloc } from "./components/bloc/current-annotation-bloc
 import { NavigationButtons } from "./components/navigation-buttons.component.tsx";
 
 import '../../css/annotator.css';
+import { ColormapConfiguration } from '@/view/annotator/tools/select/ColormapConfiguration.tsx';
+import { SpectrogramImage } from '@/view/annotator/tools/input/SpectrogramImage.tsx';
 import { PlayPauseButton } from "@/view/audio-annotator/components/buttons/play-pause.tsx";
 import { PlaybackRateSelect } from "@/view/audio-annotator/components/select/playback-rate.tsx";
 import { AudioDownloadButton } from "@/view/audio-annotator/components/buttons/audio-download.tsx";
@@ -134,10 +136,12 @@ export const AudioAnnotator: React.FC = () => {
              height: `${ CONTROLS_AREA_SIZE + SPECTRO_CANVAS_HEIGHT + TIME_AXIS_SIZE + SCROLLBAR_RESERVED }px`,
              width: `${ FREQ_AXIS_SIZE + SPECTRO_CANVAS_WIDTH }px`,
            } }>
-        <p className="workbench-controls">
+        <div className="workbench-controls">
           <SpectrogramConfigurationSelect/>
+          <ColormapConfiguration />
+          <SpectrogramImage />
           <ZoomButton/>
-        </p>
+        </div>
 
         <PointerPosition/>
 

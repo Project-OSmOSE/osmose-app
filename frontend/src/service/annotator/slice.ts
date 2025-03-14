@@ -36,7 +36,11 @@ export const AnnotatorSlice = createSlice({
     userPreferences: {
       audioSpeed: 1,
       zoomLevel: 1,
-      spectrogramConfigurationID: 1
+      spectrogramConfigurationID: 1,
+      colormap: undefined,
+      colormapInverted: false,
+      brightness: 50,
+      contrast: 50,
     },
     audio: {
       isPaused: true,
@@ -275,6 +279,23 @@ export const AnnotatorSlice = createSlice({
     selectSpectrogramConfiguration: (state, { payload }: { payload: number }) => {
       state.userPreferences.spectrogramConfigurationID = payload;
       state.userPreferences.zoomLevel = 1;
+      state.userPreferences.colormap = undefined;
+      state.userPreferences.colormapInverted = false;
+      state.userPreferences.brightness = 50;
+      state.userPreferences.contrast = 50;
+    },
+    setColormap: (state, { payload }: { payload: string }) => {
+      state.userPreferences.colormap = payload;
+      state.userPreferences.colormapInverted = false;
+    },
+    invertColormap: (state) => {
+      state.userPreferences.colormapInverted = !state.userPreferences.colormapInverted;
+    },
+    setBrightness: (state, { payload }: { payload: number }) => {
+      state.userPreferences.brightness = payload;
+    },
+    setContrast: (state, { payload }: { payload: number }) => {
+      state.userPreferences.contrast = payload;
     },
     setPointerPosition: (state, { payload }: { payload: { time: number, frequency: number } }) => {
       state.ui.pointerPosition = payload;
@@ -358,6 +379,11 @@ export const AnnotatorSlice = createSlice({
             time: 0,
             isPaused: true,
           }
+          state.userPreferences = {
+            ...state.userPreferences,
+            brightness: 50,
+            contrast: 50,
+          }
           state.sessionStart = Date.now();
           state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
         },
@@ -369,6 +395,10 @@ export const AnnotatorSlice = createSlice({
           if (state.campaignID !== payload.id) {
             state.userPreferences.audioSpeed = 1;
             state.userPreferences.zoomLevel = 1;
+            state.userPreferences.brightness = 50;
+            state.userPreferences.contrast = 50;
+            state.userPreferences.colormap = undefined;
+            state.userPreferences.colormapInverted = false;
           }
           state.campaignID = payload.id;
         },
@@ -413,6 +443,10 @@ export const {
   removeResult,
   addResult,
   selectSpectrogramConfiguration,
+  setColormap,
+  invertColormap,
+  setBrightness,
+  setContrast,
   setPointerPosition,
   zoom,
   leavePointerPosition,

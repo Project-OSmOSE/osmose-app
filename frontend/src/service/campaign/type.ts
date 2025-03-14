@@ -21,6 +21,9 @@ export type BaseAnnotationCampaign = {
   spectro_configs: Array<number>; //pk
   labels_with_acoustic_features: Array<string>;
   allow_point_annotation: boolean;
+  allow_image_tuning: boolean;
+  allow_colormap_tuning: boolean;
+  colormap_tuning_default: string | null;
 }
 
 /**
