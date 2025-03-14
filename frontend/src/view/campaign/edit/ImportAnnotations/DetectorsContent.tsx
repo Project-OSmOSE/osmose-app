@@ -9,7 +9,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { alertOutline } from "ionicons/icons";
 import { ResultImportSlice } from "@/service/campaign/result/import";
 
-export const DetectorsContent: React.FC = () => {
+export const DetectorsContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
   const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } = useListDetectorQuery({});
 
   const { file } = useAppSelector(state => state.resultImport);
@@ -32,7 +32,7 @@ export const DetectorsContent: React.FC = () => {
       }));
     }
     dispatch(ResultImportSlice.actions.selectDetector(detectorName));
-  }, [allDetectors])
+  }, [ allDetectors ])
 
   if (file.state !== 'loaded') return <Fragment/>
   return <FormBloc label="Detectors">
@@ -42,6 +42,7 @@ export const DetectorsContent: React.FC = () => {
         <WarningMessage>Fail loading known detectors:<br/>{ getErrorMessage(detectorsLoadError) }</WarningMessage> }
 
     { allDetectors && file.detectors.map(initialName => <DetectorEntry key={ initialName }
+                                                                       disabled={ disabled }
                                                                        initialName={ initialName }
                                                                        onChange={ onChange }
                                                                        onDetectorChange={ onDetectorChange }/>) }
@@ -50,9 +51,10 @@ export const DetectorsContent: React.FC = () => {
 
 const DetectorEntry: React.FC<{
   initialName: string;
+  disabled?: boolean;
   onChange: (e: CustomEvent<CheckboxChangeEventDetail>, detectorName: string) => void;
   onDetectorChange: (id: string | number | undefined, detectorName: string) => void
-}> = ({ initialName, onChange, onDetectorChange }) => {
+}> = ({ initialName, onChange, onDetectorChange, disabled }) => {
   const { data: allDetectors } = useListDetectorQuery({});
   const { detectors } = useAppSelector(state => state.resultImport);
 
@@ -65,7 +67,7 @@ const DetectorEntry: React.FC<{
     <IonCheckbox labelPlacement="end" justify="start"
                  color={ !isKnown && !isUpdated ? 'danger' : undefined }
                  checked={ isSelected }
-                 disabled={ !isKnown && !isUpdated }
+                 disabled={ disabled || (!isKnown && !isUpdated) }
                  onIonChange={ e => onChange(e, initialName) }/>
     { !isKnown && !isUpdated && <IonIcon className={ styles.exclamation } icon={ alertOutline } color="danger"/> }
 
@@ -80,6 +82,7 @@ const DetectorEntry: React.FC<{
                 onValueSelected={ v => onDetectorChange(v, initialName) }
                 options={ allDetectors?.map(d => ({ value: d.id, label: d.name })) ?? [] }
                 optionsContainer="popover"
+                disabled={ disabled }
                 noneLabel={ `Create "${ initialName }"` }
                 placeholder="Assign to detector"/>
     </div> }
