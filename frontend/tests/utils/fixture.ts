@@ -11,6 +11,7 @@ import {
   LoginPage
 } from './pages';
 import { Mock } from './services';
+import { CampaignImportAnnotationsPage } from "./pages/campaign-import-annotations";
 
 interface PageExtension {
   readonly mock: Mock;
@@ -25,6 +26,7 @@ interface PageExtension {
     detail: CampaignDetailPage;
     create: CampaignCreatePage;
     edit: CampaignEditPage;
+    import: CampaignImportAnnotationsPage;
   }
 }
 
@@ -54,6 +56,7 @@ export const test = testBase.extend<Fixture>({
         detail: new CampaignDetailPage(page),
         create: new CampaignCreatePage(page),
         edit: new CampaignEditPage(page),
+        import: new CampaignImportAnnotationsPage(page),
       },
     } satisfies PageExtension))
   },

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useMemo } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { FormBloc, Select } from "@/components/form";
 import styles from './importAnnotations.module.scss'
@@ -57,10 +57,16 @@ const DetectorEntry: React.FC<{
 }> = ({ initialName, onChange, onDetectorChange, disabled }) => {
   const { data: allDetectors } = useListDetectorQuery({});
   const { detectors } = useAppSelector(state => state.resultImport);
+  const dispatch = useAppDispatch();
 
   const isKnown = useMemo(() => allDetectors?.some(d => d.name === initialName), [ allDetectors ]);
   const isSelected = useMemo(() => !!detectors.selection.find(s => s === initialName), [ detectors.selection ]);
   const isUpdated = useMemo(() => initialName in detectors.mapToKnown, [ detectors.mapToKnown ]);
+
+  useEffect(() => {
+    if (isKnown) // By default, select detector if it already matches to a known one
+      dispatch(ResultImportSlice.actions.selectDetector(initialName));
+  }, []);
 
   return <div key={ initialName }
               className={ [ styles.detectorEntry, isKnown ? '' : styles.unknown ].join(' ') }>
