@@ -16,7 +16,6 @@ test.describe('Annotator', () => {
       page.campaign.create.createButton.click()
     ]);
 
-
     await test.step('Check campaign', async () => {
       const data = request.postDataJSON() as WriteCreateAnnotationCampaign;
       const expectedData: WriteCreateAnnotationCampaign = {
@@ -38,6 +37,22 @@ test.describe('Annotator', () => {
       }
       expect(data).toEqual(expectedData);
     })
+
+    await expect(page.getByRole('heading', { name: "Manage annotators" })).toBeVisible()
+  })
+
+  test('[Check] Can submit only required fields', ESSENTIAL, async ({ page }) => {
+    await page.campaign.create.go('annotator');
+    await page.campaign.create.fillGlobal()
+    await page.campaign.create.fillData()
+    await page.campaign.create.selectMode('Check annotations')
+
+    await Promise.all([
+      page.waitForRequest(API_URL.campaign.create),
+      page.campaign.create.createButton.click()
+    ]);
+
+    await expect(page.getByRole('heading', { name: "Import annotations" })).toBeVisible()
   })
 
   test('[Create] Can submit complete form', ESSENTIAL, async ({ page }) => {
