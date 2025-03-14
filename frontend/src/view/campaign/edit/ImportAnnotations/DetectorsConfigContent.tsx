@@ -1,101 +1,108 @@
 import React, { ChangeEvent, Fragment, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { FormBloc, Select, Textarea } from "@/components/form";
-import { Detector, DetectorConfiguration } from "@/service/campaign/detector";
+import { Detector, DetectorConfiguration, useListDetectorQuery } from "@/service/campaign/detector";
 import styles from './importAnnotations.module.scss'
 import { ResultImportSlice } from "@/service/campaign/result/import";
 
-export const DetectorsConfigContent: React.FC = () => {
+export const DetectorsConfigContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
+  const { data: allDetectors } = useListDetectorQuery({});
 
   const { file, detectors } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();
 
-  const distinctKnownDetectors = useMemo(() => {
-    const map = new Map<Detector, string[]>();
-    for (const [ initialName, detector ] of Object.entries(detectors.mapToKnown)) {
-      if (!detector) continue;
-      const existing = map.get(detector) ?? []
-      map.set(detector, [ ...existing, initialName ]);
+  const [ distinctKnownDetectors, unknownDetectors ] = useMemo(() => {
+    const known = new Map<Detector, string[]>();
+    const unknown: string[] = [];
+    for (const initialName of detectors.selection) {
+      const detector = allDetectors?.find(d => d.name === initialName) ?? detectors.mapToKnown[initialName];
+      if (!detector) {
+        unknown.push(initialName);
+        continue;
+      }
+      const existing = known.get(detector) ?? []
+      known.set(detector, [ ...existing, initialName ]);
     }
-    return [ ...map.entries() ];
-  }, [ detectors.mapToKnown ]);
-  const unknownDetectors = useMemo(() => {
-    return Object.entries(detectors.mapToKnown).filter(([ _, d ]) => !d).map(([ name ]) => name)
-  }, [ detectors.mapToKnown ]);
+    return [ [ ...known.entries() ], unknown ];
+  }, [ detectors.selection, detectors.mapToKnown, allDetectors ]);
 
-  const onSelectConfiguration = useCallback((id: string | number | undefined, detectorNames: string[]) => {
+  const onSelectConfiguration = useCallback((id: string | number | undefined, name: string) => {
     if (typeof id === 'undefined' || (typeof id === 'string' && isNaN(+id)) || (typeof id === 'number' && id === -1)) {
-      for (const name of detectorNames) {
-        dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: '' }));
-      }
+      dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: '' }));
     } else {
-      for (const name of detectorNames) {
-        const knownDetector = detectors.mapToKnown[name];
-        dispatch(ResultImportSlice.actions.mapConfiguration({
-          name, configuration: knownDetector?.configurations?.find(c => c.id === +id)
-        }));
-      }
+      const knownDetector = allDetectors?.find(d => d.name === name) ?? detectors.mapToKnown[name];
+      dispatch(ResultImportSlice.actions.mapConfiguration({
+        name, configuration: knownDetector?.configurations?.find(c => c.id === +id)
+      }));
     }
-  }, [])
-  const onConfigurationTextUpdated = useCallback((e: ChangeEvent<HTMLTextAreaElement>, detectorNames: string) => {
-    for (const name of detectorNames) {
-      dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: e.target.value }));
-    }
+  }, [ allDetectors, detectors.mapToKnown ])
+  const onConfigurationTextUpdated = useCallback((e: ChangeEvent<HTMLTextAreaElement>, name: string) => {
+    dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: e.target.value }));
   }, [])
 
   if (file.state !== 'loaded' || detectors.selection.length === 0) return <Fragment/>
   return <FormBloc label="Detectors configurations">
-    { distinctKnownDetectors.map(([ detector, names ]) => {
-      const configuration = detectors.mapToConfiguration[names[0]];
-      return <div className={ styles.configEntry }>
-
-        <p><strong>{ detector?.name }</strong>({ names.join(', ') }) configuration</p>
-
-        <Select value={ typeof configuration === 'string' ? undefined : configuration?.id }
-                onValueSelected={ v => onSelectConfiguration(v, names) }
-                options={ detector.configurations.map((c: DetectorConfiguration) => ({
-                  value: c.id,
-                  label: c.configuration
-                })) ?? [] }
-                optionsContainer="popover"
-                noneLabel="Create new" noneFirst
-                placeholder="Select configuration"/>
-
-        <Textarea placeholder="Enter new configuration"
-                  hidden={ !configuration }
-                  disabled={ !configuration || typeof configuration === 'string' }
-                  value={ typeof configuration === 'string' ? configuration : configuration?.configuration }
-                  onChange={ e => onConfigurationTextUpdated(e, names) }/>
-
-        <div className="line"/>
-      </div>
-    }) }
-    { detectors.selection.map(detector => {
-      const knownDetector = detectors.mapToKnown[detector];
-      const configuration = detectors.mapToConfiguration[detector];
-      return <div className={ [ styles.configEntry, !knownDetector && styles.unknown ].join(' ') }>
-
-        <p><strong>{ detector }</strong> configuration</p>
-
-        <Select value={ typeof configuration === 'string' ? undefined : configuration?.id }
-                onValueSelected={ v => onSelectConfiguration(v, detector) }
-                options={ knownDetector?.configurations.map((c: DetectorConfiguration) => ({
-                  value: c.id,
-                  label: c.configuration
-                })) ?? [] }
-                optionsContainer="popover"
-                noneLabel="Create new" noneFirst
-                placeholder="Select configuration"/>
-
-        <Textarea placeholder="Enter new configuration"
-                  hidden={ !configuration }
-                  disabled={ knownDetector && (!configuration || typeof configuration === 'string') }
-                  value={ typeof configuration === 'string' ? configuration : configuration?.configuration }
-                  onChange={ e => onConfigurationTextUpdated(e, detector) }/>
-
-        <div className="line"/>
-      </div>
-    }) }
+    { distinctKnownDetectors.map(([ detector, names ]) => <ConfigEntry key={ detector.name }
+                                                                       disabled={ disabled }
+                                                                       displayName={ detector.name }
+                                                                       originalNames={ names }
+                                                                       availableConfigurations={ detector.configurations }
+                                                                       onSelectConfiguration={ onSelectConfiguration }
+                                                                       onConfigurationTextUpdated={ onConfigurationTextUpdated }/>) }
+    { unknownDetectors.map(detector => <ConfigEntry key={ detector }
+                                                    disabled={ disabled }
+                                                    displayName={ detector }
+                                                    onSelectConfiguration={ onSelectConfiguration }
+                                                    onConfigurationTextUpdated={ onConfigurationTextUpdated }/>) }
   </FormBloc>
 }
 
+const ConfigEntry: React.FC<{
+  displayName: string;
+  disabled?: boolean;
+  originalNames?: string[];
+  availableConfigurations?: DetectorConfiguration[];
+  onSelectConfiguration: (id: string | number | undefined, name: string) => void;
+  onConfigurationTextUpdated: (e: ChangeEvent<HTMLTextAreaElement>, name: string) => void;
+}> = ({
+        displayName,
+        originalNames = [ displayName ],
+        disabled,
+        availableConfigurations = [],
+        onSelectConfiguration,
+        onConfigurationTextUpdated
+      }) => {
+
+  const { detectors } = useAppSelector(state => state.resultImport);
+
+  const displayOriginalNames: string | undefined = useMemo(() => {
+    if (originalNames.length === 1 && originalNames[0] === displayName) return;
+    return originalNames.join(', ')
+  }, [ displayName, originalNames ])
+  const configuration = useMemo(() => detectors.mapToConfiguration[displayName], [ detectors.mapToConfiguration ]);
+
+  return <div className={ [ styles.configEntry, availableConfigurations.length > 0 ? '' : styles.unknown ].join(' ') }>
+
+    <p><strong>{ displayName }</strong> { displayOriginalNames &&
+        <Fragment>({ displayOriginalNames })</Fragment> } configuration</p>
+
+    <Select value={ typeof configuration === 'string' ? undefined : configuration?.id }
+            onValueSelected={ v => onSelectConfiguration(v, displayName) }
+            options={ availableConfigurations?.map((c: DetectorConfiguration) => ({
+              value: c.id,
+              label: c.configuration
+            })) ?? [] }
+            disabled={ disabled }
+            optionsContainer="popover"
+            noneLabel="Create new" noneFirst
+            placeholder="Select configuration"/>
+
+    <Textarea placeholder="Enter new configuration"
+              hidden={ configuration === undefined }
+              disabled={ disabled || (configuration !== undefined && typeof configuration !== 'string') }
+              value={ typeof configuration === 'string' ? configuration : configuration?.configuration }
+              onChange={ e => onConfigurationTextUpdated(e, displayName) }/>
+
+    <div className="line"/>
+  </div>
+}

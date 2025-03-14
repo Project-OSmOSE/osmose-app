@@ -71,6 +71,9 @@ export const ResultImportSlice = createSlice({
       payload: { name: string, configuration: DetectorConfiguration | string | undefined }
     }) => {
       state.detectors.mapToConfiguration[action.payload.name] = action.payload.configuration;
+    },
+    clearConfiguration: (state, action: { payload: { name: string } }) => {
+      delete state.detectors.mapToConfiguration[action.payload.name];
     }
   },
   extraReducers: builder => {

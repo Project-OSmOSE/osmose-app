@@ -12,7 +12,7 @@ import { CampaignAPI } from "@/service/campaign";
 import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import { FormBloc } from "@/components/form";
 
-export const FileSelectorContent: React.FC = () => {
+export const FileSelectorContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
   const { id: campaignID } = useParams<{ id: string }>();
   const {
     data: campaign,
@@ -46,7 +46,7 @@ export const FileSelectorContent: React.FC = () => {
     input.accept = ACCEPT_CSV_MIME_TYPE;
     input.click();
     input.oninput = () => handleInput(input.files ?? undefined)
-  }, [])
+  }, [file.state])
   const onDragZoneDrop = useCallback((event: DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -69,11 +69,12 @@ export const FileSelectorContent: React.FC = () => {
       case 'loaded':
         return <Fragment>
           <p>{ file.name }</p>
-          <IonButton onClick={ reset } className='ion-text-wrap'>Reset<IonIcon icon={ refreshOutline }
-                                                                                 slot="end"/></IonButton>
+          <IonButton onClick={ reset } disabled={ disabled } className='ion-text-wrap'>Reset<IonIcon
+            icon={ refreshOutline }
+            slot="end"/></IonButton>
         </Fragment>
     }
-  }, [ file.state ])
+  }, [ file.state, disabled ])
 
   if (isFetchingCampaign) return <IonSpinner/>
   if (errorLoadingCampaign)

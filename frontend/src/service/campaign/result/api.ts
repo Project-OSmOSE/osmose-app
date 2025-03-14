@@ -24,7 +24,7 @@ export const AnnotationResultAPI = createApi({
             force: force ?? false
           }) }`,
           method: 'POST',
-          body: data,
+          body: { data: data.map(row => row.map(cell => `"${ cell }"`).join(',')).join('\n') },
         }
       }
     }),
