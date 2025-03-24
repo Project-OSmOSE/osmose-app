@@ -22,7 +22,7 @@ class ModelFilter(filters.BaseFilterBackend):
                 _queryset = _queryset.filter(**{param: value})
             except FieldError:
                 continue
-        return _queryset
+        return _queryset.distinct()
 
 
 def get_boolean_query_param(request: Request, label: str) -> Optional[bool]:

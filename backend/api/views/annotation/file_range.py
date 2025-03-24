@@ -206,6 +206,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                         Q(annotation_results__annotator_id=self.request.user.id)
                         | Q(annotation_results__detector_configuration__isnull=False)
                     ),
+                    distinct=True,
                 ),
             )
         )
