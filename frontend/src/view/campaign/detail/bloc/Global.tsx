@@ -23,10 +23,10 @@ export const Global: React.FC = () => {
       return alert.showAlert({
         type: 'Warning',
         message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
-        action: {
+        actions: [{
           label: 'Archive',
           callback: () => archiveCampaign(campaign.id)
-        }
+        }]
       });
     } else archiveCampaign(campaign.id)
   }, [ campaign ]);
