@@ -34,7 +34,7 @@ export class AnnotatorNewPage extends AnnotatorPage {
       },
       remove: async () => {
         await this.page.locator('.label ion-chip').filter({ hasText: label }).locator('svg').last().click()
-        const alert = this.page.getByRole('alertdialog')
+        const alert = this.page.getByRole('dialog')
         await alert.getByRole('button', { name: `Remove "${ label }" annotations` }).click()
       },
       selectLabel: async () => {
