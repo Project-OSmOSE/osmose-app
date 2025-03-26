@@ -7,7 +7,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { confirm } from "@/view/global-components";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { addPresenceResult, focusLabel, getPresenceLabels, removePresence } from '@/service/annotator';
-import { disableShortcuts, enableShortcuts, KEY_DOWN_EVENT } from "@/service/events";
+import { EventSlice, KEY_DOWN_EVENT } from "@/service/events";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 
 
@@ -61,9 +61,9 @@ export const PresenceBloc: React.FC = () => {
       // Remove presence
       if (results?.find(a => a.label === label)) {
         // if annotations exists with this label: wait for confirmation
-        dispatch(disableShortcuts())
+        dispatch(EventSlice.actions.disableShortcuts())
         const response = await confirm(`You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure ?`, `Remove "${ label }" annotations`);
-        dispatch(enableShortcuts())
+        dispatch(EventSlice.actions.enableShortcuts())
         if (!response) return;
       }
       dispatch(removePresence(label));
