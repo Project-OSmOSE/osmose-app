@@ -1,15 +1,40 @@
-import React, { Fragment, useCallback } from "react";
+import React, { Fragment, useCallback, useEffect } from "react";
 import { Alert as AlertType } from "./type";
 
 import styles from './style.module.scss';
 import { createPortal } from "react-dom";
 import { Modal, ModalFooter } from "@/components/ui";
 import { IonButton } from "@ionic/react";
+import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
 
 export const Alert: React.FC<{
   alert: AlertType & { id: number }
   hide: () => void;
 }> = ({ alert, hide }) => {
+
+  useEffect(() => {
+    NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
+
+    return () => {
+      NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
+    }
+  }, []);
+
+  const onKbdEvent = useCallback((event: KeyboardEvent) => {
+    if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+      switch (alert.type) {
+        case 'Success':
+          hide();
+          break;
+        case 'Warning':
+          onAction();
+          break;
+        case 'Error':
+          // Do nothing
+          break;
+      }
+    }
+  }, [hide]);
 
   const onAction = useCallback(() => {
     if (alert.type === 'Success') return;
