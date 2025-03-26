@@ -16,8 +16,3 @@ export const EventSlice = createSlice({
     },
   },
 })
-
-export const {
-  enableShortcuts,
-  disableShortcuts,
-} = EventSlice.actions

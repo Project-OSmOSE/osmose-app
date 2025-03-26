@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { focusTask, removeFocusComment, updateFocusComment } from '@/service/annotator';
-import { disableShortcuts, enableShortcuts } from "@/service/events";
+import { EventSlice } from "@/service/events";
 
 
 export const CommentBloc: React.FC = () => {
@@ -33,8 +33,8 @@ export const CommentBloc: React.FC = () => {
                       placeholder="Enter your comment"
                       value={ currentComment ?? '' }
                       onChange={ e => dispatch(updateFocusComment(e.target.value)) }
-                      onFocus={ () => dispatch(disableShortcuts()) }
-                      onBlur={ () => dispatch(enableShortcuts()) }></textarea>
+                      onFocus={ () => dispatch(EventSlice.actions.disableShortcuts()) }
+                      onBlur={ () => dispatch(EventSlice.actions.enableShortcuts()) }></textarea>
             <div className="input-group-append col-sm-2 p-0">
               <div className="btn-group-vertical">
                 <button className="btn btn-danger ml-0"

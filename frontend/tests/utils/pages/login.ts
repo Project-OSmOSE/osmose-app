@@ -24,13 +24,13 @@ export class LoginPage {
     })
   }
 
-  async submit(status: 200 | 401): Promise<Request> {
+  async submit({ status, submitAction }: { status: 200 | 401, submitAction: 'button' | 'enterKey' }): Promise<Request> {
     return await test.step('Submit', async () => {
       if (status === 200) await this.mock.token()
       else await this.mock.token({ status, json: { detail: LoginPage.SERVER_ERROR } })
       const [ request ] = await Promise.all([
         this.page.waitForRequest(API_URL.token),
-        this.page.getByRole('button', { name: 'Login' }).click()
+        submitAction === 'button' ? this.page.getByRole('button', { name: 'Login' }).click() : this.page.keyboard.press('Enter')
       ])
       return request;
     })
@@ -40,7 +40,7 @@ export class LoginPage {
     await this.go()
     await this.fillForm()
     await this.mock.userSelf(as)
-    await this.submit(200)
+    await this.submit({ status: 200, submitAction: 'button' })
     await this.mock.userSelf(as)
   }
 }

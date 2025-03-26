@@ -10,7 +10,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
 import { useGetCurrentUserQuery } from "@/service/user";
-import { KEY_DOWN_EVENT } from "@/service/events";
+import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
 
 export const Login: React.FC = () => {
 
@@ -34,10 +34,10 @@ export const Login: React.FC = () => {
   const { refetch } = useGetCurrentUserQuery()
 
   useEffect(() => {
-    KEY_DOWN_EVENT.add(onKbdEvent);
+    NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
 
     return () => {
-      KEY_DOWN_EVENT.remove(onKbdEvent);
+      NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
       toast.dismiss()
     }
   }, []);

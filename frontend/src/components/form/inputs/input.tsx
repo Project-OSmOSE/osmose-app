@@ -2,7 +2,7 @@ import React, { Fragment, HTMLInputTypeAttribute, InputHTMLAttributes, useState 
 import { IonIcon, IonNote } from "@ionic/react";
 import { eyeOffOutline, eyeOutline } from "ionicons/icons";
 import { useAppDispatch } from "@/service/app.ts";
-import { disableShortcuts, enableShortcuts } from "@/service/events";
+import { EventSlice } from "@/service/events";
 import styles from './inputs.module.scss'
 import { Label } from "@/components/form/inputs/Label.tsx";
 
@@ -46,8 +46,8 @@ export const Input: React.FC<InputProperties> = ({
              value={ value }
              required={ required }
              disabled={ disabled }
-             onFocus={ () => dispatch(disableShortcuts()) }
-             onBlur={ () => dispatch(enableShortcuts()) }
+             onFocus={ () => dispatch(EventSlice.actions.disableShortcuts()) }
+             onBlur={ () => dispatch(EventSlice.actions.enableShortcuts()) }
              className={ `${ className.join(' ') } ${ inputArgs.className }` }/>
 
       { inputArgs.type === 'password' && <Fragment>

@@ -1,6 +1,6 @@
 import { AlertOptions, useIonAlert } from "@ionic/react";
 import { useAppDispatch } from "@/service/app.ts";
-import { disableShortcuts, enableShortcuts } from "@/service/events";
+import { EventSlice } from "@/service/events";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 
 export const useAlert = () => {
@@ -8,14 +8,14 @@ export const useAlert = () => {
   const dispatch = useAppDispatch();
 
   async function present(options: AlertOptions & HookOverlayOptions): Promise<void> {
-    dispatch(disableShortcuts())
+    dispatch(EventSlice.actions.disableShortcuts())
     await _present(options)
-    dispatch(enableShortcuts())
+    dispatch(EventSlice.actions.enableShortcuts())
   }
 
   function dismiss(): void {
     _dismiss().catch(console.warn)
-    dispatch(enableShortcuts())
+    dispatch(EventSlice.actions.enableShortcuts())
   }
 
   return { present, dismiss }
