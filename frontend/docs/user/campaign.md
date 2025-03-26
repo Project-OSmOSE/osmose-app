@@ -58,3 +58,16 @@ The file table contains the following columns:
 | Status      | Either you submitted your work on the file                                                                    |
 | Access      | A direct link to access the [annotator](./annotator)                                                          |
 
+By clicking on the funnel icon on the file table header, you can filter files.
+
+#### Date filters
+
+![](/campaigns/date-filters.png)
+
+#### Annotation filters
+
+![](/campaigns/annotations-filters.png)
+
+#### Status filters
+
+![](/campaigns/status-filters.png)
