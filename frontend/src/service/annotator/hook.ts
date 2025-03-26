@@ -54,10 +54,10 @@ export const useCanNavigate = () => {
       alert.showAlert({
         type: 'Warning',
         message: `You have unsaved changes. Are you sure you want to forget all of them?`,
-        action: {
+        actions: [{
           label: 'Forget my changes',
           callback: () => resolve(true)
-        },
+        }],
         onCancel: () => resolve(false)
       })
     })
