@@ -1,14 +1,11 @@
-import React, { createContext, Fragment, ReactNode, useCallback, useMemo, useState } from "react";
-import { Alert } from "./type";
-import { createPortal } from "react-dom";
-import { Modal, ModalFooter } from "@/components/ui";
-import styles from './style.module.scss';
-import { IonButton } from "@ionic/react";
+import React, { createContext, ReactNode, useCallback, useMemo, useState } from "react";
+import { Alert as AlertType } from "./type";
+import { Alert } from "@/service/ui/alert/alert.tsx";
 
 // Based on https://medium.com/@mayankvishwakarma.dev/building-an-alert-provider-in-react-using-context-and-custom-hooks-7c90931de088
 
 type AlertContext = {
-  showAlert: (alert: Alert) => number;
+  showAlert: (alert: AlertType) => number;
   hideAlert: (id: number) => void;
 };
 
@@ -23,7 +20,7 @@ export const AlertContext = createContext<AlertContext>({
 })
 
 export const AlertProvider: React.FC<AlertContextProvider> = ({ children }) => {
-  const [ alerts, setAlerts ] = useState<(Alert & { id: number })[]>([]);
+  const [ alerts, setAlerts ] = useState<(AlertType & { id: number })[]>([]);
 
   // Function to hide an alert based on its index
   const hideAlert = useCallback((id: number) => {
@@ -44,32 +41,7 @@ export const AlertProvider: React.FC<AlertContextProvider> = ({ children }) => {
     <AlertContext.Provider value={ contextValue }>
       { children }
 
-      { alerts.map(alert => createPortal(<Modal className={ styles.alert }>
-        <p>{ alert.message }</p>
-
-        <ModalFooter className={ styles.buttons }>
-
-          { alert.type === 'Success' &&
-              <IonButton color="success" fill='clear' onClick={ () => hideAlert(alert.id) }>Ok</IonButton> }
-
-          { alert.type === 'Warning' && <Fragment>
-              <IonButton color="medium" fill='clear' onClick={ () => hideAlert(alert.id) }>Cancel</IonButton>
-              <IonButton color="warning" fill='clear' onClick={ () => {
-                hideAlert(alert.id);
-                alert.action.callback()
-              } }>{ alert.action.label }</IonButton>
-          </Fragment> }
-
-          { alert.type === 'Error' && <Fragment>
-              <IonButton color="danger" fill='clear' onClick={ () => {
-                hideAlert(alert.id);
-                alert.action.callback()
-              } }>{ alert.action.label }</IonButton>
-              <IonButton color="medium" fill='clear' onClick={ () => hideAlert(alert.id) }>Cancel</IonButton>
-          </Fragment> }
-
-        </ModalFooter>
-      </Modal>, document.body)) }
+      { alerts.map(alert => <Alert alert={ alert } hide={ () => hideAlert(alert.id) }/>) }
     </AlertContext.Provider>
   )
 }
