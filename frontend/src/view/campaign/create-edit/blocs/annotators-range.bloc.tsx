@@ -72,11 +72,11 @@ export const AnnotatorsRangeBloc: React.FC<{
   }, [ users, filesCount, draftFileRanges, groups ]);
 
   function onAddItem(item: Item) {
-    const [type, id] = (item.value as string).split('-');
+    const [ type, id ] = (item.value as string).split('-');
     if (type === 'user') dispatch(addDraftFileRange({ annotator: +id }))
     else if (type === 'group') {
       const group = groups?.find(g => g.id === +id)
-      for (const user of group?.annotators ?? [] ) {
+      for (const user of group?.annotators ?? []) {
         if (availableUsers.find(a => a.type === 'user' && a.id === user.id)) {
           dispatch(addDraftFileRange({ annotator: user.id }))
         }
@@ -137,20 +137,16 @@ const AnnotatorRangeLine: React.FC<{
   const alert = useAlert();
 
   function unlock() {
-    alert.present({
+    alert.showAlert({
+      type: 'Warning',
       message: `This annotator has already started to annotated. By updating its file range you could remove some annotations he/she made. Are you sure?`,
-      cssClass: 'danger-confirm-alert',
-      buttons: [
-        {
-          text: `Update file range`,
-          cssClass: 'ion-color-danger',
-          handler: () => {
-            setIsLocked(false)
-            if (setIsForced) setIsForced(true)
-          }
-        },
-        'Cancel',
-      ]
+      action: {
+        label: `Update file range`,
+        callback: () => {
+          setIsLocked(false)
+          if (setIsForced) setIsForced(true)
+        }
+      },
     })
   }
 

@@ -85,17 +85,13 @@ export const Labels: React.FC = () => {
     event.stopPropagation();
     if (!presenceLabels.includes(label) || !results) return;
     // if annotations exists with this label: wait for confirmation
-    await alert.present({
+    alert.showAlert({
+      type: 'Warning',
       message: `You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure?`,
-      cssClass: 'danger-confirm-alert',
-      buttons: [
-        'Cancel',
-        {
-          text: `Remove "${ label }" annotations`,
-          cssClass: 'ion-color-danger',
-          handler: () => dispatch(removePresence(label))
-        }
-      ]
+      action: {
+        label: `Remove "${ label }" annotations`,
+        callback: () => dispatch(removePresence(label))
+      }
     })
   }
 
@@ -115,7 +111,8 @@ export const Labels: React.FC = () => {
                 { focusedLabel === label && <IonIcon src={ checkmarkOutline } color="light"/> }
                 { label }
                 { presenceLabels.includes(label) &&
-                    <IonIcon icon={ closeCircle } onClick={e => removeLabel(e, label) } color={ focusedLabel === label ? 'light' : color }/> }
+                    <IonIcon icon={ closeCircle } onClick={ e => removeLabel(e, label) }
+                             color={ focusedLabel === label ? 'light' : color }/> }
               </IonChip>
             </LabelTooltipOverlay>
           )

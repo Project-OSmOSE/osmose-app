@@ -19,18 +19,13 @@ export const Global: React.FC = () => {
     if (!campaign) return;
     if (campaign.progress < campaign.total) {
       // If annotators haven't finished yet, ask for confirmation
-      return await alert.present({
-        header: 'Archive',
+      return alert.showAlert({
+        type: 'Warning',
         message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: 'Archive',
-            cssClass: 'ion-color-danger',
-            handler: () => archiveCampaign(campaign.id)
-          }
-        ]
+        action: {
+          label: 'Archive',
+          callback: () => archiveCampaign(campaign.id)
+        }
       });
     } else archiveCampaign(campaign.id)
   }, [ campaign ]);

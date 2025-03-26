@@ -1,4 +1,4 @@
-export { useAlert } from './alert';
+export * from './alert'
 
 export { useDraggable } from './draggable';
 

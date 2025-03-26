@@ -51,18 +51,14 @@ export const useCanNavigate = () => {
   async function canNavigate(): Promise<boolean> {
     if (!hasChanged.current) return true;
     return new Promise<boolean>((resolve) => {
-      alert.present({
+      alert.showAlert({
+        type: 'Warning',
         message: `You have unsaved changes. Are you sure you want to forget all of them?`,
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: `Forget my changes`,
-            role: 'validate',
-            cssClass: 'ion-color-danger',
-          }
-        ],
-        onDidDismiss: event => resolve(event.detail.role === 'validate')
+        action: {
+          label: 'Forget my changes',
+          callback: () => resolve(true)
+        },
+        onCancel: () => resolve(false)
       })
     })
   }

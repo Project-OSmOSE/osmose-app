@@ -191,7 +191,7 @@ test.describe('Campaign creator', () => {
   test('Can archive', async ({ page }) => {
     await page.campaign.detail.go('creator');
     await page.campaign.detail.archiveButton.click();
-    const alert = page.locator('ion-alert').first()
+    const alert = page.getByRole('dialog').first()
     await expect(alert).toBeVisible();
     await Promise.all([
       page.waitForRequest(API_URL.campaign.archive),
