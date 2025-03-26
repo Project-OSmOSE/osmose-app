@@ -6,31 +6,26 @@ import { FadedText } from "@/components/ui";
 import { IonButton, IonIcon } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
 import { getDisplayName } from "@/service/user";
-import { useOldAlert } from "@/service/ui";
+import { useAlert } from "@/service/ui";
 
 export const Global: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
   const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
   const { hasAdminAccess } = useHasAdminAccessToCampaign(campaign)
   const [ archiveCampaign ] = CampaignAPI.useArchiveMutation()
-  const alert = useOldAlert();
+  const alert = useAlert();
 
   const archive = useCallback(async () => {
     if (!campaign) return;
     if (campaign.progress < campaign.total) {
       // If annotators haven't finished yet, ask for confirmation
-      return await alert.present({
-        header: 'Archive',
+      return alert.showAlert({
+        type: 'Warning',
         message: 'There is still unfinished annotations.\nAre you sure you want to archive this campaign?',
-        cssClass: 'danger-confirm-alert',
-        buttons: [
-          'Cancel',
-          {
-            text: 'Archive',
-            cssClass: 'ion-color-danger',
-            handler: () => archiveCampaign(campaign.id)
-          }
-        ]
+        action: {
+          label: 'Archive',
+          callback: () => archiveCampaign(campaign.id)
+        }
       });
     } else archiveCampaign(campaign.id)
   }, [ campaign ]);
