@@ -6,7 +6,8 @@ import {
   KEY_DOWN_EVENT,
   MOUSE_DOWN_EVENT,
   MOUSE_MOVE_EVENT,
-  MOUSE_UP_EVENT
+  MOUSE_UP_EVENT,
+  NON_FILTERED_KEY_DOWN_EVENT
 } from "@/service/events/event.ts";
 
 export const useLoadEventService = () => {
@@ -36,6 +37,7 @@ export const useLoadEventService = () => {
   }, [areKbdShortcutsEnabled]);
 
   function onKeyDown(event: KeyboardEvent) {
+    NON_FILTERED_KEY_DOWN_EVENT.emit(event);
     if (!areKbdShortcutsEnabledRef.current) return;
     KEY_DOWN_EVENT.emit(event);
   }
