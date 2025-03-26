@@ -1,3 +1,5 @@
+export * from './alert'
+
 export { useOldAlert } from './old-alert';
 
 export { useDraggable } from './draggable';

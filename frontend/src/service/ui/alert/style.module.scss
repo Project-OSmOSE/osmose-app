@@ -1,4 +1,12 @@
-.alertButtons {
-  justify-content: end !important;
-  gap: 1rem;
+.alert {
+  border-radius: 1rem !important;
+  gap: 2rem !important;
+  padding: 1rem !important;
+  max-width: 50% !important;
+  min-width: unset !important;
+
+  .buttons {
+    justify-content: end !important;
+    gap: 1rem;
+  }
 }

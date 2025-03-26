@@ -44,10 +44,10 @@ export const AlertProvider: React.FC<AlertContextProvider> = ({ children }) => {
     <AlertContext.Provider value={ contextValue }>
       { children }
 
-      { alerts.map(alert => createPortal(<Modal>
+      { alerts.map(alert => createPortal(<Modal className={ styles.alert }>
         <p>{ alert.message }</p>
 
-        <ModalFooter className={ styles.alertButtons }>
+        <ModalFooter className={ styles.buttons }>
 
           { alert.type === 'Success' &&
               <IonButton color="success" fill='clear' onClick={ () => hideAlert(alert.id) }>Ok</IonButton> }

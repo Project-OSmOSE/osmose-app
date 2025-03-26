@@ -6,6 +6,7 @@ export type AlertType =
 export type Alert = {
   type: AlertType;
   message: string;
+  onCancel?: () => void;
 } & ({
   type: 'Success';
 } | {
