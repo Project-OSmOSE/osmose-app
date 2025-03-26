@@ -15,7 +15,7 @@ import {
   updateDraftFileRange
 } from '@/service/campaign';
 import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
-import { useAlert } from "@/service/ui";
+import { useOldAlert } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { Item } from "@/types/item.ts";
 import { DatasetAPI } from "@/service/dataset";
@@ -134,7 +134,7 @@ const AnnotatorRangeLine: React.FC<{
   setIsForced?: (value: true) => void
 }> = ({ range, annotator, filesCount, onFirstIndexChange, onLastIndexChange, onDelete, setIsForced }) => {
   const [ isLocked, setIsLocked ] = useState<boolean>(!!range.finished_tasks_count);
-  const alert = useAlert();
+  const alert = useOldAlert();
 
   function unlock() {
     alert.present({

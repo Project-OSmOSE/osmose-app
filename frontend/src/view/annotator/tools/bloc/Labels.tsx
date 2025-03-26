@@ -6,7 +6,7 @@ import { checkmarkOutline, closeCircle } from 'ionicons/icons';
 import styles from './bloc.module.scss';
 import { LabelTooltipOverlay } from "@/view/annotator/tools/bloc/LabelTooltipOverlay.tsx";
 import { useAnnotator } from "@/service/annotator/hook.ts";
-import { useAlert } from "@/service/ui";
+import { useOldAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { LabelSet } from "@/service/campaign/label-set";
@@ -25,7 +25,7 @@ export const Labels: React.FC = () => {
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
   const { annotation } = useCurrentAnnotation()
   const dispatch = useAppDispatch()
-  const alert = useAlert();
+  const alert = useOldAlert();
 
   useEffect(() => {
     KEY_DOWN_EVENT.add(onKbdEvent);

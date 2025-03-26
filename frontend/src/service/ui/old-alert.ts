@@ -3,7 +3,7 @@ import { useAppDispatch } from "@/service/app.ts";
 import { EventSlice } from "@/service/events";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 
-export const useAlert = () => {
+export const useOldAlert = () => {
   const [_present, _dismiss] = useIonAlert();
   const dispatch = useAppDispatch();
 

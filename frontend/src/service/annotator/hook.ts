@@ -3,7 +3,7 @@ import { useRetrieveAnnotatorQuery } from "@/service/annotator/api.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
 import { useEffect, useRef } from "react";
-import { resetFileFilters, useAlert } from "@/service/ui";
+import { resetFileFilters, useOldAlert } from "@/service/ui";
 import { useGetCurrentUserQuery } from "@/service/user";
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
@@ -46,7 +46,7 @@ export const useCanNavigate = () => {
   useEffect(() => {
     hasChanged.current = _hasChanged
   }, [ _hasChanged ]);
-  const alert = useAlert();
+  const alert = useOldAlert();
 
   async function canNavigate(): Promise<boolean> {
     if (!hasChanged.current) return true;

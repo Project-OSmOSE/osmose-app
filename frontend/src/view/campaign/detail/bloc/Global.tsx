@@ -6,14 +6,14 @@ import { FadedText } from "@/components/ui";
 import { IonButton, IonIcon } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
 import { getDisplayName } from "@/service/user";
-import { useAlert } from "@/service/ui";
+import { useOldAlert } from "@/service/ui";
 
 export const Global: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
   const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
   const { hasAdminAccess } = useHasAdminAccessToCampaign(campaign)
   const [ archiveCampaign ] = CampaignAPI.useArchiveMutation()
-  const alert = useAlert();
+  const alert = useOldAlert();
 
   const archive = useCallback(async () => {
     if (!campaign) return;

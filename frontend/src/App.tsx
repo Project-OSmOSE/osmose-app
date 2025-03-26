@@ -26,6 +26,7 @@ import { Home } from "@/view/home/Home.tsx";
 import { Account, Login } from '@/view/auth';
 import { AnnotatorPage } from "@/view/annotator/AnnotatorPage.tsx";
 import { useLoadEventService } from "@/service/events";
+import { AlertProvider } from "@/service/ui/alert";
 
 
 setupIonicReact({
@@ -34,7 +35,11 @@ setupIonicReact({
 });
 
 export const App: React.FC = () => (
-  <Provider store={ AppStore }><AppContent/></Provider>
+  <Provider store={ AppStore }>
+    <AlertProvider>
+      <AppContent/>
+    </AlertProvider>
+  </Provider>
 )
 
 const AppContent: React.FC = () => {
