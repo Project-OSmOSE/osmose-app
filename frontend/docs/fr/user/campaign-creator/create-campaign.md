@@ -15,6 +15,8 @@ Vous pouvez remplir les informations générales.
 - Instruction URL : Si vous avez une page web ou un PDF stocké en ligne, vous pouvez indiquer son URL dans le champ «
   Instruction URL ». Elle sera accessible aux annotateurs de la campagne
 - Deadline : La date limite pour annoter la campagne sera également accessible aux annotateurs.
+- Annotation mode: Le mode d'annotation décrit si la campagne est faite pour créer des annotations ou pour vérifier la
+  sortie des détecteurs automatiques.
 
 ## Données
 
@@ -47,7 +49,8 @@ Une fois la sélection effectuée, les informations relatives à l'ensemble de l
 d'activer les « caractéristiques acoustiques » pour certains labels (cf. labels (
 voir [Annotation/Caractéristiques acoustiques](../annotator.md#caracteristiques-acoustiques))
 
-Vous pouvez également choisir d'autoriser les annotations par "point". (Allow annotations of type "Point") (see [Annotation/Ajouter un point](../annotator.md#ajouter-un-point))
+Vous pouvez également choisir d'autoriser les annotations par "point". (Allow annotations of type "Point") (
+see [Annotation/Ajouter un point](../annotator.md#ajouter-un-point))
 
 ::: details Créer un jeu d'étiquettes
 
@@ -93,90 +96,15 @@ Vous pouvez définir un indicateur comme indicateur par défaut pour votre ensem
 
 :::
 
-### Mode vérification des annotations
-
-Avec le mode "Check annotations", il vous sera demandé d'importer des annotations.
-
-![](/campaign-creator/form-annotation-check.png)
-
-Une modale s'ouvrira pour vous permettre d'importer réellement vos annotations.
-
-![](/campaign-creator/form-annotation-check-importcsv.png)
-
-Vous pouvez soit cliquer sur la zone "Import annotations", soit y glisser un fichier. Le fichier doit être un csv avec
-les colonnes suivantes :
-
-| Colonne                    |          Type          | Description                                                                                               |
-|----------------------------|:----------------------:|-----------------------------------------------------------------------------------------------------------|
-| dataset                    |         string         | Nom du dataset. S'il ne correspond pas au dataset de la campagne, vous aurez le choix de le garder ou non |
-| start_datetime             |       timestamp        | Début de l'annotation                                                                                     |
-| end_datetime               |       timestamp        | Fin de l'annotation                                                                                       |
-| start_frequency            |          int           | Fréquence minimum de l'annotation                                                                         |
-| end_frequency              |          int           | Fréquence maximum de l'annotation                                                                         |
-| annotation                 |         string         | Label de l'annotation                                                                                     |
-| annotator                  |         string         | Détecteur aillant créé l'annotation                                                                       |
-| is_box                     |        boolean         | Si l'annotation est une boîte ou une présence                                                             |
-| confidence_indicator_label |         string         | Nom de l'indice de confiance (s'il existe)                                                                |
-| confidence_indicator_level | string<br/>[int]/[int] | Niveau de confiance / Niveau maximum de confiance (s'il existe)                                           |
-
-Dans le cas de présences, la date de début/fin et la fréquence de début/fin doivent être celles du fichier.
-
-Après avoir soumis votre fichier, vous devrez configurer les détecteurs tels qu'ils seront enregistrés dans la base de
-données.
-
-![](/campaign-creator/form-annotation-check-detector.png)
-
-Il vous sera demandé d'affecter les détecteurs du CSV à un détecteur existant ou d'en enregistrer un nouveau (Create).
-Ici, vous pouvez également sélectionner uniquement les détecteurs que vous souhaitez vérifier, au cas où le fichier en
-contiendrait plusieurs.
-
-Vous pouvez ensuite spécifier chaque configuration de détecteur (existante ou nouvelle).
-
-![](/campaign-creator/form-annotation-check-detectorconfig.png)
-
-Lorsque vous avez terminé, vous pouvez cliquer sur "Import". Les détecteurs sélectionnés seront affichés sur la page.
-Vous pouvez revoir la sélection à tout moment.
-Si vous souhaitez la modifier complètement, vous pouvez cliquer sur le bouton « poubelle » et importer un nouveau
-fichier.
-
-![](/campaign-creator/form-annotation-check-imported.png)
-
-## Annotateurs
-
-Dans la dernière partie du formulaire, vous pourrez ajouter des annotateurs à votre campagne.
-Pour chaque annotateur, vous pouvez spécifier la plage de fichiers qu'il peut annoter. Vous pouvez définir deux plages
-différentes pour le même
-annotateur.
-Vous pouvez ajouter un nouvel annotateur à l'aide de la fonction de recherche.
-
-![](/campaign-creator/form-annotator.png)
-
-Vous pouvez également ajouter des annotateurs d'un groupe.
-
-::: details Créer un groupe d'annotateurs
-Accédez à la partie administration d'APLOSE en cliquant sur le lien "Admin".
-
-Dans le bloc "APLOSE", Cherchez "Annotator group" et cliquez sur "Add".
-
-![](/campaign-creator/annotator-group/nav.png)
-
-Vous pouvez remplir le formulaire avec le nom (name) de votre groupe, et ajouter les utilisateurs (annotators) que vous souhaitez.
-
-![](/campaign-creator/annotator-group/form.png)
-
-Une fois le formulaire rempli, vous pouvez le sauvegarder (save).
-:::
-
-
-
-::: info
-
-Vous pourrez ajouter des annotateurs ou des fichiers à un annotateur à tout moment
-
-:::
-
 ## Enregistrer
 
 Vous êtes prêt et pouvez soumettre votre nouvelle campagne en cliquant sur le bouton "Create campaign".
-Après avoir soumis votre nouvelle campagne, elle devrait apparaître dans la liste des campagnes d'annotations.
+Après avoir soumis votre nouvelle campagne, vous serez redirigé :
+
+- sur la [page de gestion des annotateurs](./manage-annotators.md) pour les campagnes en mode "Create annotations"
+- sur la [page des résultats d'importation](./import-results.md) puis sur
+  la [page des résultats d'importation](./import-results.md) pour les campagnes en mode "Check annotations"
+
+
+
 
