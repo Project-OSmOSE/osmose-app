@@ -8,11 +8,12 @@ import { ResultImportSlice, useUploadResultChunk } from "@/service/campaign/resu
 import styles from "@/view/campaign/edit/edit.module.scss";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
+import { DetectorConfiguration } from "@/service/campaign/detector";
 
 export const Upload: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
   const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
-  const { upload: uploadInfo } = useAppSelector(state => state.resultImport)
+  const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -34,15 +35,24 @@ export const Upload: React.FC = () => {
     dispatch(ResultImportSlice.actions.clear())
   }, [])
 
-  const buttons = useMemo(() => <div className={ styles.buttons }>
-    <IonButton color='medium' fill='outline' onClick={ back }>
-      Back to campaign
-    </IonButton>
-    { uploadInfo.state === 'uploading' && <IonSpinner/> }
-    <IonButton disabled={ uploadInfo.state === 'uploading' } onClick={ () => upload() }>
-      Import
-    </IonButton>
-  </div>, [ upload, uploadInfo, back ])
+  const buttons = useMemo(() => {
+    const finalDetectors = new Set(Object.entries(detectors.mapToKnown).map(([key, value]) => value?.name ?? key))
+    const configuredDetectors = Object.values(detectors.mapToConfiguration).filter((value: DetectorConfiguration | string | undefined) => !!value)
+    const canImport = file.state === 'loaded'
+      && detectors.selection.length > 0
+      && finalDetectors.size === configuredDetectors.length
+      && uploadInfo.state !== 'uploading';
+    return <div className={ styles.buttons }>
+      <IonButton color='medium' fill='outline' onClick={ back }>
+        Back to campaign
+      </IonButton>
+      { uploadInfo.state === 'uploading' && <IonSpinner/> }
+      <IonButton disabled={ !canImport }
+                 onClick={ () => upload() }>
+        Import
+      </IonButton>
+    </div>
+  }, [ upload, uploadInfo, detectors, back, file ])
 
   if (campaign?.usage !== 'Check') return <Fragment/>
   if (uploadInfo.state === 'initial') return buttons
