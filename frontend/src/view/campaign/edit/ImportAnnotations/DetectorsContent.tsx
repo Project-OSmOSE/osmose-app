@@ -9,10 +9,10 @@ import { getErrorMessage } from "@/service/function.ts";
 import { alertOutline } from "ionicons/icons";
 import { ResultImportSlice } from "@/service/campaign/result/import";
 
-export const DetectorsContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
+export const DetectorsContent: React.FC = () => {
   const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } = useListDetectorQuery({});
 
-  const { file } = useAppSelector(state => state.resultImport);
+  const { file, upload } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();
 
   const onChange = useCallback((e: CustomEvent<CheckboxChangeEventDetail>, detectorName: string) => {
@@ -42,7 +42,7 @@ export const DetectorsContent: React.FC<{ disabled?: boolean }> = ({ disabled })
         <WarningMessage>Fail loading known detectors:<br/>{ getErrorMessage(detectorsLoadError) }</WarningMessage> }
 
     { allDetectors && file.detectors.map(initialName => <DetectorEntry key={ initialName }
-                                                                       disabled={ disabled }
+                                                                       disabled={ upload.state !== 'initial' }
                                                                        initialName={ initialName }
                                                                        onChange={ onChange }
                                                                        onDetectorChange={ onDetectorChange }/>) }
