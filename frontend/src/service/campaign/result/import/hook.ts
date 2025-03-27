@@ -42,18 +42,19 @@ export const useUploadResultChunk = (onFulfilled: () => void) => {
     return detectors_map
   }, [ detectors ])
 
-  const uploadChunk = useCallback(() => {
+  const uploadChunk = useCallback((bypassUploadState?: true, start: number = 0) => {
     if (!campaign) return;
     if (file.state !== 'loaded') return;
-    if (uploadInfo.state !== 'uploading') return;
+    if (uploadInfo.state !== 'uploading' && !bypassUploadState) return;
+    const chunkRows = rows.slice(start, start + CHUNK_SIZE);
     doImport({
       campaignID: campaign.id,
       datasetName: campaign.datasets![0],
       detectors_map: detectorsMap,
-      data: [ file.header, ...rows.slice(uploadInfo.uploaded + 1, uploadInfo.uploaded + 1 + CHUNK_SIZE) ],
+      data: [ file.header, ...chunkRows ],
       force
     })
-  }, [ doImport, detectorsMap ])
+  }, [ campaign, force, doImport, detectorsMap, rows, uploadInfo ])
 
   const upload = useCallback((force?: boolean) => {
     if (file.state !== 'loaded') return;
@@ -66,12 +67,11 @@ export const useUploadResultChunk = (onFulfilled: () => void) => {
       duration: uploadInfo.state === 'initial' ? 0 : uploadInfo.duration,
       remainingDurationEstimation: undefined
     }))
-    uploadChunk()
-  }, [ uploadInfo, rows, detectorsMap ])
+    uploadChunk(true, uploadInfo.state === 'initial' ? 0 : uploadInfo.uploaded)
+  }, [ uploadInfo, rows, detectorsMap, file ])
 
   // Update duration and remainingDurationEstimation
   useEffect(() => {
-    console.log('TIMESTAMP >>', startedTimeStamp, fulfilledTimeStamp)
     if (uploadInfo.state !== 'uploading') return;
     if (!fulfilledTimeStamp || !startedTimeStamp) return;
     const duration = uploadInfo.duration + (fulfilledTimeStamp - startedTimeStamp);
@@ -100,13 +100,9 @@ export const useUploadResultChunk = (onFulfilled: () => void) => {
     if (!originalArgs) return;
     const uploaded = uploadInfo.uploaded + originalArgs.data.length - 1; // Don't count headers
     const state = uploadInfo.total > uploaded ? 'uploading' : 'fulfilled';
-    dispatch(ResultImportSlice.actions.updateUpload({
-      ...uploadInfo,
-      uploaded,
-      state,
-    }))
+    dispatch(ResultImportSlice.actions.updateUpload({ ...uploadInfo, uploaded, state }))
     reset();
-    if (state === 'uploading') uploadChunk();
+    if (state === 'uploading') uploadChunk(undefined, uploaded);
     if (state === 'fulfilled') onFulfilled();
   }, [ status, originalArgs ]);
 
