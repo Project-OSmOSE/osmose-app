@@ -1,10 +1,10 @@
 import React, { Fragment, useCallback } from "react";
-import { useAppSelector } from "@/service/app.ts";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { Progress } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
-import { useUploadResultChunk } from "@/service/campaign/result/import";
+import { ResultImportSlice, useUploadResultChunk } from "@/service/campaign/result/import";
 import styles from "@/view/campaign/edit/edit.module.scss";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
@@ -15,6 +15,7 @@ export const Upload: React.FC = () => {
   const { upload: uploadInfo } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const history = useHistory();
+  const dispatch = useAppDispatch();
 
   const back = useCallback(() => {
     if (campaign) history.push(`/annotation-campaign/${ campaign.id }`)
@@ -29,8 +30,8 @@ export const Upload: React.FC = () => {
   }, [ campaignID, location, history, back ])
 
   const { upload } = useUploadResultChunk(onUploaded)
-  const replaceFile = useCallback(() => {
-    // TODO
+  const reset = useCallback(() => {
+    dispatch(ResultImportSlice.actions.clear())
   }, [])
 
   if (uploadInfo.state === 'initial') return <Fragment/>
@@ -47,14 +48,10 @@ export const Upload: React.FC = () => {
       { uploadInfo.canForce ?
         <IonButton color='warning' fill='clear' onClick={ () => upload(true) }>
           Import anyway
-        </IonButton> : <IonButton color='primary' fill='clear' onClick={ replaceFile }>
-          Replace file
+        </IonButton> : <IonButton color='primary' fill='clear' onClick={ reset }>
+          Reset
         </IonButton> }
     </WarningMessage> }
-
-    { uploadInfo.state === 'update file' && <IonButton color='primary' fill='clear' onClick={ () => upload(false) }>
-        Resume import
-    </IonButton> }
 
     <div className={ styles.buttons }>
       <IonButton color='medium' fill='outline' onClick={ back }>
