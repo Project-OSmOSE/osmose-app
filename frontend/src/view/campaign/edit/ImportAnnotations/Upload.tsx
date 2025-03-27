@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { Progress } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
@@ -34,7 +34,18 @@ export const Upload: React.FC = () => {
     dispatch(ResultImportSlice.actions.clear())
   }, [])
 
-  if (uploadInfo.state === 'initial') return <Fragment/>
+  const buttons = useMemo(() => <div className={ styles.buttons }>
+    <IonButton color='medium' fill='outline' onClick={ back }>
+      Back to campaign
+    </IonButton>
+    { uploadInfo.state === 'uploading' && <IonSpinner/> }
+    <IonButton disabled={ uploadInfo.state === 'uploading' } onClick={ () => upload() }>
+      Import
+    </IonButton>
+  </div>, [ upload, uploadInfo, back ])
+
+  if (campaign?.usage !== 'Check') return <Fragment/>
+  if (uploadInfo.state === 'initial') return buttons
   return <Fragment>
     <Progress label='Upload' value={ uploadInfo.uploaded } total={ uploadInfo.total }/>
 
@@ -53,15 +64,6 @@ export const Upload: React.FC = () => {
         </IonButton> }
     </WarningMessage> }
 
-    <div className={ styles.buttons }>
-      <IonButton color='medium' fill='outline' onClick={ back }>
-        Back to campaign
-      </IonButton>
-      { uploadInfo.state === 'uploading' && <IonSpinner/> }
-      { campaign?.usage === 'Check' &&
-          <IonButton disabled={ uploadInfo.state === 'uploading' } onClick={ () => upload() }>
-              Import
-          </IonButton> }
-    </div>
+    { buttons }
   </Fragment>
 }

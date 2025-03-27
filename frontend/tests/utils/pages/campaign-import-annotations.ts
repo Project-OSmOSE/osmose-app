@@ -2,9 +2,14 @@ import { expect, Locator, Page, test } from '@playwright/test';
 import { Mock } from '../services';
 import { DETECTOR_CONFIGURATION, UserType } from '../../fixtures';
 import { fileURLToPath } from 'url';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import path from 'path';
 import { CampaignDetailPage } from "./campaign-detail";
+import * as fs from "node:fs";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename).split(/[/\\]/g); // get the name of the directory
 __dirname.pop();
@@ -25,6 +30,10 @@ export class CampaignImportAnnotationsPage {
   }
   get resetFileButton(): Locator {
     return this.page.getByRole('button', { name: 'Reset' })
+  }
+
+  get fileData(): string {
+    return fs.readFileSync(__file, 'utf8');
   }
 
   constructor(private page: Page,

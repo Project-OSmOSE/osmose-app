@@ -28,6 +28,18 @@ test.describe('Campaign creator', () => {
       detector2: { detector: 'detector2', configuration: DETECTOR_CONFIGURATION },
       detector3: { detector: 'detector3', configuration: DETECTOR_CONFIGURATION },
     })) }`)
+    expect(submitResultsRequest.url()).toContain(`detectors_map=${ encodeURI(JSON.stringify({
+      detector1: { detector: 'detector1', configuration: DETECTOR_CONFIGURATION },
+      detector2: { detector: 'detector2', configuration: DETECTOR_CONFIGURATION },
+      detector3: { detector: 'detector3', configuration: DETECTOR_CONFIGURATION },
+    })) }`)
+
+    const expectedLines = submitResultsRequest.postDataJSON().data.replaceAll('"', '').split('\n');
+    const fileLines = page.campaign.import.fileData.split('\r\n')
+    expect(expectedLines.length).toEqual(fileLines.length)
+    for (const index in expectedLines) {
+      expect(expectedLines[index]).toEqual(fileLines[index])
+    }
 
     await expect(page.getByRole('heading', { name: "Manage annotators" })).toBeVisible()
   });
