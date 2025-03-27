@@ -99,7 +99,7 @@ export const ProgressModal: React.FC<{
   }
 
   function manageAnnotator() {
-    history.push(`/annotation-campaign/${ campaignID }/edit`);
+    history.push(`/annotation-campaign/${ campaignID }/edit-annotators`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {

@@ -15,6 +15,7 @@ You can fill in the global information.
 - If you have web page or a PDF stored online you can give its URL on the "Instruction URL" field. It will be accessible
   to the campaign annotators
 - The deadline will also be available to the annotators.
+- The annotation mode describe either the campaign is made to create annotation or check automatic detectors output.
 
 ## Data
 
@@ -85,86 +86,12 @@ You can define an indicator as the default one for your set by checking the “i
 
 :::
 
-### Check annotation mode
-
-With the "Check annotation" mode, you will be asked to import annotations.
-
-![](/campaign-creator/form-annotation-check.png)
-
-It will open a modal to really import you annotations
-
-![](/campaign-creator/form-annotation-check-importcsv.png)
-
-You can either click on the "Import annotation" zone or drag a file in it. The file should be a csv with the following
-columns:
-
-| Column                     |          Type          | Description                                                                                                       |
-|----------------------------|:----------------------:|-------------------------------------------------------------------------------------------------------------------|
-| dataset                    |         string         | Name of the dataset. If it doesn't correspond to the campaign dataset, you will have the choice to keep it or not |
-| start_datetime             |       timestamp        | Start of the annotation                                                                                           |
-| end_datetime               |       timestamp        | End of the annotation                                                                                             |
-| start_frequency            |          int           | Lower frequency of the annotation                                                                                 |
-| end_frequency              |          int           | Higher frequency of the annotation                                                                                |
-| annotation                 |         string         | Label of the annotation                                                                                           |
-| annotator                  |         string         | Detector or annotator that created the annotation                                                                 |
-| is_box                     |        boolean         | Either the annotation is a box or a weak annotation                                                               |
-| confidence_indicator_label |         string         | The name of the level of confidence (if exists)                                                                   |
-| confidence_indicator_level | string<br/>[int]/[int] | The level of confidence on the maximum level available (if exists)                                                |
-
-In the case of weak annotations, start/end datetime and start/end frequency should be the ones of the file.
-
-After submitting your file, you will need to configure the detectors as they will be saved in the database.
-
-![](/campaign-creator/form-annotation-check-detector.png)
-
-You will be asked to assign the CSV detectors to an existing one or to create a new one.
-Here you can also select only the detectors you want to check, in case the file contains multiple ones.
-
-You can then specify each detector configuration (existing or new one).
-
-![](/campaign-creator/form-annotation-check-detectorconfig.png)
-
-When you're done you can click on "Import". The selected detectors will be shown on the page.
-You can review the selection at anytime here.
-If you want to fully change it, you can hit the trash button and import a new file.
-
-![](/campaign-creator/form-annotation-check-imported.png)
-
-## Annotators
-
-In the last part of the form, you will be able to add annotators on your campaign.
-For each annotator you can specify the range of file he/she can annotate. You can set two different ranges for the same
-annotator.
-You can add new annotator with the search input.
-
-![](/campaign-creator/form-annotator.png)
-
-You can also add annotators by group.
-
-::: details Create an annotator group
-Access APLOSEs administration part with the "Admin" link
-
-Look for “Annotator group” in the “APLOSE” block and click on “Add”
-
-![](/campaign-creator/annotator-group/nav.png)
-
-You can fill in the form with the name of your group, and add the users you want in.
-
-![](/campaign-creator/annotator-group/form.png)
-
-When your form is filled you can save it.
-:::
-
-::: info
-
-You will be able to add annotators or files to an annotator at any time.
-
-:::
-
-
-
 ## Submit
 
 You're all set and can submit your new campaign by clicking on the "Create campaign" button.
-After submitting your new campaign, it should appear in the “Annotation campaigns” list.
+After submitting your new campaign, you will be redirected:
+
+- on the [annotator management page](./manage-annotators.md) for "Create annotations" campaigns
+- on the [import result page](./import-results.md) and then on
+  the [annotator management page](./manage-annotators.md) for "Check annotations" campaigns
 

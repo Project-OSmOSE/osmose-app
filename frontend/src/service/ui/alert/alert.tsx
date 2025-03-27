@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect } from "react";
-import { Alert as AlertType } from "./type";
+import { Alert as AlertType, AlertAction } from "./type";
 
 import styles from './style.module.scss';
 import { createPortal } from "react-dom";
@@ -27,20 +27,20 @@ export const Alert: React.FC<{
           hide();
           break;
         case 'Warning':
-          onAction();
+          if (alert.actions.length === 1) onAction(alert.actions[0]);
           break;
         case 'Error':
           // Do nothing
           break;
       }
     }
-  }, [hide]);
+  }, [ hide, alert ]);
 
-  const onAction = useCallback(() => {
+  const onAction = useCallback((action: AlertAction) => {
     if (alert.type === 'Success') return;
     hide();
-    alert.action.callback()
-  }, [alert, hide])
+    action.callback()
+  }, [ alert, hide ])
 
   return createPortal(<Modal className={ styles.alert }>
     <p>{ alert.message }</p>
@@ -51,11 +51,13 @@ export const Alert: React.FC<{
 
       { alert.type === 'Warning' && <Fragment>
           <IonButton color="medium" fill='clear' onClick={ hide }>Cancel</IonButton>
-          <IonButton color="warning" fill='clear' onClick={ onAction }>{ alert.action.label }</IonButton>
+        { alert.actions.map(action =>
+          <IonButton color="warning" fill='clear' onClick={ () => onAction(action) }>{ action.label }</IonButton>) }
       </Fragment> }
 
       { alert.type === 'Error' && <Fragment>
-          <IonButton color="danger" fill='clear' onClick={ onAction }>{ alert.action.label }</IonButton>
+        { alert.actions.map(action =>
+          <IonButton color="danger" fill='clear' onClick={ () => onAction(action) }>{ action.label }</IonButton>) }
           <IonButton color="medium" fill='clear' onClick={ hide }>Cancel</IonButton>
       </Fragment> }
     </ModalFooter>

@@ -123,6 +123,10 @@ class AnnotationCampaignViewSet(
                         LEFT JOIN annotation_campaigns_datasets d on d.dataset_id = f.dataset_id
                         WHERE d.annotationcampaign_id = annotation_campaigns.id
                     """,
+                    "annotations_count": """
+                        SELECT count(*) FROM annotation_results r
+                        WHERE r.annotation_campaign_id = annotation_campaigns.id
+                    """,
                     "my_progress": """
                         SELECT count(*) FROM api_annotationtask t
                         WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.annotator_id = %s AND t.status = 'F'

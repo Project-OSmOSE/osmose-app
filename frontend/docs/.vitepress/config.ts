@@ -36,7 +36,8 @@ export default defineConfig({
                     { text: 'Generate a dataset', link: '/user/campaign-creator/generate-dataset' },
                     { text: 'Import a dataset', link: '/user/campaign-creator/import-dataset' },
                     { text: 'Create a campaign', link: '/user/campaign-creator/create-campaign' },
-                    { text: 'Manage a campaign', link: '/user/campaign-creator/manage-campaign' },
+                    { text: 'Import annotations', link: '/user/campaign-creator/import-results' },
+                    { text: 'Manage annotators', link: '/user/campaign-creator/manage-annotators' },
                     { text: 'View results', link: '/user/campaign-creator/view-results' },
                   ]
                 },
@@ -94,7 +95,8 @@ export default defineConfig({
                     { text: 'Générer un dataset', link: '/fr/user/campaign-creator/generate-dataset' },
                     { text: 'Importer un dataset', link: '/fr/user/campaign-creator/import-dataset' },
                     { text: 'Créer une campagne', link: '/fr/user/campaign-creator/create-campaign' },
-                    { text: 'Gérer une campagne', link: '/fr/user/campaign-creator/manage-campaign' },
+                    { text: 'Importer des annotations', link: '/fr/user/campaign-creator/import-results' },
+                    { text: 'Gérer les annotateurs', link: '/fr/user/campaign-creator/manage-annotators' },
                     { text: 'Voir les résultats', link: '/fr/user/campaign-creator/view-results' },
                   ]
                 },
