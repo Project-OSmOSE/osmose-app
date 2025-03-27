@@ -4,8 +4,9 @@ export type ColorStep = {
 }
 
 export const COLORMAP_GREYS = 'Greys';
+export type Colormap = 'Greys' | 'jet' | 'hsv' | 'YlGnBu' | 'YlOrRd' | 'viridis' | 'inferno' | 'magma' | 'plasma';
 
-export const COLORMAPS: Record<string, ColorStep[]> = {
+export const COLORMAPS: Record<Colormap, ColorStep[]> = {
   "Greys": [{ "index": 0, "rgb": [0, 0, 0] }, { "index": 1, "rgb": [255, 255, 255] }],
   "jet": [{ "index": 0, "rgb": [0, 0, 131] }, { "index": 0.125, "rgb": [0, 60, 170] }, { "index": 0.375, "rgb": [5, 255, 255] }, { "index": 0.625, "rgb": [255, 255, 0] }, { "index": 0.875, "rgb": [250, 0, 0] }, { "index": 1, "rgb": [128, 0, 0] }],
   "hsv": [{ "index": 0, "rgb": [255, 0, 0] }, { "index": 0.169, "rgb": [253, 255, 2] }, { "index": 0.173, "rgb": [247, 255, 2] }, { "index": 0.337, "rgb": [0, 252, 4] }, { "index": 0.341, "rgb": [0, 252, 10] }, { "index": 0.506, "rgb": [1, 249, 255] }, { "index": 0.671, "rgb": [2, 0, 253] }, { "index": 0.675, "rgb": [8, 0, 253] }, { "index": 0.839, "rgb": [255, 0, 251] }, { "index": 0.843, "rgb": [255, 0, 245] }, { "index": 1, "rgb": [255, 0, 6] }],
@@ -18,7 +19,7 @@ export const COLORMAPS: Record<string, ColorStep[]> = {
 };
 
 
-export function colorSpectro(canvas: HTMLCanvasElement, colormapName: string = COLORMAP_GREYS, invert: boolean = false) {
+export function colorSpectro(canvas: HTMLCanvasElement, colormapName: Colormap = COLORMAP_GREYS, invert: boolean = false) {
   const context = canvas.getContext('2d');
   if (!context) return;
 
@@ -42,7 +43,7 @@ function lerp(v0: number, v1: number, t: number): number {
 }
 
 export type ColorMapConfig = {
-  colormap?: string | ColorStep[];
+  colormap?: Colormap | ColorStep[];
   nshades?: number;
   alpha?: number;
 }
@@ -56,7 +57,7 @@ function _createColormap(spec: ColorMapConfig): number[][] {
     torgba: number[],
     nsteps: number,
     cmap: ColorStep[],
-    colormap: string | ColorStep[] | undefined,
+    colormap: Colormap | ColorStep[] | undefined,
     nshades: number,
     colors: number[][],
     alpha: number | number[],

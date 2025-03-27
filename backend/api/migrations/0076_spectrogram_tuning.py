@@ -22,7 +22,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="annotationcampaign",
-            name="colormap_tuning_default",
+            name="colormap_default",
             field=models.TextField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name="annotationcampaign",
+            name="colormap_inverted_default",
+            field=models.BooleanField(blank=True, null=True),
         ),
     ]

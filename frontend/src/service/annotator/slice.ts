@@ -12,6 +12,7 @@ import { CampaignAPI } from "@/service/campaign";
 import { LabelSetAPI } from "@/service/campaign/label-set";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
+import { Colormap } from '@/services/utils/color.ts';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -38,7 +39,7 @@ export const AnnotatorSlice = createSlice({
       zoomLevel: 1,
       spectrogramConfigurationID: 1,
       colormap: undefined,
-      colormapInverted: false,
+      colormapInverted: undefined,
       brightness: 50,
       contrast: 50,
     },
@@ -280,16 +281,15 @@ export const AnnotatorSlice = createSlice({
       state.userPreferences.spectrogramConfigurationID = payload;
       state.userPreferences.zoomLevel = 1;
       state.userPreferences.colormap = undefined;
-      state.userPreferences.colormapInverted = false;
+      state.userPreferences.colormapInverted = undefined;
       state.userPreferences.brightness = 50;
       state.userPreferences.contrast = 50;
     },
-    setColormap: (state, { payload }: { payload: string }) => {
+    setColormap: (state, { payload }: { payload: Colormap }) => {
       state.userPreferences.colormap = payload;
-      state.userPreferences.colormapInverted = false;
     },
-    invertColormap: (state) => {
-      state.userPreferences.colormapInverted = !state.userPreferences.colormapInverted;
+    setColormapInverted: (state, { payload }: { payload: boolean }) => {
+      state.userPreferences.colormapInverted = payload;
     },
     setBrightness: (state, { payload }: { payload: number }) => {
       state.userPreferences.brightness = payload;
@@ -398,7 +398,7 @@ export const AnnotatorSlice = createSlice({
             state.userPreferences.brightness = 50;
             state.userPreferences.contrast = 50;
             state.userPreferences.colormap = undefined;
-            state.userPreferences.colormapInverted = false;
+            state.userPreferences.colormapInverted = undefined;
           }
           state.campaignID = payload.id;
         },
@@ -444,7 +444,7 @@ export const {
   addResult,
   selectSpectrogramConfiguration,
   setColormap,
-  invertColormap,
+  setColormapInverted,
   setBrightness,
   setContrast,
   setPointerPosition,

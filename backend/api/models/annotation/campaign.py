@@ -75,7 +75,8 @@ class AnnotationCampaign(models.Model):
     )
     allow_image_tuning = models.BooleanField(blank=False, default=False)
     allow_colormap_tuning = models.BooleanField(blank=False, default=False)
-    colormap_tuning_default = models.TextField(null=True, blank=True)
+    colormap_default = models.TextField(null=True, blank=True)
+    colormap_inverted_default = models.BooleanField(blank=True, null=True)
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.WHOLE
     )

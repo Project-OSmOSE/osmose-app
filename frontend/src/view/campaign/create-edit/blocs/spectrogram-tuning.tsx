@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/service/app";
 import { selectDraftCampaign, updateDraftCampaign } from "@/service/campaign";
 import { Dataset, DatasetAPI } from "@/service/dataset";
 import { SpectrogramConfiguration } from "@/service/dataset/spectrogram-configuration";
-import { COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
+import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
 import React, { useMemo } from "react";
 
 export const SpectrogramTuningBloc: React.FC = () => {
@@ -38,7 +38,11 @@ export const SpectrogramTuningBloc: React.FC = () => {
       type="checkbox"
       label="Allow colormap modification"
       checked={ draftCampaign.allow_colormap_tuning ?? false }
-      onChange={(evt) => dispatch(updateDraftCampaign({ allow_colormap_tuning: evt.target.checked, colormap_tuning_default: evt.target.checked ? COLORMAP_GREYS : null }))}
+      onChange={(evt) => dispatch(updateDraftCampaign({
+        allow_colormap_tuning: evt.target.checked,
+        colormap_default: evt.target.checked ? COLORMAP_GREYS : null,
+        colormap_inverted_default: evt.target.checked ? false : null,
+      }))}
       note={isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale"}
       disabled={!isColormapEditable}
     />
@@ -47,13 +51,23 @@ export const SpectrogramTuningBloc: React.FC = () => {
     { draftCampaign.allow_colormap_tuning && <Select
       required={ true }
       label="Default colormap"
-      value={ draftCampaign.colormap_tuning_default ?? COLORMAP_GREYS }
+      value={ draftCampaign.colormap_default ?? COLORMAP_GREYS }
       placeholder="Select a default colormap"
       optionsContainer="popover"
       options={ Object.keys(COLORMAPS).map((cmap) => ({
         value: cmap, label: cmap, img: `/app/images/colormaps/${cmap.toLowerCase()}.png`
       })) }
-      onValueSelected={(value) => dispatch(updateDraftCampaign({ colormap_tuning_default: value as string }))}
+      onValueSelected={(value) => dispatch(updateDraftCampaign({ colormap_default: value as Colormap }))}
+    /> }
+
+    {/* Default colormap inverted? */}
+    { draftCampaign.allow_colormap_tuning && <Input
+      type="checkbox"
+      label="Invert default colormap"
+      checked={ draftCampaign.colormap_inverted_default ?? false }
+      onChange={(evt) => dispatch(updateDraftCampaign({ colormap_inverted_default: evt.target.checked }))}
+      note={isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale"}
+      disabled={!isColormapEditable}
     /> }
   </FormBloc>;
 }

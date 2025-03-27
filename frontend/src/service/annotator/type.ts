@@ -5,6 +5,7 @@ import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/co
 import { ConfidenceIndicator } from "@/service/campaign/confidence-set";
 import { ID } from "@/service/type.ts";
 import { FileFilters } from "@/service/ui/type.ts";
+import { Colormap } from '@/services/utils/color';
 
 export type AnnotatorState = Partial<AnnotatorData> & {
   focusedResultID?: number,
@@ -17,8 +18,8 @@ export type AnnotatorState = Partial<AnnotatorData> & {
     audioSpeed: number;
     spectrogramConfigurationID: number;
     zoomLevel: number;
-    colormap?: string;
-    colormapInverted: boolean;
+    colormap?: Colormap;
+    colormapInverted?: boolean;
     brightness: number;
     contrast: number;
   },

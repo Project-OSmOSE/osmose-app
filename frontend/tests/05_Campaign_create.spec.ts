@@ -34,7 +34,8 @@ test.describe('Annotator', () => {
         allow_point_annotation: false,
         allow_image_tuning: false,
         allow_colormap_tuning: false,
-        colormap_tuning_default: null,
+        colormap_default: null,
+        colormap_inverted_default: null,
       }
       expect(data).toEqual(expectedData);
     })
@@ -68,7 +69,8 @@ test.describe('Annotator', () => {
         allow_point_annotation: true,
         allow_image_tuning: false,
         allow_colormap_tuning: false,
-        colormap_tuning_default: null,
+        colormap_default: null,
+        colormap_inverted_default: null,
       }
       expect(campaignData).toEqual(expectedCampaign);
     })
@@ -164,7 +166,8 @@ test.describe('Annotator', () => {
       allow_point_annotation: false,
       allow_image_tuning: false,
       allow_colormap_tuning: false,
-      colormap_tuning_default: null,
+      colormap_default: null,
+      colormap_inverted_default: null,
     }
     expect(await submittedCampaign.postDataJSON()).toEqual(expectedCampaign);
     expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(DATASET.name) }`)
