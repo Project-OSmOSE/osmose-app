@@ -211,19 +211,17 @@ const AnnotatorRangeLine: React.FC<{
   const alert = useAlert();
 
   function unlock() {
-    alert.present({
+    alert.showAlert({
+      type: 'Warning',
       message: `This annotator has already started to annotated. By updating its file range you could remove some annotations he/she made. Are you sure?`,
-      cssClass: 'danger-confirm-alert',
-      buttons: [
+      actions: [
         {
-          text: `Update file range`,
-          cssClass: 'ion-color-danger',
-          handler: () => {
+          label: `Update file range`,
+          callback: () => {
             setIsLocked(false)
             if (setIsForced) setIsForced(true)
           }
         },
-        'Cancel',
       ]
     })
   }
