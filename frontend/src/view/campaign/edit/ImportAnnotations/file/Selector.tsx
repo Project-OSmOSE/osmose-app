@@ -1,26 +1,27 @@
 import React, { DragEvent, Fragment, useCallback, useMemo, useState } from "react";
-import styles from "../edit.module.scss";
-import importStyles from "./importAnnotations.module.scss";
-import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
+import styles from "../../edit.module.scss";
+import importStyles from "../importAnnotations.module.scss";
+import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
-import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
+import { ACCEPT_CSV_MIME_TYPE } from "@/consts/csv.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { loadFile, ResultImportSlice } from "@/service/campaign/result/import";
 import { useParams } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
 import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import { FormBloc } from "@/components/form";
+import { LoadInformation } from "./LoadInformation.tsx";
+import { FileErrorDescription } from "./ErrorDescription.tsx";
 
-export const FileSelectorContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
+export const FileSelector: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
   const {
-    data: campaign,
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign
   } = CampaignAPI.useRetrieveQuery(campaignID);
 
-  const { file } = useAppSelector(state => state.resultImport)
+  const { file, upload } = useAppSelector(state => state.resultImport)
   const dispatch = useAppDispatch();
 
   // Drag N Drop
@@ -69,12 +70,12 @@ export const FileSelectorContent: React.FC<{ disabled?: boolean }> = ({ disabled
       case 'loaded':
         return <Fragment>
           <p>{ file.name }</p>
-          <IonButton onClick={ reset } disabled={ disabled } className='ion-text-wrap'>Reset<IonIcon
+          <IonButton onClick={ reset } disabled={ upload.state !== 'initial' } className='ion-text-wrap'>Reset<IonIcon
             icon={ refreshOutline }
             slot="end"/></IonButton>
         </Fragment>
     }
-  }, [ file.state, disabled ])
+  }, [ file.state, upload.state ])
 
   if (isFetchingCampaign) return <IonSpinner/>
   if (errorLoadingCampaign)
@@ -82,10 +83,7 @@ export const FileSelectorContent: React.FC<{ disabled?: boolean }> = ({ disabled
 
   return <FormBloc className={ styles.importBloc }>
 
-    { file.state !== 'loaded' && <IonNote color="medium">
-        The imported CSV should only contain annotations related to this campaign
-        dataset: { campaign?.datasets.join(', ') }
-    </IonNote> }
+    <LoadInformation/>
 
     {/* Drag N Drop zone */ }
     <div children={ dragNDropContent }
@@ -93,17 +91,7 @@ export const FileSelectorContent: React.FC<{ disabled?: boolean }> = ({ disabled
          onClick={ onDragZoneClick } onDrop={ onDragZoneDrop }
          onDragOver={ onDragStart } onDragEnter={ onDragStart } onDragLeave={ onDragEnd } onDragEnd={ onDragEnd }/>
 
-    { file.state === 'error' && <Fragment>
-        <WarningMessage><p>Unrecognized file.<br/>{ getErrorMessage(file.error) }</p></WarningMessage>
-
-        <p>The file should have the following columns: { IMPORT_ANNOTATIONS_COLUMNS.required.map(c => (
-          <Fragment key={ c }><b>{ c }</b><span className={ styles.separator }>, </span></Fragment>)) }</p>
-
-        <p>The file can have additional optional columns: { IMPORT_ANNOTATIONS_COLUMNS.optional.map(c => (
-          <Fragment key={ c }><b>{ c }</b><span className={ styles.separator }>, </span></Fragment>)) }</p>
-
-        <p>The accepted separator is: <b>{ ACCEPT_CSV_SEPARATOR }</b></p>
-    </Fragment> }
+    <FileErrorDescription/>
 
   </FormBloc>
 }

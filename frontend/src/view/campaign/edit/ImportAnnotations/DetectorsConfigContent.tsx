@@ -5,10 +5,10 @@ import { Detector, DetectorConfiguration, useListDetectorQuery } from "@/service
 import styles from './importAnnotations.module.scss'
 import { ResultImportSlice } from "@/service/campaign/result/import";
 
-export const DetectorsConfigContent: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
+export const DetectorsConfigContent: React.FC = () => {
   const { data: allDetectors } = useListDetectorQuery({});
 
-  const { file, detectors } = useAppSelector(state => state.resultImport);
+  const { file, detectors, upload } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();
 
   const [ distinctKnownDetectors, unknownDetectors ] = useMemo(() => {
@@ -43,14 +43,14 @@ export const DetectorsConfigContent: React.FC<{ disabled?: boolean }> = ({ disab
   if (file.state !== 'loaded' || detectors.selection.length === 0) return <Fragment/>
   return <FormBloc label="Detectors configurations">
     { distinctKnownDetectors.map(([ detector, names ]) => <ConfigEntry key={ detector.name }
-                                                                       disabled={ disabled }
+                                                                       disabled={ upload.state !== 'initial' }
                                                                        displayName={ detector.name }
                                                                        originalNames={ names }
                                                                        availableConfigurations={ detector.configurations }
                                                                        onSelectConfiguration={ onSelectConfiguration }
                                                                        onConfigurationTextUpdated={ onConfigurationTextUpdated }/>) }
     { unknownDetectors.map(detector => <ConfigEntry key={ detector }
-                                                    disabled={ disabled }
+                                                    disabled={ upload.state !== 'initial' }
                                                     displayName={ detector }
                                                     onSelectConfiguration={ onSelectConfiguration }
                                                     onConfigurationTextUpdated={ onConfigurationTextUpdated }/>) }
