@@ -4,7 +4,7 @@
 if [ "$STAGING" = "true" ]; then poetry install; fi
 
 # Normal setup commands
-#poetry run python manage.py collectstatic --noinput # Since osmose.ifremer.fr is read-only, this won't work
+poetry run python manage.py collectstatic --noinput
 poetry run python manage.py migrate
 
 # Launching server

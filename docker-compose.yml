@@ -22,7 +22,7 @@ services:
       OSMOSE_PROXY_URL: "${OSMOSE_PROXY_URL}"
 #    read_only: true
     volumes:
-      - static:/opt/staticfiles:ro
+      - static:/opt/staticfiles
       - ./volumes/datawork:/opt/datawork:ro
     restart: always
 
