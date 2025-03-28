@@ -64,6 +64,10 @@ export const CAMPAIGN = {
   my_total: 10,
   progress: 50,
   total: 100,
+  allow_image_tuning: false,
+  allow_colormap_tuning: false,
+  colormap_default: null,
+  colormap_inverted_default: null,
 } satisfies AnnotationCampaign
 
 const start = new Date();
