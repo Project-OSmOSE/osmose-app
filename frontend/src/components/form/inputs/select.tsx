@@ -46,7 +46,7 @@ export const Select: React.FC<SelectProperties> = ({
                                                      optionsContainer,
                                                      children,
                                                      noneLabel = 'None',
-                                                     disabled,
+                                                     disabled = false,
                                                      className,
                                                      noneFirst = false,
                                                      error,
@@ -57,6 +57,7 @@ export const Select: React.FC<SelectProperties> = ({
   const inputRef = useRef<HTMLDivElement | null>(null);
   const selectButtonRef = useRef<HTMLButtonElement | null>(null);
   const selectLabelRef = useRef<HTMLParagraphElement | null>(null);
+  const selectImgRef = useRef<HTMLImageElement | null>(null);
   const iconRef = useRef<HTMLIonIconElement | null>(null);
   const optionsRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,6 +80,7 @@ export const Select: React.FC<SelectProperties> = ({
     if (event.target === inputRef.current) return;
     if (event.target === selectButtonRef.current) return;
     if (event.target === selectLabelRef.current) return;
+    if (event.target === selectImgRef.current) return;
     if (event.target === iconRef.current) return;
     if (event.target === optionsRef.current) return;
     setIsOpen(false);
@@ -136,7 +138,7 @@ export const Select: React.FC<SelectProperties> = ({
               onClick={ () => !disabled && setIsOpen(!isOpen) }
               className={ !value && !hasSelectedItem ? styles.placeholder : '' }
               title={ buttonItem.label }>
-        <p ref={ selectLabelRef }>{ buttonItem.img ? <img src={buttonItem.img} alt={buttonItem.label} /> : buttonItem.label }</p>
+        <p ref={ selectLabelRef }>{ buttonItem.img ? <img ref={ selectImgRef } src={buttonItem.img} alt={buttonItem.label} /> : buttonItem.label }</p>
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
