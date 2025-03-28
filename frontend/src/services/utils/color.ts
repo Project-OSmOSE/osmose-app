@@ -19,7 +19,9 @@ export const COLORMAPS: Record<Colormap, ColorStep[]> = {
 };
 
 
-export function colorSpectro(canvas: HTMLCanvasElement, colormapName: Colormap = COLORMAP_GREYS, invert: boolean = false) {
+export function colorSpectro(canvas: HTMLCanvasElement, colormapName?: Colormap, invert: boolean = false) {
+  if (!colormapName) return;
+
   const context = canvas.getContext('2d');
   if (!context) return;
 
