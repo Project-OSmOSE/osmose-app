@@ -48,6 +48,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     audio,
     userPreferences,
     ui,
+    canAddAnnotations
   } = useAppSelector(state => state.annotator)
   const dispatch = useAppDispatch()
   const [ newResult, setNewResult ] = useState<BoxBounds | undefined>(undefined);
@@ -79,7 +80,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => campaign?.usage === 'Create' && !!focusedLabel && !!annotatorData?.is_assigned, [ focusedLabel, campaign?.usage, annotatorData?.is_assigned ]);
+  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && campaign?.usage === 'Create' && !!focusedLabel && !!annotatorData?.is_assigned, [ canAddAnnotations, focusedLabel, campaign?.usage, annotatorData?.is_assigned ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled

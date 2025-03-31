@@ -1,6 +1,11 @@
-import React, { Fragment, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '@/service/app.ts';
-import { focusPresence, updateCurrentResultAcousticFeatures, updateFocusResultBounds } from '@/service/annotator';
+import {
+  AnnotatorSlice,
+  focusPresence,
+  updateCurrentResultAcousticFeatures,
+  updateFocusResultBounds
+} from '@/service/annotator';
 import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
 import { Input, Select } from '@/components/form';
 import { IonButton, IonCheckbox, IonIcon, IonNote } from '@ionic/react';
@@ -254,25 +259,32 @@ const SelectableFrequencyRow: React.FC<{
   onChange: (value: number | undefined) => void;
 }> = ({ label, value, max, onChange }) => {
   const [ isSelecting, setIsSelecting ] = useState<boolean>(false);
+  const dispatch = useAppDispatch()
 
   const pointer = usePointerService()
 
+  const select = useCallback(() => {
+    setTimeout(() => CLICK_EVENT.add(onClick), 500);
+    setIsSelecting(true)
+    dispatch(AnnotatorSlice.actions.disableNewAnnotations())
+  }, [ onClick ])
+
+  const unselect = useCallback(() => {
+    CLICK_EVENT.remove(onClick)
+    setIsSelecting(false)
+    dispatch(AnnotatorSlice.actions.enableNewAnnotations())
+  }, [ onClick ])
+
   function toggleSelection() {
-    if (isSelecting) {
-      CLICK_EVENT.remove(onClick)
-      setIsSelecting(false)
-    } else {
-      setTimeout(() => CLICK_EVENT.add(onClick), 500);
-      setIsSelecting(true)
-    }
+    if (isSelecting) unselect()
+    else select()
   }
 
   function onClick(event: MouseEvent) {
     event.stopPropagation()
     const position = pointer.getFreqTime(event)
     if (position) onChange(position.frequency)
-    CLICK_EVENT.remove(onClick)
-    setIsSelecting(false)
+    unselect()
   }
 
   return <Fragment>
