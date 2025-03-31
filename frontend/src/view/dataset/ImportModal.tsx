@@ -21,7 +21,7 @@ export const ImportDatasetModal: React.FC<{
       if (!search) return true;
       if (dataset.name.toLowerCase().includes(search.toLowerCase())) return true;
       return dataset.path.toLowerCase().includes(search.toLowerCase())
-    });
+    }).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
   }, [ newData, search ])
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const ImportDatasetModal: React.FC<{
           </TableHead>
           <TableDivider/>
 
-          { filteredDatasets.map((dataset: ImportDataset) => <Fragment key={ dataset.dataset }>
+          { filteredDatasets.map((dataset: ImportDataset, index: number) => <Fragment key={ index }>
             <TableContent isFirstColumn={ true }>
               <div className={ styles.item } onClick={ () => toggleDataset(dataset) }>
                 <IonCheckbox checked={ datasetSelection.get(dataset.name) } disabled={ isLoading }/>
