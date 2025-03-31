@@ -46,6 +46,7 @@ export const AnnotatorSlice = createSlice({
     labelColors: {},
     sessionStart: Date.now(),
     didSeeAllFile: false,
+    canAddAnnotations: true,
   } satisfies AnnotatorState as AnnotatorState,
   reducers: {
     focusResult: _focusResult,
@@ -340,7 +341,13 @@ export const AnnotatorSlice = createSlice({
         }
       })
       state.hasChanged = true;
-    }
+    },
+    disableNewAnnotations: (state) => {
+      state.canAddAnnotations = false;
+    },
+    enableNewAnnotations: (state) => {
+      state.canAddAnnotations = true;
+    },
   },
   extraReducers:
     (builder) => {
