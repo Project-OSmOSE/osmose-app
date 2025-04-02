@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef, Func, F
 
 from .campaign import AnnotationCampaign
-from ..datasets import DatasetFile
+from ..data import DatasetFile
 
 
 class AnnotationTask(models.Model):

@@ -1,8 +1,8 @@
 """Spectrogram model"""
 from django.db import models
 
-from ..datasets import Dataset
 from .scales import LinearScale, MultiLinearScale
+from ..data import Dataset
 
 
 class WindowType(models.Model):

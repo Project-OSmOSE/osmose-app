@@ -5,7 +5,7 @@ from rest_framework import serializers
 from backend.api.models import (
     Dataset,
 )
-from .data import SpectrogramConfigurationSerializer
+from .spectrogram_configuration import SpectrogramConfigurationSerializer
 
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
@@ -38,11 +38,3 @@ class DatasetSerializer(serializers.ModelSerializer):
         model = Dataset
         fields = DATASET_FIELDS
         depth = 1
-
-
-class SimpleSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic data"""
-
-    class Meta:
-        model = None
-        fields = "__all__"

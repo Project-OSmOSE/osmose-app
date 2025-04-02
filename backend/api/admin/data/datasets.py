@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from backend.api.models import DatasetType, Dataset, DatasetFile
-from backend.api.serializers.dataset import SimpleSerializer
+from backend.utils.serializers import SimpleSerializer
 
 
 @admin.register(DatasetType)

@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-from backend.api.models.datasets import Dataset
+from .data import Dataset
 
 
 class FileSubtype(models.Model):

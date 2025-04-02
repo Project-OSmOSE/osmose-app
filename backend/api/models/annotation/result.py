@@ -11,7 +11,7 @@ from .campaign import AnnotationCampaign
 from .confidence import ConfidenceIndicator
 from .detector import DetectorConfiguration
 from .label import Label
-from ..datasets import DatasetFile
+from ..data import DatasetFile
 
 
 class SignalTrend(models.TextChoices):

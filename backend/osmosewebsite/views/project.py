@@ -44,5 +44,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_id=project.metadatax_project_id,
         )
         serializer = DeploymentSerializer(queryset, many=True)
-        print(serializer.data)
         return response.Response(serializer.data)
