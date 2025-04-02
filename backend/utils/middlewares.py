@@ -1,3 +1,4 @@
+"""Middlewares"""
 from typing import Optional
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -9,6 +10,8 @@ from backend.aplose.models import User
 
 
 class StaticFilesMiddleware(WhiteNoiseMiddleware):
+    """Middleware to protect static dataset files access"""
+
     def _get_user(self, request: WSGIRequest) -> Optional[User]:
         if not request.COOKIES or "token" not in request.COOKIES:
             return None
@@ -18,7 +21,7 @@ class StaticFilesMiddleware(WhiteNoiseMiddleware):
 
     def __call__(self, request: WSGIRequest):
         user = self._get_user(request)
-        if "datawork" in request.path:
+        if "/datawork/" in request.path:
             if not user or not user.is_active:
                 raise Http404
         return super().__call__(request)
