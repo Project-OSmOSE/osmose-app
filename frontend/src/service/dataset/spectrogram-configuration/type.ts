@@ -1,4 +1,5 @@
 import { LinearScale, MultiLinearScale } from './scale';
+import { Colormap } from "@/services/utils/color.ts";
 
 export interface SpectrogramConfiguration {
   id: number;
@@ -14,7 +15,7 @@ export interface SpectrogramConfiguration {
   data_normalization: string;
   zscore_duration: string;
   hp_filter_min_freq: number;
-  colormap: string;
+  colormap: Colormap;
   dynamic_min: number;
   dynamic_max: number;
   frequency_resolution: number;

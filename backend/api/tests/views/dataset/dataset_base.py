@@ -37,7 +37,6 @@ class DatasetViewSetTestCase(APITestCase):
         """Dataset view 'list' returns correct list of datasets"""
         url = reverse("dataset-list")
         response = self.client.get(url)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Dataset.objects.count())
         self.assertEqual(

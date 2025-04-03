@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from './create.module.scss'
 import { ChipsInput, FormBloc, Input, Select, Switch, Textarea } from "@/components/form";
 import {
@@ -9,7 +9,7 @@ import {
   WriteCreateAnnotationCampaign
 } from "@/service/campaign";
 import { Dataset, DatasetAPI } from "@/service/dataset";
-import { IonButton, IonCheckbox, IonNote, IonSpinner } from "@ionic/react";
+import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
 import { SpectrogramConfiguration } from "@/service/dataset/spectrogram-configuration";
@@ -19,6 +19,7 @@ import { LabelSetDisplay } from "@/components/campaign/label/LabelSet.tsx";
 import { useToast } from "@/service/ui";
 import { useHistory } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
 
 type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
 
@@ -50,19 +51,19 @@ export const CreateCampaign: React.FC = () => {
   const [ usage, setUsage ] = useState<AnnotationCampaignUsage>('Create');
   const onNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
-    setErrors(prev => ({...prev, name: undefined}))
+    setErrors(prev => ({ ...prev, name: undefined }))
   }, [])
   const onDescChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     setDesc(e.target.value)
-    setErrors(prev => ({...prev, desc: undefined}))
+    setErrors(prev => ({ ...prev, desc: undefined }))
   }, [])
   const onInstructionsURLChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setInstructionsUrl(e.target.value)
-    setErrors(prev => ({...prev, instructions_url: undefined}))
+    setErrors(prev => ({ ...prev, instructions_url: undefined }))
   }, [])
   const onDeadlineChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setDeadline(e.target.value)
-    setErrors(prev => ({...prev, deadline: undefined}))
+    setErrors(prev => ({ ...prev, deadline: undefined }))
   }, [])
   const onUsageChange = useCallback((selection: string) => {
     switch (selection) {
@@ -73,7 +74,7 @@ export const CreateCampaign: React.FC = () => {
         setUsage('Create');
         break;
     }
-    setErrors(prev => ({...prev, usage: undefined}))
+    setErrors(prev => ({ ...prev, usage: undefined }))
   }, [])
 
   // Data
@@ -83,12 +84,42 @@ export const CreateCampaign: React.FC = () => {
     const d = allDatasets?.find(d => d.name === value);
     setDataset(d)
     setSpectroConfigs(d?.spectros ?? [])
-    setErrors(prev => ({...prev, datasets: undefined}))
+    setErrors(prev => ({ ...prev, datasets: undefined }))
   }, [ allDatasets ])
   const onSpectroConfigsChange = useCallback((selection: Array<string | number>) => {
     setSpectroConfigs(dataset?.spectros.filter(s => selection.indexOf(s.id) > -1) ?? [])
-    setErrors(prev => ({...prev, spectro_configs: undefined}))
+    setErrors(prev => ({ ...prev, spectro_configs: undefined }))
   }, [ dataset?.spectros ])
+
+  // Spectrogram tuning
+  const [ allow_image_tuning, setAllowImageTuning ] = useState<boolean>(false);
+  const [ allow_colormap_tuning, setAllowColormapTuning ] = useState<boolean>(false);
+  const [ colormap_default, setColormapDefault ] = useState<Colormap | null>(null);
+  const [ colormap_inverted_default, setColormapInvertedDefault ] = useState<boolean | null>(null);
+  const onAllowImageTuningChange = useCallback(() => {
+    setAllowImageTuning(prev => !prev)
+    setErrors(prev => ({ ...prev, allow_image_tuning: undefined }))
+  }, [ setAllowImageTuning, setErrors ])
+  const onAllowColormapTuningChange = useCallback(() => {
+    setAllowColormapTuning(prev => {
+      const newValue = !prev;
+      setColormapDefault(newValue ? 'Greys' : null)
+      setColormapInvertedDefault(newValue ? false : null)
+      return newValue
+    })
+    setErrors(prev => ({ ...prev, allow_colormap_tuning: undefined }))
+  }, [ setAllowColormapTuning, setColormapDefault, setErrors ])
+  const onColormapDefaultChange = useCallback((value: string | number | undefined) => {
+    setColormapDefault(value as Colormap ?? null)
+    setErrors(prev => ({ ...prev, colormap_default: undefined }))
+  }, [ setColormapDefault, setErrors ])
+  const onColormapInvertedDefaultChange = useCallback(() => {
+    setColormapInvertedDefault(prev => !prev)
+    setErrors(prev => ({ ...prev, colormap_inverted_default: undefined }))
+  }, [ setColormapInvertedDefault, setErrors ])
+  const isColormapEditable = useMemo(() => {
+    return spectro_configs?.map((config) => config.colormap).includes("Greys");
+  }, [ spectro_configs ]);
 
   // Annotation
   const [ labelSet, setLabelSet ] = useState<LabelSet | undefined>();
@@ -97,19 +128,19 @@ export const CreateCampaign: React.FC = () => {
   const [ allow_point_annotation, setAllowPointAnnotation ] = useState<boolean>(false);
   const onLabelSetChange = useCallback((value: number | string | undefined) => {
     setLabelSet(allLabelSets?.find(l => l.id === value))
-    setErrors(prev => ({...prev, label_set: undefined}))
+    setErrors(prev => ({ ...prev, label_set: undefined }))
   }, [ allLabelSets ])
   const onLabelWithAcousticFeaturesChange = useCallback((selection: Array<string>) => {
     setLabelsWithAcousticFeatures(selection)
-    setErrors(prev => ({...prev, labels_with_acoustic_features: undefined}))
+    setErrors(prev => ({ ...prev, labels_with_acoustic_features: undefined }))
   }, [])
   const onConfidenceSetChange = useCallback((value: number | string | undefined) => {
     setConfidenceSet(allConfidenceSets?.find(c => c.id === value))
-    setErrors(prev => ({...prev, confidence_indicator_set: undefined}))
+    setErrors(prev => ({ ...prev, confidence_indicator_set: undefined }))
   }, [ allConfidenceSets ])
   const onAllowPointAnnotationChange = useCallback(() => {
     setAllowPointAnnotation(prev => !prev)
-    setErrors(prev => ({...prev, allow_point_annotation: undefined}))
+    setErrors(prev => ({ ...prev, allow_point_annotation: undefined }))
   }, [])
 
   // Submit
@@ -129,6 +160,10 @@ export const CreateCampaign: React.FC = () => {
       datasets: [ dataset.name ], spectro_configs: spectro_configs?.map(s => s.id),
       labels_with_acoustic_features: labelSet ? labels_with_acoustic_features.filter(l => labelSet.labels.indexOf(l) > -1) : [],
       allow_point_annotation,
+      allow_image_tuning,
+      allow_colormap_tuning,
+      colormap_default,
+      colormap_inverted_default,
     }
     switch (usage) {
       case "Create":
@@ -216,6 +251,35 @@ export const CreateCampaign: React.FC = () => {
         </Fragment> }
       </FormBloc>
 
+      {/* Spectrogram tuning */ }
+      <FormBloc label="Spectrogram Tuning">
+        {/* Allow brightness / contrast tuning */ }
+        <Input type="checkbox" label="Allow brigthness / contrast modification"
+               checked={ allow_image_tuning } onChange={ onAllowImageTuningChange }/>
+
+        {/* Allow colormap tuning */ }
+        <Input type="checkbox" label="Allow colormap modification" disabled={ !isColormapEditable }
+               checked={ allow_colormap_tuning } onChange={ onAllowColormapTuningChange }
+               note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/>
+
+        {/* Default colormap */ }
+        { allow_colormap_tuning && <Select
+            required={ true }
+            label="Default colormap"
+            value={ colormap_default ?? COLORMAP_GREYS }
+            placeholder="Select a default colormap"
+            optionsContainer="popover"
+            options={ Object.keys(COLORMAPS).map((colormap) => ({
+              value: colormap, label: colormap, img: `/app/images/colormaps/${ colormap.toLowerCase() }.png`
+            })) }
+            onValueSelected={ onColormapDefaultChange }/> }
+
+        {/* Default colormap inverted? */ }
+        { allow_colormap_tuning && <Input type="checkbox" label="Invert default colormap" disabled={ !isColormapEditable }
+            checked={ colormap_inverted_default ?? false } onChange={ onColormapInvertedDefaultChange }
+            note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/> }
+      </FormBloc>
+
       {/* Create mode: Annotations */ }
       { usage === 'Create' && <FormBloc label="Annotation">
 
@@ -261,10 +325,8 @@ export const CreateCampaign: React.FC = () => {
               <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }
         </Select> }
 
-          <div className={ styles.checkbox } onClick={ onAllowPointAnnotationChange }>
-              <IonCheckbox checked={ allow_point_annotation }/>
-              <span>Allow annotations of type "Point"</span>
-          </div>
+          <Input type="checkbox" label='Allow annotations of type "Point"'
+                 checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>
 
       </FormBloc> }
 
