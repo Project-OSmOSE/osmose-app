@@ -12,6 +12,7 @@ import { CampaignAPI } from "@/service/campaign";
 import { LabelSetAPI } from "@/service/campaign/label-set";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
+import { Colormap } from '@/services/utils/color.ts';
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -36,7 +37,11 @@ export const AnnotatorSlice = createSlice({
     userPreferences: {
       audioSpeed: 1,
       zoomLevel: 1,
-      spectrogramConfigurationID: 1
+      spectrogramConfigurationID: 1,
+      colormap: undefined,
+      colormapInverted: undefined,
+      brightness: 50,
+      contrast: 50,
     },
     audio: {
       isPaused: true,
@@ -276,6 +281,22 @@ export const AnnotatorSlice = createSlice({
     selectSpectrogramConfiguration: (state, { payload }: { payload: number }) => {
       state.userPreferences.spectrogramConfigurationID = payload;
       state.userPreferences.zoomLevel = 1;
+      state.userPreferences.colormap = undefined;
+      state.userPreferences.colormapInverted = undefined;
+      state.userPreferences.brightness = 50;
+      state.userPreferences.contrast = 50;
+    },
+    setColormap: (state, { payload }: { payload: Colormap }) => {
+      state.userPreferences.colormap = payload;
+    },
+    setColormapInverted: (state, { payload }: { payload: boolean }) => {
+      state.userPreferences.colormapInverted = payload;
+    },
+    setBrightness: (state, { payload }: { payload: number }) => {
+      state.userPreferences.brightness = payload;
+    },
+    setContrast: (state, { payload }: { payload: number }) => {
+      state.userPreferences.contrast = payload;
     },
     setPointerPosition: (state, { payload }: { payload: { time: number, frequency: number } }) => {
       state.ui.pointerPosition = payload;
@@ -365,6 +386,11 @@ export const AnnotatorSlice = createSlice({
             time: 0,
             isPaused: true,
           }
+          state.userPreferences = {
+            ...state.userPreferences,
+            brightness: 50,
+            contrast: 50,
+          }
           state.sessionStart = Date.now();
           state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
         },
@@ -376,6 +402,10 @@ export const AnnotatorSlice = createSlice({
           if (state.campaignID !== payload.id) {
             state.userPreferences.audioSpeed = 1;
             state.userPreferences.zoomLevel = 1;
+            state.userPreferences.brightness = 50;
+            state.userPreferences.contrast = 50;
+            state.userPreferences.colormap = undefined;
+            state.userPreferences.colormapInverted = undefined;
           }
           state.campaignID = payload.id;
         },
@@ -420,6 +450,10 @@ export const {
   removeResult,
   addResult,
   selectSpectrogramConfiguration,
+  setColormap,
+  setColormapInverted,
+  setBrightness,
+  setContrast,
   setPointerPosition,
   zoom,
   leavePointerPosition,

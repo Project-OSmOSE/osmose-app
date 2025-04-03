@@ -8,6 +8,7 @@ import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
 import { BoxBounds } from '@/service/campaign/result';
 import { buildErrorMessage } from '@/services/utils/format.tsx';
+import { colorSpectro, interpolate } from '@/services/utils/color.ts';
 
 
 export const useSpectrogramDimensions = () => {
@@ -48,6 +49,10 @@ export const useDisplaySpectrogram = (
   const {
     spectrogramConfigurationID,
     zoomLevel,
+    brightness,
+    contrast,
+    colormap,
+    colormapInverted,
   } = useAppSelector(state => state.annotator.userPreferences);
   const toast = useToast();
 
@@ -111,6 +116,12 @@ export const useDisplaySpectrogram = (
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
 
+    // Filter images (filter must be set before drawing)
+    const compBrightness: number = Math.round(interpolate(brightness, 0, 100, 50, 150));
+    const compContrast: number = Math.round(interpolate(contrast, 0, 100, 50, 150));
+    context.filter = `brightness(${compBrightness.toFixed()}%) contrast(${compContrast.toFixed()}%)`;
+
+    // Draw images
     const currentImages = images.current.get(zoomLevel)
     if (!currentImages) return;
     for (const i in currentImages) {
@@ -128,6 +139,9 @@ export const useDisplaySpectrogram = (
         canvas.current.height
       )
     }
+
+    // Color spectro images
+    colorSpectro(canvas.current, colormap, colormapInverted);
   }
 
   function drawResult(result: BoxBounds) {

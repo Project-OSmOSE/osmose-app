@@ -6,6 +6,7 @@ import { useToast } from "@/service/ui";
 import { ScaleMapping } from '@/service/dataset/spectrogram-configuration/scale';
 import { getDuration } from "@/service/dataset";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { colorSpectro, interpolate } from "../utils/color";
 
 export const useSpectrogramService = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
@@ -68,6 +69,7 @@ export const useSpectrogramService = (
   function resetCanvas() {
     const context = canvas.current?.getContext('2d', { alpha: false });
     if (!canvas.current || !context) return;
+    context.filter = '';
     context.clearRect(0, 0, canvas.current.width, canvas.current.height);
   }
 
@@ -78,6 +80,12 @@ export const useSpectrogramService = (
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
 
+    // Filter images (filter must be set before drawing)
+    const brightness: number = Math.round(interpolate(userPreferences.brightness, 0, 100, 50, 150));
+    const contrast: number = Math.round(interpolate(userPreferences.contrast, 0, 100, 50, 150));
+    context.filter = `brightness(${brightness.toFixed()}%) contrast(${contrast.toFixed()}%)`;
+
+    // Draw images
     const currentImages = images.current.get(userPreferences.zoomLevel)
     if (!currentImages) return;
     for (const i in currentImages) {
@@ -95,6 +103,9 @@ export const useSpectrogramService = (
         canvas.current.height
       )
     }
+
+    // Color spectro images
+    colorSpectro(canvas.current, userPreferences.colormap, userPreferences.colormapInverted);
   }
 
   function drawProgressBar() {

@@ -46,7 +46,7 @@ export const Select: React.FC<SelectProperties> = ({
                                                      optionsContainer,
                                                      children,
                                                      noneLabel = 'None',
-                                                     disabled,
+                                                     disabled = false,
                                                      className,
                                                      noneFirst = false,
                                                      error,
@@ -57,6 +57,7 @@ export const Select: React.FC<SelectProperties> = ({
   const inputRef = useRef<HTMLDivElement | null>(null);
   const selectButtonRef = useRef<HTMLButtonElement | null>(null);
   const selectLabelRef = useRef<HTMLParagraphElement | null>(null);
+  const selectImgRef = useRef<HTMLImageElement | null>(null);
   const iconRef = useRef<HTMLIonIconElement | null>(null);
   const optionsRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,6 +80,7 @@ export const Select: React.FC<SelectProperties> = ({
     if (event.target === inputRef.current) return;
     if (event.target === selectButtonRef.current) return;
     if (event.target === selectLabelRef.current) return;
+    if (event.target === selectImgRef.current) return;
     if (event.target === iconRef.current) return;
     if (event.target === optionsRef.current) return;
     setIsOpen(false);
@@ -97,12 +99,12 @@ export const Select: React.FC<SelectProperties> = ({
     return values;
   }
 
-  const buttonLabel = useMemo(() => {
+  const buttonItem: Item = useMemo(() => {
     if (value === undefined || value === -9) {
-      if (hasSelectedItem) return noneLabel;
-      else return placeholder;
+      if (hasSelectedItem) return { value: -9, label: noneLabel };
+      else return { value: -9, label: placeholder };
     }
-    return getOptions().find(o => o.value === value)?.label ?? placeholder
+    return getOptions().find(o => o.value === value) ?? { value: -9, label: placeholder }
   }, [ value, parentOptions, required, hasSelectedItem, placeholder ])
   const buttonId = useMemo(() => `button-${ placeholder.toLowerCase().replace(' ', '-') }`, [ placeholder ])
 
@@ -134,8 +136,9 @@ export const Select: React.FC<SelectProperties> = ({
               aria-disabled={ disabled }
               disabled={ disabled }
               onClick={ () => !disabled && setIsOpen(!isOpen) }
-              className={ !value && !hasSelectedItem ? styles.placeholder : '' }>
-        <p ref={ selectLabelRef }>{ buttonLabel }</p>
+              className={ !value && !hasSelectedItem ? styles.placeholder : '' }
+              title={ buttonItem.label }>
+        <p ref={ selectLabelRef }>{ buttonItem.img ? <img ref={ selectImgRef } src={buttonItem.img} alt={buttonItem.label} /> : buttonItem.label }</p>
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
@@ -144,7 +147,7 @@ export const Select: React.FC<SelectProperties> = ({
           onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
-        } } key={ v.value }>{ v.label }</div>) }
+        } } key={ v.value }>{ v.img && <img src={v.img} alt={v.label} />} { v.label }</div>) }
       </div> }
 
       { optionsContainer === 'alert' && isOpen &&

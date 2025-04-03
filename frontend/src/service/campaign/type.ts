@@ -3,6 +3,7 @@ import { Errors } from '@/service/type.ts';
 import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
 import { ACCEPT_CSV_MIME_TYPE } from '@/consts/csv.ts';
 import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
+import { Colormap } from '@/services/utils/color';
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
 
@@ -21,6 +22,10 @@ export type BaseAnnotationCampaign = {
   spectro_configs: Array<number>; //pk
   labels_with_acoustic_features: Array<string>;
   allow_point_annotation: boolean;
+  allow_image_tuning: boolean;
+  allow_colormap_tuning: boolean;
+  colormap_default: Colormap | null;
+  colormap_inverted_default: boolean | null;
 }
 
 /**
