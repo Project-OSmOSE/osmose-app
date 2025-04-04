@@ -11,7 +11,7 @@ from django.utils import timezone
 from backend.aplose.models import User
 from .confidence import ConfidenceIndicatorSet
 from .label import LabelSet, Label
-from ..datasets import DatasetFile
+from ..data import DatasetFile
 
 
 class AnnotationCampaignUsage(models.IntegerChoices):

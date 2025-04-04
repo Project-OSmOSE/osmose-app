@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import Dataset
-from backend.api.serializers.dataset import DATASET_FIELDS
+from backend.api.serializers.data.dataset import DATASET_FIELDS
 
 IMPORT_FIXTURES = settings.FIXTURE_DIRS[0] / "list_to_import"
 
@@ -37,7 +37,6 @@ class DatasetViewSetTestCase(APITestCase):
         """Dataset view 'list' returns correct list of datasets"""
         url = reverse("dataset-list")
         response = self.client.get(url)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Dataset.objects.count())
         self.assertEqual(

@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 
 from backend import settings
 from backend.api.models import Dataset
-from backend.api.serializers.dataset import DATASET_FIELDS
+from backend.api.serializers.data.dataset import DATASET_FIELDS
 
 IMPORT_FIXTURES = settings.FIXTURE_DIRS[1] / "dataset" / "list_to_import"
 URL = reverse("dataset-datawork-import")

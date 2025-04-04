@@ -92,3 +92,11 @@ class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
         except (TypeError, ValueError):
             self.fail("invalid")
             return None
+
+
+class SimpleSerializer(serializers.ModelSerializer):
+    """Serializer meant to output basic data"""
+
+    class Meta:
+        model = None
+        fields = "__all__"

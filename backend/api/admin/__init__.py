@@ -14,7 +14,7 @@ from backend.api.models import (
 )
 from .__utils__ import get_many_to_many
 from .annotation import *
-from .datasets import DatasetTypeAdmin, DatasetAdmin, DatasetFileAdmin
+from .data import *
 from .spectrogram import *
 
 
