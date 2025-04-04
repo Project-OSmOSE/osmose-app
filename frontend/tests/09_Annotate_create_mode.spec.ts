@@ -29,8 +29,8 @@ const TEST = {
       await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }`)
     })
   },
-  empty: (as: UserType, { isNew }: { isNew: boolean }) => {
-    return test(`${ getTag(isNew) } Empty`, ESSENTIAL, async ({ page }) => {
+  empty: (as: UserType, { isNew, submit }: { isNew: boolean, submit: 'mouse' | 'key' }) => {
+    return test(`${ getTag(isNew) } Empty (submit ${ submit })`, ESSENTIAL, async ({ page }) => {
       const annotator = isNew ? page.annotatorNew : page.annotator;
       await annotator.go(as, { mode: 'Create', empty: true });
       await expect(page.getByText('Confidence indicator ')).toBeVisible();
@@ -129,25 +129,27 @@ const TEST = {
         expect(await label.getLabelState()).toBeFalsy();
       })
 
-      await test.step('Can submit - mouse', async () => {
-        const [ request ] = await Promise.all([
-          page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
-          annotator.submitButton.click()
-        ])
-        const submittedData = request.postDataJSON();
-        expect(submittedData.results).toEqual([]);
-        expect(submittedData.task_comments).toEqual([ { comment: COMMENT.task.comment } ]);
-      })
-
-      await test.step('Can submit - keyboard', async () => {
-        const [ request ] = await Promise.all([
-          page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
-          page.keyboard.press('Enter')
-        ])
-        const submittedData = request.postDataJSON();
-        expect(submittedData.results).toEqual([]);
-        expect(submittedData.task_comments).toEqual([ { comment: COMMENT.task.comment } ]);
-      })
+      if (submit === 'mouse') {
+        await test.step('Can submit - mouse', async () => {
+          const [ request ] = await Promise.all([
+            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
+            annotator.submitButton.click()
+          ])
+          const submittedData = request.postDataJSON();
+          expect(submittedData.results).toEqual([]);
+          expect(submittedData.task_comments).toEqual([ { comment: COMMENT.task.comment } ]);
+        })
+      } else {
+        await test.step('Can submit - keyboard', async () => {
+          const [ request ] = await Promise.all([
+            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
+            page.keyboard.press('Enter')
+          ])
+          const submittedData = request.postDataJSON();
+          expect(submittedData.results).toEqual([]);
+          expect(submittedData.task_comments).toEqual([ { comment: COMMENT.task.comment } ]);
+        })
+      }
     })
   },
   emptyWithPoint: (as: UserType, { isNew }: { isNew: true }) => {
@@ -198,7 +200,8 @@ test.describe('Annotator', () => {
   TEST.accessOtherAnnotator('annotator', { isNew: false, can: false })
 
   TEST.canGoBack('annotator', { isNew: false })
-  TEST.empty('annotator', { isNew: false })
+  TEST.empty('annotator', { isNew: false, submit: 'mouse' })
+  TEST.empty('annotator', { isNew: false, submit: 'key' })
   TEST.noConfidence('annotator', { isNew: false })
 })
 
@@ -211,7 +214,8 @@ test.describe('Staff', () => {
   TEST.accessOtherAnnotator('staff', { isNew: true, can: true })
 
   TEST.canGoBack('staff', { isNew: true })
-  TEST.empty('staff', { isNew: true })
+  TEST.empty('staff', { isNew: true, submit: 'mouse' })
+  TEST.empty('staff', { isNew: true, submit: 'key' })
   TEST.emptyWithPoint('staff', { isNew: true })
   TEST.noConfidence('staff', { isNew: true })
 })
