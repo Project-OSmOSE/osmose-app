@@ -21,6 +21,7 @@ export class CampaignListPage {
 
   async go(as: UserType, options?: { empty: boolean }) {
     await test.step('Navigate to Campaigns', async () => {
+      await this.mock.userSelf(as)
       await this.mock.campaigns(options?.empty)
       await this.login.login(as)
       await this.mock.campaigns(options?.empty)

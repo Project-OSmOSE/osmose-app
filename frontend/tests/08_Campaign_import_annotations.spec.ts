@@ -20,7 +20,7 @@ test.describe('Campaign creator', () => {
       submitResultsRequest,
     ] = await Promise.all([
       page.waitForRequest(API_URL.result.import),
-      page.campaign.import.importButton.click()
+      page.campaign.import.submit()
     ])
     expect(submitResultsRequest.url()).toContain(`dataset_name=${ encodeURI(DATASET.name) }`)
     expect(submitResultsRequest.url()).toContain(`detectors_map=${ encodeURI(JSON.stringify({

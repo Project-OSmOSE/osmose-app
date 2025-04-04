@@ -102,4 +102,10 @@ export class CampaignImportAnnotationsPage {
 
   }
 
+  async submit() {
+    await this.mock.annotatorGroups()
+    await this.mock.fileRanges()
+    await this.importButton.click()
+  }
+
 }
