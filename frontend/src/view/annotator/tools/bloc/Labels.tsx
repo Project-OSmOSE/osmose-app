@@ -88,10 +88,10 @@ export const Labels: React.FC = () => {
     alert.showAlert({
       type: 'Warning',
       message: `You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure?`,
-      action: {
+      actions: [{
         label: `Remove "${ label }" annotations`,
         callback: () => dispatch(removePresence(label))
-      }
+      }]
     })
   }
 

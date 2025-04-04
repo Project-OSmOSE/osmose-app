@@ -8,6 +8,7 @@ import { EventSlice } from "@/service/events";
 export type OldTextareaProperties = {
   label?: string;
   error?: string;
+  containerClassName?: string;
 } & TextareaHTMLAttributes<HTMLTextAreaElement>
 
 
@@ -17,12 +18,14 @@ export const Textarea: React.FC<OldTextareaProperties> = ({
                                                             value,
                                                             error,
                                                             required,
+                                                            containerClassName,
                                                             ...textareaArgs
                                                           }) => {
 
   const dispatch = useAppDispatch();
 
-  return <div id="aplose-input" className={ [styles.default, "textarea"].join(' ') } aria-disabled={ disabled } aria-invalid={ !!error }>
+  return <div id="aplose-input" className={ [ styles.default, "textarea", containerClassName ].join(' ') }
+              aria-disabled={ disabled } aria-invalid={ !!error }>
     <Label required={ required } label={ label }/>
 
     <div className={ styles.input }>

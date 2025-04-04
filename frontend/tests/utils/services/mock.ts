@@ -19,7 +19,7 @@ import {
   UserType
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
-import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range/type';
+import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
 import { AnnotationCampaign, AnnotationCampaignUsage } from '../../../src/service/campaign';
 
 type Response = {
@@ -36,6 +36,9 @@ export class Mock {
     return `Custom error for ${ field }`;
   }
 
+  public async collaborators() {
+    await this.page.route(API_URL.collaborators, route => route.fulfill({ status: 200, json: [] }))
+  }
 
   public async token(response: Response = { status: 200, json: { detail: AUTH.token } }) {
     await this.page.route(API_URL.token, route => route.fulfill(response))
@@ -46,8 +49,11 @@ export class Mock {
     await this.page.route(API_URL.user.list, route => route.fulfill({ status: 200, json }))
   }
 
-  public async userSelf(type: UserType = 'annotator') {
-    await this.page.route(API_URL.user.self, route => route.fulfill({ status: 200, json: USERS[type] }))
+  public async userSelf(type: UserType | null) {
+    if (type === null)
+      await this.page.route(API_URL.user.self, route => route.fulfill({ status: 401 }))
+    else
+      await this.page.route(API_URL.user.self, route => route.fulfill({ status: 200, json: USERS[type] }))
   }
 
   public async campaigns(empty: boolean = false) {

@@ -24,6 +24,8 @@ export class DatasetPage {
       await this.mock.datasets(options?.empty)
       await this.mock.datasetsToImport(options?.empty)
       await this.page.getByRole('button', { name: 'Datasets' }).click()
+      await this.mock.datasets(options?.empty)
+      await this.mock.datasetsToImport(options?.empty)
     });
   }
 

@@ -42,6 +42,7 @@ export type AnnotationCampaign = BaseAnnotationCampaign & {
   archive: AnnotationCampaignArchive | null; // read_only
 
   files_count: number; // read_only
+  annotations_count: number; // read_only
   my_progress: number; // read_only
   my_total: number; // read_only
   progress: number; // read_only

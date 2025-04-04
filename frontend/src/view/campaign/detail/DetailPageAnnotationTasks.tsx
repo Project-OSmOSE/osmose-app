@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
 import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
@@ -91,6 +91,11 @@ export const DetailPageAnnotationTasks: React.FC<{
     setPage(1)
   }
 
+  const importAnnotations = useCallback(() => {
+    if (!campaign) return;
+    history.push(`/annotation-campaign/${ campaign.id }/import-annotations`)
+  }, [ campaign ]);
+
   return <div className={ [ styles.tasks, isEmpty ? styles.empty : '' ].join(' ') }>
 
     <ActionBar search={ fileFilters.search }
@@ -114,6 +119,12 @@ export const DetailPageAnnotationTasks: React.FC<{
                </div> }/>
 
     { campaign && <Fragment>
+      { campaign.usage === 'Check' && campaign.annotations_count === 0 &&
+          <WarningText>
+              Your campaign doesn't have any annotations to check
+              <IonButton fill='clear' onClick={ importAnnotations }>Import annotations</IonButton>
+          </WarningText> }
+
         <Table columns={ 6 } className={ styles.filesTable }>
             <TableHead topSticky isFirstColumn={ true }>
                 Filename

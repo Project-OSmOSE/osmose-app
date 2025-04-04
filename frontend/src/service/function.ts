@@ -3,11 +3,11 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
 export function encodeQueryParams(queryParams?: QueryParams): string {
-  if (!queryParams) return '';
+  if (!queryParams || Object.entries(queryParams).length === 0) return '';
   return encodeURI(`?${ Object.entries(queryParams).map(([ key, value ]) => `${ key }=${ value }`).join('&') }`);
 }
 
-export function getErrorMessage(error: FetchBaseQueryError | SerializedError | string | undefined): string | undefined {
+export function getErrorMessage(error: FetchBaseQueryError | SerializedError | unknown | string | undefined): string | undefined {
   if (!error) return undefined;
   if (typeof error === 'string') return error;
   if ((error as SerializedError).message) return (error as SerializedError).message;

@@ -1,18 +1,19 @@
 import { Select } from "@/components/form";
-import { setColormapInverted, setColormap } from "@/service/annotator/slice";
+import { setColormap, setColormapInverted } from "@/service/annotator/slice";
 import { useCurrentConfiguration } from "@/service/annotator/spectrogram";
 import { useAppDispatch, useAppSelector } from "@/service/app";
 import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
 import { IonButton, IonIcon } from "@ionic/react";
 import { invertModeSharp } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
+import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const ColormapConfiguration: React.FC = () => {
+  const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
 
-  const [changeAllowed, setChangeAllowed] = useState<boolean>(false);
+  const [ changeAllowed, setChangeAllowed ] = useState<boolean>(false);
 
-  const campaign = useAppSelector(state => state.campaign.currentCampaign);
   const currentConfiguration = useCurrentConfiguration();
   const colormap = useAppSelector(state => state.annotator.userPreferences.colormap);
   const colormapInverted = useAppSelector(state => state.annotator.userPreferences.colormapInverted);
@@ -24,7 +25,7 @@ export const ColormapConfiguration: React.FC = () => {
       dispatch(setColormap(colormap ?? campaign?.colormap_default ?? COLORMAP_GREYS))
       dispatch(setColormapInverted(colormapInverted ?? campaign?.colormap_inverted_default ?? false))
     }
-  }, [campaign, currentConfiguration])
+  }, [ campaign, currentConfiguration ])
 
   if (!changeAllowed) return;
 
@@ -34,25 +35,20 @@ export const ColormapConfiguration: React.FC = () => {
   }
 
   return <div>
-    {/* Colormap selection */}
-    <Select
-      required={ true }
-      value={ colormap }
-      placeholder="Select a colormap"
-      onValueSelected={ onSelect }
-      optionsContainer="popover"
-      options={ Object.keys(COLORMAPS).map((cmap) => ({
-        value: cmap, label: cmap, img: `/app/images/colormaps/${cmap.toLowerCase()}.png`
-      })) }
-    />
+    {/* Colormap selection */ }
+    <Select required={ true } value={ colormap }
+            placeholder="Select a colormap"
+            onValueSelected={ onSelect }
+            optionsContainer="popover"
+            options={ Object.keys(COLORMAPS).map((cmap) => ({
+              value: cmap, label: cmap, img: `/app/images/colormaps/${ cmap.toLowerCase() }.png`
+            })) }/>
 
-    {/* Colormap inversion */}
-    <IonButton
-      color="primary"
-      className={ colormapInverted ? "inverted" : "" }
-      fill={ colormapInverted ? "outline" : "default" }
-      onClick={ () => dispatch(setColormapInverted(!colormapInverted)) }>
-      <IonIcon icon={ invertModeSharp } slot={ "icon-only" } />
+    {/* Colormap inversion */ }
+    <IonButton color="primary" fill={ colormapInverted ? "outline" : "default" }
+               className={ colormapInverted ? "inverted" : "" }
+               onClick={ () => dispatch(setColormapInverted(!colormapInverted)) }>
+      <IonIcon icon={ invertModeSharp } slot={ "icon-only" }/>
     </IonButton>
   </div>;
 }

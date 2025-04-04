@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { Fragment, ReactNode } from "react";
 import styles from './ui.module.scss';
 import { IoCloseOutline } from "react-icons/io5";
 
@@ -28,8 +28,9 @@ export const ModalHeader: React.FC<{
 )
 
 export const ModalFooter: React.FC<{
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
-}> = ({ children, className }) => (
-  <div className={ [ styles.footer, className ].join(' ') }>{ children }</div>
-)
+}> = ({ children, className }) => {
+  if (!children) return <Fragment/>
+  return <div className={ [ styles.footer, className ].join(' ') }>{ children }</div>
+}

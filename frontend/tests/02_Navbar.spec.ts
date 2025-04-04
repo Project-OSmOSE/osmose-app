@@ -8,6 +8,8 @@ const STEP = {
     expect(url).toEqual(URL.admin)
   }),
   canAccessDataset: (page: Page) => test.step('Can access datasets', async () => {
+    await page.mock.datasets()
+    await page.mock.datasetsToImport()
     await page.getByRole('button', { name: 'Datasets' }).click()
     await expect(page.getByRole('heading', { name: 'Datasets' })).toBeVisible();
   })

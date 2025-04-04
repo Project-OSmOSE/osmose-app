@@ -60,3 +60,29 @@ Le tableau des fichiers contient les colonnes suivantes :
 | Status      | Vous avez déjà soumis vos annotations ou non                                                                                                                                       |
 | Access      | Un accès direct pour [annoter](./annotator) ce fichier                                                                                                                             |
 
+En cliquant sur l'icône de filtre dans l'en-tête du tableau des fichiers, vous pouvez filtrer les fichiers.
+
+#### Filtre sur la date
+
+Vous pouvez filtrer les fichiers compris entre la "minimum date" et la "maximum date".
+
+![](/campaigns/date-filters.png)
+
+#### Filtre sur les annotations
+
+Vous pouvez filtrer sur :
+- La présence (With) ou non (Without) d'annotations sur le fichier
+- Le label présent sur le fichier
+- Le niveau de confiance utilisé sur l'annotation
+- La présence (With) ou non (Without) d'annotations avec paramètres acoustiques sur le fichier.
+
+Laisser un filtre à l'état "Unset" le désactive
+
+![](/campaigns/annotations-filters.png)
+
+#### Filtre sur le status
+
+Vous pouvez filtrer sur l'état du fichier, qu'il ait déjà été annoté (Finished) ou pas encore (Created).
+Laisser le filtre à l'état "Unset" le désactive
+
+![](/campaigns/status-filters.png)

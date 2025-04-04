@@ -14,13 +14,13 @@ from backend.api.models import (
     AnnotationResult,
     AnnotationCampaign,
     DatasetFile,
+    AnnotationTask,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
     AnnotationResultImportListSerializer,
 )
 from backend.utils.filters import ModelFilter, get_boolean_query_param
-from backend.utils.serializers import FileUploadSerializer
 
 
 # pylint: disable=duplicate-code
@@ -143,19 +143,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if campaign.owner_id != request.user.id and not request.user.is_staff:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        upload_serializer = FileUploadSerializer(data=request.data)
-        upload_serializer.is_valid(raise_exception=True)
-
-        file = upload_serializer.validated_data["file"]
-
         force = get_boolean_query_param(self.request, "force")
 
         dataset_name = request.query_params.get("dataset_name")
         detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))
 
-        decoded_file = file.read().decode()
-        io_string = StringIO(decoded_file)
-        reader = csv.DictReader(io_string)
+        reader = csv.DictReader(StringIO(request.data.get("data")))
         data = []
         for row in reader:
             annotator = row["annotator"] if "annotator" in row else None
@@ -207,5 +200,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        list_serializer = self.get_serializer_class()(serializer.instance, many=True)
+        instances: list[AnnotationResult] = serializer.instance
+        AnnotationTask.objects.filter(
+            annotation_campaign=campaign,
+            dataset_file_id__in=[r.dataset_file_id for r in instances],
+        ).update(status=AnnotationTask.Status.CREATED)
+        list_serializer: AnnotationResultSerializer = self.get_serializer_class()(
+            instances, many=True
+        )
         return Response(list_serializer.data, status=status.HTTP_201_CREATED)
