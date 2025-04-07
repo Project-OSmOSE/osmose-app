@@ -35,7 +35,7 @@ test.describe('Campaign creator', () => {
     })) }`)
 
     const expectedLines = submitResultsRequest.postDataJSON().data.replaceAll('"', '').split('\n');
-    const fileLines = page.campaign.import.fileData.split('\r\n')
+    const fileLines = page.campaign.import.fileData.replaceAll('\r', '').split('\n')
     expect(expectedLines.length).toEqual(fileLines.length)
     for (const index in expectedLines) {
       expect(expectedLines[index]).toEqual(fileLines[index])
