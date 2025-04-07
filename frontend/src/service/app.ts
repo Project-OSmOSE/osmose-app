@@ -18,6 +18,7 @@ import { EventSlice } from "@/service/events";
 import { UISlice } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
+import { SqlAPI } from "@/service/sql";
 
 export const AppStore = configureStore({
   reducer: {
@@ -41,6 +42,7 @@ export const AppStore = configureStore({
     [DetectorAPI.reducerPath]: DetectorAPI.reducer,
     [AnnotatorAPI.reducerPath]: AnnotatorAPI.reducer,
     [AnnotationResultAPI.reducerPath]: AnnotationResultAPI.reducer,
+    [SqlAPI.reducerPath]: SqlAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -59,6 +61,7 @@ export const AppStore = configureStore({
       .concat(DetectorAPI.middleware)
       .concat(AnnotatorAPI.middleware)
       .concat(AnnotationResultAPI.middleware)
+      .concat(SqlAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

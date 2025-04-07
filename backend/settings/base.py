@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "backend.aplose.apps.AploseConfig",
     "tinymce",
     "metadatax",
+    "backend.sql.apps.SqlConfig",
 ]
 
 MIDDLEWARE = [

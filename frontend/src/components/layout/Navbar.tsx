@@ -62,11 +62,18 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
               <IonButton fill='clear' color='dark' onClick={ accessDatasets }>
                   Datasets
               </IonButton>
-              <Link href="/backend/admin" target="_blank">Admin</Link>
           </Fragment> }
         </div>
 
+        { (currentUser?.is_staff || currentUser?.is_superuser) && <Fragment>
+            <Link href="/backend/admin" target="_blank" color='medium'>Admin</Link>
+        </Fragment> }
+
         <DocumentationButton/>
+
+        { currentUser?.is_superuser && <Fragment>
+            <Link href="/app/sql" color='medium'>SQL query</Link>
+        </Fragment> }
 
         <IonButton fill='clear' color='medium' onClick={ accessAccount }>
           Account
