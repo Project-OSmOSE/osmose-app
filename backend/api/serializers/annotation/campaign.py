@@ -32,6 +32,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     """Serializer for annotation campaign"""
 
     files_count = serializers.IntegerField(read_only=True)
+    annotations_count = serializers.IntegerField(read_only=True)
     datasets = serializers.SlugRelatedField(
         many=True, queryset=Dataset.objects.all(), slug_field="name"
     )

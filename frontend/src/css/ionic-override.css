@@ -81,10 +81,6 @@ p {
     margin: 0;
 }
 
-p .separator:last-child {
-    display: none;
-}
-
 /* Page */
 ion-app {
     display: unset !important;
@@ -286,10 +282,6 @@ ion-toast::part(message) {
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     word-wrap: break-word;
-}
-
-ion-breadcrumb[active=true] {
-    font-weight: 600;
 }
 
 ion-radio-group {

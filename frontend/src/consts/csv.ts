@@ -2,7 +2,6 @@ export const ACCEPT_CSV_MIME_TYPE = 'text/csv, application/vnd.ms-excel';
 export const ACCEPT_CSV_SEPARATOR = ',';
 export const IMPORT_ANNOTATIONS_COLUMNS = {
   required: [
-    'dataset',
     'start_frequency',
     'end_frequency',
     'start_datetime',

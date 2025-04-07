@@ -235,6 +235,10 @@
   &[aria-disabled=true] .switchItem {
     cursor: default;
   }
+
+  ion-note {
+    grid-column: 1 / -1;
+  }
 }
 
 .chips {

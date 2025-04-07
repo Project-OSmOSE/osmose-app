@@ -2,18 +2,21 @@ import { Page, Request, test } from '@playwright/test';
 import { API_URL } from '../const';
 import { Mock } from '../services';
 import { AUTH, UserType } from '../../fixtures';
+import { HomePage } from "./home";
 
 export class LoginPage {
 
   static SERVER_ERROR: string = 'server_error';
 
   constructor(private page: Page,
-              private mock = new Mock(page),) {
+              private home: HomePage = new HomePage(page),
+              private mock = new Mock(page)) {
   }
 
   async go() {
     await test.step('Navigate to login', async () => {
-      await this.page.goto('/app/login/');
+      await this.home.go();
+      await this.page.getByRole('button', { name: 'Login' }).click();
     });
   }
 
@@ -38,6 +41,7 @@ export class LoginPage {
 
   async login(as: UserType) {
     await this.go()
+    await this.mock.userSelf(as);
     await this.fillForm()
     await this.mock.userSelf(as)
     await this.submit({ status: 200, submitAction: 'button' })

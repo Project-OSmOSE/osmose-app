@@ -3,6 +3,11 @@ export type AlertType =
   'Error' |
   'Warning';
 
+export type AlertAction = {
+  label: string,
+  callback: () => void;
+}
+
 export type Alert = {
   type: AlertType;
   message: string;
@@ -11,8 +16,5 @@ export type Alert = {
   type: 'Success';
 } | {
   type: 'Error' | 'Warning';
-  action: {
-    label: string,
-    callback: () => void;
-  };
+  actions: AlertAction[];
 });

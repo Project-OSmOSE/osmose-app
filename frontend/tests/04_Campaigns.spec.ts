@@ -64,6 +64,8 @@ test.describe('Annotator', () => {
     await page.campaign.list.go('annotator');
     await page.mock.users()
     await page.mock.datasets()
+    await page.mock.labelSets()
+    await page.mock.confidenceSets()
     await page.campaign.list.createButton.click()
     await page.mock.users()
     await page.mock.datasets()

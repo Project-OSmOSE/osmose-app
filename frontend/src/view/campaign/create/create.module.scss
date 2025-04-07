@@ -1,0 +1,56 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  color: var(--ion-color-dark);
+  font-family: var(--ion-font-family), sans-serif;
+  padding: 0 2rem 1rem;
+
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+
+  > * {
+    width: min(100%, 40rem);
+  }
+
+  b {
+    font-weight: 600;
+  }
+
+  h2 {
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: grid;
+    justify-items: center;
+  }
+
+  .checkbox {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "empty spinner create";
+    align-items: center;
+
+    ion-spinner {
+      grid-area: spinner;
+    }
+
+    ion-button {
+      grid-area: create;
+      justify-self: end;
+    }
+  }
+}

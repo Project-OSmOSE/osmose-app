@@ -3,7 +3,7 @@ import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { AnnotationResult } from '@/service/campaign/result/type.ts';
 import { ID } from '@/service/type.ts';
 import { encodeQueryParams } from '@/service/function.ts';
-import { DetectorSelection } from '@/service/campaign';
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 export const AnnotationResultAPI = createApi({
   reducerPath: 'annotationResultApi',
@@ -13,20 +13,11 @@ export const AnnotationResultAPI = createApi({
     import: builder.mutation<Array<AnnotationResult>, {
       campaignID: ID,
       datasetName: string,
-      detectors: Array<DetectorSelection>,
-      file: File,
+      detectors_map: { [key in string]: { detector: string, configuration: string } },
+      data: string[][],
       force?: boolean
     }>({
-      query: ({ campaignID, datasetName, file, force, detectors }) => {
-        const detectors_map: { [key in string]: { detector: string, configuration: string } } = {}
-        for (const d of detectors) {
-          detectors_map[d.initialName] = {
-            detector: d.knownDetector?.name ?? d.initialName,
-            configuration: d.knownConfiguration?.configuration ?? d.newConfiguration ?? ''
-          }
-        }
-        const body = new FormData()
-        body.append('file', file)
+      query: ({ campaignID, datasetName, data, force, detectors_map }) => {
         return {
           url: `campaign/${ campaignID }/import/${ encodeQueryParams({
             dataset_name: datasetName,
@@ -34,9 +25,23 @@ export const AnnotationResultAPI = createApi({
             force: force ?? false
           }) }`,
           method: 'POST',
-          body,
+          body: { data: data.map(row => row.map(cell => `"${ cell }"`).join(',')).join('\n') },
         }
-      }
+      },
+      transformErrorResponse(error: FetchBaseQueryError): unknown {
+        const outOfFilesError = "This start and end datetime does not belong to any file of the dataset";
+        if (error.status === 400) {
+          const errors = error.data  as Array<{ [key in string]: string[] }>
+          if (!JSON.stringify(errors).includes(outOfFilesError)) return error;
+          const count = [ ...JSON.stringify(errors).matchAll(new RegExp(outOfFilesError, 'g')) ].length;
+          return {
+            status: 400,
+            data: `[${ count } results]: ${ outOfFilesError }`,
+            canForce: true
+          }
+        }
+        return error
+      },
     }),
   })
 })

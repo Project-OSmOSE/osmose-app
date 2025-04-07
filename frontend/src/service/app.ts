@@ -3,7 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthAPI, AuthSlice } from '@/service/auth';
 import { UserAPI } from '@/service/user';
-import { CampaignAPI, CampaignSlice } from '@/service/campaign';
+import { CampaignAPI } from '@/service/campaign';
 import { AnnotationFileRangeAPI } from '@/service/campaign/annotation-file-range';
 import { LabelSetAPI } from '@/service/campaign/label-set';
 import { DatasetAPI } from '@/service/dataset';
@@ -17,14 +17,15 @@ import { CollaboratorAPI } from "@/service/collaborator";
 import { EventSlice } from "@/service/events";
 import { UISlice } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
+import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 
 export const AppStore = configureStore({
   reducer: {
     [UISlice.reducerPath]: UISlice.reducer,
     [EventSlice.reducerPath]: EventSlice.reducer,
     [AuthSlice.reducerPath]: AuthSlice.reducer,
-    [CampaignSlice.reducerPath]: CampaignSlice.reducer,
     [AnnotatorSlice.reducerPath]: AnnotatorSlice.reducer,
+    [ResultImportSlice.reducerPath]: ResultImportSlice.reducer,
 
     [AuthAPI.reducerPath]: AuthAPI.reducer,
     [UserAPI.reducerPath]: UserAPI.reducer,

@@ -32,7 +32,6 @@ from backend.utils.serializers import (
     EnumField,
 )
 from .comment import AnnotationCommentSerializer
-from .confidence_indicator_set import ConfidenceIndicatorSerializer
 from ...models.annotation.result import AnnotationResultType
 
 
@@ -70,27 +69,18 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
     def get_fields(self):
         fields = super().get_fields()
-        campaign: Optional[AnnotationCampaign] = (
-            self.context["campaign"] if "campaign" in self.context else None
-        )
+        campaign: AnnotationCampaign = self.context["campaign"]
 
-        if campaign is not None:
-            fields["dataset"].queryset = campaign.datasets
-            if campaign.usage is AnnotationCampaignUsage.CREATE:
-                fields["label"].queryset = campaign.label_set.labels
-                if campaign.confidence_indicator_set is not None:
-                    fields["confidence_indicator"] = ConfidenceIndicatorSerializer(
-                        required=True,
-                    )
-            max_frequency = (
-                max(d.audio_metadatum.dataset_sr for d in campaign.datasets.all()) / 2
-            )
-            fields["min_frequency"] = serializers.FloatField(
-                required=False, min_value=0.0, max_value=max_frequency
-            )
-            fields["max_frequency"] = serializers.FloatField(
-                required=False, min_value=0.0, max_value=max_frequency, allow_null=True
-            )
+        fields["dataset"].queryset = campaign.datasets
+        max_frequency = (
+            max(d.audio_metadatum.dataset_sr for d in campaign.datasets.all()) / 2
+        )
+        fields["min_frequency"] = serializers.FloatField(
+            required=False, min_value=0.0, max_value=max_frequency
+        )
+        fields["max_frequency"] = serializers.FloatField(
+            required=False, min_value=0.0, max_value=max_frequency, allow_null=True
+        )
 
         return fields
 
@@ -111,28 +101,15 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         dataset = attrs["dataset"]
         start = attrs["start_datetime"]
         end = attrs["end_datetime"]
-        dataset_files = dataset.get_files(start, end)
+        dataset_files = DatasetFile.objects.filter_matches_time_range(
+            start, end
+        ).filter(dataset=dataset)
         if not dataset_files:
             if "force" in self.context and self.context["force"]:
                 return None
             raise serializers.ValidationError(
                 "This start and end datetime does not belong to any file of the dataset",
                 code="invalid",
-            )
-        max_freq = dataset.audio_metadatum.dataset_sr / 2
-        if attrs["min_frequency"] > max_freq:
-            raise serializers.ValidationError(
-                {
-                    "min_frequency": f"Ensure this value is less than or equal to {max_freq}."
-                },
-                code="max_value",
-            )
-        if attrs["max_frequency"] is not None and attrs["max_frequency"] > max_freq:
-            raise serializers.ValidationError(
-                {
-                    "max_frequency": f"Ensure this value is less than or equal to {max_freq}."
-                },
-                code="max_value",
             )
         attrs["files"] = dataset_files
         return attrs
@@ -145,6 +122,25 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         return ConfidenceIndicatorSet.objects.create(name=real_name)
 
     def create(self, validated_data):
+        return AnnotationResult.objects.bulk_create(
+            self.get_create_instances(validated_data)
+        )
+
+    def _get_time_limits(self, validated_data, file: DatasetFile) -> (float, float):
+        start: datetime = validated_data["start_datetime"]
+        end: datetime = validated_data["end_datetime"]
+        if start < file.start:
+            start_time = 0
+        else:
+            start_time = to_seconds(start - file.start)
+        if end > file.end:
+            end_time = to_seconds(file.end - file.start)
+        else:
+            end_time = to_seconds(end - file.start)
+        return start_time, end_time
+
+    def get_create_instances(self, validated_data) -> list[AnnotationResult]:
+        """Get instances to be created"""
         is_box: bool = validated_data["is_box"]
 
         files: QuerySet[DatasetFile] = validated_data["files"]
@@ -179,28 +175,22 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             )
 
         if not is_box and files.count() == 1:
-            return AnnotationResult.objects.create(
-                annotation_campaign=campaign,
-                detector_configuration=detector_config,
-                label=label,
-                confidence_indicator=confidence_indicator,
-                dataset_file=files.first(),
-                type=AnnotationResultType.WEAK,
-            )
+            params = {
+                "annotation_campaign": campaign,
+                "detector_configuration": detector_config,
+                "label": label,
+                "confidence_indicator": confidence_indicator,
+                "dataset_file": files.first(),
+                "type": AnnotationResultType.WEAK,
+            }
+            if AnnotationResult.objects.filter(**params).exists():
+                return []
+            return [AnnotationResult(**params)]
 
         instances = []
-        start: datetime = validated_data["start_datetime"]
-        end: datetime = validated_data["end_datetime"]
         dataset: Dataset = validated_data["dataset"]
         for file in files:
-            if start < file.start:
-                start_time = 0
-            else:
-                start_time = to_seconds(start - file.start)
-            if end > file.end:
-                end_time = to_seconds(file.end - file.start)
-            else:
-                end_time = to_seconds(end - file.start)
+            start_time, end_time = self._get_time_limits(validated_data, file)
 
             start_frequency = (
                 validated_data["min_frequency"]
@@ -213,57 +203,37 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                 else dataset.audio_metadatum.dataset_sr / 2
             )
 
+            params = {
+                "annotation_campaign": campaign,
+                "detector_configuration": detector_config,
+                "label": label,
+                "confidence_indicator": confidence_indicator,
+                "dataset_file": file,
+            }
             if (
                 start_time == 0
                 and end_time == to_seconds(file.end - file.start)
                 and start_frequency == 0
                 and end_frequency == dataset.audio_metadatum.dataset_sr / 2
             ):
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        type=AnnotationResultType.WEAK,
-                    )
-                )
+                params["type"] = AnnotationResultType.WEAK
             elif start_time == end_time and (
                 start_frequency == end_frequency
                 or validated_data["max_frequency"] is None
             ):
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        start_frequency=start_frequency,
-                        end_frequency=None,
-                        start_time=start_time,
-                        end_time=None,
-                        type=AnnotationResultType.POINT,
-                    )
-                )
+                params["type"] = AnnotationResultType.POINT
+                params["start_frequency"] = start_frequency
+                params["start_time"] = start_time
             else:
-                instances.append(
-                    AnnotationResult(
-                        annotation_campaign=campaign,
-                        detector_configuration=detector_config,
-                        label=label,
-                        confidence_indicator=confidence_indicator,
-                        dataset_file=file,
-                        start_frequency=start_frequency,
-                        end_frequency=end_frequency,
-                        start_time=start_time,
-                        end_time=end_time,
-                        type=AnnotationResultType.BOX,
-                    )
-                )
+                params["type"] = AnnotationResultType.BOX
+                params["start_frequency"] = start_frequency
+                params["end_frequency"] = end_frequency
+                params["start_time"] = start_time
+                params["end_time"] = end_time
+            if not AnnotationResult.objects.filter(**params).exists():
+                instances.append(AnnotationResult(**params))
 
-        return AnnotationResult.objects.bulk_create(instances)
+        return instances
 
     def update(self, instance, validated_data):
         raise NotImplementedError("`update()` must be implemented.")
@@ -283,14 +253,12 @@ class AnnotationResultImportListSerializer(ListSerializer):
         return data
 
     def create(self, validated_data: list[dict]):
-        result = super().create(validated_data)
-        ids = []
-        for new_result in result:
-            try:
-                ids.append(new_result.id)
-            except AttributeError:
-                ids += [r.id for r in new_result]
-        return AnnotationResult.objects.filter(id__in=ids)
+        instances = [
+            instance
+            for attrs in validated_data
+            for instance in self.child.get_create_instances(attrs)
+        ]
+        return AnnotationResult.objects.bulk_create(instances)
 
 
 class AnnotationResultValidationSerializer(serializers.ModelSerializer):

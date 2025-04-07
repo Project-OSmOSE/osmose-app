@@ -7,6 +7,7 @@ export const URL = {
 }
 
 export const API_URL = {
+  collaborators: '/api/collaborators/on_aplose_home',
   token: '/api/token/',
   user: {
     list: /api\/user\/?/g,
@@ -21,10 +22,10 @@ export const API_URL = {
     reportStatus: /\/api\/annotation-campaign\/-?\d\/report-status/g
   },
   dataset: {
-    list: /\/api\/dataset\/?/g,
+    list: '/api/dataset/',
     detail: /\/api\/dataset\/-?\d\/?/g,
     list_to_import: /\/api\/dataset\/list_to_import\/?/g,
-    import: /\/api\/dataset\/datawork_import\/?/g,
+    import: '/api/dataset/datawork_import/',
   },
   fileRanges: {
     list: /\/api\/annotation-file-range\/?/g,
