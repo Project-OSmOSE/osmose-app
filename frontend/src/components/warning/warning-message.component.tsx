@@ -5,7 +5,7 @@ import './warning-message.component.css'
 
 interface Props {
   children: ReactNode;
-  className: string;
+  className?: string;
 }
 
 export const WarningMessage: React.FC<Props> = ({ children, className }) => (
