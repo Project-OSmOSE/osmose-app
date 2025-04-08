@@ -543,7 +543,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
             self,
-            url + "&force=true",
+            url + "&force_datetime=true",
             f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/incorrect_time.csv",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -576,7 +576,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response.data[0].get("min_frequency")[0].code, "min_value")
         self.assertEqual(response.data[0].get("max_frequency")[0].code, "min_value")
 
-    def test_empty_post_over_frequency(self):
+    def test_empty_post_min_over_frequency(self):
         url, _, _ = self._get_url()
         old_count = AnnotationResult.objects.count()
         response = upload_csv_file_as_string(
@@ -588,7 +588,41 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(AnnotationResult.objects.count(), old_count)
 
         self.assertEqual(response.data[0].get("min_frequency")[0].code, "max_value")
+
+    def test_empty_post_max_over_frequency(self):
+        url, _, _ = self._get_url()
+        old_count = AnnotationResult.objects.count()
+        response = upload_csv_file_as_string(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/max_over_frequency.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(AnnotationResult.objects.count(), old_count)
+
         self.assertEqual(response.data[0].get("max_frequency")[0].code, "max_value")
+
+    def test_empty_post_over_frequency_forced(self):
+        url, _, _ = self._get_url()
+        old_count = AnnotationResult.objects.count()
+        response = upload_csv_file_as_string(
+            self,
+            url + "&force_max_frequency=true",
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/over_frequency.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count)
+
+    def test_empty_post_max_over_frequency_forced(self):
+        url, _, _ = self._get_url()
+        old_count = AnnotationResult.objects.count()
+        response = upload_csv_file_as_string(
+            self,
+            url + "&force_max_frequency=true",
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/max_over_frequency.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
 
     def test_empty_post_without_label(self):
         url, _, _ = self._get_url()
