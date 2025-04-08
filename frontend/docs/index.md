@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "APLOSE"
-  tagline: "A web-based annotation plateform developed by and for Marine Passive Acoustic Monitoring researchers"
+  tagline: "A web-based annotation platform developed by and for Marine Passive Acoustic Monitoring researchers"
   actions:
     - theme: brand
       text: Start using APLOSE

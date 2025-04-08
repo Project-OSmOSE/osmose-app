@@ -28,6 +28,7 @@ import { CreateCampaign } from "@/view/campaign/create/CreateCampaign.tsx";
 import { EditAnnotators } from "@/view/campaign/edit/EditAnnotators.tsx";
 import { ImportAnnotations } from "@/view/campaign/edit/ImportAnnotations";
 import { AlertProvider } from "@/service/ui/alert";
+import { SqlQuery } from "@/view/admin/sql/SqlQuery.tsx";
 
 
 setupIonicReact({
@@ -60,6 +61,8 @@ const AppContent: React.FC = () => {
 
           <AploseSkeleton>
             <Switch>
+              <AuthenticatedRoute exact path='/sql'><SqlQuery/></AuthenticatedRoute>
+
               <AuthenticatedRoute exact path='/account'><Account/></AuthenticatedRoute>
               <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
 

@@ -33,13 +33,20 @@ export const AnnotationFileRangeAPI = createApi({
     }),
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume?: number }, {
       page: number,
+      page_size?: number,
       filters: FileFilters
     }>({
-      query: ({ page, filters },) => `campaign/${ filters.campaignID }/files/${ encodeQueryParams({
+      query: ({ page, filters, page_size = FILES_PAGE_SIZE},) => `campaign/${ filters.campaignID }/files/${ encodeQueryParams({
         page,
-        page_size: FILES_PAGE_SIZE,
+        page_size,
         ...getQueryParamsForFilters(filters)
       }) }`,
+      transformResponse(baseQueryReturnValue: Omit<Paginated<AnnotationFile>, 'pageCount'> & { resume?: number }, _, arg): Paginated<AnnotationFile> & { resume?: number } {
+        return {
+          ...baseQueryReturnValue,
+          pageCount: Math.ceil(baseQueryReturnValue.count / (arg.page_size ?? FILES_PAGE_SIZE)),
+        }
+      }
     }),
 
     post: builder.mutation<Array<AnnotationFileRange>, {

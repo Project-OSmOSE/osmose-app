@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { AnnotationCampaign } from "@/service/campaign";
-import { FILES_PAGE_SIZE, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
+import { useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
@@ -47,10 +47,6 @@ export const DetailPageAnnotationTasks: React.FC<{
       campaignID: campaign!.id,
     }
   }, { skip: !campaign || !!campaign.archive });
-  const maxPage = useMemo(() => {
-    if (!files) return 1;
-    return Math.ceil(files.count / FILES_PAGE_SIZE)
-  }, [ files?.count ])
 
   const isEmpty = useMemo(() => error || (files && files.count === 0) || campaign?.archive, [ error, files, campaign ])
 
@@ -153,7 +149,7 @@ export const DetailPageAnnotationTasks: React.FC<{
         </Table>
 
       { files && files.results.length > 0 &&
-          <Pagination currentPage={ page } totalPages={ maxPage } setCurrentPage={ setPage }/> }
+          <Pagination currentPage={ page } totalPages={ files.pageCount } setCurrentPage={ setPage }/> }
     </Fragment> }
 
     { isFetching && <IonSpinner/> }

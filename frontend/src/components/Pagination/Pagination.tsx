@@ -6,7 +6,8 @@ export const Pagination: React.FC<{
   currentPage: number,
   totalPages: number,
   setCurrentPage: (page: number) => void,
-}> = ({ currentPage, totalPages, setCurrentPage }) => {
+  className?: string
+}> = ({ currentPage, totalPages, setCurrentPage, className }) => {
 
   const showPages = useMemo(() => {
     const pages = [ currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2 ].filter(i => i > 1 && i < totalPages);
@@ -21,7 +22,7 @@ export const Pagination: React.FC<{
 
   if (totalPages === 1) return;
 
-  return <div className={ styles.buttons }>
+  return <div className={ [styles.buttons, className].join(' ') }>
     { showPages.map((i, index) => {
       if (i === '...') return <p key={ index }>...</p>
       return <IonButton key={ index }

@@ -1,0 +1,41 @@
+.page {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "title title" "sql sql" "run download" "results results" "pagination pagination";
+  height: 100%;
+  overflow: auto;
+  gap: 1rem;
+
+  h2 {
+    grid-area: title;
+  }
+
+  .sql {
+    grid-area: sql;
+    max-height: 12rem;
+    overflow: auto;
+  }
+
+  .run {
+    grid-area: run;
+    justify-self: start;
+  }
+
+  .download {
+    grid-area: download;
+    justify-self: end;
+  }
+
+  .results, .error {
+    grid-area: results;
+  }
+
+  .error {
+    align-self: start;
+  }
+
+  .pagination {
+    grid-area: pagination;
+  }
+}
