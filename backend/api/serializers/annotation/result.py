@@ -72,15 +72,6 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         campaign: AnnotationCampaign = self.context["campaign"]
 
         fields["dataset"].queryset = campaign.datasets
-        max_frequency = (
-            max(d.audio_metadatum.dataset_sr for d in campaign.datasets.all()) / 2
-        )
-        fields["min_frequency"] = serializers.FloatField(
-            required=False, min_value=0.0, max_value=max_frequency
-        )
-        fields["max_frequency"] = serializers.FloatField(
-            required=False, min_value=0.0, max_value=max_frequency, allow_null=True
-        )
 
         return fields
 
@@ -96,8 +87,11 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         return data
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
+    def validate_datetime(self, attrs: Optional[dict]) -> Optional[dict]:
+        """Validate result start_datetime and end_datetime"""
+        if attrs is None:
+            return None
+        force = "force_datetime" in self.context and self.context["force_datetime"]
         dataset = attrs["dataset"]
         start = attrs["start_datetime"]
         end = attrs["end_datetime"]
@@ -105,13 +99,60 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             start, end
         ).filter(dataset=dataset)
         if not dataset_files:
-            if "force" in self.context and self.context["force"]:
+            if force:
                 return None
             raise serializers.ValidationError(
                 "This start and end datetime does not belong to any file of the dataset",
                 code="invalid",
             )
         attrs["files"] = dataset_files
+        return attrs
+
+    def validate_frequency(self, attrs: Optional[dict]) -> Optional[dict]:
+        """Validate result min_frequency and max_frequency"""
+        if attrs is None:
+            return None
+        force = (
+            "force_max_frequency" in self.context
+            and self.context["force_max_frequency"]
+        )
+        dataset = attrs["dataset"]
+        dataset_max_frequency = dataset.audio_metadatum.dataset_sr / 2
+        min_frequency = attrs["min_frequency"]
+        max_frequency = attrs["max_frequency"]
+
+        if max_frequency and min_frequency > max_frequency:
+            min_frequency, max_frequency = max_frequency
+
+        if min_frequency > dataset_max_frequency:
+            if force:
+                return None
+            raise serializers.ValidationError(
+                {
+                    "min_frequency": f"Ensure this value is less than or equal to {dataset_max_frequency}",
+                },
+                code="max_value",
+            )
+        if max_frequency and max_frequency > dataset_max_frequency:
+            if force:
+                max_frequency = dataset_max_frequency
+            else:
+                raise serializers.ValidationError(
+                    {
+                        "max_frequency": f"Ensure this value is less than or equal to {dataset_max_frequency}",
+                    },
+                    code="max_value",
+                )
+        attrs["min_frequency"] = min_frequency
+        attrs["max_frequency"] = max_frequency
+        return attrs
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        attrs = self.validate_datetime(attrs)
+        attrs = self.validate_frequency(attrs)
+
         return attrs
 
     def get_confidence_set(self, name, index=0):

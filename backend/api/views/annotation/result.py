@@ -143,8 +143,6 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if campaign.owner_id != request.user.id and not request.user.is_staff:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        force = get_boolean_query_param(self.request, "force")
-
         dataset_name = request.query_params.get("dataset_name")
         detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))
 
@@ -195,7 +193,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             data=data,
             context={
                 "campaign": campaign,
-                "force": force,
+                "force_datetime": get_boolean_query_param(
+                    self.request, "force_datetime"
+                ),
+                "force_max_frequency": get_boolean_query_param(
+                    self.request, "force_max_frequency"
+                ),
             },
         )
         serializer.is_valid(raise_exception=True)

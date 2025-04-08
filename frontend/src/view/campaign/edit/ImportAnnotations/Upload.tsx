@@ -66,12 +66,9 @@ export const Upload: React.FC = () => {
     { uploadInfo.state === 'error' && <WarningMessage>
         <p>{ uploadInfo.error }</p>
 
-      { uploadInfo.canForce ?
-        <IonButton color='warning' fill='clear' onClick={ () => upload(true) }>
-          Import anyway
-        </IonButton> : <IonButton color='primary' fill='clear' onClick={ reset }>
-          Reset
-        </IonButton> }
+      { uploadInfo.canForceDatetime && <IonButton color='warning' fill='clear' onClick={ () => upload({ force_datetime: true }) }>Import anyway</IonButton> }
+      { uploadInfo.canForceMaxFrequency && <IonButton color='warning' fill='clear' onClick={ () => upload({ force_max_frequency: true }) }>Import anyway</IonButton> }
+      { !(uploadInfo.canForceDatetime || uploadInfo.canForceMaxFrequency) && <IonButton color='primary' fill='clear' onClick={ reset }>Reset</IonButton> }
     </WarningMessage> }
 
     { buttons }

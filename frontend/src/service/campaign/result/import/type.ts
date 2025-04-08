@@ -35,13 +35,15 @@ export type ImportInfo = {
   total: number;
   duration: number;
   remainingDurationEstimation?: number; // ms
+  force_datetime?: boolean;
+  force_max_frequency?: boolean;
 }
 type UploadState =
   { state: 'initial' }
   | (ImportInfo & { state: 'uploading' })
   | (ImportInfo & { state: 'fulfilled' })
   | (ImportInfo & { state: 'paused' })
-  | (ImportInfo & { state: 'error', error: string, canForce: boolean })
+  | (ImportInfo & { state: 'error', error: string, canForceDatetime: boolean, canForceMaxFrequency: boolean })
   | (ImportInfo & { state: 'update file' });
 
 export class UnreadableFileError extends Error {
