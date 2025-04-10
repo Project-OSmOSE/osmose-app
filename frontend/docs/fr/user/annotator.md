@@ -188,8 +188,23 @@ sélectionnant le niveau approprié dans le bloc "Confidence indicator".
 
 ### Caractéristiques acoustiques
 
-::: tip Bientôt
-:::
+Lorsque vous créez une boîte avec un label permettant des caractéristiques acoustiques, un bloc apparaît à côté de votre boîte.
+Si vous définissez la qualité (Quality) comme bonne (Good), vous pourrez spécifier les caractéristiques acoustiques du signal.
+![](/annotator/acoustic-features.png)
+
+| Champs                 | Unité | Description                                                                                                     |
+|------------------------|:-----:|-----------------------------------------------------------------------------------------------------------------|
+| Frequency min/max      |  Hz   | Directement lié aux limites de fréquence de la boîte                                                            |
+| Frequency range        |  Hz   | [Auto] Différence entre les fréquences maximale et minimale                                                     |
+| Frequency start/end    |  Hz   | Fréquence du début/fin du signal. Peut être prélevée directement sur le spectrogramme grâce au bouton "crayon". |
+| Duration               |   s   | Durée de la boîte, directement liée aux limites de temps de la boîte                                            |
+| Trend                  |       | Tendance générale du signal(Flat, Ascending, Descending or Modulated)                                           |
+| Relative min/max count |       | Nombre de fréquences min/max relatives                                                                          | 
+| Inflection count       |       | [Auto] Nombre de points d'inflexion : somme des nombres de fréquences minimales et maximales relatives          |
+| Steps count            |       | Nombre de portions à fréquence fixe                                                                             |
+| Has harmonics          |       | Le signal présente-t-il des harmoniques                                                                         |
+
+Toutes les caractéristiques sont optionnelles.
 
 ## Soumission des annotations et navigation
 

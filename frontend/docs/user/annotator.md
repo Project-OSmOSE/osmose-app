@@ -155,9 +155,24 @@ If your campaign allows you to, you can specify the confidence level you have on
 
 ### Acoustic features
 
-::: tip Coming soon 
-:::
+When you create a box with a label allowing acoustic features, a bloc appear next to your box.
+If you set the quality as "good" you will be able to specify the signal acoustic features.
 
+![](/annotator/acoustic-features.png)
+
+| Field                  | Unit | Description                                                                                                     |
+|------------------------|:----:|-----------------------------------------------------------------------------------------------------------------|
+| Frequency min/max      |  Hz  | Directly linked to the box frequency bounds                                                                     |
+| Frequency range        |  Hz  | [Auto] Difference between the max and min frequencies                                                           |
+| Frequency start/end    |  Hz  | Frequency of the start/end of the signal. Can be picked directly on the spectrogram thanks to the pencil button |
+| Duration               |  s   | Duration of the box, directly linked to the box time bounds                                                     |
+| Trend                  |      | General trend of the signal (Flat, Ascending, Descending or Modulated)                                          |
+| Relative min/max count |      | Number of relative min/max frequency                                                                            |
+| Inflection count       |      | [Auto] Number of inflection points: sum of relative min and max frequency                                       |
+| Steps count            |      | Flat frequency part counts                                                                                      |
+| Has harmonics          |      | Does the signal has harmonics                                                                                   |
+
+All the features are optional.
 
 ## Submit and navigate
 
