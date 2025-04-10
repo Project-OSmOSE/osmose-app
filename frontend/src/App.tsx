@@ -1,9 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import './css/fontawesome/css/fontawesome-5.15.4.min.css';
-import './css/fontawesome/css/solid.min.css'
-import './css/fontawesome/css/regular.min.css'
 import './css/bootstrap-4.1.3.min.css';
 import '@ionic/react/css/core.css';
 import './css/ionic-override.css';
