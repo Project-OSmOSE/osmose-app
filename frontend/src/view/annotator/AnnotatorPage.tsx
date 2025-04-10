@@ -2,7 +2,6 @@ import React, { Fragment, useEffect } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
-import { useHistory } from "react-router-dom";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
@@ -14,13 +13,11 @@ import { useAppSelector } from "@/service/app.ts";
 export const AnnotatorPage: React.FC = () => {
   const {
     campaignID,
-    fileID,
     annotatorData,
     campaign,
   } = useAnnotator();
 
   const toast = useToast();
-  const history = useHistory();
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
   const canNavigate = useCanNavigate()
@@ -40,10 +37,6 @@ export const AnnotatorPage: React.FC = () => {
     window.open(`/app/annotation-campaign/${ campaignID }`, "_blank")
   }
 
-  function backToOldInterface() {
-    history.push(`/annotation-campaign/${ campaignID }/file/${ fileID }`);
-  }
-
   useEffect(() => {
     if (pointerPosition) { // Disable scroll
       document.getElementsByTagName('html')[0].style.overflowY = 'hidden';
@@ -57,9 +50,6 @@ export const AnnotatorPage: React.FC = () => {
     <Header size='small'
             canNavigate={ canNavigate }
             buttons={ <Fragment>
-              <IonButton fill='outline' size='small' color='medium' onClick={ backToOldInterface }>
-                Back to old annotator
-              </IonButton>
 
               { campaign?.instructions_url &&
                   <Link color='medium' target='_blank' href={ campaign?.instructions_url }>

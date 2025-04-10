@@ -89,5 +89,4 @@ export const CampaignAPI = createApi({
 export const {
   useListQuery: useListCampaignsQuery,
   useRetrieveQuery: useRetrieveCampaignQuery,
-  useCreateMutation: useCreateCampaignMutation,
 } = CampaignAPI;

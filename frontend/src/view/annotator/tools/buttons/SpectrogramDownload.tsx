@@ -2,8 +2,8 @@ import React, { Fragment, MutableRefObject, useState } from "react";
 import { useAppSelector } from '@/service/app';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
-import { SpectrogramRender } from "@/view/audio-annotator/components/spectro-render.component.tsx";
 import { useAnnotator } from "@/service/annotator/hook.ts";
+import { SpectrogramRender } from "@/view/annotator/tools/spectrogram/SpectrogramRender.tsx";
 
 export const SpectrogramDownloadButton: React.FC<{
   render: MutableRefObject<SpectrogramRender | null>
