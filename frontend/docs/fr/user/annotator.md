@@ -40,6 +40,11 @@ définir la position temporelle à partir de laquelle vous souhaitez commencer l
 ::: tip Raccourci :keyboard:
 La touche “espace” de votre clavier est un raccourci pour lire et mettre en pause le fichier audio
 :::
+::: warning Attention
+Les fichiers ayant un taux d'échantillonnage très élevé peuvent ne pas être compatibles avec votre navigateur.
+La limite de compatibilité dépend du navigateur.
+Firefox a tendance à avoir la plus large compatibilité.
+:::
 ::: tip Recommendation :bulb:
 Utilisez un casque ou des écouteurs pour une meilleure qualité !
 :::

@@ -35,6 +35,9 @@ You can set the time position from which you want to start listen by clicking on
 Next to the play/pause button, you can choose the speed of the playback (from 0.25x to 4x).
 This allows you to hear high frequencies by slowing down the playback, or low frequencies by speeding up the playback.
 
+::: tip Shortcut :keyboard:
+The "space" key on your keyboard is a shortcut for playing and pausing the audio file.
+:::
 ::: warning
 Files with a really high sampling rate may not be compatible with your browser.
 The compatibility limit depends on the browser.
@@ -59,6 +62,9 @@ In the cas you loaded an already submitted file, your previous submission should
 You can add a weak annotation my checking the desired labels in the "Labels" bloc.
 
 ![](/annotator/labels.png)
+::: tip Shortcut :keyboard:
+The keys 1 to 9 on your keyboard are shortcuts to the corresponding labels in the list.
+:::
 
 You can see all your annotations on the "Annotations" bloc. In this example we have the two selected labels.
 
@@ -157,6 +163,10 @@ If your campaign allows you to, you can specify the confidence level you have on
 
 The navigation buttons are located below the spectrogram.
 ![](/annotator/submit.png)
+::: tip Shortcut :keyboard:
+The "enter" key on your keyboard is a shortcut for submitting your task and moving on to the next task.
+Use the left and right arrows on your keyboard to navigate between tasks.
+:::
 
 To save your changes, you must click on the "Submit & load next recording" button once you're done. 
 This will automatically load the next file.
