@@ -3,7 +3,7 @@ import ast
 import csv
 from io import StringIO
 
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import action
@@ -15,6 +15,7 @@ from backend.api.models import (
     AnnotationCampaign,
     DatasetFile,
     AnnotationTask,
+    AnnotationResultValidation,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -55,7 +56,6 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         "detector_configuration__detector",
     ).prefetch_related(
         "comments",
-        "validations",
     )
     serializer_class = AnnotationResultSerializer
     filter_backends = (ModelFilter, ResultAccessFilter)
@@ -67,7 +67,16 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if self.action in ["list", "retrieve"] and for_current_user:
             queryset = queryset.filter(
                 Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True)
+            ).prefetch_related(
+                Prefetch(
+                    "validations",
+                    queryset=AnnotationResultValidation.objects.filter(
+                        annotator_id=self.request.user.id
+                    ),
+                )
             )
+        else:
+            queryset = queryset.prefetch_related("validations")
         return queryset
 
     @staticmethod
