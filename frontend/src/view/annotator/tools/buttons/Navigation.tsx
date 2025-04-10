@@ -77,7 +77,7 @@ export const NavigationButtons: React.FC = () => {
     try {
       await submitService.submit()
       if (next_file_id.current) {
-        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
+        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
       } else {
         history.push(`/annotation-campaign/${ campaignID }`)
       }
@@ -91,12 +91,12 @@ export const NavigationButtons: React.FC = () => {
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }/new`);
+      history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }/new`);
+      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
   }
 
   if (!annotatorData?.is_assigned) return <div/>

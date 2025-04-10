@@ -5,8 +5,7 @@ soit sur le lien d'accès direct à un fichier.
 
 ## Page d'annotation
 
-![](/annotator/create-1.png)
-![](/annotator/create-2.png)
+![](/annotator/full_page.png)
 
 Il s'agit de la page principale d'APLOSE. Elle vous permet d'annoter des enregistrements audio grâce à leurs
 spectrogrammes.
@@ -61,24 +60,19 @@ Firefox a tendance à avoir la plus grande compatibilité.
 Nous distinguons plusieurs types d'annotations :
 
 - Présence : un label est présent sur le fichier
-- Boîte : un label est présent à cet endroit précis.
+- Boîte : un label est présent à cette zone précise.
+- Point : un label est présent à cette position précise.
 
-Pour chaque boîte, il y a une présence associée au même label.
-
-::: details Bientôt
-
-Nous envisageons d'ajouter bientôt l'annotation des points.
-
-:::
+Pour chaque boîte ou point, une présence est associée au même label.
 
 Dans le cas où vous avez chargé un fichier déjà soumis, vos annotations précédentes vont apparaître et peuvent être
 modifiée.
 
 ### Ajouter une présence
 
-Vous pouvez ajouter une présence en cochant le label souhaité dans le bloc "Presence / Absence".
+Vous pouvez ajouter une présence en cochant le label souhaité dans le bloc "Labels".
 
-![](/annotator/weak.png)
+![](/annotator/labels.png)
 ::: tip Raccourci :keyboard:
 Les touche de 1 à 9 de votre clavier sont des raccourcis vers les labels correspondants dans la liste
 :::
@@ -86,7 +80,7 @@ Les touche de 1 à 9 de votre clavier sont des raccourcis vers les labels corres
 Vous pouvez voir toutes vos annotations dans le bloc "Annotations". Dans cet exemple, nous avons les deux labels
 sélectionnés.
 
-![](/annotator/weak-list.png)
+![](/annotator/annotations.png)
 
 ::: info Note
 
@@ -97,10 +91,7 @@ supprimées.
 
 ### Ajouter une boîte
 
-Chaque présence ajoutée activera les labels liés pour une boîte dans le bloc "Labels list".
-Dans ce bloc, vous pouvez sélectionner le label que vous souhaitez utiliser pour créer votre annotation.
-
-![](/annotator/strong.png)
+Dans le bloc "Labels", vous pouvez sélectionner le label que vous souhaitez utiliser pour créer votre annotation.
 
 Pour créer une boîte, cliquez sur le spectrogramme et faites glisser sur la zone contenant le son qui vous intéresse.
 Lorsque vous relâchez le clic, l'annotation est créée et sélectionnée.
@@ -118,7 +109,7 @@ Dans l'en-tête de l'annotation, vous pouvez voir :
 Les boîtes sont listées dans le bloc "Annotations".
 Chaque boîte se trouve en dessous de la présence correspondante.
 
-![](/annotator/strong-list.png)
+![](/annotator/annotations-2.png)
 
 Dans la liste, vous pouvez voir les coordonnées temporelles et fréquentielles de votre annotation.
 Ces informations se trouvent également dans le bloc "Selected annotation" (annotation sélectionnée), juste en dessous du

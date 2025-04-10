@@ -4,8 +4,7 @@ To annotate a file you must access a campaign and then click on a file access li
 
 ## The annotator page
 
-![](/annotator/create-1.png)
-![](/annotator/create-2.png)
+![](/annotator/full_page.png)
 
 The annotator is the main page of APLOSE. It allows to annotate audio recordings thanks to their spectrogram.
 
@@ -48,26 +47,22 @@ Use a headset for a better listening experience!
 ## Annotate
 We differentiate several types of annotations:
 - weak annotation: a label is present on the file
-- strong annotation: a label is present at this exact position/area
+- strong annotation: a label is present at this exact position (point) or area (box)
 
 
-Strong annotation are made using boxes. For each strong annotation, there is a weak annotation associated to the same label.
-
-::: details Coming soon 
-We are thinking of adding point annotation soon.
-:::
+For each strong annotation, there is a weak annotation associated to the same label.
 
 In the cas you loaded an already submitted file, your previous submission should appear and can be modified. 
 
 ### Add a weak annotation
 
-You can add a weak annotation my checking the desired labels in the "Presence / Absence" bloc.
+You can add a weak annotation my checking the desired labels in the "Labels" bloc.
 
-![](/annotator/weak.png)
+![](/annotator/labels.png)
 
 You can see all your annotations on the "Annotations" bloc. In this example we have the two selected labels.
 
-![](/annotator/weak-list.png)
+![](/annotator/annotations.png)
 
 ::: info Note
 If you uncheck a weak annotation, it will remove all annotations, weak or strong, made using this label.
@@ -75,10 +70,7 @@ If you uncheck a weak annotation, it will remove all annotations, weak or strong
 
 ### Add a box annotation
 
-Each weak annotation made will enable the linked labels for a strong annotation in the "Labels list" bloc. 
-In this bloc, you can select the label you want to use to create your annotation.
-
-![](/annotator/strong.png)
+In the "Labels" bloc, you can select the label you want to use to create your annotation.
 
 To create a box annotation, click on the spectrogram and drag over the area containing the sound of interest.
 On click release, the annotation is created and selected.
@@ -95,7 +87,7 @@ On the header of the annotation, you can see:
 The strong annotations are listed in the "Annotations" bloc.
 Each strong annotation is bellow the corresponding weak annotation.
 
-![](/annotator/strong-list.png)
+![](/annotator/annotations-2.png)
 
 In the list, you can see the time and frequency coordinates of your annotation.
 The information can also be found in the "Selected annotation" bloc right bellow the spectrogram:
