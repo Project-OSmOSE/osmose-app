@@ -5,8 +5,7 @@ soit sur le lien d'accès direct à un fichier.
 
 ## Page d'annotation
 
-![](/annotator/create-1.png)
-![](/annotator/create-2.png)
+![](/annotator/full_page.png)
 
 Il s'agit de la page principale d'APLOSE. Elle vous permet d'annoter des enregistrements audio grâce à leurs
 spectrogrammes.
@@ -41,6 +40,11 @@ définir la position temporelle à partir de laquelle vous souhaitez commencer l
 ::: tip Raccourci :keyboard:
 La touche “espace” de votre clavier est un raccourci pour lire et mettre en pause le fichier audio
 :::
+::: warning Attention
+Les fichiers ayant un taux d'échantillonnage très élevé peuvent ne pas être compatibles avec votre navigateur.
+La limite de compatibilité dépend du navigateur.
+Firefox a tendance à avoir la plus large compatibilité.
+:::
 ::: tip Recommendation :bulb:
 Utilisez un casque ou des écouteurs pour une meilleure qualité !
 :::
@@ -61,24 +65,19 @@ Firefox a tendance à avoir la plus grande compatibilité.
 Nous distinguons plusieurs types d'annotations :
 
 - Présence : un label est présent sur le fichier
-- Boîte : un label est présent à cet endroit précis.
+- Boîte : un label est présent à cette zone précise.
+- Point : un label est présent à cette position précise.
 
-Pour chaque boîte, il y a une présence associée au même label.
-
-::: details Bientôt
-
-Nous envisageons d'ajouter bientôt l'annotation des points.
-
-:::
+Pour chaque boîte ou point, une présence est associée au même label.
 
 Dans le cas où vous avez chargé un fichier déjà soumis, vos annotations précédentes vont apparaître et peuvent être
 modifiée.
 
 ### Ajouter une présence
 
-Vous pouvez ajouter une présence en cochant le label souhaité dans le bloc "Presence / Absence".
+Vous pouvez ajouter une présence en cochant le label souhaité dans le bloc "Labels".
 
-![](/annotator/weak.png)
+![](/annotator/labels.png)
 ::: tip Raccourci :keyboard:
 Les touche de 1 à 9 de votre clavier sont des raccourcis vers les labels correspondants dans la liste
 :::
@@ -86,7 +85,7 @@ Les touche de 1 à 9 de votre clavier sont des raccourcis vers les labels corres
 Vous pouvez voir toutes vos annotations dans le bloc "Annotations". Dans cet exemple, nous avons les deux labels
 sélectionnés.
 
-![](/annotator/weak-list.png)
+![](/annotator/annotations.png)
 
 ::: info Note
 
@@ -97,10 +96,7 @@ supprimées.
 
 ### Ajouter une boîte
 
-Chaque présence ajoutée activera les labels liés pour une boîte dans le bloc "Labels list".
-Dans ce bloc, vous pouvez sélectionner le label que vous souhaitez utiliser pour créer votre annotation.
-
-![](/annotator/strong.png)
+Dans le bloc "Labels", vous pouvez sélectionner le label que vous souhaitez utiliser pour créer votre annotation.
 
 Pour créer une boîte, cliquez sur le spectrogramme et faites glisser sur la zone contenant le son qui vous intéresse.
 Lorsque vous relâchez le clic, l'annotation est créée et sélectionnée.
@@ -118,7 +114,7 @@ Dans l'en-tête de l'annotation, vous pouvez voir :
 Les boîtes sont listées dans le bloc "Annotations".
 Chaque boîte se trouve en dessous de la présence correspondante.
 
-![](/annotator/strong-list.png)
+![](/annotator/annotations-2.png)
 
 Dans la liste, vous pouvez voir les coordonnées temporelles et fréquentielles de votre annotation.
 Ces informations se trouvent également dans le bloc "Selected annotation" (annotation sélectionnée), juste en dessous du
@@ -192,8 +188,23 @@ sélectionnant le niveau approprié dans le bloc "Confidence indicator".
 
 ### Caractéristiques acoustiques
 
-::: tip Bientôt
-:::
+Lorsque vous créez une boîte avec un label permettant des caractéristiques acoustiques, un bloc apparaît à côté de votre boîte.
+Si vous définissez la qualité (Quality) comme bonne (Good), vous pourrez spécifier les caractéristiques acoustiques du signal.
+![](/annotator/acoustic-features.png)
+
+| Champs                 | Unité | Description                                                                                                     |
+|------------------------|:-----:|-----------------------------------------------------------------------------------------------------------------|
+| Frequency min/max      |  Hz   | Directement lié aux limites de fréquence de la boîte                                                            |
+| Frequency range        |  Hz   | [Auto] Différence entre les fréquences maximale et minimale                                                     |
+| Frequency start/end    |  Hz   | Fréquence du début/fin du signal. Peut être prélevée directement sur le spectrogramme grâce au bouton "crayon". |
+| Duration               |   s   | Durée de la boîte, directement liée aux limites de temps de la boîte                                            |
+| Trend                  |       | Tendance générale du signal(Flat, Ascending, Descending or Modulated)                                           |
+| Relative min/max count |       | Nombre de fréquences min/max relatives                                                                          | 
+| Inflection count       |       | [Auto] Nombre de points d'inflexion : somme des nombres de fréquences minimales et maximales relatives          |
+| Steps count            |       | Nombre de portions à fréquence fixe                                                                             |
+| Has harmonics          |       | Le signal présente-t-il des harmoniques                                                                         |
+
+Toutes les caractéristiques sont optionnelles.
 
 ## Soumission des annotations et navigation
 
