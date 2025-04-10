@@ -1,6 +1,5 @@
 export * from './login'
 export * from './annotator'
-export * from './annotator-new'
 export * from './dataset'
 export * from './campaign-detail'
 export * from './home'

@@ -1,6 +1,5 @@
 import { type Page as PageBase, test as testBase } from '@playwright/test';
 import {
-  AnnotatorNewPage,
   AnnotatorPage,
   CampaignCreatePage,
   CampaignDetailPage,
@@ -20,7 +19,6 @@ interface PageExtension {
   readonly login: LoginPage;
   readonly dataset: DatasetPage;
   readonly annotator: AnnotatorPage;
-  readonly annotatorNew: AnnotatorNewPage;
   readonly campaign: {
     list: CampaignListPage;
     detail: CampaignDetailPage;
@@ -50,7 +48,6 @@ export const test = testBase.extend<Fixture>({
       login: new LoginPage(page),
       dataset: new DatasetPage(page),
       annotator: new AnnotatorPage(page),
-      annotatorNew: new AnnotatorNewPage(page),
       campaign: {
         list: new CampaignListPage(page),
         detail: new CampaignDetailPage(page),

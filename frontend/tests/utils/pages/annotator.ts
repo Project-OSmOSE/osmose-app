@@ -1,9 +1,9 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { UserType } from '../../fixtures';
-import { CampaignDetailPage } from './campaign-detail';
-import { Mock } from '../services';
 import { AnnotationCampaignUsage } from '../../../src/service/campaign';
 import { AnnotationResultType, BoxBounds, PointBounds } from '../../../src/service/campaign/result';
+import { Mock } from "../services";
+import { CampaignDetailPage } from "./campaign-detail";
 
 export type Label = {
   addPresence: () => Promise<void>;
@@ -27,10 +27,6 @@ export class AnnotatorPage {
 
   get backToCampaignButton(): Locator {
     return this.page.getByRole('button', { name: 'Back to Campaign' });
-  }
-
-  get tryOtherButton(): Locator {
-    return this.page.getByRole('button', { name: 'Try new annotator' });
   }
 
   get commentInput(): Locator {
@@ -78,7 +74,7 @@ export class AnnotatorPage {
     )
   }
 
-  constructor(protected page: Page,
+  constructor(private page: Page,
               private mock = new Mock(page),
               private detail = new CampaignDetailPage(page)) {
   }
@@ -86,7 +82,7 @@ export class AnnotatorPage {
   async go(as: UserType, options: {
     mode: AnnotationCampaignUsage,
     empty?: boolean,
-    noConfidence?: boolean,
+    noConfidence?: boolean
     allowPoint?: boolean
   }) {
     await test.step('Navigate to Annotator', async () => {
@@ -104,15 +100,19 @@ export class AnnotatorPage {
   getLabel(label: string): Label {
     return {
       addPresence: async () => {
-        await this.page.getByRole('checkbox', { name: label }).check()
+        await this.page.locator('.label ion-chip').filter({ hasText: label }).click()
       },
       remove: async () => {
-        await this.page.getByRole('checkbox', { name: label }).click()
+        await this.page.locator('.label ion-chip').filter({ hasText: label }).locator('svg').last().click()
         const alert = this.page.getByRole('dialog')
         await alert.getByRole('button', { name: `Remove "${ label }" annotations` }).click()
       },
       selectLabel: async () => {
-        await this.page.locator('ion-chip').filter({ hasText: label }).click()
+        await this.page.locator('.label ion-chip').filter({ hasText: label }).click()
+      },
+      getLabelState: async () => {
+        const outline = await this.page.locator('.label ion-chip').filter({ hasText: label }).getAttribute('outline');
+        return outline !== 'true';
       },
       getWeakResult: () => {
         return this.resultsBlock.getByText(label).first()
@@ -120,10 +120,6 @@ export class AnnotatorPage {
       getNthStrongResult: (nth: number) => {
         return this.resultsBlock.getByText(label).nth(1 + nth)
       },
-      getLabelState: async () => {
-        const disabled = await this.page.locator('ion-chip').filter({ hasText: label }).getAttribute('disabled');
-        return disabled !== 'true';
-      }
     }
   }
 
@@ -135,11 +131,11 @@ export class AnnotatorPage {
     }
   }
 
-  protected async scrollTop() {
+  private async scrollTop() {
     await this.page.evaluate(() => window.scrollTo({ left: 0, top: 0 }))
   }
 
-  draw(type: Exclude<AnnotationResultType, 'Weak'>): Promise<BoxBounds | PointBounds> {
+  async draw(type: Exclude<AnnotationResultType, 'Weak'>): Promise<BoxBounds | PointBounds> {
     return test.step(`Draw ${ type }`, async () => {
       await this.scrollTop();
       const canvas = this.page.locator('canvas.drawable').first()
@@ -150,15 +146,15 @@ export class AnnotatorPage {
       await this.page.mouse.up({ button: 'left' })
       return {
         type,
-        start_time: 1.90292333149476,
+        start_time: type === 'Box' ? 1.90292333149476 : 3.1715388858246003,
         end_time: type === 'Box' ? 3.1715388858246003 : null,
-        start_frequency: 82,
-        end_frequency: type === 'Box' ? 115 : null
+        start_frequency: type === 'Box' ? 67 : 99,
+        end_frequency: type === 'Box' ? 99 : null,
       } as BoxBounds | PointBounds
     })
   }
 
-  async removeStrong() {
-    await this.page.getByRole('button', { name: '' }).click()
+  async removeStrong(): Promise<void> {
+    await this.page.locator('.remove-box').click()
   }
 }
