@@ -49,7 +49,6 @@ export const useUploadResultChunk = (onFulfilled: () => void) => {
     if (file.state !== 'loaded') return;
     if (uploadInfo.state !== 'uploading' && !bypassUploadState) return;
     const chunkRows = rows.slice(start, start + CHUNK_SIZE);
-    console.log('UPLOAD CHUNK > ', uploadInfo)
     doImport({
       campaignID: campaign.id,
       datasetName: campaign.datasets![0],
@@ -64,7 +63,6 @@ export const useUploadResultChunk = (onFulfilled: () => void) => {
     force_datetime?: boolean;
     force_max_frequency?: boolean;
   }) => {
-    console.log('UPLOAD > ', force)
     if (file.state !== 'loaded') return;
     if (uploadInfo.state === 'uploading') return;
     const isDatetimeForced =  force?.force_datetime !== undefined ? force.force_datetime : (uploadInfo.state === 'initial' ? false : uploadInfo.force_datetime)

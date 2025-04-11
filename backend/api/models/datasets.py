@@ -79,11 +79,10 @@ class DatasetFileManager(models.Manager):
         self, start: datetime, end: datetime
     ) -> QuerySet["DatasetFile"]:
         """Get files from absolute start and ends"""
-        dataset_files_start = Q(start__lte=start, end__gte=start)
-        dataset_files_while = Q(start__gt=start, end__lt=end)
-        dataset_files_end = Q(start__lte=end, end__gte=end)
         return self.filter(
-            dataset_files_start | dataset_files_while | dataset_files_end
+            Q(start__lte=start, end__gt=start)
+            | Q(start__gte=start, end__lte=end)
+            | Q(start__lt=end, end__gte=end)
         ).order_by("start", "id")
 
     def filter_for_file_range(self, file_range: "AnnotationFileRange"):
