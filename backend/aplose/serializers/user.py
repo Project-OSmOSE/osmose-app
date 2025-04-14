@@ -12,6 +12,13 @@ from backend.utils.serializers import EnumField
 # pylint: disable=missing-function-docstring, abstract-method
 
 
+class UserDisplayNameSerializer(serializers.StringRelatedField):
+    def to_representation(self, instance: User):
+        if instance.first_name and instance.last_name:
+            return f"{instance.first_name} {instance.last_name}"
+        return super().to_representation(instance)
+
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic User data"""
 

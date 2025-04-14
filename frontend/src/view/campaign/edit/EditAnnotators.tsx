@@ -119,7 +119,7 @@ export const EditAnnotators: React.FC = () => {
     postFileRanges({
       campaignID,
       filesCount: campaign.files_count,
-      data: fileRanges,
+      data: fileRanges, // refacto!! The file ranges are missing campaign phase
       force: isForced
     })
   }, [fileRanges, campaign, campaignID, isForced])

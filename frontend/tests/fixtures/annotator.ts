@@ -9,7 +9,7 @@ export const COMMENT = {
   task: {
     id: 1,
     comment: 'A task comment',
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN.id, // REFACTO!!
     annotation_result: null,
     author: USERS.annotator.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id
@@ -17,7 +17,7 @@ export const COMMENT = {
   presence: {
     id: 2,
     comment: 'A presence comment',
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN.id, // REFACTO!!
     annotation_result: 1, // RESULTS.presence.id
     author: USERS.annotator.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id
@@ -33,7 +33,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: null,
     end_frequency: null,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN.id, // REFACTO!!
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [ COMMENT.presence ],
     confidence_indicator: CONFIDENCE.sure.label,
@@ -50,7 +50,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: 12,
     end_frequency: 40,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN.id, // REFACTO!!
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [],
     confidence_indicator: CONFIDENCE.notSure.label,

@@ -58,7 +58,7 @@ export const AnnotatorSlice = createSlice({
         ...payload,
         id: getNewItemID(state.results),
         annotator: -1,
-        annotation_campaign: -1,
+        annotation_campaign_phase: -1,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
@@ -94,7 +94,7 @@ export const AnnotatorSlice = createSlice({
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
         annotator: -1,
-        annotation_campaign: -1,
+        annotation_campaign_phase: -1,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
@@ -181,7 +181,7 @@ export const AnnotatorSlice = createSlice({
         const newComment: AnnotationComment = {
           comment: payload,
           annotation_result: state.focusedResultID ?? null,
-          annotation_campaign: state.campaignID ?? -1,
+          annotation_campaign_phase: state.campaignID ?? -1, // REFACTO!!
           dataset_file: state.file?.id ?? -1,
           id: getNewItemID([ ...(state.results ?? []).flatMap(r => r.comments), ...(state.task_comments ?? []) ]),
           author: state.userID ?? -1

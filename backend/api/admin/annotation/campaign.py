@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib import messages
 
-from backend.api.models import AnnotationCampaign
+from backend.api.models import AnnotationCampaign, AnnotationCampaignPhase
 from ..__utils__ import get_many_to_many
 
 
@@ -27,6 +27,40 @@ class IsArchivedFilter(admin.SimpleListFilter):
         return queryset
 
 
+@admin.register(AnnotationCampaignPhase)
+class AnnotationCampaignPhaseAdmin(admin.ModelAdmin):
+    """AnnotationCampaignPhase presentation in DjangoAdmin"""
+
+    list_display = (
+        "id",
+        "annotation_campaign",
+        "show_phase",
+        "show_creation",
+        "show_end",
+    )
+    search_fields = ("annotation_campaign__name",)
+    list_filter = ("phase",)
+
+    @admin.display(description="Phase")
+    def show_phase(self, phase: AnnotationCampaignPhase):
+        """Display phase"""
+        if phase.phase:
+            return AnnotationCampaignPhase.Phase(phase.phase).label
+        return None
+
+    @admin.display(description="start")
+    def show_creation(self, phase: AnnotationCampaignPhase):
+        """Display creation info"""
+        return f"{phase.created_at.date()} by {phase.created_by}"
+
+    @admin.display(description="end")
+    def show_end(self, phase: AnnotationCampaignPhase):
+        """Display end info"""
+        if phase.is_open:
+            return "-"
+        return f"{phase.ended_at.date()} by {phase.ended_by}"
+
+
 @admin.register(AnnotationCampaign)
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin"""
@@ -37,6 +71,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "name",
         "desc",
         "created_at",
+        "show_phases",
         "archive",
         "instructions_url",
         "deadline",
@@ -48,12 +83,11 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "confidence_indicator_set",
-        "usage",
     )
     search_fields = ("name", "desc", "datasets__name")
 
     list_filter = (
-        "usage",
+        "phases__phase",
         IsArchivedFilter,
         "allow_point_annotation",
     )
@@ -104,6 +138,11 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
                 request,
                 f"The following campaigns were not archived: {', '.join(not_archived_campaigns)}",
             )
+
+    @admin.display(description="Phases")
+    def show_phases(self, obj):
+        """show_spectro_configs"""
+        return get_many_to_many(obj, "phases", "phase")
 
     @admin.display(description="Spectrogram configurations")
     def show_spectro_configs(self, obj):

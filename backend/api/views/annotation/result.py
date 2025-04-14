@@ -16,6 +16,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     AnnotationResultValidation,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -36,9 +37,9 @@ class ResultAccessFilter(filters.BaseFilterBackend):
         if request.user.is_staff:
             return queryset
         return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
+            Q(annotation_campaign_phase__annotation_campaign__owner=request.user)
             | (
-                Q(annotation_campaign__archive__isnull=True)
+                Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
                 & (Q(annotator=request.user) | Q(annotator__isnull=True))
             )
         )
@@ -80,12 +81,17 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return queryset
 
     @staticmethod
-    def map_request_results(results: list[dict], campaign_id, file_id, user_id):
+    def map_request_results(
+        results: list[dict],
+        file_id,
+        user_id,
+        phase: AnnotationCampaignPhase,
+    ):
         """Map results from request with the other request information"""
         return [
             {
                 **r,
-                "annotation_campaign": campaign_id,
+                "annotation_campaign_phase": phase.id,
                 "dataset_file": file_id,
                 "annotator": user_id
                 if r.get("detector_configuration") is None
@@ -93,7 +99,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "comments": [
                     {
                         **c,
-                        "annotation_campaign": campaign_id,
+                        "annotation_campaign_phase": phase.id,
                         "dataset_file": file_id,
                         "author": c["author"]
                         if "author" in c and c["author"] is not None
@@ -120,13 +126,14 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         campaign: AnnotationCampaign,
         file: DatasetFile,
         user_id,
+        phase: AnnotationCampaignPhase,
     ):
         """Update with given results"""
         data = AnnotationResultViewSet.map_request_results(
-            new_results, campaign.id, file.id, user_id
+            new_results, file.id, user_id, phase
         )
         current_results = AnnotationResultViewSet.queryset.filter(
-            annotation_campaign_id=campaign.id,
+            annotation_campaign_phase__annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
         ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
         serializer = AnnotationResultViewSet.serializer_class(
@@ -214,7 +221,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer.save()
         instances: list[AnnotationResult] = serializer.instance
         AnnotationTask.objects.filter(
-            annotation_campaign=campaign,
+            annotation_campaign_phase__annotation_campaign_id=campaign_id,
             dataset_file_id__in=[r.dataset_file_id for r in instances],
         ).update(status=AnnotationTask.Status.CREATED)
         list_serializer: AnnotationResultSerializer = self.get_serializer_class()(

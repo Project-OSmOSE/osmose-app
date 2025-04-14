@@ -67,7 +67,8 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["id"], campaign.id)
         self.assertEqual(response.data["confidence_indicator_set"], 1)
         self.assertEqual(response.data["label_set"], 1)
-        self.assertEqual(response.data["usage"], "Create")
+        self.assertEqual(len(response.data["phases"]), 1)
+        self.assertEqual(response.data["phases"][0]["phase"], "Annotation")
         self.assertEqual(
             response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
         )
@@ -91,7 +92,8 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["id"], campaign.id)
         self.assertEqual(response.data["confidence_indicator_set"], None)
         self.assertEqual(response.data["label_set"], 1)
-        self.assertEqual(response.data["usage"], "Create")
+        self.assertEqual(len(response.data["phases"]), 1)
+        self.assertEqual(response.data["phases"][0]["phase"], "Annotation")
         self.assertEqual(
             response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
         )
@@ -173,7 +175,9 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         campaign = AnnotationCampaign.objects.latest("id")
 
         self.assertEqual(response.data["id"], campaign.id)
-        self.assertEqual(response.data["usage"], "Check")
+        self.assertEqual(len(response.data["phases"]), 2)
+        self.assertEqual(response.data["phases"][0]["phase"], "Annotation")
+        self.assertEqual(response.data["phases"][1]["phase"], "Verification")
         self.assertEqual(
             response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
         )

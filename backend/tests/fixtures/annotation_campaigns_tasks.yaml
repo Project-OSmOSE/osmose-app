@@ -13,6 +13,13 @@
     - 1
     spectro_configs:
     - 1
+- model: api.annotationcampaignphase
+  pk: 1
+  fields:
+    annotation_campaign: 1
+    phase: A
+    created_at: 2010-11-02
+    created_by: 3
 - model: api.annotationfilerange
   pk: 1
   fields:
@@ -22,7 +29,7 @@
     last_file_id: 6
     files_count: 6
     annotator: 1
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
 - model: api.annotationfilerange
   pk: 2
   fields:
@@ -32,7 +39,7 @@
     last_file_id: 2
     files_count: 2
     annotator: 1
-    annotation_campaign: 2
+    annotation_campaign_phase: 2
 - model: api.annotationfilerange
   pk: 3
   fields:
@@ -42,7 +49,7 @@
     last_file_id: 10
     files_count: 4
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
 - model: api.annotationfilerange
   pk: 4
   fields:
@@ -52,75 +59,75 @@
     last_file_id: 4
     files_count: 1
     annotator: 4
-    annotation_campaign: 2
+    annotation_campaign_phase: 2
 - model: api.annotationtask
   pk: 1
   fields:
     status: F
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 1
 - model: api.annotationtask
   pk: 2
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 2
 - model: api.annotationtask
   pk: 3
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 3
 - model: api.annotationtask
   pk: 4
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 4
 - model: api.annotationtask
   pk: 5
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 5
 - model: api.annotationtask
   pk: 6
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     dataset_file: 6
 - model: api.annotationtask
   pk: 7
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 4
     dataset_file: 7
 - model: api.annotationtask
   pk: 8
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 4
     dataset_file: 8
 - model: api.annotationtask
   pk: 9
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 4
     dataset_file: 9
 - model: api.annotationtask
   pk: 10
   fields:
     status: C
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 4
     dataset_file: 10
 - model: api.annotationcampaign
@@ -137,25 +144,32 @@
     - 1
     spectro_configs:
     - 1
+- model: api.annotationcampaignphase
+  pk: 2
+  fields:
+    annotation_campaign: 2
+    phase: A
+    created_at: 2010-11-02
+    created_by: 3
 - model: api.annotationtask
   pk: 12
   fields:
     status: C
-    annotation_campaign: 2
+    annotation_campaign_phase: 2
     annotator: 1
     dataset_file: 1
 - model: api.annotationtask
   pk: 13
   fields:
     status: C
-    annotation_campaign: 2
+    annotation_campaign_phase: 2
     annotator: 1
     dataset_file: 2
 - model: api.annotationtask
   pk: 14
   fields:
     status: C
-    annotation_campaign: 2
+    annotation_campaign_phase: 2
     annotator: 4
     dataset_file: 3
 - model: api.annotationcampaign
@@ -173,6 +187,13 @@
     - 1
     spectro_configs:
     - 1
+- model: api.annotationcampaignphase
+  pk: 3
+  fields:
+    annotation_campaign: 3
+    phase: A
+    created_at: 2010-11-02
+    created_by: 3
 - model: api.annotationcampaignarchive
   pk: 1
   fields:
@@ -189,11 +210,17 @@
     confidence_indicator_set: 1
     annotation_scope: 1
     owner: 3
-    usage: 1
     datasets:
     - 1
     spectro_configs:
     - 1
+- model: api.annotationcampaignphase
+  pk: 4
+  fields:
+    annotation_campaign: 4
+    phase: V
+    created_at: 2010-11-02
+    created_by: 3
 - model: api.annotationfilerange
   pk: 5
   fields:
@@ -203,7 +230,7 @@
     last_file_id: 2
     files_count: 2
     annotator: 4
-    annotation_campaign: 4
+    annotation_campaign_phase: 4
 - model: api.annotationfilerange
   pk: 6
   fields:
@@ -213,4 +240,4 @@
     last_file_id: 2
     files_count: 2
     annotator: 1
-    annotation_campaign: 4
+    annotation_campaign_phase: 4

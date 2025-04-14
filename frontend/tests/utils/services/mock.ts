@@ -90,10 +90,10 @@ export class Mock {
                               allowPoint: boolean = false) {
     const json: AnnotationCampaign = CAMPAIGN;
     if (empty) {
-      json.progress = 0;
-      json.total = 0;
-      json.my_progress = 0;
-      json.my_total = 0;
+      json.global_progress = 0;
+      json.global_total = 0;
+      json.user_progress = 0;
+      json.user_total = 0;
     }
     json.usage = mode;
     if (!hasConfidence) {

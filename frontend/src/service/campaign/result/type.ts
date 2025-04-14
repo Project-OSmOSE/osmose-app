@@ -29,7 +29,7 @@ interface BaseAnnotationResult {
   id: number;
   label: string;
   confidence_indicator: string | null;
-  annotation_campaign: number; // pk - read only
+  annotation_campaign_phase: number; // pk - read only
   annotator: number | null; // pk - read only
   dataset_file: number; // pk - read only
   detector_configuration: DetectorConfiguration & { detector: string } | null;
@@ -68,7 +68,7 @@ export type PointResult = BaseAnnotationResult & PointBounds
 export type BoxResult = BaseAnnotationResult & BoxBounds
 
 export type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type'>
+  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type'>
   & {
   id?: number;
   confidence_indicator: string | undefined;

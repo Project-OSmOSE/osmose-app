@@ -80,16 +80,8 @@ class AnnotationCampaign(models.Model):
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.WHOLE
     )
-    usage = models.IntegerField(
-        choices=AnnotationCampaignUsage.choices, default=AnnotationCampaignUsage.CREATE
-    )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    annotators = models.ManyToManyField(
-        to=settings.AUTH_USER_MODEL,
-        through="AnnotationFileRange",
-        related_name="campaigns",
-    )
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -112,6 +104,57 @@ class AnnotationCampaign(models.Model):
         return DatasetFile.objects.filter(
             dataset_id__in=self.datasets.values_list("id", flat=True)
         ).order_by("start", "id")
+
+
+class AnnotationCampaignPhase(models.Model):
+    """Annotation campaign phase"""
+
+    class Phase(models.TextChoices):
+        """Available phases of the annotation campaign"""
+
+        ANNOTATION = "A", "Annotation"
+        VERIFICATION = "V", "Verification"
+
+    class Meta:
+        unique_together = (("phase", "annotation_campaign"),)
+
+    def __str__(self):
+        return f"{self.annotation_campaign} - {AnnotationCampaignPhase.Phase(self.phase).label}"
+
+    phase = models.CharField(choices=Phase.choices, max_length=1)
+    annotation_campaign = models.ForeignKey(
+        AnnotationCampaign,
+        on_delete=models.CASCADE,
+        related_name="phases",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="created_phases",
+    )
+
+    ended_at = models.DateTimeField(blank=True, null=True)
+    ended_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ended_phases",
+        blank=True,
+        null=True,
+    )
+
+    @property
+    def is_open(self) -> bool:
+        """Get open state of the phase"""
+        if not self.ended_at or not self.ended_by:
+            return True
+
+    def end(self, user: User):
+        """End the phase"""
+        self.ended_at = timezone.now()
+        self.ended_by = user
+        self.save()
 
 
 @receiver(

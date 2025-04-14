@@ -60,10 +60,10 @@ export const CAMPAIGN = {
   labels_with_acoustic_features: [ LABEL.withFeatures ],
   usage: 'Create',
   archive: null,
-  my_progress: 5,
-  my_total: 10,
-  progress: 50,
-  total: 100,
+  user_progress: 5,
+  user_total: 10,
+  global_progress: 50,
+  global_total: 100,
   allow_image_tuning: false,
   allow_colormap_tuning: false,
   colormap_default: null,
@@ -106,7 +106,7 @@ export const FILE_RANGE = {
     first_file_index: 2,
     last_file_index: 3,
     finished_tasks_count: 1,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN.id, // Refacto!!
     annotator: USERS.annotator.id
   } satisfies AnnotationFileRange,
 }

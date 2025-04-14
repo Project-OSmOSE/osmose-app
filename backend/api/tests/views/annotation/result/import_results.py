@@ -10,12 +10,12 @@ from rest_framework.test import APITestCase
 from backend.api.models import (
     AnnotationResult,
     AnnotationCampaign,
-    AnnotationCampaignUsage,
     LabelSet,
     Dataset,
     SpectrogramConfiguration,
     ConfidenceIndicatorSet,
     AnnotationTask,
+    AnnotationCampaignPhase,
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
@@ -60,12 +60,17 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             instructions_url="string",
             deadline="2022-01-30",
             created_at="2012-01-14T00:00:00Z",
-            usage=AnnotationCampaignUsage.CHECK,
             label_set=LabelSet.objects.create(name="string label set"),
             owner_id=3,
         )
+        phase = campaign.phases.create(
+            phase=AnnotationCampaignPhase.Phase.VERIFICATION, created_by_id=3
+        )
+        self.create_phase = campaign.phases.create(
+            phase=AnnotationCampaignPhase.Phase.ANNOTATION, created_by_id=3
+        )
         task = AnnotationTask.objects.create(
-            annotation_campaign_id=campaign.id,
+            annotation_campaign_phase=phase,
             dataset_file_id=2,
             annotator_id=1,
             status=AnnotationTask.Status.FINISHED,
@@ -129,7 +134,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     ):
         self.__check_global_result(response)
         self.assertEqual(response["id"], result.id)
-        self.assertEqual(response["annotation_campaign"], campaign_id)
+        self.assertEqual(response["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response["dataset_file"], 1)
         self.assertEqual(response["start_time"], None)
         self.assertEqual(response["end_time"], None)
@@ -147,7 +152,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.__check_global_result(response[0])
         # First annotation cover all file -> weak
         self.assertEqual(response[0]["id"], result_1.id)
-        self.assertEqual(response[0]["annotation_campaign"], campaign_id)
+        self.assertEqual(response[0]["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response[0]["dataset_file"], 1)
         self.assertEqual(response[0]["start_time"], None)
         self.assertEqual(response[0]["end_time"], None)
@@ -158,7 +163,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         # Second annotation doesn't cover all file -> strong
         self.__check_global_result(response[1])
         self.assertEqual(response[1]["id"], result_2.id)
-        self.assertEqual(response[1]["annotation_campaign"], campaign_id)
+        self.assertEqual(response[1]["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response[1]["dataset_file"], 2)
         self.assertEqual(response[1]["start_time"], 0)
         self.assertEqual(response[1]["end_time"], 10 * 60)
@@ -174,7 +179,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     ):
         self.__check_global_result(response)
         self.assertEqual(response["id"], result.id)
-        self.assertEqual(response["annotation_campaign"], campaign_id)
+        self.assertEqual(response["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response["dataset_file"], 1)
         self.assertEqual(response["start_time"], 0.8)
         self.assertEqual(response["end_time"], None)
@@ -190,7 +195,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
     ):
         self.__check_global_result(response)
         self.assertEqual(response["id"], result.id)
-        self.assertEqual(response["annotation_campaign"], campaign_id)
+        self.assertEqual(response["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response["dataset_file"], 1)
         self.assertEqual(response["start_time"], 0.8)
         self.assertEqual(response["end_time"], 1.8)
@@ -207,7 +212,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         result_1 = results.first()
         self.__check_global_result(response[0])
         self.assertEqual(response[0]["id"], result_1.id)
-        self.assertEqual(response[0]["annotation_campaign"], campaign_id)
+        self.assertEqual(response[0]["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response[0]["dataset_file"], 1)
         self.assertEqual(response[0]["start_time"], 0.8)
         self.assertEqual(response[0]["end_time"], 15 * 60)
@@ -217,7 +222,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         result_2 = results.exclude(id=result_1.id).first()
         self.__check_global_result(response[1])
         self.assertEqual(response[1]["id"], result_2.id)
-        self.assertEqual(response[1]["annotation_campaign"], campaign_id)
+        self.assertEqual(response[1]["annotation_campaign_phase"], self.create_phase.id)
         self.assertEqual(response[1]["dataset_file"], 2)
         self.assertEqual(response[1]["start_time"], 0)
         self.assertEqual(response[1]["end_time"], 8)

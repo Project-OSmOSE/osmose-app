@@ -22,20 +22,21 @@ existing_ranges = [
         "first_file_index": 0,
         "last_file_index": 5,
         "annotator": 1,
-        "annotation_campaign": 1,
+        "annotation_campaign_phase": 1,
     },
     {
         "id": 3,
         "first_file_index": 6,
         "last_file_index": 9,
         "annotator": 4,
-        "annotation_campaign": 1,
+        "annotation_campaign_phase": 1,
     },
 ]
 basic_create_range = {
     "first_file_index": 1,
     "last_file_index": 3,
     "annotator": 4,
+    "annotation_campaign_phase": 1,
 }
 
 
@@ -107,6 +108,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 6,
                     "last_file_index": 9,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -122,6 +124,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": -2,
                     "last_file_index": -1,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -135,7 +138,14 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
         initial_count = AnnotationFileRange.objects.count()
         response = self.post(
             existing_ranges
-            + [{"first_file_index": 20, "last_file_index": 32, "annotator": 4}]
+            + [
+                {
+                    "first_file_index": 20,
+                    "last_file_index": 32,
+                    "annotator": 4,
+                    "annotation_campaign_phase": 1,
+                }
+            ]
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[2].get("first_file_index")[0].code, "max_value")
@@ -152,6 +162,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 5,
                     "last_file_index": 2,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -171,6 +182,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 7,
                     "last_file_index": 8,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -189,6 +201,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 4,
                     "last_file_index": 10,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -207,6 +220,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 4,
                     "last_file_index": 5,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )
@@ -226,6 +240,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
                     "first_file_index": 4,
                     "last_file_index": 5,
                     "annotator": 4,
+                    "annotation_campaign_phase": 1,
                 }
             ]
         )

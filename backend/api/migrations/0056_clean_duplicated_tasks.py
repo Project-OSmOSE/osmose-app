@@ -11,7 +11,7 @@ def clean_duplicated_tasks(apps, schema_editor):
     task_model: AnnotationTask.__class__ = apps.get_model("api", "AnnotationTask")
 
     dupes = (
-        AnnotationTask.objects.values(
+        task_model.objects.values(
             "annotation_campaign_id", "dataset_file_id", "annotator_id"
         )
         .annotate(count=Count("id"), lower_id=Min("id"))

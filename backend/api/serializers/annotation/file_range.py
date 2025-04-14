@@ -9,6 +9,7 @@ from backend.api.models import (
     AnnotationResult,
     AnnotationCampaign,
     DatasetFile,
+    AnnotationCampaignPhase,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import EnumField
@@ -50,7 +51,9 @@ class AnnotationFileRangeListSerializer(serializers.ListSerializer):
             instance = original_ranges.filter(
                 Q(id=file_range["id"] if "id" in file_range else None)
                 | Q(
-                    annotation_campaign_id=file_range["annotation_campaign"].id,
+                    annotation_campaign_phase_id=file_range[
+                        "annotation_campaign_phase"
+                    ].id,
                     annotator_id=file_range["annotator"].id,
                     first_file_index=file_range["first_file_index"],
                     last_file_index=file_range["last_file_index"],
@@ -59,7 +62,7 @@ class AnnotationFileRangeListSerializer(serializers.ListSerializer):
             file_range_data = {
                 **file_range,
                 "annotator": file_range["annotator"].id,
-                "annotation_campaign": file_range["annotation_campaign"].id,
+                "annotation_campaign_phase": file_range["annotation_campaign_phase"].id,
             }
             if instance.exists():
                 # Update
@@ -100,8 +103,8 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(required=False)
     annotator = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    annotation_campaign = serializers.PrimaryKeyRelatedField(
-        queryset=AnnotationCampaign.objects.all()
+    annotation_campaign_phase = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaignPhase.objects.all()
     )
 
     # Read only
@@ -116,7 +119,9 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
     def check_max_value(self, data: dict):
         """Check file indexes doesn't go higher than campaign has files"""
         max_value_errors = {}
-        campaign: AnnotationCampaign = data["annotation_campaign"]
+        campaign: AnnotationCampaign = data[
+            "annotation_campaign_phase"
+        ].annotation_campaign
         max_files = campaign.get_sorted_files().count()
         if data["first_file_index"] >= max_files:
             max_value_errors = {

@@ -18,8 +18,8 @@ export const Progression: React.FC = () => {
   return <div className={ styles.bloc }>
 
     {/* Current user */ }
-    { campaign.my_total > 0 && <Progress label='My progress' color='primary'
-                                         value={ campaign.my_progress } total={ campaign.my_total }/> }
+    { campaign.user_total > 0 && <Progress label='My progress' color='primary'
+                                         value={ campaign.my_progress } total={ campaign.user_total }/> }
 
     {/* Total */ }
     <Progress label='Global progress'

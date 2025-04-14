@@ -7,6 +7,7 @@ from django.db.models import (
     Exists,
     OuterRef,
     Count,
+    Subquery,
 )
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions, filters
@@ -37,7 +38,7 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         """Get filtered dataset files"""
         if not queryset.exists():
             return DatasetFile.objects.none()
-        campaign_ids = queryset.values_list("annotation_campaign", flat=True)
+        phases_ids = queryset.values_list("annotation_campaign_phase", flat=True)
 
         id_filter = None
         for file_range in queryset:
@@ -55,7 +56,7 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         files = (
             DatasetFile.objects.select_related("dataset")
             .prefetch_related("dataset__annotation_campaigns")
-            .filter(dataset__annotation_campaigns__in=campaign_ids)
+            .filter(dataset__annotation_campaigns__phases__in=phases_ids)
             .filter(id_filter)
         )
 
@@ -121,15 +122,26 @@ class AnnotationFileRangeFilter(filters.BaseFilterBackend):
     ):
         if request.user.is_staff:
             return queryset
-        # When testing with campaign owner which is not an annotators, all items are doubled
-        # (don't understand why, the result query is correct when executed directly in SQL console)
-        # The .distinct() is necessary to assure the items are not doubled
-        return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
-            | (
-                Q(annotation_campaign__archive__isnull=True)
-                & Q(annotation_campaign__annotators__id=request.user.id)
+        # Current user is an annotator of the campagne (not necessary of every file ranges of it)
+        is_campaign_annotator = Exists(
+            Subquery(
+                AnnotationFileRange.objects.filter(
+                    annotator_id=request.user.id,
+                    annotation_campaign_phase__annotation_campaign=OuterRef(
+                        "annotation_campaign_phase__annotation_campaign"
+                    ),
+                )
             )
+        )
+        return queryset.filter(
+            Q(annotation_campaign_phase__annotation_campaign__owner=request.user)
+            | (
+                Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
+                & is_campaign_annotator
+            )
+            # When testing with campaign owner which is not an annotators, all items are doubled
+            # (don't understand why, the result query is correct when executed directly in SQL console)
+            # The .distinct() is necessary to assure the items are not doubled
         ).distinct()
 
 
@@ -141,9 +153,10 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AnnotationFileRange.objects.select_related(
         "annotator",
         "annotator__aplose",
-        "annotation_campaign",
+        "annotation_campaign_phase",
     ).prefetch_related(
-        "annotation_campaign__datasets",
+        "annotation_campaign_phase__annotation_campaign",
+        "annotation_campaign_phase__annotation_campaign__datasets",
     )
     serializer_class = AnnotationFileRangeSerializer
     filter_backends = (ModelFilter, AnnotationFileRangeFilter)
@@ -182,7 +195,10 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         """List files of an annotator within a campaign through its file ranges"""
         queryset: QuerySet[AnnotationFileRange] = self.filter_queryset(
             self.get_queryset()
-        ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
+        ).filter(
+            annotator_id=self.request.user.id,
+            annotation_campaign_phase__annotation_campaign_id=campaign_id,
+        )
 
         files: QuerySet[DatasetFile] = (
             AnnotationFileRangeFilesFilter()
@@ -192,7 +208,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 is_submitted=Exists(
                     AnnotationTask.objects.filter(
                         dataset_file_id=OuterRef("pk"),
-                        annotation_campaign_id=campaign_id,
+                        annotation_campaign_phase__annotation_campaign_id=campaign_id,
                         annotator_id=self.request.user.id,
                         status=AnnotationTask.Status.FINISHED,
                     )
@@ -200,7 +216,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 results_count=Count(
                     "annotation_results",
                     filter=Q(
-                        annotation_results__annotation_campaign_id=campaign_id,
+                        annotation_results__annotation_campaign_phase__annotation_campaign_id=campaign_id,
                     )
                     & (
                         Q(annotation_results__annotator_id=self.request.user.id)
@@ -249,7 +265,9 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = AnnotationFileRangeSerializer(
-            campaign.annotation_file_ranges,
+            AnnotationFileRange.objects.filter(
+                annotation_campaign_phase__annotation_campaign=campaign
+            ),
             data=data,
             context={
                 "force": request.data["force"] if "force" in request.data else False
@@ -260,7 +278,9 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         serializer.save()
         return Response(
             AnnotationFileRangeSerializer(
-                campaign.annotation_file_ranges,
+                AnnotationFileRange.objects.filter(
+                    annotation_campaign_phase__annotation_campaign=campaign
+                ),
                 many=True,
             ).data,
             status=status.HTTP_200_OK,

@@ -75,7 +75,7 @@ test.describe('Campaign creator', () => {
         id: FILE_RANGE.range.id,
         annotator: FILE_RANGE.range.annotator,
         first_file_index: FILE_RANGE.range.first_file_index,
-        last_file_index: FILE_RANGE.range.last_file_index,
+        last_file_index: FILE_RANGE.range.last_file_index, // REFACTO!! Add annotation_campaign_phase
       }, {
         "annotator": USERS.superuser.id,
         "first_file_index": 4,

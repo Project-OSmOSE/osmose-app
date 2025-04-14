@@ -73,7 +73,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             URL,
             {
                 "for_current_user": True,
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -83,7 +83,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -114,7 +114,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
             URL,
             {
                 "for_current_user": True,
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -124,7 +124,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -155,7 +155,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             URL,
             {
                 "for_current_user": True,
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -165,7 +165,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "annotation_campaign_phase__annotation_campaign": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

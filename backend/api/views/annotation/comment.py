@@ -9,6 +9,7 @@ from backend.api.models import (
     AnnotationCampaign,
     DatasetFile,
     AnnotationComment,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationCommentSerializer,
@@ -48,12 +49,14 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return queryset
 
     @staticmethod
-    def map_request_comments(comments: list[dict], campaign_id, file_id, user_id):
+    def map_request_comments(
+        comments: list[dict], file_id, user_id, phase: AnnotationCampaignPhase
+    ):
         """Map rcomments from request with the other request information"""
         return [
             {
                 **c,
-                "annotation_campaign": campaign_id,
+                "annotation_campaign_phase": phase.id,
                 "dataset_file": file_id,
                 "author": c["author"]
                 if "author" in c and c["author"] is not None
@@ -68,13 +71,14 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         campaign: AnnotationCampaign,
         file: DatasetFile,
         user_id,
+        phase: AnnotationCampaignPhase,
     ):
         """Update with given comments"""
         data = AnnotationCommentViewSet.map_request_comments(
-            new_comments, campaign.id, file.id, user_id
+            new_comments, file.id, user_id, phase
         )
         current_comments = AnnotationCommentViewSet.queryset.filter(
-            annotation_campaign_id=campaign.id,
+            annotation_campaign_phase__annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
             author_id=user_id,
             annotation_result__isnull=True,

@@ -40,7 +40,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[1]["name"], "Test RTF campaign")
-        self.assertEqual(response.data[1]["my_total"], 0)
+        self.assertEqual(response.data[1]["phases"][0]["user_total"], 0)
 
 
 class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
@@ -53,7 +53,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[2]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[2]["my_total"], 0)
+        self.assertEqual(response.data[2]["phases"][0]["user_total"], 0)
 
 
 class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
@@ -66,7 +66,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]["name"], "Test DCLDE LF campaign")
         self.assertEqual(response.data[1]["name"], "Test SPM campaign")
-        self.assertEqual(response.data[1]["my_total"], 4)
+        self.assertEqual(response.data[1]["phases"][0]["user_total"], 4)
 
 
 class ListFilledBaseUserNoCampaignAuthenticatedTestCase(AuthenticatedTestCase):

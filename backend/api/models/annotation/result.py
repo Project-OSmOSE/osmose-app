@@ -7,7 +7,7 @@ from django.db import models
 
 from backend.aplose.models import User, AploseUser
 from backend.aplose.models.user import ExpertiseLevel
-from .campaign import AnnotationCampaign
+from .campaign import AnnotationCampaignPhase
 from .confidence import ConfidenceIndicator
 from .detector import DetectorConfiguration
 from .label import Label
@@ -134,8 +134,8 @@ class AnnotationResult(models.Model):
     confidence_indicator = models.ForeignKey(
         ConfidenceIndicator, on_delete=models.SET_NULL, null=True, blank=True
     )
-    annotation_campaign = models.ForeignKey(
-        AnnotationCampaign,
+    annotation_campaign_phase = models.ForeignKey(
+        AnnotationCampaignPhase,
         on_delete=models.CASCADE,
         related_name="results",
     )
@@ -232,8 +232,10 @@ class AnnotationComment(models.Model):
         blank=True,
         default=None,
     )
-    annotation_campaign = models.ForeignKey(
-        AnnotationCampaign, on_delete=models.CASCADE, related_name="comments"
+    annotation_campaign_phase = models.ForeignKey(
+        AnnotationCampaignPhase,
+        on_delete=models.CASCADE,
+        related_name="comments",
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"

@@ -19,10 +19,10 @@ from backend.api.models import (
     Detector,
     DetectorConfiguration,
     ConfidenceIndicatorSet,
-    AnnotationCampaignUsage,
     ConfidenceIndicatorSetIndicator,
     AnnotationResultAcousticFeatures,
     SignalTrend,
+    AnnotationCampaignPhase,
 )
 from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
@@ -186,6 +186,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         files: QuerySet[DatasetFile] = validated_data["files"]
         campaign: AnnotationCampaign = self.context["campaign"]
+        phase = campaign.phases.get(phase=AnnotationCampaignPhase.Phase.ANNOTATION)
         detector, _ = Detector.objects.get_or_create(name=validated_data["detector"])
         detector_config, _ = DetectorConfiguration.objects.get_or_create(
             detector=detector,
@@ -217,7 +218,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
         if not is_box and files.count() == 1:
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
@@ -245,7 +246,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             )
 
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
@@ -344,8 +345,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
     id = serializers.IntegerField(required=False, allow_null=True)
-    annotation_campaign = serializers.PrimaryKeyRelatedField(
-        queryset=AnnotationCampaign.objects.all()
+    annotation_campaign_phase = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaignPhase.objects.all()
     )
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
@@ -468,12 +469,10 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         ):
             attrs["start_frequency"] = end_frequency
             attrs["end_frequency"] = start_frequency
-        campaign: Optional[AnnotationCampaign] = (
-            self.context["campaign"] if "campaign" in self.context else None
-        )
+        phase = attrs["annotation_campaign_phase"]
         if (
-            campaign is not None
-            and campaign.usage == AnnotationCampaignUsage.CHECK
+            phase is not None
+            and phase.phase == AnnotationCampaignPhase.Phase.VERIFICATION
             and "annotator" in attrs
         ):
             attrs.pop("annotator")

@@ -7,6 +7,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationResult,
     AnnotationResultAcousticFeatures,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import AnnotationResultSerializer
 from backend.utils.tests import all_fixtures
@@ -29,7 +30,7 @@ presence_result = {
     "end_frequency": None,
     "dataset_file": 9,
     "detector_configuration": None,
-    "annotation_campaign": 1,
+    "annotation_campaign_phase": 1,
     "annotator": 4,
     "validations": [],
     "comments": [],
@@ -44,7 +45,7 @@ box_result = {
     "end_frequency": 25.0,
     "dataset_file": 9,
     "detector_configuration": None,
-    "annotation_campaign": 1,
+    "annotation_campaign_phase": 1,
     "annotator": 4,
     "validations": [],
     "comments": [],
@@ -104,7 +105,9 @@ class CreateTestCase(TestCase):
         self.assertFalse(serializer.is_valid(raise_exception=False))
         self.assertEqual(serializer.errors["label"][0].code, "required")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "required")
-        self.assertEqual(serializer.errors["annotation_campaign"][0].code, "required")
+        self.assertEqual(
+            serializer.errors["annotation_campaign_phase"][0].code, "required"
+        )
 
     def test_null(self):
         serializer = self._get_serializer(
@@ -117,7 +120,7 @@ class CreateTestCase(TestCase):
                 "detector_configuration": None,
                 "label": None,
                 "dataset_file": None,
-                "annotation_campaign": None,
+                "annotation_campaign_phase": None,
                 "confidence_indicator": None,  # Cannot be null since campaign has a confidence indicator set
                 "comments": [],
                 "validations": [],
@@ -127,13 +130,13 @@ class CreateTestCase(TestCase):
         self.assertListEqual(
             list(serializer.errors.keys()),
             [
-                "annotation_campaign",
+                "annotation_campaign_phase",
                 "label",
                 "confidence_indicator",
                 "dataset_file",
             ],
         )
-        self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
+        self.assertEqual(serializer.errors["annotation_campaign_phase"][0].code, "null")
         self.assertEqual(serializer.errors["label"][0].code, "null")
         self.assertEqual(serializer.errors["confidence_indicator"][0].code, "null")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
@@ -153,7 +156,7 @@ class CreateTestCase(TestCase):
             {
                 "label": "DCall",  # label exist in different label set
                 "dataset_file": -1,
-                "annotation_campaign": -1,
+                "annotation_campaign_phase": -1,
                 "confidence_indicator": "test",
             }
         )
@@ -161,7 +164,7 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["label"][0].code, "does_not_exist")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "does_not_exist")
         self.assertEqual(
-            serializer.errors["annotation_campaign"][0].code, "does_not_exist"
+            serializer.errors["annotation_campaign_phase"][0].code, "does_not_exist"
         )
         self.assertEqual(
             serializer.errors["confidence_indicator"][0].code, "does_not_exist"
@@ -204,14 +207,14 @@ class UpdateTestCase(CreateTestCase):
     fixtures = all_fixtures
 
     def setUp(self):
-        campaign = AnnotationCampaign.objects.get(pk=1)
+        phase = AnnotationCampaignPhase.objects.get(pk=1)
         features_instance = AnnotationResultAcousticFeatures.objects.create(**features)
         self.instance = AnnotationResult.objects.create(
-            annotation_campaign=campaign,
-            dataset_file=campaign.datasets.first().files.first(),
-            annotator=campaign.annotators.first(),
-            label=campaign.label_set.labels.first(),
-            confidence_indicator=campaign.confidence_indicator_set.confidence_indicators.first(),
+            annotation_campaign_phase=phase,
+            dataset_file=phase.annotation_campaign.datasets.first().files.first(),
+            annotator=phase.created_by,
+            label=phase.annotation_campaign.label_set.labels.first(),
+            confidence_indicator=phase.annotation_campaign.confidence_indicator_set.confidence_indicators.first(),
             start_time=1,
             end_time=9,
             start_frequency=10,
