@@ -13,9 +13,14 @@ import { colorSpectro, interpolate } from '@/services/utils/color.ts';
 
 export const useSpectrogramDimensions = () => {
   const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
-  const containerWidth = useMemo(() => SPECTRO_WIDTH / window.devicePixelRatio, [ window.devicePixelRatio ])
+  const ratio = useMemo(() => {
+    const pixelRatio = window.devicePixelRatio
+    const screenRatio = (1920 / window.screen.width)
+    return pixelRatio * screenRatio;
+  }, [ window.devicePixelRatio, window.screen ]);
+  const containerWidth = useMemo(() => SPECTRO_WIDTH / ratio, [ ratio ])
   const width = useMemo(() => containerWidth * zoomLevel, [ containerWidth, zoomLevel ])
-  const height = useMemo(() => SPECTRO_HEIGHT / window.devicePixelRatio, [ window.devicePixelRatio ])
+  const height = useMemo(() => SPECTRO_HEIGHT / ratio, [ ratio ])
   return { width, containerWidth, height }
 }
 
@@ -119,7 +124,7 @@ export const useDisplaySpectrogram = (
     // Filter images (filter must be set before drawing)
     const compBrightness: number = Math.round(interpolate(brightness, 0, 100, 50, 150));
     const compContrast: number = Math.round(interpolate(contrast, 0, 100, 50, 150));
-    context.filter = `brightness(${compBrightness.toFixed()}%) contrast(${compContrast.toFixed()}%)`;
+    context.filter = `brightness(${ compBrightness.toFixed() }%) contrast(${ compContrast.toFixed() }%)`;
 
     // Draw images
     const currentImages = images.current.get(zoomLevel)
@@ -171,7 +176,7 @@ export const useCurrentAnnotation = () => {
   } = useAppSelector(state => state.annotator);
 
   const annotation = useMemo(() => results?.find(r => r.id === focusedResultID), [ results, focusedResultID ]);
-  
+
   const duration = useMemo(() => {
     if (annotation?.type !== 'Box') return;
     const minTime = Math.min(annotation.start_time, annotation.end_time)
