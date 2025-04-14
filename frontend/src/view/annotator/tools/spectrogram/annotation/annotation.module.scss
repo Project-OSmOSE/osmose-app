@@ -20,7 +20,7 @@
 
   &.canBeRemoved {
     .inner {
-      grid-template-columns: auto 1fr auto auto;
+      grid-template-columns: auto auto 1fr auto;
 
       .delete {
         display: block;
@@ -38,6 +38,7 @@
     padding: 0 0.25rem;
     gap: 0.5rem;
     white-space: nowrap;
+    position: relative;
 
     > * {
       font-size: .9rem;
