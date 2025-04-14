@@ -67,3 +67,8 @@ html {
     right: 0;
     transform: none;
 }
+
+.tooltip-inner {
+    background-color: unset;
+    color: unset;
+}
