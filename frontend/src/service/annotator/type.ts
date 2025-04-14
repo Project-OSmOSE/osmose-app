@@ -13,7 +13,6 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   focusedLabel?: string,
   focusedConfidenceLabel?: string,
   hasChanged: boolean,
-  labelColors: { [key: string]: string };
   userPreferences: {
     audioSpeed: number;
     spectrogramConfigurationID: number;
