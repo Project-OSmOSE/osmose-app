@@ -9,7 +9,6 @@ import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { LabelSet } from "@/service/campaign/label-set";
-import { useCurrentAnnotation } from "@/service/annotator/spectrogram";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 
 
@@ -23,7 +22,6 @@ export const Labels: React.FC = () => {
     focusedLabel,
   } = useAppSelector(state => state.annotator);
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
-  const { annotation } = useCurrentAnnotation()
   const dispatch = useAppDispatch()
   const alert = useAlert();
 
@@ -63,7 +61,7 @@ export const Labels: React.FC = () => {
       const calledLabel = _labelSet.current.labels[i];
       if (_focused.current === calledLabel) continue;
       if (!_presenceLabels.current.includes(calledLabel)) {
-        dispatch(addPresenceResult({ label: calledLabel, focus: true }));
+        dispatch(addPresenceResult(calledLabel));
       } else {
         dispatch(focusTask())
         dispatch(focusLabel(calledLabel))
@@ -75,9 +73,8 @@ export const Labels: React.FC = () => {
     if (presenceLabels.includes(label)) {
       dispatch(focusLabel(label));
     } else {
-      const shouldUpdateStrongLabel = !annotation || annotation.type !== 'Weak';
-      dispatch(addPresenceResult({ label, focus: !shouldUpdateStrongLabel }));
-      if (shouldUpdateStrongLabel) dispatch(focusLabel(label));
+      dispatch(addPresenceResult(label));
+      dispatch(focusLabel(label));
     }
   }
 

@@ -88,15 +88,10 @@ export const AnnotatorSlice = createSlice({
       state.hasChanged = true;
       _focusResult(state, { payload: state.focusedResultID })
     },
-    addPresenceResult: (state, { payload }: {
-      payload: {
-        label: string,
-        focus?: boolean
-      }
-    }) => {
-      const existingPresence = state.results?.find(r => r.label === payload.label && r.type === 'Weak')
+    addPresenceResult: (state, { payload }: { payload: string }) => {
+      const existingPresence = state.results?.find(r => r.label === payload && r.type === 'Weak')
       if (existingPresence) {
-        if (payload.focus) _focusResult(state, { payload: existingPresence.id })
+        _focusResult(state, { payload: existingPresence.id })
         return
       }
       const newResult: AnnotationResult = {
@@ -108,7 +103,7 @@ export const AnnotatorSlice = createSlice({
         comments: [],
         validations: [],
         confidence_indicator: state.focusedConfidenceLabel ?? null,
-        label: payload.label,
+        label: payload,
         end_frequency: null,
         end_time: null,
         start_time: null,
@@ -119,7 +114,6 @@ export const AnnotatorSlice = createSlice({
       if (!state.results) state.results = [];
       state.results.push(newResult);
       state.hasChanged = true;
-      if (payload.focus === false) return;
       _focusResult(state, { payload: newResult.id })
     },
     removeResult: (state, { payload }: { payload: number }) => {
@@ -145,18 +139,6 @@ export const AnnotatorSlice = createSlice({
     },
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
-      const result = state.results?.find(r => r.id === state.focusedResultID);
-      if (!result) return;
-      if (result.type !== 'Weak') {
-        state.results = state.results?.map(r => {
-          if (r.id !== state.focusedResultID) return r;
-          return {
-            ...r,
-            label: payload
-          }
-        })
-        state.hasChanged = true;
-      }
     },
     focusPresence: (state, { payload }: { payload: string }) => {
       const result = state.results?.find(r => r.label === payload && r.type === 'Weak');
