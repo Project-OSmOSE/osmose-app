@@ -146,10 +146,10 @@ export class AnnotatorPage {
       await this.page.mouse.up({ button: 'left' })
       return {
         type,
-        start_time: type === 'Box' ? 1.90292333149476 : 3.1715388858246003,
-        end_time: type === 'Box' ? 3.1715388858246003 : null,
-        start_frequency: type === 'Box' ? 67 : 99,
-        end_frequency: type === 'Box' ? 99 : null,
+        start_time: type === 'Box' ? 2.704 : 4.607,
+        end_time: type === 'Box' ? 4.607 : null,
+        start_frequency: type === 'Box' ? 0 : 29,
+        end_frequency: type === 'Box' ? 29 : null,
       } as BoxBounds | PointBounds
     })
   }
