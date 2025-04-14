@@ -140,6 +140,31 @@ export const AnnotatorSlice = createSlice({
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
     },
+    updateLabel: (state, { payload }: { payload: string }) => {
+      if (!state.focusedResultID) return;
+      const results = state.results ?? []
+      if (!results?.find(r => r.label === payload && r.type === 'Weak')) {
+        results.push({
+          id: getNewItemID(state.results),
+          annotator: -1,
+          annotation_campaign: -1,
+          dataset_file: -1,
+          detector_configuration: null,
+          comments: [],
+          validations: [],
+          confidence_indicator: state.focusedConfidenceLabel ?? null,
+          label: payload,
+          end_frequency: null,
+          end_time: null,
+          start_time: null,
+          start_frequency: null,
+          type: 'Weak',
+          acoustic_features: null,
+        })
+      }
+      state.results = results?.map(r => state.focusedResultID === r.id ? { ...r, label: payload } : r)
+      _focusResult(state, { payload: state.focusedResultID })
+    },
     focusPresence: (state, { payload }: { payload: string }) => {
       const result = state.results?.find(r => r.label === payload && r.type === 'Weak');
       if (result) _focusResult(state, { payload: result.id })

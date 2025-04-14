@@ -73,3 +73,11 @@
 kbd[class^=ion-color-] {
     background-color: rgba(var(--ion-color-base-rgb), 0.15);
 }
+
+ion-button.button-solid[class^=ion-color-] {
+    --background: var(--ion-color-base);
+}
+ion-button.button-outline[class^=ion-color-] {
+    --border-color: var(--ion-color-base);
+    --color: var(--ion-color-base);
+}

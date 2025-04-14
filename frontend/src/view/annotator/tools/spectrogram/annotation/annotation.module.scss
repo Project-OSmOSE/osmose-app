@@ -20,7 +20,7 @@
 
   &.canBeRemoved {
     .inner {
-      grid-template-columns: auto auto 1fr auto;
+      grid-template-columns: auto auto 1fr auto auto;
 
       .delete {
         display: block;
@@ -66,4 +66,10 @@
  .inner {
    cursor: crosshair;
  }
+}
+
+.labelsButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }

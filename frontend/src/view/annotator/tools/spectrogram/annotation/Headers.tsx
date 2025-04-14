@@ -1,13 +1,15 @@
-import React, { Fragment, MutableRefObject, useCallback } from 'react';
+import React, { Fragment, MutableRefObject, useCallback, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
-import { focusResult, removeResult } from '@/service/annotator';
-import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoTrashBin } from 'react-icons/io5';
+import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
+import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
-import { TooltipOverlay } from "@/components/ui";
+import { Button, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
+import { createPortal } from "react-dom";
+import { IonNote } from "@ionic/react";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -38,11 +40,13 @@ export const AnnotationHeader: React.FC<{
 
     <PlayButton annotation={ annotation } audioPlayer={ audioPlayer }/>
 
-    <CommentInfo annotation={annotation}/>
+    <CommentInfo annotation={ annotation }/>
 
     <p>{ annotation.label }</p>
 
-    <TrashButton annotation={annotation}/>
+    <UpdateLabelButton annotation={ annotation }/>
+
+    <TrashButton annotation={ annotation }/>
 
   </ExtendedDiv>
 }
@@ -62,13 +66,49 @@ export const PlayButton: React.FC<{
 export const CommentInfo: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   if (annotation.comments.length > 0) return <IoChatbubbleEllipses/>
   else return (
-    <TooltipOverlay tooltipContent={ <p>No comments</p> }><IoChatbubbleOutline className={ styles.outlineIcon }/></TooltipOverlay>
+    <TooltipOverlay tooltipContent={ <p>No comments</p> }><IoChatbubbleOutline
+      className={ styles.outlineIcon }/></TooltipOverlay>
   )
 }
 
-export const TrashButton: React.FC<{
-  annotation: AnnotationResult;
-}> = ({ annotation }) => {
+export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
+
+  const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
+
+  const updateLabel = useCallback((newLabel: string) => {
+    dispatch(AnnotatorSlice.actions.updateLabel(newLabel))
+    setIsModalOpen(false)
+  }, []);
+
+  const { campaign, label_set } = useAnnotator();
+  const dispatch = useAppDispatch();
+  if (campaign?.usage !== 'Create') return <Fragment/>;
+
+  return (<Fragment>
+      <TooltipOverlay tooltipContent={ <p>Update the label</p> }>
+        {/* 'update-box' class is for playwright tests*/ }
+        <IoSwapHorizontal className={ [ styles.button, styles.delete, 'update-box' ].join(' ') }
+                          onClick={ () => setIsModalOpen(true) }/>
+      </TooltipOverlay>
+
+      { isModalOpen && createPortal(<Modal onClose={ () => setIsModalOpen(false) }>
+        <ModalHeader title="Update annotation label" onClose={ () => setIsModalOpen(false) }/>
+        <IonNote>Choose a new label</IonNote>
+        <div className={ styles.labelsButtons }>
+          { label_set?.labels.map((label, index) => <Button key={ label }
+                                                            fill='outline'
+                                                            disabled={ label === annotation.label }
+                                                            className={ `ion-color-${ index }` }
+                                                            onClick={ () => updateLabel(label) }>
+            { label }
+          </Button>) }
+        </div>
+      </Modal>, document.body) }
+    </Fragment>
+  )
+}
+
+export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
   if (campaign?.usage !== 'Create') return <Fragment/>;
@@ -80,4 +120,3 @@ export const TrashButton: React.FC<{
     </TooltipOverlay>
   )
 }
-
