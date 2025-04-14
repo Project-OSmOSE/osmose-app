@@ -98,7 +98,7 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
           { label_set?.labels.map((label, index) => <Button key={ label }
                                                             fill='outline'
                                                             disabled={ label === annotation.label }
-                                                            className={ `ion-color-${ index }` }
+                                                            className={ `ion-color-${ index%10 }` }
                                                             onClick={ () => updateLabel(label) }>
             { label }
           </Button>) }
