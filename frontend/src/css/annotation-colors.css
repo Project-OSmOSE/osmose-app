@@ -1,73 +1,83 @@
 /* Annotation colors */
 
 .ion-color-0 {
-    --ion-color-base: #00b1b9;
-    --ion-color-shade: #00b1b9;
+    --label-color-h: 183;
+    --label-color-s: 100%;
+    --label-color-l: 36%;
     --ion-color-base-rgb: 0, 177, 185;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-1 {
-    --ion-color-base: #a23b72;
-    --ion-color-shade: #a23b72;
+    --label-color-h: 328;
+    --label-color-s: 47%;
+    --label-color-l: 43%;
     --ion-color-base-rgb: 162, 59, 114;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-2 {
-    --ion-color-base: #f18f01;
-    --ion-color-shade: #f18f01;
+    --label-color-h: 36;
+    --label-color-s: 99%;
+    --label-color-l: 47%;
     --ion-color-base-rgb: 241, 143, 1;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-3 {
-    --ion-color-base: #c73e1d;
-    --ion-color-shade: #c73e1d;
+    --label-color-h: 12;
+    --label-color-s: 75%;
+    --label-color-l: 45%;
     --ion-color-base-rgb: 199, 62, 29;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-4 {
-    --ion-color-base: #bb7e5d;
-    --ion-color-shade: #bb7e5d;
+    --label-color-h: 21;
+    --label-color-s: 41%;
+    --label-color-l: 55%;
     --ion-color-base-rgb: 187, 126, 93;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-5 {
-    --ion-color-base: #eac435;
-    --ion-color-shade: #eac435;
+    --label-color-h: 47;
+    --label-color-s: 81%;
+    --label-color-l: 56%;
     --ion-color-base-rgb: 234, 196, 53;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-6 {
-    --ion-color-base: #98ce00;
-    --ion-color-shade: #98ce00;
+    --label-color-h: 76;
+    --label-color-s: 100%;
+    --label-color-l: 40%;
     --ion-color-base-rgb: 152, 206, 0;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-7 {
-    --ion-color-base: #2a2d34;
-    --ion-color-shade: #2a2d34;
+    --label-color-h: 222;
+    --label-color-s: 11%;
+    --label-color-l: 18%;
     --ion-color-base-rgb: 42, 45, 52;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-8 {
-    --ion-color-base: #6761a8;
-    --ion-color-shade: #6761a8;
+    --label-color-h: 245;
+    --label-color-s: 29%;
+    --label-color-l: 52%;
     --ion-color-base-rgb: 103, 97, 168;
-    --ion-color-contrast: #000000;
 }
 
 .ion-color-9 {
-    --ion-color-base: #009b72;
-    --ion-color-shade: #009b72;
+    --label-color-h: 164;
+    --label-color-s: 100%;
+    --label-color-l: 30%;
     --ion-color-base-rgb: 0, 155, 114;
-    --ion-color-contrast: #000000;
+}
+/* All colormaps */
+*[class*=ion-color-] {
+    --ion-color-base: hsl(var(--label-color-h), var(--label-color-s), var(--label-color-l));
+    --ion-color-shade: hsl(var(--label-color-h), var(--label-color-s), var(--label-color-l));
+    --ion-color-contrast: hsl(255,255, calc(1 - var(--label-color-l)));
+}
+
+.viridis *[class*=ion-color-] {
+    --label-color-l:60%;
 }
 
 kbd[class^=ion-color-] {

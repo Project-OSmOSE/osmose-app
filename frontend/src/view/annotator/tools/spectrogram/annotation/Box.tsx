@@ -74,7 +74,7 @@ export const Box: React.FC<RegionProps> = ({
   useEffect(() => updateHeight, [ _yAxis.current, _start_frequency.current, _end_frequency.current ]);
 
   // Memo
-  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label) }` : '', [ label_set, annotation.label ]);
+  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label)%10 }` : '', [ label_set, annotation.label ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {
@@ -143,7 +143,7 @@ export const Box: React.FC<RegionProps> = ({
                       onMouseLeave={ () => setIsMouseHover(false) }
                       innerClassName={ styles.inner }
                       onInnerMouseDown={ MOUSE_DOWN_EVENT.emit.bind(MOUSE_DOWN_EVENT) }
-                      className={ [ styles.annotation, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
+                      className={ [ styles.annotation, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
 
     { (isMouseHover || isActive) &&
         <AnnotationHeader active={ isActive }

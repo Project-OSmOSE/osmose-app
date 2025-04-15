@@ -58,7 +58,7 @@ export const Point: React.FC<{
   useEffect(() => setLeft(_left.current), [ _left.current ]);
 
   // Memo
-  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label) }` : '', [ label_set, annotation.label ]);
+  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label)%10 }` : '', [ label_set, annotation.label ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {
@@ -97,7 +97,7 @@ export const Point: React.FC<{
                       onLeftMove={ onLeftMove }
                       onMouseEnter={ () => setIsMouseHover(true) }
                       onMouseLeave={ () => setIsMouseHover(false) }
-                      className={ [ styles.point, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
+                      className={ [ styles.point, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
 
     { (isMouseHover || isActive) &&
         <AnnotationHeader active={ isActive }

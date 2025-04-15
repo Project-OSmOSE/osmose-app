@@ -1,15 +1,22 @@
-import React, { Fragment, MouseEvent, ReactElement, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { addPresenceResult, focusLabel, focusTask, getPresenceLabels, removePresence } from '@/service/annotator';
+import {
+  addPresenceResult,
+  AnnotatorSlice,
+  focusLabel,
+  focusTask,
+  getPresenceLabels,
+  removePresence
+} from '@/service/annotator';
 import { IonChip, IonIcon } from '@ionic/react';
-import { checkmarkOutline, closeCircle } from 'ionicons/icons';
+import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import styles from './bloc.module.scss';
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { LabelSet } from "@/service/campaign/label-set";
-import { Kbd, TooltipOverlay } from "@/components/ui";
+import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 
 
 export const Labels: React.FC = () => {
@@ -20,10 +27,10 @@ export const Labels: React.FC = () => {
   const {
     results,
     focusedLabel,
+    ui
   } = useAppSelector(state => state.annotator);
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
   const dispatch = useAppDispatch()
-  const alert = useAlert();
 
   useEffect(() => {
     KEY_DOWN_EVENT.add(onKbdEvent);
@@ -69,53 +76,107 @@ export const Labels: React.FC = () => {
     }
   }
 
-  function selectLabel(label: string) {
-    if (presenceLabels.includes(label)) {
+  const showAll = useCallback(() => {
+    dispatch(AnnotatorSlice.actions.showAllLabels())
+  }, [])
+
+  // 'label' class is for playwright tests
+  return (
+    <div className={ [ styles.bloc, styles.labels, 'label' ].join(' ') }>
+      <h6 className={ styles.header }>
+        Labels
+        { ui.hiddenLabels.length > 0 && <Button onClick={ showAll }
+                                                fill="clear"
+                                                className={ styles.showButton }>Show all</Button> }
+      </h6>
+      <div className={ styles.body }>
+        { label_set?.labels.map((label, key) => <LabelItem label={ label } key={ key } index={ key }/>) }
+      </div>
+    </div>
+  )
+}
+
+export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
+  const {
+    label_set,
+  } = useAnnotator();
+  const {
+    results,
+    focusedLabel,
+    ui
+  } = useAppSelector(state => state.annotator);
+  const isUsed = useMemo(() => getPresenceLabels(results).includes(label), [ results, label ])
+  const isHidden = useMemo(() => ui.hiddenLabels.includes(label), [ ui.hiddenLabels, label ])
+  const color = useMemo(() => (index % 10).toString(), [ index ])
+  const buttonColor = useMemo(() => focusedLabel === label ? undefined : color, [ color, focusedLabel, label ])
+  const dispatch = useAppDispatch()
+  const alert = useAlert();
+
+  const select = useCallback(() => {
+    if (isUsed) {
       dispatch(focusLabel(label));
     } else {
       dispatch(addPresenceResult(label));
       dispatch(focusLabel(label));
     }
-  }
+  }, [ label ])
 
-  async function removeLabel(event: MouseEvent, label: string) {
+  const hideAllButCurrent = useCallback(() => {
+    dispatch(AnnotatorSlice.actions.hideLabels(label_set?.labels ?? []));
+    dispatch(AnnotatorSlice.actions.showLabel(label));
+  }, [ label, label_set ])
+
+  const show = useCallback((event: MouseEvent) => {
     event.stopPropagation();
-    if (!presenceLabels.includes(label) || !results) return;
+    if (event.ctrlKey) hideAllButCurrent()
+    else dispatch(AnnotatorSlice.actions.showLabel(label));
+  }, [ label, hideAllButCurrent ])
+
+  const hide = useCallback((event: MouseEvent) => {
+    event.stopPropagation();
+    if (event.ctrlKey) hideAllButCurrent()
+    else dispatch(AnnotatorSlice.actions.hideLabel(label));
+  }, [ label, hideAllButCurrent ])
+
+  const remove = useCallback((event: MouseEvent) => {
+    event.stopPropagation();
+    if (!isUsed || !results) return;
     // if annotations exists with this label: wait for confirmation
     alert.showAlert({
       type: 'Warning',
       message: `You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure?`,
-      actions: [{
+      actions: [ {
         label: `Remove "${ label }" annotations`,
         callback: () => dispatch(removePresence(label))
-      }]
+      } ]
     })
-  }
+  }, [ label, isUsed, results ])
 
-  // 'label' class is for playwright tests
   return (
-    <div className={ [ styles.bloc, styles.labels, 'label' ].join(' ') }>
-      <h6 className={ styles.header }>Labels</h6>
-      <div className={ styles.body }>
-        { label_set?.labels.map((label, key) => {
-          const color = (key % 10).toString();
-          return (
-            <LabelTooltipOverlay id={ key } key={ key }>
-              <IonChip outline={ !presenceLabels.includes(label) }
-                       className={ focusedLabel === label ? styles.activeLabel : '' }
-                       onClick={ () => selectLabel(label) }
-                       color={ color }>
-                { focusedLabel === label && <IonIcon src={ checkmarkOutline } color="light"/> }
-                { label }
-                { presenceLabels.includes(label) &&
-                    <IonIcon icon={ closeCircle } onClick={ e => removeLabel(e, label) }
-                             color={ focusedLabel === label ? 'light' : color }/> }
-              </IonChip>
-            </LabelTooltipOverlay>
-          )
-        }) }
-      </div>
-    </div>
+    <IonChip outline={ !isUsed }
+             className={ focusedLabel === label ? styles.activeLabel : '' }
+             onClick={ select }
+             color={ color }>
+      { focusedLabel === label && <IonIcon src={ checkmarkOutline }/> }
+      <LabelTooltipOverlay id={ index }><p>{ label }</p></LabelTooltipOverlay>
+
+      { isUsed && <div className={ styles.labelButtons }>
+          <TooltipOverlay
+              tooltipContent={ <Fragment>
+                <p>{ isHidden ? 'Show' : 'Hide' } corresponding annotations on spectrogram</p>
+                <p>Press <Kbd keys={ 'ctrl' }/> to show only this labels annotations</p>
+              </Fragment> }>
+            { isHidden ?
+              <IonIcon icon={ eyeOffOutline } onClick={ show } color={ buttonColor }/> :
+              <IonIcon icon={ eyeOutline } onClick={ hide } color={ buttonColor }/> }
+          </TooltipOverlay>
+
+          <TooltipOverlay
+              tooltipContent={ <p>Remove corresponding annotations</p> }>
+              <IonIcon icon={ closeCircle } onClick={ remove } color={ buttonColor }/>
+          </TooltipOverlay>
+      </div> }
+    </IonChip>
   )
 }
 
@@ -130,7 +191,8 @@ export const LabelTooltipOverlay: React.FC<{ id: number, children: ReactElement 
                       <p>
                         <Kbd keys={ number }
                              className={ `ion-color-${ id }` }/> or <Kbd keys={ key }
-                                                                         className={ `ion-color-${ id }` }/> : Choose this
+                                                                         className={ `ion-color-${ id }` }/> : Choose
+                        this
                         label
                       </p>
                     </Fragment> }/>

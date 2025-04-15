@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IonSpinner } from "@ionic/react";
@@ -23,8 +23,9 @@ import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useToast } from "@/service/ui";
 import { useAnnotator } from "@/service/annotator/hook.ts";
-import { useFileDuration } from '@/service/annotator/spectrogram';
+import { useCurrentConfiguration, useFileDuration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
+import { Colormap } from "@/services/utils/color.ts";
 
 export const Annotator: React.FC = () => {
   const {
@@ -32,12 +33,19 @@ export const Annotator: React.FC = () => {
     fileID,
     campaign,
   } = useAnnotator();
+  const { colormap } = useAppSelector(state => state.annotator.userPreferences);
+  const currentConfiguration = useCurrentConfiguration();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
   const { isFetching, error, data: annotatorData } = useRetrieveAnnotatorQuery({
     filters: fileFilters,
     campaignID,
     fileID
   })
+  const colormapClass: Colormap = useMemo(() => {
+    if (!currentConfiguration) return "Greys";
+    if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
+    return colormap ?? "Greys";
+  }, [colormap, currentConfiguration]);
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
@@ -63,7 +71,7 @@ export const Annotator: React.FC = () => {
     localIsPaused.current = audio.isPaused;
   }, [ audio.isPaused ])
 
-  return <div className={ styles.annotator }>
+  return <div className={ [styles.annotator, colormapClass].join(' ') }>
 
     { isFetching && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
@@ -75,8 +83,8 @@ export const Annotator: React.FC = () => {
             <div className={ styles.spectrogramData }>
                 <div className={ styles.spectrogramInfo }>
                     <NFFTSelect/>
-                    <ColormapConfiguration />
-                    <SpectrogramImage />
+                    <ColormapConfiguration/>
+                    <SpectrogramImage/>
                     <ZoomButton/>
                 </div>
 

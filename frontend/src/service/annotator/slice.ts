@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { AnnotatorState, } from './type';
-import { COLORS } from '@/consts/colors.const.tsx';
 import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
 import { getDefaultConfidence, getPresenceLabels } from './function.ts';
 import { ID } from '@/service/type.ts';
@@ -9,7 +8,6 @@ import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
 import { AcousticFeatures } from '@/service/campaign/result/type.ts';
 import { CampaignAPI } from "@/service/campaign";
-import { LabelSetAPI } from "@/service/campaign/label-set";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
@@ -47,8 +45,7 @@ export const AnnotatorSlice = createSlice({
       isPaused: true,
       time: 0,
     },
-    ui: {},
-    labelColors: {},
+    ui: { hiddenLabels: [] },
     sessionStart: Date.now(),
     didSeeAllFile: false,
     canAddAnnotations: true,
@@ -376,6 +373,20 @@ export const AnnotatorSlice = createSlice({
     enableNewAnnotations: (state) => {
       state.canAddAnnotations = true;
     },
+
+    // Hide/show labels
+    hideLabel(state, { payload }: { payload: string }) {
+      state.ui.hiddenLabels = [ ...state.ui.hiddenLabels, payload ];
+    },
+    hideLabels(state, { payload }: { payload: string[] }) {
+      state.ui.hiddenLabels = [ ...state.ui.hiddenLabels, ...payload ];
+    },
+    showLabel(state, { payload }: { payload: string }) {
+      state.ui.hiddenLabels = state.ui.hiddenLabels.filter(l => l !== payload);
+    },
+    showAllLabels(state) {
+      state.ui.hiddenLabels = []
+    }
   },
   extraReducers:
     (builder) => {
@@ -400,6 +411,7 @@ export const AnnotatorSlice = createSlice({
           }
           state.sessionStart = Date.now();
           state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
+          state.ui.hiddenLabels = []
         },
       )
       builder.addMatcher(
@@ -415,16 +427,6 @@ export const AnnotatorSlice = createSlice({
             state.userPreferences.colormapInverted = undefined;
           }
           state.campaignID = payload.id;
-        },
-      )
-      builder.addMatcher(
-        LabelSetAPI.endpoints.retrieve.matchFulfilled,
-        (state, { payload }) => {
-          const labelColors = {};
-          for (const label of payload.labels) {
-            Object.assign(labelColors, { [label]: COLORS[payload.labels.indexOf(label) % COLORS.length] })
-          }
-          state.labelColors = labelColors;
         },
       )
       builder.addMatcher(

@@ -13,7 +13,6 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   focusedLabel?: string,
   focusedConfidenceLabel?: string,
   hasChanged: boolean,
-  labelColors: { [key: string]: string };
   userPreferences: {
     audioSpeed: number;
     spectrogramConfigurationID: number;
@@ -26,6 +25,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   ui: {
     pointerPosition?: { time: number, frequency: number },
     zoomOrigin?: { x: number, y: number },
+    hiddenLabels: string[]
   },
   didSeeAllFile: boolean,
   audio: {

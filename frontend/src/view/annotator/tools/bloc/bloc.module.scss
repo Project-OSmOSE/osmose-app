@@ -37,10 +37,17 @@
     padding: 0.5rem;
     border: none !important;
     border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.15) !important;
-    position: initial;
+    position: relative;
 
     &h6, h6 {
       margin: 0;
+    }
+
+    .showButton {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
     }
   }
 
@@ -240,5 +247,14 @@ ion-chip.active {
 
 .activeLabel {
   background: var(--ion-color-base);
-  color: white;
+  color: var(--ion-color-contrast);
+}
+
+.labelButtons {
+  font-size: 1.25rem;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+  align-items: center;
 }
