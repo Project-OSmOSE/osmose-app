@@ -67,7 +67,7 @@
   height: 2rem;
   width: 2rem;
   transform: translate(-50%, -50%);
-  border: none;
+  border: none !important;
 
   .vertical, .horizontal {
     background: var(--ion-color-base);
