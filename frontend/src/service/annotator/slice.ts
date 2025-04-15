@@ -45,7 +45,7 @@ export const AnnotatorSlice = createSlice({
       isPaused: true,
       time: 0,
     },
-    ui: {},
+    ui: { hiddenLabels: [] },
     sessionStart: Date.now(),
     didSeeAllFile: false,
     canAddAnnotations: true,
@@ -373,6 +373,20 @@ export const AnnotatorSlice = createSlice({
     enableNewAnnotations: (state) => {
       state.canAddAnnotations = true;
     },
+
+    // Hide/show labels
+    hideLabel(state, { payload }: { payload: string }) {
+      state.ui.hiddenLabels = [ ...state.ui.hiddenLabels, payload ];
+    },
+    hideLabels(state, { payload }: { payload: string[] }) {
+      state.ui.hiddenLabels = [ ...state.ui.hiddenLabels, ...payload ];
+    },
+    showLabel(state, { payload }: { payload: string }) {
+      state.ui.hiddenLabels = state.ui.hiddenLabels.filter(l => l !== payload);
+    },
+    showAllLabels(state) {
+      state.ui.hiddenLabels = []
+    }
   },
   extraReducers:
     (builder) => {
@@ -397,6 +411,7 @@ export const AnnotatorSlice = createSlice({
           }
           state.sessionStart = Date.now();
           state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
+          state.ui.hiddenLabels = []
         },
       )
       builder.addMatcher(
