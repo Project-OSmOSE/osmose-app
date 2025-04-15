@@ -50,24 +50,24 @@
 }
 
 .ion-color-7 {
-    --label-color-h: 222;
-    --label-color-s: 11%;
-    --label-color-l: 18%;
-    --ion-color-base-rgb: 42, 45, 52;
-}
-
-.ion-color-8 {
     --label-color-h: 245;
     --label-color-s: 29%;
     --label-color-l: 52%;
     --ion-color-base-rgb: 103, 97, 168;
 }
 
-.ion-color-9 {
+.ion-color-8 {
     --label-color-h: 164;
     --label-color-s: 100%;
     --label-color-l: 30%;
     --ion-color-base-rgb: 0, 155, 114;
+}
+
+.ion-color-9 {
+    --label-color-h: 222;
+    --label-color-s: 11%;
+    --label-color-l: 18%;
+    --ion-color-base-rgb: 42, 45, 52;
 }
 /* All colormaps */
 *[class*=ion-color-] {
