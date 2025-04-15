@@ -63,14 +63,15 @@
 }
 
 .annotation {
- .inner {
+  border-width: 3px;
+
+  .inner {
    cursor: crosshair;
  }
 
   &.disabled {
     opacity: 0.75;
   }
-  border-width: 2px;
 }
 
 .labelsButtons {
