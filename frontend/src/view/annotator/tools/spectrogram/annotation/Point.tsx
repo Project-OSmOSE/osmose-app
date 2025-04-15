@@ -97,7 +97,7 @@ export const Point: React.FC<{
                       onLeftMove={ onLeftMove }
                       onMouseEnter={ () => setIsMouseHover(true) }
                       onMouseLeave={ () => setIsMouseHover(false) }
-                      className={ [ styles.point, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
+                      className={ [ styles.point, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
 
     { (isMouseHover || isActive) &&
         <AnnotationHeader active={ isActive }

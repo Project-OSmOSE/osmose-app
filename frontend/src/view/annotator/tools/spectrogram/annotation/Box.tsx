@@ -143,7 +143,7 @@ export const Box: React.FC<RegionProps> = ({
                       onMouseLeave={ () => setIsMouseHover(false) }
                       innerClassName={ styles.inner }
                       onInnerMouseDown={ MOUSE_DOWN_EVENT.emit.bind(MOUSE_DOWN_EVENT) }
-                      className={ [ styles.annotation, colorClassName, isActive ? '' : 'disabled' ].join(' ') }>
+                      className={ [ styles.annotation, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
 
     { (isMouseHover || isActive) &&
         <AnnotationHeader active={ isActive }

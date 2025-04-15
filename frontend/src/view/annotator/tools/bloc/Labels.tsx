@@ -105,11 +105,11 @@ export const Labels: React.FC = () => {
                        className={ focusedLabel === label ? styles.activeLabel : '' }
                        onClick={ () => selectLabel(label) }
                        color={ color }>
-                { focusedLabel === label && <IonIcon src={ checkmarkOutline } color="light"/> }
+                { focusedLabel === label && <IonIcon src={ checkmarkOutline }/> }
                 { label }
                 { presenceLabels.includes(label) &&
                     <IonIcon icon={ closeCircle } onClick={ e => removeLabel(e, label) }
-                             color={ focusedLabel === label ? 'light' : color }/> }
+                             color={ focusedLabel === label ? undefined : color }/> }
               </IonChip>
             </LabelTooltipOverlay>
           )

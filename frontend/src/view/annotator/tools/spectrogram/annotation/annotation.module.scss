@@ -3,7 +3,7 @@
   display: grid;
   pointer-events: all;
   background: var(--ion-color-base);
-  color: #ffffff;
+  color: var(--ion-color-contrast);
   position: absolute;
   left: 50%;
   width: calc(100% + 4px); /* Box border size */
@@ -66,6 +66,11 @@
  .inner {
    cursor: crosshair;
  }
+
+  &.disabled {
+    opacity: 0.75;
+  }
+  border-width: 2px;
 }
 
 .labelsButtons {
