@@ -14,9 +14,8 @@ import { colorSpectro, interpolate } from '@/services/utils/color.ts';
 export const useSpectrogramDimensions = () => {
   const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
   const ratio = useMemo(() => {
-    const pixelRatio = window.devicePixelRatio
-    const screenRatio = (1920 / window.screen.width)
-    return pixelRatio * screenRatio;
+    const screenRatio = (1920 / (window.screen.width * window.devicePixelRatio))
+    return window.devicePixelRatio * screenRatio;
   }, [ window.devicePixelRatio, window.screen ]);
   const containerWidth = useMemo(() => SPECTRO_WIDTH / ratio, [ ratio ])
   const width = useMemo(() => containerWidth * zoomLevel, [ containerWidth, zoomLevel ])
