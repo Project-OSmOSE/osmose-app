@@ -150,7 +150,7 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
         callback: () => dispatch(removePresence(label))
       } ]
     })
-  }, [ label ])
+  }, [ label, isUsed, results ])
 
   return (
     <IonChip outline={ !isUsed }
