@@ -398,7 +398,15 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         allow_null=True, required=False
     )
     type = EnumField(enum=AnnotationResultType, read_only=True)
+
+    # Update
     updated_to = serializers.SerializerMethodField(read_only=True)
+    is_update_of = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        allow_null=True,
+        required=False,
+        queryset=AnnotationResult.objects.all(),
+    )
 
     class Meta:
         model = AnnotationResult
@@ -408,9 +416,11 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     def get_updated_to(self, instance: dict | AnnotationResult):
         """Return updated_to result data"""
         if isinstance(instance, dict) and instance.get("updated_to"):
-            return AnnotationResultSerializer(instance.get("updated_to")).data
+            return AnnotationResultSerializer(
+                instance.get("updated_to"), many=True
+            ).data
         if isinstance(instance, AnnotationResult) and instance.updated_to:
-            return AnnotationResultSerializer(instance.updated_to).data
+            return AnnotationResultSerializer(instance.updated_to, many=True).data
         return None
 
     def get_fields(self):
@@ -506,6 +516,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             validated_data.pop("validations", []), many=True
         ).data
         initial_acoustic_features = validated_data.pop("acoustic_features", None)
+        is_update_of = validated_data.pop("is_update_of", None)
         instance: AnnotationResult = super().create(validated_data)
 
         # Comments
@@ -534,6 +545,11 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             acoustic_features_serializer.is_valid(raise_exception=True)
             acoustic_features_serializer.save()
             instance.acoustic_features = acoustic_features_serializer.instance
+            instance.save()
+
+        # is_update_of
+        if is_update_of is not None:
+            instance.is_update_of = is_update_of
             instance.save()
 
         return instance
