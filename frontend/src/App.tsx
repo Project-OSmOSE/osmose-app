@@ -15,7 +15,6 @@ import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign
 import { AuthenticatedRoute } from '@/routes';
 import { DatasetList } from '@/view/dataset';
 import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
-import { AploseSkeleton } from "@/components/layout";
 import { Home } from "@/view/home/Home.tsx";
 import { Account, Login } from '@/view/auth';
 import { AnnotatorPage } from "@/view/annotator/AnnotatorPage.tsx";
@@ -53,22 +52,19 @@ const AppContent: React.FC = () => {
           <AuthenticatedRoute exact
                               path='/annotation-campaign/:campaignID/file/:fileID'><AnnotatorPage/></AuthenticatedRoute>
 
-          <AploseSkeleton>
-            <Switch>
-              <AuthenticatedRoute exact path='/sql'><SqlQuery/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
 
-              <AuthenticatedRoute exact path='/account'><Account/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/sql'><SqlQuery/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/account'><Account/></AuthenticatedRoute>
 
-              {/* Annotation campaign */ }
-              <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaign/:id'><CampaignDetail/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaign/:id/edit-annotators'><EditAnnotators/></AuthenticatedRoute>
-              <AuthenticatedRoute exact path='/annotation-campaign/:id/import-annotations'><ImportAnnotations/></AuthenticatedRoute>
-              <Route path="**"><Redirect to="/annotation-campaign"/></Route>
-            </Switch>
-          </AploseSkeleton>
+          {/* Annotation campaign */ }
+          <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/annotation-campaign/:id'><CampaignDetail/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/annotation-campaign/:id/edit-annotators'><EditAnnotators/></AuthenticatedRoute>
+          <AuthenticatedRoute exact path='/annotation-campaign/:id/import-annotations'><ImportAnnotations/></AuthenticatedRoute>
+
+          <Route path="**"><Redirect to="/annotation-campaign"/></Route>
         </Switch>
       </Router>
     </IonApp>
