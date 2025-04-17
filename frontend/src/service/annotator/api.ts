@@ -106,7 +106,8 @@ export const AnnotatorAPI = createApi({
         for (const update of updates) {
           post_results.push({
             ...transformBaseResult(update, campaign.usage),
-            is_update_of: results.find(r => r.updated_to.some(u => u.id === update.id))?.id ?? null
+            is_update_of: results.find(r => r.updated_to.some(u => u.id === update.id))?.id ?? null,
+            validations: []
           })
         }
 

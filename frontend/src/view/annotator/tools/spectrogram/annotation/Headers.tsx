@@ -1,4 +1,4 @@
-import React, { Fragment, MutableRefObject, useCallback, useState } from 'react';
+import React, { Fragment, MutableRefObject, useCallback, useMemo, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
 import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
@@ -28,6 +28,11 @@ export const AnnotationHeader: React.FC<{
     if (!setIsMouseHover) return;
     setIsMouseHover(value);
   }, [ setIsMouseHover, ])
+  const label: string = useMemo(() => {
+    let label = annotation.label
+    if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
+    return label;
+  }, [ annotation ]);
   return <ExtendedDiv draggable={ active && campaign?.usage === 'Create' }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
@@ -42,7 +47,7 @@ export const AnnotationHeader: React.FC<{
 
     <CommentInfo annotation={ annotation }/>
 
-    <p>{ annotation.label }</p>
+    <p>{ label }</p>
 
     <UpdateLabelButton annotation={ annotation }/>
 
@@ -74,20 +79,19 @@ export const CommentInfo: React.FC<{ annotation: AnnotationResult; }> = ({ annot
 export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
 
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
-
-  const updateLabel = useCallback((newLabel: string) => {
-    dispatch(AnnotatorSlice.actions.updateLabel(newLabel))
-    setIsModalOpen(false)
-  }, []);
-
   const { campaign, label_set } = useAnnotator();
   const dispatch = useAppDispatch();
-  if (campaign?.usage !== 'Create') return <Fragment/>;
+
+  const updateLabel = useCallback((newLabel: string) => {
+    if (!campaign) return;
+    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, usage: campaign.usage }))
+    setIsModalOpen(false)
+  }, []);
 
   return (<Fragment>
       <TooltipOverlay tooltipContent={ <p>Update the label</p> }>
         {/* 'update-box' class is for playwright tests*/ }
-        <IoSwapHorizontal className={ [ styles.button, styles.delete, 'update-box' ].join(' ') }
+        <IoSwapHorizontal className={ [ styles.button, 'update-box' ].join(' ') }
                           onClick={ () => setIsModalOpen(true) }/>
       </TooltipOverlay>
 
@@ -97,7 +101,7 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
         <div className={ styles.labelsButtons }>
           { label_set?.labels.map((label, index) => <Button key={ label }
                                                             fill='outline'
-                                                            disabled={ label === annotation.label }
+                                                            disabled={ label === annotation.label || label === annotation.updated_to.map(u => u.label).join(', ') }
                                                             className={ `ion-color-${ index%10 }` }
                                                             onClick={ () => updateLabel(label) }>
             { label }

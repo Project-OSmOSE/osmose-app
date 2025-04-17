@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import {
   IoAnalyticsOutline,
+  IoArrowForwardOutline,
   IoChatbubbleEllipses,
   IoChatbubbleOutline,
   IoChevronForwardOutline,
@@ -117,16 +118,27 @@ const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, className, onC
   </TableContent>
 }
 
-const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => (
-  <TableContent
-    className={ [ className, result.type === 'Weak' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
-    isFirstColumn={ true }
-    onClick={ onClick }>
-    <IoPricetag/>
+const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
+  const corrected_label = useMemo(() => {
+    if (!result) return undefined
+    if (result.updated_to.length > 0) return result.updated_to[0].label;
+    return undefined
+  }, [ result ])
+  return (
+    <TableContent
+      className={ [ className, result.type === 'Weak' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
+      isFirstColumn={ true }
+      onClick={ onClick }>
+      <IoPricetag/>
 
-    <p>{ (result.label !== '') ? result.label : '-' }</p>
-  </TableContent>
-)
+      <p>{ result.label }</p>
+      { corrected_label && <Fragment>
+          <IoArrowForwardOutline/>
+          <p>{ corrected_label }</p>
+      </Fragment> }
+    </TableContent>
+  )
+}
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();

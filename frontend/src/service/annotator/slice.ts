@@ -7,7 +7,7 @@ import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
 import { AcousticFeatures } from '@/service/campaign/result/type.ts';
-import { CampaignAPI } from "@/service/campaign";
+import { AnnotationCampaignUsage, CampaignAPI } from "@/service/campaign";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
@@ -139,31 +139,66 @@ export const AnnotatorSlice = createSlice({
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
     },
-    updateLabel: (state, { payload }: { payload: string }) => {
-      if (!state.focusedResultID) return;
-      const results = state.results ?? []
-      if (!results?.find(r => r.label === payload && r.type === 'Weak')) {
-        results.push({
-          id: getNewItemID(state.results),
-          annotator: -1,
-          annotation_campaign: -1,
-          dataset_file: -1,
-          detector_configuration: null,
-          comments: [],
-          validations: [],
-          confidence_indicator: state.focusedConfidenceLabel ?? null,
-          label: payload,
-          end_frequency: null,
-          end_time: null,
-          start_time: null,
-          start_frequency: null,
-          type: 'Weak',
-          acoustic_features: null,
-          updated_to: []
-        })
+    updateLabel: (state, { payload: { label, usage } }: {
+      payload: { label: string, usage: AnnotationCampaignUsage }
+    }) => {
+      const currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
+      if (!currentResult) return;
+      const results = state.results ?? [];
+      // Update current result
+      switch (usage) {
+        case 'Create':
+          currentResult.label = label;
+          // Add presence label if it doesn't exist
+          if (!results?.find(r => r.label === label && r.type === 'Weak')) {
+            results.push({
+              id: getNewItemID(state.results),
+              annotator: -1,
+              annotation_campaign: -1,
+              dataset_file: -1,
+              detector_configuration: null,
+              comments: [],
+              validations: [],
+              confidence_indicator: state.focusedConfidenceLabel ?? null,
+              label,
+              end_frequency: null,
+              end_time: null,
+              start_time: null,
+              start_frequency: null,
+              type: 'Weak',
+              acoustic_features: null,
+              updated_to: []
+            })
+          }
+          break;
+        case 'Check':
+          if (currentResult.updated_to.length > 0) {
+            currentResult.updated_to = currentResult.updated_to.map(r => ({ ...r, label }));
+          } else {
+            currentResult.updated_to = [ {
+              ...currentResult,
+              detector_configuration: null,
+              annotator: -1,
+              id: -1,
+              validations: [],
+              label
+            } ]
+          }
+          if (currentResult.validations.length > 0) {
+            currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            currentResult.validations = [{
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: currentResult.id
+            }]
+          }
+          break;
       }
-      state.results = results?.map(r => state.focusedResultID === r.id ? { ...r, label: payload } : r)
-      _focusResult(state, { payload: state.focusedResultID })
+      state.hasChanged = true;
+      state.results = results?.map(r => state.focusedResultID === r.id ? currentResult : r)
+      _focusResult(state, { payload: currentResult.id })
     },
     focusPresence: (state, { payload }: { payload: string }) => {
       const result = state.results?.find(r => r.label === payload && r.type === 'Weak');

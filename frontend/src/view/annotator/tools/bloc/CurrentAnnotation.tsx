@@ -32,7 +32,11 @@ export const CurrentAnnotation: React.FC = () => {
     return (annotation.end_frequency).toFixed(2);
   }, [ annotation?.end_frequency ])
 
-  const label = useMemo(() => annotation?.label ?? '-', [ annotation?.label ])
+  const label = useMemo(() => {
+    if (!annotation) return '-'
+    if (annotation.updated_to.length > 0) return annotation.updated_to[0].label;
+    return annotation.label;
+  }, [ annotation ])
   const confidence = useMemo(() => annotation?.confidence_indicator ?? '-', [ annotation?.confidence_indicator ])
 
   return (

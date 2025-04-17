@@ -58,7 +58,12 @@ export const Point: React.FC<{
   useEffect(() => setLeft(_left.current), [ _left.current ]);
 
   // Memo
-  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label)%10 }` : '', [ label_set, annotation.label ]);
+  const colorClassName: string = useMemo(() => {
+    if (!label_set) return '';
+    let label = annotation.label
+    if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
+    return `ion-color-${ label_set.labels.indexOf(label)%10 }`
+  }, [ label_set, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {

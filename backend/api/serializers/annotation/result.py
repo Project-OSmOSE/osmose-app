@@ -340,6 +340,17 @@ class AnnotationResultAcousticFeaturesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AnnotationResultListSerializer(ListSerializer):
+    """List serializer for AnnotationResult"""
+
+    def get_serializer_data(self, data: dict) -> dict:
+        """Return serializer_data with is_update_of"""
+        ret = super().get_serializer_data(data)
+        if "is_update_of" in data and data["is_update_of"]:
+            ret["is_update_of"] = data["is_update_of"].id
+        return ret
+
+
 class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
@@ -411,7 +422,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnnotationResult
         exclude = ("created_at",)
-        list_serializer_class = ListSerializer
+        list_serializer_class = AnnotationResultListSerializer
 
     def get_updated_to(self, instance: dict | AnnotationResult):
         """Return updated_to result data"""
@@ -490,12 +501,6 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         campaign: Optional[AnnotationCampaign] = (
             self.context["campaign"] if "campaign" in self.context else None
         )
-        if (
-            campaign is not None
-            and campaign.usage == AnnotationCampaignUsage.CHECK
-            and "annotator" in attrs
-        ):
-            attrs.pop("annotator")
         detector_configuration = attrs.get("detector_configuration")
         if detector_configuration is not None:
             (
@@ -505,7 +510,15 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
                 detector_id=detector_configuration["detector"].id,
                 configuration=detector_configuration["configuration"],
             )
-        return super().validate(attrs)
+        if (
+            campaign is not None
+            and campaign.usage == AnnotationCampaignUsage.CHECK
+            and "annotator" in attrs
+            and detector_configuration is not None
+        ):
+            attrs.pop("annotator")
+        validated = super().validate(attrs)
+        return validated
 
     @transaction.atomic
     def create(self, validated_data):
@@ -567,6 +580,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         if hasattr(instance, "first") and callable(getattr(instance, "first")):
             instance = instance.first()
 
+        is_update_of = validated_data.pop("is_update_of", None)
         instance = super().update(instance, validated_data)
 
         # Comments
@@ -614,6 +628,11 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             acoustic_features_serializer.is_valid(raise_exception=True)
             acoustic_features_serializer.save()
             instance.acoustic_features = acoustic_features_serializer.instance
+            instance.save()
+
+        # is_update_of
+        if is_update_of is not None:
+            instance.is_update_of = is_update_of
             instance.save()
 
         return self.Meta.model.objects.get(pk=instance.id)

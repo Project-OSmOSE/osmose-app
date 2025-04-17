@@ -1,5 +1,5 @@
 .header {
-  cursor: pointer !important;
+  cursor: default !important;
   display: grid;
   pointer-events: all;
   background: var(--ion-color-base);
@@ -33,12 +33,13 @@
     align-items: center;
     align-content: center;
     justify-items: center;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto;
     border-radius: 0.25rem;
     padding: 0 0.25rem;
     gap: 0.5rem;
     white-space: nowrap;
     position: relative;
+    cursor: default !important;
 
     > * {
       font-size: .9rem;
