@@ -18,22 +18,12 @@
     transform: translate(-50%, 100%);
   }
 
-  &.canBeRemoved {
-    .inner {
-      grid-template-columns: auto auto 1fr auto auto;
-
-      .delete {
-        display: block;
-      }
-    }
-  }
-
   .inner {
     display: grid;
     align-items: center;
     align-content: center;
     justify-items: center;
-    grid-template-columns: auto auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto auto;
     border-radius: 0.25rem;
     padding: 0 0.25rem;
     gap: 0.5rem;
@@ -51,10 +41,6 @@
 
     p {
       font-size: .75rem;
-    }
-
-    .delete {
-      display: none;
     }
 
     .outlineIcon path {

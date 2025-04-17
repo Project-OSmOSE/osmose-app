@@ -134,4 +134,36 @@ test.describe('Annotator', () => {
       is_update_of: RESULTS.box.id
     }));
   })
+
+  test(`With annotations - can remove box`, ESSENTIAL, async ({ page }) => {
+    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.resultsBlock.waitFor()
+
+    await test.step('Initial state', async () => {
+      await page.annotator.presenceValidation.expectState(true)
+      await page.annotator.boxValidation.expectState(true)
+    })
+
+    await test.step('Update box label', async () => {
+      await page.annotator.boxValidation.validate()
+      await page.annotator.boxValidation.expectState(true)
+      await page.locator('.remove-box').click()
+      await page.annotator.boxValidation.expectState(false)
+    })
+
+    const [ request ] = await Promise.all([
+      page.waitForRequest(/annotator\/campaign\/-?\d\/file\/-?\d/g),
+      page.getByRole('button', { name: 'Submit & load next recording' }).click()
+    ])
+    const submittedResults = request.postDataJSON().results;
+    expect(submittedResults[0]).toEqual(expect.objectContaining({
+      validations: [ { is_valid: true } ],
+      label: LABEL.classic
+    }));
+    expect(submittedResults[1]).toEqual(expect.objectContaining({
+      validations: [ { is_valid: false } ],
+      label: LABEL.classic
+    }));
+    expect(submittedResults.length).toEqual(2);
+  })
 })

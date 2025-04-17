@@ -5,6 +5,7 @@ import { IoAnalyticsOutline, IoChevronForwardOutline, IoPricetagOutline, IoTimeO
 import { FaHandshake } from "react-icons/fa6";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useCurrentAnnotation } from '@/service/annotator/spectrogram';
+import { IonNote } from "@ionic/react";
 
 
 export const CurrentAnnotation: React.FC = () => {
@@ -37,6 +38,12 @@ export const CurrentAnnotation: React.FC = () => {
     if (annotation.updated_to.length > 0) return annotation.updated_to[0].label;
     return annotation.label;
   }, [ annotation ])
+
+  const isRemoved = useMemo(() => {
+    if (!annotation) return false;
+    if (annotation.updated_to.length > 0) return false;
+    return annotation.validations.some(validation => !validation.is_valid)
+  }, [ annotation ])
   const confidence = useMemo(() => annotation?.confidence_indicator ?? '-', [ annotation?.confidence_indicator ])
 
   return (
@@ -47,6 +54,8 @@ export const CurrentAnnotation: React.FC = () => {
         { !annotation && <p>-</p> }
 
         { annotation && <Fragment>
+
+          { isRemoved && <IonNote>You removed this annotation</IonNote> }
 
             <IoPricetagOutline/>
             <p>

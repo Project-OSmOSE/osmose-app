@@ -91,11 +91,13 @@
       display: grid;
       justify-items: start;
       align-items: center;
-    }
-
-    &.currentAnnotation {
       gap: 0.5rem;
       grid-template-columns: auto 1fr;
+
+      ion-note {
+        grid-column: 1 / -1;
+        font-style: italic;
+      }
     }
 
     p {

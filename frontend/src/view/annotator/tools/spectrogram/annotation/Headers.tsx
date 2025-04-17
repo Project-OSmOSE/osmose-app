@@ -1,7 +1,7 @@
 import React, { Fragment, MutableRefObject, useCallback, useMemo, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
-import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
+import { AnnotatorSlice, focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
@@ -39,7 +39,7 @@ export const AnnotationHeader: React.FC<{
                       onMouseEnter={ () => _setIsMouseHover(true) }
                       onMouseMove={ () => _setIsMouseHover(true) }
                       onMouseLeave={ () => _setIsMouseHover(false) }
-                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
+                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
                       innerClassName={ styles.inner }
                       onClick={ () => dispatch(focusResult(annotation.id)) }>
 
@@ -115,12 +115,23 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
-  if (campaign?.usage !== 'Create') return <Fragment/>;
+
+  const remove = useCallback(() => {
+    switch (campaign?.usage) {
+      case 'Create':
+        dispatch(removeResult(annotation.id));
+        break;
+      case 'Check':
+        dispatch(invalidateResult(annotation.id));
+        break;
+    }
+  }, [campaign, annotation])
+
   return (
     <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') }
-                  onClick={ () => dispatch(removeResult(annotation.id)) }/>
+      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') }
+                  onClick={ remove }/>
     </TooltipOverlay>
   )
 }
