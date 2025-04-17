@@ -194,13 +194,13 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             Q(annotation_results__annotator_id=self.request.user.id)
             | Q(annotation_results__detector_configuration__isnull=False)
         )
+        validated_annotation_results_count_filter = annotation_results_count_filter & Q(
+            annotation_results__validations__annotator_id=self.request.user.id,
+            annotation_results__validations__is_valid=True,
+        )
         if campaign.usage == AnnotationCampaignUsage.CHECK:
-            annotation_results_count_filter = annotation_results_count_filter & (
-                Q(annotation_results__updated_to__isnull=True)
-                & (
-                    Q(annotation_results__validations__isnull=True)
-                    | Q(annotation_results__validations__is_valid=True)
-                )
+            annotation_results_count_filter = annotation_results_count_filter & ~Q(
+                annotation_results__updated_to__annotator_id=self.request.user.id
             )
         files: QuerySet[DatasetFile] = (
             AnnotationFileRangeFilesFilter()
@@ -218,6 +218,11 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 results_count=Count(
                     "annotation_results",
                     filter=annotation_results_count_filter,
+                    distinct=True,
+                ),
+                validated_results_count=Count(
+                    "annotation_results",
+                    filter=validated_annotation_results_count_filter,
                     distinct=True,
                 ),
             )

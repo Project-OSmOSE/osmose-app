@@ -156,6 +156,7 @@ class FileRangeDatasetFileSerializer(DatasetFileSerializer):
 
     is_submitted = serializers.BooleanField(read_only=True)
     results_count = serializers.IntegerField(read_only=True)
+    validated_results_count = serializers.IntegerField(read_only=True)
 
     class Meta(DatasetFileSerializer.Meta):
         pass
