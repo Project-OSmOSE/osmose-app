@@ -73,18 +73,44 @@ export const AnnotatorSlice = createSlice({
       state.hasChanged = true;
       _focusResult(state, { payload: newResult.id })
     },
-    updateFocusResultBounds: (state, { payload }: { payload: AnnotationResultBounds }) => {
-      if (!state.focusedResultID) return;
-      if (!state.results) state.results = [];
-      state.results = state.results.map(r => {
-        if (r.id !== state.focusedResultID) return r;
-        return {
-          ...r,
-          ...payload
-        }
-      });
+    updateFocusResultBounds: (state, { payload: { newBounds, usage } }: {
+      payload: { newBounds: AnnotationResultBounds, usage: AnnotationCampaignUsage }
+    }) => {
+      let currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
+      if (!currentResult) return;
+      // Update current result
+      switch (usage) {
+        case 'Create':
+          currentResult = { ...currentResult, ...newBounds }
+          break;
+        case 'Check':
+          if (currentResult.updated_to.length > 0) {
+            currentResult.updated_to = currentResult.updated_to.map(r => ({ ...r, ...newBounds }));
+          } else {
+            currentResult.updated_to = [ {
+              ...currentResult,
+              detector_configuration: null,
+              annotator: -1,
+              id: -1,
+              validations: [],
+              ...newBounds
+            } ]
+          }
+          if (currentResult.validations.length > 0) {
+            currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            currentResult.validations = [ {
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: currentResult.id
+            } ]
+          }
+          break;
+      }
       state.hasChanged = true;
-      _focusResult(state, { payload: state.focusedResultID })
+      state.results = state.results?.map(r => state.focusedResultID === r.id ? currentResult : r)
+      _focusResult(state, { payload: currentResult.id })
     },
     addPresenceResult: (state, { payload }: { payload: string }) => {
       const existingPresence = state.results?.find(r => r.label === payload && r.type === 'Weak')
@@ -187,12 +213,12 @@ export const AnnotatorSlice = createSlice({
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
-            currentResult.validations = [{
+            currentResult.validations = [ {
               id: -1,
               is_valid: false,
               annotator: -1,
               result: currentResult.id
-            }]
+            } ]
           }
           break;
       }

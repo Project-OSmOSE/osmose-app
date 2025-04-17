@@ -118,7 +118,7 @@ ion-chip.active {
 .item {
   display: grid;
   grid-auto-flow: column;
-  gap: 0.5rem;
+  gap: 0 0.5rem;
   align-items: center;
   justify-content: start;
 
@@ -141,6 +141,16 @@ ion-chip.active {
     white-space: nowrap;
     overflow: hidden;
     display: block;
+  }
+
+  &.bounds {
+    grid-template-columns: auto 1fr;
+    grid-auto-flow: unset;
+    justify-items: center;
+
+    .mainIcon {
+      grid-row: 1 / 4;
+    }
   }
 }
 

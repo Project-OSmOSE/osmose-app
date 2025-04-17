@@ -22,7 +22,6 @@ export const AnnotationHeader: React.FC<{
   annotation: AnnotationResult,
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ active, top, onTopMove, onLeftMove, setIsMouseHover, onValidateMove, className, annotation, audioPlayer }) => {
-  const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
   const _setIsMouseHover = useCallback((value: boolean) => {
     if (!setIsMouseHover) return;
@@ -33,7 +32,7 @@ export const AnnotationHeader: React.FC<{
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
     return label;
   }, [ annotation ]);
-  return <ExtendedDiv draggable={ active && campaign?.usage === 'Create' }
+  return <ExtendedDiv draggable={ active }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
                       onMouseEnter={ () => _setIsMouseHover(true) }

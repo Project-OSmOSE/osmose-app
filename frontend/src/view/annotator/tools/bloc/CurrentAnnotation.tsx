@@ -15,23 +15,31 @@ export const CurrentAnnotation: React.FC = () => {
 
   const startTime = useMemo(() => {
     if (!annotation || annotation.type === 'Weak') return "-"
-    return formatTime(annotation.start_time, true);
-  }, [ annotation?.start_time ])
+    let start_time = annotation.start_time
+    if (annotation.updated_to.length > 0) start_time = annotation.updated_to[0].start_time ?? start_time;
+    return formatTime(start_time, true);
+  }, [ annotation ])
 
   const endTime = useMemo(() => {
     if (!annotation || annotation.type !== 'Box') return "-"
-    return formatTime(annotation.end_time, true);
-  }, [ annotation?.end_time ])
+    let end_time = annotation.end_time
+    if (annotation.updated_to.length > 0) end_time = annotation.updated_to[0].end_time ?? end_time;
+    return formatTime(end_time, true);
+  }, [ annotation ])
 
   const startFrequency = useMemo(() => {
     if (!annotation || annotation.type === 'Weak') return "-"
-    return (annotation.start_frequency).toFixed(2);
-  }, [ annotation?.start_frequency ])
+    let start_frequency = annotation.start_frequency
+    if (annotation.updated_to.length > 0) start_frequency = annotation.updated_to[0].start_frequency ?? start_frequency;
+    return (start_frequency).toFixed(2);
+  }, [ annotation ])
 
   const endFrequency = useMemo(() => {
     if (!annotation || annotation.type !== 'Box') return "-"
-    return (annotation.end_frequency).toFixed(2);
-  }, [ annotation?.end_frequency ])
+    let end_frequency = annotation.end_frequency
+    if (annotation.updated_to.length > 0) end_frequency = annotation.updated_to[0].end_frequency ?? end_frequency;
+    return (end_frequency).toFixed(2);
+  }, [ annotation ])
 
   const label = useMemo(() => {
     if (!annotation) return '-'

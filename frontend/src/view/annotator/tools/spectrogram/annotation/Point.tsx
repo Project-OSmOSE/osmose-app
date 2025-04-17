@@ -35,6 +35,10 @@ export const Point: React.FC<{
   useEffect(() => {
     _start_time.current = annotation.start_time;
     _start_frequency.current = annotation.start_frequency;
+    if (annotation.updated_to.length > 0) {
+      _start_time.current = annotation.updated_to[0].start_time;
+      _start_frequency.current = annotation.updated_to[0].start_frequency;
+    }
   }, [ annotation.start_time, annotation.start_frequency ]);
 
 
@@ -85,16 +89,20 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
+    if (!campaign) return;
     dispatch(updateFocusResultBounds({
-      type: 'Point',
-      start_time: _xAxis.current.positionToValue(_left.current),
-      end_time: null,
-      start_frequency: _yAxis.current.positionToValue(_top.current),
-      end_frequency: null,
+      newBounds: {
+        type: 'Point',
+        start_time: _xAxis.current.positionToValue(_left.current),
+        end_time: null,
+        start_frequency: _yAxis.current.positionToValue(_top.current),
+        end_frequency: null,
+      },
+      usage: campaign.usage
     }))
   }
 
-  return <ExtendedDiv draggable={ isActive && campaign?.usage === 'Create' }
+  return <ExtendedDiv draggable={ isActive }
                       top={ top }
                       left={ left }
                       onUp={ onValidateMove }

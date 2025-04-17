@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import {
   IoAnalyticsOutline,
+  IoArrowDownOutline,
   IoArrowForwardOutline,
   IoChatbubbleEllipses,
   IoChatbubbleOutline,
@@ -90,38 +91,81 @@ type ResultItemProps = {
 }
 
 const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
+  const corrected_start_time = useMemo(() => {
+    if (!result) return undefined
+    if (result.updated_to.length > 0 && result.updated_to[0].start_time !== result.start_time) return result.updated_to[0].start_time;
+    return undefined
+  }, [ result ])
+  const corrected_end_time = useMemo(() => {
+    if (!result) return undefined
+    if (result.updated_to.length > 0 && result.updated_to[0].end_time !== result.end_time) return result.updated_to[0].end_time;
+    return undefined
+  }, [ result ])
+  const isCorrected = useMemo(() => corrected_start_time || corrected_end_time, [ corrected_start_time, corrected_end_time ])
+
   if (result.type === 'Weak') return <Fragment/>
-  return <TableContent className={ className } onClick={ onClick }>
-    <IoTimeOutline/>
+  return <TableContent className={ [ className, styles.bounds ].join(' ') } onClick={ onClick }>
+    <IoTimeOutline className={ styles.mainIcon }/>
 
     <p>
       { formatTime(result.start_time, true) }
       { result.type === 'Box' && <Fragment>
-          <IoChevronForwardOutline/> { formatTime(result.end_time, true) }
+          &nbsp;<IoChevronForwardOutline/> { formatTime(result.end_time, true) }
       </Fragment> }
     </p>
+
+    { isCorrected && <Fragment>
+        <IoArrowDownOutline/>
+        <p>
+          { formatTime(corrected_start_time ?? result.start_time, true) }
+          { result.type === 'Box' && <Fragment>
+              &nbsp;<IoChevronForwardOutline/> { formatTime(corrected_end_time ?? result.end_time, true) }
+          </Fragment> }
+        </p>
+    </Fragment> }
   </TableContent>
 }
 
 const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
+  const corrected_start_frequency = useMemo(() => {
+    if (!result) return undefined
+    if (result.updated_to.length > 0 && result.updated_to[0].start_frequency !== result.start_frequency) return result.updated_to[0].start_frequency;
+    return undefined
+  }, [ result ])
+  const corrected_end_frequency = useMemo(() => {
+    if (!result) return undefined
+    if (result.updated_to.length > 0 && result.updated_to[0].end_frequency !== result.end_frequency) return result.updated_to[0].end_frequency;
+    return undefined
+  }, [ result ])
+  const isCorrected = useMemo(() => corrected_start_frequency || corrected_end_frequency, [ corrected_start_frequency, corrected_end_frequency ])
   if (result.type === 'Weak') return <Fragment/>
 
-  return <TableContent className={ className } onClick={ onClick }>
-    <IoAnalyticsOutline/>
+  return <TableContent className={ [ className, styles.bounds ].join(' ') } onClick={ onClick }>
+    <IoAnalyticsOutline className={ styles.mainIcon }/>
 
     <p>
       { result.start_frequency?.toFixed(2) }Hz
       { result.type === 'Box' && <Fragment>
-          &nbsp;<IoChevronForwardOutline/> { result.end_frequency?.toFixed(2) }Hz
+          &nbsp;<IoChevronForwardOutline/> { result.end_frequency.toFixed(2) }Hz
       </Fragment> }
     </p>
+
+    { isCorrected && <Fragment>
+        <IoArrowDownOutline/>
+        <p>
+          { (corrected_start_frequency ?? result.start_frequency)?.toFixed(2) }Hz
+          { result.type === 'Box' && <Fragment>
+              &nbsp;<IoChevronForwardOutline/> { (corrected_end_frequency ?? result.end_frequency).toFixed(2) }Hz
+          </Fragment> }
+        </p>
+    </Fragment> }
   </TableContent>
 }
 
 const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const corrected_label = useMemo(() => {
     if (!result) return undefined
-    if (result.updated_to.length > 0) return result.updated_to[0].label;
+    if (result.updated_to.length > 0 && result.updated_to[0].label !== result.label) return result.updated_to[0].label;
     return undefined
   }, [ result ])
   return (

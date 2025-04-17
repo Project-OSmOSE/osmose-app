@@ -46,7 +46,13 @@ export const Box: React.FC<RegionProps> = ({
     _end_time.current = annotation.end_time;
     _start_frequency.current = annotation.start_frequency;
     _end_frequency.current = annotation.end_frequency;
-  }, [ annotation.start_time, annotation.end_time, annotation.start_frequency, annotation.end_frequency ]);
+    if (annotation.updated_to.length > 0) {
+      _start_time.current = annotation.updated_to[0].start_time;
+      _end_time.current = annotation.updated_to[0].end_time;
+      _start_frequency.current = annotation.updated_to[0].start_frequency;
+      _end_frequency.current = annotation.updated_to[0].end_frequency;
+    }
+  }, [ annotation ]);
 
   // Coords bounds
   const _left = useRef<number>(0);
@@ -127,17 +133,21 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   function onValidateMove() {
+    if (!campaign) return;
     dispatch(updateFocusResultBounds({
-      type: 'Box',
-      end_frequency: _yAxis.current.positionToValue(_top.current),
-      start_frequency: _yAxis.current.positionToValue(_top.current + _height.current),
-      start_time: _xAxis.current.positionToValue(_left.current),
-      end_time: _xAxis.current.positionToValue(_left.current + _width.current),
+      newBounds: {
+        type: 'Box',
+        end_frequency: _yAxis.current.positionToValue(_top.current),
+        start_frequency: _yAxis.current.positionToValue(_top.current + _height.current),
+        start_time: _xAxis.current.positionToValue(_left.current),
+        end_time: _xAxis.current.positionToValue(_left.current + _width.current),
+      },
+      usage: campaign.usage
     }))
   }
 
   if (top === null || left === null || height === null || width === null) return <Fragment/>
-  return <ExtendedDiv resizable={ isActive && campaign?.usage === 'Create' }
+  return <ExtendedDiv resizable={ isActive }
                       top={ top } height={ height }
                       left={ left } width={ width }
                       onUp={ onValidateMove }
