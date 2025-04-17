@@ -1,7 +1,7 @@
 import { DatasetFile } from '@/service/dataset';
-import { AnnotationResult, WriteAnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/campaign/result';
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
+import { AnnotationComment } from '@/service/campaign/comment';
 import { ConfidenceIndicator } from "@/service/campaign/confidence-set";
 import { ID } from "@/service/type.ts";
 import { FileFilters } from "@/service/ui/type.ts";
@@ -56,16 +56,5 @@ export type AnnotatorData = {
   current_task_index_in_filter: number;
   total_tasks_in_filter: number;
 }
-
-export type WriteAnnotatorData = {
-  results: Array<WriteAnnotationResult>;
-  task_comments: Array<WriteAnnotationComment>;
-  session: {
-    start: Date; // Send ISO String
-    end: Date; // Send ISO String
-  },
-}
-
-export type ResultType = 'presence' | 'point' | 'box';
 
 export type RetrieveParams = { campaignID: ID, fileID: ID, filters: Partial<FileFilters> }
