@@ -296,26 +296,25 @@ export const AnnotatorSlice = createSlice({
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
       state.results = state.results?.map(r => {
-        if (r.id === payload ||
-          (result.type !== 'Weak' && r.label === result.label && r.type === 'Weak')) {
-          let validations = r.validations;
-          if (validations.find(v => v.annotator === state.userID)) {
-            validations = validations.map(v => {
-              if (v.annotator !== state.userID) return v;
-              return {
-                ...v,
-                is_valid: true
-              }
+        let validations = r.validations;
+        let updated_to = r.updated_to
+        if (r.id === payload) {
+          if (validations.length > 0) {
+            validations = validations.map(v => ({ ...v, is_valid: true }))
+          } else {
+            validations.push({
+              id: -1,
+              is_valid: true,
+              annotator: -1,
+              result: r.id
             })
-          } else validations.push({
-            id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.userID ?? -1,
-            is_valid: true,
-            result: r.id
-          })
-          return { ...r, validations }
+          }
+          updated_to = []
         }
-        return r;
+        if (result.type !== 'Weak' && r.label === result.label && r.type === 'Weak' && r.updated_to.length === 0) {
+          validations = validations.map(v => ({ ...v, is_valid: true }))
+        }
+        return { ...r, validations, updated_to }
       })
       _focusResult(state, { payload })
     },
@@ -323,26 +322,22 @@ export const AnnotatorSlice = createSlice({
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
       state.results = state.results?.map(r => {
-        if ((result.type !== 'Weak' && r.id === payload) ||
-          (result.type === 'Weak' && r.label === result.label)) {
-          let validations = r.validations;
-          if (validations.find(v => v.annotator === state.userID)) {
-            validations = validations.map(v => {
-              if (v.annotator !== state.userID) return v;
-              return {
-                ...v,
-                is_valid: false
-              }
+        let validations = r.validations;
+        let updated_to = r.updated_to
+        if (r.id === payload || (result.type == 'Weak' && r.label === result.label && r.type !== 'Weak')) {
+          if (validations.length > 0) {
+            validations = validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            validations.push({
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: r.id
             })
-          } else validations.push({
-            id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.userID ?? -1,
-            is_valid: false,
-            result: r.id
-          })
-          return { ...r, validations }
+          }
+          if (r.id === payload) updated_to = []
         }
-        return r;
+        return { ...r, validations, updated_to }
       })
       _focusResult(state, { payload })
     },

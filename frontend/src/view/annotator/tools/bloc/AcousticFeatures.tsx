@@ -81,7 +81,7 @@ export const AcousticFeatures: React.FC = () => {
   }
 
   function updateMaxFrequency(value: number) {
-    if (annotation?.type !== 'Box') return;
+    if (annotation?.type !== 'Box' || !campaign) return;
     if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
