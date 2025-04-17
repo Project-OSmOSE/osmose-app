@@ -37,6 +37,11 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
     setIsOpen(false);
   }
 
+  function openSQL() {
+    history.push('/sql')
+    setIsOpen(false);
+  }
+
   return (
     <div className={ [ styles.navbar, isOpen ? styles.opened : styles.closed, className ].join(' ') }>
 
@@ -71,9 +76,9 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <DocumentationButton/>
 
-        { currentUser?.is_superuser && <Fragment>
-            <Link href="/app/sql" color='medium'>SQL query</Link>
-        </Fragment> }
+        { currentUser?.is_superuser && <IonButton fill='clear' color='medium' onClick={ openSQL }>
+            SQL query
+        </IonButton> }
 
         <IonButton fill='clear' color='medium' onClick={ accessAccount }>
           Account
