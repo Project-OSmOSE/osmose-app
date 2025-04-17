@@ -41,6 +41,7 @@ export const useAnnotatorSubmitService = () => {
           annotation_campaign: undefined,
           dataset_file: undefined,
           annotator: undefined,
+          is_update_of: null,
         })),
         task_comments: transformCommentsForWriting(_annotator.current.task_comments ?? []),
         session:

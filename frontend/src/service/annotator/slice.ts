@@ -66,6 +66,7 @@ export const AnnotatorSlice = createSlice({
         confidence_indicator: state.focusedConfidenceLabel ?? null,
         label: state.focusedLabel ?? getPresenceLabels(state.results)!.pop()!,
         acoustic_features: null,
+        updated_to: []
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
@@ -107,6 +108,7 @@ export const AnnotatorSlice = createSlice({
         start_frequency: null,
         type: 'Weak',
         acoustic_features: null,
+        updated_to: []
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
@@ -157,6 +159,7 @@ export const AnnotatorSlice = createSlice({
           start_frequency: null,
           type: 'Weak',
           acoustic_features: null,
+          updated_to: []
         })
       }
       state.results = results?.map(r => state.focusedResultID === r.id ? { ...r, label: payload } : r)

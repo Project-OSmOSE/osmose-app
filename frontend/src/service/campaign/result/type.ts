@@ -36,6 +36,7 @@ interface BaseAnnotationResult {
   comments: Array<AnnotationComment>;
   validations: Array<AnnotationResultValidations>;
   acoustic_features: AcousticFeatures | null;
+  updated_to: AnnotationResult[];
 }
 
 export type WeakBounds = {
@@ -68,7 +69,7 @@ export type PointResult = BaseAnnotationResult & PointBounds
 export type BoxResult = BaseAnnotationResult & BoxBounds
 
 export type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type'>
+  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
   & {
   id?: number;
   confidence_indicator: string | undefined;
@@ -76,4 +77,5 @@ export type WriteAnnotationResult =
   comments: Array<WriteAnnotationComment>;
   validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id?: number }>;
   acoustic_features: AcousticFeatures | null;
+  is_update_of: number | null; // id of updated result
 };
