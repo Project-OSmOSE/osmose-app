@@ -5,7 +5,7 @@ import { updateFocusResultBounds } from '@/service/annotator';
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
-import { AbstractScale } from "@/service/dataset/spectrogram-configuration/scale";
+import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
@@ -84,7 +84,7 @@ export const Box: React.FC<RegionProps> = ({
     if (!label_set) return '';
     let label = annotation.label
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
-    return `ion-color-${ label_set.labels.indexOf(label)%10 }`
+    return `ion-color-${ label_set.labels.indexOf(label) % 10 }`
   }, [ label_set, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
@@ -134,14 +134,16 @@ export const Box: React.FC<RegionProps> = ({
 
   function onValidateMove() {
     if (!campaign) return;
+    let end_frequency = _yAxis.current.positionToValue(_top.current);
+    let start_frequency = _yAxis.current.positionToValue(_top.current + _height.current);
+    let start_time = _xAxis.current.positionToValue(_left.current);
+    let end_time = _xAxis.current.positionToValue(_left.current + _width.current);
+    if (_start_time.current && formatTime(start_time, true) === formatTime(_start_time.current, true)) start_time = _start_time.current;
+    if (_end_time.current && formatTime(end_time, true) === formatTime(_end_time.current, true)) end_time = _end_time.current;
+    if (_start_frequency.current && _start_frequency.current.toFixed(2) === start_frequency.toFixed(2)) start_frequency = _start_frequency.current;
+    if (_end_frequency.current && _end_frequency.current.toFixed(2) === end_frequency.toFixed(2)) end_frequency = _end_frequency.current;
     dispatch(updateFocusResultBounds({
-      newBounds: {
-        type: 'Box',
-        end_frequency: _yAxis.current.positionToValue(_top.current),
-        start_frequency: _yAxis.current.positionToValue(_top.current + _height.current),
-        start_time: _xAxis.current.positionToValue(_left.current),
-        end_time: _xAxis.current.positionToValue(_left.current + _width.current),
-      },
+      newBounds: { type: 'Box', end_frequency, start_frequency, start_time, end_time },
       usage: campaign.usage
     }))
   }

@@ -11,6 +11,7 @@ import { AnnotationCampaignUsage, CampaignAPI } from "@/service/campaign";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
+import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -26,6 +27,41 @@ function _focusResult(state: AnnotatorState, { payload }: { payload: ID }) {
   state.focusedLabel = result.label;
   state.focusedConfidenceLabel = result.confidence_indicator ?? undefined;
   state.focusedCommentID = result.comments.find(c => c)?.id;
+}
+
+function getUpdatedTo(result: AnnotationResult, label?: string, newBounds?: AnnotationResultBounds): AnnotationResult[] {
+  let updated_to: AnnotationResult = {
+    ...result,
+    label: label ?? result.label,
+    ...newBounds,
+    detector_configuration: null,
+    annotator: -1,
+    id: -1,
+    validations: []
+  };
+  if (result.updated_to.length > 0) {
+    updated_to = { ...result.updated_to[0], label: label ?? result.updated_to[0].label, ...newBounds }
+  }
+  
+  let is_same = true;
+  switch (result.type) {
+    // @ts-expect-error: Content is also ok for Box
+    // eslint-disable-next-line no-fallthrough
+    case "Box":
+      is_same = is_same && formatTime(result.end_time, true) === formatTime(updated_to.end_time!, true)
+      is_same = result.end_frequency.toFixed(2) === updated_to.end_frequency!.toFixed(2)
+    // @ts-expect-error: Content is also ok for Box and Point
+    // eslint-disable-next-line no-fallthrough
+    case "Point":
+      is_same = is_same && formatTime(result.start_time, true) === formatTime(updated_to.start_time!, true)
+      is_same = result.start_frequency.toFixed(2) === updated_to.start_frequency!.toFixed(2)
+    // eslint-disable-next-line no-fallthrough
+    case "Weak":
+      is_same = is_same && result.label === updated_to.label;
+  }
+
+  if (is_same) return []
+  return [updated_to];
 }
 
 export const AnnotatorSlice = createSlice({
@@ -84,18 +120,7 @@ export const AnnotatorSlice = createSlice({
           currentResult = { ...currentResult, ...newBounds }
           break;
         case 'Check':
-          if (currentResult.updated_to.length > 0) {
-            currentResult.updated_to = currentResult.updated_to.map(r => ({ ...r, ...newBounds }));
-          } else {
-            currentResult.updated_to = [ {
-              ...currentResult,
-              detector_configuration: null,
-              annotator: -1,
-              id: -1,
-              validations: [],
-              ...newBounds
-            } ]
-          }
+          currentResult.updated_to = getUpdatedTo(currentResult, undefined, newBounds)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
@@ -108,6 +133,8 @@ export const AnnotatorSlice = createSlice({
           }
           break;
       }
+      if (currentResult.updated_to.length === 0)
+        currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: true }))
       state.hasChanged = true;
       state.results = state.results?.map(r => state.focusedResultID === r.id ? currentResult : r)
       _focusResult(state, { payload: currentResult.id })
@@ -198,18 +225,7 @@ export const AnnotatorSlice = createSlice({
           }
           break;
         case 'Check':
-          if (currentResult.updated_to.length > 0) {
-            currentResult.updated_to = currentResult.updated_to.map(r => ({ ...r, label }));
-          } else {
-            currentResult.updated_to = [ {
-              ...currentResult,
-              detector_configuration: null,
-              annotator: -1,
-              id: -1,
-              validations: [],
-              label
-            } ]
-          }
+          currentResult.updated_to = getUpdatedTo(currentResult, label)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
@@ -222,6 +238,8 @@ export const AnnotatorSlice = createSlice({
           }
           break;
       }
+      if (currentResult.updated_to.length === 0)
+        currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: true }))
       state.hasChanged = true;
       state.results = results?.map(r => state.focusedResultID === r.id ? currentResult : r)
       _focusResult(state, { payload: currentResult.id })
