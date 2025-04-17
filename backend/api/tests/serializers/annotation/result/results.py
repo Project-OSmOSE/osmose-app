@@ -70,7 +70,12 @@ class CreateTestCase(TestCase):
         self.assertTrue(serializer.is_valid(raise_exception=True))
         self.assertDictEqual(
             dict(serializer.data),
-            {**presence_result, "id": None, "annotator_expertise_level": None},
+            {
+                **presence_result,
+                "id": None,
+                "annotator_expertise_level": None,
+                "updated_to": None,
+            },
         )
 
     def test_box(self):
@@ -78,7 +83,12 @@ class CreateTestCase(TestCase):
         self.assertTrue(serializer.is_valid(raise_exception=True))
         self.assertDictEqual(
             dict(serializer.data),
-            {**box_result, "id": None, "annotator_expertise_level": None},
+            {
+                **box_result,
+                "id": None,
+                "annotator_expertise_level": None,
+                "updated_to": None,
+            },
         )
 
     # Corrected
@@ -236,6 +246,7 @@ class UpdateTestCase(CreateTestCase):
             if result["acoustic_features"] is not None
             else None,
             "annotator_expertise_level": None,
+            "updated_to": None,
         }
 
     def _get_serializer(self, data, campaign_id=1):

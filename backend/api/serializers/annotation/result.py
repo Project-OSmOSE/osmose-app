@@ -398,11 +398,20 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         allow_null=True, required=False
     )
     type = EnumField(enum=AnnotationResultType, read_only=True)
+    updated_to = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = AnnotationResult
-        fields = "__all__"
+        exclude = ("created_at",)
         list_serializer_class = ListSerializer
+
+    def get_updated_to(self, instance: dict | AnnotationResult):
+        """Return updated_to result data"""
+        if isinstance(instance, dict) and instance.get("updated_to"):
+            return AnnotationResultSerializer(instance.get("updated_to")).data
+        if isinstance(instance, AnnotationResult) and instance.updated_to:
+            return AnnotationResultSerializer(instance.updated_to).data
+        return None
 
     def get_fields(self):
         fields = super().get_fields()
