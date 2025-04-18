@@ -114,7 +114,7 @@ const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, on
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
-      <ConfidenceInfo annotation={result}/>
+      <ConfidenceInfo annotation={ result }/>
     </TableContent>
   )
 }
@@ -192,10 +192,12 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
       <h5>Why do you want to invalidate this result?</h5>
 
       <div>
-        <p>The position or dimension of the annotation is incorrect</p>
-        <Button fill='outline' onClick={ move }>
-          Move or resize
-        </Button>
+        { result.type !== 'Weak' && <Fragment>
+            <p>The position or dimension of the annotation is incorrect</p>
+            <Button fill='outline' onClick={ move }>
+                Move or resize
+            </Button>
+        </Fragment> }
       </div>
       <div>
         <p>The label is incorrect</p>
