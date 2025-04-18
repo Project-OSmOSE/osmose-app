@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, useMemo } from "react";
+import React, { Fragment, MouseEvent, useCallback, useMemo, useState } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
@@ -21,6 +21,11 @@ import styles from './bloc.module.scss';
 import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
 import { useParams } from "react-router-dom";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { createPortal } from "react-dom";
+import { Button, Modal, ModalHeader } from "@/components/ui";
+import {
+  AnnotationLabelUpdateModal
+} from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 
 
 export const Results: React.FC<{
@@ -216,6 +221,8 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
+  const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
+  const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
   const { data: campaign } = useRetrieveCampaignQuery(campaignID)
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
@@ -230,8 +237,22 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const onInvalidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(invalidateResult(result.id))
+    setIsModalOpen(true)
   }
+
+  const move = useCallback(() => {
+    setIsModalOpen(false);
+  }, [ setIsModalOpen ]);
+
+  const updateLabel = useCallback(() => {
+    setIsModalOpen(false);
+    setIsLabelModalOpen(true)
+  }, [ setIsModalOpen, setIsLabelModalOpen ]);
+
+  const remove = useCallback(() => {
+    setIsModalOpen(false);
+    dispatch(invalidateResult(result.id))
+  }, [ setIsModalOpen ]);
 
   if (campaign?.usage !== 'Check') return <Fragment/>
   return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
@@ -247,5 +268,33 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
                onClick={ onInvalidate }>
       <IonIcon slot="icon-only" icon={ closeOutline }/>
     </IonButton>
+
+    { isModalOpen && createPortal(<Modal className={styles.invalidateModal} onClose={ () => setIsModalOpen(false) }>
+      <ModalHeader title="Invalidate a result" onClose={ () => setIsModalOpen(false) }/>
+      <h5>Why do you want to invalidate this result?</h5>
+
+      <div>
+        <p>The position or dimension of the annotation is incorrect</p>
+        <Button fill='outline' onClick={ move }>
+          Move or resize
+        </Button>
+      </div>
+      <div>
+        <p>The label is incorrect</p>
+        <Button fill='outline' onClick={ updateLabel }>
+          Change the label
+        </Button>
+      </div>
+      <div>
+        <p>The annotation shouldn't exist</p>
+        <Button fill='outline' onClick={ remove }>
+          Remove
+        </Button>
+      </div>
+
+    </Modal>, document.body) }
+
+    { isLabelModalOpen && <AnnotationLabelUpdateModal annotation={ result } isModalOpen={ isLabelModalOpen }
+                                                      setIsModalOpen={ setIsLabelModalOpen }/> }
   </TableContent>
 }
