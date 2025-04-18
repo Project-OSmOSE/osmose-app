@@ -2,21 +2,10 @@ import React, { Fragment, MouseEvent, useCallback, useMemo, useState } from "rea
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import {
-  IoAnalyticsOutline,
-  IoArrowDownOutline,
-  IoArrowForwardOutline,
-  IoChatbubbleEllipses,
-  IoChatbubbleOutline,
-  IoChevronForwardOutline,
-  IoPricetag,
-  IoTimeOutline
-} from 'react-icons/io5';
-import { FaHandshake } from 'react-icons/fa6';
+import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
 import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
-import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import styles from './bloc.module.scss';
 import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
 import { useParams } from "react-router-dom";
@@ -26,6 +15,7 @@ import { Button, Modal, ModalHeader } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
+import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
 
 
 export const Results: React.FC<{
@@ -96,98 +86,27 @@ type ResultItemProps = {
 }
 
 const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const corrected_start_time = useMemo(() => {
-    if (!result) return undefined
-    if (result.updated_to.length > 0 && result.updated_to[0].start_time !== result.start_time) return result.updated_to[0].start_time;
-    return undefined
-  }, [ result ])
-  const corrected_end_time = useMemo(() => {
-    if (!result) return undefined
-    if (result.updated_to.length > 0 && result.updated_to[0].end_time !== result.end_time) return result.updated_to[0].end_time;
-    return undefined
-  }, [ result ])
-  const isCorrected = useMemo(() => corrected_start_time || corrected_end_time, [ corrected_start_time, corrected_end_time ])
-
   if (result.type === 'Weak') return <Fragment/>
-  return <TableContent className={ [ className, styles.bounds ].join(' ') } onClick={ onClick }>
-    <IoTimeOutline className={ styles.mainIcon }/>
-
-    <p>
-      { formatTime(result.start_time, true) }
-      { result.type === 'Box' && <Fragment>
-          &nbsp;<IoChevronForwardOutline/> { formatTime(result.end_time, true) }
-      </Fragment> }
-    </p>
-
-    { isCorrected && <Fragment>
-        <IoArrowDownOutline/>
-        <p>
-          { formatTime(corrected_start_time ?? result.start_time, true) }
-          { result.type === 'Box' && <Fragment>
-              &nbsp;<IoChevronForwardOutline/> { formatTime(corrected_end_time ?? result.end_time, true) }
-          </Fragment> }
-        </p>
-    </Fragment> }
+  return <TableContent className={ className } onClick={ onClick }>
+    <TimeInfo annotation={ result }/>
   </TableContent>
 }
 
 const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const corrected_start_frequency = useMemo(() => {
-    if (!result) return undefined
-    if (result.updated_to.length > 0 && result.updated_to[0].start_frequency !== result.start_frequency) return result.updated_to[0].start_frequency;
-    return undefined
-  }, [ result ])
-  const corrected_end_frequency = useMemo(() => {
-    if (!result) return undefined
-    if (result.updated_to.length > 0 && result.updated_to[0].end_frequency !== result.end_frequency) return result.updated_to[0].end_frequency;
-    return undefined
-  }, [ result ])
-  const isCorrected = useMemo(() => corrected_start_frequency || corrected_end_frequency, [ corrected_start_frequency, corrected_end_frequency ])
   if (result.type === 'Weak') return <Fragment/>
-
-  return <TableContent className={ [ className, styles.bounds ].join(' ') } onClick={ onClick }>
-    <IoAnalyticsOutline className={ styles.mainIcon }/>
-
-    <p>
-      { result.start_frequency?.toFixed(2) }Hz
-      { result.type === 'Box' && <Fragment>
-          &nbsp;<IoChevronForwardOutline/> { result.end_frequency.toFixed(2) }Hz
-      </Fragment> }
-    </p>
-
-    { isCorrected && <Fragment>
-        <IoArrowDownOutline/>
-        <p>
-          { (corrected_start_frequency ?? result.start_frequency)?.toFixed(2) }Hz
-          { result.type === 'Box' && <Fragment>
-              &nbsp;<IoChevronForwardOutline/> { (corrected_end_frequency ?? result.end_frequency).toFixed(2) }Hz
-          </Fragment> }
-        </p>
-    </Fragment> }
+  return <TableContent className={ className } onClick={ onClick }>
+    <FrequencyInfo annotation={ result }/>
   </TableContent>
 }
 
-const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const corrected_label = useMemo(() => {
-    if (!result) return undefined
-    if (result.updated_to.length > 0 && result.updated_to[0].label !== result.label) return result.updated_to[0].label;
-    return undefined
-  }, [ result ])
-  return (
-    <TableContent
-      className={ [ className, result.type === 'Weak' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
-      isFirstColumn={ true }
-      onClick={ onClick }>
-      <IoPricetag/>
-
-      <p>{ result.label }</p>
-      { corrected_label && <Fragment>
-          <IoArrowForwardOutline/>
-          <p>{ corrected_label }</p>
-      </Fragment> }
-    </TableContent>
-  )
-}
+const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => (
+  <TableContent
+    className={ [ className, result.type === 'Weak' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
+    isFirstColumn={ true }
+    onClick={ onClick }>
+    <LabelInfo annotation={ result }/>
+  </TableContent>
+)
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
@@ -195,8 +114,7 @@ const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, on
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
-      <FaHandshake/>
-      <p>{ (result.confidence_indicator !== '') ? result.confidence_indicator : '-' }</p>
+      <ConfidenceInfo annotation={result}/>
     </TableContent>
   )
 }
@@ -269,7 +187,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
       <IonIcon slot="icon-only" icon={ closeOutline }/>
     </IonButton>
 
-    { isModalOpen && createPortal(<Modal className={styles.invalidateModal} onClose={ () => setIsModalOpen(false) }>
+    { isModalOpen && createPortal(<Modal className={ styles.invalidateModal } onClose={ () => setIsModalOpen(false) }>
       <ModalHeader title="Invalidate a result" onClose={ () => setIsModalOpen(false) }/>
       <h5>Why do you want to invalidate this result?</h5>
 

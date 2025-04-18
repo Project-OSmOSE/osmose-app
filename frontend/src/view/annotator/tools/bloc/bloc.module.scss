@@ -92,7 +92,6 @@
       justify-items: start;
       align-items: center;
       gap: 0.5rem;
-      grid-template-columns: auto 1fr;
 
       ion-note {
         grid-column: 1 / -1;
@@ -141,16 +140,6 @@ ion-chip.active {
     white-space: nowrap;
     overflow: hidden;
     display: block;
-  }
-
-  &.bounds {
-    grid-template-columns: auto 1fr;
-    grid-auto-flow: unset;
-    justify-items: center;
-
-    .mainIcon {
-      grid-row: 1 / 4;
-    }
   }
 }
 
@@ -269,4 +258,16 @@ ion-chip.active {
   gap: 0.5rem;
   padding-left: 0.5rem;
   align-items: center;
+}
+
+.bounds {
+  display: grid;
+  gap: 0 1rem;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  justify-items: start;
+
+  .mainIcon {
+    grid-row: 1 / 4;
+  }
 }
