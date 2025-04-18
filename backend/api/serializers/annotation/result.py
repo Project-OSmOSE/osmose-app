@@ -1,6 +1,6 @@
 """Annotation result serializer"""
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union
 
 from django.db import transaction
 from django.db.models import QuerySet
@@ -424,7 +424,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         exclude = ("created_at",)
         list_serializer_class = AnnotationResultListSerializer
 
-    def get_updated_to(self, instance: dict | AnnotationResult):
+    def get_updated_to(self, instance: Union[dict, AnnotationResult]):
         """Return updated_to result data"""
         if isinstance(instance, dict) and instance.get("updated_to"):
             return AnnotationResultSerializer(
