@@ -28,6 +28,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "annotator",
         "detector_configuration",
         "annotator_expertise_level",
+        "is_update_of",
     )
     search_fields = (
         "dataset_file__filename",

@@ -15,5 +15,6 @@ export const DEFAULT_PRESENCE_RESULT: WeakResult = {
   dataset_file: -1,
   annotator: -1,
   annotation_campaign: -1,
-  acoustic_features: null
+  acoustic_features: null,
+  updated_to: []
 }

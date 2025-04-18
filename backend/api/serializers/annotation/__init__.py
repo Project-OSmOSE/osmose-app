@@ -14,7 +14,6 @@ from .detector import (
 )
 from .file_range import (
     AnnotationFileRangeSerializer,
-    AnnotationFileRangeFilesSerializer,
 )
 from .result import (
     AnnotationResultSerializer,

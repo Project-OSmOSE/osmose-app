@@ -122,14 +122,15 @@ In check mode, the "Annotations" bloc contains all the detector output you need 
 ![](/annotator/check-list.png)
 
 Here is an example with a weak label.
-You can find the same information as in the Create annotations mode plus the name of the detector (here "mthieu).
+You can find the same information as in the Create annotations mode plus the name of the detector (here "PAMGuard").
 
 The buttons on the right let you choose either you find the annotation correct or not.
+You can change the annotation label and move or resize the incorrect annotation.
 
 Like in the Create annotations mode, each strong annotation is displayed on the spectrogram and can be listened.
 
 ::: info
-Please note the annotations cannot be edited (moved, resized, relabelled) for now.
+Please note you cannot add missing annotations in this mode.
 :::
 
 ### Add comments

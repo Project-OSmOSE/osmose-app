@@ -13,7 +13,6 @@ import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { resetFileFilters, setFileFilters } from "@/service/ui";
 import { AnnotationFile } from "@/service/campaign/annotation-file-range/type.ts";
-import { ID } from "@/service/type.ts";
 import { DateFilter } from "@/view/campaign/detail/filters/DateFilter.tsx";
 import { StatusFilter } from "@/view/campaign/detail/filters/StatusFilter.tsx";
 import { AnnotationsFilter } from "@/view/campaign/detail/filters/AnnotationsFilter.tsx";
@@ -121,7 +120,7 @@ export const DetailPageAnnotationTasks: React.FC<{
               <IonButton fill='clear' onClick={ importAnnotations }>Import annotations</IonButton>
           </WarningText> }
 
-        <Table columns={ 6 } className={ styles.filesTable }>
+        <Table columns={ campaign.usage === 'Check' ? 7 : 6 } className={ styles.filesTable }>
             <TableHead topSticky isFirstColumn={ true }>
                 Filename
             </TableHead>
@@ -136,6 +135,9 @@ export const DetailPageAnnotationTasks: React.FC<{
                 Annotations
                 <AnnotationsFilter campaign={ campaign } onUpdate={ onFilterUpdated }/>
             </TableHead>
+          { campaign.usage === 'Check' && <TableHead topSticky>
+              Validated annotations
+          </TableHead> }
             <TableHead topSticky className={ styles.filteredTableHead }>
                 Status
                 <StatusFilter onUpdate={ onFilterUpdated }/>
@@ -145,7 +147,7 @@ export const DetailPageAnnotationTasks: React.FC<{
             </TableHead>
             <TableDivider/>
 
-          { files?.results.map(file => <TaskItem key={ file.id } file={ file } campaignID={ campaign.id }/>) }
+          { files?.results.map(file => <TaskItem key={ file.id } file={ file } campaign={ campaign }/>) }
         </Table>
 
       { files && files.results.length > 0 &&
@@ -162,15 +164,15 @@ export const DetailPageAnnotationTasks: React.FC<{
 }
 
 const TaskItem: React.FC<{
-  campaignID: ID;
+  campaign: AnnotationCampaign;
   file: AnnotationFile;
-}> = ({ campaignID, file }) => {
+}> = ({ campaign, file }) => {
   const history = useHistory()
   const startDate = useMemo(() => new Date(file.start), [ file.start ]);
   const duration = useMemo(() => new Date(new Date(file.end).getTime() - startDate.getTime()), [ file.end, file.start ]);
 
   function access() {
-    history.push(`/annotation-campaign/${ campaignID }/file/${ file.id }`);
+    history.push(`/annotation-campaign/${ campaign.id }/file/${ file.id }`);
   }
 
   return <Fragment key={ file.id }>
@@ -178,6 +180,8 @@ const TaskItem: React.FC<{
     <TableContent disabled={ file.is_submitted }>{ startDate.toUTCString() }</TableContent>
     <TableContent disabled={ file.is_submitted }>{ duration.toUTCString().split(' ')[4] }</TableContent>
     <TableContent disabled={ file.is_submitted }>{ file.results_count }</TableContent>
+    { campaign.usage == 'Check' &&
+        <TableContent disabled={ file.is_submitted }>{ file.validated_results_count }</TableContent> }
     <TableContent disabled={ file.is_submitted }>
       { file.is_submitted &&
           <IonIcon icon={ checkmarkCircle } className={ styles.statusIcon } color='primary'/> }

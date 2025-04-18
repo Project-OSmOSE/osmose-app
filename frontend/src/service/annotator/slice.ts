@@ -7,10 +7,11 @@ import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
 import { AcousticFeatures } from '@/service/campaign/result/type.ts';
-import { CampaignAPI } from "@/service/campaign";
+import { AnnotationCampaignUsage, CampaignAPI } from "@/service/campaign";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
+import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -26,6 +27,41 @@ function _focusResult(state: AnnotatorState, { payload }: { payload: ID }) {
   state.focusedLabel = result.label;
   state.focusedConfidenceLabel = result.confidence_indicator ?? undefined;
   state.focusedCommentID = result.comments.find(c => c)?.id;
+}
+
+function getUpdatedTo(result: AnnotationResult, label?: string, newBounds?: AnnotationResultBounds): AnnotationResult[] {
+  let updated_to: AnnotationResult = {
+    ...result,
+    label: label ?? result.label,
+    ...newBounds,
+    detector_configuration: null,
+    annotator: -1,
+    id: -1,
+    validations: []
+  };
+  if (result.updated_to.length > 0) {
+    updated_to = { ...result.updated_to[0], label: label ?? result.updated_to[0].label, ...newBounds }
+  }
+  
+  let is_same = true;
+  switch (result.type) {
+    // @ts-expect-error: Content is also ok for Box
+    // eslint-disable-next-line no-fallthrough
+    case "Box":
+      is_same = is_same && formatTime(result.end_time, true) === formatTime(updated_to.end_time!, true)
+      is_same = result.end_frequency.toFixed(2) === updated_to.end_frequency!.toFixed(2)
+    // @ts-expect-error: Content is also ok for Box and Point
+    // eslint-disable-next-line no-fallthrough
+    case "Point":
+      is_same = is_same && formatTime(result.start_time, true) === formatTime(updated_to.start_time!, true)
+      is_same = result.start_frequency.toFixed(2) === updated_to.start_frequency!.toFixed(2)
+    // eslint-disable-next-line no-fallthrough
+    case "Weak":
+      is_same = is_same && result.label === updated_to.label;
+  }
+
+  if (is_same) return []
+  return [updated_to];
 }
 
 export const AnnotatorSlice = createSlice({
@@ -66,24 +102,42 @@ export const AnnotatorSlice = createSlice({
         confidence_indicator: state.focusedConfidenceLabel ?? null,
         label: state.focusedLabel ?? getPresenceLabels(state.results)!.pop()!,
         acoustic_features: null,
+        updated_to: []
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
       state.hasChanged = true;
       _focusResult(state, { payload: newResult.id })
     },
-    updateFocusResultBounds: (state, { payload }: { payload: AnnotationResultBounds }) => {
-      if (!state.focusedResultID) return;
-      if (!state.results) state.results = [];
-      state.results = state.results.map(r => {
-        if (r.id !== state.focusedResultID) return r;
-        return {
-          ...r,
-          ...payload
-        }
-      });
+    updateFocusResultBounds: (state, { payload: { newBounds, usage } }: {
+      payload: { newBounds: AnnotationResultBounds, usage: AnnotationCampaignUsage }
+    }) => {
+      let currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
+      if (!currentResult) return;
+      // Update current result
+      switch (usage) {
+        case 'Create':
+          currentResult = { ...currentResult, ...newBounds }
+          break;
+        case 'Check':
+          currentResult.updated_to = getUpdatedTo(currentResult, undefined, newBounds)
+          if (currentResult.validations.length > 0) {
+            currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            currentResult.validations = [ {
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: currentResult.id
+            } ]
+          }
+          break;
+      }
+      if (currentResult.updated_to.length === 0)
+        currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: true }))
       state.hasChanged = true;
-      _focusResult(state, { payload: state.focusedResultID })
+      state.results = state.results?.map(r => state.focusedResultID === r.id ? currentResult : r)
+      _focusResult(state, { payload: currentResult.id })
     },
     addPresenceResult: (state, { payload }: { payload: string }) => {
       const existingPresence = state.results?.find(r => r.label === payload && r.type === 'Weak')
@@ -107,6 +161,7 @@ export const AnnotatorSlice = createSlice({
         start_frequency: null,
         type: 'Weak',
         acoustic_features: null,
+        updated_to: []
       }
       if (!state.results) state.results = [];
       state.results.push(newResult);
@@ -137,30 +192,57 @@ export const AnnotatorSlice = createSlice({
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
     },
-    updateLabel: (state, { payload }: { payload: string }) => {
-      if (!state.focusedResultID) return;
-      const results = state.results ?? []
-      if (!results?.find(r => r.label === payload && r.type === 'Weak')) {
-        results.push({
-          id: getNewItemID(state.results),
-          annotator: -1,
-          annotation_campaign: -1,
-          dataset_file: -1,
-          detector_configuration: null,
-          comments: [],
-          validations: [],
-          confidence_indicator: state.focusedConfidenceLabel ?? null,
-          label: payload,
-          end_frequency: null,
-          end_time: null,
-          start_time: null,
-          start_frequency: null,
-          type: 'Weak',
-          acoustic_features: null,
-        })
+    updateLabel: (state, { payload: { label, usage } }: {
+      payload: { label: string, usage: AnnotationCampaignUsage }
+    }) => {
+      const currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
+      if (!currentResult) return;
+      const results = state.results ?? [];
+      // Update current result
+      switch (usage) {
+        case 'Create':
+          currentResult.label = label;
+          // Add presence label if it doesn't exist
+          if (!results?.find(r => r.label === label && r.type === 'Weak')) {
+            results.push({
+              id: getNewItemID(state.results),
+              annotator: -1,
+              annotation_campaign: -1,
+              dataset_file: -1,
+              detector_configuration: null,
+              comments: [],
+              validations: [],
+              confidence_indicator: state.focusedConfidenceLabel ?? null,
+              label,
+              end_frequency: null,
+              end_time: null,
+              start_time: null,
+              start_frequency: null,
+              type: 'Weak',
+              acoustic_features: null,
+              updated_to: []
+            })
+          }
+          break;
+        case 'Check':
+          currentResult.updated_to = getUpdatedTo(currentResult, label)
+          if (currentResult.validations.length > 0) {
+            currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            currentResult.validations = [ {
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: currentResult.id
+            } ]
+          }
+          break;
       }
-      state.results = results?.map(r => state.focusedResultID === r.id ? { ...r, label: payload } : r)
-      _focusResult(state, { payload: state.focusedResultID })
+      if (currentResult.updated_to.length === 0)
+        currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: true }))
+      state.hasChanged = true;
+      state.results = results?.map(r => state.focusedResultID === r.id ? currentResult : r)
+      _focusResult(state, { payload: currentResult.id })
     },
     focusPresence: (state, { payload }: { payload: string }) => {
       const result = state.results?.find(r => r.label === payload && r.type === 'Weak');
@@ -232,26 +314,25 @@ export const AnnotatorSlice = createSlice({
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
       state.results = state.results?.map(r => {
-        if (r.id === payload ||
-          (result.type !== 'Weak' && r.label === result.label && r.type === 'Weak')) {
-          let validations = r.validations;
-          if (validations.find(v => v.annotator === state.userID)) {
-            validations = validations.map(v => {
-              if (v.annotator !== state.userID) return v;
-              return {
-                ...v,
-                is_valid: true
-              }
+        let validations = r.validations;
+        let updated_to = r.updated_to
+        if (r.id === payload) {
+          if (validations.length > 0) {
+            validations = validations.map(v => ({ ...v, is_valid: true }))
+          } else {
+            validations.push({
+              id: -1,
+              is_valid: true,
+              annotator: -1,
+              result: r.id
             })
-          } else validations.push({
-            id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.userID ?? -1,
-            is_valid: true,
-            result: r.id
-          })
-          return { ...r, validations }
+          }
+          updated_to = []
         }
-        return r;
+        if (result.type !== 'Weak' && r.label === result.label && r.type === 'Weak' && r.updated_to.length === 0) {
+          validations = validations.map(v => ({ ...v, is_valid: true }))
+        }
+        return { ...r, validations, updated_to }
       })
       _focusResult(state, { payload })
     },
@@ -259,26 +340,22 @@ export const AnnotatorSlice = createSlice({
       const result = state.results?.find(r => r.id === payload);
       if (!result) return;
       state.results = state.results?.map(r => {
-        if ((result.type !== 'Weak' && r.id === payload) ||
-          (result.type === 'Weak' && r.label === result.label)) {
-          let validations = r.validations;
-          if (validations.find(v => v.annotator === state.userID)) {
-            validations = validations.map(v => {
-              if (v.annotator !== state.userID) return v;
-              return {
-                ...v,
-                is_valid: false
-              }
+        let validations = r.validations;
+        let updated_to = r.updated_to
+        if (r.id === payload || (result.type == 'Weak' && r.label === result.label && r.type !== 'Weak')) {
+          if (validations.length > 0) {
+            validations = validations.map(v => ({ ...v, is_valid: false }))
+          } else {
+            validations.push({
+              id: -1,
+              is_valid: false,
+              annotator: -1,
+              result: r.id
             })
-          } else validations.push({
-            id: getNewItemID(state.results?.flatMap(r => r.validations) ?? []),
-            annotator: state.userID ?? -1,
-            is_valid: false,
-            result: r.id
-          })
-          return { ...r, validations }
+          }
+          if (r.id === payload) updated_to = []
         }
-        return r;
+        return { ...r, validations, updated_to }
       })
       _focusResult(state, { payload })
     },

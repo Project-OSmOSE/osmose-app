@@ -175,6 +175,14 @@ class AnnotationResult(models.Model):
         null=True,
         help_text="Acoustic features add a better description to the signal",
     )
+    is_update_of = models.ForeignKey(
+        "AnnotationResult",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="updated_to",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         # Save expertise level

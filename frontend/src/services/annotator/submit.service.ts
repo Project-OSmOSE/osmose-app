@@ -1,8 +1,7 @@
 import { useAppSelector } from '@/service/app';
 import { useEffect, useRef } from "react";
-import { AnnotatorState, usePostAnnotatorMutation, WriteAnnotatorData } from '@/service/annotator';
+import { AnnotatorState, usePostAnnotatorMutation } from '@/service/annotator';
 import { useAnnotator } from "@/service/annotator/hook.ts";
-import { transformCommentsForWriting } from "@/service/campaign/comment/function.ts";
 import { AnnotationCampaign } from "@/service/campaign";
 
 export const useAnnotatorSubmitService = () => {
@@ -27,29 +26,9 @@ export const useAnnotatorSubmitService = () => {
     return post({
       campaign: _campaign.current,
       fileID: _annotator.current.file.id,
-      data: {
-        results: (_annotator.current.results ?? []).map(r => ({
-          ...r,
-          id: r.id > -1 ? r.id : undefined,
-          comments: transformCommentsForWriting(r.comments),
-          validations: r.validations.map(v => ({
-            is_valid: v.is_valid,
-            id: v.id > -1 ? v.id : undefined,
-          })),
-          confidence_indicator: r.confidence_indicator ?? undefined,
-          detector_configuration: r.detector_configuration ?? undefined,
-          annotation_campaign: undefined,
-          dataset_file: undefined,
-          annotator: undefined,
-        })),
-        task_comments: transformCommentsForWriting(_annotator.current.task_comments ?? []),
-        session:
-          {
-            start: new Date(_annotator.current.sessionStart),
-            end:
-              new Date()
-          }
-      }satisfies WriteAnnotatorData
+      results: _annotator.current.results ?? [],
+      task_comments: _annotator.current.task_comments ?? [],
+      sessionStart: new Date(_annotator.current.sessionStart),
     }).unwrap()
   }
 

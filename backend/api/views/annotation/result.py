@@ -3,7 +3,7 @@ import ast
 import csv
 from io import StringIO
 
-from django.db.models import QuerySet, Q, Prefetch
+from django.db.models import QuerySet, Q, Prefetch, Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import action
@@ -16,6 +16,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     AnnotationResultValidation,
+    AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -62,21 +63,42 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        queryset: QuerySet[AnnotationResult] = super().get_queryset()
+        queryset: QuerySet[AnnotationResult] = (
+            super().get_queryset().filter(is_update_of__isnull=True)
+        )
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
         if self.action in ["list", "retrieve"] and for_current_user:
-            queryset = queryset.filter(
-                Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True)
-            ).prefetch_related(
-                Prefetch(
-                    "validations",
-                    queryset=AnnotationResultValidation.objects.filter(
-                        annotator_id=self.request.user.id
+            user_file_ranges_exists = Exists(
+                AnnotationFileRange.objects.filter(
+                    annotator_id=self.request.user.id,
+                    annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                    first_file_id__lte=OuterRef("dataset_file_id"),
+                    last_file_id__gte=OuterRef("dataset_file_id"),
+                )
+            )
+            queryset = (
+                queryset.filter(
+                    Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True)
+                )
+                .annotate(is_assigned=user_file_ranges_exists)
+                .filter(is_assigned=True)
+                .prefetch_related(
+                    Prefetch(
+                        "validations",
+                        queryset=AnnotationResultValidation.objects.filter(
+                            annotator_id=self.request.user.id
+                        ),
+                    ),
+                    Prefetch(
+                        "updated_to",
+                        queryset=AnnotationResult.objects.filter(
+                            annotator_id=self.request.user.id
+                        ),
                     ),
                 )
             )
         else:
-            queryset = queryset.prefetch_related("validations")
+            queryset = queryset.prefetch_related("validations", "updated_to")
         return queryset
 
     @staticmethod
