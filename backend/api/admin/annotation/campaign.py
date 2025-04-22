@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib import messages
 
-from backend.api.models import AnnotationCampaign
+from backend.api.models import AnnotationCampaign, AnnotationCampaignPhase
 from ..__utils__ import get_many_to_many
 
 
@@ -27,6 +27,21 @@ class IsArchivedFilter(admin.SimpleListFilter):
         return queryset
 
 
+@admin.register(AnnotationCampaignPhase)
+class AnnotationCampaignPhaseAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "annotation_campaign",
+        "phase",
+        "created_at",
+        "created_by",
+        "ended_at",
+        "ended_by",
+    )
+    search_fields = ("annotation_campaign__name",)
+
+
 @admin.register(AnnotationCampaign)
 class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin"""
@@ -48,12 +63,11 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "confidence_indicator_set",
-        "usage",
     )
     search_fields = ("name", "desc", "datasets__name")
 
     list_filter = (
-        "usage",
+        "phases__phase",
         IsArchivedFilter,
         "allow_point_annotation",
     )

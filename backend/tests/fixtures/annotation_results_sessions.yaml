@@ -9,7 +9,7 @@
     label: 2
 #    annotation_task: 7
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 1
     dataset_file: 7
     created_at: 2010-11-02 00:00:00+00:00
@@ -25,7 +25,7 @@
     label: 4
 #    annotation_task: 7
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 2
     dataset_file: 7
     created_at: 2010-11-02 00:00:00+00:00
@@ -41,7 +41,7 @@
     label: 5
 #    annotation_task: 7
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 1
     dataset_file: 7
     created_at: 2010-11-02 00:00:00+00:00
@@ -57,7 +57,7 @@
     label: 1
 #    annotation_task: 8
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 1
     dataset_file: 8
     created_at: 2010-11-02 00:00:00+00:00
@@ -73,7 +73,7 @@
     label: 3
 #    annotation_task: 8
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 1
     dataset_file: 8
     created_at: 2010-11-02 00:00:00+00:00
@@ -89,7 +89,7 @@
     label: 1
 #    annotation_task: 8
     annotator: 4
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 2
     dataset_file: 8
     created_at: 2010-11-02 00:00:00+00:00
@@ -105,7 +105,7 @@
     label: 2
 #    annotation_task: 1
     annotator: 1
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 1
     dataset_file: 1
     created_at: 2010-11-02 00:00:00+00:00
@@ -120,7 +120,7 @@
     end_frequency: 13056.0
     label: 5
 #    annotation_task: 1
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     annotator: 1
     confidence_indicator: 1
     dataset_file: 1
@@ -137,7 +137,7 @@
     label: 4
 #    annotation_task: 1
     annotator: 1
-    annotation_campaign: 1
+    annotation_campaign_phase: 1
     confidence_indicator: 2
     dataset_file: 1
     acoustic_features: 1
@@ -153,7 +153,7 @@
     end_frequency: 13696.0
     label: 4
     detector_configuration: 1
-    annotation_campaign: 4
+    annotation_campaign_phase: 4
     confidence_indicator: 2
     dataset_file: 1
     created_at: 2010-11-02 00:00:00+00:00
@@ -168,7 +168,7 @@
     end_frequency: 130.0
     label: 1
     annotator: 4
-    annotation_campaign: 4
+    annotation_campaign_phase: 4
     confidence_indicator: 2
     dataset_file: 1
     created_at: 2010-11-02 00:00:00+00:00
