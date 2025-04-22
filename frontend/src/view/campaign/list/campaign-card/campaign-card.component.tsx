@@ -5,6 +5,7 @@ import { crop } from "ionicons/icons";
 import { AnnotationCampaign } from '@/service/campaign';
 import { Progress } from "@/components/ui/Progress.tsx";
 import './campaign-card.component.css';
+import { pluralize } from "@/service/function.ts";
 
 interface Props {
   campaign: AnnotationCampaign
@@ -26,6 +27,22 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
     if (deadline && (deadline.getTime() - 7 * 24 * 60 * 60 * 1000) <= Date.now()) return State.dueDate
     return State.open;
   }, [ campaign.deadline, campaign.archive ]);
+
+  const user_total = useMemo(() => {
+    return campaign.phases.reduce((previousValue, p) => previousValue + p.user_total, 0);
+  }, [ campaign.phases ]);
+
+  const user_progress = useMemo(() => {
+    return campaign.phases.reduce((previousValue, p) => previousValue + p.user_progress, 0);
+  }, [ campaign.phases ]);
+
+  const global_total = useMemo(() => {
+    return campaign.phases.reduce((previousValue, p) => previousValue + p.global_total, 0);
+  }, [ campaign.phases ]);
+
+  const global_progress = useMemo(() => {
+    return campaign.phases.reduce((previousValue, p) => previousValue + p.global_progress, 0);
+  }, [ campaign.phases ]);
 
   const color = useMemo(() => {
     switch (state) {
@@ -56,17 +73,15 @@ export const CampaignCard: React.FC<Props> = ({ campaign }) => {
 
       <div className="property">
         <IonIcon className="icon" icon={ crop }/>
-        <p className="label">Mode:</p>
-        <p>{ campaign.usage }</p>
+        <p className="label">Phase{ pluralize(campaign.phases) }:</p>
+        <p>{ campaign.phases.map(p => p.phase).join(', ') }</p>
       </div>
 
-      { campaign.my_total > 0 ? <Progress label='My progress' color={ color }
-                                          value={ campaign.my_progress }
-                                          total={ campaign.my_total }/> : <div/> }
+      { user_total > 0 ? <Progress label='My progress' color={ color }
+                                   value={ user_progress } total={ user_total }/> : <div/> }
 
-      { campaign.total > 0 && <Progress label='Global progress'
-                                        value={ campaign.progress }
-                                        total={ campaign.total }/> }
+      { global_total > 0 ? <Progress label='Global progress'
+                                     value={ global_progress } total={ global_total }/> : <div/> }
     </div>
   );
 }

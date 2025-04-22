@@ -1,8 +1,8 @@
-import { AnnotationCampaign } from "@/service/campaign/type.ts";
+import { OldAnnotationCampaign } from "@/service/campaign/type.ts";
 import { UserAPI } from "@/service/user";
 import { useMemo } from "react";
 
-export const useHasAdminAccessToCampaign = (campaign?: AnnotationCampaign) => {
+export const useHasAdminAccessToCampaign = (campaign?: OldAnnotationCampaign) => {
   const { data: currentUser } = UserAPI.useGetCurrentUserQuery();
 
   const hasAdminAccess = useMemo(() => {

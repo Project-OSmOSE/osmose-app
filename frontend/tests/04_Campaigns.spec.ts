@@ -35,18 +35,18 @@ test.describe('Annotator', () => {
       ])
     })
 
-    await test.step('Add Campaign mode to Create filter', async () => {
+    await test.step('Add Campaign mode to Annotation filter', async () => {
       await page.mock.campaigns()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=0/g),
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=A/g),
         page.getByText('Campaign mode filter').click()
       ])
     })
 
-    await test.step('Change Campaign mode to Check filter', async () => {
+    await test.step('Change Campaign mode to Verification filter', async () => {
       await page.mock.campaigns()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?usage=1/g),
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=V/g),
         page.getByText('Campaign mode filter').click()
       ])
     })

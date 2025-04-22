@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { downloadResponseHandler, encodeQueryParams } from '@/service/function.ts';
-import { AnnotationCampaign } from '@/service/campaign';
+import { OldAnnotationCampaign } from '@/service/campaign';
 import { AudioMetadatum } from './type';
 
 export const AudioMetadataAPI = createApi({
@@ -18,7 +18,7 @@ export const AudioMetadataAPI = createApi({
         return encodeQueryParams(params);
       },
     }),
-    download: builder.mutation<void, AnnotationCampaign>({
+    download: builder.mutation<void, OldAnnotationCampaign>({
       query: ({ id, name }) => ({
         url: `export/${ encodeQueryParams({
           filename: name.replaceAll(' ', '_') + '_audio_metadata.csv',

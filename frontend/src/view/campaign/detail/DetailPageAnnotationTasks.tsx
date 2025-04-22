@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { AnnotationCampaign } from "@/service/campaign";
+import { OldAnnotationCampaign } from "@/service/campaign";
 import { useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import styles from './Detail.module.scss'
@@ -18,7 +18,7 @@ import { StatusFilter } from "@/view/campaign/detail/filters/StatusFilter.tsx";
 import { AnnotationsFilter } from "@/view/campaign/detail/filters/AnnotationsFilter.tsx";
 
 export const DetailPageAnnotationTasks: React.FC<{
-  campaign?: AnnotationCampaign;
+  campaign?: OldAnnotationCampaign;
   isOwner: boolean;
 }> = ({ campaign, }) => {
   const history = useHistory();
@@ -164,7 +164,7 @@ export const DetailPageAnnotationTasks: React.FC<{
 }
 
 const TaskItem: React.FC<{
-  campaign: AnnotationCampaign;
+  campaign: OldAnnotationCampaign;
   file: AnnotationFile;
 }> = ({ campaign, file }) => {
   const history = useHistory()

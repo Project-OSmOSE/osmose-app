@@ -6,12 +6,63 @@ import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
 import { Colormap } from '@/services/utils/color';
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
+export type Phase = 'Annotation' | 'Verification';
+
+export type AnnotationCampaignPhase = {
+  id: number;
+  phase: Phase;
+  /** Date */
+  created_at: string;
+  /** Display name */
+  created_by: string;
+  /** Date */
+  ended_at: string;
+  /** Display name */
+  ended_by: string;
+  global_progress: number;
+  global_total: number;
+  user_progress: number;
+  user_total: number;
+}
 
 export type AnnotationCampaignArchive = {
   id: number;
   date: string; // Date
   by_user: User
 }
+
+export type AnnotationCampaign = {
+  id: number;
+  name: string;
+  desc: string | null;
+  /** URL */
+  instructions_url: string | null;
+  /** Date */
+  deadline: string | null;
+
+  /** Display name */
+  owner: string;
+  /** Date */
+  created_at: string;
+  archive: AnnotationCampaignArchive | null;
+  phases: AnnotationCampaignPhase[];
+
+  datasets: string[]
+  files_count: number;
+
+  /** ID */
+  label_set: number;
+  labels_with_acoustic_features: string[]
+  /** ID */
+  confidence_indicator_set: number;
+
+  allow_point_annotation: boolean;
+  allow_image_tuning: boolean;
+  allow_colormap_tuning: boolean;
+  colormap_default: Colormap | null;
+  colormap_inverted_default: boolean | null;
+}
+
 
 export type BaseAnnotationCampaign = {
   name: string;
@@ -31,7 +82,7 @@ export type BaseAnnotationCampaign = {
 /**
  * Read interface
  */
-export type AnnotationCampaign = BaseAnnotationCampaign & {
+export type OldAnnotationCampaign = BaseAnnotationCampaign & {
   id: number;
   created_at: string; // Date
   label_set: number; // pk
@@ -67,7 +118,7 @@ export type WriteCheckAnnotationCampaign = BaseAnnotationCampaign & {
 export type WriteAnnotationCampaign = WriteCheckAnnotationCampaign | WriteCreateAnnotationCampaign
 
 export type CampaignState = {
-  currentCampaign: AnnotationCampaign | undefined;
+  currentCampaign: OldAnnotationCampaign | undefined;
   draftCampaign: Partial<WriteAnnotationCampaign>;
   submissionErrors: CampaignErrors;
 

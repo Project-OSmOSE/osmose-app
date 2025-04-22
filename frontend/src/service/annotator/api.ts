@@ -2,7 +2,7 @@ import { createApi, RootState } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, RetrieveParams } from './type.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotationCampaign, AnnotationCampaignUsage } from '@/service/campaign';
+import { AnnotationCampaignUsage, OldAnnotationCampaign } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
 import { AppState } from "@/service/app.ts";
 import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
@@ -85,7 +85,7 @@ export const AnnotatorAPI = createApi({
       }
     }),
     post: builder.mutation<void, {
-      campaign: AnnotationCampaign,
+      campaign: OldAnnotationCampaign,
       fileID: ID,
       results: AnnotationResult[],
       task_comments: AnnotationComment[],

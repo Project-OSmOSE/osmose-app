@@ -3,7 +3,7 @@ import { IonButton, IonChip, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, refreshOutline, swapHorizontal } from "ionicons/icons";
 import { CampaignCard } from "@/view/campaign/list/campaign-card/campaign-card.component.tsx";
 import styles from './annotation-campaign-list.module.scss'
-import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campaign';
+import { Phase, useListCampaignsQuery } from '@/service/campaign';
 import { useToast } from "@/service/ui";
 import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useGetCurrentUserQuery } from "@/service/user";
@@ -15,7 +15,7 @@ export const AnnotationCampaignList: React.FC = () => {
   // State
   const [ search, setSearch ] = useState<string | undefined>();
   const [ showArchivedFilter, setShowArchivedFilter ] = useState<boolean>(false);
-  const [ modeFilter, setModeFilter ] = useState<AnnotationCampaignUsage | undefined>();
+  const [ modeFilter, setModeFilter ] = useState<Phase | undefined>();
   const [ myWorkFilter, setMyWorkFilter ] = useState<boolean>(true);
   const [ onlyMineFilter, setonlyMineFilter ] = useState<boolean>(false);
   const { presentError, dismiss: dismissToast } = useToast()
@@ -24,7 +24,7 @@ export const AnnotationCampaignList: React.FC = () => {
   const { data: currentUser } = useGetCurrentUserQuery();
   const { currentData: campaigns, isFetching, error } = useListCampaignsQuery({
     onlyArchived: showArchivedFilter,
-    usage: modeFilter,
+    phase: modeFilter,
     search,
     owner: onlyMineFilter ? currentUser?.id : undefined,
     annotator: myWorkFilter ? currentUser?.id : undefined,
@@ -53,12 +53,12 @@ export const AnnotationCampaignList: React.FC = () => {
   const toggleModeFilter = () => {
     switch (modeFilter) {
       case undefined:
-        setModeFilter('Create');
+        setModeFilter('Annotation');
         break;
-      case 'Create':
-        setModeFilter('Check');
+      case 'Annotation':
+        setModeFilter('Verification');
         break;
-      case 'Check':
+      case 'Verification':
         setModeFilter(undefined);
         break;
     }
@@ -114,8 +114,8 @@ export const AnnotationCampaignList: React.FC = () => {
                  onClick={ toggleModeFilter }
                  color={ modeFilter ? 'primary' : 'medium' }>
           Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
-          { modeFilter === 'Create' && <IonIcon icon={ swapHorizontal }/> }
-          { modeFilter === 'Check' && <IonIcon icon={ closeCircle }/> }
+          { modeFilter === 'Annotation' && <IonIcon icon={ swapHorizontal }/> }
+          { modeFilter === 'Verification' && <IonIcon icon={ closeCircle }/> }
         </IonChip>
 
         <IonChip outline={ !onlyMineFilter }

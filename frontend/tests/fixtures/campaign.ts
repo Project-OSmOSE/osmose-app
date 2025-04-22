@@ -1,9 +1,9 @@
 import { USERS } from './user';
-import { AnnotationCampaign } from '../../src/service/campaign';
-import { DATASET, DATASET_SR, SPECTROGRAM_CONFIGURATION } from './dataset';
+import { AnnotationCampaign, AnnotationCampaignPhase } from '../../src/service/campaign';
+import { DATASET, DATASET_SR } from './dataset';
 import { LabelSet } from '../../src/service/campaign/label-set';
 import { ConfidenceIndicator, ConfidenceIndicatorSet } from '../../src/service/campaign/confidence-set';
-import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range/type';
+import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range';
 import { Detector } from '../../src/service/campaign/detector';
 import { AnnotatorGroup } from "../../src/service/annotator-group";
 
@@ -43,9 +43,21 @@ export const CONFIDENCE = {
   } satisfies ConfidenceIndicatorSet
 }
 
+export const CAMPAIGN_PHASE: AnnotationCampaignPhase = {
+  id: 1,
+  phase: 'Annotation',
+  created_by: `${ USERS.creator.first_name } ${ USERS.creator.last_name.toUpperCase() }`,
+  created_at: deadline.toISOString().split('T')[0],
+  ended_by: null,
+  ended_at: null,
+  user_progress: 5,
+  user_total: 10,
+  global_progress: 50,
+  global_total: 100,
+}
 export const CAMPAIGN = {
   id: 1,
-  owner: USERS.creator,
+  owner: `${ USERS.creator.first_name } ${ USERS.creator.last_name.toUpperCase() }`,
   name: 'Test campaign',
   desc: 'Test campaign description',
   allow_point_annotation: false,
@@ -56,19 +68,13 @@ export const CAMPAIGN = {
   confidence_indicator_set: CONFIDENCE.set.id,
   instructions_url: 'testurl.fr',
   datasets: [ DATASET.name ],
-  spectro_configs: [ SPECTROGRAM_CONFIGURATION.id ],
   labels_with_acoustic_features: [ LABEL.withFeatures ],
-  usage: 'Create',
   archive: null,
-  my_progress: 5,
-  my_total: 10,
-  progress: 50,
-  total: 100,
+  phases: [CAMPAIGN_PHASE],
   allow_image_tuning: false,
   allow_colormap_tuning: false,
   colormap_default: null,
   colormap_inverted_default: null,
-  annotations_count: 5,
 } satisfies AnnotationCampaign
 
 const start = new Date();

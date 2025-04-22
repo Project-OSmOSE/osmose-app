@@ -2,7 +2,7 @@ import { useAppSelector } from '@/service/app';
 import { useEffect, useRef } from "react";
 import { AnnotatorState, usePostAnnotatorMutation } from '@/service/annotator';
 import { useAnnotator } from "@/service/annotator/hook.ts";
-import { AnnotationCampaign } from "@/service/campaign";
+import { OldAnnotationCampaign } from "@/service/campaign";
 
 export const useAnnotatorSubmitService = () => {
   const {
@@ -13,7 +13,7 @@ export const useAnnotatorSubmitService = () => {
   const [ post ] = usePostAnnotatorMutation()
   const annotator = useAppSelector(state => state.annotator);
   const _annotator = useRef<AnnotatorState>(annotator)
-  const _campaign = useRef<AnnotationCampaign | undefined>(campaign)
+  const _campaign = useRef<OldAnnotationCampaign | undefined>(campaign)
   useEffect(() => {
     _annotator.current = annotator;
   }, [ annotator ]);

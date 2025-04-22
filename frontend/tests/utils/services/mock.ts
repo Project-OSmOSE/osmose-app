@@ -20,7 +20,7 @@ import {
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
 import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
-import { AnnotationCampaign, AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { AnnotationCampaignUsage, OldAnnotationCampaign } from '../../../src/service/campaign';
 
 type Response = {
   status: number,
@@ -88,7 +88,7 @@ export class Mock {
                               mode: AnnotationCampaignUsage = 'Create',
                               hasConfidence: boolean = true,
                               allowPoint: boolean = false) {
-    const json: AnnotationCampaign = CAMPAIGN;
+    const json: OldAnnotationCampaign = CAMPAIGN;
     if (empty) {
       json.progress = 0;
       json.total = 0;

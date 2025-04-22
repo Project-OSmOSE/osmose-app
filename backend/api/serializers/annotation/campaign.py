@@ -13,8 +13,12 @@ from backend.api.models import (
     AnnotationCampaignArchive,
     Label,
     ConfidenceIndicatorSet,
+    AnnotationCampaignPhase,
+    Phase,
+    AnnotationTask,
 )
 from backend.aplose.serializers import UserSerializer
+from backend.aplose.serializers.user import UserDisplayNameSerializer
 from backend.utils.serializers import EnumField, SlugRelatedGetOrCreateField
 
 
@@ -28,20 +32,53 @@ class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
+    """Serializer for annotation campaign phase"""
+
+    phase = EnumField(Phase, read_only=True)
+    created_by = UserDisplayNameSerializer(read_only=True)
+    ended_by = UserDisplayNameSerializer(read_only=True)
+
+    global_progress = serializers.SerializerMethodField(read_only=True)
+    global_total = serializers.IntegerField(read_only=True)
+    user_progress = serializers.SerializerMethodField(read_only=True)
+    user_total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = AnnotationCampaignPhase
+        exclude = ("annotation_campaign",)
+
+    def get_global_total(self, instance: AnnotationCampaignPhase) -> int:
+        """Get total count of tasks"""
+        return instance.tasks.count()
+
+    def get_global_progress(self, instance: AnnotationCampaignPhase) -> int:
+        """Get total count of tasks"""
+        return instance.tasks.filter(status=AnnotationTask.Status.FINISHED).count()
+
+    def get_user_total(self, instance: AnnotationCampaignPhase) -> int:
+        """Get total count of tasks"""
+        if "request" not in self.context or self.context["request"].user is None:
+            return 0
+        return instance.tasks.filter(
+            annotator_id=self.context["request"].user.id
+        ).count()
+
+    def get_user_progress(self, instance: AnnotationCampaignPhase) -> int:
+        """Get total count of tasks"""
+        return instance.tasks.filter(
+            status=AnnotationTask.Status.FINISHED,
+            annotator_id=self.context["request"].user.id,
+        ).count()
+
+
 class AnnotationCampaignSerializer(serializers.ModelSerializer):
     """Serializer for annotation campaign"""
 
     files_count = serializers.IntegerField(read_only=True)
-    annotations_count = serializers.IntegerField(read_only=True)
     datasets = serializers.SlugRelatedField(
         many=True, queryset=Dataset.objects.all(), slug_field="name"
     )
-    my_progress = serializers.IntegerField(read_only=True)
-    my_total = serializers.IntegerField(read_only=True)
-    progress = serializers.IntegerField(read_only=True)
-    total = serializers.IntegerField(read_only=True)
-    usage = EnumField(enum=AnnotationCampaignUsage)
-
     label_set = serializers.PrimaryKeyRelatedField(
         queryset=LabelSet.objects.all(),
         required=False,
@@ -55,17 +92,14 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     confidence_indicator_set = serializers.PrimaryKeyRelatedField(
         queryset=ConfidenceIndicatorSet.objects.all(), required=False, allow_null=True
     )
-    owner = UserSerializer(read_only=True)
-    spectro_configs = serializers.PrimaryKeyRelatedField(
-        queryset=SpectrogramConfiguration.objects.all(),
-        many=True,
-    )
+    owner = UserDisplayNameSerializer(read_only=True)
     archive = AnnotationCampaignArchiveSerializer(read_only=True)
     allow_point_annotation = serializers.BooleanField(default=False)
+    phases = AnnotationCampaignPhaseSerializer(many=True, read_only=True)
 
     class Meta:
         model = AnnotationCampaign
-        fields = "__all__"
+        exclude = ("spectro_configs",)
 
     def validate_create_usage(self, attrs: dict):
         """Validate attributes for a "create" usage creation"""

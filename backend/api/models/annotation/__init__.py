@@ -4,6 +4,7 @@ from .campaign import (
     AnnotationCampaignArchive,
     AnnotationCampaignUsage,
     AnnotationCampaignPhase,
+    Phase,
 )
 from .confidence import (
     ConfidenceIndicator,

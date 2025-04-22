@@ -13,6 +13,7 @@ from django.db.models import (
     QuerySet,
     Subquery,
     Prefetch,
+    Count,
 )
 from django.db.models.functions import Lower, Concat, Extract
 from django.http import HttpResponse
@@ -30,6 +31,7 @@ from backend.api.models import (
     AnnotationComment,
     AnnotationFileRange,
     DatasetFile,
+    AnnotationCampaignPhase,
 )
 from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers import (
@@ -38,7 +40,6 @@ from backend.api.serializers import (
 from backend.api.serializers.annotation.campaign import (
     AnnotationCampaignPatchSerializer,
 )
-from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
@@ -85,7 +86,9 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
                 Q(archive__isnull=True)
                 & Exists(
                     AnnotationFileRange.objects.filter(
-                        annotation_campaign_id=OuterRef("pk"),
+                        annotation_campaign_phase__annotation_campaign_id=OuterRef(
+                            "pk"
+                        ),
                         annotator_id=request.user.id,
                     )
                 )
@@ -98,64 +101,29 @@ class AnnotationCampaignViewSet(
 ):
     """Model viewset for Annotation campaign"""
 
-    queryset = AnnotationCampaign.objects.select_related(
-        "owner",
-        "archive",
-        "archive__by_user",
-        "archive__by_user__aplose",
-    ).prefetch_related(
-        "datasets",
-        "labels_with_acoustic_features",
-        "spectro_configs",
-        Prefetch("annotators", queryset=User.objects.distinct()),
+    phases_queryset = AnnotationCampaignPhase.objects.select_related(
+        "created_by__aplose",
+        "ended_by__aplose",
+    ).prefetch_related("tasks")
+    queryset = (
+        AnnotationCampaign.objects.select_related(
+            "owner__aplose",
+            "archive__by_user__aplose",
+        )
+        .prefetch_related(
+            "datasets",
+            "labels_with_acoustic_features",
+            Prefetch("phases", queryset=phases_queryset.distinct()),
+        )
+        .annotate(
+            files_count=Count("datasets__files", distinct=True),
+        )
+        .order_by("name")
     )
     serializer_class = AnnotationCampaignSerializer
     filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
     search_fields = ("name",)
     permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = (
-            super()
-            .get_queryset()
-            .extra(
-                select={
-                    "files_count": """
-                        SELECT count(*) FROM dataset_files f
-                        LEFT JOIN annotation_campaigns_datasets d on d.dataset_id = f.dataset_id
-                        WHERE d.annotationcampaign_id = annotation_campaigns.id
-                    """,
-                    "annotations_count": """
-                        SELECT count(*) FROM annotation_results r
-                        WHERE r.annotation_campaign_id = annotation_campaigns.id
-                    """,
-                    "my_progress": """
-                        SELECT count(*) FROM api_annotationtask t
-                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.annotator_id = %s AND t.status = 'F'
-                    """,
-                    "my_total": """
-                        SELECT case when total notnull then total else 0 end as data FROM 
-                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
-                            WHERE r.annotation_campaign_id = annotation_campaigns.id AND r.annotator_id = %s) as info
-                    """,
-                    "progress": """
-                        SELECT count(*) FROM api_annotationtask t
-                        WHERE t.annotation_campaign_id = annotation_campaigns.id AND t.status = 'F'
-                    """,
-                    "total": """
-                        SELECT case when total notnull then total else 0 end as data FROM 
-                            (SELECT sum(files_count) as total FROM api_annotationfilerange r
-                            WHERE r.annotation_campaign_id = annotation_campaigns.id) as info
-                    """,
-                },
-                select_params=(
-                    self.request.user.id,
-                    self.request.user.id,
-                ),
-            )
-            .order_by("name")
-        )
-        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":

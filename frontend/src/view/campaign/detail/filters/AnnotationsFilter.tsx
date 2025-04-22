@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui";
 import { Select, Switch } from "@/components/form";
-import { AnnotationCampaign } from "@/service/campaign";
+import { OldAnnotationCampaign } from "@/service/campaign";
 import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
 import { useListDetectorQuery } from "@/service/campaign/detector";
@@ -17,7 +17,7 @@ const BOOLEAN_OPTIONS = [ 'Unset', 'With', 'Without' ]
 type BooleanOption = typeof BOOLEAN_OPTIONS[number];
 
 export const AnnotationsFilter: React.FC<{
-  campaign: AnnotationCampaign | undefined;
+  campaign: OldAnnotationCampaign | undefined;
   onUpdate: () => void
 }> = ({ onUpdate, campaign }) => {
   const { id: campaignID } = useParams<{ id: string }>();

@@ -3,7 +3,7 @@ import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { SpectrogramConfiguration } from './type.ts';
 import { downloadResponseHandler, encodeQueryParams } from '@/service/function.ts';
-import { AnnotationCampaign } from '@/service/campaign';
+import { OldAnnotationCampaign } from '@/service/campaign';
 
 export const SpectrogramConfigurationAPI = createApi({
   reducerPath: 'spectrogramConfigurationApi',
@@ -18,7 +18,7 @@ export const SpectrogramConfigurationAPI = createApi({
         return encodeQueryParams(params);
       },
     }),
-    download: builder.mutation<void, AnnotationCampaign>({
+    download: builder.mutation<void, OldAnnotationCampaign>({
       query: ({ name, id }) => ({
         url: `export/${ encodeQueryParams({
           annotation_campaigns: id,
