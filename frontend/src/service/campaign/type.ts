@@ -4,26 +4,10 @@ import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-ran
 import { ACCEPT_CSV_MIME_TYPE } from '@/consts/csv.ts';
 import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
 import { Colormap } from '@/services/utils/color';
+import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';
 export type Phase = 'Annotation' | 'Verification';
-
-export type AnnotationCampaignPhase = {
-  id: number;
-  phase: Phase;
-  /** Date */
-  created_at: string;
-  /** Display name */
-  created_by: string;
-  /** Date */
-  ended_at: string;
-  /** Display name */
-  ended_by: string;
-  global_progress: number;
-  global_total: number;
-  user_progress: number;
-  user_total: number;
-}
 
 export type AnnotationCampaignArchive = {
   id: number;
@@ -40,8 +24,7 @@ export type AnnotationCampaign = {
   /** Date */
   deadline: string | null;
 
-  /** Display name */
-  owner: string;
+  owner: User;
   /** Date */
   created_at: string;
   archive: AnnotationCampaignArchive | null;

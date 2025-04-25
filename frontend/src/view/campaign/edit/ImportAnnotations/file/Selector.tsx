@@ -2,7 +2,6 @@ import React, { DragEvent, Fragment, useCallback, useMemo, useState } from "reac
 import styles from "../../edit.module.scss";
 import importStyles from "../importAnnotations.module.scss";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
 import { ACCEPT_CSV_MIME_TYPE } from "@/consts/csv.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
@@ -13,6 +12,7 @@ import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import { FormBloc } from "@/components/form";
 import { LoadInformation } from "./LoadInformation.tsx";
 import { FileErrorDescription } from "./ErrorDescription.tsx";
+import { WarningText } from "@/components/ui";
 
 export const FileSelector: React.FC = () => {
   const { id: campaignID } = useParams<{ id: string }>();
@@ -79,7 +79,7 @@ export const FileSelector: React.FC = () => {
 
   if (isFetchingCampaign) return <IonSpinner/>
   if (errorLoadingCampaign)
-    return <WarningMessage>Fail loading campaign:<br/>{ getErrorMessage(errorLoadingCampaign) }</WarningMessage>
+    return <WarningText>Fail loading campaign:<br/>{ getErrorMessage(errorLoadingCampaign) }</WarningText>
 
   return <FormBloc className={ styles.importBloc }>
 

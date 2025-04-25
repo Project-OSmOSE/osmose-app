@@ -1,0 +1,68 @@
+.info {
+  display: grid;
+  gap: 1.5rem;
+  align-content: start;
+  justify-content: start;
+  font-size: 0.9rem;
+  overflow: auto;
+  height: 100%;
+
+  .bloc {
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+
+    > div {
+      width: 100%;
+      overflow: hidden;
+    }
+  }
+
+  p {
+    line-height: 0.95rem;
+    word-break: break-word;
+    text-wrap: wrap;
+    overflow: hidden;
+    width: 100%;
+  }
+}
+
+.phase {
+  display: grid;
+  gap: 1.5rem;
+  height: 100%;
+  overflow: hidden;
+
+  .progress {
+    display: grid;
+    gap: 2rem;
+
+    grid-auto-flow: column;
+    justify-content: center;
+  }
+
+  .filterButtons {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1rem;
+  }
+
+  .tasks {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    grid-template-rows: auto 1fr;
+    min-height: 0;
+    max-height: 100%;
+    overflow: auto;
+
+    &.empty {
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .filesTable ion-button {
+      --padding-top: 0 !important;
+      --padding-bottom: 0 !important;
+    }
+  }
+}

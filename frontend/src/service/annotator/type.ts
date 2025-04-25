@@ -57,4 +57,4 @@ export type AnnotatorData = {
   total_tasks_in_filter: number;
 }
 
-export type RetrieveParams = { campaignID: ID, fileID: ID, filters: Partial<FileFilters> }
+export type RetrieveParams = { campaignID: ID, phaseID: ID, fileID: ID, filters: Partial<FileFilters> }

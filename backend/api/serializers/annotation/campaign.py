@@ -15,7 +15,6 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     AnnotationCampaignPhase,
     Phase,
-    AnnotationTask,
 )
 from backend.aplose.serializers import UserSerializer
 from backend.aplose.serializers.user import UserDisplayNameSerializer
@@ -39,37 +38,29 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
     created_by = UserDisplayNameSerializer(read_only=True)
     ended_by = UserDisplayNameSerializer(read_only=True)
 
-    global_progress = serializers.SerializerMethodField(read_only=True)
+    global_progress = serializers.IntegerField(read_only=True)
     global_total = serializers.IntegerField(read_only=True)
-    user_progress = serializers.SerializerMethodField(read_only=True)
-    user_total = serializers.SerializerMethodField(read_only=True)
+    user_progress = serializers.IntegerField(read_only=True)
+    user_total = serializers.IntegerField(read_only=True)
+    has_annotations = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = AnnotationCampaignPhase
         exclude = ("annotation_campaign",)
 
-    def get_global_total(self, instance: AnnotationCampaignPhase) -> int:
-        """Get total count of tasks"""
-        return instance.tasks.count()
-
-    def get_global_progress(self, instance: AnnotationCampaignPhase) -> int:
-        """Get total count of tasks"""
-        return instance.tasks.filter(status=AnnotationTask.Status.FINISHED).count()
-
-    def get_user_total(self, instance: AnnotationCampaignPhase) -> int:
-        """Get total count of tasks"""
-        if "request" not in self.context or self.context["request"].user is None:
-            return 0
-        return instance.tasks.filter(
-            annotator_id=self.context["request"].user.id
-        ).count()
-
-    def get_user_progress(self, instance: AnnotationCampaignPhase) -> int:
-        """Get total count of tasks"""
-        return instance.tasks.filter(
-            status=AnnotationTask.Status.FINISHED,
-            annotator_id=self.context["request"].user.id,
-        ).count()
+    def get_has_annotations(self, phase: AnnotationCampaignPhase):
+        """Return a boolean: if the phase has annotations or not"""
+        if phase.phase == Phase.VERIFICATION:
+            return (
+                phase.annotation_campaign.phases.filter(
+                    phase=Phase.ANNOTATION,
+                )
+                .first()
+                .results.exists()
+                or phase.results.exists()
+            )
+        else:
+            return phase.results.exists()
 
 
 class AnnotationCampaignSerializer(serializers.ModelSerializer):
@@ -92,7 +83,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     confidence_indicator_set = serializers.PrimaryKeyRelatedField(
         queryset=ConfidenceIndicatorSet.objects.all(), required=False, allow_null=True
     )
-    owner = UserDisplayNameSerializer(read_only=True)
+    owner = UserSerializer(read_only=True)
     archive = AnnotationCampaignArchiveSerializer(read_only=True)
     allow_point_annotation = serializers.BooleanField(default=False)
     phases = AnnotationCampaignPhaseSerializer(many=True, read_only=True)

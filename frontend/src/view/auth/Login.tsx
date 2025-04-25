@@ -5,11 +5,10 @@ import { Input } from "@/components/form";
 import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected, useLoginMutation } from "@/service/auth";
 import { IonButton } from "@ionic/react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
-import { useGetCurrentUserQuery } from "@/service/user";
 import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
 
 export const Login: React.FC = () => {
@@ -26,19 +25,17 @@ export const Login: React.FC = () => {
   }, [ username, password ]);
 
   // Service
-  const history = useHistory();
-  const location = useLocation<any>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
   const [ login, { isLoading, error: loginError } ] = useLoginMutation();
   const toast = useToast()
-  const { refetch } = useGetCurrentUserQuery()
 
   useEffect(() => {
     NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
 
     return () => {
       NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
-      toast.dismiss()
     }
   }, []);
 
@@ -47,7 +44,7 @@ export const Login: React.FC = () => {
   }, [ loginError ]);
 
   useEffect(() => {
-    if (isConnected) history.replace(from);
+    if (isConnected) navigate(from, { replace: true });
   }, [ isConnected ]);
 
   function onKbdEvent(event: KeyboardEvent) {
@@ -66,13 +63,12 @@ export const Login: React.FC = () => {
     if (!ref.current.username || !ref.current.password) return;
 
     await login(ref.current).unwrap()
-      .then(() => refetch().unwrap())
-      .then(() => history.replace(from))
+      .then(() => navigate(from, { replace: true }))
       .catch(error => setErrors({ global: getErrorMessage(error) }));
   }
 
   function goHome() {
-    history.push('/');
+    navigate('/');
   }
 
   return <div className={ styles.page }>

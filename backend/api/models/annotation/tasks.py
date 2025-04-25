@@ -124,7 +124,7 @@ class AnnotationFileRange(models.Model):
         return (
             AnnotationFileRange.objects.filter(
                 annotator_id=data.annotator,
-                annotation_campaign_id=data.annotation_campaign,
+                annotation_campaign_phase_id=data.annotation_campaign_phase,
             )
             .exclude(id=data.id)
             .filter(
@@ -203,7 +203,7 @@ class AnnotationFileRange(models.Model):
         return Subquery(
             AnnotationTask.objects.filter(
                 annotator_id=OuterRef("annotator_id"),
-                annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                annotation_campaign_phase_id=OuterRef("annotation_campaign_phase_id"),
                 dataset_file_id__gte=OuterRef("first_file_id"),
                 dataset_file_id__lte=OuterRef("last_file_id"),
                 status=AnnotationTask.Status.FINISHED,

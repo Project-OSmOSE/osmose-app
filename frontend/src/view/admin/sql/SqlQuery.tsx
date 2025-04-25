@@ -5,13 +5,10 @@ import { PostgreSQL, sql } from "@codemirror/lang-sql";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
 import { SqlAPI } from "@/service/sql";
-import { Button, Kbd } from "@/components/ui";
+import { Button, Kbd, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { Prec } from "@codemirror/state";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
-import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import styles from './sql.module.scss'
-import { Pagination } from "@/components/Pagination/Pagination.tsx";
 import { AploseSkeleton } from "@/components/layout";
 
 
@@ -95,7 +92,7 @@ export const SqlQuery: React.FC = () => {
       <Button fill="outline" className={ styles.download }
               onClick={ download } disabled={ !results }>Download</Button>
 
-      { error && <WarningMessage className={ styles.error }>{ getErrorMessage(error) }</WarningMessage> }
+      { error && <WarningText className={ styles.error }>{ getErrorMessage(error) }</WarningText> }
 
       { results && <Table className={ styles.results } columns={ results.columns.length }>
         { results.columns.map((c, i) => <TableHead topSticky leftSticky={ i === 0 }

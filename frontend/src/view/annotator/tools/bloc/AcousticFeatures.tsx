@@ -6,7 +6,7 @@ import {
   updateCurrentResultAcousticFeatures,
   updateFocusResultBounds
 } from '@/service/annotator';
-import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
+import { Table, TableContent, TableDivider, TableHead } from "@/components/ui";
 import { Input, Select } from '@/components/form';
 import { IonButton, IonCheckbox, IonIcon, IonNote } from '@ionic/react';
 import { IoRemoveCircleOutline } from 'react-icons/io5';

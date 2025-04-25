@@ -19,6 +19,7 @@ import { UISlice } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 import { SqlAPI } from "@/service/sql";
+import { CampaignPhaseAPI } from "@/service/campaign/phase";
 
 export const AppStore = configureStore({
   reducer: {
@@ -33,6 +34,7 @@ export const AppStore = configureStore({
     [AnnotatorGroupAPI.reducerPath]: AnnotatorGroupAPI.reducer,
     [CollaboratorAPI.reducerPath]: CollaboratorAPI.reducer,
     [CampaignAPI.reducerPath]: CampaignAPI.reducer,
+    [CampaignPhaseAPI.reducerPath]: CampaignPhaseAPI.reducer,
     [AnnotationFileRangeAPI.reducerPath]: AnnotationFileRangeAPI.reducer,
     [DatasetAPI.reducerPath]: DatasetAPI.reducer,
     [LabelSetAPI.reducerPath]: LabelSetAPI.reducer,
@@ -52,6 +54,7 @@ export const AppStore = configureStore({
       .concat(AnnotatorGroupAPI.middleware)
       .concat(CollaboratorAPI.middleware)
       .concat(CampaignAPI.middleware)
+      .concat(CampaignPhaseAPI.middleware)
       .concat(AnnotationFileRangeAPI.middleware)
       .concat(DatasetAPI.middleware)
       .concat(LabelSetAPI.middleware)

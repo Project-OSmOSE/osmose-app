@@ -6,7 +6,7 @@ export interface AnnotationFileRange {
   last_file_index: number;
   files_count: number; // read only
   annotator: number; // pk
-  annotation_campaign: number; // pk - read only
+  annotation_campaign_phase: number; // pk - read only
 
   finished_tasks_count: number; // read only
 }
@@ -18,7 +18,7 @@ export type AnnotationFile = DatasetFile & {
 }
 
 export type WriteAnnotationFileRange =
-  Omit<AnnotationFileRange, "id" | "first_file_index" | "last_file_index" | "files_count" | "annotation_campaign" | "finished_tasks_count">
+  Omit<AnnotationFileRange, "id" | "first_file_index" | "last_file_index" | "files_count" | "annotation_campaign_phase" | "finished_tasks_count">
   & Partial<Pick<AnnotationFileRange, "id" | "first_file_index" | "last_file_index">>
 
 export type PostAnnotationFileRange =

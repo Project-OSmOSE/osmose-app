@@ -10,17 +10,17 @@ import {
 } from "@/service/campaign";
 import { Dataset, DatasetAPI } from "@/service/dataset";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
 import { SpectrogramConfiguration } from "@/service/dataset/spectrogram-configuration";
 import { LabelSet, LabelSetAPI } from "@/service/campaign/label-set";
 import { ConfidenceIndicatorSet, ConfidenceSetAPI } from "@/service/campaign/confidence-set";
-import { LabelSetDisplay } from "@/components/campaign/label/LabelSet.tsx";
+import { LabelSetDisplay } from "@/components/AnnotationCampaign";
 import { useToast } from "@/service/ui";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
 import { AploseSkeleton } from "@/components/layout";
+import { WarningText } from "@/components/ui";
 
 type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
 
@@ -39,7 +39,7 @@ export const CreateCampaign: React.FC = () => {
     error: errorSubmittingCampaign
   } ] = CampaignAPI.useCreateMutation()
   const toast = useToast();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [ errors, setErrors ] = useState<Errors>({});
   const page = useRef<HTMLDivElement | null>(null);
@@ -192,10 +192,10 @@ export const CreateCampaign: React.FC = () => {
     if (!createdCampaign) return;
     switch (usage) {
       case 'Create':
-        history.push(`/annotation-campaign/${ createdCampaign.id }/edit-annotators`, { fromCreateCampaign: true })
+        navigate(`/annotation-campaign/${ createdCampaign.id }/edit-annotators`, {state: { fromCreateCampaign: true }})
         break;
       case 'Check':
-        history.push(`/annotation-campaign/${ createdCampaign.id }/import-annotations`, { fromCreateCampaign: true })
+        navigate(`/annotation-campaign/${ createdCampaign.id }/import-annotations`, {state: { fromCreateCampaign: true }})
         break;
     }
   }, [ createdCampaign, usage ]);
@@ -231,7 +231,7 @@ export const CreateCampaign: React.FC = () => {
         { isFetchingDatasets && <IonSpinner/> }
 
         { datasetsError &&
-            <WarningMessage>Fail loading datasets:<br/>{ getErrorMessage(datasetsError) }</WarningMessage> }
+            <WarningText>Fail loading datasets:<br/>{ getErrorMessage(datasetsError) }</WarningText> }
 
         { allDatasets && <Fragment>
             <Select label="Dataset" placeholder="Select a dataset" error={ errors.datasets }
@@ -288,7 +288,7 @@ export const CreateCampaign: React.FC = () => {
 
         {/* Label set */ }
         { labelSetsError &&
-            <WarningMessage>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningMessage> }
+            <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
         { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
                                   options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
                                   optionsContainer="alert"
@@ -305,8 +305,8 @@ export const CreateCampaign: React.FC = () => {
 
         {/* Confidence set */ }
         { confidenceSetsError &&
-            <WarningMessage>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
-            </WarningMessage> }
+            <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
+            </WarningText> }
         { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"
                                        error={ errors.confidence_indicator_set }
                                        options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }

@@ -1,4 +1,4 @@
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const API_FETCH_INIT = {
   method: 'GET',
@@ -9,7 +9,7 @@ export const API_FETCH_INIT = {
 
 
 export const useFetchArray = <T>(apiUrL: string) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   return async (pageOptions?: { currentPage: number, pageSize: number }): Promise<T | undefined> => {
@@ -21,7 +21,7 @@ export const useFetchArray = <T>(apiUrL: string) => {
       return await response.json();
     } catch (e: any) {
       if (e?.status === 404) {
-        history.push(location.pathname);
+        navigate(location.pathname);
         return;
       }
       console.error(`Cannot fetch ${ composedURL }, got error:`, e);

@@ -1,14 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useCallback, useState } from 'react';
 import styles from './layout.module.scss';
 import logo from '/images/ode_logo_192x192.png';
 import { IonButton, IonIcon } from '@ionic/react';
 import { logout } from '@/service/auth';
 import { useAppDispatch } from '@/service/app.ts';
-import { useGetCurrentUserQuery } from '@/service/user';
-import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { Link } from "@/components/ui";
+import { useGetCurrentUserQuery, UserAPI } from '@/service/user';
+import { DocumentationButton } from "@/components/ui";
 import { closeOutline, menuOutline } from "ionicons/icons";
-import { useHistory } from "react-router-dom";
+import { Link } from "@/components/ui/Link.tsx";
 
 export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
@@ -16,40 +15,20 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const { data: currentUser } = useGetCurrentUserQuery();
   const dispatch = useAppDispatch();
 
-  const history = useHistory();
-
-  function toggleOpening() {
+  const toggleOpening = useCallback(() => {
     setIsOpen(previous => !previous);
-  }
+  }, [ setIsOpen ])
 
-  function accessDatasets() {
-    history.push('/datasets')
-    setIsOpen(false);
-  }
-
-  function accessCampaigns() {
-    history.push('/annotation-campaign')
-    setIsOpen(false);
-  }
-
-  function accessAccount() {
-    history.push('/account')
-    setIsOpen(false);
-  }
-
-  function openSQL() {
-    history.push('/sql')
-    setIsOpen(false);
-  }
+  const close = useCallback(() => setIsOpen(false), [ setIsOpen ])
 
   return (
     <div className={ [ styles.navbar, isOpen ? styles.opened : styles.closed, className ].join(' ') }>
 
       <div className={ styles.title }>
-        <IonButton fill='clear' color='dark' onClick={ accessCampaigns }>
+        <Link appPath='/annotation-campaign' onClick={ close }>
           <img src={ logo } alt="APLOSE"/>
           <h1>APLOSE</h1>
-        </IonButton>
+        </Link>
 
         <IonButton fill='outline' color='medium'
                    className={ styles.toggle } onClick={ toggleOpening }>
@@ -60,13 +39,11 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
       <div className={ styles.navContent }>
 
         <div className={ styles.links }>
-          <IonButton fill='clear' color='dark' onClick={ accessCampaigns }>
+          <Link appPath='/annotation-campaign' onClick={ close }>
             Annotation campaigns
-          </IonButton>
+          </Link>
           { (currentUser?.is_staff || currentUser?.is_superuser) && <Fragment>
-              <IonButton fill='clear' color='dark' onClick={ accessDatasets }>
-                  Datasets
-              </IonButton>
+              <Link appPath='/dataset' onClick={ close }>Datasets</Link>
           </Fragment> }
         </div>
 
@@ -76,17 +53,16 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <DocumentationButton/>
 
-        { currentUser?.is_superuser && <IonButton fill='clear' color='medium' onClick={ openSQL }>
-            SQL query
-        </IonButton> }
+        { currentUser?.is_superuser && <Link appPath='/sql' color='medium' onClick={ close }>SQL query</Link> }
 
-        <IonButton fill='clear' color='medium' onClick={ accessAccount }>
-          Account
-        </IonButton>
+        <Link appPath='/account' color='medium' onClick={ close }>Account</Link>
 
         <IonButton className={ styles.logoutButton }
                    color={ "medium" }
-                   onClick={ () => dispatch(logout()) }>
+                   onClick={ () => {
+                     dispatch(logout())
+                     dispatch(UserAPI.util.invalidateTags([ { type: 'User', id: 'CURRENT' } ]))
+                   } }>
           Logout
         </IonButton>
       </div>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import React, { Fragment } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import './css/bootstrap-4.1.3.min.css';
 import '@ionic/react/css/core.css';
@@ -10,11 +10,10 @@ import './css/app.css';
 import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { Provider } from "react-redux";
-import { AppStore } from "@/service/app";
-import { AnnotationCampaignList } from "@/view/campaign/list/annotation-campaign-list.page.tsx";
-import { AuthenticatedRoute } from '@/routes';
+import { AppStore, useAppSelector } from "@/service/app";
 import { DatasetList } from '@/view/dataset';
-import { CampaignDetail } from '@/view/campaign/detail/DetailPage.tsx';
+import { AnnotationCampaignDetail, AnnotationCampaignList } from "@/view/campaign";
+import { AnnotationCampaignDetailInfo, AnnotationCampaignPhaseDetail } from "@/view/campaign/details";
 import { Home } from "@/view/home/Home.tsx";
 import { Account, Login } from '@/view/auth';
 import { AnnotatorPage } from "@/view/annotator/AnnotatorPage.tsx";
@@ -24,6 +23,9 @@ import { EditAnnotators } from "@/view/campaign/edit/EditAnnotators.tsx";
 import { ImportAnnotations } from "@/view/campaign/edit/ImportAnnotations";
 import { AlertProvider } from "@/service/ui/alert";
 import { SqlQuery } from "@/view/admin/sql/SqlQuery.tsx";
+import { selectIsConnected } from "@/service/auth";
+import { useGetCurrentUserQuery } from "@/service/user";
+import { AploseSkeleton } from "@/components/layout";
 
 
 setupIonicReact({
@@ -34,7 +36,11 @@ setupIonicReact({
 export const App: React.FC = () => (
   <Provider store={ AppStore }>
     <AlertProvider>
-      <AppContent/>
+      <IonApp>
+        <BrowserRouter basename='/app'>
+          <AppContent/>
+        </BrowserRouter>
+      </IonApp>
     </AlertProvider>
   </Provider>
 )
@@ -42,32 +48,51 @@ export const App: React.FC = () => (
 const AppContent: React.FC = () => {
   useLoadEventService();
 
+  const isConnected = useAppSelector(selectIsConnected);
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const from = useLocation()
+
   return (
-    <IonApp>
-      <Router basename='/app'>
-        <Switch>
-          <Route exact path='/'><Home/></Route>
-          <Route exact path="/login"><Login/></Route>
+    <Routes>
 
-          <AuthenticatedRoute exact
-                              path='/annotation-campaign/:campaignID/file/:fileID'><AnnotatorPage/></AuthenticatedRoute>
+      <Route index element={ <Home/> }/>
+      <Route path='login' element={ <Login/> }/>
 
-          <AuthenticatedRoute exact path='/datasets'><DatasetList/></AuthenticatedRoute>
+      { isConnected && <Fragment>
 
-          <AuthenticatedRoute exact path='/sql'><SqlQuery/></AuthenticatedRoute>
-          <AuthenticatedRoute exact path='/account'><Account/></AuthenticatedRoute>
+          <Route path='dataset' element={ <AploseSkeleton/> }>
+              <Route index element={ <DatasetList/> }/>
+          </Route>
 
-          {/* Annotation campaign */ }
-          <AuthenticatedRoute exact path='/annotation-campaign'><AnnotationCampaignList/></AuthenticatedRoute>
-          <AuthenticatedRoute exact path='/annotation-campaign/create'><CreateCampaign/></AuthenticatedRoute>
-          <AuthenticatedRoute exact path='/annotation-campaign/:id'><CampaignDetail/></AuthenticatedRoute>
-          <AuthenticatedRoute exact path='/annotation-campaign/:id/edit-annotators'><EditAnnotators/></AuthenticatedRoute>
-          <AuthenticatedRoute exact path='/annotation-campaign/:id/import-annotations'><ImportAnnotations/></AuthenticatedRoute>
+          <Route path='annotation-campaign' element={ <AploseSkeleton/> }>
+              <Route index element={ <AnnotationCampaignList/> }/>
+              <Route path='create' element={ <CreateCampaign/> }/>
 
-          <Route path="**"><Redirect to="/annotation-campaign"/></Route>
-        </Switch>
-      </Router>
-    </IonApp>
+              <Route path=':campaignID'>
+                  <Route element={ <AnnotationCampaignDetail/> }>
+                      <Route index element={ <AnnotationCampaignDetailInfo/> }/>
+                      <Route path='phase/:phaseID' element={ <AnnotationCampaignPhaseDetail/> }/>
+                  </Route>
+
+                  <Route path='phase/:phaseID'>
+                      <Route path='edit-annotators' element={ <EditAnnotators/> }/>
+                      <Route path='import-annotations' element={ <ImportAnnotations/> }/>
+                  </Route>
+              </Route>
+          </Route>
+
+          <Route path='annotation-campaign/:campaignID/phase/:phaseID/file/:fileID'
+                 element={ <AnnotatorPage/> }/>
+
+        { currentUser?.is_superuser && <Route path='sql' element={ <SqlQuery/> }/> }
+          <Route path='account' element={ <Account/> }/>
+
+          <Route path="*" element={ <Navigate to="/annotation-campaign" replace state={ { from } }/> }/>
+      </Fragment>
+      }
+
+      <Route path="*" element={ <Navigate to="/login" replace state={ { from } }/> }/>
+    </Routes>
   )
 }
 

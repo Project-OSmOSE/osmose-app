@@ -7,7 +7,7 @@ import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 
 export const UpdateEmail: React.FC = () => {
-  const { data: currentUser, refetch: refetchUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = useGetCurrentUserQuery();
   const [ patchUser, {
     isLoading: isSubmitting,
     error: patchError,
@@ -38,7 +38,6 @@ export const UpdateEmail: React.FC = () => {
   useEffect(() => {
     if (isPatchSuccessful) {
       toast.presentSuccess('You email have been changed')
-      refetchUser()
     }
   }, [ isPatchSuccessful ]);
 

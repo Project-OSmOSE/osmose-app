@@ -8,6 +8,7 @@ import { getAuthenticatedBaseQuery } from '@/service/auth';
 export const CampaignAPI = createApi({
   reducerPath: 'campaignApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotation-campaign/'),
+  tagTypes: [ 'AnnotationCampaign' ],
   endpoints: (builder) => ({
     list: builder.query<Array<AnnotationCampaign>, {
       onlyArchived?: boolean;
@@ -27,8 +28,19 @@ export const CampaignAPI = createApi({
           url: `/${ encodeQueryParams(params) }`
         }
       },
+      providesTags: campaigns => campaigns ? [ ...campaigns.map(({ id }) => ({
+        type: 'AnnotationCampaign' as const,
+        id
+      })), 'AnnotationCampaign' ] : [ 'AnnotationCampaign' ]
     }),
-    retrieve: builder.query<OldAnnotationCampaign, ID>({ query: (id) => `${ id }/`, }),
+    retrieve: builder.query<AnnotationCampaign, ID>({
+      query: (id) => {
+        return {
+          url: `${ id }/`
+        }
+      },
+      providesTags: (campaign, _, arg) => [ { type: 'AnnotationCampaign', id: campaign?.id ?? arg } ]
+    }),
     create: builder.mutation<OldAnnotationCampaign, WriteAnnotationCampaign>({
       query: (data) => {
         if (data.deadline?.trim()) data.deadline = new Date(data.deadline).toISOString().split('T')[0];
@@ -37,12 +49,13 @@ export const CampaignAPI = createApi({
         data.instructions_url = data.instructions_url?.trim() ? data.instructions_url.trim() : null;
         return {
           url: '',
-            method: 'POST',
+          method: 'POST',
           body: data
         }
       },
+      invalidatesTags: [ 'AnnotationCampaign' ]
     }),
-    patch: builder.mutation<OldAnnotationCampaign, Pick<WriteAnnotationCampaign, 'labels_with_acoustic_features'> & {
+    patch: builder.mutation<AnnotationCampaign, Pick<WriteAnnotationCampaign, 'labels_with_acoustic_features'> & {
       id: ID
     }>({
       query: (data) => ({
@@ -53,12 +66,18 @@ export const CampaignAPI = createApi({
           id: undefined
         }
       }),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      invalidatesTags: (result, error, arg) => [ { type: 'AnnotationCampaign', id: arg.id } ],
     }),
-    archive: builder.mutation<OldAnnotationCampaign, ID>({
+    archive: builder.mutation<AnnotationCampaign, ID>({
       query: (id) => ({
         url: `${ id }/archive/`,
         method: 'POST',
       }),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      invalidatesTags: (result, error, arg) => [ { type: 'AnnotationCampaign', id: arg } ],
     }),
     downloadReport: builder.query<undefined, OldAnnotationCampaign>({
       query: (campaign) => ({

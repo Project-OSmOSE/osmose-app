@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
@@ -18,7 +18,7 @@ export const NavigationButtons: React.FC = () => {
   } = useAnnotator();
 
   // Services
-  const history = useHistory();
+  const navigate = useNavigate();
   const submitService = useAnnotatorSubmitService();
   const toast = useToast();
 
@@ -77,9 +77,9 @@ export const NavigationButtons: React.FC = () => {
     try {
       await submitService.submit()
       if (next_file_id.current) {
-        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+        navigate(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
       } else {
-        history.push(`/annotation-campaign/${ campaignID }`)
+        navigate(`/annotation-campaign/${ campaignID }`)
       }
     } catch (e: any) {
       toast.presentError(e)
@@ -91,12 +91,12 @@ export const NavigationButtons: React.FC = () => {
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
   }
 
   if (!annotatorData?.is_assigned) return <div/>

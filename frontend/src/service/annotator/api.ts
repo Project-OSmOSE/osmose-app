@@ -1,10 +1,9 @@
-import { createApi, RootState } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, RetrieveParams } from './type.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotationCampaignUsage, OldAnnotationCampaign } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
-import { AppState } from "@/service/app.ts";
 import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
 import { AcousticFeatures, AnnotationResult, AnnotationResultValidations } from "@/service/campaign/result";
 import { DetectorConfiguration } from "@/service/campaign/detector";
@@ -59,22 +58,15 @@ function transformBaseResult(result: AnnotationResult, usage: AnnotationCampaign
 export const AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
+  tagTypes: [ 'Annotator' ],
   endpoints: (builder) => ({
     retrieve: builder.query<AnnotatorData, RetrieveParams>({
       query: ({
                 campaignID,
+                phaseID,
                 fileID,
                 filters
-              }) => `campaign/${ campaignID }/file/${ fileID }/${ encodeQueryParams(getQueryParamsForFilters(filters)) }`,
-      forceRefetch({ currentArg, state }: {
-        currentArg: RetrieveParams | undefined;
-        state: RootState<any, any, string>
-      }): boolean {
-        const prevCampaignID = (state as unknown as AppState).annotator.campaignID;
-        const prevFileID = (state as unknown as AppState).annotator.file?.id;
-        if (prevCampaignID != currentArg?.campaignID) return true;
-        return prevFileID != currentArg?.fileID;
-      },
+              }) => `campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/${ encodeQueryParams(getQueryParamsForFilters(filters)) }`,
       transformResponse(baseQueryReturnValue: AnnotatorData,): AnnotatorData {
         return {
           ...baseQueryReturnValue,
@@ -82,10 +74,17 @@ export const AnnotatorAPI = createApi({
             ...s, zoom_level: s.zoom_level + 1
           }))
         }
-      }
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      providesTags: (result, error, arg) => [ {
+        type: 'Annotator',
+        id: `${ arg.campaignID }-${ arg.phaseID }-${ arg.fileID }`
+      } ]
     }),
     post: builder.mutation<void, {
       campaign: OldAnnotationCampaign,
+      phaseID: ID,
       fileID: ID,
       results: AnnotationResult[],
       task_comments: AnnotationComment[],
@@ -126,7 +125,13 @@ export const AnnotatorAPI = createApi({
             }
           }
         }
-      }
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      invalidatesTags: (result, error, arg) => [ {
+        type: 'Annotator',
+        id: `${ arg.campaign.id }-${ arg.phaseID }-${ arg.fileID }`
+      } ]
     })
   })
 })

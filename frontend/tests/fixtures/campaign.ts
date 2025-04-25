@@ -1,11 +1,12 @@
 import { USERS } from './user';
-import { AnnotationCampaign, AnnotationCampaignPhase } from '../../src/service/campaign';
+import { AnnotationCampaign } from '../../src/service/campaign';
 import { DATASET, DATASET_SR } from './dataset';
 import { LabelSet } from '../../src/service/campaign/label-set';
 import { ConfidenceIndicator, ConfidenceIndicatorSet } from '../../src/service/campaign/confidence-set';
 import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range';
 import { Detector } from '../../src/service/campaign/detector';
 import { AnnotatorGroup } from "../../src/service/annotator-group";
+import { AnnotationCampaignPhase } from "../../src/service/campaign/phase";
 
 const deadline = new Date()
 deadline.setTime(0)
@@ -112,7 +113,7 @@ export const FILE_RANGE = {
     first_file_index: 2,
     last_file_index: 3,
     finished_tasks_count: 1,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     annotator: USERS.annotator.id
   } satisfies AnnotationFileRange,
 }

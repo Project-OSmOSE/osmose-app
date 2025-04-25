@@ -4,21 +4,20 @@ import styles from './home.module.scss';
 import { IonButton, IonIcon } from "@ionic/react";
 import { chevronBackOutline, chevronForwardOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
-import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { Button, Link } from "@/components/ui";
+import { Button, DocumentationButton, Link } from "@/components/ui";
 import { useListCollaboratorsQuery } from "@/service/collaborator";
 import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected } from "@/service/auth";
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 export const Home: React.FC = () => {
   const isConnected = useAppSelector(selectIsConnected);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function accessAplose() {
-    if (isConnected) history.push('/annotation-campaign');
-    else history.push('/login')
+    if (isConnected) navigate('/annotation-campaign');
+    else navigate('/login')
   }
 
   return (
@@ -177,8 +176,7 @@ const Resources: React.FC = () => (
     <div className={ styles.links }>
       <DocumentationButton/>
       /
-      <Link href="/app/images/campagne.pdf" target="_blank"
-            rel="noopener noreferrer" color='medium'>
+      <Link href="/app/images/campagne.pdf" target="_blank" color='medium'>
         Annotation Campaign APOCADO
       </Link>
     </div>

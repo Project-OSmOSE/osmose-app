@@ -31,7 +31,6 @@ from backend.api.models import (
     AnnotationComment,
     AnnotationFileRange,
     DatasetFile,
-    AnnotationCampaignPhase,
 )
 from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers import (
@@ -43,6 +42,7 @@ from backend.api.serializers.annotation.campaign import (
 from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
+from .phase import AnnotationCampaignPhaseViewSet
 
 REPORT_HEADERS = [  # headers
     "dataset",
@@ -101,10 +101,6 @@ class AnnotationCampaignViewSet(
 ):
     """Model viewset for Annotation campaign"""
 
-    phases_queryset = AnnotationCampaignPhase.objects.select_related(
-        "created_by__aplose",
-        "ended_by__aplose",
-    ).prefetch_related("tasks")
     queryset = (
         AnnotationCampaign.objects.select_related(
             "owner__aplose",
@@ -113,7 +109,6 @@ class AnnotationCampaignViewSet(
         .prefetch_related(
             "datasets",
             "labels_with_acoustic_features",
-            Prefetch("phases", queryset=phases_queryset.distinct()),
         )
         .annotate(
             files_count=Count("datasets__files", distinct=True),
@@ -124,6 +119,15 @@ class AnnotationCampaignViewSet(
     filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
     search_fields = ("name",)
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        self.queryset = self.queryset.prefetch_related(
+            Prefetch(
+                "phases",
+                AnnotationCampaignPhaseViewSet.get_queryset_for_user(self.request.user),
+            )
+        ).order_by("name")
+        return super().get_queryset()
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":

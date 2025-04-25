@@ -21,7 +21,6 @@ import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
-import { useToast } from "@/service/ui";
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useCurrentConfiguration, useFileDuration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
@@ -56,16 +55,6 @@ export const Annotator: React.FC = () => {
   const localIsPaused = useRef<boolean>(true);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const spectrogramRenderRef = useRef<SpectrogramRender | null>(null);
-
-  // Services
-  const toast = useToast();
-
-  useEffect(() => {
-
-    return () => {
-      toast.dismiss();
-    }
-  }, [])
 
   useEffect(() => {
     localIsPaused.current = audio.isPaused;

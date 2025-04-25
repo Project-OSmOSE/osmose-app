@@ -6,7 +6,6 @@ import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useToast } from "@/service/ui";
 import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
 
@@ -17,16 +16,9 @@ export const AnnotatorPage: React.FC = () => {
     campaign,
   } = useAnnotator();
 
-  const toast = useToast();
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
   const canNavigate = useCanNavigate()
-
-  useEffect(() => {
-    return () => {
-      toast.dismiss();
-    }
-  }, [])
 
   async function backToCampaign() {
     if (await canNavigate())

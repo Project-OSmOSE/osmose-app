@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { FileFilters, UIState } from "./type.ts";
 
-const initialFileFiltersState: UIState['fileFilters'] = {
-  campaignID: undefined,
+const initialFileFiltersState: FileFilters = {
   search: undefined,
   isSubmitted: undefined,
   withUserAnnotations: undefined,

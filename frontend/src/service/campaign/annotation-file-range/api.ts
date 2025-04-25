@@ -11,15 +11,15 @@ export const FILES_PAGE_SIZE = 20;
 export const AnnotationFileRangeAPI = createApi({
   reducerPath: 'fileRangeApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotation-file-range/'),
+  tagTypes: [ 'AnnotationFileRange', 'AnnotationFileRangeFile' ],
   endpoints: (builder) => ({
-
     list: builder.query<Array<AnnotationFileRange>, {
-      campaignID?: ID,
+      phaseID?: ID,
       forCurrentUser?: boolean,
     }>({
-      query: ({ campaignID, forCurrentUser }) => {
+      query: ({ phaseID, forCurrentUser }) => {
         const params: any = {}
-        if (campaignID) params.annotation_campaign = campaignID;
+        if (phaseID) params.annotation_campaign_phase = phaseID;
         if (forCurrentUser) params.for_current_user = true;
         return encodeQueryParams(params);
       },
@@ -29,35 +29,45 @@ export const AnnotationFileRangeAPI = createApi({
           first_file_index: range.first_file_index + 1,
           last_file_index: range.last_file_index + 1
         }));
-      }
+      },
+      providesTags: [ 'AnnotationFileRange' ]
     }),
     listFilesWithPagination: builder.query<Paginated<AnnotationFile> & { resume?: number }, {
       page: number,
       page_size?: number,
+      phaseID: number,
       filters: FileFilters
     }>({
-      query: ({ page, filters, page_size = FILES_PAGE_SIZE},) => `campaign/${ filters.campaignID }/files/${ encodeQueryParams({
+      query: ({
+                page,
+                filters,
+                phaseID,
+                page_size = FILES_PAGE_SIZE
+              },) => `phase/${ phaseID }/files/${ encodeQueryParams({
         page,
         page_size,
         ...getQueryParamsForFilters(filters)
       }) }`,
-      transformResponse(baseQueryReturnValue: Omit<Paginated<AnnotationFile>, 'pageCount'> & { resume?: number }, _, arg): Paginated<AnnotationFile> & { resume?: number } {
+      transformResponse(baseQueryReturnValue: Omit<Paginated<AnnotationFile>, 'pageCount'> & {
+        resume?: number
+      }, _, arg): Paginated<AnnotationFile> & { resume?: number } {
         return {
           ...baseQueryReturnValue,
           pageCount: Math.ceil(baseQueryReturnValue.count / (arg.page_size ?? FILES_PAGE_SIZE)),
         }
-      }
+      },
+      providesTags: [ 'AnnotationFileRangeFile' ]
     }),
 
     post: builder.mutation<Array<AnnotationFileRange>, {
-      campaignID: ID,
+      phaseID: ID,
       filesCount: number,
       data: Array<PostAnnotationFileRange>,
       force?: boolean
     }>({
-      query: ({ campaignID, filesCount, data, force }) => {
+      query: ({ phaseID, filesCount, data, force }) => {
         return {
-          url: `campaign/${ campaignID }/`,
+          url: `phase/${ phaseID }/`,
           method: 'POST',
           body: {
             data: data.map(range => {
@@ -73,7 +83,8 @@ export const AnnotationFileRangeAPI = createApi({
             force
           }
         }
-      }
+      },
+      invalidatesTags: [ 'AnnotationFileRange', 'AnnotationFileRangeFile' ]
     })
   })
 })

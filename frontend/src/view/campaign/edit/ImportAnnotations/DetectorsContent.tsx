@@ -4,10 +4,10 @@ import { FormBloc, Select } from "@/components/form";
 import styles from './importAnnotations.module.scss'
 import { useListDetectorQuery } from "@/service/campaign/detector";
 import { CheckboxChangeEventDetail, IonCheckbox, IonIcon, IonNote, IonSpinner } from "@ionic/react";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
 import { alertOutline } from "ionicons/icons";
 import { ResultImportSlice } from "@/service/campaign/result/import";
+import { WarningText } from "@/components/ui";
 
 export const DetectorsContent: React.FC = () => {
   const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } = useListDetectorQuery({});
@@ -39,7 +39,7 @@ export const DetectorsContent: React.FC = () => {
 
     { isLoadingDetectors && <IonSpinner/> }
     { detectorsLoadError &&
-        <WarningMessage>Fail loading known detectors:<br/>{ getErrorMessage(detectorsLoadError) }</WarningMessage> }
+        <WarningText>Fail loading known detectors:<br/>{ getErrorMessage(detectorsLoadError) }</WarningText> }
 
     { allDetectors && file.detectors.map(initialName => <DetectorEntry key={ initialName }
                                                                        disabled={ upload.state !== 'initial' }

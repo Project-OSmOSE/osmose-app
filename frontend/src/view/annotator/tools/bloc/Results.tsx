@@ -7,11 +7,10 @@ import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
 import styles from './bloc.module.scss';
-import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
+import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
 import { useParams } from "react-router-dom";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
 import { createPortal } from "react-dom";
-import { Button, Modal, ModalHeader } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";

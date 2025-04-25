@@ -1,20 +1,19 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAlert, useToast } from "@/service/ui";
-import { CampaignAPI } from "@/service/campaign";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage, getNewItemID } from "@/service/function.ts";
 import { getDisplayName, User, UserAPI } from "@/service/user";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { AnnotationFileRangeAPI, WriteAnnotationFileRange } from "@/service/campaign/annotation-file-range";
 import { QueryStatus } from "@reduxjs/toolkit/query";
-import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
+import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { lockClosedOutline, trashBinOutline } from "ionicons/icons";
 import { Item } from "@/types/item.ts";
 import styles from './edit.module.scss';
-import { AploseSkeleton } from "@/components/layout";
+import { usePagePhase } from "@/service/routing";
+import { CampaignAPI } from "@/service/campaign";
 
 type SearchItem = {
   type: 'user' | 'group';
@@ -23,22 +22,23 @@ type SearchItem = {
 }
 
 export const EditAnnotators: React.FC = () => {
-  const location = useLocation();
-  const history = useHistory();
-  const toast = useToast();
-  const { id: campaignID } = useParams<{ id: string }>();
+  const { campaignID } = useParams<{ campaignID: string }>();
   const {
     data: campaign,
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign
-  } = CampaignAPI.useRetrieveQuery(campaignID);
+  } = CampaignAPI.useRetrieveQuery(campaignID!, { skip: !campaignID });
+  const phase = usePagePhase()
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useToast();
   const { data: allUsers, isFetching: isFetchingUsers, error: errorLoadingUsers } = UserAPI.useListQuery()
   const { data: allGroups, isFetching: isFetchingGroups, error: errorLoadingGroups } = AnnotatorGroupAPI.useListQuery();
   const {
     data: initialFileRanges,
     isFetching: isFetchingFileRanges,
     error: errorLoadingFileRanges
-  } = AnnotationFileRangeAPI.useListQuery({ campaignID: campaignID })
+  } = AnnotationFileRangeAPI.useListQuery({ phaseID: phase?.id })
   const [ postFileRanges, {
     isLoading: isSubmitting,
     error: errorSubmitting,
@@ -50,8 +50,6 @@ export const EditAnnotators: React.FC = () => {
     if ((location.state as any).fromCreateCampaign) toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
     if ((location.state as any).fromImportAnnotations) toast.presentSuccess(`Annotations for campaign '${ campaign.name }' were successfully imported`)
   }, [ location, campaign ]);
-
-  const page = useRef<HTMLDivElement | null>(null);
 
   // File ranges
   const [ fileRanges, setFileRanges ] = useState<Array<Partial<WriteAnnotationFileRange> & {
@@ -111,19 +109,19 @@ export const EditAnnotators: React.FC = () => {
 
   // Navigation
   const back = useCallback(() => {
-    if (campaign) history.push(`/annotation-campaign/${ campaign.id }`)
+    if (campaign) navigate(`/annotation-campaign/${ campaign.id }`)
   }, [ campaign ])
 
   // Submit
   const submit = useCallback(() => {
-    if (!campaign) return;
+    if (!phase || !campaign) return;
     postFileRanges({
-      campaignID,
+      phaseID: phase.id,
       filesCount: campaign.files_count,
       data: fileRanges,
       force: isForced
     })
-  }, [fileRanges, campaign, campaignID, isForced])
+  }, [ fileRanges, phase, campaign, isForced ])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);
@@ -131,60 +129,56 @@ export const EditAnnotators: React.FC = () => {
     if (submissionStatus === QueryStatus.fulfilled) back()
   }, [ submissionStatus ]);
 
-  return <AploseSkeleton>
-    <div className={ styles.page } ref={ page }>
+  return <Fragment>
+    <div className={ styles.title }>
+      <h2>Manage annotators</h2>
+      { campaign && <h5>{ campaign.name }</h5> }
+    </div>
 
-      <div className={ styles.title }>
-        <h2>Manage annotators</h2>
-        { campaign && <h5>{ campaign.name }</h5> }
-      </div>
+    <FormBloc className={ styles.annotators }>
 
-      <FormBloc>
+      {/* Loading */ }
+      { (isFetchingCampaign || isFetchingUsers || isFetchingGroups || isFetchingFileRanges) && <IonSpinner/> }
+      { errorLoadingCampaign &&
+          <WarningText>Fail loading campaign:<br/>{ getErrorMessage(errorLoadingCampaign) }</WarningText> }
+      { errorLoadingUsers &&
+          <WarningText>Fail loading users:<br/>{ getErrorMessage(errorLoadingUsers) }</WarningText> }
+      { errorLoadingGroups &&
+          <WarningText>Fail loading groups:<br/>{ getErrorMessage(errorLoadingGroups) }</WarningText> }
+      { errorLoadingFileRanges &&
+          <WarningText>Fail loading file ranges:<br/>{ getErrorMessage(errorLoadingFileRanges) }</WarningText> }
 
-        {/* Loading */ }
-        { (isFetchingCampaign || isFetchingUsers || isFetchingGroups || isFetchingFileRanges) && <IonSpinner/> }
-        { errorLoadingCampaign &&
-            <WarningMessage>Fail loading campaign:<br/>{ getErrorMessage(errorLoadingCampaign) }</WarningMessage> }
-        { errorLoadingUsers &&
-            <WarningMessage>Fail loading users:<br/>{ getErrorMessage(errorLoadingUsers) }</WarningMessage> }
-        { errorLoadingGroups &&
-            <WarningMessage>Fail loading groups:<br/>{ getErrorMessage(errorLoadingGroups) }</WarningMessage> }
-        { errorLoadingFileRanges &&
-            <WarningMessage>Fail loading file ranges:<br/>{ getErrorMessage(errorLoadingFileRanges) }</WarningMessage> }
+      { fileRanges && campaign && allUsers && allGroups && fileRanges.length > 0 &&
+          <Table columns={ 3 }>
+              <TableHead isFirstColumn={ true }>Annotator</TableHead>
+              <TableHead className={styles.fileRangeHead}>
+                  File range
+                  <small>(between 1 and { campaign.files_count })</small>
+                  <small className="disabled"><i>Start and end limits are included</i></small>
+              </TableHead>
+              <TableHead/>
+              <TableDivider/>
+            { fileRanges.map(range => <AnnotatorRangeLine key={ range.id }
+                                                          range={ range }
+                                                          setIsForced={ setIsForced }
+                                                          annotator={ allUsers.find(u => u.id === range.annotator)! }
+                                                          filesCount={ campaign.files_count }
+                                                          onFirstIndexChange={ first_file_index => updateFileRange({
+                                                            id: range.id,
+                                                            first_file_index
+                                                          }) }
+                                                          onLastIndexChange={ last_file_index => updateFileRange({
+                                                            id: range.id,
+                                                            last_file_index
+                                                          }) }
+                                                          onDelete={ () => removeFileRange(range) }
+            />) }
+          </Table>
+      }
 
-        { fileRanges && campaign && allUsers && allGroups && fileRanges.length > 0 &&
-            <Table columns={ 3 }>
-                <TableHead isFirstColumn={ true }>Annotator</TableHead>
-                <TableHead>
-                    File range
-                    <small>(between 1 and { campaign.files_count })</small>
-                    <small className="disabled"><i>Start and end limits are included</i></small>
-                </TableHead>
-                <TableHead/>
-                <TableDivider/>
-              { fileRanges.map(range => <AnnotatorRangeLine key={ range.id }
-                                                            range={ range }
-                                                            setIsForced={ setIsForced }
-                                                            annotator={ allUsers.find(u => u.id === range.annotator)! }
-                                                            filesCount={ campaign.files_count }
-                                                            onFirstIndexChange={ first_file_index => updateFileRange({
-                                                              id: range.id,
-                                                              first_file_index
-                                                            }) }
-                                                            onLastIndexChange={ last_file_index => updateFileRange({
-                                                              id: range.id,
-                                                              last_file_index
-                                                            }) }
-                                                            onDelete={ () => removeFileRange(range) }
-              />) }
-            </Table>
-        }
-
-        <Searchbar placeholder="Search annotator..."
-                   values={ availableUsers.map(a => ({ value: `${ a.type }-${ a.id }`, label: a.display })) }
-                   onValueSelected={ addFileRange }/>
-
-      </FormBloc>
+      <Searchbar placeholder="Search annotator..."
+                 values={ availableUsers.map(a => ({ value: `${ a.type }-${ a.id }`, label: a.display })) }
+                 onValueSelected={ addFileRange }/>
 
       <div className={ styles.buttons }>
         <IonButton color='medium' fill='outline' onClick={ back }>
@@ -195,8 +189,9 @@ export const EditAnnotators: React.FC = () => {
           Update annotators
         </IonButton>
       </div>
-    </div>
-  </AploseSkeleton>
+
+    </FormBloc>
+  </Fragment>
 }
 
 const AnnotatorRangeLine: React.FC<{
