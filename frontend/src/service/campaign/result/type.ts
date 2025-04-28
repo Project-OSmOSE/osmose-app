@@ -29,7 +29,7 @@ interface BaseAnnotationResult {
   id: number;
   label: string;
   confidence_indicator: string | null;
-  annotation_campaign: number; // pk - read only
+  annotation_campaign_phase: number; // pk - read only
   annotator: number | null; // pk - read only
   dataset_file: number; // pk - read only
   detector_configuration: DetectorConfiguration & { detector: string } | null;

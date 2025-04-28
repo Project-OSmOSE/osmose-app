@@ -1,6 +1,6 @@
 import { AnnotatorData } from '../../src/service/annotator';
 import { AnnotationComment } from '../../src/service/campaign/comment';
-import { CAMPAIGN, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
+import { CAMPAIGN, CAMPAIGN_PHASE, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
 import { USERS } from './user';
 import { BoxResult, WeakResult } from '../../src/service/campaign/result';
 import { DATASET } from './dataset';
@@ -33,7 +33,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: null,
     end_frequency: null,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [ COMMENT.presence ],
     confidence_indicator: CONFIDENCE.sure.label,
@@ -51,7 +51,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: 12,
     end_frequency: 40,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [],
     confidence_indicator: CONFIDENCE.notSure.label,

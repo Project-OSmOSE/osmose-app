@@ -15,7 +15,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
+  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
   & {
   id?: number;
   confidence_indicator: string | undefined;

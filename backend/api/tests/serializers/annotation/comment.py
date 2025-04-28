@@ -3,8 +3,7 @@
 from django.test import TestCase
 
 from backend.api.models import (
-    AnnotationCampaign,
-    AnnotationComment,
+    AnnotationComment, AnnotationCampaignPhase, AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationCommentSerializer,
@@ -13,7 +12,7 @@ from backend.utils.tests import all_fixtures
 
 comment = {
     "comment": "Test A",
-    "annotation_campaign": 1,
+    "annotation_campaign_phase": 1,
     "dataset_file": 1,
     "author": 4,
     "annotation_result": 1,
@@ -41,7 +40,7 @@ class CreateTestCase(TestCase):
         self.assertListEqual(
             list(serializer.errors.keys()),
             [
-                "annotation_campaign",
+                "annotation_campaign_phase",
                 "author",
                 "dataset_file",
                 "comment",
@@ -49,14 +48,16 @@ class CreateTestCase(TestCase):
         )
         self.assertEqual(serializer.errors["author"][0].code, "required")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "required")
-        self.assertEqual(serializer.errors["annotation_campaign"][0].code, "required")
+        self.assertEqual(
+            serializer.errors["annotation_campaign_phase"][0].code, "required"
+        )
         self.assertEqual(serializer.errors["comment"][0].code, "required")
 
     def test_null(self):
         serializer = self._get_serializer(
             {
                 "comment": None,
-                "annotation_campaign": None,
+                "annotation_campaign_phase": None,
                 "dataset_file": None,
                 "author": None,
                 "annotation_result": None,
@@ -66,7 +67,7 @@ class CreateTestCase(TestCase):
         self.assertListEqual(
             list(serializer.errors.keys()),
             [
-                "annotation_campaign",
+                "annotation_campaign_phase",
                 "author",
                 "dataset_file",
                 "comment",
@@ -74,14 +75,14 @@ class CreateTestCase(TestCase):
         )
         self.assertEqual(serializer.errors["author"][0].code, "null")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "null")
-        self.assertEqual(serializer.errors["annotation_campaign"][0].code, "null")
+        self.assertEqual(serializer.errors["annotation_campaign_phase"][0].code, "null")
         self.assertEqual(serializer.errors["comment"][0].code, "null")
 
     def test_does_not_exist(self):
         serializer = self._get_serializer(
             {
                 **comment,
-                "annotation_campaign": -1,
+                "annotation_campaign_phase": -1,
                 "dataset_file": -1,
                 "author": -1,
                 "annotation_result": -1,
@@ -92,7 +93,7 @@ class CreateTestCase(TestCase):
             list(serializer.errors.keys()),
             [
                 "annotation_result",
-                "annotation_campaign",
+                "annotation_campaign_phase",
                 "author",
                 "dataset_file",
             ],
@@ -100,7 +101,7 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["author"][0].code, "does_not_exist")
         self.assertEqual(serializer.errors["dataset_file"][0].code, "does_not_exist")
         self.assertEqual(
-            serializer.errors["annotation_campaign"][0].code, "does_not_exist"
+            serializer.errors["annotation_campaign_phase"][0].code, "does_not_exist"
         )
         self.assertEqual(
             serializer.errors["annotation_result"][0].code, "does_not_exist"
@@ -111,11 +112,16 @@ class UpdateTestCase(CreateTestCase):
     fixtures = all_fixtures
 
     def setUp(self):
-        campaign = AnnotationCampaign.objects.get(pk=1)
+        phase = AnnotationCampaignPhase.objects.get(pk=1)
+        annotator = (
+            AnnotationFileRange.objects.filter(annotation_campaign_phase=phase)
+            .first()
+            .annotator
+        )
         self.instance = AnnotationComment.objects.create(
-            annotation_campaign=campaign,
-            dataset_file=campaign.datasets.first().files.first(),
-            author=campaign.annotators.first(),
+            annotation_campaign_phase=phase,
+            dataset_file=phase.annotation_campaign.datasets.first().files.first(),
+            author=annotator,
             comment="Test",
         )
 

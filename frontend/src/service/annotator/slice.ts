@@ -94,7 +94,7 @@ export const AnnotatorSlice = createSlice({
         ...payload,
         id: getNewItemID(state.results),
         annotator: -1,
-        annotation_campaign: -1,
+        annotation_campaign_phase: -1,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
@@ -148,7 +148,7 @@ export const AnnotatorSlice = createSlice({
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
         annotator: -1,
-        annotation_campaign: -1,
+        annotation_campaign_phase: -1,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
@@ -207,7 +207,7 @@ export const AnnotatorSlice = createSlice({
             results.push({
               id: getNewItemID(state.results),
               annotator: -1,
-              annotation_campaign: -1,
+              annotation_campaign_phase: -1,
               dataset_file: -1,
               detector_configuration: null,
               comments: [],

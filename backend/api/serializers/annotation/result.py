@@ -356,8 +356,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
     id = serializers.IntegerField(required=False, allow_null=True)
-    annotation_campaign = serializers.PrimaryKeyRelatedField(
-        queryset=AnnotationCampaign.objects.all()
+    annotation_campaign_phase = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaignPhase.objects.all()
     )
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
