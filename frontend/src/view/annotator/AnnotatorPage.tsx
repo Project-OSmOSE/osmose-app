@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
-import { IonButton, IonIcon, IonNote } from "@ionic/react";
+import { IonIcon, IonNote } from "@ionic/react";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
@@ -9,24 +9,16 @@ import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/i
 import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
 import { useRetrieveAnnotatorQuery } from "@/service/annotator";
-import { usePageCampaign } from "@/service/routing";
+import { usePageCampaign, usePagePhase } from "@/service/routing";
 
 export const AnnotatorPage: React.FC = () => {
   const campaign = usePageCampaign()
+  const phase = usePagePhase()
   const { data } = useRetrieveAnnotatorQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
   const canNavigate = useCanNavigate()
-
-  async function backToCampaign() {
-    if (await canNavigate())
-      window.open(`/app/annotation-campaign/${ campaign?.id }`, "_self")
-  }
-
-  function auxBackToCampaign() {
-    window.open(`/app/annotation-campaign/${ campaign?.id }`, "_blank")
-  }
 
   useEffect(() => {
     if (pointerPosition) { // Disable scroll
@@ -34,7 +26,7 @@ export const AnnotatorPage: React.FC = () => {
     } else { // Enable scroll
       document.getElementsByTagName('html')[0].style.overflowY = 'unset';
     }
-  }, [pointerPosition]);
+  }, [ pointerPosition ]);
 
   // 'page' class is for playwright tests
   return <div className={ [ styles.page, 'page' ].join(' ') }>
@@ -49,10 +41,10 @@ export const AnnotatorPage: React.FC = () => {
                   </Link>
               }
 
-              <IonButton color='medium' fill='outline' size='small'
-                         onClick={ backToCampaign } onAuxClick={ auxBackToCampaign }>
+              <Link color='medium' fill='outline' size='small'
+                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
                 Back to campaign
-              </IonButton>
+              </Link>
             </Fragment> }>
       { data && campaign && <div className={ styles.info }>
           <p>
