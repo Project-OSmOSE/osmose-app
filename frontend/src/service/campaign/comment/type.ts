@@ -6,7 +6,3 @@ export interface AnnotationComment {
   dataset_file: number; // pk
   comment: string;
 }
-
-export type WriteAnnotationComment =
-  Omit<AnnotationComment, "id" | "annotation_result" | "annotation_campaign" | "author" | "dataset_file">
-  & { id?: number; }

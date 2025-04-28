@@ -7,6 +7,7 @@ import { AnnotationCampaignUsage, useListCampaignsQuery } from '@/service/campai
 import { useToast } from "@/service/ui";
 import { ActionBar } from "@/components/ActionBar/ActionBar.tsx";
 import { useGetCurrentUserQuery } from "@/service/user";
+import { AploseSkeleton } from "@/components/layout";
 
 
 export const AnnotationCampaignList: React.FC = () => {
@@ -82,7 +83,7 @@ export const AnnotationCampaignList: React.FC = () => {
     setModeFilter(undefined);
   }
 
-  return (
+  return <AploseSkeleton>
     <div className={ styles.page }>
       <h2>Annotation Campaigns</h2>
 
@@ -138,5 +139,5 @@ export const AnnotationCampaignList: React.FC = () => {
         { !isFetching && campaigns?.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
       </div>
     </div>
-  )
+  </AploseSkeleton>
 }

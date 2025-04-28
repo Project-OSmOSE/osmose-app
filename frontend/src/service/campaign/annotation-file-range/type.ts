@@ -14,6 +14,7 @@ export interface AnnotationFileRange {
 export type AnnotationFile = DatasetFile & {
   is_submitted: boolean; // read only
   results_count: number; // read only
+  validated_results_count: number; // read only
 }
 
 export type WriteAnnotationFileRange =

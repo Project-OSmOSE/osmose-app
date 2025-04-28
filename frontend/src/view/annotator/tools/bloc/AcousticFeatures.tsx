@@ -65,41 +65,50 @@ export const AcousticFeatures: React.FC = () => {
   }
 
   function updateMinFrequency(value: number) {
-    if (annotation?.type !== 'Box') return;
+    if (annotation?.type !== 'Box' || !campaign) return;
     if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
-      type: annotation.type,
-      start_frequency: value,
-      end_frequency: Math.max(annotation.end_frequency ?? 0, value),
-      start_time: annotation.start_time,
-      end_time: annotation.end_time,
+      newBounds: {
+        type: annotation.type,
+        start_frequency: value,
+        end_frequency: Math.max(annotation.end_frequency ?? 0, value),
+        start_time: annotation.start_time,
+        end_time: annotation.end_time,
+      },
+      usage: campaign.usage
     }))
   }
 
   function updateMaxFrequency(value: number) {
-    if (annotation?.type !== 'Box') return;
+    if (annotation?.type !== 'Box' || !campaign) return;
     if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
-      type: annotation.type,
-      start_frequency: Math.min(annotation.start_frequency ?? 0, value),
-      end_frequency: value,
-      start_time: annotation.start_time,
-      end_time: annotation.end_time,
+      newBounds: {
+        type: annotation.type,
+        start_frequency: Math.min(annotation.start_frequency ?? 0, value),
+        end_frequency: value,
+        start_time: annotation.start_time,
+        end_time: annotation.end_time,
+      },
+      usage: campaign.usage
     }))
   }
 
   function updateDuration(value: number) {
-    if (annotation?.type !== 'Box') return;
+    if (annotation?.type !== 'Box' || !campaign) return;
     if (duration) value = Math.min(value, fileDuration)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
-      type: annotation.type,
-      start_frequency: annotation.start_frequency,
-      end_frequency: annotation.end_frequency,
-      start_time: annotation.start_time,
-      end_time: annotation.start_time + value,
+      newBounds: {
+        type: annotation.type,
+        start_frequency: annotation.start_frequency,
+        end_frequency: annotation.end_frequency,
+        start_time: annotation.start_time,
+        end_time: annotation.start_time + value,
+      },
+      usage: campaign.usage
     }))
   }
 
