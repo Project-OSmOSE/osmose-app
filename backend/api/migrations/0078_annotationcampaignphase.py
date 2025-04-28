@@ -9,15 +9,12 @@ from django.db.models import Q
 def create_phases(apps, schema_editor):
     phase_model = apps.get_model("api", "AnnotationCampaignPhase")
     campaign_model = apps.get_model("api", "AnnotationCampaign")
-    user_model = apps.get_model("auth", "User")
-
-    migration_user, _ = user_model.objects.get_or_create(username="[Migration]")
 
     for campaign in campaign_model.objects.all():
         phase = phase_model.objects.create(
             annotation_campaign=campaign,
             phase="A",  # Annotation
-            created_by=migration_user,
+            created_by=campaign.owner,
         )
         campaign.annotation_file_ranges.update(annotation_campaign_phase=phase)
         campaign.tasks.update(annotation_campaign_phase=phase)
@@ -27,7 +24,7 @@ def create_phases(apps, schema_editor):
             phase_model.objects.create(
                 annotation_campaign=campaign,
                 phase="V",  # Verification
-                created_by=migration_user,
+                created_by=campaign.owner,
             )
 
 
