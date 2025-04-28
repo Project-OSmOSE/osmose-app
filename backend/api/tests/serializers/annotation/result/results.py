@@ -55,7 +55,7 @@ box_result = {
 }
 
 
-@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
+@freeze_time("2012-01-14 00:00:00")
 class CreateTestCase(TestCase):
     fixtures = all_fixtures
     maxDiff = None  # See all differences on failed tests
@@ -216,7 +216,7 @@ class CreateTestCase(TestCase):
         self.assertEqual(serializer.errors["start_frequency"][0].code, "max_value")
 
 
-@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
+@freeze_time("2012-01-14 00:00:00")
 class UpdateTestCase(CreateTestCase):
     fixtures = all_fixtures
 
@@ -325,7 +325,7 @@ class UpdateTestCase(CreateTestCase):
         )
 
 
-@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
+@freeze_time("2012-01-14 00:00:00")
 class CreateUpdateOfResultTestCase(TestCase):
     fixtures = all_fixtures
     maxDiff = None  # See all differences on failed tests

@@ -106,6 +106,9 @@ class AnnotationCampaign(models.Model):
         self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
         self.save()
 
+        for phase in self.phases.all():
+            phase.end(user)
+
     def get_sorted_files(self) -> QuerySet[DatasetFile]:
         """Return sorted dataset files"""
         return DatasetFile.objects.filter(
@@ -150,6 +153,7 @@ class AnnotationCampaignPhase(models.Model):
         """Get open state of the phase"""
         if not self.ended_at or not self.ended_by:
             return True
+        return False
 
     def end(self, user: User):
         """End the phase"""

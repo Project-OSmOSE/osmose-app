@@ -51,7 +51,7 @@ class CreateUnauthenticatedTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
+@freeze_time("2012-01-14 00:00:00")
 class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
     username = "admin"
     fixtures = all_fixtures
@@ -179,6 +179,6 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         )
 
 
-@freeze_time("2012-01-14 00:00:00", tz_offset=-4)
+@freeze_time("2012-01-14 00:00:00")
 class CreateBaseUserAuthenticatedTestCase(CreateAdminAuthenticatedTestCase):
     username = "user1"
