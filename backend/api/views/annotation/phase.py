@@ -15,7 +15,7 @@ from django.db.models import (
     Count,
     Func,
 )
-from django.db.models.functions import Lower, Concat, Extract
+from django.db.models.functions import Lower, Concat, Extract, Coalesce
 from django.http import HttpResponse
 from rest_framework import viewsets, filters, permissions
 from rest_framework.decorators import action
@@ -97,12 +97,15 @@ class AnnotationCampaignPhaseViewSet(
         "created_by",
         "ended_by",
     ).annotate(
-        global_total=Subquery(
-            AnnotationFileRange.objects.filter(
-                annotation_campaign_phase_id=OuterRef("pk"),
-            )
-            .annotate(sum=Func(F("files_count"), function="Sum"))
-            .values("sum")
+        global_total=Coalesce(
+            Subquery(
+                AnnotationFileRange.objects.filter(
+                    annotation_campaign_phase_id=OuterRef("pk"),
+                )
+                .annotate(sum=Func(F("files_count"), function="Sum"))
+                .values("sum")
+            ),
+            Value(0),
         ),
         global_progress=Count("tasks", filter=Q(tasks__status="F"), distinct=True),
     )
@@ -119,12 +122,16 @@ class AnnotationCampaignPhaseViewSet(
                 filter=Q(tasks__annotator_id=user.id, tasks__status="F"),
                 distinct=True,
             ),
-            user_total=Subquery(
-                AnnotationFileRange.objects.filter(
-                    annotation_campaign_phase_id=OuterRef("pk"), annotator_id=user.id
-                )
-                .annotate(sum=Func(F("files_count"), function="Sum"))
-                .values("sum")
+            user_total=Coalesce(
+                Subquery(
+                    AnnotationFileRange.objects.filter(
+                        annotation_campaign_phase_id=OuterRef("pk"),
+                        annotator_id=user.id,
+                    )
+                    .annotate(sum=Func(F("files_count"), function="Sum"))
+                    .values("sum"),
+                ),
+                Value(0),
             ),
         )
 
