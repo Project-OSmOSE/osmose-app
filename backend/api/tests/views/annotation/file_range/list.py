@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-file-range-list")
-URL_files = reverse("annotation-file-range-campaign-files", kwargs={"campaign_id": 1})
+URL_files = reverse("annotation-file-range-phase-files", kwargs={"phase_id": 1})
 
 
 class ListUnauthenticatedTestCase(APITestCase):

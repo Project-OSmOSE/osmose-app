@@ -19,9 +19,11 @@ from backend.api.models import (
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
-URL = reverse("annotation-result-campaign-import", kwargs={"campaign_id": 1})
+URL = reverse(
+    "annotation-result-campaign-import", kwargs={"campaign_id": 1, "phase_id": 1}
+)
 URL_unknown_campaign = reverse(
-    "annotation-result-campaign-import", kwargs={"campaign_id": 27}
+    "annotation-result-campaign-import", kwargs={"campaign_id": 27, "phase_id": 57}
 )
 
 DATASET_NAME = "SPM Aural A 2010"
