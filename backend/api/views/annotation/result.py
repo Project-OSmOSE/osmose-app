@@ -17,6 +17,7 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationResultValidation,
     AnnotationFileRange,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -71,7 +72,9 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             user_file_ranges_exists = Exists(
                 AnnotationFileRange.objects.filter(
                     annotator_id=self.request.user.id,
-                    annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                    annotation_campaign_phase_id=OuterRef(
+                        "annotation_campaign_phase_id"
+                    ),
                     first_file_id__lte=OuterRef("dataset_file_id"),
                     last_file_id__gte=OuterRef("dataset_file_id"),
                 )
@@ -102,12 +105,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return queryset
 
     @staticmethod
-    def map_request_results(results: list[dict], campaign_id, file_id, user_id):
+    def map_request_results(results: list[dict], phase_id, file_id, user_id):
         """Map results from request with the other request information"""
         return [
             {
                 **r,
-                "annotation_campaign": campaign_id,
+                "annotation_campaign_phase": phase_id,
                 "dataset_file": file_id,
                 "annotator": user_id
                 if r.get("detector_configuration") is None
@@ -115,7 +118,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "comments": [
                     {
                         **c,
-                        "annotation_campaign": campaign_id,
+                        "annotation_campaign_phase": phase_id,
                         "dataset_file": file_id,
                         "author": c["author"]
                         if "author" in c and c["author"] is not None
@@ -139,23 +142,23 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @staticmethod
     def update_results(
         new_results: list[dict],
-        campaign: AnnotationCampaign,
+        phase: AnnotationCampaignPhase,
         file: DatasetFile,
         user_id,
     ):
         """Update with given results"""
         data = AnnotationResultViewSet.map_request_results(
-            new_results, campaign.id, file.id, user_id
+            new_results, phase.id, file.id, user_id
         )
         current_results = AnnotationResultViewSet.queryset.filter(
-            annotation_campaign_id=campaign.id,
+            annotation_campaign_phase_id=phase.id,
             dataset_file_id=file.id,
         ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
         serializer = AnnotationResultViewSet.serializer_class(
             current_results,
             many=True,
             data=data,
-            context={"campaign": campaign, "file": file},
+            context={"phase": phase, "file": file},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -164,14 +167,20 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(
         methods=["POST"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/import",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/phase/(?P<phase_id>[^/.]+)/import",
         url_name="campaign-import",
     )
-    def import_results(self, request, campaign_id):
+    def import_results(self, request, campaign_id, phase_id):
         """Import result from automated detection"""
         # Check permission
         campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
-        if campaign.owner_id != request.user.id and not request.user.is_staff:
+        phase = get_object_or_404(
+            AnnotationCampaignPhase, id=phase_id, annotation_campaign_id=campaign_id
+        )
+        if (
+            phase.annotation_campaign.owner_id != request.user.id
+            and not request.user.is_staff
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         dataset_name = request.query_params.get("dataset_name")
@@ -215,7 +224,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     and row["confidence_indicator_label"]
                     and confidence_level
                     else None,
-                    "annotation_campaign": campaign_id,
+                    "annotation_campaig_phase": phase_id,
                 }
             )
 
@@ -223,7 +232,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = AnnotationResultImportListSerializer(
             data=data,
             context={
-                "campaign": campaign,
+                "phase": phase,
                 "force_datetime": get_boolean_query_param(
                     self.request, "force_datetime"
                 ),
@@ -236,7 +245,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer.save()
         instances: list[AnnotationResult] = serializer.instance
         AnnotationTask.objects.filter(
-            annotation_campaign=campaign,
+            annotation_campaign_phase_id=phase_id,
             dataset_file_id__in=[r.dataset_file_id for r in instances],
         ).update(status=AnnotationTask.Status.CREATED)
         list_serializer: AnnotationResultSerializer = self.get_serializer_class()(

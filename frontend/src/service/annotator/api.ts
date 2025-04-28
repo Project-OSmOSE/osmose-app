@@ -1,13 +1,19 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
-import { AnnotatorData, RetrieveParams } from './type.ts';
+import { AnnotatorData, AnnotatorState, RetrieveParams } from './type.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotationCampaignUsage, OldAnnotationCampaign } from '@/service/campaign';
+import { AnnotationCampaign, Phase } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
 import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
 import { AcousticFeatures, AnnotationResult, AnnotationResultValidations } from "@/service/campaign/result";
 import { DetectorConfiguration } from "@/service/campaign/detector";
 import { AnnotationComment } from "@/service/campaign/comment";
+import { usePageCampaign, usePagePhase } from "@/service/routing";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "@/service/app.ts";
+import { AnnotationCampaignPhase } from "@/service/campaign/phase";
+import { useCallback, useEffect, useRef } from "react";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -32,12 +38,12 @@ function transformCommentsForWriting(comments: AnnotationComment[]): WriteAnnota
   }))
 }
 
-function transformBaseResult(result: AnnotationResult, usage: AnnotationCampaignUsage): Omit<WriteAnnotationResult, 'is_update_of'> {
+function transformBaseResult(result: AnnotationResult, phase: Phase): Omit<WriteAnnotationResult, 'is_update_of'> {
   const validations = result.validations.map(v => ({
     is_valid: v.is_valid,
     id: v.id > -1 ? v.id : undefined,
   }))
-  if (usage === 'Check' && validations.length === 0) {
+  if (phase === 'Verification' && validations.length === 0) {
     validations.push({ id: undefined, is_valid: true })
   }
   return {
@@ -83,28 +89,28 @@ export const AnnotatorAPI = createApi({
       } ]
     }),
     post: builder.mutation<void, {
-      campaign: OldAnnotationCampaign,
-      phaseID: ID,
+      campaign: AnnotationCampaign,
+      phase: AnnotationCampaignPhase,
       fileID: ID,
       results: AnnotationResult[],
       task_comments: AnnotationComment[],
       sessionStart: Date,
     }>({
-      query: ({ campaign, fileID, results, task_comments, sessionStart }) => {
+      query: ({ campaign, phase, fileID, results, task_comments, sessionStart }) => {
 
         // Results
         const post_results: WriteAnnotationResult[] = []
         const updates: AnnotationResult[] = []
         for (const r of results) {
           post_results.push({
-            ...transformBaseResult(r, campaign.usage),
+            ...transformBaseResult(r, phase.phase),
             is_update_of: null,
           })
           updates.push(...r.updated_to)
         }
         for (const update of updates) {
           post_results.push({
-            ...transformBaseResult(update, campaign.usage),
+            ...transformBaseResult(update, phase.phase),
             is_update_of: results.find(r => r.updated_to.some(u => u.id === update.id))?.id ?? null,
             validations: []
           })
@@ -114,7 +120,7 @@ export const AnnotatorAPI = createApi({
         const post_task_comments: WriteAnnotationComment[] = transformCommentsForWriting(task_comments)
 
         return {
-          url: `campaign/${ campaign.id }/file/${ fileID }/`,
+          url: `campaign/${ campaign.id }/phase/${ phase.id }/file/${ fileID }/`,
           method: 'POST',
           body: {
             results: post_results,
@@ -130,13 +136,54 @@ export const AnnotatorAPI = createApi({
       // @ts-expect-error
       invalidatesTags: (result, error, arg) => [ {
         type: 'Annotator',
-        id: `${ arg.campaign.id }-${ arg.phaseID }-${ arg.fileID }`
+        id: `${ arg.campaign.id }-${ arg.phase.id }-${ arg.fileID }`
       } ]
     })
   })
 })
 
-export const {
-  useRetrieveQuery: useRetrieveAnnotatorQuery,
-  usePostMutation: usePostAnnotatorMutation,
-} = AnnotatorAPI;
+export const useRetrieveAnnotatorQuery = () => {
+  const campaign = usePageCampaign()
+  const phase = usePagePhase()
+  const { fileID } = useParams<{ fileID: string }>();
+  const fileFilters = useAppSelector(state => state.ui.fileFilters)
+
+  return AnnotatorAPI.useRetrieveQuery(
+    (campaign && phase && fileID) ? {
+      filters: fileFilters,
+      campaignID: campaign.id,
+      phaseID: phase.id,
+      fileID
+    } : skipToken);
+}
+
+export const usePostAnnotatorMutation = () => {
+  const campaign = usePageCampaign()
+  const phase = usePagePhase()
+  const [ _post ] = AnnotatorAPI.usePostMutation()
+  const annotator = useAppSelector(state => state.annotator);
+  const _annotator = useRef<AnnotatorState>(annotator)
+  const _campaign = useRef<AnnotationCampaign | undefined>(campaign)
+  const _phase = useRef<AnnotationCampaignPhase | undefined>(phase)
+  useEffect(() => {
+    _annotator.current = annotator;
+  }, [ annotator ]);
+  useEffect(() => {
+    _campaign.current = campaign;
+  }, [ campaign ]);
+  useEffect(() => {
+    _phase.current = phase;
+  }, [ phase ]);
+
+  return useCallback(() => {
+    if (!_campaign.current || !_phase.current || !_annotator.current.file) return;
+    return _post({
+      campaign: _campaign.current,
+      phase: _phase.current,
+      fileID: _annotator.current.file.id,
+      results: _annotator.current.results ?? [],
+      task_comments: _annotator.current.task_comments ?? [],
+      sessionStart: new Date(_annotator.current.sessionStart),
+    }).unwrap()
+  }, [ _post, _campaign.current, _phase.current, _annotator.current ])
+}

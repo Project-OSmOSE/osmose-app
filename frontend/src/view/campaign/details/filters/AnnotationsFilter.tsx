@@ -11,7 +11,6 @@ import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
 import { useListDetectorQuery } from "@/service/campaign/detector";
 import { AnnotationCampaignPhase } from "@/service/campaign/phase";
-import { skipToken } from "@reduxjs/toolkit/query";
 import styles from './styles.module.scss'
 
 const BOOLEAN_OPTIONS = [ 'Unset', 'With', 'Without' ]
@@ -23,8 +22,8 @@ export const AnnotationsFilter: React.FC<{
   onUpdate: () => void
 }> = ({ onUpdate, campaign, phase }) => {
   const { fileFilters: filters } = useAppSelector(state => state.ui);
-  const { data: labelSet } = useRetrieveLabelSetQuery(campaign.label_set ?? skipToken);
-  const { data: confidenceSet } = useRetrieveConfidenceSetQuery(campaign.confidence_indicator_set ?? skipToken);
+  const { data: labelSet } = useRetrieveLabelSetQuery();
+  const { data: confidenceSet } = useRetrieveConfidenceSetQuery();
   const { data: detectors } = useListDetectorQuery({ campaign: campaign.id }, { skip: phase.phase !== 'Verification' });
   const dispatch = useAppDispatch();
 

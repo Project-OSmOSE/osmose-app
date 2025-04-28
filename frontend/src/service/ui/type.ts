@@ -1,4 +1,7 @@
+import { ID } from "@/service/type.ts";
+
 export type UIState = {
+  campaignID: ID | undefined;
   fileFilters: FileFilters
 }
 

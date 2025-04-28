@@ -6,10 +6,10 @@ import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
 import { IonButton, IonIcon } from "@ionic/react";
 import { invertModeSharp } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { usePageCampaign } from "@/service/routing";
 
 export const ColormapConfiguration: React.FC = () => {
-  const { campaign } = useAnnotator();
+  const campaign = usePageCampaign();
   const dispatch = useAppDispatch();
 
   const [ changeAllowed, setChangeAllowed ] = useState<boolean>(false);

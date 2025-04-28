@@ -2,13 +2,14 @@ import { MutableRefObject, useEffect, useMemo, useRef } from 'react';
 import { SPECTRO_HEIGHT, SPECTRO_WIDTH } from './const.ts';
 import { useAppSelector } from '@/service/app.ts';
 import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { getDuration } from '@/service/dataset';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
 import { BoxBounds } from '@/service/campaign/result';
 import { buildErrorMessage } from '@/services/utils/format.tsx';
 import { colorSpectro, interpolate } from '@/services/utils/color.ts';
+import { useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 
 export const useSpectrogramDimensions = () => {
@@ -24,28 +25,28 @@ export const useSpectrogramDimensions = () => {
 }
 
 export const useCurrentConfiguration = (): SpectrogramConfiguration | undefined => {
-  const { annotatorData } = useAnnotator();
+  const { data } = useRetrieveAnnotatorQuery();
   const { spectrogramConfigurationID } = useAppSelector(state => state.annotator.userPreferences)
 
   return useMemo(() => {
-    return annotatorData?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID)
-  }, [ annotatorData?.spectrogram_configurations, spectrogramConfigurationID ]);
+    return data?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID)
+  }, [ data?.spectrogram_configurations, spectrogramConfigurationID ]);
 }
 
 export const useFileDuration = () => {
-  const { annotatorData } = useAnnotator();
-  return useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ])
+  const file = useAnnotatorFile()
+  return useMemo(() => getDuration(file), [ file ])
 }
 
 export const useMaxFrequency = () => {
-  const { annotatorData } = useAnnotator();
-  return useMemo(() => (annotatorData?.file.dataset_sr ?? 0) / 2, [ annotatorData?.file.dataset_sr ])
+  const file = useAnnotatorFile()
+  return useMemo(() => (file?.dataset_sr ?? 0) / 2, [ file?.dataset_sr ])
 }
 
 export const useDisplaySpectrogram = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
 ) => {
-  const { annotatorData } = useAnnotator()
+  const file = useAnnotatorFile()
   const { xAxis, yAxis } = useAxis();
   const duration = useFileDuration();
   const currentConfiguration = useCurrentConfiguration();
@@ -74,14 +75,14 @@ export const useDisplaySpectrogram = (
   }
 
   async function loadImages() {
-    if (!currentConfiguration || !annotatorData) {
+    if (!currentConfiguration || !file) {
       images.current = new Map();
       return;
     }
 
     if (areAllImagesLoaded()) return;
 
-    const filename = annotatorData.file.filename.split('.')[0]
+    const filename = file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(zoomLevel)).map(async (_, index) => {
         const src = `${ currentConfiguration.folder_path.replaceAll('%5C', '/') }/${ filename }_${ zoomLevel }_${ index }.png`;

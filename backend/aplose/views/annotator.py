@@ -1,7 +1,6 @@
 """Annotator viewset"""
 
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -15,6 +14,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationTask,
     AnnotationFileRange,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationSessionSerializer,
@@ -35,16 +35,16 @@ class AnnotatorViewSet(viewsets.ViewSet):
     @action(
         methods=["GET"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/phase/(?P<phase_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
         url_name="campaign-file",
     )
-    def get_file(self, request: Request, campaign_id: int, file_id: int):
+    def get_file(self, request: Request, campaign_id: int, phase_id: int, file_id: int):
         # pylint: disable=too-many-locals
         """Get all data for annotator"""
 
         campaign = AnnotationCampaign.objects.get(pk=campaign_id)
         file_ranges = AnnotationFileRange.objects.filter(
-            annotation_campaign_id=campaign_id,
+            annotation_campaign_phase_id=phase_id,
             annotator_id=request.user.id,
         )
         is_assigned = (
@@ -70,7 +70,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         if is_assigned:
             total_tasks_in_filter = filtered_files.count()
             request._request.GET = {
-                "annotation_campaign_id": campaign_id,
+                "annotation_campaign_phase_id": phase_id,
                 "dataset_file_id": file_id,
                 "for_current_user": True,
             }
@@ -78,7 +78,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 request._request
             ).data
             request._request.GET = {
-                "annotation_campaign_id": campaign_id,
+                "annotation_campaign_phase_id": phase_id,
                 "dataset_file_id": file_id,
                 "annotation_result__isnull": True,
                 "for_current_user": True,
@@ -130,7 +130,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 "current_task_index": current_task_index,
                 "total_tasks": total_tasks,
                 "is_submitted": AnnotationTask.objects.filter(
-                    annotation_campaign_id=campaign_id,
+                    annotation_campaign_phase_id=phase_id,
                     dataset_file_id=file_id,
                     annotator_id=request.user.id,
                     status=AnnotationTask.Status.FINISHED,
@@ -154,19 +154,21 @@ class AnnotatorViewSet(viewsets.ViewSet):
     @action(
         methods=["POST"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/phase/(?P<phase_id>[^/.]+)/file/(?P<file_id>[^/.]+)",
         url_name="campaign-file-post",
     )
     @transaction.atomic()
-    def post(self, request: Request, campaign_id: int, file_id: int):
+    def post(self, request: Request, campaign_id: int, phase_id: int, file_id: int):
         """Post all data for annotator"""
 
         # Check permission
-        campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
-        file = get_object_or_404(DatasetFile, id=file_id)
-        file_ranges = campaign.annotation_file_ranges.filter(
-            annotator_id=request.user.id
+        phase = get_object_or_404(
+            AnnotationCampaignPhase,
+            pk=phase_id,
+            annotation_campaign_id=campaign_id,
         )
+        file = get_object_or_404(DatasetFile, id=file_id)
+        file_ranges = phase.file_ranges.filter(annotator_id=request.user.id)
         if not file_ranges.exists():
             return Response(status=status.HTTP_403_FORBIDDEN)
         all_files = []
@@ -177,18 +179,18 @@ class AnnotatorViewSet(viewsets.ViewSet):
 
         # Update
         results = AnnotationResultViewSet.update_results(
-            request.data.get("results") or [], campaign, file, request.user.id
+            request.data.get("results") or [], phase, file, request.user.id
         )
         comments = AnnotationCommentViewSet.update_comments(
             request.data.get("task_comments") or [],
-            campaign,
+            phase,
             file,
             request.user.id,
         )
 
         task, _ = AnnotationTask.objects.get_or_create(
             annotator=request.user,
-            annotation_campaign_id=campaign_id,
+            annotation_campaign_phase_id=phase_id,
             dataset_file_id=file_id,
         )
         task.status = AnnotationTask.Status.FINISHED

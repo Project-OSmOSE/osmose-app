@@ -7,7 +7,7 @@ import { AnnotatorAPI } from './api.ts';
 import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
 import { AcousticFeatures } from '@/service/campaign/result/type.ts';
-import { AnnotationCampaignUsage, CampaignAPI } from "@/service/campaign";
+import { CampaignAPI, Phase } from "@/service/campaign";
 import { UserAPI } from "@/service/user";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
@@ -109,17 +109,17 @@ export const AnnotatorSlice = createSlice({
       state.hasChanged = true;
       _focusResult(state, { payload: newResult.id })
     },
-    updateFocusResultBounds: (state, { payload: { newBounds, usage } }: {
-      payload: { newBounds: AnnotationResultBounds, usage: AnnotationCampaignUsage }
+    updateFocusResultBounds: (state, { payload: { newBounds, phase } }: {
+      payload: { newBounds: AnnotationResultBounds, phase: Phase }
     }) => {
       let currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
       if (!currentResult) return;
       // Update current result
-      switch (usage) {
-        case 'Create':
+      switch (phase) {
+        case 'Annotation':
           currentResult = { ...currentResult, ...newBounds }
           break;
-        case 'Check':
+        case 'Verification':
           currentResult.updated_to = getUpdatedTo(currentResult, undefined, newBounds)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
@@ -192,15 +192,15 @@ export const AnnotatorSlice = createSlice({
     focusLabel: (state, { payload }: { payload: string }) => {
       state.focusedLabel = payload;
     },
-    updateLabel: (state, { payload: { label, usage } }: {
-      payload: { label: string, usage: AnnotationCampaignUsage }
+    updateLabel: (state, { payload: { label, phase } }: {
+      payload: { label: string, phase: Phase }
     }) => {
       const currentResult: AnnotationResult | undefined = state.results?.find(r => r.id === state.focusedResultID)
       if (!currentResult) return;
       const results = state.results ?? [];
       // Update current result
-      switch (usage) {
-        case 'Create':
+      switch (phase) {
+        case 'Annotation':
           currentResult.label = label;
           // Add presence label if it doesn't exist
           if (!results?.find(r => r.label === label && r.type === 'Weak')) {
@@ -224,7 +224,7 @@ export const AnnotatorSlice = createSlice({
             })
           }
           break;
-        case 'Check':
+        case 'Verification':
           currentResult.updated_to = getUpdatedTo(currentResult, label)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))

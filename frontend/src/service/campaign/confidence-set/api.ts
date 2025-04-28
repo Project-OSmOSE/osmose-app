@@ -2,6 +2,8 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { ConfidenceIndicatorSet } from './type.ts';
+import { usePageCampaign } from "@/service/routing";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export const ConfidenceSetAPI = createApi({
   reducerPath: 'confidenceSetApi',
@@ -14,5 +16,9 @@ export const ConfidenceSetAPI = createApi({
 
 export const {
   useListQuery: useListConfidenceSetQuery,
-  useRetrieveQuery: useRetrieveConfidenceSetQuery,
 } = ConfidenceSetAPI;
+
+export const useRetrieveConfidenceSetQuery = () => {
+  const campaign = usePageCampaign();
+  return ConfidenceSetAPI.useRetrieveQuery(campaign?.label_set ?? skipToken);
+}

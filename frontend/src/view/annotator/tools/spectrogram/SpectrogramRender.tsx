@@ -13,19 +13,26 @@ import React, {
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, BoxBounds } from '@/service/campaign/result';
-import { addResult, leavePointerPosition, setFileIsSeen, setPointerPosition, zoom } from '@/service/annotator';
+import {
+  addResult,
+  leavePointerPosition,
+  setFileIsSeen,
+  setPointerPosition,
+  useRetrieveAnnotatorQuery,
+  zoom
+} from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
 import { AxisRef, XAxis } from "@/view/annotator/tools/spectrogram/XAxis.tsx";
 import { AcousticFeatures } from "@/view/annotator/tools/bloc/AcousticFeatures.tsx";
 import { MOUSE_DOWN_EVENT, MOUSE_MOVE_EVENT, MOUSE_UP_EVENT } from "@/service/events";
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { TimeBar } from "@/view/annotator/tools/spectrogram/TimeBar.tsx";
 import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annotation.tsx";
 import { usePointerService } from '@/service/annotator/spectrogram/pointer';
 import { useDisplaySpectrogram, useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram';
 import { useAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
+import { usePageCampaign, usePagePhase } from "@/service/routing";
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -37,11 +44,10 @@ export interface SpectrogramRender {
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
+  const { data } = useRetrieveAnnotatorQuery();
+  const campaign = usePageCampaign()
+  const phase = usePagePhase()
   // Data
-  const {
-    annotatorData,
-    campaign,
-  } = useAnnotator();
   const {
     focusedLabel,
     results,
@@ -80,7 +86,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && campaign?.usage === 'Create' && !!focusedLabel && !!annotatorData?.is_assigned, [ canAddAnnotations, focusedLabel, campaign?.usage, annotatorData?.is_assigned ]);
+  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && phase?.phase === 'Annotation' && !!focusedLabel && !!data?.is_assigned, [ canAddAnnotations, focusedLabel, phase?.phase, data?.is_assigned ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled
@@ -89,7 +95,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   useEffect(() => {
     updateCanvas()
   }, [
-    annotatorData?.spectrogram_configurations,
+    data?.spectrogram_configurations,
     userPreferences.spectrogramConfigurationID,
     userPreferences.colormap,
     userPreferences.colormapInverted,

@@ -6,15 +6,14 @@ import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
+import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
+import { useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { usePageCampaign } from "@/service/routing";
 
 export const AnnotatorPage: React.FC = () => {
-  const {
-    campaignID,
-    annotatorData,
-    campaign,
-  } = useAnnotator();
+  const campaign = usePageCampaign()
+  const { data } = useRetrieveAnnotatorQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
@@ -22,11 +21,11 @@ export const AnnotatorPage: React.FC = () => {
 
   async function backToCampaign() {
     if (await canNavigate())
-      window.open(`/app/annotation-campaign/${ campaignID }`, "_self")
+      window.open(`/app/annotation-campaign/${ campaign?.id }`, "_self")
   }
 
   function auxBackToCampaign() {
-    window.open(`/app/annotation-campaign/${ campaignID }`, "_blank")
+    window.open(`/app/annotation-campaign/${ campaign?.id }`, "_blank")
   }
 
   useEffect(() => {
@@ -55,17 +54,17 @@ export const AnnotatorPage: React.FC = () => {
                 Back to campaign
               </IonButton>
             </Fragment> }>
-      { annotatorData && campaign && <div className={ styles.info }>
+      { data && campaign && <div className={ styles.info }>
           <p>
-            { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
+            { campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted &&
               <IoCheckmarkCircleOutline/> }
           </p>
-        { annotatorData.is_assigned &&
+        { data.is_assigned &&
             <Progress label='Position'
                       className={ styles.progress }
-                      value={ annotatorData.current_task_index + 1 }
-                      total={ annotatorData.total_tasks }/> }
-        { !annotatorData.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote> }
+                      value={ data.current_task_index + 1 }
+                      total={ data.total_tasks }/> }
+        { !data.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote> }
       </div> }
     </Header>
 

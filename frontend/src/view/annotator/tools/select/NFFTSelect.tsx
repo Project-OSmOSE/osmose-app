@@ -1,14 +1,11 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { getScaleName, SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { selectSpectrogramConfiguration } from '@/service/annotator';
+import { selectSpectrogramConfiguration, useRetrieveAnnotatorQuery } from '@/service/annotator';
 import { Select } from "@/components/form";
-import { useAnnotator } from "@/service/annotator/hook.ts";
 
 export const NFFTSelect: React.FC = () => {
-  const {
-    annotatorData,
-  } = useAnnotator();
+  const { data } = useRetrieveAnnotatorQuery();
   const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
   const spectrogram_configurations = useAppSelector(state => state.annotator.spectrogram_configurations);
 
@@ -24,22 +21,22 @@ export const NFFTSelect: React.FC = () => {
   }, [selectedID]);
 
   const options = useMemo(() => {
-    if (!annotatorData) return []
-    return annotatorData.spectrogram_configurations.map(c => {
+    if (!data) return []
+    return data.spectrogram_configurations.map(c => {
       let label = `nfft: ${ c.nfft }`;
       label += ` | winsize: ${ c.window_size }`
       label += ` | overlap: ${ c.overlap }`
       label += ` | scale: ${ getScaleName(c) }`
       return { value: c.id, label }
     })
-  }, [ annotatorData?.spectrogram_configurations ]);
+  }, [ data?.spectrogram_configurations ]);
 
   function select(value: string | number | undefined) {
     if (value === undefined) return;
     dispatch(selectSpectrogramConfiguration(+value))
   }
 
-  if (!annotatorData) return <Fragment/>
+  if (!data) return <Fragment/>
   return <Select placeholder='Select a configuration'
                  options={ options }
                  optionsContainer='popover'

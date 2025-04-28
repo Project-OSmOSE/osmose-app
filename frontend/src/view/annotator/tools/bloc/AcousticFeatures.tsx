@@ -11,7 +11,6 @@ import { Input, Select } from '@/components/form';
 import { IonButton, IonCheckbox, IonIcon, IonNote } from '@ionic/react';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
 import styles from './bloc.module.scss';
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { createOutline } from 'ionicons/icons';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { CLICK_EVENT } from '@/service/events';
@@ -20,12 +19,13 @@ import { useCurrentAnnotation, useFileDuration, useMaxFrequency } from '@/servic
 import { SignalTrends } from '@/service/campaign/result';
 import { Item } from '@/types/item.ts';
 import { useXAxis } from '@/service/annotator/spectrogram/scale';
+import { usePageCampaign, usePagePhase } from "@/service/routing";
+import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 export const AcousticFeatures: React.FC = () => {
-  const {
-    annotatorData,
-    campaign,
-  } = useAnnotator();
+  const campaign = usePageCampaign()
+  const phase = usePagePhase()
+  const file = useAnnotatorFile()
   const xAxis = useXAxis();
 
   const initialLeft = useMemo(() => window.innerWidth - 500, [])
@@ -65,8 +65,8 @@ export const AcousticFeatures: React.FC = () => {
   }
 
   function updateMinFrequency(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
-    if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
+    if (annotation?.type !== 'Box' || !phase) return;
+    if (file) value = Math.min(value, file.dataset_sr)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
       newBounds: {
@@ -76,13 +76,13 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.end_time,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
   function updateMaxFrequency(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
-    if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
+    if (annotation?.type !== 'Box' || !phase) return;
+    if (file) value = Math.min(value, file.dataset_sr)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
       newBounds: {
@@ -92,12 +92,12 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.end_time,
       },
-      usage: campaign.usage
-    }))
+      phase: phase.phase
+   }))
   }
 
   function updateDuration(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
+    if (annotation?.type !== 'Box' || !phase) return;
     if (duration) value = Math.min(value, fileDuration)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
@@ -108,7 +108,7 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.start_time + value,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
@@ -165,7 +165,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ annotation.start_frequency } type="number"
                      min={ 0 } max={ maxFrequency }
-                     disabled={ campaign?.usage === 'Check' }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateMinFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -175,7 +175,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ annotation.end_frequency } type="number"
                      min={ 0 } max={ maxFrequency }
-                     disabled={ campaign?.usage === 'Check' }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateMaxFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -201,7 +201,7 @@ export const AcousticFeatures: React.FC = () => {
               <Input value={ duration } type="number"
                      step={ 0.001 }
                      min={ 0.01 } max={ fileDuration }
-                     disabled={ campaign?.usage === 'Check' }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateDuration(+e.currentTarget.value) }/>
               <IonNote>s</IonNote>
           </TableContent>

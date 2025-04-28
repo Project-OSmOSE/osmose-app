@@ -11,18 +11,15 @@ import {
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import styles from './bloc.module.scss';
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import { LabelSet } from "@/service/campaign/label-set";
+import { LabelSet, useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 
 
 export const Labels: React.FC = () => {
-  const {
-    label_set,
-  } = useAnnotator();
+  const { data: label_set } = useRetrieveLabelSetQuery();
 
   const {
     results,
@@ -97,9 +94,7 @@ export const Labels: React.FC = () => {
 }
 
 export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
-  const {
-    label_set,
-  } = useAnnotator();
+  const { data: label_set } = useRetrieveLabelSetQuery();
   const {
     results,
     focusedLabel,

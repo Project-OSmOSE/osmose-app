@@ -21,25 +21,16 @@ import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useCurrentConfiguration, useFileDuration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
 import { Colormap } from "@/services/utils/color.ts";
+import { usePagePhase } from "@/service/routing";
 
 export const Annotator: React.FC = () => {
-  const {
-    campaignID,
-    fileID,
-    campaign,
-  } = useAnnotator();
+  const phase = usePagePhase()
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
-  const fileFilters = useAppSelector(state => state.ui.fileFilters)
-  const { isFetching, error, data: annotatorData } = useRetrieveAnnotatorQuery({
-    filters: fileFilters,
-    campaignID,
-    fileID
-  })
+  const { isFetching, error, data: annotatorData } = useRetrieveAnnotatorQuery()
   const colormapClass: Colormap = useMemo(() => {
     if (!currentConfiguration) return "Greys";
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
@@ -113,15 +104,15 @@ export const Annotator: React.FC = () => {
         </div>
 
         <div
-            className={ [ styles.blocContainer, campaign?.usage === 'Check' ? styles.check : styles.create ].join(' ') }>
-          { annotatorData?.is_assigned && campaign?.usage === 'Create' && <Fragment>
+            className={ [ styles.blocContainer, phase?.phase === 'Verification' ? styles.check : styles.create ].join(' ') }>
+          { annotatorData?.is_assigned && phase?.phase === 'Annotation' && <Fragment>
               <CurrentAnnotation/>
               <Labels/>
               <ConfidenceIndicator/>
               <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
-          { annotatorData?.is_assigned && campaign?.usage === 'Check' && <Fragment>
+          { annotatorData?.is_assigned && phase?.phase === 'Verification' && <Fragment>
               <CurrentAnnotation/>
               <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>

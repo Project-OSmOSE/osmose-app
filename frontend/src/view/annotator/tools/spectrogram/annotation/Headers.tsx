@@ -3,7 +3,6 @@ import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
 import { focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
@@ -11,6 +10,7 @@ import { TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
+import { usePagePhase } from "@/service/routing";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -94,19 +94,19 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 }
 
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
-  const { campaign } = useAnnotator();
+  const phase = usePagePhase()
   const dispatch = useAppDispatch();
 
   const remove = useCallback(() => {
-    switch (campaign?.usage) {
-      case 'Create':
+    switch (phase?.phase) {
+      case 'Annotation':
         dispatch(removeResult(annotation.id));
         break;
-      case 'Check':
+      case 'Verification':
         dispatch(invalidateResult(annotation.id));
         break;
     }
-  }, [ campaign, annotation ])
+  }, [ phase, annotation ])
 
   return (
     <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>

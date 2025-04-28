@@ -19,10 +19,11 @@ from backend.api.models import (
     Detector,
     DetectorConfiguration,
     ConfidenceIndicatorSet,
-    AnnotationCampaignUsage,
     ConfidenceIndicatorSetIndicator,
     AnnotationResultAcousticFeatures,
     SignalTrend,
+    AnnotationCampaignPhase,
+    Phase,
 )
 from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
@@ -498,8 +499,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         ):
             attrs["start_frequency"] = end_frequency
             attrs["end_frequency"] = start_frequency
-        campaign: Optional[AnnotationCampaign] = (
-            self.context["campaign"] if "campaign" in self.context else None
+        phase: Optional[AnnotationCampaignPhase] = (
+            self.context["phase"] if "phase" in self.context else None
         )
         detector_configuration = attrs.get("detector_configuration")
         if detector_configuration is not None:
@@ -511,8 +512,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
                 configuration=detector_configuration["configuration"],
             )
         if (
-            campaign is not None
-            and campaign.usage == AnnotationCampaignUsage.CHECK
+            phase is not None
+            and phase.phase == Phase.VERIFICATION
             and "annotator" in attrs
             and detector_configuration is not None
         ):

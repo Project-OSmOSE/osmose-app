@@ -3,22 +3,24 @@ import { createPortal } from "react-dom";
 import { Button, Modal, ModalHeader } from "@/components/ui";
 import { IonNote } from "@ionic/react";
 import styles from "@/view/annotator/tools/spectrogram/annotation/annotation.module.scss";
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { AnnotationResult } from "@/service/campaign/result";
 import { AnnotatorSlice } from "@/service/annotator";
 import { useAppDispatch } from "@/service/app.ts";
+import { usePagePhase } from "@/service/routing";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 export const AnnotationLabelUpdateModal: React.FC<{
   annotation: AnnotationResult,
   isModalOpen: boolean,
   setIsModalOpen: (value: boolean) => void
 }> = ({ annotation, isModalOpen, setIsModalOpen }) => {
-  const { campaign, label_set } = useAnnotator();
+  const phase = usePagePhase()
+  const { data: label_set } = useRetrieveLabelSetQuery();
   const dispatch = useAppDispatch();
 
   const updateLabel = useCallback((newLabel: string) => {
-    if (!campaign) return;
-    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, usage: campaign.usage }))
+    if (!phase) return;
+    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, phase: phase.phase }))
     setIsModalOpen(false)
   }, []);
 

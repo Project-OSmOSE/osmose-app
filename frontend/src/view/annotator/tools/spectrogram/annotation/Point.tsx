@@ -1,6 +1,5 @@
 import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
 import { PointResult } from '@/service/campaign/result';
@@ -8,13 +7,16 @@ import { updateFocusResultBounds } from '@/service/annotator';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
+import { usePagePhase } from "@/service/routing";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
+  const phase = usePagePhase()
   // Data
-  const { label_set, campaign } = useAnnotator();
+  const { data: label_set } = useRetrieveLabelSetQuery();
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -89,7 +91,7 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
-    if (!campaign) return;
+    if (!phase) return;
     dispatch(updateFocusResultBounds({
       newBounds: {
         type: 'Point',
@@ -98,7 +100,7 @@ export const Point: React.FC<{
         start_frequency: _yAxis.current.positionToValue(_top.current),
         end_frequency: null,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 

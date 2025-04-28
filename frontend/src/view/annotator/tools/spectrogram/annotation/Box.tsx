@@ -2,13 +2,14 @@ import React, { Fragment, MutableRefObject, useEffect, useMemo, useRef, useState
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { BoxResult } from '@/service/campaign/result';
 import { updateFocusResultBounds } from '@/service/annotator';
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
+import { usePagePhase } from "@/service/routing";
+import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -20,8 +21,9 @@ export const Box: React.FC<RegionProps> = ({
                                              annotation,
                                              audioPlayer
                                            }) => {
+  const phase = usePagePhase()
   // Data
-  const { label_set, campaign } = useAnnotator();
+  const { data: label_set } = useRetrieveLabelSetQuery();
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -133,7 +135,7 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   function onValidateMove() {
-    if (!campaign) return;
+    if (!phase) return;
     let end_frequency = _yAxis.current.positionToValue(_top.current);
     let start_frequency = _yAxis.current.positionToValue(_top.current + _height.current);
     let start_time = _xAxis.current.positionToValue(_left.current);
@@ -144,7 +146,7 @@ export const Box: React.FC<RegionProps> = ({
     if (_end_frequency.current && _end_frequency.current.toFixed(2) === end_frequency.toFixed(2)) end_frequency = _end_frequency.current;
     dispatch(updateFocusResultBounds({
       newBounds: { type: 'Box', end_frequency, start_frequency, start_time, end_time },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
