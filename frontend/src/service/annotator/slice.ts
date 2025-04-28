@@ -49,6 +49,9 @@ export const AnnotatorSlice = createSlice({
     sessionStart: Date.now(),
     didSeeAllFile: false,
     canAddAnnotations: true,
+    settings: {
+      disableSpectrogramResize: false,
+    }
   } satisfies AnnotatorState as AnnotatorState,
   reducers: {
     focusResult: _focusResult,
@@ -386,7 +389,15 @@ export const AnnotatorSlice = createSlice({
     },
     showAllLabels(state) {
       state.ui.hiddenLabels = []
-    }
+    },
+
+    // Settings
+    updateSettings(state, { payload }: { payload: Partial<AnnotatorState['settings']> }) {
+      state.settings = {
+        ...state.settings,
+        ...payload
+      }
+    },
   },
   extraReducers:
     (builder) => {

@@ -36,6 +36,9 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   sessionStart: number;
   confidenceIndicators?: ConfidenceIndicator[];
   canAddAnnotations?: boolean;
+  settings: {
+    disableSpectrogramResize: boolean;
+  }
 }
 
 
