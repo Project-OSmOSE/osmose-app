@@ -53,7 +53,7 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <DocumentationButton/>
 
-        { currentUser?.is_superuser && <Link appPath='/sql' color='medium' onClick={ close }>SQL query</Link> }
+        { currentUser?.is_superuser && <Link appPath='/admin/sql' color='medium' onClick={ close }>SQL query</Link> }
 
         <Link appPath='/account' color='medium' onClick={ close }>Account</Link>
 

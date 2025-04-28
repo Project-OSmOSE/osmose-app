@@ -84,12 +84,18 @@ const AppContent: React.FC = () => {
           <Route path='annotation-campaign/:campaignID/phase/:phaseID/file/:fileID'
                  element={ <AnnotatorPage/> }/>
 
-        { currentUser?.is_superuser && <Route path='sql' element={ <SqlQuery/> }/> }
-          <Route path='account' element={ <Account/> }/>
+          <Route element={ <AploseSkeleton/> }>
+              <Route path='account' element={ <Account/> }/>
+          </Route>
+
+        { currentUser?.is_superuser &&
+            <Route path='admin' element={ <AploseSkeleton/> }>
+                <Route path='sql' element={ <SqlQuery/> }/>
+            </Route>
+        }
 
           <Route path="*" element={ <Navigate to="/annotation-campaign" replace state={ { from } }/> }/>
-      </Fragment>
-      }
+      </Fragment> }
 
       <Route path="*" element={ <Navigate to="/login" replace state={ { from } }/> }/>
     </Routes>

@@ -9,7 +9,6 @@ import { Button, Kbd, Pagination, Table, TableContent, TableDivider, TableHead, 
 import { Prec } from "@codemirror/state";
 import { getErrorMessage } from "@/service/function.ts";
 import styles from './sql.module.scss'
-import { AploseSkeleton } from "@/components/layout";
 
 
 export const SqlQuery: React.FC = () => {
@@ -74,40 +73,38 @@ export const SqlQuery: React.FC = () => {
   }, [ results ])
 
   if (!user || !user.is_superuser) return <Fragment/>
-  return <AploseSkeleton>
-    <div className={ styles.page }>
+  return <div className={ styles.page }>
 
-      <h2>SQL Query</h2>
+    <h2>SQL Query</h2>
 
-      <div className={ styles.sql }
-           ref={ ref => {
-             if (!ref || editorRef.current) return;
-             editorContainerRef.current = ref;
-             setupEditor();
-           } }/>
+    <div className={ styles.sql }
+         ref={ ref => {
+           if (!ref || editorRef.current) return;
+           editorContainerRef.current = ref;
+           setupEditor();
+         } }/>
 
-      <Button fill="outline" className={ styles.run } onClick={ () => runQuery(1) }>Run query &nbsp; <Kbd
-        keys={ [ 'ctrl', 'enter' ] }/></Button>
+    <Button fill="outline" className={ styles.run } onClick={ () => runQuery(1) }>Run query &nbsp; <Kbd
+      keys={ [ 'ctrl', 'enter' ] }/></Button>
 
-      <Button fill="outline" className={ styles.download }
-              onClick={ download } disabled={ !results }>Download</Button>
+    <Button fill="outline" className={ styles.download }
+            onClick={ download } disabled={ !results }>Download</Button>
 
-      { error && <WarningText className={ styles.error }>{ getErrorMessage(error) }</WarningText> }
+    { error && <WarningText className={ styles.error }>{ getErrorMessage(error) }</WarningText> }
 
-      { results && <Table className={ styles.results } columns={ results.columns.length }>
-        { results.columns.map((c, i) => <TableHead topSticky leftSticky={ i === 0 }
-                                                   isFirstColumn={ i === 0 }
-                                                   key={ c }>{ c }</TableHead>) }
-        { results.results.map((row, k) => <Fragment key={ k }>
-          <TableDivider/>
-          { row.map((cell, i) => <TableContent leftSticky={ i === 0 } isFirstColumn={ i === 0 }
-                                               key={ i }>{ cell }</TableContent>) }
-        </Fragment>) }
-      </Table> }
+    { results && <Table className={ styles.results } columns={ results.columns.length }>
+      { results.columns.map((c, i) => <TableHead topSticky leftSticky={ i === 0 }
+                                                 isFirstColumn={ i === 0 }
+                                                 key={ c }>{ c }</TableHead>) }
+      { results.results.map((row, k) => <Fragment key={ k }>
+        <TableDivider/>
+        { row.map((cell, i) => <TableContent leftSticky={ i === 0 } isFirstColumn={ i === 0 }
+                                             key={ i }>{ cell }</TableContent>) }
+      </Fragment>) }
+    </Table> }
 
-      { results &&
-          <Pagination className={ styles.pagination } currentPage={ pageRef.current } totalPages={ results.pageCount }
-                      setCurrentPage={ runQuery }/> }
-    </div>
-  </AploseSkeleton>
+    { results &&
+        <Pagination className={ styles.pagination } currentPage={ pageRef.current } totalPages={ results.pageCount }
+                    setCurrentPage={ runQuery }/> }
+  </div>
 }
