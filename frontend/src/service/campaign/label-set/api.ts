@@ -2,10 +2,10 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth/function.ts';
 import { ID } from '@/service/type.ts';
 import { LabelSet } from './type.ts';
-import { usePageCampaign } from "@/service/routing";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { CampaignAPI } from "@/service/campaign";
 
-export const LabelSetAPI = createApi({
+const _LabelSetAPI = createApi({
   reducerPath: 'labelSetApi',
   baseQuery: getAuthenticatedBaseQuery('/api/label-set/'),
   endpoints: (builder) => ({
@@ -14,7 +14,12 @@ export const LabelSetAPI = createApi({
   })
 })
 
-export const useRetrieveLabelSetQuery = () => {
-  const campaign = usePageCampaign();
-  return LabelSetAPI.useRetrieveQuery(campaign?.label_set ?? skipToken);
+const useRetrieveQuery = () => {
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
+  return _LabelSetAPI.useRetrieveQuery(campaign?.label_set ?? skipToken);
+}
+
+export const LabelSetAPI = {
+  ..._LabelSetAPI,
+  useRetrieveQuery
 }

@@ -5,13 +5,12 @@ import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { ResultImportSlice, useUploadResultChunk } from "@/service/campaign/result/import";
 import styles from "@/view/campaign/edit/edit.module.scss";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
 import { DetectorConfiguration } from "@/service/campaign/detector";
 
 export const Upload: React.FC = () => {
-  const { id: campaignID } = useParams<{ id: string }>();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID!);
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery();
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,11 +22,11 @@ export const Upload: React.FC = () => {
 
   const onUploaded = useCallback(() => {
     if ((location.state as any)?.fromCreateCampaign) {
-      navigate(`/annotation-campaign/${ campaignID }/edit-annotators`, { state: { fromImportAnnotations: true } })
+      navigate(`/annotation-campaign/${ campaign?.id }/edit-annotators`, { state: { fromImportAnnotations: true } })
     } else {
       back()
     }
-  }, [ campaignID, location, navigate, back ])
+  }, [ campaign?.id, location, navigate, back ])
 
   const { upload } = useUploadResultChunk(onUploaded)
   const reset = useCallback(() => {
@@ -53,7 +52,7 @@ export const Upload: React.FC = () => {
     </div>
   }, [ upload, uploadInfo, detectors, back, file ])
 
-  if (campaign?.usage !== 'Check') return <Fragment/>
+  if (currentPhase?.phase !== 'Verification') return <Fragment/>
   if (uploadInfo.state === 'initial') return buttons
   return <Fragment>
     <Progress label='Upload' value={ uploadInfo.uploaded } total={ uploadInfo.total }/>

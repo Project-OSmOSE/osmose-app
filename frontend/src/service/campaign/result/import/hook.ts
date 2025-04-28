@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
 import { AnnotationResultAPI } from "@/service/campaign/result";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
@@ -9,8 +8,7 @@ import { QueryStatus } from "@reduxjs/toolkit/query";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 
 export const useUploadResultChunk = (onFulfilled: () => void) => {
-  const { id: campaignID } = useParams<{ id: string }>();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
+  const { data: campaign } = CampaignAPI.useRetrieveQuery();
   const [ doImport, {
     error,
     originalArgs,

@@ -8,7 +8,7 @@ import { useToast } from '@/service/ui';
 import { BoxBounds } from '@/service/campaign/result';
 import { buildErrorMessage } from '@/services/utils/format.tsx';
 import { colorSpectro, interpolate } from '@/services/utils/color.ts';
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { AnnotatorAPI } from "@/service/annotator";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 
@@ -25,7 +25,7 @@ export const useSpectrogramDimensions = () => {
 }
 
 export const useCurrentConfiguration = (): SpectrogramConfiguration | undefined => {
-  const { data } = useRetrieveAnnotatorQuery();
+  const { data } = AnnotatorAPI.useRetrieveQuery();
   const { spectrogramConfigurationID } = useAppSelector(state => state.annotator.userPreferences)
 
   return useMemo(() => {

@@ -8,8 +8,7 @@ import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { CampaignAPI } from "@/service/campaign";
 import { createPortal } from "react-dom";
 import {
   AnnotationLabelUpdateModal
@@ -108,8 +107,7 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
 )
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
@@ -137,10 +135,9 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 )
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const { currentPhase } = CampaignAPI.useRetrieveQuery()
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;
@@ -171,7 +168,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
     dispatch(invalidateResult(result.id))
   }, [ setIsModalOpen ]);
 
-  if (campaign?.usage !== 'Check') return <Fragment/>
+  if (currentPhase?.phase !== 'Verification') return <Fragment/>
   return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
     <IonButton className="validate"
                color={ validation ? 'success' : 'medium' }

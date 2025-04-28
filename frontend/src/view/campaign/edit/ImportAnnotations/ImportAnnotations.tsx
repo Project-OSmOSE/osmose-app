@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import { CampaignAPI } from "@/service/campaign";
 import styles from '../edit.module.scss';
@@ -9,13 +9,11 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ResultImportSlice } from "@/service/campaign/result/import";
 import { FileSelector } from "@/view/campaign/edit/ImportAnnotations/file/Selector.tsx";
 import { Upload } from "@/view/campaign/edit/ImportAnnotations/Upload.tsx";
-import { AploseSkeleton } from "@/components/layout";
 
 export const ImportAnnotations: React.FC = () => {
   const location = useLocation();
   const toast = useToast();
-  const { id: campaignID } = useParams<{ id: string }>();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
+  const { data: campaign } = CampaignAPI.useRetrieveQuery();
 
   const { file, detectors, } = useAppSelector(state => state.resultImport)
   const dispatch = useAppDispatch();
@@ -31,22 +29,20 @@ export const ImportAnnotations: React.FC = () => {
     toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
   }, [ location, campaign ]);
 
-  return <AploseSkeleton>
-    <div
-      className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }
-      ref={ page }>
+  return <div
+    className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }
+    ref={ page }>
 
-      <div className={ styles.title }>
-        <h2>Import annotations</h2>
-        { campaign && <h5>{ campaign.name }</h5> }
-      </div>
-
-      <FileSelector/>
-      <DetectorsContent/>
-      <DetectorsConfigContent/>
-
-      <Upload/>
+    <div className={ styles.title }>
+      <h2>Import annotations</h2>
+      { campaign && <h5>{ campaign.name }</h5> }
     </div>
-  </AploseSkeleton>
+
+    <FileSelector/>
+    <DetectorsContent/>
+    <DetectorsConfigContent/>
+
+    <Upload/>
+  </div>
 }
 

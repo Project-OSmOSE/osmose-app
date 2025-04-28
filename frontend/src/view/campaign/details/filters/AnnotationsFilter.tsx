@@ -6,25 +6,21 @@ import { setFileFilters } from "@/service/ui";
 import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui";
 import { Select, Switch } from "@/components/form";
-import { AnnotationCampaign } from "@/service/campaign";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
-import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
-import { useListDetectorQuery } from "@/service/campaign/detector";
-import { AnnotationCampaignPhase } from "@/service/campaign/phase";
+import { LabelSetAPI } from "@/service/campaign/label-set";
+import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
+import { DetectorAPI } from "@/service/campaign/detector";
 import styles from './styles.module.scss'
 
 const BOOLEAN_OPTIONS = [ 'Unset', 'With', 'Without' ]
 type BooleanOption = typeof BOOLEAN_OPTIONS[number];
 
 export const AnnotationsFilter: React.FC<{
-  campaign: AnnotationCampaign;
-  phase: AnnotationCampaignPhase;
   onUpdate: () => void
-}> = ({ onUpdate, campaign, phase }) => {
+}> = ({ onUpdate }) => {
   const { fileFilters: filters } = useAppSelector(state => state.ui);
-  const { data: labelSet } = useRetrieveLabelSetQuery();
-  const { data: confidenceSet } = useRetrieveConfidenceSetQuery();
-  const { data: detectors } = useListDetectorQuery({ campaign: campaign.id }, { skip: phase.phase !== 'Verification' });
+  const { data: labelSet } = LabelSetAPI.useRetrieveQuery();
+  const { data: confidenceSet } = ConfidenceSetAPI.useRetrieveQuery();
+  const { data: detectors } = DetectorAPI.useListForCampaignQuery();
   const dispatch = useAppDispatch();
 
   const hasAnnotationsFilter = useMemo(() => filters.withUserAnnotations !== undefined, [ filters ]);

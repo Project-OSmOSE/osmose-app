@@ -8,17 +8,17 @@ import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { useCanNavigate } from "@/service/annotator/hook.ts";
-import { usePageCampaign } from "@/service/routing";
-import { usePostAnnotatorMutation, useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { AnnotatorAPI } from "@/service/annotator";
+import { CampaignAPI } from "@/service/campaign";
 
 
 export const NavigationButtons: React.FC = () => {
-  const { data } = useRetrieveAnnotatorQuery();
-  const campaign = usePageCampaign()
+  const { data } = AnnotatorAPI.useRetrieveQuery();
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
 
   // Services
   const navigate = useNavigate();
-  const post = usePostAnnotatorMutation();
+  const post = AnnotatorAPI.usePostMutation();
   const toast = useToast();
 
   // Data

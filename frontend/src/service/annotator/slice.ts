@@ -513,7 +513,7 @@ export const AnnotatorSlice = createSlice({
         },
       )
       builder.addMatcher(
-        UserAPI.endpoints.getCurrentUser.matchFulfilled,
+        UserAPI.endpoints.getCurrent.matchFulfilled,
         (state, { payload }) => {
           state.userID = payload.id;
         },

@@ -7,16 +7,16 @@ import { updateFocusResultBounds } from '@/service/annotator';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
-import { usePagePhase } from "@/service/routing";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { LabelSetAPI } from "@/service/campaign/label-set";
+import { CampaignAPI } from "@/service/campaign";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
-  const phase = usePagePhase()
+  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
   // Data
-  const { data: label_set } = useRetrieveLabelSetQuery();
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -68,7 +68,7 @@ export const Point: React.FC<{
     if (!label_set) return '';
     let label = annotation.label
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
-    return `ion-color-${ label_set.labels.indexOf(label)%10 }`
+    return `ion-color-${ label_set.labels.indexOf(label) % 10 }`
   }, [ label_set, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
@@ -91,7 +91,7 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
-    if (!phase) return;
+    if (!currentPhase) return;
     dispatch(updateFocusResultBounds({
       newBounds: {
         type: 'Point',
@@ -100,7 +100,7 @@ export const Point: React.FC<{
         start_frequency: _yAxis.current.positionToValue(_top.current),
         end_frequency: null,
       },
-      phase: phase.phase
+      phase: currentPhase.phase
     }))
   }
 

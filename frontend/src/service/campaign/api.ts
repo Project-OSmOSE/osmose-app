@@ -4,8 +4,11 @@ import { AnnotationCampaign, OldAnnotationCampaign, Phase, WriteAnnotationCampai
 import { ID } from '@/service/type';
 import { downloadResponseHandler, encodeQueryParams } from '@/service/function';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
+import { useParams } from "react-router-dom";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { useMemo } from "react";
 
-export const CampaignAPI = createApi({
+const _CampaignAPI = createApi({
   reducerPath: 'campaignApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotation-campaign/'),
   tagTypes: [ 'AnnotationCampaign' ],
@@ -34,11 +37,7 @@ export const CampaignAPI = createApi({
       })), 'AnnotationCampaign' ] : [ 'AnnotationCampaign' ]
     }),
     retrieve: builder.query<AnnotationCampaign, ID>({
-      query: (id) => {
-        return {
-          url: `${ id }/`
-        }
-      },
+      query: (id) => `${ id }/`,
       providesTags: (campaign, _, arg) => [ { type: 'AnnotationCampaign', id: campaign?.id ?? arg } ]
     }),
     create: builder.mutation<OldAnnotationCampaign, WriteAnnotationCampaign>({
@@ -98,7 +97,14 @@ export const CampaignAPI = createApi({
   })
 })
 
-export const {
-  useListQuery: useListCampaignsQuery,
-  useRetrieveQuery: useRetrieveCampaignQuery,
-} = CampaignAPI;
+const useRetrieveQuery = () => {
+  const { campaignID, phaseID } = useParams<{ campaignID: string; phaseID: string }>();
+  const { data, ...info } = _CampaignAPI.useRetrieveQuery(campaignID ?? skipToken)
+  const currentPhase = useMemo(() => data?.phases.find(p => p.id.toString() === phaseID), [ data ]);
+  return { data, ...info, currentPhase }
+}
+
+export const CampaignAPI = {
+  ..._CampaignAPI,
+  useRetrieveQuery
+}

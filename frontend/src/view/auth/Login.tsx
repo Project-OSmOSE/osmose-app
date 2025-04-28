@@ -3,7 +3,7 @@ import styles from './auth.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { Input } from "@/components/form";
 import { useAppSelector } from "@/service/app.ts";
-import { selectIsConnected, useLoginMutation } from "@/service/auth";
+import { AuthAPI, selectIsConnected } from "@/service/auth";
 import { IonButton } from "@ionic/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
@@ -28,7 +28,7 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
-  const [ login, { isLoading, error: loginError } ] = useLoginMutation();
+  const [ login, { isLoading, error: loginError } ] = AuthAPI.useLoginMutation();
   const toast = useToast()
 
   useEffect(() => {

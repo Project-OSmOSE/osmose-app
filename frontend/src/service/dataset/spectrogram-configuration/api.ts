@@ -36,8 +36,3 @@ export const SpectrogramConfigurationAPI = createApi({
     }),
   })
 })
-
-export const {
-  useListQuery: useListSpectrogramConfigurationQuery,
-  useDownloadMutation: useDownloadSpectrogramConfigurationMutation,
-} = SpectrogramConfigurationAPI;

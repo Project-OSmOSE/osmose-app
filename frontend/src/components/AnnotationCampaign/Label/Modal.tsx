@@ -9,7 +9,6 @@ import { LabelSetAPI } from "@/service/campaign/label-set";
 import { LabelSetDisplay } from "@/components/AnnotationCampaign";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
-import { usePageCampaign } from "@/service/routing/hook.ts";
 
 
 export const LabelSetModalButton: React.FC = () => {
@@ -25,7 +24,7 @@ export const LabelSetModalButton: React.FC = () => {
 export const LabelSetModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const campaign = usePageCampaign()
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
   const {
     data: labelSet,
     isFetching, error

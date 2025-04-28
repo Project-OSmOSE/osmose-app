@@ -4,10 +4,10 @@ import { useAppDispatch, useAppSelector } from "@/service/app";
 import { IonButton, IonIcon } from "@ionic/react";
 import { contrastOutline, sunnyOutline } from "ionicons/icons";
 import React, { Fragment, useMemo } from "react";
-import { usePageCampaign } from "@/service/routing";
+import { CampaignAPI } from "@/service/campaign";
 
 export const SpectrogramImage: React.FC = () => {
-  const campaign = usePageCampaign()
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
   const dispatch = useAppDispatch();
 
   const changeAllowed = useMemo(() => campaign?.allow_image_tuning, [ campaign ]);

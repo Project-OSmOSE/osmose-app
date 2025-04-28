@@ -19,7 +19,6 @@ import { useToast } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
-import { AploseSkeleton } from "@/components/layout";
 import { WarningText } from "@/components/ui";
 
 type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
@@ -192,151 +191,150 @@ export const CreateCampaign: React.FC = () => {
     if (!createdCampaign) return;
     switch (usage) {
       case 'Create':
-        navigate(`/annotation-campaign/${ createdCampaign.id }/edit-annotators`, {state: { fromCreateCampaign: true }})
+        navigate(`/annotation-campaign/${ createdCampaign.id }/edit-annotators`, { state: { fromCreateCampaign: true } })
         break;
       case 'Check':
-        navigate(`/annotation-campaign/${ createdCampaign.id }/import-annotations`, {state: { fromCreateCampaign: true }})
+        navigate(`/annotation-campaign/${ createdCampaign.id }/import-annotations`, { state: { fromCreateCampaign: true } })
         break;
     }
   }, [ createdCampaign, usage ]);
 
-  return <AploseSkeleton>
-    <div className={ styles.page } ref={ page }>
+  return <div className={ styles.page } ref={ page }>
 
-      <h2>Create Annotation Campaign</h2>
+    <h2>Create Annotation Campaign</h2>
 
-      {/* Global */ }
-      <FormBloc>
-        <Input label="Name" placeholder="Campaign name" error={ errors.name }
-               value={ name } onChange={ onNameChange }
-               required={ true }/>
+    {/* Global */ }
+    <FormBloc>
+      <Input label="Name" placeholder="Campaign name" error={ errors.name }
+             value={ name } onChange={ onNameChange }
+             required={ true }/>
 
-        <Textarea label="Description" placeholder="Enter your campaign description" error={ errors.desc }
-                  value={ desc } onChange={ onDescChange }/>
+      <Textarea label="Description" placeholder="Enter your campaign description" error={ errors.desc }
+                value={ desc } onChange={ onDescChange }/>
 
-        <Input label="Instruction URL" placeholder="URL" error={ errors.instructions_url }
-               value={ instructions_url } onChange={ onInstructionsURLChange }/>
+      <Input label="Instruction URL" placeholder="URL" error={ errors.instructions_url }
+             value={ instructions_url } onChange={ onInstructionsURLChange }/>
 
-        <Input label="Deadline" type="date" placeholder="Deadline" error={ errors.deadline }
-               value={ deadline } onChange={ onDeadlineChange }/>
+      <Input label="Deadline" type="date" placeholder="Deadline" error={ errors.deadline }
+             value={ deadline } onChange={ onDeadlineChange }/>
 
-        <Switch label="Annotation mode" options={ [ 'Create annotations', 'Check annotations' ] } error={ errors.usage }
-                value={ `${ usage } annotations` } onValueSelected={ onUsageChange }
-                required={ true }/>
-      </FormBloc>
+      <Switch label="Annotation mode" options={ [ 'Create annotations', 'Check annotations' ] } error={ errors.usage }
+              value={ `${ usage } annotations` } onValueSelected={ onUsageChange }
+              required={ true }/>
+    </FormBloc>
 
-      {/* Dataset & Spectro config */ }
-      <FormBloc label="Data">
+    {/* Dataset & Spectro config */ }
+    <FormBloc label="Data">
 
-        { isFetchingDatasets && <IonSpinner/> }
+      { isFetchingDatasets && <IonSpinner/> }
 
-        { datasetsError &&
-            <WarningText>Fail loading datasets:<br/>{ getErrorMessage(datasetsError) }</WarningText> }
+      { datasetsError &&
+          <WarningText>Fail loading datasets:<br/>{ getErrorMessage(datasetsError) }</WarningText> }
 
-        { allDatasets && <Fragment>
-            <Select label="Dataset" placeholder="Select a dataset" error={ errors.datasets }
-                    options={ allDatasets.map(d => ({ value: d.name, label: d.name })) ?? [] } optionsContainer="alert"
-                    value={ dataset?.name } disabled={ !allDatasets.length } onValueSelected={ onDatasetChange }
-                    required={ true }/>
-          { allDatasets.length === 0 && <IonNote>You should first import a dataset</IonNote> }
+      { allDatasets && <Fragment>
+          <Select label="Dataset" placeholder="Select a dataset" error={ errors.datasets }
+                  options={ allDatasets.map(d => ({ value: d.name, label: d.name })) ?? [] } optionsContainer="alert"
+                  value={ dataset?.name } disabled={ !allDatasets.length } onValueSelected={ onDatasetChange }
+                  required={ true }/>
+        { allDatasets.length === 0 && <IonNote>You should first import a dataset</IonNote> }
 
-          { dataset && <ChipsInput label="Spectrogram configurations" error={ errors.spectro_configs }
-                                   disabled={ !dataset.spectros?.length }
-                                   items={ dataset?.spectros.map((c: any) => ({
-                                     value: c.id,
-                                     label: c.name
-                                   })) ?? [] }
-                                   activeItemsValues={ spectro_configs.map(s => s.id) }
-                                   setActiveItemsValues={ onSpectroConfigsChange }
-                                   required={ true }/> }
-        </Fragment> }
-      </FormBloc>
+        { dataset && <ChipsInput label="Spectrogram configurations" error={ errors.spectro_configs }
+                                 disabled={ !dataset.spectros?.length }
+                                 items={ dataset?.spectros.map((c: any) => ({
+                                   value: c.id,
+                                   label: c.name
+                                 })) ?? [] }
+                                 activeItemsValues={ spectro_configs.map(s => s.id) }
+                                 setActiveItemsValues={ onSpectroConfigsChange }
+                                 required={ true }/> }
+      </Fragment> }
+    </FormBloc>
 
-      {/* Spectrogram tuning */ }
-      <FormBloc label="Spectrogram Tuning">
-        {/* Allow brightness / contrast tuning */ }
-        <Input type="checkbox" label="Allow brigthness / contrast modification"
-               checked={ allow_image_tuning } onChange={ onAllowImageTuningChange }/>
+    {/* Spectrogram tuning */ }
+    <FormBloc label="Spectrogram Tuning">
+      {/* Allow brightness / contrast tuning */ }
+      <Input type="checkbox" label="Allow brigthness / contrast modification"
+             checked={ allow_image_tuning } onChange={ onAllowImageTuningChange }/>
 
-        {/* Allow colormap tuning */ }
-        <Input type="checkbox" label="Allow colormap modification" disabled={ !isColormapEditable }
-               checked={ allow_colormap_tuning } onChange={ onAllowColormapTuningChange }
-               note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/>
+      {/* Allow colormap tuning */ }
+      <Input type="checkbox" label="Allow colormap modification" disabled={ !isColormapEditable }
+             checked={ allow_colormap_tuning } onChange={ onAllowColormapTuningChange }
+             note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/>
 
-        {/* Default colormap */ }
-        { allow_colormap_tuning && <Select
-            required={ true }
-            label="Default colormap"
-            value={ colormap_default ?? COLORMAP_GREYS }
-            placeholder="Select a default colormap"
-            optionsContainer="popover"
-            options={ Object.keys(COLORMAPS).map((colormap) => ({
-              value: colormap, label: colormap, img: `/app/images/colormaps/${ colormap.toLowerCase() }.png`
-            })) }
-            onValueSelected={ onColormapDefaultChange }/> }
+      {/* Default colormap */ }
+      { allow_colormap_tuning && <Select
+          required={ true }
+          label="Default colormap"
+          value={ colormap_default ?? COLORMAP_GREYS }
+          placeholder="Select a default colormap"
+          optionsContainer="popover"
+          options={ Object.keys(COLORMAPS).map((colormap) => ({
+            value: colormap, label: colormap, img: `/app/images/colormaps/${ colormap.toLowerCase() }.png`
+          })) }
+          onValueSelected={ onColormapDefaultChange }/> }
 
-        {/* Default colormap inverted? */ }
-        { allow_colormap_tuning && <Input type="checkbox" label="Invert default colormap" disabled={ !isColormapEditable }
-            checked={ colormap_inverted_default ?? false } onChange={ onColormapInvertedDefaultChange }
-            note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/> }
-      </FormBloc>
+      {/* Default colormap inverted? */ }
+      { allow_colormap_tuning && <Input type="checkbox" label="Invert default colormap" disabled={ !isColormapEditable }
+                                        checked={ colormap_inverted_default ?? false }
+                                        onChange={ onColormapInvertedDefaultChange }
+                                        note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/> }
+    </FormBloc>
 
-      {/* Create mode: Annotations */ }
-      { usage === 'Create' && <FormBloc label="Annotation">
+    {/* Create mode: Annotations */ }
+    { usage === 'Create' && <FormBloc label="Annotation">
 
-        { (isFetchingLabelSets || isFetchingConfidenceSets) && <IonSpinner/> }
+      { (isFetchingLabelSets || isFetchingConfidenceSets) && <IonSpinner/> }
 
-        {/* Label set */ }
-        { labelSetsError &&
-            <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
-        { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
-                                  options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
-                                  optionsContainer="alert"
-                                  disabled={ !allLabelSets?.length }
-                                  value={ labelSet?.id }
-                                  onValueSelected={ onLabelSetChange }
-                                  required={ true }>
-          { labelSet && (<LabelSetDisplay set={ labelSet }
-                                          labelsWithAcousticFeatures={ labels_with_acoustic_features }
-                                          setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }
+      {/* Label set */ }
+      { labelSetsError &&
+          <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
+      { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
+                                options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
+                                optionsContainer="alert"
+                                disabled={ !allLabelSets?.length }
+                                value={ labelSet?.id }
+                                onValueSelected={ onLabelSetChange }
+                                required={ true }>
+        { labelSet && (<LabelSetDisplay set={ labelSet }
+                                        labelsWithAcousticFeatures={ labels_with_acoustic_features }
+                                        setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }
 
-          { allLabelSets.length === 0 && <IonNote>You need to create a label set to use it in your campaign</IonNote> }
-        </Select> }
+        { allLabelSets.length === 0 && <IonNote>You need to create a label set to use it in your campaign</IonNote> }
+      </Select> }
 
-        {/* Confidence set */ }
-        { confidenceSetsError &&
-            <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
-            </WarningText> }
-        { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"
-                                       error={ errors.confidence_indicator_set }
-                                       options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
-                                       optionsContainer="alert"
-                                       disabled={ !allConfidenceSets?.length }
-                                       value={ confidenceSet?.id }
-                                       onValueSelected={ onConfidenceSetChange }>
-          { confidenceSet && (
-            <Fragment>
-              { confidenceSet.desc }
-              { confidenceSet.confidence_indicators.map(c => (
-                <p key={ c.level }><b>{ c.level }:</b> { c.label }</p>
-              )) }
-            </Fragment>)
-          }
-          { allConfidenceSets.length === 0 &&
-              <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }
-        </Select> }
+      {/* Confidence set */ }
+      { confidenceSetsError &&
+          <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
+          </WarningText> }
+      { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"
+                                     error={ errors.confidence_indicator_set }
+                                     options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
+                                     optionsContainer="alert"
+                                     disabled={ !allConfidenceSets?.length }
+                                     value={ confidenceSet?.id }
+                                     onValueSelected={ onConfidenceSetChange }>
+        { confidenceSet && (
+          <Fragment>
+            { confidenceSet.desc }
+            { confidenceSet.confidence_indicators.map(c => (
+              <p key={ c.level }><b>{ c.level }:</b> { c.label }</p>
+            )) }
+          </Fragment>)
+        }
+        { allConfidenceSets.length === 0 &&
+            <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }
+      </Select> }
 
-          <Input type="checkbox" label='Allow annotations of type "Point"'
-                 checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>
+        <Input type="checkbox" label='Allow annotations of type "Point"'
+               checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>
 
-      </FormBloc> }
+    </FormBloc> }
 
-      <div className={ styles.buttons }>
-        { isSubmittingCampaign && <IonSpinner/> }
-        <IonButton disabled={ isSubmittingCampaign } onClick={ submit }>
-          Create campaign
-        </IonButton>
-      </div>
+    <div className={ styles.buttons }>
+      { isSubmittingCampaign && <IonSpinner/> }
+      <IonButton disabled={ isSubmittingCampaign } onClick={ submit }>
+        Create campaign
+      </IonButton>
     </div>
-  </AploseSkeleton>
+  </div>
 }

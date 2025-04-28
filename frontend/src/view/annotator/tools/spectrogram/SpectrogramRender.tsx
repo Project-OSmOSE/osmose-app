@@ -15,10 +15,10 @@ import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, BoxBounds } from '@/service/campaign/result';
 import {
   addResult,
+  AnnotatorAPI,
   leavePointerPosition,
   setFileIsSeen,
   setPointerPosition,
-  useRetrieveAnnotatorQuery,
   zoom
 } from '@/service/annotator';
 import { useToast } from "@/service/ui";
@@ -32,7 +32,7 @@ import { Annotation } from "@/view/annotator/tools/spectrogram/annotation/Annota
 import { usePointerService } from '@/service/annotator/spectrogram/pointer';
 import { useDisplaySpectrogram, useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram';
 import { useAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
-import { usePageCampaign, usePagePhase } from "@/service/routing";
+import { CampaignAPI } from "@/service/campaign";
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -44,9 +44,8 @@ export interface SpectrogramRender {
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
-  const { data } = useRetrieveAnnotatorQuery();
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
+  const { data } = AnnotatorAPI.useRetrieveQuery();
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
   // Data
   const {
     focusedLabel,
@@ -86,7 +85,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && phase?.phase === 'Annotation' && !!focusedLabel && !!data?.is_assigned, [ canAddAnnotations, focusedLabel, phase?.phase, data?.is_assigned ]);
+  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && currentPhase?.phase === 'Annotation' && !!focusedLabel && !!data?.is_assigned, [ canAddAnnotations, focusedLabel, currentPhase?.phase, data?.is_assigned ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled

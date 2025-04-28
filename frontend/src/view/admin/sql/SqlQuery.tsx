@@ -13,7 +13,7 @@ import { AploseSkeleton } from "@/components/layout";
 
 
 export const SqlQuery: React.FC = () => {
-  const { data: user } = UserAPI.useGetCurrentUserQuery();
+  const { data: user } = UserAPI.useGetCurrentQuery();
   const { data: schema } = SqlAPI.useSchemaQuery();
   const [ run, { data: results, error } ] = SqlAPI.usePostMutation();
 

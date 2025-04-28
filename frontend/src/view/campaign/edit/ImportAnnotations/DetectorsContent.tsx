@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { FormBloc, Select } from "@/components/form";
 import styles from './importAnnotations.module.scss'
-import { useListDetectorQuery } from "@/service/campaign/detector";
+import { DetectorAPI } from "@/service/campaign/detector";
 import { CheckboxChangeEventDetail, IonCheckbox, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import { alertOutline } from "ionicons/icons";
@@ -10,7 +10,7 @@ import { ResultImportSlice } from "@/service/campaign/result/import";
 import { WarningText } from "@/components/ui";
 
 export const DetectorsContent: React.FC = () => {
-  const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } = useListDetectorQuery({});
+  const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } =  DetectorAPI.useListQuery();
 
   const { file, upload } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();
@@ -55,7 +55,7 @@ const DetectorEntry: React.FC<{
   onChange: (e: CustomEvent<CheckboxChangeEventDetail>, detectorName: string) => void;
   onDetectorChange: (id: string | number | undefined, detectorName: string) => void
 }> = ({ initialName, onChange, onDetectorChange, disabled }) => {
-  const { data: allDetectors } = useListDetectorQuery({});
+  const { data: allDetectors } = DetectorAPI.useListQuery();
   const { detectors } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();
 

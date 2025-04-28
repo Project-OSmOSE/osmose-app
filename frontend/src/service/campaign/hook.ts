@@ -3,7 +3,7 @@ import { UserAPI } from "@/service/user";
 import { AnnotationCampaign } from "./type.ts";
 
 export const useHasAdminAccessToCampaign = (campaign?: AnnotationCampaign) => {
-  const { data: currentUser } = UserAPI.useGetCurrentUserQuery();
+  const { data: currentUser } = UserAPI.useGetCurrentQuery();
 
   return useMemo(() => {
     if (!currentUser) return false;

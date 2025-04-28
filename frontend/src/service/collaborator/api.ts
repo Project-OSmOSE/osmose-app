@@ -9,7 +9,3 @@ export const CollaboratorAPI = createApi({
     list: builder.query<Array<Collaborator>, void>({ query: () => 'on_aplose_home', }),
   })
 })
-
-export const {
-  useListQuery: useListCollaboratorsQuery,
-} = CollaboratorAPI;

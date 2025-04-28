@@ -4,7 +4,7 @@ import logo from '/images/ode_logo_192x192.png';
 import { IonButton, IonIcon } from '@ionic/react';
 import { logout } from '@/service/auth';
 import { useAppDispatch } from '@/service/app.ts';
-import { useGetCurrentUserQuery, UserAPI } from '@/service/user';
+import { UserAPI } from '@/service/user';
 import { DocumentationButton } from "@/components/ui";
 import { closeOutline, menuOutline } from "ionicons/icons";
 import { Link } from "@/components/ui/Link.tsx";
@@ -12,7 +12,7 @@ import { Link } from "@/components/ui/Link.tsx";
 export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
 
-  const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = UserAPI.useGetCurrentQuery();
   const dispatch = useAppDispatch();
 
   const toggleOpening = useCallback(() => {

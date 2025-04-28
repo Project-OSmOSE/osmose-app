@@ -1,8 +1,2 @@
-export {
-  useListCollaboratorsQuery,
-  CollaboratorAPI
-} from './api.ts';
-
-export type {
-  Collaborator,
-} from './type.ts';
+export * from './api.ts';
+export type * from './type.ts';

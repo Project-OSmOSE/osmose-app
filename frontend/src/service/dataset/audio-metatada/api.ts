@@ -36,8 +36,3 @@ export const AudioMetadataAPI = createApi({
     }),
   })
 })
-
-export const {
-  useListQuery: useListAudioMetadataQuery,
-  useDownloadMutation: useDownloadAudioMetadataMutation,
-} = AudioMetadataAPI;

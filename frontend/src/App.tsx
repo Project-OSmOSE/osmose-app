@@ -24,7 +24,7 @@ import { ImportAnnotations } from "@/view/campaign/edit/ImportAnnotations";
 import { AlertProvider } from "@/service/ui/alert";
 import { SqlQuery } from "@/view/admin/sql/SqlQuery.tsx";
 import { selectIsConnected } from "@/service/auth";
-import { useGetCurrentUserQuery } from "@/service/user";
+import { UserAPI } from "@/service/user";
 import { AploseSkeleton } from "@/components/layout";
 
 
@@ -49,7 +49,7 @@ const AppContent: React.FC = () => {
   useLoadEventService();
 
   const isConnected = useAppSelector(selectIsConnected);
-  const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = UserAPI.useGetCurrentQuery();
   const from = useLocation()
 
   return (

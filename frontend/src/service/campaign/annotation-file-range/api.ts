@@ -88,7 +88,3 @@ export const AnnotationFileRangeAPI = createApi({
     })
   })
 })
-
-export const {
-  useListFilesWithPaginationQuery,
-} = AnnotationFileRangeAPI;

@@ -1,9 +1,2 @@
-export {
-  DetectorAPI,
-  useListDetectorQuery,
-} from './api';
-
-export type {
-  Detector,
-  DetectorConfiguration,
-} from './type'
+export * from './api';
+export type * from './type'

@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert, useToast } from "@/service/ui";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { getErrorMessage, getNewItemID } from "@/service/function.ts";
@@ -12,7 +12,6 @@ import { FormBloc, Input, Searchbar } from "@/components/form";
 import { lockClosedOutline, trashBinOutline } from "ionicons/icons";
 import { Item } from "@/types/item.ts";
 import styles from './edit.module.scss';
-import { usePagePhase } from "@/service/routing";
 import { CampaignAPI } from "@/service/campaign";
 
 type SearchItem = {
@@ -22,13 +21,12 @@ type SearchItem = {
 }
 
 export const EditAnnotators: React.FC = () => {
-  const { campaignID } = useParams<{ campaignID: string }>();
   const {
     data: campaign,
     isFetching: isFetchingCampaign,
-    error: errorLoadingCampaign
-  } = CampaignAPI.useRetrieveQuery(campaignID!, { skip: !campaignID });
-  const phase = usePagePhase()
+    error: errorLoadingCampaign,
+    currentPhase
+  } = CampaignAPI.useRetrieveQuery();
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -38,7 +36,7 @@ export const EditAnnotators: React.FC = () => {
     data: initialFileRanges,
     isFetching: isFetchingFileRanges,
     error: errorLoadingFileRanges
-  } = AnnotationFileRangeAPI.useListQuery({ phaseID: phase?.id })
+  } = AnnotationFileRangeAPI.useListQuery({ phaseID: currentPhase?.id })
   const [ postFileRanges, {
     isLoading: isSubmitting,
     error: errorSubmitting,
@@ -114,14 +112,14 @@ export const EditAnnotators: React.FC = () => {
 
   // Submit
   const submit = useCallback(() => {
-    if (!phase || !campaign) return;
+    if (!currentPhase || !campaign) return;
     postFileRanges({
-      phaseID: phase.id,
+      phaseID: currentPhase.id,
       filesCount: campaign.files_count,
       data: fileRanges,
       force: isForced
     })
-  }, [ fileRanges, phase, campaign, isForced ])
+  }, [ fileRanges, currentPhase, campaign, isForced ])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);

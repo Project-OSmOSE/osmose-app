@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/service/function.ts";
 import { ACCEPT_CSV_MIME_TYPE } from "@/consts/csv.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { loadFile, ResultImportSlice } from "@/service/campaign/result/import";
-import { useParams } from "react-router-dom";
 import { CampaignAPI } from "@/service/campaign";
 import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import { FormBloc } from "@/components/form";
@@ -15,11 +14,10 @@ import { FileErrorDescription } from "./ErrorDescription.tsx";
 import { WarningText } from "@/components/ui";
 
 export const FileSelector: React.FC = () => {
-  const { id: campaignID } = useParams<{ id: string }>();
   const {
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign
-  } = CampaignAPI.useRetrieveQuery(campaignID);
+  } = CampaignAPI.useRetrieveQuery();
 
   const { file, upload } = useAppSelector(state => state.resultImport)
   const dispatch = useAppDispatch();

@@ -3,14 +3,14 @@ import { useAppSelector } from '@/service/app';
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { SpectrogramRender } from "@/view/annotator/tools/spectrogram/SpectrogramRender.tsx";
-import { useGetCurrentUserQuery } from "@/service/user";
+import { UserAPI } from "@/service/user";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 export const SpectrogramDownloadButton: React.FC<{
   render: MutableRefObject<SpectrogramRender | null>
 }> = ({ render }) => {
   const file = useAnnotatorFile()
-  const { data: user } = useGetCurrentUserQuery()
+  const { data: user } = UserAPI.useGetCurrentQuery()
 
   const [ isLoading, setIsLoading ] = useState<boolean>(false);
 

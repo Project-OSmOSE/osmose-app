@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { getScaleName, SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { selectSpectrogramConfiguration, useRetrieveAnnotatorQuery } from '@/service/annotator';
+import { AnnotatorAPI, selectSpectrogramConfiguration } from '@/service/annotator';
 import { Select } from "@/components/form";
 
 export const NFFTSelect: React.FC = () => {
-  const { data } = useRetrieveAnnotatorQuery();
+  const { data } = AnnotatorAPI.useRetrieveQuery();
   const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
   const spectrogram_configurations = useAppSelector(state => state.annotator.spectrogram_configurations);
 

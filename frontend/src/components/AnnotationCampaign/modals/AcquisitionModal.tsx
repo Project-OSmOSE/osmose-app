@@ -14,12 +14,12 @@ import { Deployment, Hydrophone, Project, Recorder } from "@pam-standardization/
 import { IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import styles from './styles.module.scss';
-import { usePageCampaign } from "@/service/routing/hook.ts";
+import { CampaignAPI } from "@/service/campaign";
 
 export const AcquisitionModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const campaign = usePageCampaign()
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
   const { data: datasets, isFetching, error } = DatasetAPI.useListQuery({ campaign: campaign!.id }, { skip: !campaign })
 
   const pluralize = useCallback((data: any[]) => data.length > 1 ? 's' : '', [])

@@ -5,11 +5,11 @@ import { checkmarkOutline } from "ionicons/icons";
 import { focusConfidence } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { TooltipOverlay } from "@/components/ui";
-import { useRetrieveConfidenceSetQuery } from "@/service/campaign/confidence-set";
+import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 
 
 export const ConfidenceIndicator: React.FC = () => {
-  const { data: confidence_set } = useRetrieveConfidenceSetQuery();
+  const { data: confidence_set } = ConfidenceSetAPI.useRetrieveQuery();
 
   const dispatch = useAppDispatch();
   const {

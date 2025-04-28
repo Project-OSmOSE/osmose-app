@@ -1,10 +1,4 @@
-export {
-  useGetCurrentUserQuery,
-  useListUsersQuery,
-  useUpdatePasswordMutation,
-  usePatchUserMutation,
-  UserAPI
-} from './api.ts';
+export * from './api.ts';
 
 export {
   getDisplayName

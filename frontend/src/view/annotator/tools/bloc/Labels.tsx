@@ -14,12 +14,12 @@ import styles from './bloc.module.scss';
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import { LabelSet, useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { LabelSet, LabelSetAPI } from "@/service/campaign/label-set";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 
 
 export const Labels: React.FC = () => {
-  const { data: label_set } = useRetrieveLabelSetQuery();
+  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
 
   const {
     results,
@@ -94,7 +94,7 @@ export const Labels: React.FC = () => {
 }
 
 export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
-  const { data: label_set } = useRetrieveLabelSetQuery();
+  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
   const {
     results,
     focusedLabel,

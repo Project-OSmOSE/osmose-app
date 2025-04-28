@@ -5,10 +5,10 @@ import { IonButton, IonIcon } from "@ionic/react";
 import { chevronBackOutline, chevronForwardOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
 import { Button, DocumentationButton, Link } from "@/components/ui";
-import { useListCollaboratorsQuery } from "@/service/collaborator";
 import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected } from "@/service/auth";
 import { useNavigate } from 'react-router-dom';
+import { CollaboratorAPI } from "@/service/collaborator";
 
 
 export const Home: React.FC = () => {
@@ -219,7 +219,7 @@ const Join: React.FC = () => (
 
 const Collaborators: React.FC = () => {
 
-  const { data: collaborators } = useListCollaboratorsQuery()
+  const { data: collaborators } = CollaboratorAPI.useListQuery()
   return (
     <div className={ styles.bloc }>
       <h2>Collaborators & Funders</h2>

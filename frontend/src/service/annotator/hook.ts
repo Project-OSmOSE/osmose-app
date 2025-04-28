@@ -1,10 +1,10 @@
-import { useRetrieveAnnotatorQuery } from "@/service/annotator/api.ts";
+import { AnnotatorAPI } from "@/service/annotator/api.ts";
 import { useAppSelector } from "@/service/app.ts";
 import { useEffect, useRef } from "react";
 import { useAlert } from "@/service/ui";
 
 export const useAnnotatorFile = () => {
-  const { data } = useRetrieveAnnotatorQuery();
+  const { data } = AnnotatorAPI.useRetrieveQuery();
   return data?.file
 }
 

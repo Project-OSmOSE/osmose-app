@@ -8,13 +8,12 @@ import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
-import { useRetrieveAnnotatorQuery } from "@/service/annotator";
-import { usePageCampaign, usePagePhase } from "@/service/routing";
+import { AnnotatorAPI } from "@/service/annotator";
+import { CampaignAPI } from "@/service/campaign";
 
 export const AnnotatorPage: React.FC = () => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
-  const { data } = useRetrieveAnnotatorQuery();
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { data } = AnnotatorAPI.useRetrieveQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
 
@@ -42,7 +41,7 @@ export const AnnotatorPage: React.FC = () => {
               }
 
               <Link color='medium' fill='outline' size='small'
-                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
+                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase?.id }` }>
                 Back to campaign
               </Link>
             </Fragment> }>

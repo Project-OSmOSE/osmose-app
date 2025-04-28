@@ -2,13 +2,12 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, AnnotatorState, RetrieveParams } from './type.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotationCampaign, Phase } from '@/service/campaign';
+import { AnnotationCampaign, CampaignAPI, Phase } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
 import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
 import { AcousticFeatures, AnnotationResult, AnnotationResultValidations } from "@/service/campaign/result";
 import { DetectorConfiguration } from "@/service/campaign/detector";
 import { AnnotationComment } from "@/service/campaign/comment";
-import { usePageCampaign, usePagePhase } from "@/service/routing";
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "@/service/app.ts";
 import { AnnotationCampaignPhase } from "@/service/campaign/phase";
@@ -61,7 +60,7 @@ function transformBaseResult(result: AnnotationResult, phase: Phase): Omit<Write
   }
 }
 
-export const AnnotatorAPI = createApi({
+const _AnnotatorAPI = createApi({
   reducerPath: 'annotatorApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   tagTypes: [ 'Annotator' ],
@@ -142,29 +141,27 @@ export const AnnotatorAPI = createApi({
   })
 })
 
-export const useRetrieveAnnotatorQuery = () => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
+export const useRetrieveQuery = () => {
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
   const { fileID } = useParams<{ fileID: string }>();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
 
-  return AnnotatorAPI.useRetrieveQuery(
-    (campaign && phase && fileID) ? {
+  return _AnnotatorAPI.useRetrieveQuery(
+    (campaign && currentPhase && fileID) ? {
       filters: fileFilters,
       campaignID: campaign.id,
-      phaseID: phase.id,
+      phaseID: currentPhase.id,
       fileID
     } : skipToken);
 }
 
-export const usePostAnnotatorMutation = () => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
-  const [ _post ] = AnnotatorAPI.usePostMutation()
+export const usePostMutation = () => {
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const [ _post ] = _AnnotatorAPI.usePostMutation()
   const annotator = useAppSelector(state => state.annotator);
   const _annotator = useRef<AnnotatorState>(annotator)
   const _campaign = useRef<AnnotationCampaign | undefined>(campaign)
-  const _phase = useRef<AnnotationCampaignPhase | undefined>(phase)
+  const _phase = useRef<AnnotationCampaignPhase | undefined>(currentPhase)
   useEffect(() => {
     _annotator.current = annotator;
   }, [ annotator ]);
@@ -172,8 +169,8 @@ export const usePostAnnotatorMutation = () => {
     _campaign.current = campaign;
   }, [ campaign ]);
   useEffect(() => {
-    _phase.current = phase;
-  }, [ phase ]);
+    _phase.current = currentPhase;
+  }, [ currentPhase ]);
 
   return useCallback(() => {
     if (!_campaign.current || !_phase.current || !_annotator.current.file) return;
@@ -186,4 +183,11 @@ export const usePostAnnotatorMutation = () => {
       sessionStart: new Date(_annotator.current.sessionStart),
     }).unwrap()
   }, [ _post, _campaign.current, _phase.current, _annotator.current ])
+}
+
+
+export const AnnotatorAPI = {
+  ..._AnnotatorAPI,
+  useRetrieveQuery,
+  usePostMutation
 }

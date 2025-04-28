@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from "react";
-import { useHasAdminAccessToCampaign } from "@/service/campaign";
+import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import styles from './styles.module.scss'
 import { FadedText } from "@/components/ui";
 import { getDisplayName } from "@/service/user";
@@ -15,10 +15,9 @@ import { IonSpinner } from "@ionic/react";
 import { LabelSetModalButton } from "@/components/AnnotationCampaign/Label/Modal.tsx";
 import { LabelSetAPI } from "@/service/campaign/label-set";
 import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
-import { usePageCampaign } from "@/service/routing";
 
 export const AnnotationCampaignDetailInfo: React.FC = () => {
-  const campaign = usePageCampaign()
+  const { data: campaign } = CampaignAPI.useRetrieveQuery()
   const {
     data: labelSet,
     isLoading: isLoadingLabelSet

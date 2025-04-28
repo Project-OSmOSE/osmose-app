@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from "react";
-import { useHasAdminAccessToCampaign } from "@/service/campaign";
+import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import {
@@ -19,7 +19,6 @@ import { AnnotationFileRange, AnnotationFileRangeAPI } from "@/service/campaign/
 import styles from './styles.module.scss';
 import { Progress } from "@/components/ui/Progress.tsx";
 import { useNavigate } from "react-router-dom";
-import { usePageCampaign, usePagePhase } from "@/service/routing";
 import { CampaignPhaseAPI } from "@/service/campaign/phase";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
@@ -49,8 +48,7 @@ export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large
 export const ProgressModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
   const toast = useToast();
   const navigate = useNavigate();
   const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.useListQuery();
@@ -58,7 +56,7 @@ export const ProgressModal: React.FC<{
     data: fileRanges,
     isFetching: isLoadingFileRanges,
     error: fileRangeError
-  } = AnnotationFileRangeAPI.useListQuery({ phaseID: phase!.id }, { skip: !phase, refetchOnMountOrArgChange: true });
+  } = AnnotationFileRangeAPI.useListQuery({ phaseID: currentPhase!.id }, { skip: !currentPhase, refetchOnMountOrArgChange: true });
   const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.useDownloadStatusMutation()
   const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.useDownloadReportMutation()
   const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
@@ -113,21 +111,21 @@ export const ProgressModal: React.FC<{
   }
 
   function onDownloadStatus() {
-    if (phase && campaign) downloadStatus({
-      phaseID: phase.id,
+    if (currentPhase && campaign) downloadStatus({
+      phaseID: currentPhase.id,
       filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
     })
   }
 
   function onDownloadReport() {
-    if (phase && campaign) downloadReport({
-      phaseID: phase.id,
+    if (currentPhase && campaign) downloadReport({
+      phaseID: currentPhase.id,
       filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
     })
   }
 
   function manageAnnotator() {
-    navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/edit-annotators`);
+    navigate(`/annotation-campaign/${ campaign?.id }/phase/${ currentPhase?.id }/edit-annotators`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {

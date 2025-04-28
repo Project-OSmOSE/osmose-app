@@ -28,7 +28,7 @@ export const AuthSlice = createSlice({
     )
 
     builder.addMatcher(
-      UserAPI.endpoints.getCurrentUser.matchFulfilled,
+      UserAPI.endpoints.getCurrent.matchFulfilled,
       (state) => {
         state.isNewUser = false;
       }

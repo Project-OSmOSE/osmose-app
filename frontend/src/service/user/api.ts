@@ -7,7 +7,7 @@ export const UserAPI = createApi({
   baseQuery: getAuthenticatedBaseQuery('/api/user/'),
   tagTypes: [ 'User' ],
   endpoints: (builder) => ({
-    getCurrentUser: builder.query<User, void>({
+    getCurrent: builder.query<User, void>({
       query: () => 'self/',
       providesTags: [ { type: 'User', id: 'CURRENT' } ]
     }),
@@ -39,10 +39,3 @@ export const UserAPI = createApi({
     }),
   })
 })
-
-export const {
-  useGetCurrentUserQuery,
-  useListQuery: useListUsersQuery,
-  useUpdatePasswordMutation,
-  usePatchMutation: usePatchUserMutation
-} = UserAPI;

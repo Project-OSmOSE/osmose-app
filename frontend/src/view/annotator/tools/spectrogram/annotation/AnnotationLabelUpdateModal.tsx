@@ -6,28 +6,28 @@ import styles from "@/view/annotator/tools/spectrogram/annotation/annotation.mod
 import { AnnotationResult } from "@/service/campaign/result";
 import { AnnotatorSlice } from "@/service/annotator";
 import { useAppDispatch } from "@/service/app.ts";
-import { usePagePhase } from "@/service/routing";
-import { useRetrieveLabelSetQuery } from "@/service/campaign/label-set";
+import { LabelSetAPI } from "@/service/campaign/label-set";
+import { CampaignAPI } from "@/service/campaign";
 
 export const AnnotationLabelUpdateModal: React.FC<{
   annotation: AnnotationResult,
   isModalOpen: boolean,
   setIsModalOpen: (value: boolean) => void
 }> = ({ annotation, isModalOpen, setIsModalOpen }) => {
-  const phase = usePagePhase()
-  const { data: label_set } = useRetrieveLabelSetQuery();
+  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
   const dispatch = useAppDispatch();
 
   const updateLabel = useCallback((newLabel: string) => {
-    if (!phase) return;
-    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, phase: phase.phase }))
+    if (!currentPhase) return;
+    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, phase: currentPhase.phase }))
     setIsModalOpen(false)
   }, []);
 
   const currentLabel = useMemo(() => {
     if (annotation.updated_to.length > 0) return annotation.updated_to[0].label;
     return annotation.label
-  }, [annotation])
+  }, [ annotation ])
 
   if (!isModalOpen) return <Fragment/>
   return createPortal(<Modal onClose={ () => setIsModalOpen(false) }>

@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback } from "react";
 import { Outlet } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { CampaignAPI } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getDisplayName } from "@/service/user";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
@@ -8,16 +8,14 @@ import { FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
-import { usePageCampaign, usePagePhase } from "@/service/routing";
-import { skipToken } from "@reduxjs/toolkit/query";
 
 export const AnnotationCampaignDetail: React.FC = () => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
   const {
+    data: campaign,
     isLoading: isLoadingCampaign,
-    error: errorLoadingCampaign
-  } = useRetrieveCampaignQuery(campaign?.id ?? skipToken);
+    error: errorLoadingCampaign,
+    currentPhase
+  } = CampaignAPI.useRetrieveQuery();
 
   const toast = useToast();
 
@@ -49,13 +47,13 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
     <div className={ styles.tabs }>
       <Link appPath={ `/annotation-campaign/${ campaign.id }` }
-            className={ !phase ? styles.active : undefined }>
+            className={ !currentPhase ? styles.active : undefined }>
         Information
       </Link>
 
       { campaign.phases.map(p => <Link key={ p.id }
                                        appPath={ `/annotation-campaign/${ campaign.id }/phase/${ p.id }` }
-                                       className={ phase?.id === p.id ? styles.active : undefined }>
+                                       className={ currentPhase?.id === p.id ? styles.active : undefined }>
         { p.phase }
       </Link>) }
     </div>

@@ -9,7 +9,6 @@ export const AnnotationResultAPI = createApi({
   reducerPath: 'annotationResultApi',
   baseQuery: getAuthenticatedBaseQuery('/api/annotation-result/'),
   endpoints: (builder) => ({
-    list: builder.query<Array<AnnotationResult>, void>({ query: () => '' }),
     import: builder.mutation<Array<AnnotationResult>, {
       campaignID: ID,
       datasetName: string,

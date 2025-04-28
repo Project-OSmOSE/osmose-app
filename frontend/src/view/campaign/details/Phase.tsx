@@ -2,15 +2,14 @@ import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styles from './styles.module.scss'
 import { PhaseGlobalProgress, PhaseUserProgress, ProgressModalButton } from "@/components/AnnotationCampaign/Phase";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { usePageCampaign, usePagePhase } from "@/service/routing";
-import { AnnotationFile, useListFilesWithPaginationQuery } from "@/service/campaign/annotation-file-range";
+import { AnnotationFile, AnnotationFileRangeAPI } from "@/service/campaign/annotation-file-range";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ActionBar } from "@/components/layout";
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
 import { Button, Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { setFileFilters } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
-import { AnnotationCampaign } from "@/service/campaign";
+import { AnnotationCampaign, CampaignAPI } from "@/service/campaign";
 import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
@@ -18,22 +17,21 @@ import { StatusFilter } from "@/view/campaign/details/filters/StatusFilter.tsx";
 import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
-  const campaign = usePageCampaign()
-  const phase = usePagePhase()
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
   const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
   const fileFilters = useAppSelector(state => state.ui.fileFilters);
   const dispatch = useAppDispatch();
-  useListFilesWithPaginationQuery({
+  AnnotationFileRangeAPI.useListFilesWithPaginationQuery({
     page: 1,
-    phaseID: phase!.id,
+    phaseID: currentPhase!.id,
     filters: {}
-  }, { refetchOnMountOrArgChange: true, skip: !phase || !!campaign?.archive });
-  const { currentData: files, isFetching, error } = useListFilesWithPaginationQuery({
+  }, { refetchOnMountOrArgChange: true, skip: !currentPhase || !!campaign?.archive });
+  const { currentData: files, isFetching, error } = AnnotationFileRangeAPI.useListFilesWithPaginationQuery({
     page,
-    phaseID: phase!.id,
+    phaseID: currentPhase!.id,
     filters: fileFilters
-  }, { skip: !phase || !!campaign?.archive });
+  }, { skip: !currentPhase || !!campaign?.archive });
   const isEmpty = useMemo(() => error || (files && files.count === 0) || campaign?.archive, [ error, files, campaign ])
   const hasFilters = useMemo(() => Object.values(fileFilters).filter(v => v !== undefined).length > 0, [ fileFilters ]);
   const isResumeEnabled = useMemo(() => {
@@ -41,9 +39,9 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
   }, [ fileFilters ]);
 
   const resume = useCallback(() => {
-    if (!campaign || !phase || !files) return;
-    navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ files.resume }`);
-  }, [ campaign, phase, files ])
+    if (!campaign || !currentPhase || !files) return;
+    navigate(`/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/file/${ files.resume }`);
+  }, [ campaign, currentPhase, files ])
 
   const updateSearch = useCallback((search: string) => {
     dispatch(setFileFilters({ ...fileFilters, search }))
@@ -64,7 +62,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
     setPage(1)
   }, [])
 
-  if (!campaign || !phase) return <IonSpinner/>
+  if (!campaign || !currentPhase) return <IonSpinner/>
   return <div className={ styles.phase }>
 
     <div className={ [ styles.tasks, isEmpty ? styles.empty : '' ].join(' ') }>
@@ -80,13 +78,13 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    </IonButton> }
 
                    <div className={ styles.progress }>
-                     <PhaseUserProgress phase={ phase }/>
-                     <PhaseGlobalProgress phase={ phase }/>
+                     <PhaseUserProgress phase={ currentPhase }/>
+                     <PhaseGlobalProgress phase={ currentPhase }/>
                      <ProgressModalButton size='small'/>
                    </div>
 
                    <Link fill='outline' color='medium' size='small'
-                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
+                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/import-annotations` }>
                      Import annotations
                    </Link>
 
@@ -100,15 +98,15 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    </Button> }
                  </div> }/>
 
-      { phase.phase === 'Verification' && !phase.has_annotations &&
+      { currentPhase.phase === 'Verification' && !currentPhase.has_annotations &&
           <WarningText>
               Your campaign doesn't have any annotations to check
-              <Link appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations` }>
+              <Link appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase.id }/import-annotations` }>
                   Import annotations
               </Link>
           </WarningText> }
 
-      <Table columns={ phase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
+      <Table columns={ currentPhase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
         <TableHead topSticky isFirstColumn={ true }>
           Filename
         </TableHead>
@@ -121,9 +119,9 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
         </TableHead>
         <TableHead topSticky>
           Annotations
-          <AnnotationsFilter campaign={ campaign } phase={ phase } onUpdate={ onFilterUpdated }/>
+          <AnnotationsFilter onUpdate={ onFilterUpdated }/>
         </TableHead>
-        { phase.phase === 'Verification' && <TableHead topSticky>
+        { currentPhase.phase === 'Verification' && <TableHead topSticky>
             Validated annotations
         </TableHead> }
         <TableHead topSticky>
@@ -137,7 +135,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
 
         { files?.results.map(file => <TaskItem key={ file.id }
                                                file={ file }
-                                               phase={ phase }
+                                               phase={ currentPhase }
                                                campaign={ campaign }/>) }
       </Table>
 
