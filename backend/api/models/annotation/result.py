@@ -183,6 +183,7 @@ class AnnotationResult(models.Model):
         related_name="updated_to",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    last_updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         # Save expertise level
@@ -221,6 +222,8 @@ class AnnotationResultValidation(models.Model):
     result = models.ForeignKey(
         AnnotationResult, on_delete=models.CASCADE, related_name="validations"
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated_at = models.DateTimeField(auto_now=True)
 
 
 class AnnotationComment(models.Model):
