@@ -116,7 +116,7 @@ export class LinearScaleService implements AbstractScale {
 
   private crossProduct(value: number, range: number, maxOtherScale: number): number {
     if (value < 0) return 0;
-    if (value > range) return range;
+    if (value > range) return maxOtherScale;
     return value * maxOtherScale / range;
   }
 
