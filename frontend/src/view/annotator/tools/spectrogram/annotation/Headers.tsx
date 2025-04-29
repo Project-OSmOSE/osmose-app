@@ -1,4 +1,4 @@
-import React, { Fragment, MutableRefObject, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, MutableRefObject, useCallback, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
 import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
@@ -10,7 +10,7 @@ import { useAudioService } from '@/services/annotator/audio.service.ts';
 import { Button, Kbd, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
 import { createPortal } from "react-dom";
 import { IonNote } from "@ionic/react";
-import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -113,13 +113,6 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
-    return () => {
-      NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
-    }
-  }, []);
-
   const onKbdEvent = useCallback((event: KeyboardEvent) => {
     switch (event.code) {
       case 'Delete':
@@ -127,7 +120,7 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
         break;
     }
   }, [])
-
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const remove = useCallback(() => {
     dispatch(removeResult(annotation.id))

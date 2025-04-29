@@ -12,7 +12,7 @@ import {
 } from "@ionic/react";
 import { caretDown, caretUp } from "ionicons/icons";
 import { Item } from '@/types/item.ts';
-import { AUX_CLICK_EVENT, CLICK_EVENT } from "@/service/events";
+import { AUX_CLICK_EVENT, CLICK_EVENT, useEvent } from "@/service/events";
 import { createPortal } from "react-dom";
 import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import styles from './inputs.module.scss'
@@ -64,15 +64,11 @@ export const Select: React.FC<SelectProperties> = ({
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   const [ hasSelectedItem, setHasSelectedItem ] = useState<boolean>(false);
 
+  useEvent(CLICK_EVENT, blur);
+  useEvent(AUX_CLICK_EVENT, blur);
+
   useEffect(() => {
     setHasSelectedItem(false)
-
-    CLICK_EVENT.add(blur)
-    AUX_CLICK_EVENT.add(blur)
-    return () => {
-      CLICK_EVENT.remove(blur)
-      AUX_CLICK_EVENT.add(blur)
-    }
   }, [])
 
   function blur(event: Event) {
