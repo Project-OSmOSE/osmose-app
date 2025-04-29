@@ -11,7 +11,7 @@ import React, {
 import { IonNote } from "@ionic/react";
 import styles from './ui.module.scss'
 import { createPortal } from "react-dom";
-import { MOUSE_MOVE_EVENT } from "@/service/events";
+import { MOUSE_MOVE_EVENT, useEvent } from "@/service/events";
 import { v4 as uuidv4 } from 'uuid';
 
 export const TooltipOverlay: React.FC<{
@@ -24,13 +24,6 @@ export const TooltipOverlay: React.FC<{
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   const [ isShown, setIsShown ] = useState<boolean>(false);
-
-  useEffect(() => {
-    MOUSE_MOVE_EVENT.add(onMouseMove)
-    return () => {
-      MOUSE_MOVE_EVENT.remove(onMouseMove)
-    }
-  }, []);
 
   useEffect(() => {
     if (isOpen) setTimeout(() => setIsShown(true), 50);
@@ -60,6 +53,7 @@ export const TooltipOverlay: React.FC<{
     if (isOverContainer) setIsOpen(true);
     else setIsShown(false)
   }, [ containerID ]);
+  useEvent(MOUSE_MOVE_EVENT, onMouseMove);
 
   return <div ref={ containerRef } id={ containerID }>
     { children }

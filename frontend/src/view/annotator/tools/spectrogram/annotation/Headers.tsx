@@ -7,9 +7,10 @@ import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
-import { Button, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
+import { Button, Kbd, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
 import { createPortal } from "react-dom";
 import { IonNote } from "@ionic/react";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -98,7 +99,7 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
           { label_set?.labels.map((label, index) => <Button key={ label }
                                                             fill='outline'
                                                             disabled={ label === annotation.label }
-                                                            className={ `ion-color-${ index%10 }` }
+                                                            className={ `ion-color-${ index % 10 }` }
                                                             onClick={ () => updateLabel(label) }>
             { label }
           </Button>) }
@@ -111,12 +112,25 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
+
+  const onKbdEvent = useCallback((event: KeyboardEvent) => {
+    switch (event.code) {
+      case 'Delete':
+        remove()
+        break;
+    }
+  }, [])
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
+
+  const remove = useCallback(() => {
+    dispatch(removeResult(annotation.id))
+  }, [ annotation ])
+
   if (campaign?.usage !== 'Create') return <Fragment/>;
   return (
-    <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>
+    <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') }
-                  onClick={ () => dispatch(removeResult(annotation.id)) }/>
+      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') } onClick={ remove }/>
     </TooltipOverlay>
   )
 }
