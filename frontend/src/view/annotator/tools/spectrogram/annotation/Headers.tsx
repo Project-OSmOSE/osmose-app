@@ -1,4 +1,4 @@
-import React, { Fragment, MutableRefObject, useCallback, useState } from 'react';
+import React, { Fragment, MutableRefObject, useCallback, useEffect, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
 import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
@@ -7,9 +7,10 @@ import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
-import { Button, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
+import { Button, Kbd, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
 import { createPortal } from "react-dom";
 import { IonNote } from "@ionic/react";
+import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -98,7 +99,7 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
           { label_set?.labels.map((label, index) => <Button key={ label }
                                                             fill='outline'
                                                             disabled={ label === annotation.label }
-                                                            className={ `ion-color-${ index%10 }` }
+                                                            className={ `ion-color-${ index % 10 }` }
                                                             onClick={ () => updateLabel(label) }>
             { label }
           </Button>) }
@@ -111,12 +112,32 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
+    return () => {
+      NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
+    }
+  }, []);
+
+  const onKbdEvent = useCallback((event: KeyboardEvent) => {
+    switch (event.code) {
+      case 'Delete':
+        remove()
+        break;
+    }
+  }, [])
+
+
+  const remove = useCallback(() => {
+    dispatch(removeResult(annotation.id))
+  }, [ annotation ])
+
   if (campaign?.usage !== 'Create') return <Fragment/>;
   return (
-    <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>
+    <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') }
-                  onClick={ () => dispatch(removeResult(annotation.id)) }/>
+      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') } onClick={ remove }/>
     </TooltipOverlay>
   )
 }
