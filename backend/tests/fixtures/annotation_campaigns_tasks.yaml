@@ -237,7 +237,7 @@
     last_file_id: 2
     files_count: 2
     annotator: 4
-    annotation_campaign_phase: 4
+    annotation_campaign_phase: 5
 - model: api.annotationfilerange
   pk: 6
   fields:
@@ -247,4 +247,4 @@
     last_file_id: 2
     files_count: 2
     annotator: 1
-    annotation_campaign_phase: 4
+    annotation_campaign_phase: 5

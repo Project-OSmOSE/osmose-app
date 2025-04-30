@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { AnnotationCampaign, OldAnnotationCampaign, Phase, WriteAnnotationCampaign } from '@/service/campaign';
 import { ID } from '@/service/type';
-import { downloadResponseHandler, encodeQueryParams } from '@/service/function';
+import { encodeQueryParams } from '@/service/function';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -77,22 +77,6 @@ const _CampaignAPI = createApi({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       invalidatesTags: (result, error, arg) => [ { type: 'AnnotationCampaign', id: arg } ],
-    }),
-    downloadReport: builder.query<undefined, OldAnnotationCampaign>({
-      query: (campaign) => ({
-        url: `${ campaign.id }/report/${ encodeQueryParams({
-          filename: campaign.name.replaceAll(' ', '_') + '_results.csv',
-        }) }`,
-        responseHandler: downloadResponseHandler
-      }),
-    }),
-    downloadStatus: builder.query<void, OldAnnotationCampaign>({
-      query: (campaign) => ({
-        url: `${ campaign.id }/report-status/${ encodeQueryParams({
-          filename: campaign.name.replaceAll(' ', '_') + '_status.csv',
-        }) }`,
-        responseHandler: downloadResponseHandler
-      }),
     }),
   })
 })

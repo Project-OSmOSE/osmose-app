@@ -75,12 +75,12 @@ class CampaignPhaseAccessFilter(filters.BaseFilterBackend):
         if request.user.is_staff:
             return queryset
         return queryset.filter(
-            Q(owner_id=request.user.id)
+            Q(annotation_campaign__owner_id=request.user.id)
             | (
-                Q(anntation_campaign__archive__isnull=True)
+                Q(annotation_campaign__archive__isnull=True)
                 & Exists(
                     AnnotationFileRange.objects.filter(
-                        annotation_campaign_id=OuterRef("pk"),
+                        annotation_campaign_phase_id=OuterRef("pk"),
                         annotator_id=request.user.id,
                     )
                 )
@@ -174,7 +174,9 @@ class AnnotationCampaignPhaseViewSet(
             .values_list("data", flat=True)
         )
         return (
-            AnnotationResult.objects.filter(annotation_campaign_phase_id=phase.id)
+            AnnotationResult.objects.filter(
+                annotation_campaign_phase__annotation_campaign_id=phase.annotation_campaign_id
+            )
             .select_related(
                 "dataset_file",
                 "dataset_file__dataset",
@@ -382,7 +384,9 @@ class AnnotationCampaignPhaseViewSet(
     def report(self, request, pk: int = None):
         """Download annotation results report csv"""
         # pylint: disable=unused-argument
+        print(pk, self.request.user.id, self.filter_queryset(self.get_queryset()))
         phase: AnnotationCampaignPhase = self.get_object()
+        print(phase)
         campaign = phase.annotation_campaign
 
         response = HttpResponse(content_type="text/csv")
@@ -391,7 +395,7 @@ class AnnotationCampaignPhaseViewSet(
 
         validate_users = list(
             AnnotationResultValidation.objects.filter(
-                result__annotation_campaign_phase=phase
+                result__annotation_campaign_phase__annotation_campaign_id=phase.annotation_campaign_id
             )
             .select_related("annotator")
             .order_by("annotator__username")

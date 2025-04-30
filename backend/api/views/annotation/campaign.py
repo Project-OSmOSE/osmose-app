@@ -1,5 +1,4 @@
 """Annotation campaign DRF-Viewset file"""
-import csv
 
 from django.db import models, transaction
 from django.db.models import (
@@ -15,8 +14,7 @@ from django.db.models import (
     Prefetch,
     Count,
 )
-from django.db.models.functions import Lower, Concat, Extract
-from django.http import HttpResponse
+from django.db.models.functions import Concat, Extract
 from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -26,11 +24,8 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 from backend.api.models import (
     AnnotationCampaign,
     AnnotationResult,
-    AnnotationResultValidation,
-    AnnotationTask,
     AnnotationComment,
     AnnotationFileRange,
-    DatasetFile,
 )
 from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers import (
@@ -41,7 +36,6 @@ from backend.api.serializers.annotation.campaign import (
 )
 from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
-from backend.utils.renderers import CSVRenderer
 from .phase import AnnotationCampaignPhaseViewSet
 
 REPORT_HEADERS = [  # headers
@@ -377,134 +371,6 @@ class AnnotationCampaignViewSet(
                 },
             )
         )
-
-    @action(
-        detail=True,
-        url_path="report",
-        url_name="report",
-        renderer_classes=[CSVRenderer],
-    )
-    def report(self, request, pk: int = None):
-        """Download annotation results report csv"""
-        # pylint: disable=unused-argument
-        campaign: AnnotationCampaign = self.get_object()
-
-        response = HttpResponse(content_type="text/csv")
-        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-        validate_users = list(
-            AnnotationResultValidation.objects.filter(
-                result__annotation_campaign=campaign
-            )
-            .select_related("annotator")
-            .order_by("annotator__username")
-            .values_list("annotator__username", flat=True)
-            .distinct()
-        )
-
-        # CSV
-        headers = REPORT_HEADERS + validate_users
-        writer = csv.DictWriter(response, fieldnames=headers)
-        writer.writeheader()
-
-        def map_validations(user: str) -> [str, Case]:
-            validation_sub = AnnotationResultValidation.objects.filter(
-                annotator__username=user,
-                result_id=OuterRef("id"),
-            )
-
-            query = Case(
-                When(Exists(Subquery(validation_sub.filter(is_valid=True))), then=True),
-                When(
-                    Exists(Subquery(validation_sub.filter(is_valid=False))), then=False
-                ),
-                default=None,
-                output_field=models.BooleanField(null=True),
-            )
-            return [user, query]
-
-        results = (
-            self._report_get_results()
-            .annotate(**dict(map(map_validations, validate_users)))
-            .values(*headers)
-        )
-        comments = self._report_get_task_comments().values(
-            "dataset",
-            "filename",
-            "annotator",
-            "start_datetime",
-            "end_datetime",
-            "comments",
-        )
-
-        writer.writerows(list(results) + list(comments))
-
-        return response
-
-    @action(
-        detail=True,
-        url_path="report-status",
-        url_name="report-status",
-        renderer_classes=[CSVRenderer],
-    )
-    def report_status(self, request, pk: int = None):
-        """Returns the CSV report on tasks status for the given campaign"""
-        # pylint: disable=unused-argument
-        campaign: AnnotationCampaign = self.get_object()
-
-        response = HttpResponse(content_type="text/csv")
-        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-        # Headers
-        header = ["dataset", "filename"]
-        file_ranges: QuerySet[AnnotationFileRange] = campaign.annotation_file_ranges
-        annotators = (
-            file_ranges.values("annotator__username")
-            .distinct()
-            .order_by(Lower("annotator__username"))
-            .values_list("annotator__username", flat=True)
-        )
-        header += annotators
-        writer = csv.DictWriter(response, fieldnames=header)
-        writer.writeheader()
-
-        # Content
-        all_files: QuerySet[DatasetFile] = campaign.get_sorted_files().select_related(
-            "dataset"
-        )
-        finished_tasks: QuerySet[AnnotationTask] = campaign.tasks.filter(
-            status=AnnotationTask.Status.FINISHED,
-        )
-
-        def map_annotators(user: str) -> [str, Case]:
-            task_sub = finished_tasks.filter(
-                dataset_file_id=OuterRef("pk"), annotator__username=user
-            )
-            range_sub = file_ranges.filter(
-                first_file_id__lte=OuterRef("pk"),
-                last_file_id__gte=OuterRef("pk"),
-                annotator__username=user,
-            )
-            query = Case(
-                When(Exists(Subquery(task_sub)), then=models.Value("FINISHED")),
-                When(Exists(Subquery(range_sub)), then=models.Value("CREATED")),
-                default=models.Value("UNASSIGNED"),
-                output_field=models.CharField(),
-            )
-            return [user, query]
-
-        data = dict(map(map_annotators, annotators))
-
-        writer.writerows(
-            list(
-                all_files.values("dataset__name", "filename", "pk")
-                .annotate(dataset=F("dataset__name"), **data)
-                .values(*header)
-            )
-        )
-        return response
 
     @action(
         detail=True,

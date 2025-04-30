@@ -3,7 +3,6 @@ import csv
 import io
 
 from django.http import HttpResponse
-
 # pylint: disable=missing-class-docstring, missing-function-docstring
 from django.urls import reverse
 from rest_framework import status
@@ -13,9 +12,9 @@ from rest_framework.test import APITestCase
 from backend.api.views.annotation.campaign import REPORT_HEADERS
 from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
-URL = reverse("annotation-campaign-report", kwargs={"pk": 1})
-URL_check = reverse("annotation-campaign-report", kwargs={"pk": 4})
-URL_status = reverse("annotation-campaign-report-status", kwargs={"pk": 1})
+URL = reverse("annotation-campaign-phase-report", kwargs={"pk": 1})
+URL_check = reverse("annotation-campaign-phase-report", kwargs={"pk": 5})
+URL_status = reverse("annotation-campaign-phase-report-status", kwargs={"pk": 1})
 
 
 def check_report(test: APITestCase, response: Response):
@@ -51,9 +50,11 @@ def check_report(test: APITestCase, response: Response):
 
 
 def check_report_check(test: APITestCase, response: Response):
+    print(response)
     test.assertEqual(response.status_code, status.HTTP_200_OK)
     reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
     data = list(reader)
+    print(data)
     test.assertEqual(len(data), 3)
     test.assertEqual(data[0], REPORT_HEADERS + ["admin", "user2"])
     test.assertEqual(
@@ -186,7 +187,7 @@ class ReportFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         check_report_status(self, response)
 
 
-class ReportFilledCampaignOwnerAuthenticatedTestCase(
+class ReportFilledPhaseOwnerAuthenticatedTestCase(
     ReportFilledAdminAuthenticatedTestCase
 ):
     username = "user1"
@@ -197,7 +198,7 @@ class ReportFilledBaseUserAuthenticatedTestCase(ReportFilledAdminAuthenticatedTe
     fixtures = all_fixtures
 
 
-class ReportFilledBaseUserNoCampaignAuthenticatedTestCase(
+class ReportFilledBaseUserNoPhaseAuthenticatedTestCase(
     ReportEmptyAdminAuthenticatedTestCase
 ):
     username = "user4"
