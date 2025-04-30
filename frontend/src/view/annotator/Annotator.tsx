@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
-import { AnnotatorSlice, useRetrieveAnnotatorQuery } from "@/service/annotator";
+import { useRetrieveAnnotatorQuery } from "@/service/annotator";
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -27,6 +27,7 @@ import { useCurrentConfiguration, useFileDuration } from '@/service/annotator/sp
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
 import { Colormap } from "@/services/utils/color.ts";
 import { Input } from "@/components/form";
+import { SettingsSlice } from "@/service/settings";
 
 export const Annotator: React.FC = () => {
   const {
@@ -47,7 +48,7 @@ export const Annotator: React.FC = () => {
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
     return colormap ?? "Greys";
   }, [ colormap, currentConfiguration ]);
-  const { disableSpectrogramResize } = useAppSelector(state => state.annotator.settings);
+  const { disableSpectrogramResize } = useAppSelector(state => state.settings);
   const dispatch = useAppDispatch()
 
   // State
@@ -75,9 +76,11 @@ export const Annotator: React.FC = () => {
   }, [ audio.isPaused ])
 
   const toggleSpectrogramResize = useCallback(() => {
-    dispatch(AnnotatorSlice.actions.updateSettings({
-      disableSpectrogramResize: !disableSpectrogramResize,
-    }))
+    if (disableSpectrogramResize) {
+      dispatch(SettingsSlice.actions.allowSpectrogramResize())
+    } else {
+      dispatch(SettingsSlice.actions.disableSpectrogramResize())
+    }
   }, [ disableSpectrogramResize ])
 
   return <div className={ [ styles.annotator, colormapClass ].join(' ') }>
