@@ -50,6 +50,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     ui,
     canAddAnnotations
   } = useAppSelector(state => state.annotator)
+  const {
+    disableSpectrogramResize
+  } = useAppSelector(state => state.settings)
   const dispatch = useAppDispatch()
   const [ newResult, setNewResult ] = useState<BoxBounds | undefined>(undefined);
   const _newResult = useRef<BoxBounds | undefined>(undefined);
@@ -95,6 +98,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     userPreferences.colormapInverted,
     userPreferences.brightness,
     userPreferences.contrast,
+    disableSpectrogramResize
   ])
 
 

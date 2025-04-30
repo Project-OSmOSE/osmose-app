@@ -13,7 +13,7 @@ import { colorSpectro, interpolate } from '@/services/utils/color.ts';
 
 export const useSpectrogramDimensions = () => {
   const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
-  const { disableSpectrogramResize } = useAppSelector(state => state.annotator.settings)
+  const { disableSpectrogramResize } = useAppSelector(state => state.settings)
   const ratio = useMemo(() => {
     if (disableSpectrogramResize) return 1;
     const screenRatio = (1920 / (window.screen.width * window.devicePixelRatio))
