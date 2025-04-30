@@ -15,7 +15,6 @@ export const useSpectrogramDimensions = () => {
   const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
   const { disableSpectrogramResize } = useAppSelector(state => state.settings)
   const ratio = useMemo(() => {
-    console.debug('disableSpectrogramResize:', disableSpectrogramResize)
     if (disableSpectrogramResize) return 1;
     const screenRatio = (1920 / (window.screen.width * window.devicePixelRatio))
     return window.devicePixelRatio * screenRatio;
