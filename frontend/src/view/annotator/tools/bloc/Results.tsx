@@ -124,7 +124,10 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
     onClick={ onClick }>
     <IoPricetag/>
 
-    <p>{ (result.label !== '') ? result.label : '-' }</p>
+    <p>
+      { (result.label !== '') ? result.label : '-' }
+      <span>{ result.type === 'Weak' ? ` (Weak)` : '' }</span>
+    </p>
   </TableContent>
 )
 
