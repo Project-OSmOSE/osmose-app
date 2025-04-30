@@ -433,6 +433,7 @@ export const AnnotatorSlice = createSlice({
         ConfidenceSetAPI.endpoints.retrieve.matchFulfilled,
         (state, { payload }) => {
           state.confidenceIndicators = payload.confidence_indicators;
+          state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
         },
       )
       builder.addMatcher(
