@@ -1,5 +1,5 @@
-import { errors, expect } from './fixture';
 import { Page, Request } from 'playwright-core';
+import { errors, expect } from './fixture';
 
 // https://github.com/microsoft/playwright/issues/13284#issuecomment-2299013936
 export async function expectNoRequestsOnAction(page: Page,
@@ -20,6 +20,6 @@ export async function expectNoRequestsOnAction(page: Page,
 export async function selectInAlert(page: Page, item: string) {
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible();
-  await modal.getByText(item).click();
+  await modal.getByText(item, {exact: true}).click();
   await modal.getByRole('button', { name: 'Ok' }).click();
 }

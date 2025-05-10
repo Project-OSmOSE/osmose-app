@@ -1,6 +1,8 @@
 import { Page } from '@playwright/test';
 import { Serializable } from 'playwright-core/types/structs';
-import { API_URL } from '../const';
+import { AnnotationCampaign, AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
+import { Paginated } from '../../../src/service/type';
 import {
   ANNOTATOR_GROUP,
   AUDIO_METADATA,
@@ -10,6 +12,7 @@ import {
   CONFIDENCE,
   CREATE_DATA,
   DATASET,
+  DATASET_GREYS,
   DETECTOR,
   FILE_RANGE,
   IMPORT_DATASET,
@@ -18,9 +21,7 @@ import {
   USERS,
   UserType
 } from '../../fixtures';
-import { Paginated } from '../../../src/service/type';
-import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
-import { AnnotationCampaign, AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { API_URL } from '../const';
 
 type Response = {
   status: number,
@@ -114,7 +115,7 @@ export class Mock {
   }
 
   public async datasets(empty: boolean = false) {
-    const json = empty ? [] : [ DATASET ]
+    const json = empty ? [] : [ DATASET, DATASET_GREYS ]
     await this.page.route(API_URL.dataset.list, route => route.fulfill({ status: 200, json }))
   }
 

@@ -1,8 +1,8 @@
 import { Locator, Page, test } from '@playwright/test';
-import { Mock } from '../services';
-import { CAMPAIGN, CONFIDENCE, DATASET, LABEL, UserType } from '../../fixtures';
-import { CampaignListPage } from './campaign-list';
+import { CAMPAIGN, CONFIDENCE, DATASET, DATASET_GREYS, LABEL, UserType } from '../../fixtures';
 import { selectInAlert } from '../functions';
+import { Mock } from '../services';
+import { CampaignListPage } from './campaign-list';
 
 
 export class CampaignCreatePage {
@@ -42,10 +42,14 @@ export class CampaignCreatePage {
     })
   }
 
-  async fillData() {
+  async fillData(options?: { complete: boolean }) {
     return test.step('Campaign data', async () => {
       await this.page.getByRole('button', { name: 'Select a dataset' }).click();
-      await selectInAlert(this.page, DATASET.name);
+      if (options?.complete) {
+        await selectInAlert(this.page, DATASET_GREYS.name);
+      } else {
+        await selectInAlert(this.page, DATASET.name);
+      }
     })
   }
 
@@ -66,6 +70,12 @@ export class CampaignCreatePage {
       await selectInAlert(this.page, LABEL.set.name);
       if (options?.complete) {
         await this.fillAcousticFeatures()
+        // Spectrogram tuning
+        await this.page.getByRole('checkbox', { name: 'Allow brigthness / contrast modification' }).check();
+        await this.page.getByRole('checkbox', { name: 'Allow colormap modification' }).check();
+        await this.page.getByRole('button', { name: 'Greys', exact: true }).click();
+        await this.page.locator('#options').getByRole('img', { name: 'jet' }).click();
+        await this.page.getByRole('checkbox', { name: 'Invert default colormap' }).check();
         // Confidence
         await this.page.getByRole('button', { name: 'Select a confidence set' }).click();
         await selectInAlert(this.page, CONFIDENCE.set.name);

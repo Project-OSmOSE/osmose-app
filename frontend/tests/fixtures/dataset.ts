@@ -1,6 +1,6 @@
-import { SpectrogramConfiguration } from '../../src/service/dataset/spectrogram-configuration';
 import { Dataset, ImportDataset } from '../../src/service/dataset';
 import { AudioMetadatum } from '../../src/service/dataset/audio-metatada';
+import { SpectrogramConfiguration } from '../../src/service/dataset/spectrogram-configuration';
 
 export const DATASET_SR: number = 480
 export const SPECTROGRAM_CONFIGURATION: SpectrogramConfiguration = {
@@ -35,6 +35,12 @@ export const SPECTROGRAM_CONFIGURATION: SpectrogramConfiguration = {
   spectro_duration: 10,
   zoom_level: 2,
 }
+export const SPECTROGRAM_CONFIGURATION_GREYS: SpectrogramConfiguration = {
+  ...SPECTROGRAM_CONFIGURATION,
+  id: 2,
+  name: '1024_1024_50',
+  colormap: 'Greys',
+}
 export const AUDIO_METADATA: AudioMetadatum = {
   id: 1,
   channel_count: 8,
@@ -42,6 +48,8 @@ export const AUDIO_METADATA: AudioMetadatum = {
   end: "2022-07-13T06:00:00Z",
   files_subtypes: [ "8" ],
   start: "2021-08-02T00:00:00Z",
+  audio_file_count: 123,
+  audio_file_dataset_duration: 60,
 }
 export const DATASET: Dataset = {
   id: 1,
@@ -53,6 +61,19 @@ export const DATASET: Dataset = {
   files_count: 99,
   type: "Coastal audio recordings",
   spectros: [ SPECTROGRAM_CONFIGURATION ],
+  related_channel_configuration: [],
+}
+export const DATASET_GREYS: Dataset = {
+  id: 2,
+  name: 'Test dataset greys',
+  created_at: new Date().toISOString(),
+  files_type: ".wav",
+  start_date: "2020-01-01",
+  end_date: "2020-12-31",
+  files_count: 123,
+  type: "Coastal audio recordings",
+  spectros: [ SPECTROGRAM_CONFIGURATION, SPECTROGRAM_CONFIGURATION_GREYS ],
+  related_channel_configuration: [],
 }
 export const IMPORT_DATASET: ImportDataset = {
   name: 'Test import dataset',

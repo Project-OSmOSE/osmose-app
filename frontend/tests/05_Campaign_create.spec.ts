@@ -1,5 +1,5 @@
 import { API_URL, ESSENTIAL, expect, expectNoRequestsOnAction, test } from './utils';
-import { CAMPAIGN, CONFIDENCE, DATASET, LABEL } from './fixtures';
+import { CAMPAIGN, CONFIDENCE, DATASET, DATASET_GREYS, LABEL } from './fixtures';
 import { WriteCreateAnnotationCampaign } from '../src/service/campaign';
 import { Mock } from './utils/services';
 
@@ -58,7 +58,7 @@ test.describe('Annotator', () => {
   test('[Create] Can submit complete form', ESSENTIAL, async ({ page }) => {
     await page.campaign.create.go('annotator');
     await page.campaign.create.fillGlobal({ complete: true });
-    await page.campaign.create.fillData();
+    await page.campaign.create.fillData({ complete: true });
     await page.campaign.create.fillAnnotationCreate({ complete: true });
     const [ campaignRequest, ] = await Promise.all([
       page.waitForRequest(API_URL.campaign.create),
@@ -72,17 +72,17 @@ test.describe('Annotator', () => {
         instructions_url: CAMPAIGN.instructions_url,
         desc: CAMPAIGN.desc,
         deadline: CAMPAIGN.deadline,
-        datasets: [ DATASET.name ],
-        spectro_configs: DATASET.spectros.map(s => s.id),
+        datasets: [ DATASET_GREYS.name ],
+        spectro_configs: DATASET_GREYS.spectros.map(s => s.id),
         confidence_indicator_set: CONFIDENCE.set.id,
         label_set: LABEL.set.id,
         usage: 'Create',
         labels_with_acoustic_features: [ LABEL.withFeatures ],
         allow_point_annotation: true,
-        allow_image_tuning: false,
-        allow_colormap_tuning: false,
-        colormap_default: null,
-        colormap_inverted_default: null,
+        allow_image_tuning: true,
+        allow_colormap_tuning: true,
+        colormap_default: 'jet',
+        colormap_inverted_default: true,
       }
       expect(campaignData).toEqual(expectedCampaign);
     })
