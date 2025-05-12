@@ -1,12 +1,12 @@
 import { ESSENTIAL, expect, test } from './utils';
-import { CAMPAIGN } from './fixtures';
+import { CAMPAIGN, CAMPAIGN_PHASE } from './fixtures';
 
 
 test.describe('Annotator', () => {
   test('Can see campaigns and access first', ESSENTIAL, async ({ page }) => {
     await page.campaign.list.go('annotator');
     await page.campaign.list.card.click()
-    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }`)
+    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }`)
   })
 
   test('Can filter campaigns', async ({ page }) => {

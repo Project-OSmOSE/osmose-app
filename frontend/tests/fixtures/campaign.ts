@@ -55,10 +55,11 @@ export const CAMPAIGN_PHASE: AnnotationCampaignPhase = {
   user_total: 10,
   global_progress: 50,
   global_total: 100,
+  has_annotations: true
 }
 export const CAMPAIGN = {
   id: 1,
-  owner: `${ USERS.creator.first_name } ${ USERS.creator.last_name.toUpperCase() }`,
+  owner: USERS.creator,
   name: 'Test campaign',
   desc: 'Test campaign description',
   allow_point_annotation: false,

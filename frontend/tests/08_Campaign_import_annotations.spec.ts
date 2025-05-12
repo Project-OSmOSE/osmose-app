@@ -10,7 +10,7 @@ test.describe('Campaign creator', () => {
     await page.campaign.create.selectMode('Check annotations')
     await page.mock.detectors(true)
     await page.mock.resultImport()
-    await page.mock.campaignDetail(false, "Check")
+    await page.mock.campaignDetail(false, "Verification")
     await page.campaign.create.createButton.click()
     await expect(page.getByRole('heading', { name: "Import annotations" })).toBeVisible()
 

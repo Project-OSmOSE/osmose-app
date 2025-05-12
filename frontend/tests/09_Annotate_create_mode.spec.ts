@@ -6,7 +6,7 @@ import { BoxBounds } from '../src/service/campaign/result';
 const TEST = {
   empty: (as: UserType, { submit }: { submit: 'mouse' | 'key' }) => {
     return test(`Empty (submit ${ submit })`, ESSENTIAL, async ({ page }) => {
-      await page.annotator.go(as, { mode: 'Create', empty: true });
+      await page.annotator.go(as, { phase: 'Annotation', empty: true });
       await expect(page.getByText('Confidence indicator ')).toBeVisible();
 
       await test.step('See no results', () => expect(page.getByText('No results')).toBeVisible())
@@ -132,7 +132,7 @@ const TEST = {
 test.describe('Annotator', () => {
 
   test(`Can go back to campaign`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Create' });
+    await page.annotator.go('annotator', { phase: 'Annotation' });
     await page.annotator.backToCampaignButton.click();
     await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }`)
   })
@@ -141,7 +141,7 @@ test.describe('Annotator', () => {
   TEST.empty('annotator', { submit: 'key' })
 
   test(`Empty | allow point annotation`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Create', empty: true, allowPoint: true });
+    await page.annotator.go('annotator', { phase: 'Annotation', empty: true, allowPoint: true });
 
     await test.step('Can add presence - mouse', async () => {
       const label = page.annotator.getLabel(LABEL.classic);
@@ -170,8 +170,8 @@ test.describe('Annotator', () => {
 
   })
 
-   test(`No confidence`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Create', noConfidence: true });
+  test(`No confidence`, ESSENTIAL, async ({ page }) => {
+    await page.annotator.go('annotator', { phase: 'Annotation', noConfidence: true });
     await expect(page.getByText('Confidence indicator ')).not.toBeVisible();
   })
 })

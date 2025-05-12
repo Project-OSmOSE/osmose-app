@@ -2,7 +2,7 @@ import { Locator, Page, test } from '@playwright/test';
 import { Mock, Modal, UI } from '../services';
 import { UserType } from '../../fixtures';
 import { CampaignListPage } from './campaign-list';
-import { AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { Phase } from '../../../src/service/campaign';
 
 type LabelModalExtend = {
   getCheckbox: (text: string) => Locator;
@@ -45,14 +45,14 @@ export class CampaignDetailPage {
 
   async go(as: UserType, options?: {
     empty?: boolean,
-    mode?: AnnotationCampaignUsage,
+    phase?: Phase,
     noConfidence?: boolean
     allowPoint?: boolean
   }) {
     await test.step('Navigate to Campaign detail', async () => {
       await this.list.go(as)
 
-      await this.mock.campaignDetail(options?.empty, options?.mode, !options?.noConfidence, options?.allowPoint)
+      await this.mock.campaignDetail(options?.empty, options?.phase, !options?.noConfidence, options?.allowPoint)
       await this.mock.fileRanges(options?.empty)
       await this.mock.fileRangesFiles(options?.empty)
       await this.mock.spectrograms(options?.empty)

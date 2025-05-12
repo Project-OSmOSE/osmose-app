@@ -1,12 +1,18 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { AnnotationCampaign, OldAnnotationCampaign, Phase, WriteAnnotationCampaign } from '@/service/campaign';
+import { AnnotationCampaign, Phase, WriteAnnotationCampaign } from '@/service/campaign';
 import { ID } from '@/service/type';
 import { encodeQueryParams } from '@/service/function';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useMemo } from "react";
+
+export type CreateAnnotationCampaign =
+  Omit<AnnotationCampaign, 'id' | 'created_at' | 'owner' | 'archive' | 'phases' | 'label_set' | 'labels_with_acoustic_features' | 'confidence_indicator_set' | 'files_count' | 'allow_point_annotation'>
+  & {
+  spectro_configs: ID[]
+}
 
 const _CampaignAPI = createApi({
   reducerPath: 'campaignApi',
@@ -40,7 +46,7 @@ const _CampaignAPI = createApi({
       query: (id) => `${ id }/`,
       providesTags: (campaign, _, arg) => [ { type: 'AnnotationCampaign', id: campaign?.id ?? arg } ]
     }),
-    create: builder.mutation<OldAnnotationCampaign, WriteAnnotationCampaign>({
+    create: builder.mutation<AnnotationCampaign, CreateAnnotationCampaign>({
       query: (data) => {
         if (data.deadline?.trim()) data.deadline = new Date(data.deadline).toISOString().split('T')[0];
         else data.deadline = null

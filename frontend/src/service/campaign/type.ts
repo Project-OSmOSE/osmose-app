@@ -1,8 +1,4 @@
 import { User } from '@/service/user';
-import { Errors } from '@/service/type.ts';
-import { WriteAnnotationFileRange } from '@/service/campaign/annotation-file-range';
-import { ACCEPT_CSV_MIME_TYPE } from '@/consts/csv.ts';
-import { Detector, DetectorConfiguration } from '@/service/campaign/detector';
 import { Colormap } from '@/services/utils/color';
 import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 
@@ -34,10 +30,10 @@ export type AnnotationCampaign = {
   files_count: number;
 
   /** ID */
-  label_set: number;
+  label_set: number | null;
   labels_with_acoustic_features: string[]
   /** ID */
-  confidence_indicator_set: number;
+  confidence_indicator_set: number | null;
 
   allow_point_annotation: boolean;
   allow_image_tuning: boolean;
@@ -99,62 +95,3 @@ export type WriteCheckAnnotationCampaign = BaseAnnotationCampaign & {
   usage: 'Check';
 }
 export type WriteAnnotationCampaign = WriteCheckAnnotationCampaign | WriteCreateAnnotationCampaign
-
-export type CampaignState = {
-  currentCampaign: OldAnnotationCampaign | undefined;
-  draftCampaign: Partial<WriteAnnotationCampaign>;
-  submissionErrors: CampaignErrors;
-
-  resultImport: {
-    fileData?: FileData;
-    filterDatasets?: Array<string>;
-    detectors?: Array<DetectorSelection>,
-    filterDetectors?: Array<string>; // initialName
-    isSubmitted: boolean;
-    error?: string;
-    isLoading: boolean;
-  },
-  draftFileRanges: Array<Partial<WriteAnnotationFileRange> & {
-    id: number,
-    annotator: number,
-    finished_tasks_count?: number
-  }>;
-}
-
-export type FileData = {
-  filename: string;
-  type: string;
-  datasets: Array<string>;
-  detectorsForDatasets: { [key in string]: Array<string> }; // dataset -> Array<detector>
-  detectors: Array<string>;
-  labels: Array<string>;
-}
-
-export type CampaignErrors = Errors<WriteCheckAnnotationCampaign> & Errors<WriteCreateAnnotationCampaign>;
-
-export class UnreadableFileError extends Error {
-  message = 'Error reading file, check the file isn\'t corrupted'
-}
-
-export class WrongMIMETypeError extends Error {
-  constructor(type: string) {
-    super(`Wrong MIME Type, found : ${ type } ; but accepted types are: ${ ACCEPT_CSV_MIME_TYPE }`);
-  }
-}
-
-export class UnsupportedCSVError extends Error {
-  message = `The file is empty or it does not contain a string content.`
-}
-
-export class CannotFormatCSVError extends Error {
-  message = 'Cannot format the file data'
-}
-
-export interface DetectorSelection {
-  initialName: string;
-  isNew: boolean;
-  knownDetector?: Detector; // isNew = false
-  isNewConfiguration?: boolean;
-  knownConfiguration?: DetectorConfiguration; // isNewConfiguration = false
-  newConfiguration?: string; // isNewConfiguration = true
-}

@@ -1,5 +1,14 @@
 import { API_URL, ESSENTIAL, expect, Page, Request, test } from './utils';
-import { AUDIO_METADATA, CAMPAIGN, CONFIDENCE, FILE_RANGE, LABEL, SPECTROGRAM_CONFIGURATION, USERS } from './fixtures';
+import {
+  AUDIO_METADATA,
+  CAMPAIGN,
+  CAMPAIGN_PHASE,
+  CONFIDENCE,
+  FILE_RANGE,
+  LABEL,
+  SPECTROGRAM_CONFIGURATION,
+  USERS
+} from './fixtures';
 import { LabelModal } from './utils/pages';
 import { WriteAnnotationCampaign } from '../src/service/campaign';
 import { getDisplayName } from "../src/service/user";
@@ -58,7 +67,7 @@ test.describe('Annotator', () => {
     await expect(page.getByText(`Created on ${ new Date(CAMPAIGN.created_at).toLocaleDateString() } by ${ getDisplayName(CAMPAIGN.owner) }`)).toBeVisible();
     await expect(page.getByText(CAMPAIGN.desc)).toBeVisible();
     await expect(page.getByText(new Date(CAMPAIGN.deadline).toLocaleDateString())).toBeVisible();
-    await expect(page.getByText(`${ CAMPAIGN.usage } annotations`)).toBeVisible();
+    await expect(page.getByText(CAMPAIGN_PHASE.phase)).toBeVisible();
 
     await test.step('Cannot archive', async () => {
       await expect(page.campaign.detail.archiveButton).not.toBeVisible();
@@ -209,7 +218,7 @@ test.describe('Campaign creator', () => {
   })
 
   test('Can import annotations', async ({ page }) => {
-    await page.campaign.detail.go('creator', { mode: 'Check' });
+    await page.campaign.detail.go('creator', { phase: 'Verification' });
     await STEP.accessImportAnnotations(page)
   })
 
@@ -328,7 +337,7 @@ test.describe('Campaign creator', () => {
 })
 
 test('Staff', async ({ page }) => {
-  await page.campaign.detail.go('staff', { mode: 'Check' });
+  await page.campaign.detail.go('staff', { phase: 'Verification' });
 
   await STEP.accessArchive(page)
   await STEP.accessImportAnnotations(page)
@@ -338,7 +347,7 @@ test('Staff', async ({ page }) => {
 })
 
 test('Superuser', ESSENTIAL, async ({ page }) => {
-  await page.campaign.detail.go('superuser', { mode: 'Check' });
+  await page.campaign.detail.go('superuser', { phase: 'Verification' });
 
   await STEP.accessArchive(page)
   await STEP.accessImportAnnotations(page)

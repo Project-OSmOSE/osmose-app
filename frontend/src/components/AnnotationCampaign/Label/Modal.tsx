@@ -28,7 +28,7 @@ export const LabelSetModal: React.FC<{
   const {
     data: labelSet,
     isFetching, error
-  } = LabelSetAPI.useRetrieveQuery(campaign!.label_set, { skip: !campaign });
+  } = LabelSetAPI.useRetrieveQuery();
   const toast = useToast();
   const [ patchCampaign, {
     isLoading: isSubmitting,

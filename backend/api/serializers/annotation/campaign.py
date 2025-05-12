@@ -6,7 +6,6 @@ from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationCampaign,
-    AnnotationCampaignUsage,
     SpectrogramConfiguration,
     Dataset,
     LabelSet,
@@ -70,35 +69,35 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     datasets = serializers.SlugRelatedField(
         many=True, queryset=Dataset.objects.all(), slug_field="name"
     )
-    label_set = serializers.PrimaryKeyRelatedField(
-        queryset=LabelSet.objects.all(),
-        required=False,
-    )
+    label_set = serializers.PrimaryKeyRelatedField(read_only=True)
     labels_with_acoustic_features = SlugRelatedGetOrCreateField(
-        queryset=Label.objects.all(),
         slug_field="name",
-        required=False,
         many=True,
+        read_only=True,
     )
     confidence_indicator_set = serializers.PrimaryKeyRelatedField(
         queryset=ConfidenceIndicatorSet.objects.all(), required=False, allow_null=True
     )
     owner = UserSerializer(read_only=True)
+    spectro_configs = serializers.PrimaryKeyRelatedField(
+        queryset=SpectrogramConfiguration.objects.all(), many=True, write_only=True
+    )
     archive = AnnotationCampaignArchiveSerializer(read_only=True)
     allow_point_annotation = serializers.BooleanField(default=False)
     phases = AnnotationCampaignPhaseSerializer(many=True, read_only=True)
 
     class Meta:
         model = AnnotationCampaign
-        exclude = ("spectro_configs",)
+        fields = "__all__"
 
-    def validate_create_usage(self, attrs: dict):
-        """Validate attributes for a "create" usage creation"""
-        if "label_set" not in attrs or attrs["label_set"] is None:
-            raise serializers.ValidationError(
-                {"label_set": "This field is required."},
-                code="required",
-            )
+    #
+    # def validate_create_usage(self, attrs: dict):
+    #     """Validate attributes for a "create" usage creation"""
+    #     if "label_set" not in attrs or attrs["label_set"] is None:
+    #         raise serializers.ValidationError(
+    #             {"label_set": "This field is required."},
+    #             code="required",
+    #         )
 
     def validate_spectro_configs_in_datasets(self, attrs: dict) -> None:
         """Validates that chosen spectros correspond to chosen datasets"""
@@ -125,34 +124,34 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
                 code="min_value",
             )
         self.validate_spectro_configs_in_datasets(attrs)
-        if attrs["usage"] == AnnotationCampaignUsage.CREATE:
-            self.validate_create_usage(attrs)
-        if attrs["usage"] == AnnotationCampaignUsage.CHECK:
-            attrs["label_set"], _ = LabelSet.objects.get_or_create(
-                name=f"{attrs['name']} label set"
-            )
-        if "labels_with_acoustic_features" in attrs:
-            label_set: LabelSet = attrs["label_set"]
-            for label in attrs["labels_with_acoustic_features"]:
-                if not label_set.labels.filter(name=label).exists():
-                    if attrs["usage"] == AnnotationCampaignUsage.CREATE:
-                        message = (
-                            "Label with acoustic features should belong to label set"
-                        )
-                        raise serializers.ValidationError(
-                            {"labels_with_acoustic_features": message},
-                        )
-                    if attrs["usage"] == AnnotationCampaignUsage.CHECK:
-                        label_obj, _ = Label.objects.get_or_create(name=label)
-                        label_set.labels.add(label_obj)
+        # if attrs["usage"] == AnnotationCampaignUsage.CREATE:
+        #     self.validate_create_usage(attrs)
+        # if attrs["usage"] == AnnotationCampaignUsage.CHECK:
+        #     attrs["label_set"], _ = LabelSet.objects.get_or_create(
+        #         name=f"{attrs['name']} label set"
+        #     )
+        # if "labels_with_acoustic_features" in attrs:
+        #     label_set: LabelSet = attrs["label_set"]
+        #     for label in attrs["labels_with_acoustic_features"]:
+        #         if not label_set.labels.filter(name=label).exists():
+        #             if attrs["usage"] == AnnotationCampaignUsage.CREATE:
+        #                 message = (
+        #                     "Label with acoustic features should belong to label set"
+        #                 )
+        #                 raise serializers.ValidationError(
+        #                     {"labels_with_acoustic_features": message},
+        #                 )
+        #             if attrs["usage"] == AnnotationCampaignUsage.CHECK:
+        #                 label_obj, _ = Label.objects.get_or_create(name=label)
+        #                 label_set.labels.add(label_obj)
         return attrs
 
-    def create(self, validated_data):
-        if validated_data["usage"] == AnnotationCampaignUsage.CHECK:
-            validated_data["label_set"], _ = LabelSet.objects.get_or_create(
-                name=f"{validated_data['name']} label set"
-            )
-        return super().create(validated_data)
+    # def create(self, validated_data):
+    #     if validated_data["usage"] == AnnotationCampaignUsage.CHECK:
+    #         validated_data["label_set"], _ = LabelSet.objects.get_or_create(
+    #             name=f"{validated_data['name']} label set"
+    #         )
+    #     return super().create(validated_data)
 
 
 class AnnotationCampaignPatchSerializer(serializers.Serializer):

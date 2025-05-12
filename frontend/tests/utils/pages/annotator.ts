@@ -1,6 +1,6 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { UserType } from '../../fixtures';
-import { AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { Phase } from '../../../src/service/campaign';
 import { AnnotationResultType, BoxBounds, PointBounds } from '../../../src/service/campaign/result';
 import { Mock } from "../services";
 import { CampaignDetailPage } from "./campaign-detail";
@@ -81,7 +81,7 @@ export class AnnotatorPage {
   }
 
   async go(as: UserType, options: {
-    mode: AnnotationCampaignUsage,
+    phase: Phase,
     empty?: boolean,
     noConfidence?: boolean
     allowPoint?: boolean
@@ -89,16 +89,16 @@ export class AnnotatorPage {
     await test.step('Navigate to Annotator', async () => {
       await this.detail.go(as, {
         noConfidence: options.noConfidence,
-        mode: options.mode,
+        phase: options.phase,
         allowPoint: options.allowPoint
       })
       await this.mock.confidenceSetDetail()
       await this.mock.detectors()
       await this.mock.labelSetDetail()
-      await this.mock.campaignDetail(false, options?.mode, !options.noConfidence, options.allowPoint)
-      await this.mock.annotator(options.mode, options.empty)
+      await this.mock.campaignDetail(false, options?.phase, !options.noConfidence, options.allowPoint)
+      await this.mock.annotator(options.phase, options.empty)
       await this.detail.resumeButton.click()
-      await this.mock.annotator(options.mode, options.empty)
+      await this.mock.annotator(options.phase, options.empty)
     });
   }
 

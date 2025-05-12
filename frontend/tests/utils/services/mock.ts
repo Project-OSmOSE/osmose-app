@@ -20,7 +20,7 @@ import {
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
 import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
-import { AnnotationCampaignUsage, OldAnnotationCampaign } from '../../../src/service/campaign';
+import { AnnotationCampaign, Phase } from '../../../src/service/campaign';
 
 type Response = {
   status: number,
@@ -58,7 +58,10 @@ export class Mock {
 
   public async campaigns(empty: boolean = false) {
     const json = empty ? [] : [ CAMPAIGN ]
-    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.campaign.list, (route, request) => {
+      console.log('list', request.url(), API_URL.campaign.list)
+      return route.fulfill({ status: 200, json })
+    })
   }
 
   public async campaignCreate(withErrors: boolean = false) {
@@ -79,28 +82,35 @@ export class Mock {
       }
     }
     await this.page.route(API_URL.campaign.create, (route, request) => {
+      console.log('create', request.method(), request.url(), API_URL.campaign.create)
       if (request.method() === 'POST') route.fulfill({ status, json })
       else route.continue()
     })
   }
 
   public async campaignDetail(empty: boolean = false,
-                              mode: AnnotationCampaignUsage = 'Create',
+                              phase: Phase = 'Annotation',
                               hasConfidence: boolean = true,
                               allowPoint: boolean = false) {
-    const json: OldAnnotationCampaign = CAMPAIGN;
+    const json: AnnotationCampaign = CAMPAIGN;
     if (empty) {
-      json.progress = 0;
-      json.total = 0;
-      json.my_progress = 0;
-      json.my_total = 0;
+      json.phases = json.phases.map(p => ({
+        ...p,
+        progress: 0,
+        total: 0,
+        my_progress: 0,
+        my_total: 0,
+        phase
+      }))
     }
-    json.usage = mode;
     if (!hasConfidence) {
       json.confidence_indicator_set = null;
     }
     if (allowPoint) json.allow_point_annotation = true;
-    await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.campaign.detail, (route, request) => {
+      console.log('detail', request.url(), API_URL.campaign.detail)
+      route.fulfill({ status: 200, json })
+    })
   }
 
   public async spectrograms(empty: boolean = false) {
@@ -169,8 +179,8 @@ export class Mock {
     }))
   }
 
-  public async annotator(type: AnnotationCampaignUsage = 'Create', empty: boolean = false) {
-    const json = type === 'Create' ? CREATE_DATA(empty) : CHECK_DATA(empty)
+  public async annotator(phase: Phase = 'Annotation', empty: boolean = false) {
+    const json = phase === 'Annotation' ? CREATE_DATA(empty) : CHECK_DATA(empty)
     await this.page.route(API_URL.annotator, (route, request) => {
       if (request.method() === 'GET') route.fulfill({ status: 200, json })
       else route.fulfill({ status: 200 })

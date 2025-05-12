@@ -83,7 +83,7 @@ export const TableContent: React.FC<CellProps> = ({
                                                     leftSticky
                                                   }) => {
   const className = useMemo(() => {
-    const classes = [ styles.content ];
+    const classes = [ styles.content, 'table-content' ]; // table-content needed for test
     if (isFirstColumn) classes.push(styles.first)
     if (disabled) classes.push('disabled')
     if (_className) classes.push(_className)

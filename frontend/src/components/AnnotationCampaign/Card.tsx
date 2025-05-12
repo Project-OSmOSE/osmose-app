@@ -13,15 +13,17 @@ export const CampaignCard: React.FC<{
   const navigate = useNavigate();
   const link = useMemo(() => {
     if (campaign.phases.length > 0)
-      return `/annotation-campaign/${ campaign.id }/phase/${campaign.phases[0].id}`;
+      return `/annotation-campaign/${ campaign.id }/phase/${ campaign.phases[0].id }`;
     return `/annotation-campaign/${ campaign.id }`
-  }, [campaign])
+  }, [ campaign ])
 
   const accessDetail = useCallback(() => navigate(link), [ link ]);
   const accessAuxDetail = useCallback(() => window.open(`/app${ link }`, '_blank'), [ link ]);
 
   return (
-    <div className={ styles.card } onClick={ accessDetail } onAuxClick={ accessAuxDetail }>
+    // campaign-card classname for test purpose
+    <div className={ [ styles.card, 'campaign-card' ].join(' ') } onClick={ accessDetail }
+         onAuxClick={ accessAuxDetail }>
 
       <div className={ styles.head }>
         <CampaignBadge campaign={ campaign }/>
@@ -32,7 +34,9 @@ export const CampaignCard: React.FC<{
       <div className={ styles.property }>
         <IonIcon className={ styles.icon } icon={ crop }/>
         <p className={ styles.label }>Phase{ pluralize(campaign.phases) }:</p>
-        <p>{ campaign.phases.map(p => p.phase).join(', ') }</p>
+        <p>{ campaign.phases.length > 0 ?
+          campaign.phases.map(p => p.phase).join(', ') :
+          'No phase' }</p>
       </div>
 
       <CampaignUserProgress campaign={ campaign } className={ styles.userProgression }/>

@@ -24,7 +24,7 @@ const STEP = {
 // Tests
 test.describe('Annotator', () => {
   test(`Empty`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check', empty: true });
+    await page.annotator.go('annotator', { phase: 'Verification', empty: true });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
@@ -36,7 +36,7 @@ test.describe('Annotator', () => {
   })
 
   test(`With annotations without updates`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.go('annotator', { phase: 'Verification' });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
@@ -54,7 +54,7 @@ test.describe('Annotator', () => {
   })
 
   test(`With annotations - can validate and invalidate`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.go('annotator', { phase: 'Verification' });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
@@ -99,7 +99,7 @@ test.describe('Annotator', () => {
   })
 
   test(`With annotations - can edit label`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.go('annotator', { phase: 'Verification' });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
@@ -136,7 +136,7 @@ test.describe('Annotator', () => {
   })
 
   test(`With annotations - can validate after edit label`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.go('annotator', { phase: 'Verification' });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
@@ -174,7 +174,7 @@ test.describe('Annotator', () => {
   })
 
   test(`With annotations - can remove box`, ESSENTIAL, async ({ page }) => {
-    await page.annotator.go('annotator', { mode: 'Check' });
+    await page.annotator.go('annotator', { phase: 'Verification' });
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {

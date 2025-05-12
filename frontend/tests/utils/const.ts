@@ -14,9 +14,9 @@ export const API_URL = {
     self: /api\/user\/self\/?/g
   },
   campaign: {
-    list: /\/api\/annotation-campaign\/?/g,
+    list: /\/api\/annotation-campaign\/?\?/g,
     create: '/api/annotation-campaign/',
-    detail: /\/api\/annotation-campaign\/-?\d\/?/g,
+    detail: /\/api\/annotation-campaign\/\d\/?/g,
     archive: /\/api\/annotation-campaign\/-?\d\/archive\/?/g,
     report: /\/api\/annotation-campaign\/-?\d\/report/g,
     reportStatus: /\/api\/annotation-campaign\/-?\d\/report-status/g

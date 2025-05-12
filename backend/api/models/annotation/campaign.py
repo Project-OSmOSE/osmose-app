@@ -73,7 +73,9 @@ class AnnotationCampaign(models.Model):
     instructions_url = models.TextField(null=True, blank=True)
     deadline = models.DateField(null=True, blank=True)
 
-    label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
+    label_set = models.ForeignKey(
+        LabelSet, on_delete=models.CASCADE, null=True, blank=True
+    )
     labels_with_acoustic_features = models.ManyToManyField(Label, blank=True)
     allow_point_annotation = models.BooleanField(default=False)
     datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
