@@ -19,6 +19,10 @@ from .list import (
     ListFilledBaseUserAuthenticatedTestCase,
     ListFilledBaseUserNoCampaignAuthenticatedTestCase,
 )
+from .patch import (
+    PatchUnauthenticatedTestCase,
+    PatchAdminAuthenticatedTestCase,
+)
 from .retrieve import (
     RetrieveUnauthenticatedTestCase,
     RetrieveEmpyAdminAuthenticatedTestCase,

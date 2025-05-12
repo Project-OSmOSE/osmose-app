@@ -90,6 +90,17 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
         )
 
 
+class CampaignPatchPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj: AnnotationCampaign):
+        if request.method == "PATCH":
+            if obj.archive is not None:
+                return False
+            if request.user.is_staff or request.user == obj.owner:
+                return True
+            return False
+        return super().has_object_permission(request, view, obj)
+
+
 class AnnotationCampaignViewSet(
     viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin
 ):
@@ -112,7 +123,7 @@ class AnnotationCampaignViewSet(
     serializer_class = AnnotationCampaignSerializer
     filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
     search_fields = ("name",)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, CampaignPatchPermission)
 
     def get_queryset(self):
         self.queryset = self.queryset.prefetch_related(

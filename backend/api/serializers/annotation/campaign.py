@@ -170,11 +170,23 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
 class AnnotationCampaignPatchSerializer(serializers.Serializer):
     """Serializer for annotation campaign"""
 
+    label_set = serializers.PrimaryKeyRelatedField(
+        queryset=LabelSet.objects.all(),
+        required=False,
+    )
     labels_with_acoustic_features = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
         slug_field="name",
         required=False,
         many=True,
+    )
+    confidence_indicator_set = serializers.PrimaryKeyRelatedField(
+        queryset=ConfidenceIndicatorSet.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    allow_point_annotation = serializers.BooleanField(
+        required=False,
     )
 
     class Meta:
@@ -185,16 +197,26 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
 
     def update(self, instance: AnnotationCampaign, validated_data):
         if "labels_with_acoustic_features" in validated_data:
-            label_set: LabelSet = instance.label_set
+            label_set: LabelSet = instance.label_set or validated_data.get("label_set")
             for label in validated_data["labels_with_acoustic_features"]:
                 if not label_set.labels.filter(name=label).exists():
                     message = "Label with acoustic features should belong to label set"
                     raise serializers.ValidationError(
                         {"labels_with_acoustic_features": message},
                     )
+            instance.labels_with_acoustic_features.set(
+                validated_data["labels_with_acoustic_features"]
+            )
+        if "label_set" in validated_data:
+            instance.label_set = validated_data.get("label_set")
+        if "confidence_indicator_set" in validated_data:
+            instance.confidence_indicator_set = validated_data.get(
+                "confidence_indicator_set"
+            )
+        if "allow_point_annotation" in validated_data:
+            instance.allow_point_annotation = validated_data.get(
+                "allow_point_annotation"
+            )
 
-        instance.labels_with_acoustic_features.set(
-            validated_data["labels_with_acoustic_features"]
-        )
         instance.save()
         return instance
