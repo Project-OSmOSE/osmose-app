@@ -90,7 +90,7 @@ class CampaignPhaseAccessFilter(filters.BaseFilterBackend):
         )
 
 
-class CampaignPhaseCreatePermission(permissions.BasePermission):
+class CampaignPhasePostPatchPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
             campaign_id = request.data.get("annotation_campaign", None)
@@ -105,6 +105,17 @@ class CampaignPhaseCreatePermission(permissions.BasePermission):
                     return True
                 return False
         return super().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj: AnnotationCampaignPhase):
+        if request.method in ["POST", "PATCH"]:
+            if obj.annotation_campaign.archive:
+                return False
+            if not obj.is_open:
+                return False
+            if request.user.is_staff or request.user == obj.annotation_campaign.owner:
+                return True
+            return False
+        return super().has_object_permission(request, view, obj)
 
 
 class AnnotationCampaignPhaseViewSet(
@@ -131,7 +142,7 @@ class AnnotationCampaignPhaseViewSet(
     )
     serializer_class = AnnotationCampaignPhaseSerializer
     filter_backends = (ModelFilter, CampaignPhaseAccessFilter)
-    permission_classes = (permissions.IsAuthenticated, CampaignPhaseCreatePermission)
+    permission_classes = (permissions.IsAuthenticated, CampaignPhasePostPatchPermission)
 
     def create(self, request, *args, **kwargs):
         """Override default create method to automatically fill the created_by field"""
@@ -541,3 +552,11 @@ class AnnotationCampaignPhaseViewSet(
             )
         )
         return response
+
+    @action(detail=True, methods=["POST"], url_path="end", url_name="end")
+    def end(self, request, pk: int = None):
+        """Ends the given phase"""
+        phase: AnnotationCampaignPhase = self.get_object()
+        phase.end(self.request.user)
+        serializer = self.get_serializer(phase)
+        return Response(serializer.data, status=status.HTTP_200_OK)

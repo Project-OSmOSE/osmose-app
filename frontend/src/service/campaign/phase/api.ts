@@ -22,6 +22,12 @@ export const CampaignPhaseAPI = createApi({
         }
       }),
     }),
+    end: builder.mutation<AnnotationCampaignPhase, ID>({
+      query: (phaseID) => ({
+        url: `${ phaseID }/end/`,
+        method: 'POST',
+      }),
+    }),
     downloadReport: builder.mutation<undefined, {
       phaseID: ID;
       filename: string;
