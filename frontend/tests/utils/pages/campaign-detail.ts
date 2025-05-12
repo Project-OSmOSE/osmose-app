@@ -34,7 +34,7 @@ export class CampaignDetailPage {
   }
 
   get resumeButton(): Locator {
-    return this.page.getByRole('button', { name: 'Resume annotation' });
+    return this.page.getByRole('button', { name: 'Resume' });
   }
 
   constructor(private page: Page,

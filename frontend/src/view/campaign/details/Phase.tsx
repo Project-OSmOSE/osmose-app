@@ -15,7 +15,6 @@ import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
 import { StatusFilter } from "@/view/campaign/details/filters/StatusFilter.tsx";
 import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
-import { ImportAnnotationsButton } from "@/components/AnnotationCampaign/Phase/ImportAnnotationsButton.tsx";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
@@ -38,6 +37,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const isResumeEnabled = useMemo(() => {
     return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
   }, [ fileFilters ]);
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [campaign, currentPhase])
 
   const resume = useCallback(() => {
     if (!campaign || !currentPhase || !files) return;
@@ -84,9 +84,12 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                      <ProgressModalButton size='small'/>
                    </div>
 
-                   <ImportAnnotationsButton/>
+                   { isEditable && <Link fill='outline' color='medium' size='small'
+                                                 appPath={ `/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/import-annotations` }>
+                       Import annotations
+                   </Link> }
 
-                   { !(error || campaign?.archive) && <Button color="primary" fill='outline' size='small'
+                   { (!error && isEditable) && <Button color="primary" fill='outline' size='small'
                                                               disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
                                                               disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
                                                               style={ { pointerEvents: 'unset' } }
@@ -99,7 +102,10 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
       { currentPhase.phase === 'Verification' && !currentPhase.has_annotations &&
           <WarningText>
               Your campaign doesn't have any annotations to check
-              <ImportAnnotationsButton/>
+            { isEditable && <Link
+                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase.id }/import-annotations` }>
+                Import annotations
+            </Link> }
           </WarningText> }
 
       <Table columns={ currentPhase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
@@ -130,9 +136,9 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
         <TableDivider/>
 
         { files?.results?.map(file => <TaskItem key={ file.id }
-                                               file={ file }
-                                               phase={ currentPhase }
-                                               campaign={ campaign }/>) }
+                                                file={ file }
+                                                phase={ currentPhase }
+                                                campaign={ campaign }/>) }
       </Table>
 
       { files?.results && files.results.length > 0 &&
@@ -142,6 +148,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
       { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       { files && files.count === 0 && <p>You have no files to annotate.</p> }
       { campaign?.archive && <p>The campaign is archived. No more annotation can be done.</p> }
+      { currentPhase?.ended_by && <p>The phase is . No more annotation can be done.</p> }
 
     </div>
   </div>

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -60,6 +60,7 @@ export const ProgressModal: React.FC<{
   const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.useDownloadStatusMutation()
   const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.useDownloadReportMutation()
   const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [campaign, currentPhase])
 
   const [ progress, setProgress ] = useState<Array<Progression>>([]);
   const [ sort, setSort ] = useState<Sort>({ entry: 'Progress', sort: 'DESC' });
@@ -215,7 +216,7 @@ export const ProgressModal: React.FC<{
             </Fragment> }
           </div>
 
-          { !campaign?.archive && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
+          { isEditable && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
         </ModalFooter>
       )
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
@@ -14,7 +14,7 @@ import { CampaignAPI } from "@/service/campaign";
 
 export const NavigationButtons: React.FC = () => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
 
   // Services
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ export const NavigationButtons: React.FC = () => {
   const {
     didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && data?.is_assigned, [ campaign, currentPhase, data ])
 
   const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
   useEffect(() => {
@@ -98,7 +99,7 @@ export const NavigationButtons: React.FC = () => {
       navigate(`/annotation-campaign/${ campaign?.id }/file/${ next_file_id.current }`);
   }
 
-  if (!data?.is_assigned) return <div/>
+  if (!isEditable) return <div/>
   return (
     <div className={ styles.navigation }>
       <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='left'/> : Load previous recording</p> }>

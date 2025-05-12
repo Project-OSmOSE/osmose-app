@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { IonIcon, IonNote } from "@ionic/react";
@@ -16,6 +16,7 @@ export const AnnotatorPage: React.FC = () => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && data?.is_assigned, [ campaign, currentPhase, data ])
 
   const canNavigate = useCanNavigate()
 
@@ -50,12 +51,16 @@ export const AnnotatorPage: React.FC = () => {
             { campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted &&
               <IoCheckmarkCircleOutline/> }
           </p>
-        { data.is_assigned &&
+        { isEditable &&
             <Progress label='Position'
                       className={ styles.progress }
                       value={ data.current_task_index + 1 }
                       total={ data.total_tasks }/> }
-        { !data.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote> }
+        { campaign?.archive ? <IonNote>You cannot annotate an archived campaign.</IonNote> :
+          currentPhase?.ended_by ? <IonNote>You cannot annotate an ended phase.</IonNote> :
+            !data.is_assigned ? <IonNote>You are not assigned to annotate this file.</IonNote> :
+              <Fragment/>
+        }
       </div> }
     </Header>
 

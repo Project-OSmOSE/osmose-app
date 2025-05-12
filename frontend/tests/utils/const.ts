@@ -18,8 +18,8 @@ export const API_URL = {
     create: '/api/annotation-campaign/',
     detail: /\/api\/annotation-campaign\/\d\/?/g,
     archive: /\/api\/annotation-campaign\/-?\d\/archive\/?/g,
-    report: /\/api\/annotation-campaign\/-?\d\/report/g,
-    reportStatus: /\/api\/annotation-campaign\/-?\d\/report-status/g
+    report: /\/api\/annotation-campaign-phase\/-?\d\/report/g,
+    reportStatus: /\/api\/annotation-campaign-phase\/-?\d\/report-status/g
   },
   dataset: {
     list: '/api/dataset/',
@@ -52,7 +52,7 @@ export const API_URL = {
     list: /\/api\/confidence-indicator\/?/g,
     detail: /\/api\/confidence-indicator\/-?\d\/?/g,
   },
-  annotator: /api\/annotator\/campaign\/-?\d\/file\/-?\d/g,
+  annotator: /api\/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g,
   result: {
     import: /api\/annotation-result\/campaign\/-?\d\/import\//g
   },

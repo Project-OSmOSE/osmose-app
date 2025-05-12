@@ -10,16 +10,6 @@ const STEP = {
     })
   },
   accessDownloadCSV: async (page: Page) => {
-    await test.step('Access spectrogram configuration download', async () => {
-      const modal = await page.campaign.detail.openSpectrogramModal();
-      await expect(modal.downloadButton).toBeEnabled();
-      await modal.close()
-    })
-    await test.step('Access audio metadata download', async () => {
-      const modal = await page.campaign.detail.openAudioModal();
-      await expect(modal.downloadButton).toBeEnabled();
-      await modal.close()
-    })
     await test.step('Access progress downloads and update', async () => {
       const modal = await page.campaign.detail.openProgressModal();
       await expect(modal.downloadResultsButton).toBeEnabled();
@@ -61,7 +51,7 @@ test.describe('Annotator', () => {
     await test.step('Can search file', async () => {
       await page.mock.fileRangesFiles()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-file-range\/campaign\/.*filename__icontains/g),
+        page.waitForRequest(/\/api\/annotation-file-range\/phase\/.*filename__icontains/g),
         page.campaign.detail.searchFile(FILE_RANGE.submittedFile.filename)
       ])
       await page.campaign.detail.searchFile(undefined);
@@ -74,7 +64,7 @@ test.describe('Annotator', () => {
     const button = page.locator('.table-content.disabled ion-button')
     await button.waitFor()
     await Promise.all([
-      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/file\/-?\d+/g),
+      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/phase\/-?\d+\/file\/-?\d+/g),
       button.click(),
     ])
   })
@@ -85,7 +75,7 @@ test.describe('Annotator', () => {
     const button = page.locator('.table-content:not(.disabled) ion-button')
     await button.waitFor()
     await Promise.all([
-      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/file\/-?\d+/g),
+      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/phase\/-?\d+\/file\/-?\d+/g),
       button.click(),
     ])
   })
@@ -94,7 +84,7 @@ test.describe('Annotator', () => {
     await page.campaign.detail.go('annotator');
     await page.mock.annotator()
     await Promise.all([
-      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/file\/-?\d+/g),
+      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/phase\/-?\d+\/file\/-?\d+/g),
       page.campaign.detail.resumeButton.click(),
     ])
   })
@@ -141,7 +131,7 @@ test.describe('Campaign creator', () => {
     await page.campaign.detail.go('creator');
     const modal = await page.campaign.detail.openProgressModal()
     await Promise.all([
-      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/edit\/?/g),
+      page.waitForURL(/.*\/annotation-campaign\/-?\d+\/phase\/-?\d+\/edit\/?/g),
       modal.manageButton.click(),
     ])
   })
@@ -155,13 +145,6 @@ test.describe('Campaign creator', () => {
       await expect(modal.downloadStatusButton).not.toBeVisible();
       await expect(modal.manageButton).toBeVisible();
       await modal.close()
-    })
-
-    await test.step('Archive', async () => {
-      await Promise.all([
-        page.waitForRequest(API_URL.campaign.archive),
-        page.campaign.detail.archiveButton.click(),
-      ])
     })
   })
 

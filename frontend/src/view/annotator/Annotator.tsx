@@ -27,7 +27,7 @@ import { Colormap } from "@/services/utils/color.ts";
 import { CampaignAPI } from "@/service/campaign";
 
 export const Annotator: React.FC = () => {
-  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
   const { isFetching, error, data: annotatorData } = AnnotatorAPI.useRetrieveQuery()
@@ -35,12 +35,13 @@ export const Annotator: React.FC = () => {
     if (!currentConfiguration) return "Greys";
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
     return colormap ?? "Greys";
-  }, [colormap, currentConfiguration]);
+  }, [ colormap, currentConfiguration ]);
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const audio = useAppSelector(state => state.annotator.audio)
   const duration = useFileDuration();
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && annotatorData?.is_assigned, [ campaign, currentPhase, annotatorData ])
 
   // Refs
   const localIsPaused = useRef<boolean>(true);
@@ -51,7 +52,7 @@ export const Annotator: React.FC = () => {
     localIsPaused.current = audio.isPaused;
   }, [ audio.isPaused ])
 
-  return <div className={ [styles.annotator, colormapClass].join(' ') }>
+  return <div className={ [ styles.annotator, colormapClass ].join(' ') }>
 
     { isFetching && <IonSpinner/> }
     { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
@@ -105,14 +106,14 @@ export const Annotator: React.FC = () => {
 
         <div
             className={ [ styles.blocContainer, currentPhase?.phase === 'Verification' ? styles.check : styles.create ].join(' ') }>
-          { annotatorData?.is_assigned && currentPhase?.phase === 'Annotation' && <Fragment>
+          { isEditable && currentPhase?.phase === 'Annotation' && <Fragment>
               <CurrentAnnotation/>
               <Labels/>
               <ConfidenceIndicator/>
               <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
-          { annotatorData?.is_assigned && currentPhase?.phase === 'Verification' && <Fragment>
+          { isEditable && currentPhase?.phase === 'Verification' && <Fragment>
               <CurrentAnnotation/>
               <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
