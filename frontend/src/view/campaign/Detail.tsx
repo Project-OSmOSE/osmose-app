@@ -8,6 +8,7 @@ import { Button, FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { addOutline, mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
+import { CreateVerificationButton } from "@/components/AnnotationCampaign/Phase";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
@@ -67,14 +68,10 @@ export const AnnotationCampaignDetail: React.FC = () => {
 
       {/* Verification phase */ }
       { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
-                                 className={ currentPhase?.id === verificationPhase.id ? styles.active : undefined }>
+                                   className={ currentPhase?.id === verificationPhase.id ? styles.active : undefined }>
           Verification
       </Link> }
-      { !verificationPhase && hasAdminAccess && <Button fill='clear' color='medium'>
-          Verification
-          <IonIcon icon={ addOutline } slot="end"/>
-      </Button> }
-
+      { !verificationPhase && hasAdminAccess && <CreateVerificationButton/> }
     </div>
 
     <Outlet/>

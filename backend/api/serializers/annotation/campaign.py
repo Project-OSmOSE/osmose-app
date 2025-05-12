@@ -58,16 +58,14 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
     def get_has_annotations(self, phase: AnnotationCampaignPhase):
         """Return a boolean: if the phase has annotations or not"""
         if phase.phase == Phase.VERIFICATION:
-            return (
-                phase.annotation_campaign.phases.filter(
-                    phase=Phase.ANNOTATION,
-                )
-                .first()
-                .results.exists()
-                or phase.results.exists()
+            annotation_phase = phase.annotation_campaign.phases.filter(
+                phase=Phase.ANNOTATION,
             )
-        else:
-            return phase.results.exists()
+            if annotation_phase.exists():
+                return (
+                    annotation_phase.first().results.exists() or phase.results.exists()
+                )
+        return phase.results.exists()
 
     def create(self, validated_data):
         creator = validated_data.pop("created_by_id")

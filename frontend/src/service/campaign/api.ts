@@ -90,7 +90,7 @@ const _CampaignAPI = createApi({
 const useRetrieveQuery = () => {
   const { campaignID, phaseID } = useParams<{ campaignID: string; phaseID: string }>();
   const { data, ...info } = _CampaignAPI.useRetrieveQuery(campaignID ?? skipToken)
-  const currentPhase = useMemo(() => data?.phases.find(p => p.id.toString() === phaseID), [ data ]);
+  const currentPhase = useMemo(() => data?.phases.find(p => p.id.toString() === phaseID), [ data, phaseID ]);
   return { data, ...info, currentPhase }
 }
 
