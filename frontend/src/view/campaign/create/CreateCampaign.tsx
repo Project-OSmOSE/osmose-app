@@ -17,12 +17,6 @@ type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreat
 export const CreateCampaign: React.FC = () => {
 
   const { data: allDatasets, isFetching: isFetchingDatasets, error: datasetsError } = DatasetAPI.useListQuery({});
-  // const { data: allLabelSets, isFetching: isFetchingLabelSets, error: labelSetsError } = LabelSetAPI.useListQuery();
-  // const {
-  //   data: allConfidenceSets,
-  //   isFetching: isFetchingConfidenceSets,
-  //   error: confidenceSetsError
-  // } = ConfidenceSetAPI.useListQuery();
   const [ createCampaign, {
     data: createdCampaign,
     isLoading: isSubmittingCampaign,
@@ -99,28 +93,6 @@ export const CreateCampaign: React.FC = () => {
   const isColormapEditable = useMemo(() => {
     return spectro_configs?.map((config) => config.colormap).includes("Greys");
   }, [ spectro_configs ]);
-
-  // Annotation
-  // const [ labelSet, setLabelSet ] = useState<LabelSet | undefined>();
-  // const [ labels_with_acoustic_features, setLabelsWithAcousticFeatures ] = useState<Array<string>>([]);
-  // const [ confidenceSet, setConfidenceSet ] = useState<ConfidenceIndicatorSet | undefined>();
-  // const [ allow_point_annotation, setAllowPointAnnotation ] = useState<boolean>(false);
-  // const onLabelSetChange = useCallback((value: number | string | undefined) => {
-  //   setLabelSet(allLabelSets?.find(l => l.id === value))
-  //   setErrors(prev => ({ ...prev, label_set: undefined }))
-  // }, [ allLabelSets ])
-  // const onLabelWithAcousticFeaturesChange = useCallback((selection: Array<string>) => {
-  //   setLabelsWithAcousticFeatures(selection)
-  //   setErrors(prev => ({ ...prev, labels_with_acoustic_features: undefined }))
-  // }, [])
-  // const onConfidenceSetChange = useCallback((value: number | string | undefined) => {
-  //   setConfidenceSet(allConfidenceSets?.find(c => c.id === value))
-  //   setErrors(prev => ({ ...prev, confidence_indicator_set: undefined }))
-  // }, [ allConfidenceSets ])
-  // const onAllowPointAnnotationChange = useCallback(() => {
-  //   setAllowPointAnnotation(prev => !prev)
-  //   setErrors(prev => ({ ...prev, allow_point_annotation: undefined }))
-  // }, [])
 
   // Submit
   const submit = useCallback(() => {
@@ -233,56 +205,6 @@ export const CreateCampaign: React.FC = () => {
                                         onChange={ onColormapInvertedDefaultChange }
                                         note={ isColormapEditable ? undefined : "Available only when at least one spectrogram configuration was generated in grey scale" }/> }
     </FormBloc>
-
-    {/*/!* Create mode: Annotations */ }
-    {/*{ usage === 'Create' && <FormBloc label="Annotation">*/}
-
-    {/*  { (isFetchingLabelSets || isFetchingConfidenceSets) && <IonSpinner/> }*/}
-
-    {/*  /!* Label set */ }
-    {/*  { labelSetsError &&*/}
-    {/*      <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }*/}
-    {/*  { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }*/}
-    {/*                            options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }*/}
-    {/*                            optionsContainer="alert"*/}
-    {/*                            disabled={ !allLabelSets?.length }*/}
-    {/*                            value={ labelSet?.id }*/}
-    {/*                            onValueSelected={ onLabelSetChange }*/}
-    {/*                            required={ true }>*/}
-    {/*    { labelSet && (<LabelSetDisplay set={ labelSet }*/}
-    {/*                                    labelsWithAcousticFeatures={ labels_with_acoustic_features }*/}
-    {/*                                    setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }*/}
-
-    {/*    { allLabelSets.length === 0 && <IonNote>You need to create a label set to use it in your campaign</IonNote> }*/}
-    {/*  </Select> }*/}
-
-    {/*  /!* Confidence set */ }
-    {/*  { confidenceSetsError &&*/}
-    {/*      <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }*/}
-    {/*      </WarningText> }*/}
-    {/*  { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"*/}
-    {/*                                 error={ errors.confidence_indicator_set }*/}
-    {/*                                 options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }*/}
-    {/*                                 optionsContainer="alert"*/}
-    {/*                                 disabled={ !allConfidenceSets?.length }*/}
-    {/*                                 value={ confidenceSet?.id }*/}
-    {/*                                 onValueSelected={ onConfidenceSetChange }>*/}
-    {/*    { confidenceSet && (*/}
-    {/*      <Fragment>*/}
-    {/*        { confidenceSet.desc }*/}
-    {/*        { confidenceSet.confidence_indicators.map(c => (*/}
-    {/*          <p key={ c.level }><b>{ c.level }:</b> { c.label }</p>*/}
-    {/*        )) }*/}
-    {/*      </Fragment>)*/}
-    {/*    }*/}
-    {/*    { allConfidenceSets.length === 0 &&*/}
-    {/*        <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }*/}
-    {/*  </Select> }*/}
-
-    {/*    <Input type="checkbox" label='Allow annotations of type "Point"'*/}
-    {/*           checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>*/}
-
-    {/*</FormBloc> }*/}
 
     <div className={ styles.buttons }>
       { isSubmittingCampaign && <IonSpinner/> }

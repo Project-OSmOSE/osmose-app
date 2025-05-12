@@ -194,6 +194,8 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
         pass
 
     def update(self, instance: AnnotationCampaign, validated_data):
+        if "label_set" in validated_data:
+            instance.label_set = validated_data.get("label_set")
         if "labels_with_acoustic_features" in validated_data:
             label_set: LabelSet = instance.label_set or validated_data.get("label_set")
             for label in validated_data["labels_with_acoustic_features"]:
@@ -205,8 +207,6 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
             instance.labels_with_acoustic_features.set(
                 validated_data["labels_with_acoustic_features"]
             )
-        if "label_set" in validated_data:
-            instance.label_set = validated_data.get("label_set")
         if "confidence_indicator_set" in validated_data:
             instance.confidence_indicator_set = validated_data.get(
                 "confidence_indicator_set"

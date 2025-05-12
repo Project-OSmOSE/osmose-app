@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { AnnotationCampaign, Phase } from '@/service/campaign';
-import { ID } from '@/service/type';
+import { ID, Optionable } from '@/service/type';
 import { encodeQueryParams } from '@/service/function';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { useParams } from "react-router-dom";
@@ -60,7 +60,7 @@ const _CampaignAPI = createApi({
       },
       invalidatesTags: [ 'AnnotationCampaign' ]
     }),
-    patch: builder.mutation<AnnotationCampaign, Pick<AnnotationCampaign, 'labels_with_acoustic_features' | 'label_set' | 'confidence_indicator_set' | 'allow_point_annotation'> & {
+    patch: builder.mutation<AnnotationCampaign, Optionable<Pick<AnnotationCampaign, 'labels_with_acoustic_features' | 'label_set' | 'confidence_indicator_set' | 'allow_point_annotation'>> & {
       id: ID
     }>({
       query: (data) => ({

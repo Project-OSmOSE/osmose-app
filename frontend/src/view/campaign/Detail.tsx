@@ -4,11 +4,11 @@ import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getDisplayName } from "@/service/user";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { Button, FadedText, Link, WarningText } from "@/components/ui";
+import { FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
-import { addOutline, mailOutline } from "ionicons/icons";
+import { mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
-import { CreateVerificationButton } from "@/components/AnnotationCampaign/Phase";
+import { CreateAnnotationPhaseButton, CreateVerificationPhaseButton } from "@/components/AnnotationCampaign/Phase";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
@@ -61,17 +61,14 @@ export const AnnotationCampaignDetail: React.FC = () => {
                                  className={ currentPhase?.id === annotationPhase.id ? styles.active : undefined }>
           Annotation
       </Link> }
-      { !annotationPhase && hasAdminAccess && <Button fill='clear' color='medium'>
-          Annotation
-          <IonIcon icon={ addOutline } slot="end"/>
-      </Button> }
+      { !annotationPhase && hasAdminAccess && <CreateAnnotationPhaseButton/> }
 
       {/* Verification phase */ }
       { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
                                    className={ currentPhase?.id === verificationPhase.id ? styles.active : undefined }>
           Verification
       </Link> }
-      { !verificationPhase && hasAdminAccess && <CreateVerificationButton/> }
+      { !verificationPhase && hasAdminAccess && <CreateVerificationPhaseButton/> }
     </div>
 
     <Outlet/>

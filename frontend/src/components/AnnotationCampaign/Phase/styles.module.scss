@@ -10,6 +10,14 @@
     }
   }
 
+  .content {
+    overflow-y: auto;
+    display: grid;
+    gap: 1rem;
+    height: 100%;
+    padding-right: 1rem;
+  }
+
   .table {
     overflow: auto;
     grid-template-columns: 2fr 1fr;
@@ -84,6 +92,7 @@
     display: grid;
     grid-auto-flow: column;
     gap: 0.5rem;
+    justify-content: space-between;
   }
 
   @media (max-width: 800px) {

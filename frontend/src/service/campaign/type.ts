@@ -61,24 +61,6 @@ export type BaseAnnotationCampaign = {
 /**
  * Read interface
  */
-export type OldAnnotationCampaign = BaseAnnotationCampaign & {
-  id: number;
-  created_at: string; // Date
-  label_set: number; // pk
-  labels_with_acoustic_features: Array<string>; // Labels
-  usage: AnnotationCampaignUsage;
-  owner: User;
-  confidence_indicator_set: number | null; // pk
-  archive: AnnotationCampaignArchive | null; // read_only
-
-  files_count: number; // read_only
-  annotations_count: number; // read_only
-  my_progress: number; // read_only
-  my_total: number; // read_only
-  progress: number; // read_only
-  total: number; // read_only
-}
-
 /**
  * Write interface for 'Create annotations' usage
  */
