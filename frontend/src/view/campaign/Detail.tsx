@@ -1,12 +1,12 @@
-import React, { Fragment, useCallback } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import { Outlet } from "react-router-dom";
-import { CampaignAPI } from "@/service/campaign";
+import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getDisplayName } from "@/service/user";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { FadedText, Link, WarningText } from "@/components/ui";
+import { Button, FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
-import { mailOutline } from "ionicons/icons";
+import { addOutline, mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
 
 export const AnnotationCampaignDetail: React.FC = () => {
@@ -16,8 +16,12 @@ export const AnnotationCampaignDetail: React.FC = () => {
     error: errorLoadingCampaign,
     currentPhase
   } = CampaignAPI.useRetrieveQuery();
+  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
 
   const toast = useToast();
+
+  const annotationPhase = useMemo(() => campaign?.phases.find(p => p.phase === 'Annotation'), [ campaign ])
+  const verificationPhase = useMemo(() => campaign?.phases.find(p => p.phase === 'Verification'), [ campaign ])
 
   const copyOwnerMail = useCallback(async () => {
     if (!campaign) return;
@@ -51,11 +55,26 @@ export const AnnotationCampaignDetail: React.FC = () => {
         Information
       </Link>
 
-      { campaign.phases.map(p => <Link key={ p.id }
-                                       appPath={ `/annotation-campaign/${ campaign.id }/phase/${ p.id }` }
-                                       className={ currentPhase?.id === p.id ? styles.active : undefined }>
-        { p.phase }
-      </Link>) }
+      {/* Annotation phase */ }
+      { annotationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ annotationPhase.id }` }
+                                 className={ currentPhase?.id === annotationPhase.id ? styles.active : undefined }>
+          Annotation
+      </Link> }
+      { !annotationPhase && hasAdminAccess && <Button fill='clear' color='medium'>
+          Annotation
+          <IonIcon icon={ addOutline } slot="end"/>
+      </Button> }
+
+      {/* Verification phase */ }
+      { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
+                                 className={ currentPhase?.id === verificationPhase.id ? styles.active : undefined }>
+          Verification
+      </Link> }
+      { !verificationPhase && hasAdminAccess && <Button fill='clear' color='medium'>
+          Verification
+          <IonIcon icon={ addOutline } slot="end"/>
+      </Button> }
+
     </div>
 
     <Outlet/>

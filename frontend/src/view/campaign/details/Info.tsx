@@ -66,19 +66,22 @@ export const AnnotationCampaignDetailInfo: React.FC = () => {
     </div>
 
     {/* ANNOTATION */ }
-    <div className={ styles.bloc }>
-      { (isLoadingLabelSet || isLoadingConfidenceSet) && <IonSpinner/> }
-      { !isLoadingLabelSet && <div>
-          <FadedText>Label set</FadedText>
-        { !labelSet && <p>No label set</p> }{ labelSet && <p>{ labelSet.name }</p> }
-      </div> }
-      { labelSet && <LabelSetModalButton/> }
-      { !isLoadingConfidenceSet && <div>
-          <FadedText>Confidence indicator set</FadedText>
-        { !confidenceSet && <p>No confidence</p> }{ confidenceSet && <p>{ confidenceSet.name }</p> }
-      </div> }
-      <div><FadedText>Annotation types</FadedText><p>Weak, box{ campaign.allow_point_annotation ? ', point' : '' }</p>
-      </div>
-    </div>
+    { campaign?.phases.length > 0 && <Fragment>
+        <div className={ styles.bloc }>
+          { (isLoadingLabelSet || isLoadingConfidenceSet) && <IonSpinner/> }
+          { !isLoadingLabelSet && <div>
+              <FadedText>Label set</FadedText>
+            { !labelSet && <p>No label set</p> }{ labelSet && <p>{ labelSet.name }</p> }
+          </div> }
+          { labelSet && <LabelSetModalButton/> }
+          { !isLoadingConfidenceSet && <div>
+              <FadedText>Confidence indicator set</FadedText>
+            { !confidenceSet && <p>No confidence</p> }{ confidenceSet && <p>{ confidenceSet.name }</p> }
+          </div> }
+            <div><FadedText>Annotation types</FadedText><p>Weak,
+                box{ campaign.allow_point_annotation ? ', point' : '' }</p>
+            </div>
+        </div>
+    </Fragment> }
   </div>
 }

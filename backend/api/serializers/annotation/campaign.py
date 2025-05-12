@@ -15,6 +15,7 @@ from backend.api.models import (
     AnnotationCampaignPhase,
     Phase,
 )
+from backend.aplose.models import User
 from backend.aplose.serializers import UserSerializer
 from backend.aplose.serializers.user import UserDisplayNameSerializer
 from backend.utils.serializers import EnumField, SlugRelatedGetOrCreateField
@@ -33,19 +34,26 @@ class AnnotationCampaignArchiveSerializer(serializers.ModelSerializer):
 class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
     """Serializer for annotation campaign phase"""
 
-    phase = EnumField(Phase, read_only=True)
+    phase = EnumField(Phase)
+    annotation_campaign = serializers.PrimaryKeyRelatedField(
+        write_only=True, queryset=AnnotationCampaign.objects.all()
+    )
+
     created_by = UserDisplayNameSerializer(read_only=True)
+    created_by_id = serializers.PrimaryKeyRelatedField(
+        write_only=True, queryset=User.objects.all()
+    )
     ended_by = UserDisplayNameSerializer(read_only=True)
 
-    global_progress = serializers.IntegerField(read_only=True)
-    global_total = serializers.IntegerField(read_only=True)
-    user_progress = serializers.IntegerField(read_only=True)
-    user_total = serializers.IntegerField(read_only=True)
+    global_progress = serializers.IntegerField(read_only=True, default=0)
+    global_total = serializers.IntegerField(read_only=True, default=0)
+    user_progress = serializers.IntegerField(read_only=True, default=0)
+    user_total = serializers.IntegerField(read_only=True, default=0)
     has_annotations = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = AnnotationCampaignPhase
-        exclude = ("annotation_campaign",)
+        fields = "__all__"
 
     def get_has_annotations(self, phase: AnnotationCampaignPhase):
         """Return a boolean: if the phase has annotations or not"""
@@ -60,6 +68,11 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
             )
         else:
             return phase.results.exists()
+
+    def create(self, validated_data):
+        creator = validated_data.pop("created_by_id")
+        validated_data["created_by"] = creator
+        return super().create(validated_data)
 
 
 class AnnotationCampaignSerializer(serializers.ModelSerializer):

@@ -17,9 +17,10 @@ from django.db.models import (
 )
 from django.db.models.functions import Lower, Concat, Extract, Coalesce
 from django.http import HttpResponse
-from rest_framework import viewsets, filters, permissions
+from rest_framework import viewsets, filters, permissions, mixins, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
+from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationResult,
@@ -29,6 +30,7 @@ from backend.api.models import (
     AnnotationFileRange,
     DatasetFile,
     AnnotationCampaignPhase,
+    AnnotationCampaign,
 )
 from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers.annotation.campaign import (
@@ -88,8 +90,26 @@ class CampaignPhaseAccessFilter(filters.BaseFilterBackend):
         )
 
 
+class CampaignPhaseCreatePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            campaign_id = request.data.get("annotation_campaign", None)
+            campaign: QuerySet[AnnotationCampaign] = AnnotationCampaign.objects.filter(
+                id=campaign_id
+            )
+            if campaign.exists():
+                campaign: AnnotationCampaign = campaign.first()
+                if campaign.archive is not None:
+                    return False
+                if request.user.is_staff or request.user == campaign.owner:
+                    return True
+                return False
+        return super().has_permission(request, view)
+
+
 class AnnotationCampaignPhaseViewSet(
     viewsets.ReadOnlyModelViewSet,
+    mixins.CreateModelMixin,
 ):
     """Model viewset for Annotation campaign phase"""
 
@@ -111,7 +131,22 @@ class AnnotationCampaignPhaseViewSet(
     )
     serializer_class = AnnotationCampaignPhaseSerializer
     filter_backends = (ModelFilter, CampaignPhaseAccessFilter)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, CampaignPhaseCreatePermission)
+
+    def create(self, request, *args, **kwargs):
+        """Override default create method to automatically fill the created_by field"""
+        serializer = self.get_serializer(
+            data={
+                **request.data,
+                "created_by_id": request.user.id,
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     @staticmethod
     def get_queryset_for_user(user: User):
