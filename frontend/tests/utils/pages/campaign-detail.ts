@@ -73,7 +73,7 @@ export class CampaignDetailPage {
   }
 
   async openLabelModal(): Promise<LabelModal> {
-    const modal = await this.ui.openModal({ name: 'Detailed label set' })
+    const modal = await this.ui.openModal({ name: 'Label set' })
     const ui = this.ui;
     return Object.assign(modal, {
       getCheckbox(label: string) {

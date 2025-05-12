@@ -58,10 +58,7 @@ export class Mock {
 
   public async campaigns(empty: boolean = false) {
     const json = empty ? [] : [ CAMPAIGN ]
-    await this.page.route(API_URL.campaign.list, (route, request) => {
-      console.log('list', request.url(), API_URL.campaign.list)
-      return route.fulfill({ status: 200, json })
-    })
+    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json }))
   }
 
   public async campaignCreate(withErrors: boolean = false) {
@@ -82,7 +79,6 @@ export class Mock {
       }
     }
     await this.page.route(API_URL.campaign.create, (route, request) => {
-      console.log('create', request.method(), request.url(), API_URL.campaign.create)
       if (request.method() === 'POST') route.fulfill({ status, json })
       else route.continue()
     })
@@ -107,10 +103,7 @@ export class Mock {
       json.confidence_indicator_set = null;
     }
     if (allowPoint) json.allow_point_annotation = true;
-    await this.page.route(API_URL.campaign.detail, (route, request) => {
-      console.log('detail', request.url(), API_URL.campaign.detail)
-      route.fulfill({ status: 200, json })
-    })
+    await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
   }
 
   public async spectrograms(empty: boolean = false) {
@@ -173,7 +166,7 @@ export class Mock {
       count: results.length,
       resume: results.find(r => r.is_submitted === false)?.id
     }
-    await this.page.route(/\/api\/annotation-file-range\/campaign\/-?\d\/files/g, route => route.fulfill({
+    await this.page.route(/\/api\/annotation-file-range\/phase\/-?\d\/files/g, route => route.fulfill({
       status: 200,
       json
     }))

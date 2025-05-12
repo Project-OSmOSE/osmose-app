@@ -66,6 +66,7 @@ export const CreateAnnotationPhaseButton: React.FC = () => {
     navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase.id }`)
   }, [ campaign, labelSet, confidenceSet, labels_with_acoustic_features, allow_point_annotation ])
 
+  if (campaign?.archive) return <Fragment/>
   return <Fragment>
     <Button fill='clear' color='medium' onClick={ modal.toggle }>
       Annotation
@@ -168,6 +169,7 @@ export const CreateVerificationPhaseButton: React.FC = () => {
     navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations`)
   }, [ campaign ])
 
+  if (campaign?.archive) return <Fragment/>
   return <Fragment>
     <Button fill='clear' color='medium' onClick={ modal.toggle }>
       Verification

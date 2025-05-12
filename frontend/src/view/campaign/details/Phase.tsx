@@ -15,6 +15,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
 import { StatusFilter } from "@/view/campaign/details/filters/StatusFilter.tsx";
 import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
+import { ImportAnnotationsButton } from "@/components/AnnotationCampaign/Phase/ImportAnnotationsButton.tsx";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
@@ -83,10 +84,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                      <ProgressModalButton size='small'/>
                    </div>
 
-                   <Link fill='outline' color='medium' size='small'
-                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/import-annotations` }>
-                     Import annotations
-                   </Link>
+                   <ImportAnnotationsButton/>
 
                    { !(error || campaign?.archive) && <Button color="primary" fill='outline' size='small'
                                                               disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
@@ -101,9 +99,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
       { currentPhase.phase === 'Verification' && !currentPhase.has_annotations &&
           <WarningText>
               Your campaign doesn't have any annotations to check
-              <Link appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase.id }/import-annotations` }>
-                  Import annotations
-              </Link>
+              <ImportAnnotationsButton/>
           </WarningText> }
 
       <Table columns={ currentPhase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
@@ -133,13 +129,13 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
         </TableHead>
         <TableDivider/>
 
-        { files?.results.map(file => <TaskItem key={ file.id }
+        { files?.results?.map(file => <TaskItem key={ file.id }
                                                file={ file }
                                                phase={ currentPhase }
                                                campaign={ campaign }/>) }
       </Table>
 
-      { files && files.results.length > 0 &&
+      { files?.results && files.results.length > 0 &&
           <Pagination currentPage={ page } totalPages={ files.pageCount } setCurrentPage={ setPage }/> }
 
       { isFetching && <IonSpinner/> }
