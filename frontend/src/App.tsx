@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
 
           <Route path='annotation-campaign' element={ <AploseSkeleton/> }>
               <Route index element={ <AnnotationCampaignList/> }/>
-              <Route path='create' element={ <CreateCampaign/> }/>
+              <Route path='new' element={ <CreateCampaign/> }/>
 
               <Route path=':campaignID'>
                   <Route element={ <AnnotationCampaignDetail/> }>

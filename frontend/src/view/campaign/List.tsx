@@ -81,7 +81,7 @@ export const AnnotationCampaignList: React.FC = () => {
       <ActionBar search={ search }
                  searchPlaceholder="Search campaign name"
                  onSearchChange={ setSearch }
-                 actionButton={ <Link color='primary' fill='outline' appPath='/annotation-campaign/create'>
+                 actionButton={ <Link color='primary' fill='outline' appPath='/annotation-campaign/new'>
                    <IonIcon icon={ addOutline } slot="start"/>
                    New annotation campaign
                  </Link> }>
