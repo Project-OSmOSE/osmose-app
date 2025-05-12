@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { IonNote, IonSpinner } from "@ionic/react";
 import { DatasetAPI } from '@/service/dataset';
 import { getErrorMessage } from '@/service/function.ts';
@@ -13,6 +13,10 @@ export const DatasetList: React.FC = () => {
 
   // Services
   const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.useListQuery({})
+  const sortedDatasets = useMemo(() =>
+      [ ...(datasets ?? []) ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    (datasets)
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ _, { isLoading: isImportInProgress } ] = DatasetAPI.useImportMutation()
@@ -27,8 +31,8 @@ export const DatasetList: React.FC = () => {
     { (isLoading || isImportInProgress) && <IonSpinner/> }
     { datasetsError && <WarningText>{ getErrorMessage(datasetsError) }</WarningText> }
 
-    { datasets && datasets.length === 0 && <IonNote color='medium'>No datasets</IonNote> }
-    { datasets && datasets.length > 0 && <Table columns={ 9 } className={ styles.table }>
+    { sortedDatasets && sortedDatasets.length === 0 && <IonNote color='medium'>No datasets</IonNote> }
+    { sortedDatasets && sortedDatasets.length > 0 && <Table columns={ 9 } className={ styles.table }>
         <TableHead topSticky isFirstColumn={ true }>Name</TableHead>
         <TableHead topSticky>Created at</TableHead>
         <TableHead topSticky>Type</TableHead>
@@ -40,7 +44,7 @@ export const DatasetList: React.FC = () => {
         <TableHead topSticky>Spectrogram</TableHead>
         <TableDivider/>
 
-      { datasets.map(d => <Fragment key={ d.id }>
+      { sortedDatasets.map(d => <Fragment key={ d.id }>
         <TableContent isFirstColumn={ true }>{ d.name }</TableContent>
         <TableContent>{ new Date(d.created_at).toLocaleDateString() }</TableContent>
         <TableContent>{ d.type }</TableContent>
