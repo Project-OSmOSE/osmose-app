@@ -70,9 +70,9 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
     def get_fields(self):
         fields = super().get_fields()
-        campaign: AnnotationCampaign = self.context["campaign"]
+        phase: AnnotationCampaignPhase = self.context["phase"]
 
-        fields["dataset"].queryset = campaign.datasets
+        fields["dataset"].queryset = phase.annotation_campaign.datasets
 
         return fields
 
@@ -186,25 +186,27 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         is_box: bool = validated_data["is_box"]
 
         files: QuerySet[DatasetFile] = validated_data["files"]
-        campaign: AnnotationCampaign = self.context["campaign"]
+        phase: AnnotationCampaignPhase = self.context["phase"]
         detector, _ = Detector.objects.get_or_create(name=validated_data["detector"])
         detector_config, _ = DetectorConfiguration.objects.get_or_create(
             detector=detector,
             configuration=validated_data["detector_config"],
         )
         label, _ = Label.objects.get_or_create(name=validated_data["label"])
-        if not campaign.label_set.labels.filter(id=label.id).exists():
-            campaign.label_set.labels.add(label)
+        if not phase.annotation_campaign.label_set.labels.filter(id=label.id).exists():
+            phase.annotation_campaign.label_set.labels.add(label)
         confidence_indicator = None
         if (
             "confidence_indicator" in validated_data
             and validated_data["confidence_indicator"] is not None
         ):
-            if campaign.confidence_indicator_set is None:
-                campaign.confidence_indicator_set = self.get_confidence_set(
-                    name=f"{campaign.name} confidence set"
+            if phase.annotation_campaign.confidence_indicator_set is None:
+                phase.annotation_campaign.confidence_indicator_set = (
+                    self.get_confidence_set(
+                        name=f"{phase.annotation_campaign.name} confidence set"
+                    )
                 )
-                campaign.save()
+                phase.annotation_campaign.save()
             confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
                 label=validated_data["confidence_indicator"].get("label"),
                 level=validated_data["confidence_indicator"].get("level"),
@@ -212,13 +214,13 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             is_default = validated_data["confidence_indicator"].pop("is_default", None)
             ConfidenceIndicatorSetIndicator.objects.get_or_create(
                 confidence_indicator=confidence_indicator,
-                confidence_indicator_set=campaign.confidence_indicator_set,
+                confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
                 is_default=is_default or False,
             )
 
         if not is_box and files.count() == 1:
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
@@ -246,7 +248,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             )
 
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
