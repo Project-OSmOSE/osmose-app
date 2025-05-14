@@ -21,13 +21,14 @@ import { Comment } from "@/view/annotator/tools/bloc/Comment.tsx";
 import { ConfidenceIndicator } from "@/view/annotator/tools/bloc/ConfidenceIndicator.tsx";
 import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
-import { useCurrentConfiguration, useFileDuration } from '@/service/annotator/spectrogram';
+import { useCurrentConfiguration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
 import { Colormap } from "@/services/utils/color.ts";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 export const Annotator: React.FC = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
   const { isFetching, error, data: annotatorData } = AnnotatorAPI.useRetrieveQuery()
@@ -40,7 +41,7 @@ export const Annotator: React.FC = () => {
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const audio = useAppSelector(state => state.annotator.audio)
-  const duration = useFileDuration();
+  const file = useAnnotatorFile()
   const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && annotatorData?.is_assigned, [ campaign, currentPhase, annotatorData ])
 
   // Refs
@@ -59,7 +60,7 @@ export const Annotator: React.FC = () => {
 
     <AudioPlayer ref={ audioPlayerRef }/>
 
-    { !isFetching && annotatorData && <Fragment>
+    { !isFetching && file && annotatorData && <Fragment>
         <div className={ styles.spectrogramContainer }>
             <div className={ styles.spectrogramData }>
                 <div className={ styles.spectrogramInfo }>
@@ -73,7 +74,7 @@ export const Annotator: React.FC = () => {
                   { pointerPosition && <Fragment>
                       <FadedText>Pointer</FadedText>
                       <p>{ pointerPosition.frequency.toFixed(2) }Hz
-                          / { formatTime(pointerPosition.time, duration < 60) }</p>
+                          / { formatTime(pointerPosition.time, file.duration < 60) }</p>
 
                   </Fragment> }
                 </div>
@@ -100,7 +101,7 @@ export const Annotator: React.FC = () => {
 
                 <NavigationButtons/>
 
-                <p>{ formatTime(audio.time, duration < 60) }&nbsp;/&nbsp;{ formatTime(duration) }</p>
+                <p>{ formatTime(audio.time, file.duration < 60) }&nbsp;/&nbsp;{ formatTime(file.duration) }</p>
             </div>
         </div>
 

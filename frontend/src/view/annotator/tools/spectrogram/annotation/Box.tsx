@@ -1,6 +1,6 @@
 import React, { Fragment, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { BoxResult } from '@/service/campaign/result';
+import { BoxResult } from '@/service/types';
 import { updateFocusResultBounds } from '@/service/annotator';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
@@ -8,8 +8,8 @@ import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configu
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
-import { LabelSetAPI } from "@/service/campaign/label-set";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -21,10 +21,10 @@ export const Box: React.FC<RegionProps> = ({
                                              annotation,
                                              audioPlayer
                                            }) => {
-  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { currentPhase } = useRetrieveCurrentCampaign()
   // Data
-  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
-  const { focusedResultID } = useAppSelector(state => state.annotator);
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
+    const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
   // Scales
@@ -83,11 +83,11 @@ export const Box: React.FC<RegionProps> = ({
 
   // Memo
   const colorClassName: string = useMemo(() => {
-    if (!label_set) return '';
+    if (!labelSet) return '';
     let label = annotation.label
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
-    return `ion-color-${ label_set.labels.indexOf(label) % 10 }`
-  }, [ label_set, annotation ]);
+    return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
+  }, [ labelSet, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {

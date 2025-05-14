@@ -1,4 +1,4 @@
-import { AnnotationCampaign } from "@/service/campaign";
+import { AnnotationCampaign } from '@/service/types';
 import { useMemo } from "react";
 import { Color } from "@ionic/core";
 

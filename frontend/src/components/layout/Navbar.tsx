@@ -2,18 +2,18 @@ import React, { Fragment, useCallback, useState } from 'react';
 import styles from './layout.module.scss';
 import logo from '/images/ode_logo_192x192.png';
 import { IonButton, IonIcon } from '@ionic/react';
-import { logout } from '@/service/auth';
-import { useAppDispatch } from '@/service/app.ts';
-import { UserAPI } from '@/service/user';
+import { useAppSelector } from '@/service/app.ts';
 import { DocumentationButton } from "@/components/ui";
 import { closeOutline, menuOutline } from "ionicons/icons";
 import { Link } from "@/components/ui/Link.tsx";
+import { selectCurrentUser } from "@/service/api/user.ts";
+import { AuthAPI } from "@/service/api/auth.ts";
 
 export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
+  const [ logout ] = AuthAPI.endpoints.logout.useMutation()
 
-  const { data: currentUser } = UserAPI.useGetCurrentQuery();
-  const dispatch = useAppDispatch();
+  const currentUser = useAppSelector(selectCurrentUser)
 
   const toggleOpening = useCallback(() => {
     setIsOpen(previous => !previous);
@@ -59,10 +59,7 @@ export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
 
         <IonButton className={ styles.logoutButton }
                    color={ "medium" }
-                   onClick={ () => {
-                     dispatch(logout())
-                     dispatch(UserAPI.util.invalidateTags([ { type: 'User', id: 'CURRENT' } ]))
-                   } }>
+                   onClick={ () => logout() }>
           Logout
         </IonButton>
       </div>

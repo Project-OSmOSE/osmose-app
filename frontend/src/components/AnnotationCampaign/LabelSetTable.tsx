@@ -1,5 +1,5 @@
 import React, { FormEvent, Fragment } from "react";
-import { LabelSet } from "@/service/campaign/label-set";
+import { LabelSet } from "@/service/types";
 import { Table, TableContent, TableDivider, TableHead } from "@/components/ui";
 import { IonCheckbox } from "@ionic/react";
 

@@ -1,8 +1,5 @@
 import React, { Fragment, useCallback, useState } from "react";
-import { CampaignAPI, WriteCheckAnnotationCampaign, WriteCreateAnnotationCampaign } from "@/service/campaign";
-import { CampaignPhaseAPI } from "@/service/campaign/phase";
 import { useModal } from "@/service/ui/modal.ts";
-import { useAppDispatch } from "@/service/app.ts";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal, ModalHeader, WarningText } from "@/components/ui";
 import { IonIcon, IonNote, IonSpinner } from "@ionic/react";
@@ -10,23 +7,36 @@ import { addOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
 import styles from "./styles.module.scss";
 import { getErrorMessage } from "@/service/function.ts";
-import { ConfidenceIndicatorSet, ConfidenceSetAPI } from "@/service/campaign/confidence-set";
-import { LabelSet, LabelSetAPI } from "@/service/campaign/label-set";
 import { FormBloc, Input, Select } from "@/components/form";
 import { LabelSetDisplay } from "@/components/AnnotationCampaign";
+import { CampaignAPI, PatchAnnotationCampaign, useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
+import { ConfidenceIndicatorSet, LabelSet } from "@/service/types";
+import { LabelSetAPI } from "@/service/api/label-set.ts";
+import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
 
-type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
+type Errors = { [key in keyof PatchAnnotationCampaign]?: string }
 
 export const CreateAnnotationPhaseButton: React.FC = () => {
-  const { data: campaign, isFetching: isFetchingCampaign, refetch } = CampaignAPI.useRetrieveQuery()
-  const [ postPhase, { isLoading: isPostingPhase, error: phaseError } ] = CampaignPhaseAPI.useCreateMutation()
-  const [ patchCampaign, { isLoading: isUpdatingCampaign, error: campaignError } ] = CampaignAPI.usePatchMutation()
-  const { data: allLabelSets, isFetching: isFetchingLabelSets, error: labelSetsError } = LabelSetAPI.useListQuery();
+  const { campaign, isFetching: isFetchingCampaign, refetch } = useRetrieveCurrentCampaign()
+  const [ postPhase, {
+    isLoading: isPostingPhase,
+    error: phaseError
+  } ] = CampaignPhaseAPI.endpoints.postCampaignPhase.useMutation()
+  const [ patchCampaign, {
+    isLoading: isUpdatingCampaign,
+    error: campaignError
+  } ] = CampaignAPI.endpoints.patchCampaign.useMutation()
+  const {
+    data: allLabelSets,
+    isFetching: isFetchingLabelSets,
+    error: labelSetsError
+  } = LabelSetAPI.endpoints.listLabelSet.useQuery();
   const {
     data: allConfidenceSets,
     isFetching: isFetchingConfidenceSets,
     error: confidenceSetsError
-  } = ConfidenceSetAPI.useListQuery();
+  } = ConfidenceSetAPI.endpoints.listConfidenceSet.useQuery();
   const modal = useModal();
   const navigate = useNavigate()
 
@@ -149,10 +159,9 @@ export const CreateAnnotationPhaseButton: React.FC = () => {
 }
 
 export const CreateVerificationPhaseButton: React.FC = () => {
-  const { data: campaign, isFetching: isFetchingCampaign, refetch } = CampaignAPI.useRetrieveQuery()
-  const [ post, { isLoading: isPostingPhase, error } ] = CampaignPhaseAPI.useCreateMutation()
+  const { campaign, isFetching: isFetchingCampaign, refetch } = useRetrieveCurrentCampaign()
+  const [ post, { isLoading: isPostingPhase, error } ] = CampaignPhaseAPI.endpoints.postCampaignPhase.useMutation()
   const modal = useModal();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate()
 
   const create = useCallback(async () => {
@@ -165,7 +174,6 @@ export const CreateVerificationPhaseButton: React.FC = () => {
   const createAndImport = useCallback(async () => {
     if (!campaign) return;
     const phase = await post({ campaign, phase: 'Verification' }).unwrap()
-    dispatch(CampaignAPI.util?.invalidateTags([ { type: 'AnnotationCampaign', id: campaign.id } ]));
     navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations`)
   }, [ campaign ])
 

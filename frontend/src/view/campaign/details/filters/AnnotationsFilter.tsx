@@ -6,10 +6,10 @@ import { setFileFilters } from "@/service/ui";
 import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui";
 import { Select, Switch } from "@/components/form";
-import { LabelSetAPI } from "@/service/campaign/label-set";
-import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
-import { DetectorAPI } from "@/service/campaign/detector";
 import styles from './styles.module.scss'
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useGetConfidenceSetForCurrentCampaign } from "@/service/api/confidence-set.ts";
+import { useListDetectorForCurrentCampaign } from "@/service/api/detector.ts";
 
 const BOOLEAN_OPTIONS = [ 'Unset', 'With', 'Without' ]
 type BooleanOption = typeof BOOLEAN_OPTIONS[number];
@@ -18,9 +18,9 @@ export const AnnotationsFilter: React.FC<{
   onUpdate: () => void
 }> = ({ onUpdate }) => {
   const { fileFilters: filters } = useAppSelector(state => state.ui);
-  const { data: labelSet } = LabelSetAPI.useRetrieveQuery();
-  const { data: confidenceSet } = ConfidenceSetAPI.useRetrieveQuery();
-  const { data: detectors } = DetectorAPI.useListForCampaignQuery();
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
+  const { confidenceSet } = useGetConfidenceSetForCurrentCampaign();
+  const { detectors } = useListDetectorForCurrentCampaign();
   const dispatch = useAppDispatch();
 
   const hasAnnotationsFilter = useMemo(() => filters.withUserAnnotations !== undefined, [ filters ]);

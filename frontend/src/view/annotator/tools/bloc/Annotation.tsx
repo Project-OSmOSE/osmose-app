@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from "react";
-import { AnnotationResult } from "@/service/campaign/result";
+import { AnnotationResult } from "@/service/types";
 import styles from "@/view/annotator/tools/bloc/bloc.module.scss";
 import { IoAnalyticsOutline, IoChevronForwardOutline, IoPricetagOutline, IoTimeOutline } from "react-icons/io5";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";

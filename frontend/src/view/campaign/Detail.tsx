@@ -1,23 +1,22 @@
 import React, { Fragment, useCallback, useMemo } from "react";
 import { Outlet } from "react-router-dom";
-import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
-import { getDisplayName } from "@/service/user";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
 import { CreateAnnotationPhaseButton, CreateVerificationPhaseButton } from "@/components/AnnotationCampaign/Phase";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
-    data: campaign,
+    campaign,
     isLoading: isLoadingCampaign,
     error: errorLoadingCampaign,
-    currentPhase
-  } = CampaignAPI.useRetrieveQuery();
-  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
+    currentPhase,
+    hasAdminAccess
+  } = useRetrieveCurrentCampaign();
 
   const toast = useToast();
 
@@ -27,7 +26,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
   const copyOwnerMail = useCallback(async () => {
     if (!campaign) return;
     await navigator.clipboard.writeText(campaign.owner.email)
-    toast.presentSuccess(`Successfully copy ${ getDisplayName(campaign.owner) } email address into the clipboard`)
+    toast.presentSuccess(`Successfully copy ${ campaign.owner.display_name } email address into the clipboard`)
   }, [ campaign?.owner.email ])
 
   if (isLoadingCampaign) return <IonSpinner/>
@@ -39,7 +38,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
     <div className={ styles.header }>
       <h2>{ campaign.name }</h2>
       <FadedText>
-        Created on { new Date(campaign.created_at).toLocaleDateString() } by { getDisplayName(campaign.owner) }
+        Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner.display_name }
         { campaign.owner.email && <Fragment>
             &nbsp;
             <IonButton fill='clear' color='medium' size='small'

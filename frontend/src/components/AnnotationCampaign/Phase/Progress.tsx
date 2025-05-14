@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { AnnotationCampaignPhase } from "@/service/campaign/phase";
+import { AnnotationCampaignPhase } from "@/service/types";
 import { Progress } from "@/components/ui";
 
 export const PhaseGlobalProgress: React.FC<{

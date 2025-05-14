@@ -1,4 +1,5 @@
 """Util filters"""
+import json
 from typing import Optional
 
 from django.core.exceptions import FieldError
@@ -14,12 +15,7 @@ class ModelFilter(filters.BaseFilterBackend):
         for param in request.query_params:
             try:
                 value = request.query_params[param]
-                if isinstance(value, str):
-                    if value.lower() == "true":
-                        value = True
-                    elif value.lower() == "false":
-                        value = False
-                _queryset = _queryset.filter(**{param: value})
+                _queryset = _queryset.filter(**{param: json.loads(value)})
             except FieldError:
                 continue
         return _queryset.distinct()

@@ -12,6 +12,7 @@ from backend.aplose.serializers import (
     UserSerializer,
     UserPasswordUpdateSerializer,
 )
+from backend.utils.filters import ModelFilter
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -22,6 +23,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all().order_by(Lower("email"))
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (ModelFilter,)
 
     def get_serializer_class(self):
         if self.action == "update_password":

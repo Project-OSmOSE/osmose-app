@@ -6,10 +6,10 @@ import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
 import { IonButton, IonIcon } from "@ionic/react";
 import { invertModeSharp } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const ColormapConfiguration: React.FC = () => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
+  const { campaign } = useRetrieveCurrentCampaign()
   const dispatch = useAppDispatch();
 
   const [ changeAllowed, setChangeAllowed ] = useState<boolean>(false);

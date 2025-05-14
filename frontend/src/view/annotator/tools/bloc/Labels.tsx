@@ -14,12 +14,13 @@ import styles from './bloc.module.scss';
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import { LabelSet, LabelSetAPI } from "@/service/campaign/label-set";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { LabelSet } from "@/service/types";
 
 
 export const Labels: React.FC = () => {
-  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
 
   const {
     results,
@@ -40,10 +41,10 @@ export const Labels: React.FC = () => {
     _focused.current = focusedLabel;
   }, [ focusedLabel ]);
 
-  const _labelSet = useRef<LabelSet | undefined>(label_set);
+  const _labelSet = useRef<LabelSet | undefined>(labelSet);
   useEffect(() => {
-    _labelSet.current = label_set;
-  }, [ label_set ]);
+    _labelSet.current = labelSet;
+  }, [ labelSet ]);
 
 
   const _presenceLabels = useRef<string[]>(presenceLabels);
@@ -87,14 +88,14 @@ export const Labels: React.FC = () => {
                                                 className={ styles.showButton }>Show all</Button> }
       </h6>
       <div className={ styles.body }>
-        { label_set?.labels.map((label, key) => <LabelItem label={ label } key={ key } index={ key }/>) }
+        { labelSet?.labels.map((label, key) => <LabelItem label={ label } key={ key } index={ key }/>) }
       </div>
     </div>
   )
 }
 
 export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
-  const { data: label_set } = LabelSetAPI.useRetrieveQuery();
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
   const {
     results,
     focusedLabel,
@@ -117,9 +118,9 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
   }, [ label ])
 
   const hideAllButCurrent = useCallback(() => {
-    dispatch(AnnotatorSlice.actions.hideLabels(label_set?.labels ?? []));
+    dispatch(AnnotatorSlice.actions.hideLabels(labelSet?.labels ?? []));
     dispatch(AnnotatorSlice.actions.showLabel(label));
-  }, [ label, label_set ])
+  }, [ label, labelSet ])
 
   const show = useCallback((event: MouseEvent) => {
     event.stopPropagation();

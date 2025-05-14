@@ -1,7 +1,7 @@
 import { API_URL, ESSENTIAL, expect, expectNoRequestsOnAction, test } from './utils';
 import { CAMPAIGN, DATASET } from './fixtures';
-import { CreateAnnotationCampaign } from '../src/service/campaign';
 import { Mock } from './utils/services';
+import { PostAnnotationCampaign } from "../src/service/api/campaign";
 
 test.describe('Annotator', () => {
 
@@ -16,8 +16,8 @@ test.describe('Annotator', () => {
     ]);
 
     await test.step('Check campaign', async () => {
-      const data = request.postDataJSON() as CreateAnnotationCampaign;
-      const expectedData: CreateAnnotationCampaign = {
+      const data = request.postDataJSON() as PostAnnotationCampaign;
+      const expectedData: PostAnnotationCampaign = {
         name: CAMPAIGN.name,
         datasets: [ DATASET.name ],
         spectro_configs: DATASET.spectros.map(s => s.id),
@@ -59,8 +59,8 @@ test.describe('Annotator', () => {
     ]);
 
     await test.step('Check campaign', async () => {
-      const campaignData = campaignRequest.postDataJSON() as CreateAnnotationCampaign;
-      const expectedCampaign: CreateAnnotationCampaign = {
+      const campaignData = campaignRequest.postDataJSON() as PostAnnotationCampaign;
+      const expectedCampaign: PostAnnotationCampaign = {
         name: CAMPAIGN.name,
         instructions_url: CAMPAIGN.instructions_url,
         desc: CAMPAIGN.desc,

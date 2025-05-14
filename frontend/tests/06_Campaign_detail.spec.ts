@@ -1,8 +1,7 @@
 import { API_URL, ESSENTIAL, expect, Page, Request, test } from './utils';
 import { AUDIO_METADATA, CAMPAIGN, CAMPAIGN_PHASE, CONFIDENCE, LABEL, SPECTROGRAM_CONFIGURATION } from './fixtures';
 import { LabelModal } from './utils/pages';
-import { WriteAnnotationCampaign } from '../src/service/campaign';
-import { getDisplayName } from "../src/service/user";
+import { PatchAnnotationCampaign } from "../src/service/api/campaign";
 
 // Utils
 
@@ -40,7 +39,7 @@ test.describe('Annotator', () => {
     await page.campaign.detail.go('annotator');
     await page.getByRole('button', { name: 'Information' }).click();
     await expect(page.getByRole('heading', { name: CAMPAIGN.name })).toBeVisible();
-    await expect(page.getByText(`Created on ${ new Date(CAMPAIGN.created_at).toLocaleDateString() } by ${ getDisplayName(CAMPAIGN.owner) }`)).toBeVisible();
+    await expect(page.getByText(`Created on ${ new Date(CAMPAIGN.created_at).toLocaleDateString() } by ${ CAMPAIGN.owner.display_name }`)).toBeVisible();
     await expect(page.getByText(CAMPAIGN.desc)).toBeVisible();
     await expect(page.getByText(new Date(CAMPAIGN.deadline).toLocaleDateString())).toBeVisible();
     await expect(page.getByRole('button', { name: CAMPAIGN_PHASE.phase, exact: true })).toBeVisible();
@@ -157,7 +156,7 @@ test.describe('Campaign creator', () => {
 
       await test.step('Check request', async () => {
         const data = await request.postDataJSON();
-        const expected: Partial<WriteAnnotationCampaign> = {
+        const expected: Partial<PatchAnnotationCampaign> = {
           labels_with_acoustic_features: [ LABEL.classic ]
         }
         expect(data).toEqual(expected);

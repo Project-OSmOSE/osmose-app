@@ -1,6 +1,6 @@
 import { API_URL, ESSENTIAL, expect, test } from './utils';
 import { ANNOTATOR_GROUP, CAMPAIGN, FILE_RANGE, USERS } from './fixtures';
-import { WriteAnnotationFileRange } from '../src/service/campaign/annotation-file-range';
+import { PostAnnotationFileRange } from "../src/service/api/annotation-file-range";
 
 
 test.describe('Campaign creator', () => {
@@ -71,7 +71,7 @@ test.describe('Campaign creator', () => {
         page.waitForRequest(API_URL.fileRanges.post),
         page.getByRole('button', { name: 'Update annotators' }).click()
       ])
-      const expectedData: Array<WriteAnnotationFileRange> = [ {
+      const expectedData: Array<Omit<PostAnnotationFileRange, 'id'> & Partial<PostAnnotationFileRange>> = [ {
         id: FILE_RANGE.range.id,
         annotator: FILE_RANGE.range.annotator,
         first_file_index: FILE_RANGE.range.first_file_index,

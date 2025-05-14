@@ -4,16 +4,16 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
 import { RiRobot2Fill } from 'react-icons/ri';
-import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/types';
 import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
-import { CampaignAPI } from "@/service/campaign";
 import { createPortal } from "react-dom";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 
 export const Results: React.FC<{
@@ -107,7 +107,7 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
 )
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
+  const { campaign } = useRetrieveCurrentCampaign()
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
@@ -137,7 +137,7 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
-  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { currentPhase } = useRetrieveCurrentCampaign()
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;

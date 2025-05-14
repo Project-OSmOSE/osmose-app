@@ -2,32 +2,32 @@ import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styles from './styles.module.scss'
 import { PhaseGlobalProgress, PhaseUserProgress, ProgressModalButton } from "@/components/AnnotationCampaign/Phase";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { AnnotationFile, AnnotationFileRangeAPI } from "@/service/campaign/annotation-file-range";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ActionBar } from "@/components/layout";
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
 import { Button, Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { setFileFilters } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
-import { AnnotationCampaign, CampaignAPI } from "@/service/campaign";
-import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
 import { StatusFilter } from "@/view/campaign/details/filters/StatusFilter.tsx";
 import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { AnnotationCampaign, AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
+import { AnnotationFileRangeAPI } from "@/service/api/annotation-file-range.ts";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
   const fileFilters = useAppSelector(state => state.ui.fileFilters);
   const dispatch = useAppDispatch();
-  AnnotationFileRangeAPI.useListFilesWithPaginationQuery({
+  AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page: 1,
     phaseID: currentPhase!.id,
     filters: {}
   }, { refetchOnMountOrArgChange: true, skip: !currentPhase || !!campaign?.archive });
-  const { currentData: files, isFetching, error } = AnnotationFileRangeAPI.useListFilesWithPaginationQuery({
+  const { currentData: files, isFetching, error } = AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page,
     phaseID: currentPhase!.id,
     filters: fileFilters

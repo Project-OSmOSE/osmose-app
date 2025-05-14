@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import { crop } from "ionicons/icons";
-import { AnnotationCampaign } from '@/service/campaign';
+import { AnnotationCampaign } from '@/service/types';
 import { pluralize } from "@/service/function.ts";
 import { CampaignBadge, CampaignGlobalProgress, CampaignUserProgress } from "@/components/AnnotationCampaign";
 import styles from './styles.module.scss'
@@ -12,6 +12,7 @@ export const CampaignCard: React.FC<{
 }> = ({ campaign }) => {
   const navigate = useNavigate();
   const link = useMemo(() => {
+    // console.log(campaign)
     if (campaign.phases.length > 0)
       return `/annotation-campaign/${ campaign.id }/phase/${ campaign.phases[0].id }`;
     return `/annotation-campaign/${ campaign.id }`

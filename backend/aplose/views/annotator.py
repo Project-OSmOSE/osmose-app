@@ -23,7 +23,6 @@ from backend.api.views import (
     AnnotationCommentViewSet,
     AnnotationResultViewSet,
     DatasetFileViewSet,
-    SpectrogramConfigurationViewSet,
 )
 from backend.api.views.annotation.file_range import AnnotationFileRangeFilesFilter
 
@@ -115,14 +114,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
             current_task_index_in_filter = filtered_files.filter(index_filter).count()
             current_task_index = all_files.filter(index_filter).count()
 
-        # Spectrogram configurations
-        request._request.GET = {
-            "annotation_campaigns__id": campaign_id,
-        }
-        spectrogram_configurations = SpectrogramConfigurationViewSet.as_view(
-            {"get": "list"}
-        )(request._request).data
-
         return Response(
             {
                 "current_task_index_in_filter": current_task_index_in_filter,
@@ -141,7 +132,6 @@ class AnnotatorViewSet(viewsets.ViewSet):
                 ).data,
                 "results": results,
                 "task_comments": task_comments,
-                "spectrogram_configurations": spectrogram_configurations,
                 "previous_file_id": previous_file.id
                 if previous_file is not None
                 else None,

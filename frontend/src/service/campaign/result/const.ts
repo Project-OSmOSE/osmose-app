@@ -1,4 +1,4 @@
-import { WeakResult } from './type';
+import { WeakResult } from "@/service/types";
 
 export const DEFAULT_PRESENCE_RESULT: WeakResult = {
   id: -1,

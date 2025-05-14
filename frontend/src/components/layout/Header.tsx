@@ -2,10 +2,11 @@ import React, { ReactNode, useState } from "react";
 import { DocumentationButton } from "@/components/ui";
 import { IonButton, IonIcon } from "@ionic/react";
 import { closeOutline, menuOutline } from "ionicons/icons";
-import { UserAPI } from "@/service/user";
 import { useNavigate } from "react-router-dom";
 import logo from "/images/ode_logo_192x192.png";
 import styles from './layout.module.scss'
+import { useAppSelector } from "@/service/app.ts";
+import { selectCurrentUser } from "@/service/api/user.ts";
 
 export const Header: React.FC<{
   buttons?: ReactNode;
@@ -15,7 +16,7 @@ export const Header: React.FC<{
 }> = ({ children, buttons, size, canNavigate }) => {
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
-  const { data: user } = UserAPI.useGetCurrentQuery()
+  const user = useAppSelector(selectCurrentUser)
   const navigate = useNavigate ();
 
   function toggleOpening() {

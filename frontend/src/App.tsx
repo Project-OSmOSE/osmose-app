@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { Provider } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import './css/bootstrap-4.1.3.min.css';
@@ -9,8 +10,8 @@ import './css/app.css';
 
 import { IonApp, setupIonicReact } from '@ionic/react';
 
-import { Provider } from "react-redux";
 import { AppStore, useAppSelector } from "@/service/app";
+
 import { DatasetList } from '@/view/dataset';
 import { AnnotationCampaignDetail, AnnotationCampaignList } from "@/view/campaign";
 import { AnnotationCampaignDetailInfo, AnnotationCampaignPhaseDetail } from "@/view/campaign/details";
@@ -23,9 +24,9 @@ import { EditAnnotators } from "@/view/campaign/edit/EditAnnotators.tsx";
 import { ImportAnnotations } from "@/view/campaign/edit/ImportAnnotations";
 import { AlertProvider } from "@/service/ui/alert";
 import { SqlQuery } from "@/view/admin/sql/SqlQuery.tsx";
-import { selectIsConnected } from "@/service/auth";
-import { UserAPI } from "@/service/user";
 import { AploseSkeleton } from "@/components/layout";
+import { selectCurrentUser } from "@/service/api/user.ts";
+import { selectIsConnected } from "@/service/slices/auth.ts";
 
 
 setupIonicReact({
@@ -48,8 +49,8 @@ export const App: React.FC = () => (
 const AppContent: React.FC = () => {
   useLoadEventService();
 
-  const isConnected = useAppSelector(selectIsConnected);
-  const { data: currentUser } = UserAPI.useGetCurrentQuery();
+  const isConnected = useAppSelector(selectIsConnected)
+  const currentUser = useAppSelector(selectCurrentUser)
   const from = useLocation()
 
   return (

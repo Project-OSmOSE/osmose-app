@@ -1,27 +1,27 @@
 import React, { ChangeEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from './create.module.scss'
 import { ChipsInput, FormBloc, Input, Select, Textarea } from "@/components/form";
-import { CampaignAPI, WriteCheckAnnotationCampaign, WriteCreateAnnotationCampaign } from "@/service/campaign";
-import { Dataset, DatasetAPI } from "@/service/dataset";
+import { Dataset, SpectrogramConfiguration } from "@/service/types";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
-import { SpectrogramConfiguration } from "@/service/dataset/spectrogram-configuration";
 import { useToast } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
 import { WarningText } from "@/components/ui";
+import { DatasetAPI } from "@/service/api/dataset.ts";
+import { CampaignAPI, PostAnnotationCampaign } from "@/service/api/campaign.ts";
 
-type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
+type Errors = { [key in keyof PostAnnotationCampaign]?: string }
 
 export const CreateCampaign: React.FC = () => {
 
-  const { data: allDatasets, isFetching: isFetchingDatasets, error: datasetsError } = DatasetAPI.useListQuery({});
+  const { data: allDatasets, isFetching: isFetchingDatasets, error: datasetsError } = DatasetAPI.endpoints.listDataset.useQuery();
   const [ createCampaign, {
     data: createdCampaign,
     isLoading: isSubmittingCampaign,
     error: errorSubmittingCampaign
-  } ] = CampaignAPI.useCreateMutation()
+  } ] = CampaignAPI.endpoints.postCampaign.useMutation()
   const toast = useToast();
   const navigate = useNavigate();
 

@@ -1,12 +1,13 @@
 import React, { ChangeEvent, Fragment, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { FormBloc, Select, Textarea } from "@/components/form";
-import { Detector, DetectorAPI, DetectorConfiguration } from "@/service/campaign/detector";
+import { Detector, DetectorConfiguration } from "@/service/types";
 import styles from './importAnnotations.module.scss'
 import { ResultImportSlice } from "@/service/campaign/result/import";
+import { DetectorAPI } from "@/service/api/detector.ts";
 
 export const DetectorsConfigContent: React.FC = () => {
-  const { data: allDetectors } = DetectorAPI.useListQuery();
+  const { data: allDetectors } = DetectorAPI.endpoints.listDetector.useQuery();
 
   const { file, detectors, upload } = useAppSelector(state => state.resultImport);
   const dispatch = useAppDispatch();

@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
 import { useAppSelector } from "@/service/app.ts";
 import { IonNote } from "@ionic/react";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const LoadInformation: React.FC = () => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery();
+  const { campaign } = useRetrieveCurrentCampaign();
   const { file } = useAppSelector(state => state.resultImport)
 
   if (file.state === 'loaded') return <Fragment/>;

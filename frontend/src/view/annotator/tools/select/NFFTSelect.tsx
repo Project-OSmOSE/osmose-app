@@ -1,19 +1,20 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { getScaleName, SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
+import { SpectrogramConfiguration } from "@/service/types";
 import { AnnotatorAPI, selectSpectrogramConfiguration } from '@/service/annotator';
 import { Select } from "@/components/form";
+import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 
 export const NFFTSelect: React.FC = () => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
   const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
-  const spectrogram_configurations = useAppSelector(state => state.annotator.spectrogram_configurations);
+  const { configurations } = useListSpectrogramForCurrentCampaign();
 
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (!selectedID) return;
-    const configs: SpectrogramConfiguration[] = spectrogram_configurations ?? [];
+    const configs: SpectrogramConfiguration[] = configurations ?? [];
     if (configs.find(c => c.id === selectedID)) return;
     const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
     const newID = simpleSpectrogramID ?? Math.min(...configs.map(s => s.id));
@@ -21,15 +22,15 @@ export const NFFTSelect: React.FC = () => {
   }, [selectedID]);
 
   const options = useMemo(() => {
-    if (!data) return []
-    return data.spectrogram_configurations.map(c => {
+    if (!configurations) return []
+    return configurations.map(c => {
       let label = `nfft: ${ c.nfft }`;
       label += ` | winsize: ${ c.window_size }`
       label += ` | overlap: ${ c.overlap }`
-      label += ` | scale: ${ getScaleName(c) }`
+      label += ` | scale: ${ c.scale_name }`
       return { value: c.id, label }
     })
-  }, [ data?.spectrogram_configurations ]);
+  }, [ configurations ]);
 
   function select(value: string | number | undefined) {
     if (value === undefined) return;

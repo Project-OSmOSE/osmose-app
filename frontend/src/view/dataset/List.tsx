@@ -1,25 +1,25 @@
 import React, { Fragment, useMemo } from 'react';
 import { IonNote, IonSpinner } from "@ionic/react";
-import { DatasetAPI } from '@/service/dataset';
 import { getErrorMessage } from '@/service/function.ts';
 import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { ImportDatasetButton } from "@/components/Dataset";
 import styles from './styles.module.scss'
 import { AudioMetadataModalButton } from "@/components/Dataset/AudioMetadata";
 import { SpectrogramMetadataModalButton } from "@/components/Dataset/SpectrogramMetadata";
+import { DatasetAPI } from "@/service/api/dataset.ts";
 
 
 export const DatasetList: React.FC = () => {
 
   // Services
-  const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.useListQuery({})
+  const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.endpoints.listDataset.useQuery()
   const sortedDatasets = useMemo(() =>
       [ ...(datasets ?? []) ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     (datasets)
   )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [ _, { isLoading: isImportInProgress } ] = DatasetAPI.useImportMutation()
+  const [ _, { isLoading: isImportInProgress } ] = DatasetAPI.endpoints.importDataset.useMutation()
 
   return <Fragment>
     <h2>Datasets</h2>

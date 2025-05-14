@@ -1,13 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { addOutline, closeCircle, refreshOutline, swapHorizontal } from "ionicons/icons";
-import { CampaignAPI, Phase } from '@/service/campaign';
 import { useToast } from "@/service/ui";
 import { ActionBar } from "@/components/layout";
-import { UserAPI } from "@/service/user";
 import { Link } from "@/components/ui";
 import styles from './styles.module.scss'
 import { CampaignCard } from "@/components/AnnotationCampaign";
+import { UserAPI } from "@/service/api/user.ts";
+import { Phase } from "@/service/types";
+import { CampaignAPI } from "@/service/api/campaign.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
@@ -21,8 +22,8 @@ export const AnnotationCampaignList: React.FC = () => {
   const { presentError, dismiss: dismissToast } = useToast()
 
   // Services
-  const { data: currentUser } = UserAPI.useGetCurrentQuery();
-  const { currentData: campaigns, isFetching, error } = CampaignAPI.useListQuery({
+  const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery();
+  const { data: campaigns, isFetching, error } = CampaignAPI.endpoints.listCampaign.useQuery({
     onlyArchived: showArchivedFilter,
     phase: modeFilter,
     search,

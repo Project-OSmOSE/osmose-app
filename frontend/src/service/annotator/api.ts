@@ -2,17 +2,23 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
 import { AnnotatorData, AnnotatorState, RetrieveParams } from './type.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotationCampaign, CampaignAPI, Phase } from '@/service/campaign';
 import { encodeQueryParams } from "@/service/function.ts";
-import { getQueryParamsForFilters } from "@/service/campaign/annotation-file-range/function.ts";
-import { AcousticFeatures, AnnotationResult, AnnotationResultValidations } from "@/service/campaign/result";
-import { DetectorConfiguration } from "@/service/campaign/detector";
-import { AnnotationComment } from "@/service/campaign/comment";
+import {
+  AcousticFeatures,
+  AnnotationCampaign,
+  AnnotationCampaignPhase,
+  AnnotationComment,
+  AnnotationResult,
+  AnnotationResultValidations,
+  DetectorConfiguration,
+  Phase
+} from "@/service/types";
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "@/service/app.ts";
-import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 import { useCallback, useEffect, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { getQueryParamsForFilters } from "@/service/api/annotation-file-range.ts";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -72,14 +78,6 @@ const _AnnotatorAPI = createApi({
                 fileID,
                 filters
               }) => `campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/${ encodeQueryParams(getQueryParamsForFilters(filters)) }`,
-      transformResponse(baseQueryReturnValue: AnnotatorData,): AnnotatorData {
-        return {
-          ...baseQueryReturnValue,
-          spectrogram_configurations: baseQueryReturnValue.spectrogram_configurations.map(s => ({
-            ...s, zoom_level: s.zoom_level + 1
-          }))
-        }
-      },
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       providesTags: (result, error, arg) => [ {
@@ -142,7 +140,7 @@ const _AnnotatorAPI = createApi({
 })
 
 export const useRetrieveQuery = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const { fileID } = useParams<{ fileID: string }>();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
 
@@ -156,7 +154,7 @@ export const useRetrieveQuery = () => {
 }
 
 export const usePostMutation = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const [ _post ] = _AnnotatorAPI.usePostMutation()
   const annotator = useAppSelector(state => state.annotator);
   const _annotator = useRef<AnnotatorState>(annotator)

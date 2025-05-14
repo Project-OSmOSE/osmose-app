@@ -9,12 +9,12 @@ import styles from '../annotator-tools.module.scss'
 import { KEY_DOWN_EVENT } from "@/service/events";
 import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { AnnotatorAPI } from "@/service/annotator";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 
 export const NavigationButtons: React.FC = () => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
 
   // Services
   const navigate = useNavigate();

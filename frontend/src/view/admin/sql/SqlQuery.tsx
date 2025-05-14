@@ -1,20 +1,20 @@
 import React, { Fragment, useCallback, useEffect, useRef } from "react";
-import { UserAPI } from "@/service/user";
 import { basicSetup, EditorView } from "codemirror";
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
-import { SqlAPI } from "@/service/sql";
 import { Button, Kbd, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { Prec } from "@codemirror/state";
 import { getErrorMessage } from "@/service/function.ts";
 import styles from './sql.module.scss'
+import { UserAPI } from "@/service/api/user.ts";
+import { SQLAPI } from "@/service/api/sql.ts";
 
 
 export const SqlQuery: React.FC = () => {
-  const { data: user } = UserAPI.useGetCurrentQuery();
-  const { data: schema } = SqlAPI.useSchemaQuery();
-  const [ run, { data: results, error } ] = SqlAPI.usePostMutation();
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery();
+  const { data: schema } = SQLAPI.endpoints.sqlSchema.useQuery();
+  const [ run, { data: results, error } ] = SQLAPI.endpoints.postSQL.useMutation();
 
   const editorContainerRef = useRef<HTMLDivElement | undefined>();
   const editorRef = useRef<EditorView | undefined>();
@@ -36,7 +36,6 @@ export const SqlQuery: React.FC = () => {
           dialect: PostgreSQL,
           upperCaseKeywords: true,
           schema
-
         }),
         keymap.of([ ...defaultKeymap, indentWithTab ]),
         Prec.highest(keymap.of([ {

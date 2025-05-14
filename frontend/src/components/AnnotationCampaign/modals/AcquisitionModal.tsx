@@ -9,18 +9,19 @@ import {
   TableHead,
   WarningText
 } from "@/components/ui";
-import { DatasetAPI } from "@/service/dataset";
 import { Deployment, Hydrophone, Project, Recorder } from "@pam-standardization/metadatax-ts";
 import { IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import styles from './styles.module.scss';
-import { CampaignAPI } from "@/service/campaign";
+import { DatasetAPI } from "@/service/api/dataset.ts";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const AcquisitionModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
-  const { data: datasets, isFetching, error } = DatasetAPI.useListQuery({ campaign: campaign!.id }, { skip: !campaign })
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { data: datasets, isFetching, error } = DatasetAPI.endpoints.listDataset.useQuery({ campaignID: campaign?.id ?? skipToken })
 
   const pluralize = useCallback((data: any[]) => data.length > 1 ? 's' : '', [])
 

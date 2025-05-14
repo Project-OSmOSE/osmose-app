@@ -3,16 +3,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert, useToast } from "@/service/ui";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { getErrorMessage, getNewItemID } from "@/service/function.ts";
-import { getDisplayName, User, UserAPI } from "@/service/user";
-import { AnnotatorGroupAPI } from "@/service/annotator-group";
-import { AnnotationFileRangeAPI, WriteAnnotationFileRange } from "@/service/campaign/annotation-file-range";
+import { User } from "@/service/types";
 import { QueryStatus } from "@reduxjs/toolkit/query";
 import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { FormBloc, Input, Searchbar } from "@/components/form";
 import { lockClosedOutline, trashBinOutline } from "ionicons/icons";
 import { Item } from "@/types/item.ts";
 import styles from './edit.module.scss';
-import { CampaignAPI } from "@/service/campaign";
+import { UserAPI } from "@/service/api/user.ts";
+import { UserGroupAPI } from "@/service/api/user-group.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import {
+  AnnotationFileRangeAPI,
+  PostAnnotationFileRange,
+  useListFileRangesForCurrentPhase
+} from "@/service/api/annotation-file-range.ts";
 
 type SearchItem = {
   type: 'user' | 'group';
@@ -22,26 +27,30 @@ type SearchItem = {
 
 export const EditAnnotators: React.FC = () => {
   const {
-    data: campaign,
+    campaign,
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign,
     currentPhase
-  } = CampaignAPI.useRetrieveQuery();
+  } = useRetrieveCurrentCampaign();
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
-  const { data: allUsers, isFetching: isFetchingUsers, error: errorLoadingUsers } = UserAPI.useListQuery()
-  const { data: allGroups, isFetching: isFetchingGroups, error: errorLoadingGroups } = AnnotatorGroupAPI.useListQuery();
+  const { data: allUsers, isFetching: isFetchingUsers, error: errorLoadingUsers } = UserAPI.endpoints.listUser.useQuery()
   const {
-    data: initialFileRanges,
+    data: allGroups,
+    isFetching: isFetchingGroups,
+    error: errorLoadingGroups
+  } = UserGroupAPI.endpoints.list.useQuery();
+  const {
+    fileRanges: initialFileRanges,
     isFetching: isFetchingFileRanges,
     error: errorLoadingFileRanges
-  } = AnnotationFileRangeAPI.useListQuery({ phaseID: currentPhase?.id })
+  } = useListFileRangesForCurrentPhase()
   const [ postFileRanges, {
     isLoading: isSubmitting,
     error: errorSubmitting,
     status: submissionStatus
-  } ] = AnnotationFileRangeAPI.usePostMutation()
+  } ] = AnnotationFileRangeAPI.endpoints.postFileRange.useMutation()
 
   useEffect(() => {
     if (!campaign || !location.state) return;
@@ -50,9 +59,7 @@ export const EditAnnotators: React.FC = () => {
   }, [ location, campaign ]);
 
   // File ranges
-  const [ fileRanges, setFileRanges ] = useState<Array<Partial<WriteAnnotationFileRange> & {
-    id: number,
-    annotator: number,
+  const [ fileRanges, setFileRanges ] = useState<Array<PostAnnotationFileRange & {
     finished_tasks_count?: number
   }>>([]);
   const availableUsers: SearchItem[] = useMemo(() => {
@@ -68,7 +75,7 @@ export const EditAnnotators: React.FC = () => {
             return count + (last_index - first_index)
           }, 0) + 1
         return count < campaign.files_count
-      }).map(u => ({ id: u.id, display: getDisplayName(u, true), type: 'user' } satisfies SearchItem)));
+      }).map(u => ({ id: u.id, display: u.display_name_with_expertise, type: 'user' } satisfies SearchItem)));
     }
     if (allGroups) {
       items.push(...allGroups.map(g => ({ id: g.id, display: g.name, type: 'group' } satisfies SearchItem)))
@@ -95,13 +102,13 @@ export const EditAnnotators: React.FC = () => {
       setFileRanges(prev => [ ...prev, { id: getNewItemID(prev), annotator: newUser.id, } ])
     }
   }, [ allUsers, allGroups ])
-  const updateFileRange = useCallback((fileRange: Partial<WriteAnnotationFileRange> & { id: number }) => {
+  const updateFileRange = useCallback((fileRange: PostAnnotationFileRange) => {
     setFileRanges(prev => prev.map(f => {
       if (f.id !== fileRange.id) return f;
       return { ...f, ...fileRange }
     }))
   }, [])
-  const removeFileRange = useCallback((fileRange: Partial<WriteAnnotationFileRange> & { id: number }) => {
+  const removeFileRange = useCallback((fileRange: PostAnnotationFileRange) => {
     setFileRanges(prev => prev.filter(f => f.id !== fileRange.id))
   }, [])
 
@@ -149,7 +156,7 @@ export const EditAnnotators: React.FC = () => {
       { fileRanges && campaign && allUsers && allGroups && fileRanges.length > 0 &&
           <Table columns={ 3 }>
               <TableHead isFirstColumn={ true }>Annotator</TableHead>
-              <TableHead className={styles.fileRangeHead}>
+              <TableHead className={ styles.fileRangeHead }>
                   File range
                   <small>(between 1 and { campaign.files_count })</small>
                   <small className="disabled"><i>Start and end limits are included</i></small>
@@ -163,11 +170,13 @@ export const EditAnnotators: React.FC = () => {
                                                           filesCount={ campaign.files_count }
                                                           onFirstIndexChange={ first_file_index => updateFileRange({
                                                             id: range.id,
-                                                            first_file_index
+                                                            first_file_index,
+                                                            annotator: range.annotator
                                                           }) }
                                                           onLastIndexChange={ last_file_index => updateFileRange({
                                                             id: range.id,
-                                                            last_file_index
+                                                            last_file_index,
+                                                            annotator: range.annotator
                                                           }) }
                                                           onDelete={ () => removeFileRange(range) }
             />) }
@@ -193,7 +202,7 @@ export const EditAnnotators: React.FC = () => {
 }
 
 const AnnotatorRangeLine: React.FC<{
-  range: Partial<WriteAnnotationFileRange> & { id: number, annotator: number, finished_tasks_count?: number },
+  range: PostAnnotationFileRange & { finished_tasks_count?: number },
   annotator: User,
   filesCount: number,
   onFirstIndexChange: (index: number) => void,
@@ -223,7 +232,7 @@ const AnnotatorRangeLine: React.FC<{
   return (
     <Fragment key={ range.id }>
       <TableContent isFirstColumn={ true }>
-        { getDisplayName(annotator) }
+        { annotator.display_name_with_expertise }
       </TableContent>
       <TableContent>
         <div className={ styles.fileRangeCell }>

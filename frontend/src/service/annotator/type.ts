@@ -1,13 +1,16 @@
-import { DatasetFile } from '@/service/dataset';
-import { AnnotationResult } from '@/service/campaign/result';
-import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { AnnotationComment } from '@/service/campaign/comment';
-import { ConfidenceIndicator } from "@/service/campaign/confidence-set";
+import {
+  AnnotationComment,
+  AnnotationResult,
+  ConfidenceIndicator,
+  DatasetFile,
+  SpectrogramConfiguration
+} from '@/service/types';
 import { ID } from "@/service/type.ts";
 import { FileFilters } from "@/service/ui/type.ts";
 import { Colormap } from '@/services/utils/color';
 
 export type AnnotatorState = Partial<AnnotatorData> & {
+  spectrogram_configurations: SpectrogramConfiguration[];
   focusedResultID?: number,
   focusedCommentID?: number,
   focusedLabel?: string,
@@ -47,7 +50,6 @@ export type AnnotatorData = {
   file: DatasetFile;
   results: Array<AnnotationResult>;
   task_comments: Array<AnnotationComment>;
-  spectrogram_configurations: Array<SpectrogramConfiguration>;
   previous_file_id: number | null;
   next_file_id: number | null;
 

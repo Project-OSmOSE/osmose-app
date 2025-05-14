@@ -1,5 +1,5 @@
 import { AnnotatorState } from './type.ts';
-import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/types';
 
 export function getDefaultConfidence(state: AnnotatorState) {
   if (!state.confidenceIndicators) return undefined;

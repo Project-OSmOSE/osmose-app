@@ -4,13 +4,13 @@ import styles from './annotation.module.scss';
 import { focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAppDispatch } from '@/service/app.ts';
-import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/types';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
 import { TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -94,7 +94,7 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 }
 
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
-  const { currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { currentPhase } = useRetrieveCurrentCampaign()
   const dispatch = useAppDispatch();
 
   const remove = useCallback(() => {

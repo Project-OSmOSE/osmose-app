@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { FileFilters, UIState } from "./type.ts";
-import { CampaignAPI } from "@/service/campaign";
+import { CampaignAPI } from "@/service/api/campaign.ts";
 
 const initialFileFiltersState: FileFilters = {
   search: undefined,
@@ -22,7 +22,7 @@ export const UISlice = createSlice({
   extraReducers:
     (builder) => {
       builder.addMatcher(
-        CampaignAPI.endpoints.retrieve.matchFulfilled,
+        CampaignAPI.endpoints.retrieveCampaign.matchFulfilled,
         (state, { payload }) => {
           // Reset file filters if new campaign
           if (state.campaignID !== payload.id) {

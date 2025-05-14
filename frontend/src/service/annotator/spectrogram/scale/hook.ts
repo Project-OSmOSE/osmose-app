@@ -1,13 +1,14 @@
-import { useCurrentConfiguration, useFileDuration, useMaxFrequency, useSpectrogramDimensions } from '../hook.ts';
+import { useCurrentConfiguration, useMaxFrequency, useSpectrogramDimensions } from '../hook.ts';
 import { useCallback, useMemo } from 'react';
 import { LinearScaleService } from './linear.service.ts';
 import { MultiLinearScaleService } from '@/service/annotator/spectrogram/scale/multi-linear.service.ts';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
+import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 export const useXAxis = (): AbstractScale => {
   const { width } = useSpectrogramDimensions()
-  const duration = useFileDuration()
-  return useMemo(() => new LinearScaleService(width, duration), [ width, duration ])
+  const file = useAnnotatorFile()
+  return useMemo(() => new LinearScaleService(width, file?.duration ?? 0), [ width, file ])
 }
 
 export const useYAxis = (): AbstractScale => {

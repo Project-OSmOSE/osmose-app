@@ -1,5 +1,4 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import {
@@ -14,18 +13,19 @@ import {
 } from "@/components/ui";
 import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
-import { getDisplayName, User, UserAPI } from "@/service/user";
-import { AnnotationFileRange, AnnotationFileRangeAPI } from "@/service/campaign/annotation-file-range";
+import { AnnotationFileRange, User } from "@/service/types";
 import styles from './styles.module.scss';
 import { Progress } from "@/components/ui/Progress.tsx";
 import { useNavigate } from "react-router-dom";
-import { CampaignPhaseAPI } from "@/service/campaign/phase";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
+import { UserAPI } from "@/service/api/user.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
+import { useListFileRangesForCurrentPhase } from "@/service/api/annotation-file-range.ts";
 
 type Progression = {
   user: User;
-  displayUsername: string;
   ranges: Array<AnnotationFileRange>;
   progress: number; // [0-1]
 }
@@ -35,10 +35,10 @@ type Sort = {
   sort: 'ASC' | 'DESC';
 }
 
-export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large' }> = ({size}) => {
+export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large' }> = ({ size }) => {
   const modal = useModal()
   return <Fragment>
-    <IonButton fill='outline' color='medium' size={size} className='ion-text-wrap' onClick={ modal.toggle }>
+    <IonButton fill='outline' color='medium' size={ size } className='ion-text-wrap' onClick={ modal.toggle }>
       Detailed progression
     </IonButton>
     { modal.isOpen && createPortal(<ProgressModal onClose={ modal.toggle }/>, document.body) }
@@ -48,19 +48,14 @@ export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large
 export const ProgressModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase, hasAdminAccess } = useRetrieveCurrentCampaign()
   const toast = useToast();
   const navigate = useNavigate();
-  const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.useListQuery();
-  const {
-    data: fileRanges,
-    isFetching: isLoadingFileRanges,
-    error: fileRangeError
-  } = AnnotationFileRangeAPI.useListQuery({ phaseID: currentPhase!.id }, { skip: !currentPhase, refetchOnMountOrArgChange: true });
-  const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.useDownloadStatusMutation()
-  const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.useDownloadReportMutation()
-  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
-  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [campaign, currentPhase])
+  const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.endpoints.listUser.useQuery();
+  const { fileRanges, isFetching: isLoadingFileRanges, error: fileRangeError } = useListFileRangesForCurrentPhase();
+  const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseStatus.useMutation()
+  const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseReport.useMutation()
+  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [ campaign, currentPhase ])
 
   const [ progress, setProgress ] = useState<Array<Progression>>([]);
   const [ sort, setSort ] = useState<Sort>({ entry: 'Progress', sort: 'DESC' });
@@ -76,7 +71,6 @@ export const ProgressModal: React.FC<{
         const user = users.find(u => u.id === range.annotator)!
         progress = {
           user,
-          displayUsername: getDisplayName(user),
           ranges: [ range ],
           progress: 0
         }
@@ -133,7 +127,7 @@ export const ProgressModal: React.FC<{
     let comparison = 0;
     switch (sort.entry) {
       case "Annotator":
-        comparison = a.displayUsername.toLowerCase().localeCompare(b.displayUsername.toLowerCase());
+        comparison = a.user.display_name_with_expertise.toLowerCase().localeCompare(b.user.display_name_with_expertise.toLowerCase());
         break;
       case "Progress":
         comparison = a.progress - b.progress;
@@ -178,10 +172,10 @@ export const ProgressModal: React.FC<{
 
             { progress.sort(sortProgress).map(p => {
               return (
-                <Fragment key={ p.displayUsername }>
+                <Fragment key={ p.user.display_name_with_expertise }>
                   <TableDivider/>
                   <TableContent
-                    isFirstColumn={ true }>{ p.displayUsername }</TableContent>
+                    isFirstColumn={ true }>{ p.user.display_name_with_expertise }</TableContent>
                   <TableContent className={ styles.progressContent }>
                     <div>
                       { p.ranges.map(r => (

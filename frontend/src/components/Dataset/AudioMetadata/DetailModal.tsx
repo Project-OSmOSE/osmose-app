@@ -1,5 +1,4 @@
 import React, { Fragment, useCallback, useEffect } from "react";
-import { AudioMetadataAPI } from "@/service/dataset/audio-metatada";
 import { useToast } from "@/service/ui";
 import {
   Modal,
@@ -18,6 +17,7 @@ import { downloadOutline } from "ionicons/icons";
 import { ID } from "@/service/type.ts";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
+import { AudioMetadataAPI } from "@/service/api/audio-metadata.ts";
 
 
 export const AudioMetadataModalButton: React.FC<{
@@ -42,8 +42,8 @@ export const AudioMetadataModal: React.FC<{
   datasetID?: ID;
   campaignID?: ID;
 }> = ({ onClose, canDownload = false, campaignID, datasetID, filename }) => {
-  const { data: metadata, isLoading, error: loadingError } = AudioMetadataAPI.useListQuery({ campaignID, datasetID });
-  const [ download, { error: downloadError } ] = AudioMetadataAPI.useDownloadMutation()
+  const { data: metadata, isLoading, error: loadingError } = AudioMetadataAPI.endpoints.listAudioMetadata.useQuery({ campaignID, datasetID });
+  const [ download, { error: downloadError } ] = AudioMetadataAPI.endpoints.downloadAudioMetadata.useMutation()
   const toast = useToast();
 
   useEffect(() => {

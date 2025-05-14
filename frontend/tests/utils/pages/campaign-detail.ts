@@ -2,7 +2,7 @@ import { Locator, Page, test } from '@playwright/test';
 import { Mock, Modal, UI } from '../services';
 import { UserType } from '../../fixtures';
 import { CampaignListPage } from './campaign-list';
-import { Phase } from '../../../src/service/campaign';
+import { Phase } from '../../../src/service/types';
 
 type LabelModalExtend = {
   getCheckbox: (text: string) => Locator;

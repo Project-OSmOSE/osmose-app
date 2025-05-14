@@ -1,17 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { AnnotatorState, } from './type';
-import { AnnotationResult, AnnotationResultBounds } from '@/service/campaign/result';
+import { AcousticFeatures, AnnotationComment, AnnotationResult, AnnotationResultBounds, Phase } from '@/service/types';
 import { getDefaultConfidence, getPresenceLabels } from './function.ts';
 import { ID } from '@/service/type.ts';
 import { AnnotatorAPI } from './api.ts';
-import { AnnotationComment } from '@/service/campaign/comment';
 import { getNewItemID } from '@/service/function';
-import { AcousticFeatures } from '@/service/campaign/result/type.ts';
-import { CampaignAPI, Phase } from "@/service/campaign";
-import { UserAPI } from "@/service/user";
-import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { Colormap } from '@/services/utils/color.ts';
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
+import { UserAPI } from "@/service/api/user.ts";
+import { CampaignAPI } from "@/service/api/campaign.ts";
+import { SpectrogramConfigurationAPI } from "@/service/api/spectrogram-configuration.ts";
+import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -42,7 +41,7 @@ function getUpdatedTo(result: AnnotationResult, label?: string, newBounds?: Anno
   if (result.updated_to.length > 0) {
     updated_to = { ...result.updated_to[0], label: label ?? result.updated_to[0].label, ...newBounds }
   }
-  
+
   let is_same = true;
   switch (result.type) {
     // @ts-expect-error: Content is also ok for Box
@@ -61,7 +60,7 @@ function getUpdatedTo(result: AnnotationResult, label?: string, newBounds?: Anno
   }
 
   if (is_same) return []
-  return [updated_to];
+  return [ updated_to ];
 }
 
 export const AnnotatorSlice = createSlice({
@@ -85,6 +84,7 @@ export const AnnotatorSlice = createSlice({
     sessionStart: Date.now(),
     didSeeAllFile: false,
     canAddAnnotations: true,
+    spectrogram_configurations: []
   } satisfies AnnotatorState as AnnotatorState,
   reducers: {
     focusResult: _focusResult,
@@ -468,6 +468,11 @@ export const AnnotatorSlice = createSlice({
   extraReducers:
     (builder) => {
       builder.addMatcher(
+        SpectrogramConfigurationAPI.endpoints.listSpectrogramConfiguration.matchFulfilled, (state, { payload }) => {
+          state.spectrogram_configurations = payload
+        }
+      )
+      builder.addMatcher(
         AnnotatorAPI.endpoints.retrieve.matchFulfilled,
         (state, { payload }) => {
           // initialize slice
@@ -492,7 +497,7 @@ export const AnnotatorSlice = createSlice({
         },
       )
       builder.addMatcher(
-        CampaignAPI.endpoints.retrieve.matchFulfilled,
+        CampaignAPI.endpoints.retrieveCampaign.matchFulfilled,
         (state, { payload }) => {
           // Reset user preferences if new campaign
           if (state.campaignID !== payload.id) {
@@ -507,13 +512,13 @@ export const AnnotatorSlice = createSlice({
         },
       )
       builder.addMatcher(
-        ConfidenceSetAPI.endpoints.retrieve.matchFulfilled,
+        ConfidenceSetAPI.endpoints.retrieveConfidenceSet.matchFulfilled,
         (state, { payload }) => {
           state.confidenceIndicators = payload.confidence_indicators;
         },
       )
       builder.addMatcher(
-        UserAPI.endpoints.getCurrent.matchFulfilled,
+        UserAPI.endpoints.getCurrentUser.matchFulfilled,
         (state, { payload }) => {
           state.userID = payload.id;
         },

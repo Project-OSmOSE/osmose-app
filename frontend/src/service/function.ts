@@ -4,7 +4,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 
 export function encodeQueryParams(queryParams?: QueryParams): string {
   if (!queryParams || Object.entries(queryParams).length === 0) return '';
-  return encodeURI(`?${ Object.entries(queryParams).map(([ key, value ]) => `${ key }=${ value }`).join('&') }`);
+  return encodeURI(`?${ Object.entries(queryParams).map(([ key, value ]) => `${ key }=${ JSON.stringify(value) }`).join('&') }`);
 }
 
 export function getErrorMessage(error: FetchBaseQueryError | SerializedError | unknown | string | undefined): string | undefined {

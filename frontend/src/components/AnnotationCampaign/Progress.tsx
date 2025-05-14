@@ -1,8 +1,7 @@
 import React, { Fragment, useMemo } from "react";
-import { AnnotationCampaign } from "@/service/campaign";
+import { AnnotationCampaign, AnnotationCampaignPhase } from '@/service/types';
 import { Progress } from "@/components/ui";
 import { useCampaignState } from "./hook.ts";
-import { AnnotationCampaignPhase } from "@/service/campaign/phase";
 
 export const CampaignGlobalProgress: React.FC<{ campaign: AnnotationCampaign, className?: string }> = ({
                                                                                                          campaign,

@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { AnnotationResult } from '@/service/campaign/result';
+import { AnnotationResult } from '@/service/types';
 import { setAudioSpeed, setStopTime, setTime } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import { KEY_DOWN_EVENT } from "@/service/events";

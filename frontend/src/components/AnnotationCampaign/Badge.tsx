@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { AnnotationCampaign } from "@/service/campaign";
+import { AnnotationCampaign } from "@/service/types";
 import { useCampaignState } from "./hook.ts";
 import { IonBadge } from "@ionic/react";
 

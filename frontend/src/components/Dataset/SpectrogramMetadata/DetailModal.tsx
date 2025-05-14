@@ -1,5 +1,4 @@
 import React, { Fragment, useCallback, useEffect, useMemo } from "react";
-import { SpectrogramConfigurationAPI } from "@/service/dataset/spectrogram-configuration";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import {
@@ -20,6 +19,7 @@ import styles from './styles.module.scss';
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
 import { ID } from "@/service/type.ts";
+import { SpectrogramConfigurationAPI } from "@/service/api/spectrogram-configuration.ts";
 
 
 export const SpectrogramMetadataModalButton: React.FC<{
@@ -49,8 +49,8 @@ export const SpectrogramMetadataModal: React.FC<{
     data: configurations,
     isLoading,
     error: loadingError
-  } = SpectrogramConfigurationAPI.useListQuery({ campaignID, datasetID })
-  const [ download, { error: downloadError } ] = SpectrogramConfigurationAPI.useDownloadMutation()
+  } = SpectrogramConfigurationAPI.endpoints.listSpectrogramConfiguration.useQuery({ campaignID, datasetID })
+  const [ download, { error: downloadError } ] = SpectrogramConfigurationAPI.endpoints.downloadSpectrogramConfiguration.useMutation()
   const toast = useToast();
 
   useEffect(() => {

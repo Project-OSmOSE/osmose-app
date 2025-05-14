@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { EmptyCSVError, ImportSliceState, UnreadableFileError, UnsupportedCSVError, WrongMIMETypeError } from "./type";
 import { ACCEPT_CSV_MIME_TYPE, ACCEPT_CSV_SEPARATOR, IMPORT_ANNOTATIONS_COLUMNS } from "@/consts/csv.ts";
 import { formatCSVToTable } from "@/services/utils/format.tsx";
-import { Detector, DetectorConfiguration } from "@/service/campaign/detector";
+import { Detector, DetectorConfiguration } from "@/service/types";
 
 export const loadFile = createAsyncThunk(
   'campaign/loadFile',

@@ -1,14 +1,14 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { Modal, ModalFooter, ModalHeader, WarningText } from "@/components/ui";
 import { IonButton, IonSpinner } from "@ionic/react";
 import styles from './styles.module.scss';
-import { LabelSetAPI } from "@/service/campaign/label-set";
 import { LabelSetDisplay } from "@/components/AnnotationCampaign";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
+import { CampaignAPI, useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 
 
 export const LabelSetModalButton: React.FC = () => {
@@ -24,18 +24,14 @@ export const LabelSetModalButton: React.FC = () => {
 export const LabelSetModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
-  const {
-    data: labelSet,
-    isFetching, error
-  } = LabelSetAPI.useRetrieveQuery();
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { labelSet, isFetching, error } = useGetLabelSetForCurrentCampaign();
   const toast = useToast();
   const [ patchCampaign, {
     isLoading: isSubmitting,
     error: patchError,
     isSuccess: isPatchSuccessful
-  } ] = CampaignAPI.usePatchMutation();
-  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
+  } ] = CampaignAPI.endpoints.patchCampaign.useMutation();
 
   const [ labelsWithAcousticFeatures, setLabelsWithAcousticFeatures ] = useState<string[]>(campaign?.labels_with_acoustic_features ?? []);
   const [ disabled, setDisabled ] = useState<boolean>(true);

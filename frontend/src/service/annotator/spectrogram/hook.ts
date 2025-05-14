@@ -1,15 +1,13 @@
 import { MutableRefObject, useEffect, useMemo, useRef } from 'react';
 import { SPECTRO_HEIGHT, SPECTRO_WIDTH } from './const.ts';
 import { useAppSelector } from '@/service/app.ts';
-import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { getDuration } from '@/service/dataset';
+import { BoxBounds, SpectrogramConfiguration } from "@/service/types";
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
-import { BoxBounds } from '@/service/campaign/result';
 import { buildErrorMessage } from '@/services/utils/format.tsx';
 import { colorSpectro, interpolate } from '@/services/utils/color.ts';
-import { AnnotatorAPI } from "@/service/annotator";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
+import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 
 
 export const useSpectrogramDimensions = () => {
@@ -25,17 +23,12 @@ export const useSpectrogramDimensions = () => {
 }
 
 export const useCurrentConfiguration = (): SpectrogramConfiguration | undefined => {
-  const { data } = AnnotatorAPI.useRetrieveQuery();
   const { spectrogramConfigurationID } = useAppSelector(state => state.annotator.userPreferences)
+  const { configurations } = useListSpectrogramForCurrentCampaign();
 
   return useMemo(() => {
-    return data?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID)
-  }, [ data?.spectrogram_configurations, spectrogramConfigurationID ]);
-}
-
-export const useFileDuration = () => {
-  const file = useAnnotatorFile()
-  return useMemo(() => getDuration(file), [ file ])
+    return configurations?.find(c => c.id === spectrogramConfigurationID)
+  }, [ configurations, spectrogramConfigurationID ]);
 }
 
 export const useMaxFrequency = () => {
@@ -48,7 +41,6 @@ export const useDisplaySpectrogram = (
 ) => {
   const file = useAnnotatorFile()
   const { xAxis, yAxis } = useAxis();
-  const duration = useFileDuration();
   const currentConfiguration = useCurrentConfiguration();
 
   const {
@@ -116,7 +108,7 @@ export const useDisplaySpectrogram = (
 
   async function drawSpectrogram() {
     const context = canvas.current?.getContext('2d', { alpha: false });
-    if (!canvas.current || !context) return;
+    if (!canvas.current || !context || !file) return;
 
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
@@ -132,8 +124,8 @@ export const useDisplaySpectrogram = (
     for (const i in currentImages) {
       const index: number | undefined = i ? +i : undefined;
       if (index === undefined) continue;
-      const start = index * duration / zoomLevel;
-      const end = (index + 1) * duration / zoomLevel;
+      const start = index * file.duration / zoomLevel;
+      const end = (index + 1) * file.duration / zoomLevel;
       const image = currentImages[index];
       if (!image) continue
       context.drawImage(

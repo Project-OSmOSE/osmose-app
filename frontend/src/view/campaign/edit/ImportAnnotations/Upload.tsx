@@ -3,14 +3,15 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { Progress, WarningText } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
-import { ResultImportSlice, useUploadResultChunk } from "@/service/campaign/result/import";
+import { ResultImportSlice } from "@/service/campaign/result/import";
 import styles from "@/view/campaign/edit/edit.module.scss";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CampaignAPI } from "@/service/campaign";
-import { DetectorConfiguration } from "@/service/campaign/detector";
+import { DetectorConfiguration } from "@/service/types";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
 
 export const Upload: React.FC = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery();
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign();
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ export const Upload: React.FC = () => {
     }
   }, [ campaign?.id, location, navigate, back ])
 
-  const { upload } = useUploadResultChunk(onUploaded)
+  const { upload } = useUploadAnnotationChunk(onUploaded)
   const reset = useCallback(() => {
     dispatch(ResultImportSlice.actions.clear())
   }, [])

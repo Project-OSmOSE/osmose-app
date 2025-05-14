@@ -1,5 +1,4 @@
 import React, { Fragment, useCallback } from "react";
-import { AnnotationCampaign, CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
 import { IonButton, IonIcon } from "@ionic/react";
 import { archiveOutline, helpBuoyOutline } from "ionicons/icons";
 import { useAlert } from "@/service/ui";
@@ -7,12 +6,11 @@ import { Link } from "@/components/ui";
 import { createPortal } from "react-dom";
 import { useModal } from "@/service/ui/modal.ts";
 import { AcquisitionModal } from "./modals/AcquisitionModal.tsx";
+import { CampaignAPI, useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
-export const AnnotationCampaignArchiveButton: React.FC<{
-  campaign: AnnotationCampaign;
-}> = ({ campaign }) => {
-  const [ archiveCampaign ] = CampaignAPI.useArchiveMutation()
-  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
+export const AnnotationCampaignArchiveButton: React.FC = () => {
+  const [ archiveCampaign ] = CampaignAPI.endpoints.archiveCampaign.useMutation()
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
   const alert = useAlert();
 
   const archive = useCallback(async () => {
@@ -32,18 +30,17 @@ export const AnnotationCampaignArchiveButton: React.FC<{
     } else archiveCampaign(campaign.id)
   }, [ campaign ]);
 
-  if (!hasAdminAccess || campaign.archive) return <Fragment/>
+  if (!hasAdminAccess || !campaign || campaign.archive) return <Fragment/>
   return <IonButton color='medium' fill='outline' onClick={ archive }>
     <IonIcon icon={ archiveOutline } slot='start'/>
     Archive
   </IonButton>
 }
 
-export const AnnotationCampaignInstructionsButton: React.FC<{
-  campaign: AnnotationCampaign;
-}> = ({ campaign }) => {
-  if (!campaign.instructions_url) return <Fragment/>
-  return <Link color='warning' fill='outline' href={ campaign.instructions_url }>
+export const AnnotationCampaignInstructionsButton: React.FC = () => {
+  const { campaign } = useRetrieveCurrentCampaign()
+  if (!campaign?.instructions_url) return <Fragment/>
+  return <Link color='warning' fill='outline' href={ campaign?.instructions_url }>
     <IonIcon icon={ helpBuoyOutline } slot="start"/>
     Instructions
   </Link>

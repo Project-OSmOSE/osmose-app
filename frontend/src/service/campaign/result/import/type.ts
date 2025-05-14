@@ -1,5 +1,5 @@
 import { ACCEPT_CSV_MIME_TYPE } from "@/consts/csv.ts";
-import { Detector, DetectorConfiguration } from "@/service/campaign/detector";
+import { Detector, DetectorConfiguration } from "@/service/types";
 
 export type ImportSliceState = {
   file: FileState;

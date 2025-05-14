@@ -1,6 +1,6 @@
 import { ESSENTIAL, expect, test } from './utils';
 import { CAMPAIGN, COMMENT, CONFIDENCE, FILE_RANGE, LABEL, UserType } from './fixtures';
-import { BoxBounds } from '../src/service/campaign/result';
+import { BoxBounds } from '../src/service/types';
 
 // Utils
 const TEST = {

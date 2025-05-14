@@ -15,15 +15,15 @@ import { createOutline } from 'ionicons/icons';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { CLICK_EVENT } from '@/service/events';
 import { usePointerService } from '@/service/annotator/spectrogram/pointer/';
-import { useCurrentAnnotation, useFileDuration, useMaxFrequency } from '@/service/annotator/spectrogram';
-import { SignalTrends } from '@/service/campaign/result';
+import { useCurrentAnnotation, useMaxFrequency } from '@/service/annotator/spectrogram';
+import { SignalTrends } from '@/service/types';
 import { Item } from '@/types/item.ts';
 import { useXAxis } from '@/service/annotator/spectrogram/scale';
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const AcousticFeatures: React.FC = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const file = useAnnotatorFile()
   const xAxis = useXAxis();
 
@@ -41,7 +41,6 @@ export const AcousticFeatures: React.FC = () => {
     setLeft(_left.current)
   }, [ _left.current ]);
 
-  const fileDuration = useFileDuration();
   const dispatch = useAppDispatch();
 
   const { annotation, duration } = useCurrentAnnotation()
@@ -96,8 +95,8 @@ export const AcousticFeatures: React.FC = () => {
   }
 
   function updateDuration(value: number) {
-    if (annotation?.type !== 'Box' || !currentPhase) return;
-    if (duration) value = Math.min(value, fileDuration)
+    if (annotation?.type !== 'Box' || !currentPhase || !file) return;
+    if (duration) value = Math.min(value, file.duration)
     value = Math.max(value, 0)
     dispatch(updateFocusResultBounds({
       newBounds: {
@@ -199,7 +198,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ duration } type="number"
                      step={ 0.001 }
-                     min={ 0.01 } max={ fileDuration }
+                     min={ 0.01 } max={ file?.duration ?? 0 }
                      disabled={ currentPhase?.phase === 'Verification' }
                      onChange={ e => updateDuration(+e.currentTarget.value) }/>
               <IonNote>s</IonNote>

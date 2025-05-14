@@ -1,8 +1,7 @@
 import React, { Fragment, useMemo } from "react";
-import { CampaignAPI, useHasAdminAccessToCampaign } from "@/service/campaign";
+
 import styles from './styles.module.scss'
 import { FadedText } from "@/components/ui";
-import { getDisplayName } from "@/service/user";
 import {
   AnnotationCampaignAcquisitionModalButton,
   AnnotationCampaignArchiveButton,
@@ -12,23 +11,17 @@ import { pluralize } from "@/service/function.ts";
 import { AudioMetadataModalButton } from "@/components/Dataset/AudioMetadata";
 import { SpectrogramMetadataModalButton } from "@/components/Dataset/SpectrogramMetadata";
 import { IonSpinner } from "@ionic/react";
-import { LabelSetAPI } from "@/service/campaign/label-set";
-import { ConfidenceSetAPI } from "@/service/campaign/confidence-set";
 import { LabelSetModalButton } from "@/components/AnnotationCampaign/Label/Modal.tsx";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useGetConfidenceSetForCurrentCampaign } from "@/service/api/confidence-set.ts";
 
 export const AnnotationCampaignDetailInfo: React.FC = () => {
-  const { data: campaign } = CampaignAPI.useRetrieveQuery()
-  const {
-    data: labelSet,
-    isLoading: isLoadingLabelSet
-  } = LabelSetAPI.useRetrieveQuery();
-  const {
-    data: confidenceSet,
-    isLoading: isLoadingConfidenceSet
-  } = ConfidenceSetAPI.useRetrieveQuery();
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { labelSet, isLoading: isLoadingLabelSet } = useGetLabelSetForCurrentCampaign();
+  const { confidenceSet, isLoading: isLoadingConfidenceSet } = useGetConfidenceSetForCurrentCampaign();
   const audioFilename = useMemo(() => campaign?.name.replaceAll(' ', '_') + '_audio_metadata.csv', [ campaign?.name ])
   const spectrogramFilename = useMemo(() => campaign?.name.replaceAll(' ', '_') + '_spectrogram_configuration.csv', [ campaign?.name ])
-  const hasAdminAccess = useHasAdminAccessToCampaign(campaign)
 
   if (!campaign) return <Fragment/>
   return <div className={ styles.info }>
@@ -36,12 +29,12 @@ export const AnnotationCampaignDetailInfo: React.FC = () => {
     { campaign.desc && <div><FadedText>Description</FadedText><p>{ campaign.desc }</p></div> }
 
     {/* GLOBAL */ }
-    <AnnotationCampaignArchiveButton campaign={ campaign }/>
+    <AnnotationCampaignArchiveButton/>
     { campaign.archive && <FadedText>
         Archived
-        on { new Date(campaign.archive.date).toLocaleDateString() } by { getDisplayName(campaign.archive?.by_user) }
+        on { new Date(campaign.archive.date).toLocaleDateString() } by { campaign.archive?.by_user.display_name }
     </FadedText> }
-    <AnnotationCampaignInstructionsButton campaign={ campaign }/>
+    <AnnotationCampaignInstructionsButton/>
     { campaign.deadline && <div>
         <FadedText>Deadline</FadedText>
         <p>{ new Date(campaign.deadline).toLocaleDateString() }</p>

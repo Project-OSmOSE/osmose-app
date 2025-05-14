@@ -1,12 +1,13 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { DatasetAPI, ImportDataset } from "@/service/dataset";
 import { useToast } from "@/service/ui";
 import { IonButton, IonCheckbox, IonIcon, IonSearchbar, IonSpinner, SearchbarInputEventDetail } from "@ionic/react";
 import { cloudUploadOutline, downloadOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
 import { useModal } from "@/service/ui/modal.ts";
 import { Modal, ModalFooter, ModalHeader, Table, TableContent, TableDivider, TableHead } from "@/components/ui";
+import { DatasetAPI } from "@/service/api/dataset.ts";
 import styles from "./styles.module.scss";
+import { ImportDataset } from "@/service/types";
 
 export const ImportDatasetButton: React.FC = () => {
   const modal = useModal();
@@ -15,8 +16,8 @@ export const ImportDatasetButton: React.FC = () => {
   const {
     data: datasetsToImport,
     error: datasetsToImportError
-  } = DatasetAPI.useListForImportQuery()
-  const [ doImportDatasets, { isLoading: isImportInProgress } ] = DatasetAPI.useImportMutation()
+  } = DatasetAPI.endpoints.listDatasetForImport.useQuery()
+  const [ doImportDatasets, { isLoading: isImportInProgress } ] = DatasetAPI.endpoints.importDataset.useMutation()
 
   const canImportDatasets = useMemo(() => datasetsToImport && datasetsToImport.length > 0, [ datasetsToImport ]);
 

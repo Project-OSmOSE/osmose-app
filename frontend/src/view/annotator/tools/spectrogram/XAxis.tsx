@@ -1,7 +1,8 @@
 import React, { useEffect, useImperativeHandle, useRef } from "react";
 import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import { useXAxis, X_HEIGHT } from '@/service/annotator/spectrogram/scale';
-import { useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
+import { useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
+import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 
 export type AxisRef = {
   toDataURL?(type?: string, quality?: any): string;
@@ -18,24 +19,24 @@ export const XAxis = React.forwardRef<AxisRef, {
 
   const xAxis = useXAxis()
   const { width } = useSpectrogramDimensions()
-  const duration = useFileDuration();
+  const file = useAnnotatorFile()
 
   useEffect(() => {
     display()
   }, [ canvasRef, width ]);
 
   const getTimeSteps = () => {
-    if (duration <= 60) return { step: 1, bigStep: 5 }
-    else if (duration > 60 && duration <= 120) return { step: 2, bigStep: 5 }
-    else if (duration > 120 && duration <= 500) return { step: 4, bigStep: 5 }
-    else if (duration > 500 && duration <= 1000) return { step: 10, bigStep: 60 }
+    if (!file || file.duration <= 60) return { step: 1, bigStep: 5 }
+    else if (file.duration > 60 && file.duration <= 120) return { step: 2, bigStep: 5 }
+    else if (file.duration > 120 && file.duration <= 500) return { step: 4, bigStep: 5 }
+    else if (file.duration > 500 && file.duration <= 1000) return { step: 10, bigStep: 60 }
     else return { step: 30, bigStep: 120 }
   }
 
   const display = (): void => {
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d');
-    if (!canvas || !context || !width) return;
+    if (!canvas || !context || !width || !file) return;
 
     context.clearRect(0, 0, width, X_HEIGHT);
 
@@ -44,7 +45,7 @@ export const XAxis = React.forwardRef<AxisRef, {
     context.fillStyle = 'rgba(0, 0, 0)';
     context.font = "500 10px 'Exo 2'";
 
-    for (let i = 0; i <= duration; i++) {
+    for (let i = 0; i <= file.duration; i++) {
       if (i % steps.step === 0) {
         const x: number = xAxis.valueToPosition(i);
 

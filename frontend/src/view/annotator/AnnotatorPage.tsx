@@ -9,10 +9,10 @@ import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/i
 import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
 import { AnnotatorAPI } from "@/service/annotator";
-import { CampaignAPI } from "@/service/campaign";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const AnnotatorPage: React.FC = () => {
-  const { data: campaign, currentPhase } = CampaignAPI.useRetrieveQuery()
+  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const { data } = AnnotatorAPI.useRetrieveQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);

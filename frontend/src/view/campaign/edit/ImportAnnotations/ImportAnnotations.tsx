@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useToast } from "@/service/ui";
-import { CampaignAPI } from "@/service/campaign";
 import styles from '../edit.module.scss';
 import { DetectorsContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsContent.tsx";
 import { DetectorsConfigContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsConfigContent.tsx";
@@ -9,11 +8,12 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ResultImportSlice } from "@/service/campaign/result/import";
 import { FileSelector } from "@/view/campaign/edit/ImportAnnotations/file/Selector.tsx";
 import { Upload } from "@/view/campaign/edit/ImportAnnotations/Upload.tsx";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const ImportAnnotations: React.FC = () => {
   const location = useLocation();
   const toast = useToast();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery();
+  const { campaign } = useRetrieveCurrentCampaign();
 
   const { file, detectors, } = useAppSelector(state => state.resultImport)
   const dispatch = useAppDispatch();

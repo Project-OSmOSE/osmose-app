@@ -1,7 +1,6 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { UserType } from '../../fixtures';
-import { Phase } from '../../../src/service/campaign';
-import { AnnotationResultType, BoxBounds, PointBounds } from '../../../src/service/campaign/result';
+import { AnnotationResultType, BoxBounds, Phase, PointBounds } from '../../../src/service/types';
 import { Mock } from "../services";
 import { CampaignDetailPage } from "./campaign-detail";
 

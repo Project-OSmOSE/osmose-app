@@ -1,12 +1,16 @@
 import { USERS } from './user';
-import { AnnotationCampaign } from '../../src/service/campaign';
+import {
+  AnnotationCampaign,
+  AnnotationCampaignPhase,
+  AnnotationFile,
+  AnnotationFileRange,
+  ConfidenceIndicator,
+  ConfidenceIndicatorSet,
+  Detector,
+  LabelSet,
+  UserGroup
+} from '../../src/service/types';
 import { DATASET, DATASET_SR } from './dataset';
-import { LabelSet } from '../../src/service/campaign/label-set';
-import { ConfidenceIndicator, ConfidenceIndicatorSet } from '../../src/service/campaign/confidence-set';
-import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range';
-import { Detector } from '../../src/service/campaign/detector';
-import { AnnotatorGroup } from "../../src/service/annotator-group";
-import { AnnotationCampaignPhase } from "../../src/service/campaign/phase";
 
 const deadline = new Date()
 deadline.setTime(0)
@@ -82,6 +86,7 @@ export const CAMPAIGN = {
 const start = new Date();
 const end = new Date(start.toISOString());
 end.setTime(start.getTime() + 10_000);
+const duration = end.getTime() - start.getTime()
 
 export const FILE_RANGE = {
   unsubmittedFile: {
@@ -94,7 +99,9 @@ export const FILE_RANGE = {
     start: start.toISOString(),
     end: end.toISOString(),
     size: 0,
-    audio_url: ''
+    audio_url: '',
+    validated_results_count: 0,
+    duration
   } satisfies AnnotationFile,
   submittedFile: {
     id: 2,
@@ -106,7 +113,9 @@ export const FILE_RANGE = {
     start: start.toISOString(),
     end: end.toISOString(),
     size: 0,
-    audio_url: ''
+    audio_url: '',
+    validated_results_count: 0,
+    duration
   } satisfies AnnotationFile,
   range: {
     id: 1,
@@ -119,7 +128,7 @@ export const FILE_RANGE = {
   } satisfies AnnotationFileRange,
 }
 
-export const ANNOTATOR_GROUP: AnnotatorGroup = {
+export const ANNOTATOR_GROUP: UserGroup = {
   id: 1,
   name: 'Staff group',
   annotators: [ USERS.staff ]

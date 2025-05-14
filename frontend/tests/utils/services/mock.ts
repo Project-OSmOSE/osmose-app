@@ -19,8 +19,7 @@ import {
   UserType
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
-import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
-import { AnnotationCampaign, Phase } from '../../../src/service/campaign';
+import { AnnotationCampaign, AnnotationFile, Phase } from '../../../src/service/types';
 
 type Response = {
   status: number,
