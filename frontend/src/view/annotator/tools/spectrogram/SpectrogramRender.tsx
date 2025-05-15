@@ -35,6 +35,7 @@ import { useAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -47,7 +48,8 @@ export interface SpectrogramRender {
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { configurations } = useListSpectrogramForCurrentCampaign();
   // Data
   const {
@@ -88,8 +90,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
-  const isEditable: boolean = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && !!data?.is_assigned, [ campaign, currentPhase, data ])
-  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && currentPhase?.phase === 'Annotation' && !!focusedLabel && isEditable, [ canAddAnnotations, focusedLabel, currentPhase, isEditable ]);
+  const isEditable: boolean = useMemo(() => !campaign?.archive && !phase?.ended_by && !!data?.is_assigned, [ campaign, phase, data ])
+  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && phase?.phase === 'Annotation' && !!focusedLabel && isEditable, [ canAddAnnotations, focusedLabel, phase, isEditable ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled

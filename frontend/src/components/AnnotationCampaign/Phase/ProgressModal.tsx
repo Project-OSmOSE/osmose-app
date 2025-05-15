@@ -21,7 +21,7 @@ import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
 import { UserAPI } from "@/service/api/user.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
+import { CampaignPhaseAPI, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useListFileRangesForCurrentPhase } from "@/service/api/annotation-file-range.ts";
 
 type Progression = {
@@ -48,14 +48,15 @@ export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large
 export const ProgressModal: React.FC<{
   onClose?(): void;
 }> = ({ onClose }) => {
-  const { campaign, currentPhase, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const toast = useToast();
   const navigate = useNavigate();
   const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.endpoints.listUser.useQuery();
   const { fileRanges, isFetching: isLoadingFileRanges, error: fileRangeError } = useListFileRangesForCurrentPhase();
   const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseStatus.useMutation()
   const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseReport.useMutation()
-  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [ campaign, currentPhase ])
+  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
 
   const [ progress, setProgress ] = useState<Array<Progression>>([]);
   const [ sort, setSort ] = useState<Sort>({ entry: 'Progress', sort: 'DESC' });
@@ -106,21 +107,21 @@ export const ProgressModal: React.FC<{
   }
 
   function onDownloadStatus() {
-    if (currentPhase && campaign) downloadStatus({
-      phaseID: currentPhase.id,
+    if (phase && campaign) downloadStatus({
+      phaseID: phase.id,
       filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
     })
   }
 
   function onDownloadReport() {
-    if (currentPhase && campaign) downloadReport({
-      phaseID: currentPhase.id,
+    if (phase && campaign) downloadReport({
+      phaseID: phase.id,
       filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
     })
   }
 
   function manageAnnotator() {
-    navigate(`/annotation-campaign/${ campaign?.id }/phase/${ currentPhase?.id }/edit-annotators`);
+    navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/edit-annotators`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {

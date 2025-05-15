@@ -8,8 +8,8 @@ import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configu
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -21,7 +21,7 @@ export const Box: React.FC<RegionProps> = ({
                                              annotation,
                                              audioPlayer
                                            }) => {
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   // Data
   const { labelSet } = useGetLabelSetForCurrentCampaign();
     const { focusedResultID } = useAppSelector(state => state.annotator);
@@ -135,7 +135,7 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   function onValidateMove() {
-    if (!currentPhase) return;
+    if (!phase) return;
     let end_frequency = _yAxis.current.positionToValue(_top.current);
     let start_frequency = _yAxis.current.positionToValue(_top.current + _height.current);
     let start_time = _xAxis.current.positionToValue(_left.current);
@@ -146,7 +146,7 @@ export const Box: React.FC<RegionProps> = ({
     if (_end_frequency.current && _end_frequency.current.toFixed(2) === end_frequency.toFixed(2)) end_frequency = _end_frequency.current;
     dispatch(updateFocusResultBounds({
       newBounds: { type: 'Box', end_frequency, start_frequency, start_time, end_time },
-      phase: currentPhase.phase
+      phase: phase.phase
     }))
   }
 

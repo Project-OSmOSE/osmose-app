@@ -12,7 +12,6 @@ from django.db.models import (
     OuterRef,
     QuerySet,
     Subquery,
-    Count,
     Func,
 )
 from django.db.models.functions import Lower, Concat, Extract, Coalesce
@@ -36,7 +35,7 @@ from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers.annotation.campaign import (
     AnnotationCampaignPhaseSerializer,
 )
-from backend.aplose.models.user import ExpertiseLevel, User
+from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
 from backend.utils.renderers import CSVRenderer
 
@@ -138,7 +137,14 @@ class AnnotationCampaignPhaseViewSet(
             ),
             Value(0),
         ),
-        global_progress=Count("tasks", filter=Q(tasks__status="F"), distinct=True),
+        global_progress=Subquery(
+            AnnotationTask.objects.filter(
+                annotation_campaign_phase_id=OuterRef("pk"),
+                status=AnnotationTask.Status.FINISHED,
+            )
+            .annotate(count=Func(F("id"), function="count"))
+            .values("count")
+        ),
     )
     serializer_class = AnnotationCampaignPhaseSerializer
     filter_backends = (ModelFilter, CampaignPhaseAccessFilter)
@@ -159,33 +165,30 @@ class AnnotationCampaignPhaseViewSet(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
-    @staticmethod
-    def get_queryset_for_user(user: User):
-        """Get queryset with the user progression"""
-        return AnnotationCampaignPhaseViewSet.queryset.annotate(
-            user_progress=Count(
-                "tasks",
-                filter=Q(tasks__annotator_id=user.id, tasks__status="F"),
-                distinct=True,
-            ),
-            user_total=Coalesce(
-                Subquery(
-                    AnnotationFileRange.objects.filter(
-                        annotation_campaign_phase_id=OuterRef("pk"),
-                        annotator_id=user.id,
-                    )
-                    .annotate(sum=Func(F("files_count"), function="Sum"))
-                    .values("sum"),
-                ),
-                Value(0),
-            ),
-        )
-
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.request.user:
-            queryset = AnnotationCampaignPhaseViewSet.get_queryset_for_user(
-                self.request.user
+            queryset = queryset.annotate(
+                user_total=Coalesce(
+                    Subquery(
+                        AnnotationFileRange.objects.filter(
+                            annotator_id=self.request.user.id,
+                            annotation_campaign_phase_id=OuterRef("pk"),
+                        )
+                        .annotate(sum=Func(F("files_count"), function="Sum"))
+                        .values("sum")
+                    ),
+                    Value(0),
+                ),
+                user_progress=Subquery(
+                    AnnotationTask.objects.filter(
+                        annotator_id=self.request.user.id,
+                        annotation_campaign_phase_id=OuterRef("pk"),
+                        status=AnnotationTask.Status.FINISHED,
+                    )
+                    .annotate(count=Func(F("id"), function="count"))
+                    .values("count")
+                ),
             )
         return queryset
 

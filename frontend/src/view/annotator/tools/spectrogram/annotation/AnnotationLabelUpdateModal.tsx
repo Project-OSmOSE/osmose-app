@@ -6,21 +6,21 @@ import styles from "@/view/annotator/tools/spectrogram/annotation/annotation.mod
 import { AnnotationResult } from "@/service/types";
 import { AnnotatorSlice } from "@/service/annotator";
 import { useAppDispatch } from "@/service/app.ts";
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotationLabelUpdateModal: React.FC<{
   annotation: AnnotationResult,
   isModalOpen: boolean,
   setIsModalOpen: (value: boolean) => void
 }> = ({ annotation, isModalOpen, setIsModalOpen }) => {
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
   const dispatch = useAppDispatch();
 
   const updateLabel = useCallback((newLabel: string) => {
-    if (!currentPhase) return;
-    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, phase: currentPhase.phase }))
+    if (!phase) return;
+    dispatch(AnnotatorSlice.actions.updateLabel({ label: newLabel, phase: phase.phase }))
     setIsModalOpen(false)
   }, []);
 

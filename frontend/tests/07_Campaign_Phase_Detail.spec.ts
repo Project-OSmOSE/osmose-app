@@ -117,12 +117,12 @@ test.describe('Campaign creator', () => {
     const modal = await page.campaign.detail.openProgressModal()
 
     await test.step('Results', () => Promise.all([
-      page.waitForRequest(API_URL.campaign.report),
+      page.waitForRequest(API_URL.phase.report),
       modal.downloadResultsButton.click(),
     ]))
 
     await test.step('Status', () => Promise.all([
-      page.waitForRequest(API_URL.campaign.reportStatus),
+      page.waitForRequest(API_URL.phase.reportStatus),
       modal.downloadStatusButton.click(),
     ]))
   })

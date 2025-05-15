@@ -9,9 +9,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { DetectorConfiguration } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const Upload: React.FC = () => {
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign();
+  const { campaign } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase()
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ export const Upload: React.FC = () => {
     </div>
   }, [ upload, uploadInfo, detectors, back, file ])
 
-  if (currentPhase?.phase !== 'Verification') return <Fragment/>
+  if (phase?.phase !== 'Verification') return <Fragment/>
   if (uploadInfo.state === 'initial') return buttons
   return <Fragment>
     <Progress label='Upload' value={ uploadInfo.uploaded } total={ uploadInfo.total }/>

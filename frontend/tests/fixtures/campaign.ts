@@ -59,7 +59,8 @@ export const CAMPAIGN_PHASE: AnnotationCampaignPhase = {
   user_total: 10,
   global_progress: 50,
   global_total: 100,
-  has_annotations: true
+  has_annotations: true,
+  annotation_campaign: 1
 }
 export const CAMPAIGN = {
   id: 1,
@@ -76,7 +77,7 @@ export const CAMPAIGN = {
   datasets: [ DATASET.name ],
   labels_with_acoustic_features: [ LABEL.withFeatures ],
   archive: null,
-  phases: [CAMPAIGN_PHASE],
+  phases: [CAMPAIGN_PHASE.id],
   allow_image_tuning: false,
   allow_colormap_tuning: false,
   colormap_default: null,

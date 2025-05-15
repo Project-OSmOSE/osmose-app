@@ -3,18 +3,21 @@ import { AnnotationCampaign, AnnotationCampaignPhase } from '@/service/types';
 import { Progress } from "@/components/ui";
 import { useCampaignState } from "./hook.ts";
 
-export const CampaignGlobalProgress: React.FC<{ campaign: AnnotationCampaign, className?: string }> = ({
-                                                                                                         campaign,
-                                                                                                         className
-                                                                                                       }) => {
+export const CampaignGlobalProgress: React.FC<{
+  phases: AnnotationCampaignPhase[],
+  className?: string
+}> = ({
+        phases,
+        className
+      }) => {
 
   const total = useMemo(() => {
-    return campaign.phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.global_total, 0);
-  }, [ campaign.phases ]);
+    return phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.global_total, 0);
+  }, [ phases ]);
 
   const progress = useMemo(() => {
-    return campaign.phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.global_progress, 0);
-  }, [ campaign.phases ]);
+    return phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.global_progress, 0);
+  }, [ phases ]);
 
   if (total === 0) return <Fragment/>
   return <Progress label='Global progress'
@@ -23,19 +26,24 @@ export const CampaignGlobalProgress: React.FC<{ campaign: AnnotationCampaign, cl
                    total={ total }/>
 }
 
-export const CampaignUserProgress: React.FC<{ campaign: AnnotationCampaign, className?: string }> = ({
-                                                                                                       campaign,
-                                                                                                       className
-                                                                                                     }) => {
+export const CampaignUserProgress: React.FC<{
+  campaign: AnnotationCampaign,
+  phases: AnnotationCampaignPhase[],
+  className?: string
+}> = ({
+        campaign,
+        phases,
+        className
+      }) => {
   const { color } = useCampaignState(campaign);
 
   const total = useMemo(() => {
-    return campaign.phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.user_total, 0);
-  }, [ campaign.phases ]);
+    return phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.user_total, 0);
+  }, [ phases ]);
 
   const progress = useMemo(() => {
-    return campaign.phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.user_progress, 0);
-  }, [ campaign.phases ]);
+    return phases.reduce((previousValue: number, p: AnnotationCampaignPhase) => previousValue + p.user_progress, 0);
+  }, [ phases ]);
 
   if (total === 0) return <Fragment/>
   return <Progress label='My progress'

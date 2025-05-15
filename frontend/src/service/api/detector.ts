@@ -4,6 +4,7 @@ import { AnnotationCampaign, Detector } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { encodeQueryParams } from "@/service/function.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const DetectorAPI = API.injectEndpoints({
@@ -20,9 +21,10 @@ export const DetectorAPI = API.injectEndpoints({
 })
 
 export const useListDetectorForCurrentCampaign = () => {
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { data, ...info } = DetectorAPI.endpoints.listDetector.useQuery(campaign ? {campaign} : skipToken, {
-    skip: currentPhase?.phase !== 'Verification'
+    skip: phase?.phase !== 'Verification'
   })
   return useMemo(() => ({ detectors: data, ...info, }), [ data, info ])
 }

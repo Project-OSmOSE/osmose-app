@@ -14,6 +14,7 @@ import {
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const Results: React.FC<{
@@ -137,7 +138,7 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;
@@ -168,7 +169,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
     dispatch(invalidateResult(result.id))
   }, [ setIsModalOpen ]);
 
-  if (currentPhase?.phase !== 'Verification') return <Fragment/>
+  if (phase?.phase !== 'Verification') return <Fragment/>
   return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
     <IonButton className="validate"
                color={ validation ? 'success' : 'medium' }

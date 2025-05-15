@@ -10,7 +10,7 @@ import { TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -94,11 +94,11 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 }
 
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const dispatch = useAppDispatch();
 
   const remove = useCallback(() => {
-    switch (currentPhase?.phase) {
+    switch (phase?.phase) {
       case 'Annotation':
         dispatch(removeResult(annotation.id));
         break;
@@ -106,7 +106,7 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
         dispatch(invalidateResult(annotation.id));
         break;
     }
-  }, [ currentPhase, annotation ])
+  }, [ phase, annotation ])
 
   return (
     <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>

@@ -18,6 +18,7 @@ import {
   PostAnnotationFileRange,
   useListFileRangesForCurrentPhase
 } from "@/service/api/annotation-file-range.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 type SearchItem = {
   type: 'user' | 'group';
@@ -30,8 +31,8 @@ export const EditAnnotators: React.FC = () => {
     campaign,
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign,
-    currentPhase
   } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase()
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -119,14 +120,14 @@ export const EditAnnotators: React.FC = () => {
 
   // Submit
   const submit = useCallback(() => {
-    if (!currentPhase || !campaign) return;
+    if (!phase || !campaign) return;
     postFileRanges({
-      phaseID: currentPhase.id,
+      phaseID: phase.id,
       filesCount: campaign.files_count,
       data: fileRanges,
       force: isForced
     })
-  }, [ fileRanges, currentPhase, campaign, isForced ])
+  }, [ fileRanges, phase, campaign, isForced ])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);

@@ -18,6 +18,10 @@ export const API_URL = {
     create: '/api/annotation-campaign/',
     detail: /\/api\/annotation-campaign\/\d\/?/g,
     archive: /\/api\/annotation-campaign\/-?\d\/archive\/?/g,
+  },
+  phase: {
+    list: /\/api\/annotation-campaign-phase\/?\?/g,
+    detail: /\/api\/annotation-campaign-phase\/\d\/?/g,
     report: /\/api\/annotation-campaign-phase\/-?\d\/report/g,
     reportStatus: /\/api\/annotation-campaign-phase\/-?\d\/report-status/g
   },

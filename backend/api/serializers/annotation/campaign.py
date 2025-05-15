@@ -49,6 +49,11 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
     global_total = serializers.IntegerField(read_only=True, default=0)
     user_progress = serializers.IntegerField(read_only=True, default=0)
     user_total = serializers.IntegerField(read_only=True, default=0)
+
+    # has_annotations as a serializerMethod will give more requests but be quicker anyway:
+    # on 22 items rendered:
+    #  - SerializerMethodField: 47 queries | ~200ms
+    #  - BooleanField on previous annotation: 7 queries | ~400ms
     has_annotations = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

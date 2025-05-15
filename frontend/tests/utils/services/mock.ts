@@ -6,6 +6,7 @@ import {
   AUDIO_METADATA,
   AUTH,
   CAMPAIGN,
+  CAMPAIGN_PHASE,
   CHECK_DATA,
   CONFIDENCE,
   CREATE_DATA,
@@ -56,8 +57,8 @@ export class Mock {
   }
 
   public async campaigns(empty: boolean = false) {
-    const json = empty ? [] : [ CAMPAIGN ]
-    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json: empty ? [] : [ CAMPAIGN ] }))
+    await this.page.route(API_URL.phase.list, route => route.fulfill({ status: 200, json: empty ? [] : [ CAMPAIGN_PHASE ] }))
   }
 
   public async campaignCreate(withErrors: boolean = false) {
@@ -88,21 +89,19 @@ export class Mock {
                               hasConfidence: boolean = true,
                               allowPoint: boolean = false) {
     const json: AnnotationCampaign = CAMPAIGN;
-    if (empty) {
-      json.phases = json.phases.map(p => ({
-        ...p,
-        progress: 0,
-        total: 0,
-        my_progress: 0,
-        my_total: 0,
-        phase
-      }))
-    }
     if (!hasConfidence) {
       json.confidence_indicator_set = null;
     }
     if (allowPoint) json.allow_point_annotation = true;
     await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.phase.detail, route => route.fulfill({ status: 200, json: empty ? {
+        ...CAMPAIGN_PHASE,
+        progress: 0,
+        total: 0,
+        my_progress: 0,
+        my_total: 0,
+        phase
+      } : CAMPAIGN_PHASE }))
   }
 
   public async spectrograms(empty: boolean = false) {

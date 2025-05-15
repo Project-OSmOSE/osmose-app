@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { getQueryParamsForFilters } from "@/service/api/annotation-file-range.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -140,26 +141,28 @@ const _AnnotatorAPI = createApi({
 })
 
 export const useRetrieveQuery = () => {
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { fileID } = useParams<{ fileID: string }>();
   const fileFilters = useAppSelector(state => state.ui.fileFilters)
 
   return _AnnotatorAPI.useRetrieveQuery(
-    (campaign && currentPhase && fileID) ? {
+    (campaign && phase && fileID) ? {
       filters: fileFilters,
       campaignID: campaign.id,
-      phaseID: currentPhase.id,
+      phaseID: phase.id,
       fileID
     } : skipToken);
 }
 
 export const usePostMutation = () => {
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const [ _post ] = _AnnotatorAPI.usePostMutation()
   const annotator = useAppSelector(state => state.annotator);
   const _annotator = useRef<AnnotatorState>(annotator)
   const _campaign = useRef<AnnotationCampaign | undefined>(campaign)
-  const _phase = useRef<AnnotationCampaignPhase | undefined>(currentPhase)
+  const _phase = useRef<AnnotationCampaignPhase | undefined>(phase)
   useEffect(() => {
     _annotator.current = annotator;
   }, [ annotator ]);
@@ -167,8 +170,8 @@ export const usePostMutation = () => {
     _campaign.current = campaign;
   }, [ campaign ]);
   useEffect(() => {
-    _phase.current = currentPhase;
-  }, [ currentPhase ]);
+    _phase.current = phase;
+  }, [ phase ]);
 
   return useCallback(() => {
     if (!_campaign.current || !_phase.current || !_annotator.current.file) return;

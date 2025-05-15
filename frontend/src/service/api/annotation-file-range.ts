@@ -1,11 +1,11 @@
 import { API } from "@/service/api/index.ts";
 import { useMemo } from "react";
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { ID, Paginated } from "@/service/type.ts";
 import { encodeQueryParams } from "@/service/function.ts";
 import { AnnotationFile, AnnotationFileRange } from "@/service/types";
 import { FileFilters } from "@/service/ui/type.ts";
 import { extendDatasetFile } from "@/service/api/dataset.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const FILES_PAGE_SIZE = 20;
 
@@ -120,10 +120,10 @@ export const AnnotationFileRangeAPI = API.injectEndpoints({
 })
 
 export const useListFileRangesForCurrentPhase = () => {
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const {
     data,
     ...info
-  } = AnnotationFileRangeAPI.endpoints.listFileRange.useQuery({ phaseID: currentPhase!.id }, { skip: !currentPhase })
+  } = AnnotationFileRangeAPI.endpoints.listFileRange.useQuery({ phaseID: phase!.id }, { skip: !phase })
   return useMemo(() => ({ fileRanges: data, ...info, }), [ data, info ])
 }

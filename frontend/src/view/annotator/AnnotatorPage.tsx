@@ -11,14 +11,16 @@ import { useAppSelector } from "@/service/app.ts";
 import { AnnotatorAPI } from "@/service/annotator";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { UserAPI } from "@/service/api/user.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotatorPage: React.FC = () => {
   UserAPI.endpoints.getCurrentUser.useQuery()
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { data } = AnnotatorAPI.useRetrieveQuery();
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
-  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && data?.is_assigned, [ campaign, currentPhase, data ])
+  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
 
   const canNavigate = useCanNavigate()
 
@@ -44,7 +46,7 @@ export const AnnotatorPage: React.FC = () => {
               }
 
               <Link color='medium' fill='outline' size='small'
-                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase?.id }` }>
+                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
                 Back to campaign
               </Link>
             </Fragment> }>
@@ -59,7 +61,7 @@ export const AnnotatorPage: React.FC = () => {
                       value={ data.current_task_index + 1 }
                       total={ data.total_tasks }/> }
         { campaign?.archive ? <IonNote>You cannot annotate an archived campaign.</IonNote> :
-          currentPhase?.ended_by ? <IonNote>You cannot annotate an ended phase.</IonNote> :
+          phase?.ended_by ? <IonNote>You cannot annotate an ended phase.</IonNote> :
             !data.is_assigned ? <IonNote>You are not assigned to annotate this file.</IonNote> :
               <Fragment/>
         }

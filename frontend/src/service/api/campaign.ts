@@ -52,17 +52,13 @@ export const CampaignAPI = API.injectEndpoints({
       transformResponse(campaigns: Array<AnnotationCampaign>): Array<AnnotationCampaign> {
         return [ ...campaigns ].map(extendCampaign)
       },
-      providesTags: campaigns => campaigns ? [ ...campaigns.flatMap(({ id, phases }) => [
-        { type: 'Campaign' as const, id },
-        ...(phases ?? []).map(p => ({ type: 'CampaignPhase' as const, id: p.id }))
-      ]), 'Campaign' ] : [ 'Campaign' ]
+      providesTags: campaigns => campaigns ? [ ...campaigns.map(({ id }) => ({ type: 'Campaign' as const, id })), 'Campaign' ] : [ 'Campaign' ]
     }),
     retrieveCampaign: builder.query<AnnotationCampaign, ID>({
       query: (id) => `annotation-campaign/${ id }/`,
       transformResponse: extendCampaign,
       providesTags: (campaign, _, arg) => [
         { type: 'Campaign', id: campaign?.id ?? arg },
-        ...(campaign?.phases ?? []).map(p => ({ type: 'CampaignPhase' as const, id: p.id }))
       ]
     }),
     postCampaign: builder.mutation<AnnotationCampaign, PostAnnotationCampaign>({
@@ -103,13 +99,12 @@ export const CampaignAPI = API.injectEndpoints({
 })
 
 export const useRetrieveCurrentCampaign = () => {
-  const { campaignID, phaseID } = useParams<{ campaignID: string; phaseID?: string }>();
+  const { campaignID } = useParams<{ campaignID: string; }>();
   const { data: campaign, ...info } = CampaignAPI.endpoints.retrieveCampaign.useQuery(campaignID ?? skipToken)
   const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery();
   return useMemo(() => ({
     campaign,
     ...info,
-    currentPhase: campaign?.phases.find(p => p.id.toString() === phaseID),
     hasAdminAccess: !!user && (user.is_staff || user.is_superuser || campaign?.owner?.id === user.id)
-  }), [ campaign, info, phaseID ])
+  }), [ campaign, info ])
 }

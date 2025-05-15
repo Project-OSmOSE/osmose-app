@@ -7,14 +7,14 @@ import { updateFocusResultBounds } from '@/service/annotator';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
-  const { currentPhase } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
     // Data
   const { focusedResultID } = useAppSelector(state => state.annotator);
@@ -91,7 +91,7 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
-    if (!currentPhase) return;
+    if (!phase) return;
     dispatch(updateFocusResultBounds({
       newBounds: {
         type: 'Point',
@@ -100,7 +100,7 @@ export const Point: React.FC<{
         start_frequency: _yAxis.current.positionToValue(_top.current),
         end_frequency: null,
       },
-      phase: currentPhase.phase
+      phase: phase.phase
     }))
   }
 

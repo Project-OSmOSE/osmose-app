@@ -43,7 +43,7 @@ export type AnnotationCampaign = {
   /** Date */
   created_at: string;
   archive: AnnotationCampaignArchive | null;
-  phases: AnnotationCampaignPhase[];
+  phases: number[]; // pk
 
   datasets: string[]
   files_count: number;

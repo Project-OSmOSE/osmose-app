@@ -2,10 +2,32 @@ import { API } from "@/service/api/index.ts";
 import { AnnotationCampaign, AnnotationCampaignPhase, Phase } from "@/service/types";
 import { ID } from "@/service/type.ts";
 import { downloadResponseHandler, encodeQueryParams } from "@/service/function.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 
 export const CampaignPhaseAPI = API.injectEndpoints({
   endpoints: (builder) => ({
+    listCampaignPhase: builder.query<AnnotationCampaignPhase[], {
+      campaigns?: AnnotationCampaign[],
+    } | void>({
+      query: (arg) => {
+        const params: any = {}
+        if (arg) {
+          if (arg.campaigns) params.annotation_campaign_id__in = arg.campaigns.map(c => c.id)
+        }
+        return {
+          url: `annotation-campaign-phase/${ encodeQueryParams(params) }`,
+        }
+      },
+      providesTags: phases => (phases ?? []).map(({ id }) => ({ type: 'CampaignPhase' as const, id })),
+    }),
+    retrieveCampaignPhase: builder.query<AnnotationCampaignPhase, ID>({
+      query: (id) => `annotation-campaign-phase/${ id }`,
+      providesTags: phase => phase ? [ { type: 'CampaignPhase' as const, id: phase.id } ] : [],
+    }),
     postCampaignPhase: builder.mutation<AnnotationCampaignPhase, {
       campaign: AnnotationCampaign,
       phase: Phase,
@@ -18,7 +40,10 @@ export const CampaignPhaseAPI = API.injectEndpoints({
           annotation_campaign: campaign.id
         }
       }),
-      invalidatesTags: phase => phase ? [ { type: "CampaignPhase", id: phase.id } ] : [],
+      invalidatesTags: phase => phase ? [
+        { type: "CampaignPhase", id: phase.id },
+        { type: "Campaign", id: phase.annotation_campaign },
+      ] : [],
     }),
     endCampaignPhase: builder.mutation<AnnotationCampaignPhase, ID>({
       query: (phaseID) => ({
@@ -47,3 +72,17 @@ export const CampaignPhaseAPI = API.injectEndpoints({
     }),
   })
 })
+
+export const useListPhasesForCurrentCampaign = () => {
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { data, ...info } = CampaignPhaseAPI.endpoints.listCampaignPhase.useQuery({
+    campaigns: [ campaign! ],
+  }, { skip: !campaign })
+  return useMemo(() => ({ phases: data, ...info, }), [ data, info ])
+}
+
+export const useRetrieveCurrentPhase = () => {
+  const { phaseID } = useParams<{ phaseID?: string }>();
+  const { data, ...info } = CampaignPhaseAPI.endpoints.retrieveCampaignPhase.useQuery(phaseID ?? skipToken)
+  return useMemo(() => ({ phase: phaseID ? data : undefined, ...info, }), [ data, info, phaseID ])
+}

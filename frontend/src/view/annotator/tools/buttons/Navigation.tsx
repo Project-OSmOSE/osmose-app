@@ -10,11 +10,13 @@ import { KEY_DOWN_EVENT } from "@/service/events";
 import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { AnnotatorAPI } from "@/service/annotator";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const NavigationButtons: React.FC = () => {
   const { data } = AnnotatorAPI.useRetrieveQuery();
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
 
   // Services
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export const NavigationButtons: React.FC = () => {
   const {
     didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
-  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by && data?.is_assigned, [ campaign, currentPhase, data ])
+  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
 
   const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
   useEffect(() => {

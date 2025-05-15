@@ -15,34 +15,36 @@ import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { AnnotationCampaign, AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
 import { AnnotationFileRangeAPI } from "@/service/api/annotation-file-range.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
-  const { campaign, currentPhase } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
   const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
   const fileFilters = useAppSelector(state => state.ui.fileFilters);
   const dispatch = useAppDispatch();
   AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page: 1,
-    phaseID: currentPhase!.id,
+    phaseID: phase?.id ?? -1,
     filters: {}
-  }, { refetchOnMountOrArgChange: true, skip: !currentPhase || !!campaign?.archive });
+  }, { refetchOnMountOrArgChange: true, skip: !phase || !!campaign?.archive });
   const { currentData: files, isFetching, error } = AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page,
-    phaseID: currentPhase!.id,
+    phaseID: phase?.id ?? -1,
     filters: fileFilters
-  }, { skip: !currentPhase || !!campaign?.archive });
+  }, { skip: !phase || !!campaign?.archive });
   const isEmpty = useMemo(() => error || (files && files.count === 0) || campaign?.archive, [ error, files, campaign ])
   const hasFilters = useMemo(() => Object.values(fileFilters).filter(v => v !== undefined).length > 0, [ fileFilters ]);
   const isResumeEnabled = useMemo(() => {
     return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
   }, [ fileFilters ]);
-  const isEditable = useMemo(() => !campaign?.archive && !currentPhase?.ended_by, [campaign, currentPhase])
+  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
 
   const resume = useCallback(() => {
-    if (!campaign || !currentPhase || !files) return;
-    navigate(`/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/file/${ files.resume }`);
-  }, [ campaign, currentPhase, files ])
+    if (!campaign || !phase || !files) return;
+    navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ files.resume }`);
+  }, [ campaign, phase, files ])
 
   const updateSearch = useCallback((search: string) => {
     dispatch(setFileFilters({ ...fileFilters, search }))
@@ -63,7 +65,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
     setPage(1)
   }, [])
 
-  if (!campaign || !currentPhase) return <IonSpinner/>
+  if (!campaign || !phase) return <IonSpinner/>
   return <div className={ styles.phase }>
 
     <div className={ [ styles.tasks, isEmpty ? styles.empty : '' ].join(' ') }>
@@ -79,36 +81,36 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    </IonButton> }
 
                    <div className={ styles.progress }>
-                     <PhaseUserProgress phase={ currentPhase }/>
-                     <PhaseGlobalProgress phase={ currentPhase }/>
+                     <PhaseUserProgress phase={ phase }/>
+                     <PhaseGlobalProgress phase={ phase }/>
                      <ProgressModalButton size='small'/>
                    </div>
 
                    { isEditable && <Link fill='outline' color='medium' size='small'
-                                                 appPath={ `/annotation-campaign/${ campaign.id }/phase/${ currentPhase.id }/import-annotations` }>
+                                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
                        Import annotations
                    </Link> }
 
                    { (!error && isEditable) && <Button color="primary" fill='outline' size='small'
-                                                              disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
-                                                              disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
-                                                              style={ { pointerEvents: 'unset' } }
-                                                              onClick={ resume }>
+                                                       disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
+                                                       disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
+                                                       style={ { pointerEvents: 'unset' } }
+                                                       onClick={ resume }>
                        Resume
                        <IonIcon icon={ playOutline } slot="end"/>
                    </Button> }
                  </div> }/>
 
-      { currentPhase.phase === 'Verification' && !currentPhase.has_annotations &&
+      { phase.phase === 'Verification' && !phase.has_annotations &&
           <WarningText>
               Your campaign doesn't have any annotations to check
             { isEditable && <Link
-                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ currentPhase.id }/import-annotations` }>
+                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations` }>
                 Import annotations
             </Link> }
           </WarningText> }
 
-      <Table columns={ currentPhase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
+      <Table columns={ phase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
         <TableHead topSticky isFirstColumn={ true }>
           Filename
         </TableHead>
@@ -123,7 +125,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
           Annotations
           <AnnotationsFilter onUpdate={ onFilterUpdated }/>
         </TableHead>
-        { currentPhase.phase === 'Verification' && <TableHead topSticky>
+        { phase.phase === 'Verification' && <TableHead topSticky>
             Validated annotations
         </TableHead> }
         <TableHead topSticky>
@@ -137,7 +139,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
 
         { files?.results?.map(file => <TaskItem key={ file.id }
                                                 file={ file }
-                                                phase={ currentPhase }
+                                                phase={ phase }
                                                 campaign={ campaign }/>) }
       </Table>
 
@@ -148,7 +150,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
       { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       { files && files.count === 0 && <p>You have no files to annotate.</p> }
       { campaign?.archive && <p>The campaign is archived. No more annotation can be done.</p> }
-      { currentPhase?.ended_by && <p>The phase is . No more annotation can be done.</p> }
+      { phase?.ended_by && <p>The phase is . No more annotation can be done.</p> }
 
     </div>
   </div>
