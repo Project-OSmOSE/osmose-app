@@ -27,6 +27,7 @@ export type AnnotationCampaignPhase = {
   user_progress: number;
   user_total: number;
   has_annotations: boolean;
+  annotation_campaign: number; // pk
 }
 
 export type AnnotationCampaign = {

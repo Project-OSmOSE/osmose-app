@@ -36,7 +36,7 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
 
     phase = EnumField(Phase)
     annotation_campaign = serializers.PrimaryKeyRelatedField(
-        write_only=True, queryset=AnnotationCampaign.objects.all()
+        queryset=AnnotationCampaign.objects.all()
     )
 
     created_by = UserDisplayNameSerializer(read_only=True)
@@ -100,15 +100,6 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnnotationCampaign
         fields = "__all__"
-
-    #
-    # def validate_create_usage(self, attrs: dict):
-    #     """Validate attributes for a "create" usage creation"""
-    #     if "label_set" not in attrs or attrs["label_set"] is None:
-    #         raise serializers.ValidationError(
-    #             {"label_set": "This field is required."},
-    #             code="required",
-    #         )
 
     def validate_spectro_configs_in_datasets(self, attrs: dict) -> None:
         """Validates that chosen spectros correspond to chosen datasets"""
