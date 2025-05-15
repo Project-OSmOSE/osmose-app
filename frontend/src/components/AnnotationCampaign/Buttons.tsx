@@ -15,6 +15,16 @@ export const AnnotationCampaignArchiveButton: React.FC = () => {
 
   const archive = useCallback(async () => {
     if (!campaign) return;
+    if (campaign.phases.length === 0) {
+      return alert.showAlert({
+        type: 'Warning',
+        message: 'The campaign is empty.\nAre you sure you want to archive this campaign?',
+        actions: [ {
+          label: 'Archive',
+          callback: () => archiveCampaign(campaign.id)
+        } ]
+      })
+    }
     const progress = campaign.phases.reduce((previousValue, p) => previousValue + p.global_progress, 0);
     const total = campaign.phases.reduce((previousValue, p) => previousValue + p.global_total, 0);
     if (progress < total) {
