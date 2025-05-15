@@ -16,7 +16,11 @@ type Errors = { [key in keyof PostAnnotationCampaign]?: string }
 
 export const CreateCampaign: React.FC = () => {
 
-  const { data: allDatasets, isFetching: isFetchingDatasets, error: datasetsError } = DatasetAPI.endpoints.listDataset.useQuery();
+  const {
+    data: allDatasets,
+    isFetching: isFetchingDatasets,
+    error: datasetsError
+  } = DatasetAPI.endpoints.listDataset.useQuery();
   const [ createCampaign, {
     data: createdCampaign,
     isLoading: isSubmittingCampaign,
@@ -168,7 +172,7 @@ export const CreateCampaign: React.FC = () => {
                                  disabled={ !dataset.spectros?.length }
                                  items={ dataset?.spectros.map((c: any) => ({
                                    value: c.id,
-                                   label: c.name
+                                   label: `${ c.name } (${ c.colormap })`
                                  })) ?? [] }
                                  activeItemsValues={ spectro_configs.map(s => s.id) }
                                  setActiveItemsValues={ onSpectroConfigsChange }
