@@ -11,7 +11,6 @@ from django.db.models import (
     OuterRef,
     QuerySet,
     Subquery,
-    Prefetch,
     Count,
 )
 from django.db.models.functions import Concat, Extract
@@ -36,7 +35,6 @@ from backend.api.serializers.annotation.campaign import (
 )
 from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
-from .phase import AnnotationCampaignPhaseViewSet
 
 REPORT_HEADERS = [  # headers
     "dataset",
@@ -111,10 +109,7 @@ class AnnotationCampaignViewSet(
             "owner__aplose",
             "archive__by_user__aplose",
         )
-        .prefetch_related(
-            "datasets",
-            "labels_with_acoustic_features",
-        )
+        .prefetch_related("datasets", "labels_with_acoustic_features", "phases")
         .annotate(
             files_count=Count("datasets__files", distinct=True),
         )
@@ -124,15 +119,6 @@ class AnnotationCampaignViewSet(
     filter_backends = (ModelFilter, CampaignAccessFilter, filters.SearchFilter)
     search_fields = ("name",)
     permission_classes = (permissions.IsAuthenticated, CampaignPatchPermission)
-
-    def get_queryset(self):
-        self.queryset = self.queryset.prefetch_related(
-            Prefetch(
-                "phases",
-                AnnotationCampaignPhaseViewSet.get_queryset_for_user(self.request.user),
-            )
-        ).order_by("name")
-        return super().get_queryset()
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":

@@ -95,7 +95,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
     )
     archive = AnnotationCampaignArchiveSerializer(read_only=True)
     allow_point_annotation = serializers.BooleanField(default=False)
-    phases = AnnotationCampaignPhaseSerializer(many=True, read_only=True)
+    phases = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = AnnotationCampaign
