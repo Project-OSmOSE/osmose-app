@@ -10,7 +10,7 @@ import {
   WarningText
 } from "@/components/ui";
 import { Deployment, Hydrophone, Project, Recorder } from "@pam-standardization/metadatax-ts";
-import { IonSpinner } from "@ionic/react";
+import { IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import styles from './styles.module.scss';
 import { DatasetAPI } from "@/service/api/dataset.ts";
@@ -50,7 +50,9 @@ export const AcquisitionModal: React.FC<{
 
       { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
-      { datasets && datasets.length > 0 && <Table columns={ 2 }>
+      { datasets && datasets.length > 0 &&
+        projects.length > 0 && deployments.length > 0 && recorders.length > 0 && hydrophones.length > 0 ?
+          <Table columns={ 2 }>
           <TableHead isFirstColumn={ true }>Project{ pluralize(projects) }</TableHead>
           <TableContent>{ projects.map(p => p.name).join(', ') }</TableContent>
           <TableDivider/>
@@ -73,7 +75,7 @@ export const AcquisitionModal: React.FC<{
           </div>) }</TableContent>
           <TableDivider/>
 
-      </Table> }
+      </Table> : <IonNote>No acquisition information</IonNote> }
 
     </Modal>
   )
