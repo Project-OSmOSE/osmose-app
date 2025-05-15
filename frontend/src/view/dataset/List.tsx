@@ -50,8 +50,8 @@ export const DatasetList: React.FC = () => {
         <TableContent>{ d.type }</TableContent>
         <TableContent>{ d.files_type }</TableContent>
         <TableContent>{ d.files_count }</TableContent>
-        <TableContent>{ new Date(d.start_date).toUTCString() }</TableContent>
-        <TableContent>{ new Date(d.end_date).toUTCString() }</TableContent>
+        <TableContent>{ new Date(d.start_date).toDateString() }</TableContent>
+        <TableContent>{ new Date(d.end_date).toDateString() }</TableContent>
         <TableContent>
           <AudioMetadataModalButton filename={ d.name.replaceAll(' ', '_') + '_audio_metadata.csv' }
                                     datasetID={ d.id }
