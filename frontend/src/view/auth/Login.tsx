@@ -80,7 +80,7 @@ export const Login: React.FC = () => {
     <div className={ styles.content }>
       <h2>Login</h2>
 
-      <div className={ styles.inputs }>
+      <form className={ styles.inputs }>
         <Input id="loginInput"
                className="form-control"
                value={ username }
@@ -96,7 +96,7 @@ export const Login: React.FC = () => {
                label="Password"
                type="password"
                autoComplete="current-password"/>
-      </div>
+      </form>
       <div className={ styles.buttons }>
 
         <Button color='dark' fill='clear' onClick={ goHome }>Back to Home</Button>
