@@ -248,7 +248,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
     def test_post_delete_all(self):
         initial_count = AnnotationFileRange.objects.count()
         response = self.client.post(
-            reverse("annotation-file-range-campaign", kwargs={"campaign_id": 2}),
+            reverse("annotation-file-range-phase", kwargs={"phase_id": 2}),
             data=json.dumps({"data": []}),
             content_type="application/json",
         )

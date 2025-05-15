@@ -18,7 +18,6 @@ from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationFileRange,
-    AnnotationCampaign,
     AnnotationTask,
     DatasetFile,
     AnnotationCampaignPhase,
@@ -173,12 +172,12 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         """Check permission to post data for user"""
         if self.request.user.is_staff:
             return True
-        required_campaigns = AnnotationCampaign.objects.filter(
-            id__in=[data["annotation_campaign"] for data in request_data],
+        required_campaign_phases = AnnotationCampaignPhase.objects.filter(
+            id__in=[data["annotation_campaign_phase"] for data in request_data],
         )
-        required_owned_campaigns = required_campaigns.filter(owner=self.request.user)
+        required_owned_campaign_phases = required_campaign_phases.filter(annotation_campaign__owner=self.request.user)
         # Check if non-staff user is owner of all campaigns where changes are requested
-        return required_campaigns.count() == required_owned_campaigns.count()
+        return required_campaign_phases.count() == required_owned_campaign_phases.count()
 
     @action(
         methods=["GET"],

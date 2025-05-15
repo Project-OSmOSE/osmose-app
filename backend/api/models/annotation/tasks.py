@@ -183,7 +183,7 @@ class AnnotationFileRange(models.Model):
                 instance = connected_ranges.order_by("id").first()
                 duplicates = AnnotationFileRange.objects.filter(
                     annotator_id=instance.annotator_id,
-                    annotation_campaign_phase_id=instance.annotation_phase_campaign,
+                    annotation_campaign_phase_id=instance.annotation_campaign_phase_id,
                     first_file_index=min_first_index,
                     last_file_index=max_last_index,
                 )
