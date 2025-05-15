@@ -175,6 +175,12 @@ const SelectModal: React.FC<{
   const [ selected, setSelected ] = useState<Item | undefined>();
   const [ search, setSearch ] = useState<string | undefined>();
 
+  const searchbar = useRef<HTMLIonSearchbarElement | null>(null)
+
+  useEffect(() => {
+    searchbar.current?.getInputElement().then(input => input.focus())
+  }, [ searchbar.current ]);
+
   const searchedOptions = useSearchedData({
     items: options,
     search,
@@ -196,7 +202,7 @@ const SelectModal: React.FC<{
   return createPortal(<Modal className={ styles.selectAlert }>
     <ModalHeader title={ header } onClose={ onClose }/>
 
-    <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+    <IonSearchbar ref={ searchbar } onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
 
     <IonRadioGroup className={ styles.radioGroup }
                    value={ selected?.value }

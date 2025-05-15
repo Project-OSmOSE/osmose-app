@@ -10,8 +10,10 @@ import { useCanNavigate } from "@/service/annotator/hook.ts";
 import { useAppSelector } from "@/service/app.ts";
 import { AnnotatorAPI } from "@/service/annotator";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { UserAPI } from "@/service/api/user.ts";
 
 export const AnnotatorPage: React.FC = () => {
+  UserAPI.endpoints.getCurrentUser.useQuery()
   const { campaign, currentPhase } = useRetrieveCurrentCampaign()
   const { data } = AnnotatorAPI.useRetrieveQuery();
 

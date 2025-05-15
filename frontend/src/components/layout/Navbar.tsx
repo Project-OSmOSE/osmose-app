@@ -2,18 +2,17 @@ import React, { Fragment, useCallback, useState } from 'react';
 import styles from './layout.module.scss';
 import logo from '/images/ode_logo_192x192.png';
 import { IonButton, IonIcon } from '@ionic/react';
-import { useAppSelector } from '@/service/app.ts';
 import { DocumentationButton } from "@/components/ui";
 import { closeOutline, menuOutline } from "ionicons/icons";
 import { Link } from "@/components/ui/Link.tsx";
-import { selectCurrentUser } from "@/service/api/user.ts";
+import { UserAPI } from "@/service/api/user.ts";
 import { AuthAPI } from "@/service/api/auth.ts";
 
 export const Navbar: React.FC<{ className?: string }> = ({ className }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   const [ logout ] = AuthAPI.endpoints.logout.useMutation()
 
-  const currentUser = useAppSelector(selectCurrentUser)
+  const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery()
 
   const toggleOpening = useCallback(() => {
     setIsOpen(previous => !previous);

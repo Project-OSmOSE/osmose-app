@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToast } from "@/service/ui";
 import { IonButton, IonCheckbox, IonIcon, IonSearchbar, IonSpinner, SearchbarInputEventDetail } from "@ionic/react";
 import { cloudUploadOutline, downloadOutline } from "ionicons/icons";
@@ -71,6 +71,12 @@ export const ImportDatasetModal: React.FC<{
     sortField: 'name',
   })
 
+  const searchbar = useRef<HTMLIonSearchbarElement | null>(null)
+
+  useEffect(() => {
+    searchbar.current?.getInputElement().then(input => input.focus())
+  }, [ searchbar.current ]);
+
   useEffect(() => {
     setDatasetSelection(new Map<string, boolean>(availableDatasets.map(d => [ d.name, false ])));
   }, [ availableDatasets ]);
@@ -111,7 +117,7 @@ export const ImportDatasetModal: React.FC<{
       <ModalHeader title='Import a dataset'
                    onClose={ onClose }/>
 
-      <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+      <IonSearchbar ref={ searchbar } onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
 
       <div className={ styles.tableContainer }>
         <Table columns={ 1 } className={ styles.importModalTable }>
