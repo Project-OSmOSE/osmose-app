@@ -2,6 +2,7 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { AuthAPI } from "@/service/api/auth.ts";
 import { Token } from "@/service/types";
 import { AppState } from "@/service/app.ts";
+import { getTokenFromCookie } from "@/service/api";
 
 type AuthState = {
   isConnected: boolean,
@@ -9,16 +10,18 @@ type AuthState = {
   refreshToken?: Token,
 }
 
+const initialToken: Token | undefined = getTokenFromCookie()
+
 export const AuthSlice = createSlice({
   name: 'AuthSlice',
   initialState: {
-    isConnected: false,
-    accessToken: undefined,
+    isConnected: !!initialToken,
+    accessToken: initialToken,
     refreshToken: undefined,
   } satisfies AuthState as AuthState,
   reducers: {},
   extraReducers: builder => {
-    builder.addMatcher(AuthAPI.endpoints.login.matchFulfilled, (state, {payload}) => {
+    builder.addMatcher(AuthAPI.endpoints.login.matchFulfilled, (state, { payload }) => {
       state.isConnected = true
       state.accessToken = payload.access
       state.refreshToken = payload.refresh

@@ -38,7 +38,7 @@ export const App: React.FC = () => (
   <Provider store={ AppStore }>
     <AlertProvider>
       <IonApp>
-        <BrowserRouter basename='/app'>
+        <BrowserRouter basename='/app/'>
           <AppContent/>
         </BrowserRouter>
       </IonApp>

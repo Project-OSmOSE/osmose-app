@@ -1,13 +1,18 @@
 import { BaseQueryFn, createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { Token } from "@/service/types";
+
+export function getTokenFromCookie(): Token | undefined {
+  const tokenCookie = document.cookie?.split(';').filter((item) => item.trim().startsWith('token='))[0];
+  return tokenCookie?.split('=').pop();
+}
 
 const baseQueryWithHeaders = fetchBaseQuery({
   baseUrl: '/api/',
   prepareHeaders: (headers: Headers) => {
 
     // Set Authorization
-    const tokenCookie = document.cookie?.split(';').filter((item) => item.trim().startsWith('token='))[0];
-    const token = tokenCookie?.split('=').pop();
+    const token = getTokenFromCookie();
     if (token) headers.set('Authorization', `Bearer ${ token }`);
 
     return headers;
