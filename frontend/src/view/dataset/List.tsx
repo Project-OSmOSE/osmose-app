@@ -15,7 +15,7 @@ export const DatasetList: React.FC = () => {
   const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.endpoints.listDataset.useQuery()
   const sortedDatasets = useMemo(() =>
       [ ...(datasets ?? []) ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
-    (datasets)
+    [datasets]
   )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

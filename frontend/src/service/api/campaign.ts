@@ -39,7 +39,6 @@ export const CampaignAPI = API.injectEndpoints({
       search?: string;
     }>({
       query: (clientParams) => {
-        console.debug('> List campaigns')
         const params: { [key in string]: any } = {}
         if (clientParams?.onlyArchived !== undefined) params.archive__isnull = !clientParams.onlyArchived;
         if (clientParams?.phase) params.phases__phase = clientParams.phase[0];
