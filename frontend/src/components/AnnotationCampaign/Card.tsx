@@ -1,11 +1,33 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IonIcon } from '@ionic/react';
+import { IonBadge, IonIcon, IonSkeletonText } from '@ionic/react';
 import { crop } from "ionicons/icons";
 import { AnnotationCampaign, AnnotationCampaignPhase } from '@/service/types';
 import { pluralize } from "@/service/function.ts";
 import { CampaignBadge, CampaignGlobalProgress, CampaignUserProgress } from "@/components/AnnotationCampaign";
 import styles from './styles.module.scss'
+import { SkeletonProgress } from "@/components/ui";
+
+export const SkeletonCampaignCard: React.FC = () => (
+  <div className={ styles.card }>
+
+    <div className={ styles.head }>
+      <IonBadge color='light'>
+        <IonSkeletonText animated style={ { width: 64 } }/>
+      </IonBadge>
+      <IonSkeletonText className={ styles.campaign } animated style={ { width: 128, height: '1ch' } }/>
+      <IonSkeletonText className={ styles.dataset } animated style={ { width: 192, height: '1ch' } }/>
+    </div>
+
+    <div className={ styles.property }>
+      <IonIcon className={ styles.icon } icon={ crop }/>
+      <IonSkeletonText animated style={ { width: 128, height: '1ch' } }/>
+    </div>
+
+    <SkeletonProgress className={ styles.userProgression }/>
+    <SkeletonProgress className={ styles.progression }/>
+  </div>
+)
 
 export const CampaignCard: React.FC<{
   campaign: AnnotationCampaign,

@@ -1,15 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { IonButton, IonChip, IonIcon, IonNote, IonSpinner } from "@ionic/react";
+import { IonButton, IonChip, IonIcon, IonNote } from "@ionic/react";
 import { addOutline, closeCircle, refreshOutline, swapHorizontal } from "ionicons/icons";
 import { useToast } from "@/service/ui";
 import { ActionBar } from "@/components/layout";
 import { Link } from "@/components/ui";
 import styles from './styles.module.scss'
-import { CampaignCard } from "@/components/AnnotationCampaign";
+import { CampaignCard, SkeletonCampaignCard } from "@/components/AnnotationCampaign";
 import { UserAPI } from "@/service/api/user.ts";
 import { Phase } from "@/service/types";
 import { CampaignAPI } from "@/service/api/campaign.ts";
 import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
+import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
 
 
 export const AnnotationCampaignList: React.FC = () => {
@@ -133,12 +134,18 @@ export const AnnotationCampaignList: React.FC = () => {
           </IonButton> }
     </ActionBar>
 
-    { (isFetching || isFetchingPhases) && <IonSpinner/> }
-    <div className={ styles.campaignCardsGrid }>
-      { phases && campaigns?.map(c => <CampaignCard key={ c.id }
-                                                    phases={ phases.filter(p => p.annotation_campaign === c.id) }
-                                                    campaign={ c }/>) }
-      { !isFetching && campaigns?.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
-    </div>
+    <Deactivatable disabled={ isFetching || isFetchingPhases }
+                   loading={ isFetching || isFetchingPhases }>
+      <div className={ styles.campaignCardsGrid }>
+
+        { (isFetching || isFetchingPhases) && (!phases || !campaigns) && Array.from(new Array(7)).map((_, i) =>
+          <SkeletonCampaignCard key={ i }/>) }
+
+        { phases && campaigns?.map(c => <CampaignCard key={ c.id }
+                                                      phases={ phases.filter(p => p.annotation_campaign === c.id) }
+                                                      campaign={ c }/>) }
+        { !isFetching && campaigns?.length === 0 && <IonNote color="medium">No campaigns</IonNote> }
+      </div>
+    </Deactivatable>
   </Fragment>
 }

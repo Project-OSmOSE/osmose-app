@@ -1,8 +1,17 @@
 import React from "react";
 import styles from './ui.module.scss'
-import { IonProgressBar } from "@ionic/react";
+import { IonProgressBar, IonSkeletonText } from "@ionic/react";
 import { Color } from "@ionic/core";
 import { FadedText } from "./Text.tsx";
+
+export const SkeletonProgress: React.FC<{
+  className?: string;
+}> = ({ className }) => (
+  <div className={ [ styles.progress, className ].join(' ') }>
+    <IonSkeletonText animated style={ { width: 128, height: '1ch' } }/>
+    <IonProgressBar color='medium' value={ 0 }/>
+  </div>
+)
 
 export const Progress: React.FC<{
   className?: string;
