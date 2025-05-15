@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { AnnotationCampaign, Detector } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { encodeQueryParams } from "@/service/function.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
@@ -14,7 +13,10 @@ export const DetectorAPI = API.injectEndpoints({
         if (!params) return 'detector/';
         const queryParams: any = {}
         if (params.campaign) queryParams['configurations__annotation_results__annotation_campaign'] = params.campaign.id
-        return `detector/${ encodeQueryParams(queryParams) }`
+        return {
+          url: `detector/`,
+          params: queryParams
+        }
       }
     }),
   })

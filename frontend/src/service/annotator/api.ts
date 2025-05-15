@@ -1,8 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { getAuthenticatedBaseQuery } from '@/service/auth';
-import { AnnotatorData, AnnotatorState, RetrieveParams } from './type.ts';
+import { AnnotatorData, AnnotatorState } from './type.ts';
 import { ID } from '@/service/type.ts';
-import { encodeQueryParams } from "@/service/function.ts";
 import {
   AcousticFeatures,
   AnnotationCampaign,
@@ -18,8 +17,9 @@ import { useAppSelector } from "@/service/app.ts";
 import { useCallback, useEffect, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { getQueryParamsForFilters } from "@/service/api/annotation-file-range.ts";
+import { FileFilter } from "@/service/api/annotation-file-range.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { selectFileFilters } from "@/service/slices/filter.ts";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -72,13 +72,16 @@ const _AnnotatorAPI = createApi({
   baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
   tagTypes: [ 'Annotator' ],
   endpoints: (builder) => ({
-    retrieve: builder.query<AnnotatorData, RetrieveParams>({
+    retrieve: builder.query<AnnotatorData, { campaignID: ID, phaseID: ID, fileID: ID } & FileFilter>({
       query: ({
                 campaignID,
                 phaseID,
                 fileID,
-                filters
-              }) => `campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/${ encodeQueryParams(getQueryParamsForFilters(filters)) }`,
+                ...params
+              }) => ({
+        url: `campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/`,
+        params
+      }),
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       providesTags: (result, error, arg) => [ {
@@ -144,15 +147,12 @@ export const useRetrieveQuery = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const { fileID } = useParams<{ fileID: string }>();
-  const fileFilters = useAppSelector(state => state.ui.fileFilters)
+  const filters = useAppSelector(selectFileFilters)
 
   return _AnnotatorAPI.useRetrieveQuery(
-    (campaign && phase && fileID) ? {
-      filters: fileFilters,
-      campaignID: campaign.id,
-      phaseID: phase.id,
-      fileID
-    } : skipToken);
+    (campaign && phase && fileID) ?
+      { campaignID: campaign.id, phaseID: phase.id, fileID, ...filters }
+      : skipToken);
 }
 
 export const usePostMutation = () => {

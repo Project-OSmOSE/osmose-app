@@ -5,8 +5,6 @@ import {
   DatasetFile,
   SpectrogramConfiguration
 } from '@/service/types';
-import { ID } from "@/service/type.ts";
-import { FileFilters } from "@/service/ui/type.ts";
 import { Colormap } from '@/services/utils/color';
 
 export type AnnotatorState = Partial<AnnotatorData> & {
@@ -58,5 +56,3 @@ export type AnnotatorData = {
   current_task_index_in_filter: number;
   total_tasks_in_filter: number;
 }
-
-export type RetrieveParams = { campaignID: ID, phaseID: ID, fileID: ID, filters: Partial<FileFilters> }

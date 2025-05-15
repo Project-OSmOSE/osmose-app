@@ -15,3 +15,8 @@ export type Paginated<T> = {
   previous: string;
   results: Array<T>;
 }
+
+export type PaginationParams = {
+  page: number,
+  page_size?: number,
+}

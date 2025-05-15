@@ -1,6 +1,6 @@
 import { API } from "@/service/api/index.ts";
 import { ID } from "@/service/type.ts";
-import { downloadResponseHandler, encodeQueryParams } from "@/service/function.ts";
+import { downloadResponseHandler } from "@/service/function.ts";
 import { SpectrogramConfiguration } from "@/service/types";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
@@ -26,7 +26,10 @@ export const SpectrogramConfigurationAPI = API.injectEndpoints({
         const params: any = {}
         if (campaignID) params.annotation_campaigns = campaignID;
         if (datasetID) params.dataset = datasetID;
-        return `spectrogram-configuration//${ encodeQueryParams(params) }`;
+        return {
+          url: `spectrogram-configuration/`,
+          params,
+        }
       },
       providesTags: (_1, _2, arg) => [
         { type: "SpectrogramConfiguration", id: `campaign${ arg.campaignID }-dataset${ arg.datasetID }` }
@@ -45,7 +48,8 @@ export const SpectrogramConfigurationAPI = API.injectEndpoints({
         if (campaignID) params.annotation_campaigns = campaignID;
         if (datasetID) params.dataset = datasetID;
         return {
-          url: `spectrogram-configuration/export/${ encodeQueryParams(params) }`,
+          url: `spectrogram-configuration/export/`,
+          params,
           responseHandler: downloadResponseHandler
         }
       },

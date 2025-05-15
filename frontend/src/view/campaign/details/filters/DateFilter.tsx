@@ -1,34 +1,32 @@
 import React, { ChangeEvent, Fragment, useMemo, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/service/app.ts";
-import { setFileFilters } from "@/service/ui";
 import { Modal } from "@/components/ui";
 import { Input } from "@/components/form";
 import { IonIcon } from "@ionic/react";
 import { funnel, funnelOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
+import { useFileFilters } from "@/service/slices/filter.ts";
 
 export const DateFilter: React.FC<{
   onUpdate: () => void
 }> = ({ onUpdate }) => {
-  const { fileFilters: filters } = useAppSelector(state => state.ui);
-  const dispatch = useAppDispatch();
+  const { params, updateParams } = useFileFilters()
 
-  const hasDateFilter = useMemo(() => !!filters.minDate || !!filters.maxDate, [ filters ]);
+  const hasDateFilter = useMemo(() => !!params.end__gte || !!params.start__lte, [ params ]);
   const [ filterModalOpen, setFilterModalOpen ] = useState<boolean>(false);
 
   const minDate: string = useMemo(() => {
-    if (!filters.minDate) return '';
-    const date = filters.minDate.split('');
+    if (!params.end__gte) return '';
+    const date = params.end__gte.split('');
     date.pop();
     return date.join('');
-  }, [ filters ]);
+  }, [ params ]);
 
   const maxDate: string = useMemo(() => {
-    if (!filters.maxDate) return '';
-    const date = filters.maxDate.split('');
+    if (!params.start__lte) return '';
+    const date = params.start__lte.split('');
     date.pop();
     return date.join('');
-  }, [ filters ]);
+  }, [ params ]);
 
 
   function getDateString(event: ChangeEvent<HTMLInputElement>): string | undefined {
@@ -46,12 +44,12 @@ export const DateFilter: React.FC<{
   }
 
   function setMin(event: ChangeEvent<HTMLInputElement>) {
-    dispatch(setFileFilters({ ...filters, minDate: getDateString(event) }))
+    updateParams({ end__gte: getDateString(event) })
     onUpdate()
   }
 
   function setMax(event: ChangeEvent<HTMLInputElement>) {
-    dispatch(setFileFilters({ ...filters, maxDate: getDateString(event) }))
+    updateParams({ start__lte: getDateString(event) })
     onUpdate()
   }
 

@@ -1,34 +1,29 @@
 import React, { Fragment, useState } from "react";
 import { IonIcon } from "@ionic/react";
 import { funnel, funnelOutline } from "ionicons/icons";
-import { useAppDispatch, useAppSelector } from "@/service/app.ts";
-import { setFileFilters } from "@/service/ui";
 import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui";
 import { Switch } from "@/components/form";
 import styles from './styles.module.scss'
+import { useFileFilters } from "@/service/slices/filter.ts";
 
 export const StatusFilter: React.FC<{
   onUpdate: () => void
 }> = ({ onUpdate }) => {
-  const { fileFilters: filters } = useAppSelector(state => state.ui);
+  const { params, updateParams } = useFileFilters()
   const [ filterModalOpen, setFilterModalOpen ] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
 
   function setState(option: string) {
-    let newState = undefined;
+    let is_submitted = undefined;
     switch (option) {
       case 'Created':
-        newState = false;
+        is_submitted = false;
         break;
       case 'Finished':
-        newState = true;
+        is_submitted = true;
         break;
     }
-    dispatch(setFileFilters({
-      ...filters,
-      isSubmitted: newState
-    }))
+    updateParams({ is_submitted })
     onUpdate()
   }
 
@@ -44,15 +39,15 @@ export const StatusFilter: React.FC<{
   }
 
   return <Fragment>
-    { filters.isSubmitted !== undefined ?
+    { params.is_submitted !== undefined ?
       <IonIcon onClick={ () => setFilterModalOpen(true) } color='primary' icon={ funnel }/> :
       <IonIcon onClick={ () => setFilterModalOpen(true) } color='dark' icon={ funnelOutline }/> }
 
     { filterModalOpen && createPortal(<Modal className={ styles.filterModal }
                                              onClose={ () => setFilterModalOpen(false) }>
 
-      <Switch label='Status' options={ ['Unset', 'Created', 'Finished'] }
-              value={ valueToBooleanOption(filters.isSubmitted) } onValueSelected={ setState }/>
+      <Switch label='Status' options={ [ 'Unset', 'Created', 'Finished' ] }
+              value={ valueToBooleanOption(params.is_submitted) } onValueSelected={ setState }/>
 
     </Modal>, document.body) }
   </Fragment>

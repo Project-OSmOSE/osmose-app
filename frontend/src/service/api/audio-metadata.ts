@@ -1,6 +1,6 @@
 import { API } from "@/service/api/index.ts";
 import { ID } from "@/service/type.ts";
-import { downloadResponseHandler, encodeQueryParams } from "@/service/function.ts";
+import { downloadResponseHandler } from "@/service/function.ts";
 import { AudioMetadatum } from "@/service/types";
 
 export const AudioMetadataAPI = API.injectEndpoints({
@@ -13,7 +13,10 @@ export const AudioMetadataAPI = API.injectEndpoints({
         const params: any = {}
         if (campaignID) params.dataset__annotation_campaigns = campaignID;
         if (datasetID) params.dataset = datasetID;
-        return `audio-metadata/${ encodeQueryParams(params) }`;
+        return {
+          url: `audio-metadata/`,
+          params
+        }
       },
       providesTags: (_1, _2, arg) => [
         { type: "AudioMetadata", id: `campaign${ arg.campaignID }-dataset${ arg.datasetID }` }
@@ -29,7 +32,8 @@ export const AudioMetadataAPI = API.injectEndpoints({
         if (campaignID) params.dataset__annotation_campaigns = campaignID;
         if (datasetID) params.dataset = datasetID;
         return {
-          url: `audio-metadata/export/${ encodeQueryParams(params) }`,
+          url: `audio-metadata/export/`,
+          params,
           responseHandler: downloadResponseHandler
         }
       },

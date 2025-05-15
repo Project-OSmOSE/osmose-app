@@ -1,11 +1,21 @@
 import { API } from "@/service/api/index.ts";
 import { useMemo } from "react";
-import { ID, Paginated } from "@/service/type.ts";
-import { encodeQueryParams } from "@/service/function.ts";
+import { ID, Paginated, PaginationParams } from "@/service/type.ts";
 import { AnnotationFile, AnnotationFileRange } from "@/service/types";
-import { FileFilters } from "@/service/ui/type.ts";
 import { extendDatasetFile } from "@/service/api/dataset.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+
+export type FileFilter = {
+  filename__icontains?: string;
+  is_submitted?: boolean;
+  with_user_annotations?: boolean;
+  annotation_results__label__name?: string;
+  annotation_results__confidence_indicator__label?: string;
+  annotation_results__detector_configuration__detector__name?: string;
+  annotation_results__acoustic_features__isnull?: boolean;
+  end__gte?: string;
+  start__lte?: string;
+}
 
 export const FILES_PAGE_SIZE = 20;
 
@@ -29,20 +39,6 @@ export function extendAnnotationFile(file: AnnotationFile): AnnotationFile {
   }
 }
 
-export function getQueryParamsForFilters(filters: Partial<FileFilters>): any {
-  const params: any = { }
-  if (filters.search) params['filename__icontains'] = filters.search;
-  if (filters.withUserAnnotations !== undefined) params['with_user_annotations'] = filters.withUserAnnotations;
-  if (filters.isSubmitted !== undefined) params['is_submitted'] = filters.isSubmitted;
-  if (filters.label !== undefined) params['annotation_results__label__name'] = filters.label;
-  if (filters.confidence !== undefined) params['annotation_results__confidence_indicator__label'] = filters.confidence;
-  if (filters.detector !== undefined) params['annotation_results__detector_configuration__detector__name'] = filters.detector;
-  if (filters.hasAcousticFeatures !== undefined) params['annotation_results__acoustic_features__isnull'] = !filters.hasAcousticFeatures;
-  if (filters.minDate !== undefined) params['end__gte'] = filters.minDate;
-  if (filters.maxDate !== undefined) params['start__lte'] = filters.maxDate;
-  return params;
-}
-
 export const AnnotationFileRangeAPI = API.injectEndpoints({
   endpoints: (builder) => ({
     listFileRange: builder.query<Array<AnnotationFileRange>, {
@@ -53,34 +49,28 @@ export const AnnotationFileRangeAPI = API.injectEndpoints({
         const params: any = {}
         if (phaseID) params.annotation_campaign_phase = phaseID;
         if (forCurrentUser) params.for_current_user = true;
-        return `annotation-file-range/${ encodeQueryParams(params) }`;
+        return { url: `annotation-file-range/`, params };
       },
       transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
         return ranges.map(extendFileRange);
       },
       providesTags: [ 'FileRange' ]
     }),
-    listFilesWithPagination: builder.query<PaginatedAnnotationFiles, {
-      page: number,
-      page_size?: number,
+    listFilesWithPagination: builder.query<PaginatedAnnotationFiles, PaginationParams & FileFilter & {
       phaseID: number,
-      filters: FileFilters
     }>({
-      query: ({
-                page,
-                filters,
-                phaseID,
-                page_size = FILES_PAGE_SIZE
-              },) => `annotation-file-range/phase/${ phaseID }/files/${ encodeQueryParams({
-        page,
-        page_size,
-        ...getQueryParamsForFilters(filters)
-      }) }`,
+      query: ({ phaseID, ...params }) => ({
+        url: `annotation-file-range/phase/${ phaseID }/files/`,
+        params: {
+          page_size: FILES_PAGE_SIZE,
+          ...params
+        }
+      }),
       transformResponse(paginatedFiles: Omit<PaginatedAnnotationFiles, 'pageCount'>, _, arg): PaginatedAnnotationFiles {
         return {
           ...paginatedFiles,
           pageCount: Math.ceil(paginatedFiles.count / (arg.page_size ?? FILES_PAGE_SIZE)),
-          results: [...paginatedFiles.results].map(extendAnnotationFile)
+          results: [ ...paginatedFiles.results ].map(extendAnnotationFile)
         }
       },
       providesTags: [ 'FileRangeFiles' ]

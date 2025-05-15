@@ -1,7 +1,7 @@
 import { API } from "@/service/api/index.ts";
 import { AnnotationCampaign, AnnotationCampaignPhase, Phase } from "@/service/types";
 import { ID } from "@/service/type.ts";
-import { downloadResponseHandler, encodeQueryParams } from "@/service/function.ts";
+import { downloadResponseHandler } from "@/service/function.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
@@ -16,10 +16,11 @@ export const CampaignPhaseAPI = API.injectEndpoints({
       query: (arg) => {
         const params: any = {}
         if (arg) {
-          if (arg.campaigns) params.annotation_campaign_id__in = arg.campaigns.map(c => c.id)
+          if (arg.campaigns) params.annotation_campaign_id__in = JSON.stringify(arg.campaigns.map(c => c.id))
         }
         return {
-          url: `annotation-campaign-phase/${ encodeQueryParams(params) }`,
+          url: `annotation-campaign-phase/`,
+          params,
         }
       },
       providesTags: phases => (phases ?? []).map(({ id }) => ({ type: 'CampaignPhase' as const, id })),
@@ -57,7 +58,8 @@ export const CampaignPhaseAPI = API.injectEndpoints({
       filename: string;
     }>({
       query: ({ phaseID, filename }) => ({
-        url: `annotation-campaign-phase/${ phaseID }/report/${ encodeQueryParams({ filename }) }`,
+        url: `annotation-campaign-phase/${ phaseID }/report/`,
+        params: { filename },
         responseHandler: downloadResponseHandler
       }),
     }),
@@ -66,7 +68,8 @@ export const CampaignPhaseAPI = API.injectEndpoints({
       filename: string;
     }>({
       query: ({ phaseID, filename }) => ({
-        url: `annotation-campaign-phase/${ phaseID }/report-status/${ encodeQueryParams({ filename }) }`,
+        url: `annotation-campaign-phase/${ phaseID }/report-status/`,
+        params: { filename },
         responseHandler: downloadResponseHandler
       }),
     }),

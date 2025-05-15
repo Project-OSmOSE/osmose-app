@@ -1,7 +1,7 @@
 import { API } from "@/service/api/index.ts";
 import { AnnotationResult } from "@/service/types";
 import { FetchBaseQueryError, QueryStatus } from "@reduxjs/toolkit/query";
-import { encodeQueryParams, getErrorMessage } from "@/service/function.ts";
+import { getErrorMessage } from "@/service/function.ts";
 import { ID } from "@/service/type.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
@@ -22,12 +22,13 @@ export const AnnotationAPI = API.injectEndpoints({
     }>({
       query: ({ campaignID, datasetName, data, force_datetime, force_max_frequency, detectors_map }) => {
         return {
-          url: `annotation-result/campaign/${ campaignID }/import/${ encodeQueryParams({
+          url: `annotation-result/campaign/${ campaignID }/import/`,
+          params: {
             dataset_name: datasetName,
             detectors_map: JSON.stringify(detectors_map),
             force_datetime: force_datetime ?? false,
             force_max_frequency: force_max_frequency ?? false,
-          }) }`,
+          },
           method: 'POST',
           body: { data: data.map(row => row.map(cell => `"${ cell }"`).join(',')).join('\n') },
         }

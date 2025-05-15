@@ -1,6 +1,5 @@
 import { API } from "./index.ts";
 import { Paginated } from "@/service/type.ts";
-import { encodeQueryParams } from "@/service/function.ts";
 
 type Row = (string | number | null)[]
 const DEFAULT_PAGE_SIZE = 20;
@@ -17,7 +16,8 @@ export const SQLAPI = API.injectEndpoints({
       page_size?: number
     }>({
       query: ({ query, page, page_size = DEFAULT_PAGE_SIZE }) => ({
-        url: `sql/post/${ encodeQueryParams({ page, page_size }) }`,
+        url: `sql/post/`,
+        params: { page, page_size },
         method: 'POST',
         body: { query },
       }),

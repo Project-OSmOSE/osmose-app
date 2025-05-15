@@ -1,6 +1,5 @@
 import { API } from "@/service/api/index.ts";
 import { ID } from "@/service/type.ts";
-import { encodeQueryParams } from "@/service/function.ts";
 import { v4 as uuidV4 } from "uuid";
 import { Dataset, DatasetFile, ImportDataset } from "@/service/types";
 import { extendSpectrogram } from "@/service/api/spectrogram-configuration.ts";
@@ -28,7 +27,10 @@ export const DatasetAPI = API.injectEndpoints({
         if (!arg) return 'dataset/'
         const params: any = {}
         if (arg.campaignID) params.annotation_campaigns = arg.campaignID
-        return `dataset/${ encodeQueryParams(params) }`;
+        return {
+          url: `dataset/`,
+          params,
+        }
       },
       providesTags: [ { type: 'Dataset' } ],
       transformResponse(configs: Array<Dataset>): Array<Dataset> {

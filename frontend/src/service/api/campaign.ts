@@ -1,11 +1,18 @@
 import { API } from "@/service/api/index.ts";
-import { AnnotationCampaign, Phase } from "@/service/types";
+import { AnnotationCampaign } from "@/service/types";
 import { extendUser, UserAPI } from "@/service/api/user.ts";
 import { ID, Optionable } from "@/service/type.ts";
-import { encodeQueryParams } from "@/service/function.ts";
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useMemo } from "react";
+
+export type CampaignFilter = {
+  archive__isnull?: boolean;
+  phases__phase?: 'A' | 'V';
+  owner?: number;
+  phases__file_ranges__annotator_id?: number;
+  search?: string;
+}
 
 export function extendCampaign(campaign: AnnotationCampaign): AnnotationCampaign {
   return {
@@ -31,28 +38,15 @@ export type PatchAnnotationCampaign = Optionable<Pick<AnnotationCampaign,
 
 export const CampaignAPI = API.injectEndpoints({
   endpoints: (builder) => ({
-    listCampaign: builder.query<Array<AnnotationCampaign>, {
-      onlyArchived?: boolean;
-      phase?: Phase;
-      owner?: ID;
-      annotator?: ID;
-      search?: string;
-    }>({
-      query: (clientParams) => {
-        const params: { [key in string]: any } = {}
-        if (clientParams?.onlyArchived !== undefined) params.archive__isnull = !clientParams.onlyArchived;
-        if (clientParams?.phase) params.phases__phase = clientParams.phase[0];
-        if (clientParams?.owner) params.owner = clientParams.owner;
-        if (clientParams?.annotator) params.phases__file_ranges__annotator_id = clientParams.annotator;
-        if (clientParams?.search !== undefined) params.search = clientParams.search;
-        return {
-          url: `annotation-campaign/${ encodeQueryParams(params) }`
-        }
-      },
+    listCampaign: builder.query<Array<AnnotationCampaign>, CampaignFilter>({
+      query: (params) => ({ url: `annotation-campaign/`, params }),
       transformResponse(campaigns: Array<AnnotationCampaign>): Array<AnnotationCampaign> {
         return [ ...campaigns ].map(extendCampaign)
       },
-      providesTags: campaigns => campaigns ? [ ...campaigns.map(({ id }) => ({ type: 'Campaign' as const, id })), 'Campaign' ] : [ 'Campaign' ]
+      providesTags: campaigns => campaigns ? [ ...campaigns.map(({ id }) => ({
+        type: 'Campaign' as const,
+        id
+      })), 'Campaign' ] : [ 'Campaign' ]
     }),
     retrieveCampaign: builder.query<AnnotationCampaign, ID>({
       query: (id) => `annotation-campaign/${ id }/`,

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect } from 'react';
 import { IonButton, IonChip, IonIcon, IonNote } from "@ionic/react";
 import { addOutline, closeCircle, refreshOutline, swapHorizontal } from "ionicons/icons";
 import { useToast } from "@/service/ui";
@@ -7,33 +7,25 @@ import { Link } from "@/components/ui";
 import styles from './styles.module.scss'
 import { CampaignCard, SkeletonCampaignCard } from "@/components/AnnotationCampaign";
 import { UserAPI } from "@/service/api/user.ts";
-import { Phase } from "@/service/types";
 import { CampaignAPI } from "@/service/api/campaign.ts";
 import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
 import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
+import { useCampaignFilters } from "@/service/slices/filter.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
+  const { params, updateParams } = useCampaignFilters()
 
   // State
-  const [ search, setSearch ] = useState<string | undefined>();
-  const [ showArchivedFilter, setShowArchivedFilter ] = useState<boolean>(false);
-  const [ modeFilter, setModeFilter ] = useState<Phase | undefined>();
-  const [ myWorkFilter, setMyWorkFilter ] = useState<boolean>(true);
-  const [ onlyMineFilter, setonlyMineFilter ] = useState<boolean>(false);
   const { presentError, dismiss: dismissToast } = useToast()
 
   // Services
   const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery();
-  const { data: campaigns, isFetching, error } = CampaignAPI.endpoints.listCampaign.useQuery({
-    onlyArchived: showArchivedFilter,
-    phase: modeFilter,
-    search,
-    owner: onlyMineFilter ? currentUser?.id : undefined,
-    annotator: myWorkFilter ? currentUser?.id : undefined,
-  }, {
-    skip: !currentUser
-  })
+  const {
+    data: campaigns,
+    isFetching,
+    error
+  } = CampaignAPI.endpoints.listCampaign.useQuery(params, { skip: !currentUser })
   const {
     data: phases,
     isFetching: isFetchingPhases,
@@ -54,80 +46,103 @@ export const AnnotationCampaignList: React.FC = () => {
     if (phasesError) presentError(phasesError);
   }, [ phasesError ]);
 
-  const toggleModeFilter = () => {
-    switch (modeFilter) {
+  const toggleModeFilter = useCallback(() => {
+    switch (params.phases__phase) {
       case undefined:
-        setModeFilter('Annotation');
+        updateParams({ phases__phase: 'A' })
         break;
-      case 'Annotation':
-        setModeFilter('Verification');
+      case 'A':
+        updateParams({ phases__phase: 'V' })
         break;
-      case 'Verification':
-        setModeFilter(undefined);
+      case 'V':
+        updateParams({ phases__phase: undefined })
         break;
     }
-  }
+  }, [ params ])
 
-  function toggleArchiveFilter() {
-    setShowArchivedFilter(prev => !prev)
-  }
+  const toggleArchiveFilter = useCallback(() => {
+    switch (params.archive__isnull) {
+      case undefined:
+        updateParams({ archive__isnull: true })
+        break;
+      case false:
+        updateParams({ archive__isnull: undefined })
+        break;
+      case true:
+        updateParams({ archive__isnull: false })
+        break;
+    }
+  }, [ params ])
 
-  function toggleOnlyMineFilter() {
-    setonlyMineFilter(prev => !prev)
-  }
+  const toggleOnlyMineFilter = useCallback(() => {
+    if (params.owner) {
+      updateParams({ owner: undefined })
+    } else {
+      updateParams({ owner: currentUser?.id })
+    }
+  }, [ params ])
 
-  function toggleMyWorkFilter() {
-    setMyWorkFilter(prev => !prev)
-  }
+  const toggleMyWorkFilter = useCallback(() => {
+    if (params.phases__file_ranges__annotator_id) {
+      updateParams({ phases__file_ranges__annotator_id: undefined })
+    } else {
+      updateParams({ phases__file_ranges__annotator_id: currentUser?.id })
+    }
+  }, [ params, currentUser ])
 
-  function resetFilters() {
-    setMyWorkFilter(false);
-    setonlyMineFilter(false);
-    setShowArchivedFilter(false);
-    setModeFilter(undefined);
-  }
+  const resetFilters = useCallback(() => {
+    updateParams({
+      search: undefined,
+      archive__isnull: false,
+      phases__phase: undefined,
+      phases__file_ranges__annotator_id: undefined,
+      owner: undefined,
+    })
+  }, [ params ])
 
   return <Fragment>
     <h2>Annotation Campaigns</h2>
 
-    <ActionBar search={ search }
+    <ActionBar search={ params.search }
                searchPlaceholder="Search campaign name"
-               onSearchChange={ setSearch }
+               onSearchChange={ search => updateParams({ search }) }
                actionButton={ <Link color='primary' fill='outline' appPath='/annotation-campaign/new'>
                  <IonIcon icon={ addOutline } slot="start"/>
                  New annotation campaign
                </Link> }>
 
-      <IonChip outline={ !myWorkFilter }
+      <IonChip outline={ !params.phases__file_ranges__annotator_id }
                onClick={ toggleMyWorkFilter }
-               color={ myWorkFilter ? 'primary' : 'medium' }>
+               color={ params.phases__file_ranges__annotator_id ? 'primary' : 'medium' }>
         My work
-        { myWorkFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        { params.phases__file_ranges__annotator_id && <IonIcon icon={ closeCircle } color='primary'/> }
       </IonChip>
 
-      <IonChip outline={ !showArchivedFilter }
+      <IonChip outline={ params.archive__isnull === undefined }
                onClick={ toggleArchiveFilter }
-               color={ showArchivedFilter ? 'primary' : 'medium' }>
-        Only archived
-        { showArchivedFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+               color={ params.archive__isnull !== undefined ? 'primary' : 'medium' }>
+        Archived{ params.archive__isnull !== undefined && `: ${ params.archive__isnull ? 'False' : 'True' }` }
+        { params.archive__isnull === true && <IonIcon icon={ swapHorizontal }/> }
+        { params.archive__isnull === false && <IonIcon icon={ closeCircle }/> }
       </IonChip>
 
-      <IonChip outline={ !modeFilter }
+      <IonChip outline={ !params.phases__phase }
                onClick={ toggleModeFilter }
-               color={ modeFilter ? 'primary' : 'medium' }>
-        Campaign mode filter{ modeFilter && `: ${ modeFilter }` }
-        { modeFilter === 'Annotation' && <IonIcon icon={ swapHorizontal }/> }
-        { modeFilter === 'Verification' && <IonIcon icon={ closeCircle }/> }
+               color={ params.phases__phase ? 'primary' : 'medium' }>
+        Campaign mode
+        filter{ params.phases__phase && `: ${ params.phases__phase === 'A' ? 'Annotation' : 'Verification' }` }
+        { params.phases__phase === 'A' && <IonIcon icon={ swapHorizontal }/> }
+        { params.phases__phase === 'V' && <IonIcon icon={ closeCircle }/> }
       </IonChip>
 
-      <IonChip outline={ !onlyMineFilter }
+      <IonChip outline={ !params.owner }
                onClick={ toggleOnlyMineFilter }
-               color={ onlyMineFilter ? 'primary' : 'medium' }>
+               color={ params.owner ? 'primary' : 'medium' }>
         Owned campaigns
-        { onlyMineFilter && <IonIcon icon={ closeCircle } color='primary'/> }
+        { params.owner && <IonIcon icon={ closeCircle } color='primary'/> }
       </IonChip>
 
-      { (onlyMineFilter || modeFilter || showArchivedFilter || myWorkFilter) &&
+      { (params.owner || params.phases__phase || params.archive__isnull || params.phases__file_ranges__annotator_id) &&
           <IonButton fill='clear' color='medium' onClick={ resetFilters }>
               <IonIcon icon={ refreshOutline } slot='start'/>
               Reset

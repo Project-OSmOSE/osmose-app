@@ -31,14 +31,14 @@ test.describe('Annotator', () => {
       await page.mock.campaigns()
       await Promise.all([
         page.waitForRequest(/\/api\/annotation-campaign\/x?\?.*archive__isnull=false.*$/g),
-        page.getByText('Only archived').click()
+        page.getByText('Archived: False').click()
       ])
     })
 
     await test.step('Add Campaign mode to Annotation filter', async () => {
       await page.mock.campaigns()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=%22A%22/g),
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=A/g),
         page.getByText('Campaign mode filter').click()
       ])
     })
@@ -46,7 +46,7 @@ test.describe('Annotator', () => {
     await test.step('Change Campaign mode to Verification filter', async () => {
       await page.mock.campaigns()
       await Promise.all([
-        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=%22V%22/g),
+        page.waitForRequest(/\/api\/annotation-campaign\/?\?.*?phases__phase=V/g),
         page.getByText('Campaign mode filter').click()
       ])
     })

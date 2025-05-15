@@ -2,11 +2,9 @@ import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styles from './styles.module.scss'
 import { PhaseGlobalProgress, PhaseUserProgress, ProgressModalButton } from "@/components/AnnotationCampaign/Phase";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
-import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ActionBar } from "@/components/layout";
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
 import { Button, Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
-import { setFileFilters } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
@@ -16,29 +14,31 @@ import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { AnnotationCampaign, AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
 import { AnnotationFileRangeAPI } from "@/service/api/annotation-file-range.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useFileFilters } from "@/service/slices/filter.ts";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
+  const { params, updateParams, clearParams } = useFileFilters(true)
+
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
-  const fileFilters = useAppSelector(state => state.ui.fileFilters);
-  const dispatch = useAppDispatch();
+
   AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page: 1,
     phaseID: phase?.id ?? -1,
-    filters: {}
   }, { refetchOnMountOrArgChange: true, skip: !phase || !!campaign?.archive });
   const { currentData: files, isFetching, error } = AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
     page,
     phaseID: phase?.id ?? -1,
-    filters: fileFilters
+    ...params
   }, { skip: !phase || !!campaign?.archive });
   const isEmpty = useMemo(() => error || (files && files.count === 0) || campaign?.archive, [ error, files, campaign ])
-  const hasFilters = useMemo(() => Object.values(fileFilters).filter(v => v !== undefined).length > 0, [ fileFilters ]);
+
+  const hasFilters = useMemo(() => Object.values(params).filter(v => v !== undefined).length > 0, [ params ]);
   const isResumeEnabled = useMemo(() => {
-    return fileFilters.withUserAnnotations === undefined && fileFilters.search === undefined && fileFilters.isSubmitted === undefined
-  }, [ fileFilters ]);
+    return params.with_user_annotations === undefined && params.filename__icontains === undefined && params.is_submitted === undefined
+  }, [ params ]);
   const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
 
   const resume = useCallback(() => {
@@ -47,17 +47,12 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
   }, [ campaign, phase, files ])
 
   const updateSearch = useCallback((search: string) => {
-    dispatch(setFileFilters({ ...fileFilters, search }))
+    updateParams({ filename__icontains: search })
     setPage(1)
-  }, [ fileFilters ])
+  }, [ updateParams ])
 
   const resetFilters = useCallback(() => {
-    dispatch(setFileFilters({
-      isSubmitted: undefined,
-      label: undefined,
-      confidence: undefined,
-      withUserAnnotations: undefined,
-    }))
+    clearParams()
     setPage(1)
   }, [])
 
@@ -70,7 +65,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
 
     <div className={ [ styles.tasks, isEmpty ? styles.empty : '' ].join(' ') }>
 
-      <ActionBar search={ fileFilters.search }
+      <ActionBar search={ params.filename__icontains }
                  searchPlaceholder="Search filename"
                  onSearchChange={ updateSearch }
                  actionButton={ <div className={ styles.filterButtons }>
