@@ -69,7 +69,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         if is_assigned:
             total_tasks_in_filter = filtered_files.count()
             request._request.GET = {
-                "annotation_campaign_phase_id": phase_id,
+                "for_phase": phase_id,
                 "dataset_file_id": file_id,
                 "for_current_user": True,
             }
