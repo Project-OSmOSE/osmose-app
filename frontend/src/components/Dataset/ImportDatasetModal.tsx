@@ -8,6 +8,7 @@ import { Modal, ModalFooter, ModalHeader, Table, TableContent, TableDivider, Tab
 import { DatasetAPI } from "@/service/api/dataset.ts";
 import styles from "./styles.module.scss";
 import { ImportDataset } from "@/service/types";
+import { useSearchedData } from "@/service/ui/search.ts";
 
 export const ImportDatasetButton: React.FC = () => {
   const modal = useModal();
@@ -48,32 +49,31 @@ export const ImportDatasetButton: React.FC = () => {
       <ImportDatasetModal startImport={ (datasets) => importDatasets(datasets) }
                           onClose={ modal.close }
                           isLoading={ isImportInProgress }
-                          newData={ datasetsToImport ?? [] }/>,
+                          availableDatasets={ datasetsToImport ?? [] }/>,
       document.body) }
   </Fragment>
 }
 
 export const ImportDatasetModal: React.FC<{
   onClose: () => void,
-  newData: Array<ImportDataset>,
+  availableDatasets: Array<ImportDataset>,
   startImport: (datasets: Array<ImportDataset>) => void,
   isLoading: boolean
-}> = ({ onClose, newData, startImport, isLoading }) => {
+}> = ({ onClose, availableDatasets, startImport, isLoading }) => {
   const [ search, setSearch ] = useState<string | undefined>();
   const [ selectAllDatasets, setSelectAllDatasets ] = useState<boolean>(false);
   const [ datasetSelection, setDatasetSelection ] = useState<Map<string, boolean>>(new Map());
 
-  const filteredDatasets = useMemo(() => {
-    return newData.filter(dataset => {
-      if (!search) return true;
-      if (dataset.name.toLowerCase().includes(search.toLowerCase())) return true;
-      return dataset.path.toLowerCase().includes(search.toLowerCase())
-    }).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-  }, [ newData, search ])
+  const searchDatasets = useSearchedData({
+    items: availableDatasets,
+    search,
+    fields: [ 'name', 'path' ],
+    sortField: 'name',
+  })
 
   useEffect(() => {
-    setDatasetSelection(new Map<string, boolean>(newData.map(d => [ d.name, false ])));
-  }, [ newData ]);
+    setDatasetSelection(new Map<string, boolean>(availableDatasets.map(d => [ d.name, false ])));
+  }, [ availableDatasets ]);
 
   function onSearchUpdated(event: CustomEvent<SearchbarInputEventDetail>) {
     setSearch(event.detail.value ?? undefined);
@@ -86,7 +86,7 @@ export const ImportDatasetModal: React.FC<{
   function toggleSelectAllDatasets() {
     if (isLoading) return;
     setSelectAllDatasets(!selectAllDatasets)
-    setDatasetSelection(new Map<string, boolean>(newData.map(d => [ d.name, !selectAllDatasets ])));
+    setDatasetSelection(new Map<string, boolean>(availableDatasets.map(d => [ d.name, !selectAllDatasets ])));
   }
 
   function toggleDataset(dataset: ImportDataset) {
@@ -102,7 +102,7 @@ export const ImportDatasetModal: React.FC<{
 
   function doImport() {
     if (isLoading) return;
-    const validatedDatasets = newData.filter(dataset => datasetSelection.get(dataset.name));
+    const validatedDatasets = availableDatasets.filter(dataset => datasetSelection.get(dataset.name));
     startImport(validatedDatasets)
   }
 
@@ -123,7 +123,7 @@ export const ImportDatasetModal: React.FC<{
           </TableHead>
           <TableDivider/>
 
-          { filteredDatasets.map((dataset: ImportDataset, index: number) => <Fragment key={ index }>
+          { searchDatasets.map((dataset: ImportDataset, index: number) => <Fragment key={ index }>
             <TableContent isFirstColumn={ true }>
               <div className={ styles.item } onClick={ () => toggleDataset(dataset) }>
                 <IonCheckbox checked={ datasetSelection.get(dataset.name) } disabled={ isLoading }/>

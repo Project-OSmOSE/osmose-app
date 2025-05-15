@@ -18,6 +18,7 @@ import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import styles from './inputs.module.scss'
 import { IonRadioGroupCustomEvent } from "@ionic/core/dist/types/components";
 import { Label } from "@/components/form/inputs/Label.tsx";
+import { useSearchedData } from "@/service/ui/search.ts";
 
 export type SelectValue = number | string | undefined;
 
@@ -138,7 +139,8 @@ export const Select: React.FC<SelectProperties> = ({
               onClick={ () => !disabled && setIsOpen(!isOpen) }
               className={ !value && !hasSelectedItem ? styles.placeholder : '' }
               title={ buttonItem.label }>
-        <p ref={ selectLabelRef }>{ buttonItem.img ? <img ref={ selectImgRef } src={buttonItem.img} alt={buttonItem.label} /> : buttonItem.label }</p>
+        <p ref={ selectLabelRef }>{ buttonItem.img ?
+          <img ref={ selectImgRef } src={ buttonItem.img } alt={ buttonItem.label }/> : buttonItem.label }</p>
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
@@ -147,7 +149,7 @@ export const Select: React.FC<SelectProperties> = ({
           onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
-        } } key={ v.value }>{ v.img && <img src={v.img} alt={v.label} />} { v.label }</div>) }
+        } } key={ v.value }>{ v.img && <img src={ v.img } alt={ v.label }/> } { v.label }</div>) }
       </div> }
 
       { optionsContainer === 'alert' && isOpen &&
@@ -173,11 +175,11 @@ const SelectModal: React.FC<{
   const [ selected, setSelected ] = useState<Item | undefined>();
   const [ search, setSearch ] = useState<string | undefined>();
 
-
-  const filteredOptions = useMemo(() => {
-    if (!search) return options;
-    return options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
-  }, [ options, search ]);
+  const searchedOptions = useSearchedData({
+    items: options,
+    search,
+    fields: [ 'label' ]
+  })
 
   function onSearchUpdated(event: CustomEvent<SearchbarInputEventDetail>) {
     setSearch(event.detail.value ?? undefined);
@@ -199,7 +201,7 @@ const SelectModal: React.FC<{
     <IonRadioGroup className={ styles.radioGroup }
                    value={ selected?.value }
                    onIonChange={ onSelect }>
-      { filteredOptions.map((option, i) => (
+      { searchedOptions.map((option, i) => (
         <IonRadio key={ i }
                   value={ option.value }
                   labelPlacement='end'>
