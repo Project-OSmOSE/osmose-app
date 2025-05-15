@@ -430,9 +430,7 @@ class AnnotationCampaignPhaseViewSet(
     def report(self, request, pk: int = None):
         """Download annotation results report csv"""
         # pylint: disable=unused-argument
-        print(pk, self.request.user.id, self.filter_queryset(self.get_queryset()))
         phase: AnnotationCampaignPhase = self.get_object()
-        print(phase)
         campaign = phase.annotation_campaign
 
         response = HttpResponse(content_type="text/csv")

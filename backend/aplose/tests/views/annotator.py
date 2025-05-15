@@ -12,15 +12,17 @@ from backend.api.models import (
 )
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
-URL = reverse("annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": 9})
+URL = reverse(
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": 9}
+)
 URL_unknown_campaign = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": -1, "file_id": 9}
+    "annotator-campaign-file", kwargs={"campaign_id": -1, "phase_id": -1, "file_id": 9}
 )
 URL_unknown_file = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": -1}
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": -1}
 )
 URL_with_annotations = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": 7}
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": 7}
 )
 
 empty_data = {
@@ -121,7 +123,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["end_time"], None)
         self.assertEqual(response_result["start_frequency"], None)
         self.assertEqual(response_result["end_frequency"], None)
-        self.assertEqual(response_result["annotation_campaign"], 1)
+        self.assertEqual(response_result["annotation_campaign_phase"], 1)
         self.assertEqual(response_result["annotator"], 4)
         self.assertEqual(response_result["dataset_file"], file_id)
         self.assertEqual(response_result["detector_configuration"], None)
@@ -134,7 +136,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["end_time"], 10)
         self.assertEqual(response_result["start_frequency"], 5)
         self.assertEqual(response_result["end_frequency"], 25)
-        self.assertEqual(response_result["annotation_campaign"], 1)
+        self.assertEqual(response_result["annotation_campaign_phase"], 1)
         self.assertEqual(response_result["annotator"], 4)
         self.assertEqual(response_result["dataset_file"], file_id)
         self.assertEqual(response_result["detector_configuration"], None)

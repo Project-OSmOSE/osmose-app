@@ -32,7 +32,7 @@ class ListEmpyAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -63,7 +63,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -110,7 +110,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list_for_current_user_with_files__is_submitted_true(self):
         response = self.client.get(
             URL_files,
-            {"page": 1, "page_size": 100, "is_submitted": True},
+            {"page": 1, "page_size": 100, "is_submitted": "true"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 1)
@@ -118,7 +118,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
     def test_list_for_current_user_with_files__is_submitted_false(self):
         response = self.client.get(
             URL_files,
-            {"page": 1, "page_size": 100, "is_submitted": False},
+            {"page": 1, "page_size": 100, "is_submitted": "false"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 5)
@@ -209,7 +209,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
 
     def test_list_for_current_user_with_files__detector_empty(self):
         response = self.client.get(
-            reverse("annotation-file-range-campaign-files", kwargs={"campaign_id": 4}),
+            reverse("annotation-file-range-phase-files", kwargs={"phase_id": 5}),
             {
                 "page": 1,
                 "page_size": 100,
@@ -221,7 +221,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
 
     def test_list_for_current_user_with_files__detector(self):
         response = self.client.get(
-            reverse("annotation-file-range-campaign-files", kwargs={"campaign_id": 4}),
+            reverse("annotation-file-range-phase-files", kwargs={"phase_id": 5}),
             {
                 "page": 1,
                 "page_size": 100,
@@ -269,7 +269,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -300,7 +300,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

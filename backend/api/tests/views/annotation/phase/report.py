@@ -50,11 +50,9 @@ def check_report(test: APITestCase, response: Response):
 
 
 def check_report_check(test: APITestCase, response: Response):
-    print(response)
     test.assertEqual(response.status_code, status.HTTP_200_OK)
     reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
     data = list(reader)
-    print(data)
     test.assertEqual(len(data), 3)
     test.assertEqual(data[0], REPORT_HEADERS + ["admin", "user2"])
     test.assertEqual(

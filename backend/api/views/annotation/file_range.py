@@ -134,7 +134,7 @@ class AnnotationFileRangeFilter(filters.BaseFilterBackend):
             | (
                 Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
                 & Q(
-                    annotation_campaign_phase__file_ranges__annotators__id=request.user.id
+                    annotation_campaign_phase__file_ranges__annotator__id=request.user.id
                 )
             )
         ).distinct()
@@ -175,9 +175,13 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         required_campaign_phases = AnnotationCampaignPhase.objects.filter(
             id__in=[data["annotation_campaign_phase"] for data in request_data],
         )
-        required_owned_campaign_phases = required_campaign_phases.filter(annotation_campaign__owner=self.request.user)
+        required_owned_campaign_phases = required_campaign_phases.filter(
+            annotation_campaign__owner=self.request.user
+        )
         # Check if non-staff user is owner of all campaigns where changes are requested
-        return required_campaign_phases.count() == required_owned_campaign_phases.count()
+        return (
+            required_campaign_phases.count() == required_owned_campaign_phases.count()
+        )
 
     @action(
         methods=["GET"],

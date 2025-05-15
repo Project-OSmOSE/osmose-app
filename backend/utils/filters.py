@@ -15,7 +15,10 @@ class ModelFilter(filters.BaseFilterBackend):
         for param in request.query_params:
             try:
                 value = request.query_params[param]
-                _queryset = _queryset.filter(**{param: json.loads(value)})
+                try:
+                    _queryset = _queryset.filter(**{param: json.loads(value)})
+                except json.JSONDecodeError:
+                    _queryset = _queryset.filter(**{param: value})
             except FieldError:
                 continue
         return _queryset.distinct()
