@@ -1,3 +1,5 @@
+import { CAMPAIGN } from "../fixtures";
+
 export const ESSENTIAL = { tag: '@essential' };
 
 export const URL = {
@@ -14,9 +16,9 @@ export const API_URL = {
     self: /api\/user\/self\/?/g
   },
   campaign: {
-    list: /\/api\/annotation-campaign\/?\?/g,
+    list: /\/api\/annotation-campaign\/?\??.*/g,
     create: '/api/annotation-campaign/',
-    detail: /\/api\/annotation-campaign\/\d\/?/g,
+    detail: `/api/annotation-campaign/${ CAMPAIGN.id }/`,
     archive: /\/api\/annotation-campaign\/-?\d\/archive\/?/g,
   },
   phase: {
