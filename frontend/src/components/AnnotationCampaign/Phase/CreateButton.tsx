@@ -10,14 +10,32 @@ import { getErrorMessage } from "@/service/function.ts";
 import { FormBloc, Input, Select } from "@/components/form";
 import { LabelSetDisplay } from "@/components/AnnotationCampaign";
 import { CampaignAPI, PatchAnnotationCampaign, useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
+import { CampaignPhaseAPI, useListPhasesForCurrentCampaign } from "@/service/api/campaign-phase.ts";
 import { ConfidenceIndicatorSet, LabelSet } from "@/service/types";
 import { LabelSetAPI } from "@/service/api/label-set.ts";
 import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
+import { useAlert } from "@/service/ui";
 
 type Errors = { [key in keyof PatchAnnotationCampaign]?: string }
 
 export const CreateAnnotationPhaseButton: React.FC = () => {
+  const { campaign } = useRetrieveCurrentCampaign()
+  const modal = useModal();
+
+  if (campaign?.archive) return <Fragment/>
+  return <Fragment>
+    <Button fill='clear' color='medium' onClick={ modal.toggle }>
+      Annotation
+      <IonIcon icon={ addOutline } slot="end"/>
+    </Button>
+
+    { modal.isOpen && createPortal(<CreateAnnotationPhaseModal onClose={ modal.close }/>, document.body) }
+  </Fragment>
+}
+
+export const CreateAnnotationPhaseModal: React.FC<{
+  onClose: () => void;
+}> = ({ onClose }) => {
   const { campaign, isFetching: isFetchingCampaign, refetch } = useRetrieveCurrentCampaign()
   const [ postPhase, {
     isLoading: isPostingPhase,
@@ -37,7 +55,6 @@ export const CreateAnnotationPhaseButton: React.FC = () => {
     isFetching: isFetchingConfidenceSets,
     error: confidenceSetsError
   } = ConfidenceSetAPI.endpoints.listConfidenceSet.useQuery();
-  const modal = useModal();
   const navigate = useNavigate()
 
   const [ errors, setErrors ] = useState<Errors>({});
@@ -77,92 +94,88 @@ export const CreateAnnotationPhaseButton: React.FC = () => {
   }, [ campaign, labelSet, confidenceSet, labels_with_acoustic_features, allow_point_annotation ])
 
   if (campaign?.archive) return <Fragment/>
-  return <Fragment>
-    <Button fill='clear' color='medium' onClick={ modal.toggle }>
-      Annotation
-      <IonIcon icon={ addOutline } slot="end"/>
-    </Button>
+  return <Modal onClose={ onClose } className={ styles.modal }>
+    <ModalHeader title='New annotation phase' onClose={ onClose }/>
 
-    { modal.isOpen && createPortal(<Modal onClose={ modal.close } className={ styles.modal }>
-      <ModalHeader title='New annotation phase' onClose={ modal.close }/>
-
-      <div className={ styles.content }>
-        <p>In an "Annotation" phase, you create new annotations.</p>
+    <div className={ styles.content }>
+      <p>In an "Annotation" phase, you create new annotations.</p>
 
 
-        <FormBloc>
-          { (isFetchingLabelSets || isFetchingConfidenceSets) && <IonSpinner/> }
+      <FormBloc>
+        { (isFetchingLabelSets || isFetchingConfidenceSets) && <IonSpinner/> }
 
-          {/*  /!* Label set */ }
-          { labelSetsError &&
-              <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
-          { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
-                                    options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
-                                    optionsContainer="alert"
-                                    disabled={ !allLabelSets?.length }
-                                    value={ labelSet?.id }
-                                    onValueSelected={ onLabelSetChange }
-                                    required={ true }>
-            { labelSet && (<LabelSetDisplay set={ labelSet }
-                                            labelsWithAcousticFeatures={ labels_with_acoustic_features }
-                                            setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }
+        {/*  /!* Label set */ }
+        { labelSetsError &&
+            <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
+        { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
+                                  options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
+                                  optionsContainer="alert"
+                                  disabled={ !allLabelSets?.length }
+                                  value={ labelSet?.id }
+                                  onValueSelected={ onLabelSetChange }
+                                  required={ true }>
+          { labelSet && (<LabelSetDisplay set={ labelSet }
+                                          labelsWithAcousticFeatures={ labels_with_acoustic_features }
+                                          setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }
 
-            { allLabelSets.length === 0 &&
-                <IonNote>You need to create a label set to use it in your campaign</IonNote> }
-          </Select> }
+          { allLabelSets.length === 0 &&
+              <IonNote>You need to create a label set to use it in your campaign</IonNote> }
+        </Select> }
 
-          {/*  /!* Confidence set */ }
-          { confidenceSetsError &&
-              <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
-              </WarningText> }
-          { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"
-                                         error={ errors.confidence_indicator_set }
-                                         options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
-                                         optionsContainer="alert"
-                                         disabled={ !allConfidenceSets?.length }
-                                         value={ confidenceSet?.id }
-                                         onValueSelected={ onConfidenceSetChange }>
-            { confidenceSet && (
-              <Fragment>
-                { confidenceSet.desc }
-                { confidenceSet.confidence_indicators.map(c => (
-                  <p key={ c.level }><b>{ c.level }:</b> { c.label }</p>
-                )) }
-              </Fragment>)
-            }
-            { allConfidenceSets.length === 0 &&
-                <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }
-          </Select> }
+        {/*  /!* Confidence set */ }
+        { confidenceSetsError &&
+            <WarningText>Fail loading confidence sets:<br/>{ getErrorMessage(confidenceSetsError) }
+            </WarningText> }
+        { allConfidenceSets && <Select label="Confidence indicator set" placeholder="Select a confidence set"
+                                       error={ errors.confidence_indicator_set }
+                                       options={ allConfidenceSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
+                                       optionsContainer="alert"
+                                       disabled={ !allConfidenceSets?.length }
+                                       value={ confidenceSet?.id }
+                                       onValueSelected={ onConfidenceSetChange }>
+          { confidenceSet && (
+            <Fragment>
+              { confidenceSet.desc }
+              { confidenceSet.confidence_indicators.map(c => (
+                <p key={ c.level }><b>{ c.level }:</b> { c.label }</p>
+              )) }
+            </Fragment>)
+          }
+          { allConfidenceSets.length === 0 &&
+              <IonNote>You need to create a confidence set to use it in your campaign</IonNote> }
+        </Select> }
 
-          <Input type="checkbox" label='Allow annotations of type "Point"'
-                 checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>
+        <Input type="checkbox" label='Allow annotations of type "Point"'
+               checked={ allow_point_annotation } onChange={ onAllowPointAnnotationChange }/>
 
-        </FormBloc>
+      </FormBloc>
 
-        { phaseError && <WarningText>{ getErrorMessage(phaseError) }</WarningText> }
-        { campaignError && <WarningText>{ getErrorMessage(campaignError) }</WarningText> }
-      </div>
+      { phaseError && <WarningText>{ getErrorMessage(phaseError) }</WarningText> }
+      { campaignError && <WarningText>{ getErrorMessage(campaignError) }</WarningText> }
+    </div>
+    <div className={ styles.buttons }>
+      <Button color="medium" fill='clear' onClick={ onClose }>
+        Cancel
+      </Button>
+
       <div className={ styles.buttons }>
-        <Button color="medium" fill='clear' onClick={ modal.close }>
-          Cancel
+        { (isUpdatingCampaign || isPostingPhase || isFetchingCampaign) && <IonSpinner/> }
+        <Button color="primary" fill='solid' onClick={ create }>
+          Create
         </Button>
-
-        <div className={ styles.buttons }>
-          { (isUpdatingCampaign || isPostingPhase || isFetchingCampaign) && <IonSpinner/> }
-          <Button color="primary" fill='solid' onClick={ create }>
-            Create
-          </Button>
-        </div>
       </div>
-    </Modal>, document.body) }
-  </Fragment>
+    </div>
+  </Modal>
 }
 
 export const CreateVerificationPhaseButton: React.FC = () => {
   const { campaign, isFetching: isFetchingCampaign, refetch } = useRetrieveCurrentCampaign()
+  const { phases } = useListPhasesForCurrentCampaign()
   const [ post, { isLoading: isPostingPhase, error } ] = CampaignPhaseAPI.endpoints.postCampaignPhase.useMutation()
-  const modal = useModal();
+  const verificationModal = useModal();
+  const annotationModal = useModal();
   const navigate = useNavigate()
+  const alert = useAlert();
 
   const create = useCallback(async () => {
     if (!campaign) return;
@@ -177,15 +190,30 @@ export const CreateVerificationPhaseButton: React.FC = () => {
     navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations`)
   }, [ campaign ])
 
-  if (campaign?.archive) return <Fragment/>
+  const openModal = useCallback(() => {
+    if (!phases) return;
+    if (phases.find(p => p.phase === 'Annotation')) verificationModal.toggle()
+    else {
+      return alert.showAlert({
+        type: 'Warning',
+        message: 'A verification phase is made to check results from the "Annotation" phase. You should first create an "Annotation" phase, either to annotate the dataset or to import detectors annotations on it.',
+        actions: [ {
+          label: 'Create an "Annotation" campaign',
+          callback: annotationModal.toggle
+        } ]
+      })
+    }
+  }, [ phases, verificationModal ])
+
+  if (campaign?.archive || !phases) return <Fragment/>
   return <Fragment>
-    <Button fill='clear' color='medium' onClick={ modal.toggle }>
+    <Button fill='clear' color='medium' onClick={ openModal }>
       Verification
       <IonIcon icon={ addOutline } slot="end"/>
     </Button>
 
-    { modal.isOpen && createPortal(<Modal onClose={ modal.close } className={ styles.modal }>
-      <ModalHeader title='New verification phase' onClose={ modal.close }/>
+    { verificationModal.isOpen && createPortal(<Modal onClose={ verificationModal.close } className={ styles.modal }>
+      <ModalHeader title='New verification phase' onClose={ verificationModal.close }/>
 
       <div className={ styles.content }>
         <p>In a "Verification" phase, you can validate, invalidate, or add missing annotations.</p>
@@ -199,7 +227,7 @@ export const CreateVerificationPhaseButton: React.FC = () => {
       </div>
 
       <div className={ styles.buttons }>
-        <Button color="medium" fill='clear' onClick={ modal.close }>
+        <Button color="medium" fill='clear' onClick={ verificationModal.close }>
           Cancel
         </Button>
 
@@ -214,5 +242,7 @@ export const CreateVerificationPhaseButton: React.FC = () => {
         </div>
       </div>
     </Modal>, document.body) }
+
+    { annotationModal.isOpen && createPortal(<CreateAnnotationPhaseModal onClose={ annotationModal.close }/>, document.body) }
   </Fragment>
 }

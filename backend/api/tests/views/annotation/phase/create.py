@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from backend.api.models import AnnotationCampaignPhase
+from backend.api.models import AnnotationCampaignPhase, AnnotationCampaign
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
 URL = reverse("annotation-campaign-phase-list")
@@ -27,15 +27,6 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
     username = "admin"
     fixtures = all_fixtures
 
-    def test_create_if_phase_exists_fails(self):
-        old_count = AnnotationCampaignPhase.objects.count()
-        response = self.client.post(
-            URL, {"phase": "Annotation", "annotation_campaign": 1}, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data.get("non_field_errors")[0].code, "unique")
-        self.assertEqual(AnnotationCampaignPhase.objects.count(), old_count)
-
     def test_create(self):
         old_count = AnnotationCampaignPhase.objects.count()
         response = self.client.post(URL, creation_data, format="json")
@@ -52,6 +43,30 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["user_progress"], 0)
         self.assertEqual(response.data["user_total"], 0)
         self.assertTrue(response.data["has_annotations"])
+
+    def test_create_if_phase_exists_fails(self):
+        old_count = AnnotationCampaignPhase.objects.count()
+        response = self.client.post(
+            URL, {"phase": "Annotation", "annotation_campaign": 1}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data.get("non_field_errors")[0].code, "unique")
+        self.assertEqual(AnnotationCampaignPhase.objects.count(), old_count)
+
+    def test_create_verification_if_no_annotation_fails(self):
+        campaign = AnnotationCampaign.objects.create(
+            owner_id=3,
+            name="Empty",
+        )
+        old_count = AnnotationCampaignPhase.objects.count()
+        response = self.client.post(
+            URL,
+            {"phase": "Verification", "annotation_campaign": campaign.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data.get("non_field_errors")[0].code, "invalid")
+        self.assertEqual(AnnotationCampaignPhase.objects.count(), old_count)
 
 
 @freeze_time("2012-01-14 00:00:00")
