@@ -9,6 +9,7 @@ import styles from "./styles.module.scss";
 import { CreateAnnotationPhaseButton, CreateVerificationPhaseButton } from "@/components/AnnotationCampaign/Phase";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
@@ -17,7 +18,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
     error: errorLoadingCampaign,
     hasAdminAccess
   } = useRetrieveCurrentCampaign();
-  const { phases } = useListPhasesForCurrentCampaign()
+  const { phases, isFetching: isFetchingPhases } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
 
   const toast = useToast();
@@ -58,18 +59,22 @@ export const AnnotationCampaignDetail: React.FC = () => {
       </Link>
 
       {/* Annotation phase */ }
-      { annotationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ annotationPhase.id }` }
-                                 className={ phase?.id === annotationPhase.id ? styles.active : undefined }>
-          Annotation
-      </Link> }
-      { !annotationPhase && hasAdminAccess && <CreateAnnotationPhaseButton/> }
+      <Deactivatable disabled={ isFetchingPhases } loading={ isFetchingPhases }>
+        { annotationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ annotationPhase.id }` }
+                                   className={ phase?.id === annotationPhase.id ? styles.active : undefined }>
+            Annotation
+        </Link> }
+        { !annotationPhase && hasAdminAccess && <CreateAnnotationPhaseButton/> }
+      </Deactivatable>
 
       {/* Verification phase */ }
-      { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
-                                   className={ phase?.id === verificationPhase.id ? styles.active : undefined }>
-          Verification
-      </Link> }
-      { !verificationPhase && hasAdminAccess && <CreateVerificationPhaseButton/> }
+      <Deactivatable disabled={ isFetchingPhases } loading={ isFetchingPhases }>
+        { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
+                                     className={ phase?.id === verificationPhase.id ? styles.active : undefined }>
+            Verification
+        </Link> }
+        { !verificationPhase && hasAdminAccess && <CreateVerificationPhaseButton/> }
+      </Deactivatable>
     </div>
 
     <Outlet/>
