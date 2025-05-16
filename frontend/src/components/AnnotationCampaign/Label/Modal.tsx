@@ -15,7 +15,7 @@ export const LabelSetModalButton: React.FC = () => {
   const modal = useModal()
   return <Fragment>
     <IonButton fill='outline' color='medium' className='ion-text-wrap' onClick={ modal.toggle }>
-      Label set
+      Update labels with features
     </IonButton>
     { modal.isOpen && createPortal(<LabelSetModal onClose={ modal.toggle }/>, document.body) }
   </Fragment>

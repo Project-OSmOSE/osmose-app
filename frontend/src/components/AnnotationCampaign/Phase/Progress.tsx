@@ -4,9 +4,10 @@ import { Progress } from "@/components/ui";
 
 export const PhaseGlobalProgress: React.FC<{
   phase: AnnotationCampaignPhase,
-  className?: string
-}> = ({ phase, className }) => {
-  return <Progress label='Global progress'
+  className?: string,
+  withoutLabel?: boolean,
+}> = ({ phase, className, withoutLabel = false }) => {
+  return <Progress label={ withoutLabel ? undefined : 'Global progress' }
                    className={ className }
                    value={ phase.global_progress }
                    total={ phase.global_total }/>

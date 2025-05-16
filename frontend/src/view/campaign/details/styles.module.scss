@@ -3,6 +3,7 @@
   gap: 1.5rem;
   align-content: start;
   justify-content: start;
+  justify-items: start;
   font-size: 0.9rem;
   overflow: auto;
   height: 100%;
@@ -11,15 +12,19 @@
     display: grid;
     gap: 0.5rem;
     width: 100%;
+    justify-items: start;
 
     > div {
       width: 100%;
       overflow: hidden;
     }
+
+    .progress {
+      width: 20rem;
+    }
   }
 
   p {
-    line-height: 0.95rem;
     word-break: break-word;
     text-wrap: wrap;
     overflow: hidden;

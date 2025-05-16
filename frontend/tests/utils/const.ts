@@ -43,7 +43,7 @@ export const API_URL = {
     detail: /\/api\/annotator-group\/-?\d\//g,
   },
   spectrogram: {
-    list: /\/api\/spectrogram-configuration\/?/g,
+    list: /\/api\/spectrogram-configuration\/?.*/g,
     export: /\/api\/spectrogram-configuration\/export\/?/g,
   },
   audio: {

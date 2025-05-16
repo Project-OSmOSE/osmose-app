@@ -73,7 +73,7 @@ export class CampaignDetailPage {
   }
 
   async openLabelModal(): Promise<LabelModal> {
-    const modal = await this.ui.openModal({ name: 'Label set' })
+    const modal = await this.ui.openModal({ name: 'Update labels with features' })
     const ui = this.ui;
     return Object.assign(modal, {
       getCheckbox(label: string) {
@@ -86,6 +86,7 @@ export class CampaignDetailPage {
   }
 
   async openSpectrogramModal(): Promise<MetadataModal> {
+    await this.mock.spectrograms()
     const modal = await this.ui.openModal({ name: 'Spectrogram configuration' })
     return Object.assign(modal, {
       get downloadButton(): Locator {
