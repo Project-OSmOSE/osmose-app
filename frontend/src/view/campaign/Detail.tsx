@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useMemo } from "react";
+import React, { Fragment, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
@@ -18,13 +18,10 @@ export const AnnotationCampaignDetail: React.FC = () => {
     error: errorLoadingCampaign,
     hasAdminAccess
   } = useRetrieveCurrentCampaign();
-  const { phases, isFetching: isFetchingPhases } = useListPhasesForCurrentCampaign()
+  const { annotationPhase, verificationPhase, isFetching: isFetchingPhases } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
 
   const toast = useToast();
-
-  const annotationPhase = useMemo(() => phases?.find(p => p.phase === 'Annotation'), [ phases ])
-  const verificationPhase = useMemo(() => phases?.find(p => p.phase === 'Verification'), [ phases ])
 
   const copyOwnerMail = useCallback(async () => {
     if (!campaign) return;

@@ -81,7 +81,9 @@ export const useListPhasesForCurrentCampaign = () => {
   const { data, ...info } = CampaignPhaseAPI.endpoints.listCampaignPhase.useQuery({
     campaigns: [ campaign! ],
   }, { skip: !campaign })
-  return useMemo(() => ({ phases: data, ...info, }), [ data, info ])
+  const annotationPhase = useMemo(() => data?.find(p => p.phase === 'Annotation'), [ data ])
+  const verificationPhase = useMemo(() => data?.find(p => p.phase === 'Verification'), [ data ])
+  return useMemo(() => ({ phases: data, annotationPhase, verificationPhase, ...info, }), [ data, annotationPhase, verificationPhase, info ])
 }
 
 export const useRetrieveCurrentPhase = () => {

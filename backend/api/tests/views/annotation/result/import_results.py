@@ -16,6 +16,7 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
     AnnotationTask,
     AnnotationCampaignPhase,
+    Phase,
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
@@ -55,6 +56,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         _dataset_name=DATASET_NAME,
         # pylint: disable=dangerous-default-value
         _detectors_map: dict = detectors_map,
+        phase_type: Phase = Phase.ANNOTATION,
     ):
         campaign = AnnotationCampaign.objects.create(
             name="string",
@@ -66,6 +68,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             owner_id=3,
         )
         phase = AnnotationCampaignPhase.objects.create(
+            phase=phase_type,
             annotation_campaign=campaign,
             created_by_id=3,
         )
@@ -644,6 +647,20 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(AnnotationResult.objects.count(), old_count)
 
         self.assertEqual(response.data[0].get("label")[0].code, "null")
+
+    def test_empty_post_on_verification_phase(self):
+        url, _, _ = self._get_url(phase_type=Phase.VERIFICATION)
+        old_count = AnnotationResult.objects.count()
+        response = upload_csv_file_as_string(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/strong_one_file_annotation.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(AnnotationResult.objects.count(), old_count)
+        self.assertEqual(
+            response.data, "Import should always be made on annotation campaign"
+        )
 
 
 class ImportAdminAuthenticatedTestCase(ImportCampaignOwnerAuthenticatedTestCase):

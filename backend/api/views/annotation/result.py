@@ -12,7 +12,6 @@ from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationResult,
-    AnnotationCampaign,
     DatasetFile,
     AnnotationTask,
     AnnotationResultValidation,
@@ -213,7 +212,6 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def import_results(self, request, campaign_id, phase_id):
         """Import result from automated detection"""
         # Check permission
-        campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
         phase = get_object_or_404(
             AnnotationCampaignPhase, id=phase_id, annotation_campaign_id=campaign_id
         )
@@ -222,6 +220,12 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             and not request.user.is_staff
         ):
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if phase.phase != Phase.ANNOTATION:
+            return Response(
+                "Import should always be made on annotation campaign",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         dataset_name = request.query_params.get("dataset_name")
         detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))

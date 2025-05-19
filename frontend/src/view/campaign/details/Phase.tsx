@@ -13,13 +13,14 @@ import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { AnnotationCampaign, AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
 import { AnnotationFileRangeAPI } from "@/service/api/annotation-file-range.ts";
-import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useFileFilters } from "@/service/slices/filter.ts";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { params, updateParams, clearParams } = useFileFilters(true)
 
   const { campaign } = useRetrieveCurrentCampaign()
+  const { annotationPhase } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
@@ -81,7 +82,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                      <ProgressModalButton size='small'/>
                    </div>
 
-                   { isEditable && <Link fill='outline' color='medium' size='small'
+                   { isEditable && phase.phase === "Annotation" && <Link fill='outline' color='medium' size='small'
                                          appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
                        Import annotations
                    </Link> }
@@ -96,11 +97,11 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    </Button> }
                  </div> }/>
 
-      { phase.phase === 'Verification' && !phase.has_annotations &&
+      { phase.phase === 'Verification' && !phase.has_annotations && annotationPhase &&
           <WarningText>
               Your campaign doesn't have any annotations to check
             { isEditable && <Link
-                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase.id }/import-annotations` }>
+                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ annotationPhase.id }/import-annotations` }>
                 Import annotations
             </Link> }
           </WarningText> }
