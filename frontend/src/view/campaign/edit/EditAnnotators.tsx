@@ -88,12 +88,12 @@ export const EditAnnotators: React.FC = () => {
     if (initialFileRanges) setFileRanges(initialFileRanges);
   }, [ initialFileRanges ]);
   const addFileRange = useCallback((item: Item) => {
-    if (!allUsers || !allGroups) return;
+    if (!allGroups) return;
     const [ type, id ] = (item.value as string).split('-');
     const users = []
     switch (type!) {
       case 'user':
-        users.push(allUsers.find(u => u.id === +id)!);
+        users.push(availableUsers.find(a => a.type === 'user' && a.id === +id)!);
         break;
       case 'group':
         users.push(...allGroups.find(g => g.id === +id)!.annotators.filter(u => availableUsers.find(a => a.type === 'user' && a.id === u.id)));
@@ -102,7 +102,7 @@ export const EditAnnotators: React.FC = () => {
     for (const newUser of users) {
       setFileRanges(prev => [ ...prev, { id: getNewItemID(prev), annotator: newUser.id, } ])
     }
-  }, [ allUsers, allGroups ])
+  }, [ allGroups, availableUsers, setFileRanges ])
   const updateFileRange = useCallback((fileRange: PostAnnotationFileRange) => {
     setFileRanges(prev => prev.map(f => {
       if (f.id !== fileRange.id) return f;

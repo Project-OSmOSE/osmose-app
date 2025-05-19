@@ -17,7 +17,7 @@ export const Table: React.FC<TableProps> = ({
                                               size = 'medium',
                                             }) => {
   const className = useMemo(() => {
-    const classes = [ styles.table ];
+    const classes = [ styles.table, 'table-aplose' ]; // .table-aplose used for testing purpose
     if (isFirstColumnSticky) classes.push(styles.firstColumnSticky)
     if (columns === 1) classes.push(styles.uniqueColumn)
     if (size === 'small') classes.push(styles.small)

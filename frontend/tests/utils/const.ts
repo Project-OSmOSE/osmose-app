@@ -35,8 +35,8 @@ export const API_URL = {
   },
   fileRanges: {
     list: /\/api\/annotation-file-range\/?/g,
-    file: /\/api\/annotation-file-range\/campaign\/-?\d\/files/g,
-    post: /\/api\/annotation-file-range\/campaign\/-?\d\//g,
+    file: /\/api\/annotation-file-range\/phase\/-?\d\/files/g,
+    post: /\/api\/annotation-file-range\/phase\/-?\d\//g,
   },
   annotatorGroup: {
     list: /\/api\/annotator-group\/?/g,
