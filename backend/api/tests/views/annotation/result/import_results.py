@@ -1,6 +1,7 @@
 """Test AnnotationFileRangeViewSet"""
 # pylint: disable=missing-class-docstring, missing-function-docstring, duplicate-code, too-many-public-methods
 import os
+from typing import Optional
 
 from django.db.models import QuerySet
 from django.urls import reverse
@@ -57,6 +58,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         # pylint: disable=dangerous-default-value
         _detectors_map: dict = detectors_map,
         phase_type: Phase = Phase.ANNOTATION,
+        label_set: Optional[LabelSet] = None,
     ):
         campaign = AnnotationCampaign.objects.create(
             name="string",
@@ -64,7 +66,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             instructions_url="string",
             deadline="2022-01-30",
             created_at="2012-01-14T00:00:00Z",
-            label_set=LabelSet.objects.create(name="string label set"),
+            label_set=label_set or LabelSet.objects.create(name="string label set"),
             owner_id=3,
         )
         phase = AnnotationCampaignPhase.objects.create(
@@ -238,9 +240,46 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
 
     # Common
 
+    def test_empty_post_duplicate_used_label_set(self):
+        old_label_set = LabelSet.objects.create(name="Filled")
+        old_label_set.labels.create(name="Whale")
+        old_label_set.labels.create(name="Dolphins")
+
+        url, phase_id, task_id = self._get_url(label_set=old_label_set)
+
+        AnnotationCampaign.objects.create(
+            name="Other", label_set=old_label_set, owner_id=1
+        )
+
+        old_count = AnnotationResult.objects.count()
+        old_set_count = LabelSet.objects.count()
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+        old_labels_count = phase.annotation_campaign.label_set.labels.count()
+        response = upload_csv_file_as_string(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
+
+        self.assertEqual(LabelSet.objects.count(), old_set_count + 1)
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+        self.assertEqual(
+            phase.annotation_campaign.label_set.labels.count(), old_labels_count + 1
+        )
+        self.assertNotEquals(phase.annotation_campaign.label_set, old_label_set)
+        self.assertEqual(old_label_set.labels.count(), old_labels_count)
+
     def test_empty_post_weak_one_file(self):
         url, phase_id, task_id = self._get_url()
         old_count = AnnotationResult.objects.count()
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+        self.assertEqual(phase.annotation_campaign.label_set.labels.count(), 0)
         response = upload_csv_file_as_string(
             self,
             url,
@@ -255,6 +294,8 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
 
         result = AnnotationResult.objects.latest("id")
         self.__check_weak_one_file_annotation(response.data[0], result, phase_id)
+
+        self.assertEqual(phase.annotation_campaign.label_set.labels.count(), 1)
 
     def test_empty_post_weak_one_file_twice(self):
         url, _, task_id = self._get_url()

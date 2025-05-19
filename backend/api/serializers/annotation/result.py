@@ -24,6 +24,7 @@ from backend.api.models import (
     SignalTrend,
     AnnotationCampaignPhase,
     Phase,
+    LabelSet,
 )
 from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
@@ -163,6 +164,16 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             return self.get_confidence_set(name, index + 1)
         return ConfidenceIndicatorSet.objects.create(name=real_name)
 
+    def create_new_label_set(self, name: str, labels: QuerySet[Label], index: int = 0):
+        """Recover new label set based on the campaign name"""
+        real_name = name if index == 0 else f"{name} ({index})"
+        if LabelSet.objects.filter(name=real_name).exists():
+            return self.create_new_label_set(name, labels, index + 1)
+        label_set = LabelSet.objects.create(name=real_name)
+        for label in labels.all():
+            label_set.labels.add(label)
+        return label_set
+
     def create(self, validated_data):
         return AnnotationResult.objects.bulk_create(
             self.get_create_instances(validated_data)
@@ -194,6 +205,13 @@ class AnnotationResultImportSerializer(serializers.Serializer):
         )
         label, _ = Label.objects.get_or_create(name=validated_data["label"])
         if not phase.annotation_campaign.label_set.labels.filter(id=label.id).exists():
+            if phase.annotation_campaign.label_set.annotationcampaign_set.count() > 1:
+                old_label_set = phase.annotation_campaign.label_set
+                phase.annotation_campaign.label_set = self.create_new_label_set(
+                    name=phase.annotation_campaign.name,
+                    labels=old_label_set.labels,
+                )
+                phase.annotation_campaign.save()
             phase.annotation_campaign.label_set.labels.add(label)
         confidence_indicator = None
         if (
