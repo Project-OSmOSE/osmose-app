@@ -19,6 +19,7 @@ import styles from './inputs.module.scss'
 import { IonRadioGroupCustomEvent } from "@ionic/core/dist/types/components";
 import { Label } from "@/components/form/inputs/Label.tsx";
 import { useSearchedData } from "@/service/ui/search.ts";
+import { usePopover } from "@/service/ui/popover.ts";
 
 export type SelectValue = number | string | undefined;
 
@@ -54,7 +55,8 @@ export const Select: React.FC<SelectProperties> = ({
                                                      isLoading = false,
                                                      ...props
                                                    }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { containerRef, top, right } = usePopover();
+
   const inputRef = useRef<HTMLDivElement | null>(null);
   const selectButtonRef = useRef<HTMLButtonElement | null>(null);
   const selectLabelRef = useRef<HTMLParagraphElement | null>(null);
@@ -144,13 +146,16 @@ export const Select: React.FC<SelectProperties> = ({
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
-      { optionsContainer === 'popover' && <div id="options" className={ styles.options } ref={ optionsRef }>
+      { optionsContainer === 'popover' && isOpen && createPortal(<div id="options"
+                                                                      className={ styles.options }
+                                                                      style={ { top: top + 8, right } }
+                                                                      ref={ optionsRef }>
         { getOptions().map(v => <div className={ styles.item } onClick={ () => {
           onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
         } } key={ v.value }>{ v.img && <img src={ v.img } alt={ v.label }/> } { v.label }</div>) }
-      </div> }
+      </div>, document.body) }
 
       { optionsContainer === 'alert' && isOpen &&
           <SelectModal header={ placeholder } options={ getOptions() } onClose={ option => {

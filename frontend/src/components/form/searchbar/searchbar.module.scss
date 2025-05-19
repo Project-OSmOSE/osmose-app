@@ -3,6 +3,7 @@
 }
 
 .results {
+  position: absolute;
   z-index: 10;
   border-radius: 0 0 1rem 1rem;
   --background: var(--ion-color-light-shade);
