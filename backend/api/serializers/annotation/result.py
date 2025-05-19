@@ -218,17 +218,32 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             "confidence_indicator" in validated_data
             and validated_data["confidence_indicator"] is not None
         ):
-            if phase.annotation_campaign.confidence_indicator_set is None:
-                phase.annotation_campaign.confidence_indicator_set = (
-                    self.get_confidence_set(
-                        name=f"{phase.annotation_campaign.name} confidence set"
-                    )
-                )
-                phase.annotation_campaign.save()
             confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
                 label=validated_data["confidence_indicator"].get("label"),
                 level=validated_data["confidence_indicator"].get("level"),
             )
+            if phase.annotation_campaign.confidence_indicator_set is None:
+                phase.annotation_campaign.confidence_indicator_set = (
+                    self.get_confidence_set(name=phase.annotation_campaign.name)
+                )
+                phase.annotation_campaign.save()
+            elif not phase.annotation_campaign.confidence_indicator_set.confidence_indicators.filter(
+                id=confidence_indicator.id
+            ).exists():
+                if (
+                    phase.annotation_campaign.confidence_indicator_set.annotationcampaign_set.count()
+                    > 1
+                ):
+                    old_set = phase.annotation_campaign.confidence_indicator_set
+                    phase.annotation_campaign.confidence_indicator_set = (
+                        self.get_confidence_set(name=phase.annotation_campaign.name)
+                    )
+                    for indicator in old_set.confidence_indicators.all():
+                        ConfidenceIndicatorSetIndicator.objects.get_or_create(
+                            confidence_indicator=indicator,
+                            confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
+                        )
+                    phase.annotation_campaign.save()
             is_default = validated_data["confidence_indicator"].pop("is_default", None)
             ConfidenceIndicatorSetIndicator.objects.get_or_create(
                 confidence_indicator=confidence_indicator,

@@ -18,6 +18,8 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationCampaignPhase,
     Phase,
+    ConfidenceIndicator,
+    ConfidenceIndicatorSetIndicator,
 )
 from backend.utils.tests import AuthenticatedTestCase, upload_csv_file_as_string
 
@@ -59,6 +61,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         _detectors_map: dict = detectors_map,
         phase_type: Phase = Phase.ANNOTATION,
         label_set: Optional[LabelSet] = None,
+        confidence_set: Optional[ConfidenceIndicatorSet] = None,
     ):
         campaign = AnnotationCampaign.objects.create(
             name="string",
@@ -67,6 +70,7 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             deadline="2022-01-30",
             created_at="2012-01-14T00:00:00Z",
             label_set=label_set or LabelSet.objects.create(name="string label set"),
+            confidence_indicator_set=confidence_set,
             owner_id=3,
         )
         phase = AnnotationCampaignPhase.objects.create(
@@ -130,9 +134,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(response["detector_configuration"]["detector"], "nnini")
         self.assertEqual(response["detector_configuration"]["configuration"], "test")
         self.assertIsNotNone(LabelSet.objects.get(name="string label set"))
-        self.assertIsNotNone(
-            ConfidenceIndicatorSet.objects.get(name="string confidence set")
-        )
+        self.assertIsNotNone(ConfidenceIndicatorSet.objects.get(name="string"))
 
     def __check_weak_one_file_annotation(
         self,
@@ -274,6 +276,62 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         )
         self.assertNotEquals(phase.annotation_campaign.label_set, old_label_set)
         self.assertEqual(old_label_set.labels.count(), old_labels_count)
+
+    def test_empty_post_duplicate_used_confidence_set(self):
+        old_confidence_set = ConfidenceIndicatorSet.objects.create(name="Filled")
+        ConfidenceIndicatorSetIndicator.objects.get_or_create(
+            confidence_indicator=ConfidenceIndicator.objects.create(
+                label="Not confident", level=0
+            ),
+            confidence_indicator_set=old_confidence_set,
+        )
+        ConfidenceIndicatorSetIndicator.objects.get_or_create(
+            confidence_indicator=ConfidenceIndicator.objects.create(
+                label="Confident", level=1
+            ),
+            confidence_indicator_set=old_confidence_set,
+        )
+
+        url, phase_id, task_id = self._get_url(confidence_set=old_confidence_set)
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+
+        AnnotationCampaign.objects.create(
+            name="Other",
+            label_set=phase.annotation_campaign.label_set,
+            owner_id=1,
+            confidence_indicator_set=old_confidence_set,
+        )
+
+        old_count = AnnotationResult.objects.count()
+        old_set_count = ConfidenceIndicatorSet.objects.count()
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+        old_indicators_count = (
+            phase.annotation_campaign.confidence_indicator_set.confidence_indicators.count()
+        )
+        response = upload_csv_file_as_string(
+            self,
+            url,
+            f"{os.path.dirname(os.path.realpath(__file__))}/import_csv/weak_one_file_annotation.csv",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnnotationResult.objects.count(), old_count + 1)
+        self.assertEqual(
+            AnnotationTask.objects.get(id=task_id).status,
+            AnnotationTask.Status.FINISHED,
+        )
+
+        self.assertEqual(LabelSet.objects.count(), old_set_count + 1)
+        phase = AnnotationCampaignPhase.objects.get(id=phase_id)
+        self.assertEqual(
+            phase.annotation_campaign.confidence_indicator_set.confidence_indicators.count(),
+            old_indicators_count + 1,
+        )
+        self.assertNotEquals(
+            phase.annotation_campaign.confidence_indicator_set, old_confidence_set
+        )
+        self.assertEqual(
+            old_confidence_set.confidence_indicators.count(), old_indicators_count
+        )
 
     def test_empty_post_weak_one_file(self):
         url, phase_id, task_id = self._get_url()
