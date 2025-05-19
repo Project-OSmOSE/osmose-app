@@ -42,15 +42,10 @@ export function extendAnnotationFile(file: AnnotationFile): AnnotationFile {
 export const AnnotationFileRangeAPI = API.injectEndpoints({
   endpoints: (builder) => ({
     listFileRange: builder.query<Array<AnnotationFileRange>, {
-      phaseID?: ID,
-      forCurrentUser?: boolean,
+      annotation_campaign_phase?: ID,
+      for_current_user?: boolean,
     }>({
-      query: ({ phaseID, forCurrentUser }) => {
-        const params: any = {}
-        if (phaseID) params.annotation_campaign_phase = phaseID;
-        if (forCurrentUser) params.for_current_user = true;
-        return { url: `annotation-file-range/`, params };
-      },
+      query: (params) => ({ url: `annotation-file-range/`, params }),
       transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
         return ranges.map(extendFileRange);
       },
@@ -82,25 +77,23 @@ export const AnnotationFileRangeAPI = API.injectEndpoints({
       data: Array<PostAnnotationFileRange>,
       force?: boolean
     }>({
-      query: ({ phaseID, filesCount, data, force }) => {
-        return {
-          url: `annotation-file-range/phase/${ phaseID }/`,
-          method: 'POST',
-          body: {
-            data: data.map(range => {
-              const first_file_index = !range.first_file_index ? 1 : range.first_file_index;
-              const last_file_index = !range.last_file_index ? filesCount : range.last_file_index;
-              return {
-                id: range.id >= 0 ? range.id : undefined,
-                first_file_index: first_file_index - 1,
-                last_file_index: last_file_index - 1,
-                annotator: range.annotator
-              }
-            }),
-            force
-          }
+      query: ({ phaseID, filesCount, data, force }) => ({
+        url: `annotation-file-range/phase/${ phaseID }/`,
+        method: 'POST',
+        body: {
+          data: data.map(range => {
+            const first_file_index = !range.first_file_index ? 1 : range.first_file_index;
+            const last_file_index = !range.last_file_index ? filesCount : range.last_file_index;
+            return {
+              id: range.id >= 0 ? range.id : undefined,
+              first_file_index: first_file_index - 1,
+              last_file_index: last_file_index - 1,
+              annotator: range.annotator
+            }
+          }),
+          force
         }
-      },
+      }),
       transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
         return ranges.map(extendFileRange);
       },
@@ -114,6 +107,6 @@ export const useListFileRangesForCurrentPhase = () => {
   const {
     data,
     ...info
-  } = AnnotationFileRangeAPI.endpoints.listFileRange.useQuery({ phaseID: phase!.id }, { skip: !phase })
+  } = AnnotationFileRangeAPI.endpoints.listFileRange.useQuery({ annotation_campaign_phase: phase?.id ?? -1 }, { skip: !phase })
   return useMemo(() => ({ fileRanges: data, ...info, }), [ data, info ])
 }
