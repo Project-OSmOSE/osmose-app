@@ -63,7 +63,10 @@ class AnnotationCampaignPhaseSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         attrs = super().validate(attrs)
         campaign: AnnotationCampaign = attrs.get("annotation_campaign")
-        if not campaign.phases.filter(phase=Phase.ANNOTATION).exists():
+        if (
+            attrs.get("phase") == Phase.VERIFICATION
+            and not campaign.phases.filter(phase=Phase.ANNOTATION).exists()
+        ):
             raise serializers.ValidationError(
                 "Cannot create Verification phase without an Annotation phase first",
                 code="invalid",

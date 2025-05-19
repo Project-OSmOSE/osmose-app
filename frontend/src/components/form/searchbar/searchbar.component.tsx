@@ -44,18 +44,8 @@ export const Searchbar: React.FC<Props & HTMLAttributes<HTMLIonSearchbarElement>
                     value={ search }
                     onIonInput={ e => setSearch(e.detail.value ?? undefined) }></IonSearchbar>
 
-      {/*{ !!search && <IonList id="searchbar-results" lines="none">*/ }
-      {/*  { (searchResult.length > 5 ? searchResult.slice(0, 4) : searchResult.slice(0, 5)).map((v, i) => (*/ }
-      {/*    <IonItem key={ i } onClick={ () => {*/ }
-      {/*      setSearch(undefined);*/ }
-      {/*      if (props.onValueSelected) props.onValueSelected(v)*/ }
-      {/*    } }>{ v.label }</IonItem>*/ }
-      {/*  )) }*/ }
-      {/*  { searchResult.length > 5 && <IonItem className="none">{ searchResult.length - 4 } more results</IonItem> }*/ }
-      {/*  { searchResult.length === 0 && <IonItem className="none">No results</IonItem> }*/ }
-      {/*</IonList> }*/ }
-
-      { !!search && createPortal(<IonList className={ styles.results }
+      { !!search && createPortal(<IonList id="searchbar-results"
+                                          className={ styles.results }
                                           lines="none"
                                           style={ listPosition }>
         { (searchResult.length > 5 ? searchResult.slice(0, 4) : searchResult.slice(0, 5)).map((v, i) => (

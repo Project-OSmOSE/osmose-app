@@ -8,21 +8,23 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useCallback, useEffect, useMemo } from "react";
 import { CHUNK_SIZE } from "@/service/campaign/result/import/type.ts";
 import { ResultImportSlice } from "@/service/campaign/result/import";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const AnnotationAPI = API.injectEndpoints({
   endpoints: (builder) => ({
     importAnnotations: builder.mutation<Array<AnnotationResult>, {
       campaignID: ID,
+      phaseID: ID,
       datasetName: string,
       detectors_map: { [key in string]: { detector: string, configuration: string } },
       data: string[][],
       force_datetime?: boolean
       force_max_frequency?: boolean
     }>({
-      query: ({ campaignID, datasetName, data, force_datetime, force_max_frequency, detectors_map }) => {
+      query: ({ campaignID, phaseID, datasetName, data, force_datetime, force_max_frequency, detectors_map }) => {
         return {
-          url: `annotation-result/campaign/${ campaignID }/import/`,
+          url: `annotation-result/campaign/${ campaignID }/phase/${ phaseID }/import/`,
           params: {
             dataset_name: datasetName,
             detectors_map: JSON.stringify(detectors_map),
@@ -55,12 +57,17 @@ export const AnnotationAPI = API.injectEndpoints({
         }
         return error
       },
+      invalidatesTags: [
+        'CampaignPhase',
+        'Detector'
+      ]
     }),
   })
 })
 
 export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
   const { campaign } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase();
   const [ doImport, {
     error,
     originalArgs,
@@ -95,19 +102,20 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
     force_datetime?: boolean;
     force_max_frequency?: boolean;
   }) => {
-    if (!campaign) return;
+    if (!campaign || !phase) return;
     if (file.state !== 'loaded') return;
     if (uploadInfo.state !== 'uploading' && !bypassUploadState) return;
     const chunkRows = rows.slice(start, start + CHUNK_SIZE);
     doImport({
       campaignID: campaign.id,
+      phaseID: phase.id,
       datasetName: campaign.datasets![0],
       detectors_map: detectorsMap,
       data: [ file.header, ...chunkRows ],
       force_datetime: force?.force_datetime,
       force_max_frequency: force?.force_max_frequency,
     })
-  }, [ campaign, doImport, detectorsMap, rows, uploadInfo ])
+  }, [ campaign, phase, doImport, detectorsMap, rows, uploadInfo ])
 
   const upload = useCallback((force?: {
     force_datetime?: boolean;
@@ -115,8 +123,8 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
   }) => {
     if (file.state !== 'loaded') return;
     if (uploadInfo.state === 'uploading') return;
-    const isDatetimeForced =  force?.force_datetime !== undefined ? force.force_datetime : (uploadInfo.state === 'initial' ? false : uploadInfo.force_datetime)
-    const isMaxFrequencyForced =  force?.force_max_frequency !== undefined ? force.force_max_frequency : (uploadInfo.state === 'initial' ? false : uploadInfo.force_max_frequency)
+    const isDatetimeForced = force?.force_datetime !== undefined ? force.force_datetime : (uploadInfo.state === 'initial' ? false : uploadInfo.force_datetime)
+    const isMaxFrequencyForced = force?.force_max_frequency !== undefined ? force.force_max_frequency : (uploadInfo.state === 'initial' ? false : uploadInfo.force_max_frequency)
     const newForce = {
       force_datetime: isDatetimeForced,
       force_max_frequency: isMaxFrequencyForced

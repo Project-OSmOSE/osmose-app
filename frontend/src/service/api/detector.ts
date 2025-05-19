@@ -17,7 +17,8 @@ export const DetectorAPI = API.injectEndpoints({
           url: `detector/`,
           params: queryParams
         }
-      }
+      },
+      providesTags: [ 'Detector' ]
     }),
   })
 })
@@ -25,7 +26,7 @@ export const DetectorAPI = API.injectEndpoints({
 export const useListDetectorForCurrentCampaign = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
-  const { data, ...info } = DetectorAPI.endpoints.listDetector.useQuery(campaign ? {campaign} : skipToken, {
+  const { data, ...info } = DetectorAPI.endpoints.listDetector.useQuery(campaign ? { campaign } : skipToken, {
     skip: phase?.phase !== 'Verification'
   })
   return useMemo(() => ({ detectors: data, ...info, }), [ data, info ])

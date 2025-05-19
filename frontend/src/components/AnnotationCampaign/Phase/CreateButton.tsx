@@ -217,11 +217,7 @@ export const CreateVerificationPhaseButton: React.FC = () => {
 
       <div className={ styles.content }>
         <p>In a "Verification" phase, you can validate, invalidate, or add missing annotations.</p>
-        <p>The annotations you can see come from:</p>
-        <ul>
-          <li>The "Annotation" phase</li>
-          <li>Imported annotations, for exemple the output of an automatic detector</li>
-        </ul>
+        <p>The annotations see come from the "Annotation" phase and are either made by your annotators or imported (for exemple the output of an automatic detector)</p>
         <p>Do you really want to create a "Verification" phase?</p>
         { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       </div>

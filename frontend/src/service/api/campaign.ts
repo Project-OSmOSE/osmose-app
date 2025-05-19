@@ -70,16 +70,12 @@ export const CampaignAPI = API.injectEndpoints({
       transformResponse: extendCampaign,
       invalidatesTags: [ 'Campaign' ],
     }),
-    patchCampaign: builder.mutation<AnnotationCampaign, PatchAnnotationCampaign>({
-      query: (data) => ({
-        url: `annotation-campaign/${ data.id }/`,
+    patchCampaign: builder.mutation<void, PatchAnnotationCampaign>({
+      query: ({ id, ...body }) => ({
+        url: `annotation-campaign/${ id }/`,
         method: 'PATCH',
-        body: {
-          ...data,
-          id: undefined
-        }
+        body
       }),
-      transformResponse: extendCampaign,
       invalidatesTags: (_1, _2, arg) => [ { type: 'Campaign' as const, id: arg.id } ],
     }),
     archiveCampaign: builder.mutation<AnnotationCampaign, ID>({

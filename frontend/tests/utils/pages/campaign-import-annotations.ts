@@ -43,7 +43,7 @@ export class CampaignImportAnnotationsPage {
 
   async go(as: UserType, options?: { empty?: boolean, withErrors?: boolean, loadDetectors?: boolean }): Promise<void> {
     await test.step('Navigate to Campaign create', async () => {
-      await this.detail.go(as, { phase: 'Verification' })
+      await this.detail.go(as, { phase: 'Annotation' })
       await this.mock.detectors(!(options?.loadDetectors ?? false))
       await this.mock.resultImport()
       await this.detail.importAnnotationsButton.click();

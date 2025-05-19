@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import styles from '../edit.module.scss';
@@ -23,15 +23,12 @@ export const ImportAnnotations: React.FC = () => {
   }, []);
 
   // Navigation
-  const page = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!campaign || !(location.state as any)?.fromCreateCampaign) return;
     toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
   }, [ location, campaign ]);
 
-  return <div
-    className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }
-    ref={ page }>
+  return <div className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }>
 
     <div className={ styles.title }>
       <h2>Import annotations</h2>

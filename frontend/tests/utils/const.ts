@@ -60,7 +60,7 @@ export const API_URL = {
   },
   annotator: /api\/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g,
   result: {
-    import: /api\/annotation-result\/campaign\/-?\d\/import\//g
+    import: /api\/annotation-result\/campaign\/-?\d\/phase\/-?\d\/import\//g
   },
   detector: {
     list: /api\/detector/g

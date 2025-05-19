@@ -50,6 +50,8 @@ export const API = createApi({
     'FileRange',
     'FileRangeFiles',
 
+    'Detector',
+
     'SQL',
 
     'Collaborator',

@@ -9,19 +9,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { DetectorConfiguration } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
-import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const Upload: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign();
   const { phase } = useRetrieveCurrentPhase()
+  const { verificationPhase } = useListPhasesForCurrentCampaign()
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const back = useCallback(() => {
-    if (campaign) navigate(`/annotation-campaign/${ campaign.id }`)
-  }, [ campaign ])
+    if (campaign && verificationPhase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }`)
+    else if (campaign && phase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }`)
+  }, [ campaign, verificationPhase, phase ])
 
   const onUploaded = useCallback(() => {
     if ((location.state as any)?.fromCreateCampaign) {
@@ -55,7 +57,7 @@ export const Upload: React.FC = () => {
     </div>
   }, [ upload, uploadInfo, detectors, back, file ])
 
-  if (phase?.phase !== 'Verification') return <Fragment/>
+  if (phase?.phase !== 'Annotation') return <Fragment/>
   if (uploadInfo.state === 'initial') return buttons
   return <Fragment>
     <Progress label='Upload' value={ uploadInfo.uploaded } total={ uploadInfo.total }/>
