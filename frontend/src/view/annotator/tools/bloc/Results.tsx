@@ -5,7 +5,6 @@ import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
 import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/types';
-import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
 import { createPortal } from "react-dom";
@@ -15,6 +14,7 @@ import {
 import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 
 export const Results: React.FC<{
@@ -62,7 +62,7 @@ const Result: React.FC<{
   const dispatch = useAppDispatch()
   const isActive = useMemo(() => result.id === focusedResultID ? styles.active : undefined, [ result.id, focusedResultID ])
   const onClick = () => {
-    dispatch(focusResult(result.id))
+    dispatch(AnnotatorSlice.actions.focusResult(result.id))
     onSelect(result)
   }
 
@@ -147,7 +147,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const onValidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(validateResult(result.id))
+    dispatch(AnnotatorSlice.actions.validateResult(result.id))
   }
 
   const onInvalidate = (event: MouseEvent) => {
@@ -166,7 +166,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const remove = useCallback(() => {
     setIsModalOpen(false);
-    dispatch(invalidateResult(result.id))
+    dispatch(AnnotatorSlice.actions.invalidateResult(result.id))
   }, [ setIsModalOpen ]);
 
   if (phase?.phase !== 'Verification') return <Fragment/>

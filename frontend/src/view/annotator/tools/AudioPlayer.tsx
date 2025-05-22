@@ -1,15 +1,15 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
-import { onPause, onPlay, setTime } from '@/service/annotator';
 import styles from './annotator-tools.module.scss'
-import { useAnnotatorFile } from "@/service/annotator/hook.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 // Heavily inspired from ReactAudioPlayer
 // https://github.com/justinmc/react-audio-player
 
 export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, ref) => {
-  const file = useAnnotatorFile()
+  const { data } = useRetrieveAnnotator()
 
   const {
     audio,
@@ -23,7 +23,7 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
   const stopTimeRef = useRef<number | undefined>(audio.stopTime);
   useEffect(() => {
     stopTimeRef.current = audio.stopTime
-  }, [audio.stopTime]);
+  }, [ audio.stopTime ]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,14 +31,14 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
 
       const time = elementRef.current?.currentTime;
       if (stopTimeRef.current && time && time > stopTimeRef.current) audioService.pause();
-      else dispatch(setTime(time))
+      else dispatch(AnnotatorSlice.actions.setTime(time))
     }, 1 / 30) // 1/30 is the more common video FPS os it should be enough to update currentTime in view
 
     return () => clearInterval(interval)
-  }, [ file?.id ]);
+  }, [ data?.file ]);
 
   useEffect(() => {
-    dispatch(onPause())
+    dispatch(AnnotatorSlice.actions.onPause())
     if (elementRef.current) {
       elementRef.current.volume = 1.0;
       elementRef.current.preservesPitch = false;
@@ -59,14 +59,14 @@ export const AudioPlayer = React.forwardRef<HTMLAudioElement | null, any>((_, re
            loop={ false }
            muted={ false }
            ref={ elementRef }
-           onLoadedMetadata={ () => dispatch(setTime(0)) }
-           onAbort={ () => dispatch(onPause()) }
-           onEnded={ () => dispatch(onPause()) }
-           onPause={ () => dispatch(onPause()) }
-           onPlay={ () => dispatch(onPlay()) }
+           onLoadedMetadata={ () => dispatch(AnnotatorSlice.actions.setTime(0)) }
+           onAbort={ () => dispatch(AnnotatorSlice.actions.onPause()) }
+           onEnded={ () => dispatch(AnnotatorSlice.actions.onPause()) }
+           onPause={ () => dispatch(AnnotatorSlice.actions.onPause()) }
+           onPlay={ () => dispatch(AnnotatorSlice.actions.onPlay()) }
            preload="auto"
-           src={ file?.audio_url }
-           title={ file?.audio_url }>
+           src={ data?.file.audio_url }
+           title={ data?.file.audio_url }>
       <p>Your browser does not support the <code>audio</code> element.</p>
     </audio>
   );

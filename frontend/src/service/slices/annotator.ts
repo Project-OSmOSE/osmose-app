@@ -1,7 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { AnnotatorState, } from './type';
-import { AcousticFeatures, AnnotationComment, AnnotationResult, AnnotationResultBounds, Phase } from '@/service/types';
-import { getDefaultConfidence, getPresenceLabels } from './function.ts';
 import { ID } from '@/service/type.ts';
 import { getNewItemID } from '@/service/function';
 import { Colormap } from '@/services/utils/color.ts';
@@ -11,6 +8,62 @@ import { CampaignAPI } from "@/service/api/campaign.ts";
 import { SpectrogramConfigurationAPI } from "@/service/api/spectrogram-configuration.ts";
 import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
 import { AnnotatorAPI } from "@/service/api/annotator.ts";
+import {
+  AcousticFeatures,
+  AnnotationComment,
+  AnnotationResult,
+  AnnotationResultBounds,
+  AnnotatorData,
+  ConfidenceIndicator,
+  Phase,
+  SpectrogramConfiguration
+} from "@/service/types";
+import { useAppSelector } from "@/service/app.ts";
+import { useEffect, useRef } from "react";
+import { useAlert } from "@/service/ui";
+
+export type AnnotatorState = Partial<AnnotatorData> & {
+  spectrogram_configurations: SpectrogramConfiguration[];
+  focusedResultID?: number,
+  focusedCommentID?: number,
+  focusedLabel?: string,
+  focusedConfidenceLabel?: string,
+  hasChanged: boolean,
+  userPreferences: {
+    audioSpeed: number;
+    spectrogramConfigurationID: number;
+    zoomLevel: number;
+    colormap?: Colormap;
+    colormapInverted?: boolean;
+    brightness: number;
+    contrast: number;
+  },
+  ui: {
+    pointerPosition?: { time: number, frequency: number },
+    zoomOrigin?: { x: number, y: number },
+    hiddenLabels: string[]
+  },
+  didSeeAllFile: boolean,
+  audio: {
+    time: number;
+    isPaused: boolean;
+    stopTime?: number;
+  },
+  sessionStart: number;
+  confidenceIndicators?: ConfidenceIndicator[];
+  canAddAnnotations?: boolean;
+}
+
+export function getDefaultConfidence(state: AnnotatorState) {
+  if (!state.confidenceIndicators) return undefined;
+  const defaultIndicator = state.confidenceIndicators.find(c => c.is_default);
+  return defaultIndicator ?? state.confidenceIndicators.find(c => c)
+}
+
+export function getPresenceLabels(results?: Array<AnnotationResult>) {
+  if (!results) return [];
+  return [ ...new Set(results.map(s => s.label)) ]
+}
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -526,34 +579,30 @@ export const AnnotatorSlice = createSlice({
     },
 })
 
-export const {
-  focusResult,
-  focusPresence,
-  focusTask,
-  updateFocusComment,
-  focusConfidence,
-  focusLabel,
-  invalidateResult,
-  validateResult,
-  addPresenceResult,
-  removePresence,
-  removeFocusComment,
-  removeResult,
-  addResult,
-  selectSpectrogramConfiguration,
-  setColormap,
-  setColormapInverted,
-  setBrightness,
-  setContrast,
-  setPointerPosition,
-  zoom,
-  leavePointerPosition,
-  setTime,
-  onPause,
-  setAudioSpeed,
-  setStopTime,
-  onPlay,
-  updateCurrentResultAcousticFeatures,
-  updateFocusResultBounds,
-  setFileIsSeen,
-} = AnnotatorSlice.actions
+export const useCanNavigate = () => {
+  const {
+    hasChanged: _hasChanged,
+  } = useAppSelector(state => state.annotator);
+  const hasChanged = useRef<boolean>(_hasChanged);
+  useEffect(() => {
+    hasChanged.current = _hasChanged
+  }, [ _hasChanged ]);
+  const alert = useAlert();
+
+  async function canNavigate(): Promise<boolean> {
+    if (!hasChanged.current) return true;
+    return new Promise<boolean>((resolve) => {
+      alert.showAlert({
+        type: 'Warning',
+        message: `You have unsaved changes. Are you sure you want to forget all of them?`,
+        actions: [ {
+          label: 'Forget my changes',
+          callback: () => resolve(true)
+        } ],
+        onCancel: () => resolve(false)
+      })
+    })
+  }
+
+  return canNavigate;
+}

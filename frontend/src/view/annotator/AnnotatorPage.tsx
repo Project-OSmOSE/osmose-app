@@ -6,7 +6,7 @@ import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useCanNavigate } from "@/service/annotator/hook.ts";
+import { useCanNavigate } from "@/service/slices/annotator";
 import { useAppSelector } from "@/service/app.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { UserAPI } from "@/service/api/user.ts";

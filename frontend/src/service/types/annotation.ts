@@ -1,4 +1,5 @@
 import { DetectorConfiguration } from './detector';
+import { DatasetFile } from "@/service/types/data.ts";
 
 export interface AnnotationComment {
   id: number;
@@ -75,3 +76,20 @@ export type AnnotationResult = BaseAnnotationResult & AnnotationResultBounds
 export type WeakResult = BaseAnnotationResult & WeakBounds
 export type PointResult = BaseAnnotationResult & PointBounds
 export type BoxResult = BaseAnnotationResult & BoxBounds
+
+export type AnnotatorData = {
+  is_submitted: boolean;
+  is_assigned: boolean; // Is the user allowed to edit this file
+  campaignID: number;
+  userID: number
+  file: DatasetFile;
+  results: Array<AnnotationResult>;
+  task_comments: Array<AnnotationComment>;
+  previous_file_id: number | null;
+  next_file_id: number | null;
+
+  current_task_index: number;
+  total_tasks: number;
+  current_task_index_in_filter: number;
+  total_tasks_in_filter: number;
+}

@@ -6,8 +6,8 @@ import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
 import { buildErrorMessage } from '@/services/utils/format.tsx';
 import { colorSpectro, interpolate } from '@/services/utils/color.ts';
-import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 
 export const useSpectrogramDimensions = () => {
@@ -31,15 +31,10 @@ export const useCurrentConfiguration = (): SpectrogramConfiguration | undefined 
   }, [ configurations, spectrogramConfigurationID ]);
 }
 
-export const useMaxFrequency = () => {
-  const file = useAnnotatorFile()
-  return useMemo(() => (file?.dataset_sr ?? 0) / 2, [ file?.dataset_sr ])
-}
-
 export const useDisplaySpectrogram = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
 ) => {
-  const file = useAnnotatorFile()
+  const { data } = useRetrieveAnnotator()
   const { xAxis, yAxis } = useAxis();
   const currentConfiguration = useCurrentConfiguration();
 
@@ -67,14 +62,14 @@ export const useDisplaySpectrogram = (
   }
 
   async function loadImages() {
-    if (!currentConfiguration || !file) {
+    if (!currentConfiguration || !data?.file) {
       images.current = new Map();
       return;
     }
 
     if (areAllImagesLoaded()) return;
 
-    const filename = file.filename.split('.')[0]
+    const filename = data.file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(zoomLevel)).map(async (_, index) => {
         const src = `${ currentConfiguration.folder_path.replaceAll('%5C', '/') }/${ filename }_${ zoomLevel }_${ index }.png`;
@@ -108,7 +103,7 @@ export const useDisplaySpectrogram = (
 
   async function drawSpectrogram() {
     const context = canvas.current?.getContext('2d', { alpha: false });
-    if (!canvas.current || !context || !file) return;
+    if (!canvas.current || !context || !data?.file) return;
 
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
@@ -124,8 +119,8 @@ export const useDisplaySpectrogram = (
     for (const i in currentImages) {
       const index: number | undefined = i ? +i : undefined;
       if (index === undefined) continue;
-      const start = index * file.duration / zoomLevel;
-      const end = (index + 1) * file.duration / zoomLevel;
+      const start = index * data.file.duration / zoomLevel;
+      const end = (index + 1) * data.file.duration / zoomLevel;
       const image = currentImages[index];
       if (!image) continue
       context.drawImage(

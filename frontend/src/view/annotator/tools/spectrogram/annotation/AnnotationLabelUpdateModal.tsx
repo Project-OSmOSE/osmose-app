@@ -4,10 +4,10 @@ import { Button, Modal, ModalHeader } from "@/components/ui";
 import { IonNote } from "@ionic/react";
 import styles from "@/view/annotator/tools/spectrogram/annotation/annotation.module.scss";
 import { AnnotationResult } from "@/service/types";
-import { AnnotatorSlice } from "@/service/annotator";
 import { useAppDispatch } from "@/service/app.ts";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const AnnotationLabelUpdateModal: React.FC<{
   annotation: AnnotationResult,

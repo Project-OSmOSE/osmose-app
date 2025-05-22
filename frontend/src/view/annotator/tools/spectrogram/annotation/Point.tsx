@@ -3,12 +3,12 @@ import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
 import { PointResult } from '@/service/types';
-import { updateFocusResultBounds } from '@/service/annotator';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const Point: React.FC<{
   annotation: PointResult
@@ -92,7 +92,7 @@ export const Point: React.FC<{
 
   function onValidateMove() {
     if (!phase) return;
-    dispatch(updateFocusResultBounds({
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: {
         type: 'Point',
         start_time: _xAxis.current.positionToValue(_left.current),

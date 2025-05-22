@@ -1,5 +1,4 @@
-import { AnnotatorData } from '../../src/service/annotator';
-import { AnnotationComment, BoxResult, WeakResult } from '../../src/service/types';
+import { AnnotationComment, AnnotatorData, BoxResult, WeakResult } from '../../src/service/types';
 import { CAMPAIGN, CAMPAIGN_PHASE, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
 import { USERS } from './user';
 

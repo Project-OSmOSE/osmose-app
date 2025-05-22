@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { SpectrogramConfiguration } from "@/service/types";
-import { selectSpectrogramConfiguration } from '@/service/annotator';
 import { Select } from "@/components/form";
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const NFFTSelect: React.FC = () => {
   const { data } = useRetrieveAnnotator();
@@ -19,7 +19,7 @@ export const NFFTSelect: React.FC = () => {
     if (configs.find(c => c.id === selectedID)) return;
     const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
     const newID = simpleSpectrogramID ?? Math.min(...configs.map(s => s.id));
-    dispatch(selectSpectrogramConfiguration(newID))
+    dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(newID))
   }, [selectedID]);
 
   const options = useMemo(() => {
@@ -35,7 +35,7 @@ export const NFFTSelect: React.FC = () => {
 
   function select(value: string | number | undefined) {
     if (value === undefined) return;
-    dispatch(selectSpectrogramConfiguration(+value))
+    dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(+value))
   }
 
   if (!data) return <Fragment/>

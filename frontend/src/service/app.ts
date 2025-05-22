@@ -1,7 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { useDispatch, useSelector } from "react-redux";
-import { AnnotatorSlice } from '@/service/annotator';
 import { EventSlice } from "@/service/events";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 import { API } from "@/service/api";
@@ -9,6 +8,7 @@ import { getUserOnLoginMiddleware } from "@/service/api/user.ts";
 import { logoutOn401Listener } from "@/service/api/auth.ts";
 import { AuthSlice } from "@/service/slices/auth.ts";
 import { FilterSlice } from "@/service/slices/filter.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const AppStore = configureStore({
   reducer: {

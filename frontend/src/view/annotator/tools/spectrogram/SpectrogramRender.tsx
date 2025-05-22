@@ -13,7 +13,6 @@ import React, {
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, BoxBounds } from '@/service/types';
-import { addResult, leavePointerPosition, setFileIsSeen, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
@@ -27,9 +26,9 @@ import { useDisplaySpectrogram, useSpectrogramDimensions } from '@/service/annot
 import { useAxis, Y_WIDTH } from '@/service/annotator/spectrogram/scale';
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
-import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -70,8 +69,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Services
-  const file = useAnnotatorFile()
-  const { containerWidth, height, width } = useSpectrogramDimensions()
+    const { containerWidth, height, width } = useSpectrogramDimensions()
   const { xAxis, yAxis } = useAxis()
   const { resetCanvas, drawSpectrogram, drawResult } = useDisplaySpectrogram(canvasRef);
 
@@ -107,12 +105,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrapper = containerRef.current;
-    if (!canvas || !wrapper || !file) return;
+    if (!canvas || !wrapper || !data) return;
 
     // If zoom factor has changed
     if (userPreferences.zoomLevel === _zoom) return;
     // New timePxRatio
-    const newTimePxRatio: number = containerWidth * userPreferences.zoomLevel / file.duration;
+    const newTimePxRatio: number = containerWidth * userPreferences.zoomLevel / data.file.duration;
 
     // Resize canvases and scroll
     canvas.width = containerWidth * userPreferences.zoomLevel;
@@ -129,7 +127,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       }
       if (pointerService.isHoverCanvas(coords)) {
         const data = pointerService.getFreqTime(coords);
-        if (data) dispatch(setPointerPosition(data))
+        if (data) dispatch(AnnotatorSlice.actions.setPointerPosition(data))
       }
     } else {
       // If no x-coordinate: center on currentTime
@@ -147,9 +145,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     // Scroll if progress bar reach the right edge of the screen
     const wrapper = containerRef.current;
     const canvas = canvasRef.current;
-    if (!wrapper || !canvas || !file) return;
-    const oldX: number = Math.floor(canvas.width * currentTime.current / file.duration);
-    const newX: number = Math.floor(canvas.width * audio.time / file.duration);
+    if (!wrapper || !canvas || !data) return;
+    const oldX: number = Math.floor(canvas.width * currentTime.current / data.file.duration);
+    const newX: number = Math.floor(canvas.width * audio.time / data.file.duration);
 
     if ((oldX - wrapper.scrollLeft) < containerWidth && (newX - wrapper.scrollLeft) >= containerWidth) {
       wrapper.scrollLeft += containerWidth;
@@ -260,13 +258,13 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     const isHover = pointerService.isHoverCanvas(e)
     const data = pointerService.getFreqTime(e);
     if (data) {
-      if (isHover) dispatch(setPointerPosition(data))
+      if (isHover) dispatch(AnnotatorSlice.actions.setPointerPosition(data))
       if (_newResult.current) {
         _newResult.current.end_time = data.time;
         _newResult.current.end_frequency = data.frequency;
       }
     }
-    if (!isHover || !data) dispatch(leavePointerPosition())
+    if (!isHover || !data) dispatch(AnnotatorSlice.actions.leavePointerPosition())
   }
 
   const onStartNewAnnotation = (e: MouseEvent<HTMLCanvasElement>) => {
@@ -310,9 +308,9 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const width = xAxis.valuesToPositionRange(_newResult.current.start_time, _newResult.current.end_time);
       const height = yAxis.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (width > 2 && height > 2) {
-        dispatch(addResult(_newResult.current))
+        dispatch(AnnotatorSlice.actions.addResult(_newResult.current))
       } else if (campaign?.allow_point_annotation) {
-        dispatch(addResult({
+        dispatch(AnnotatorSlice.actions.addResult({
           type: 'Point',
           start_time: _newResult.current.start_time,
           start_frequency: _newResult.current.start_frequency,
@@ -322,7 +320,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       }
     }
     _newResult.current = undefined;
-    if (!pointerService.isHoverCanvas(e)) dispatch(leavePointerPosition())
+    if (!pointerService.isHoverCanvas(e)) dispatch(AnnotatorSlice.actions.leavePointerPosition())
   }
 
   function onClick(e: MouseEvent<HTMLCanvasElement>) {
@@ -339,15 +337,15 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     const origin = pointerService.getCoords(event);
 
     if (!origin) return;
-    if (event.deltaY < 0) dispatch(zoom({ direction: 'in', origin }))
-    else if (event.deltaY > 0) dispatch(zoom({ direction: 'out', origin }))
+    if (event.deltaY < 0) dispatch(AnnotatorSlice.actions.zoom({ direction: 'in', origin }))
+    else if (event.deltaY > 0) dispatch(AnnotatorSlice.actions.zoom({ direction: 'out', origin }))
   }
 
   const onContainerScrolled = (event: UIEvent<HTMLDivElement>) => {
     if (event.type !== 'scroll') return;
     const div = event.currentTarget;
     const left = div.scrollWidth - div.scrollLeft - div.clientWidth;
-    if (left === 0) dispatch(setFileIsSeen())
+    if (left === 0) dispatch(AnnotatorSlice.actions.setFileIsSeen())
   }
 
   return (
@@ -360,7 +358,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
       <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }
-           onPointerLeave={ () => dispatch(leavePointerPosition()) }>
+           onPointerLeave={ () => dispatch(AnnotatorSlice.actions.leavePointerPosition()) }>
 
         {/* 'drawable' class is for playwright tests */ }
         <canvas className={ isDrawingEnabled ? `drawable ${ styles.drawable }` : '' }

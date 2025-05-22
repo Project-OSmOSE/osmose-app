@@ -14,7 +14,11 @@ function extendDataset(dataset: Dataset): Dataset {
 export function extendDatasetFile(file: DatasetFile): DatasetFile {
   const start = new Date(file.start).getTime() / 1000;
   const end = new Date(file.end).getTime() / 1000;
-  return { ...file, duration: end - start }
+  return {
+    ...file,
+    duration: end - start,
+    maxFrequency: file.dataset_sr / 2
+  }
 }
 
 export const DatasetAPI = API.injectEndpoints({

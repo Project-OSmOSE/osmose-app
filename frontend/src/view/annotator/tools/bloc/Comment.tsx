@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { focusTask, removeFocusComment, updateFocusComment } from '@/service/annotator';
 import styles from './bloc.module.scss';
 import { Textarea } from "@/components/form";
 import { IonButton, IonIcon } from "@ionic/react";
 import { chatbubbleEllipses, chatbubbleOutline, trashBinOutline } from "ionicons/icons";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 
 export const Comment: React.FC = () => {
@@ -37,11 +37,11 @@ export const Comment: React.FC = () => {
                   placeholder="Enter your comment"
                   style={ { resize: 'none' } }
                   value={ currentComment ?? '' }
-                  onChange={ e => dispatch(updateFocusComment(e.target.value)) }/>
+                  onChange={ e => dispatch(AnnotatorSlice.actions.updateFocusComment(e.target.value)) }/>
 
         <IonButton color='danger' size='small'
                    className={ styles.removeButton }
-                   onClick={ () => dispatch(removeFocusComment()) }>
+                   onClick={ () => dispatch(AnnotatorSlice.actions.removeFocusComment()) }>
           Remove
           <IonIcon slot='end' icon={ trashBinOutline }/>
         </IonButton>
@@ -50,7 +50,7 @@ export const Comment: React.FC = () => {
 
       <div className={ styles.footer }>
         <IonButton fill='clear' color='medium'
-                   onClick={ () => dispatch(focusTask()) }>
+                   onClick={ () => dispatch(AnnotatorSlice.actions.focusTask()) }>
           Task Comment
           <IonIcon slot='end'
                    icon={ taskCommentExists ? chatbubbleEllipses : chatbubbleOutline }/>

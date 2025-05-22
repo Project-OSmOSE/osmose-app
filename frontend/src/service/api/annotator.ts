@@ -6,6 +6,7 @@ import {
   AnnotationComment,
   AnnotationResult,
   AnnotationResultValidations,
+  AnnotatorData,
   DetectorConfiguration,
   Phase
 } from "@/service/types";
@@ -19,7 +20,7 @@ import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { selectFileFilters } from "@/service/slices/filter.ts";
 import { extendDatasetFile } from "@/service/api/dataset.ts";
 import { API } from "@/service/api/index.ts";
-import { AnnotatorData, AnnotatorState } from "@/service/annotator";
+import { AnnotatorState } from "@/service/slices/annotator.ts";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>

@@ -1,13 +1,5 @@
 import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import {
-  addPresenceResult,
-  AnnotatorSlice,
-  focusLabel,
-  focusTask,
-  getPresenceLabels,
-  removePresence
-} from '@/service/annotator';
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import styles from './bloc.module.scss';
@@ -17,6 +9,7 @@ import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 import { LabelSet } from "@/service/types";
+import { AnnotatorSlice, getPresenceLabels } from "@/service/slices/annotator.ts";
 
 
 export const Labels: React.FC = () => {
@@ -66,10 +59,10 @@ export const Labels: React.FC = () => {
       const calledLabel = _labelSet.current.labels[i];
       if (_focused.current === calledLabel) continue;
       if (!_presenceLabels.current.includes(calledLabel)) {
-        dispatch(addPresenceResult(calledLabel));
+        dispatch(AnnotatorSlice.actions.addPresenceResult(calledLabel));
       } else {
-        dispatch(focusTask())
-        dispatch(focusLabel(calledLabel))
+        dispatch(AnnotatorSlice.actions.focusTask())
+        dispatch(AnnotatorSlice.actions.focusLabel(calledLabel))
       }
     }
   }
@@ -110,10 +103,10 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
 
   const select = useCallback(() => {
     if (isUsed) {
-      dispatch(focusLabel(label));
+      dispatch(AnnotatorSlice.actions.focusLabel(label));
     } else {
-      dispatch(addPresenceResult(label));
-      dispatch(focusLabel(label));
+      dispatch(AnnotatorSlice.actions.addPresenceResult(label));
+      dispatch(AnnotatorSlice.actions.focusLabel(label));
     }
   }, [ label ])
 
@@ -143,7 +136,7 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
       message: `You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure?`,
       actions: [ {
         label: `Remove "${ label }" annotations`,
-        callback: () => dispatch(removePresence(label))
+        callback: () => dispatch(AnnotatorSlice.actions.removePresence(label))
       } ]
     })
   }, [ label, isUsed, results ])

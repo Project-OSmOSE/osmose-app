@@ -1,20 +1,20 @@
-import { useCurrentConfiguration, useMaxFrequency, useSpectrogramDimensions } from '../hook.ts';
+import { useCurrentConfiguration, useSpectrogramDimensions } from '../hook.ts';
 import { useCallback, useMemo } from 'react';
 import { LinearScaleService } from './linear.service.ts';
 import { MultiLinearScaleService } from '@/service/annotator/spectrogram/scale/multi-linear.service.ts';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
-import { useAnnotatorFile } from "@/service/annotator/hook.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const useXAxis = (): AbstractScale => {
   const { width } = useSpectrogramDimensions()
-  const file = useAnnotatorFile()
-  return useMemo(() => new LinearScaleService(width, file?.duration ?? 0), [ width, file ])
+  const { data } = useRetrieveAnnotator()
+  return useMemo(() => new LinearScaleService(width, data?.file.duration ?? 0), [ width, data?.file ])
 }
 
 export const useYAxis = (): AbstractScale => {
   const currentConfiguration = useCurrentConfiguration()
   const { height } = useSpectrogramDimensions()
-  const maxFrequency = useMaxFrequency()
+  const { data } = useRetrieveAnnotator()
   const scale = useMemo(() => {
     if (currentConfiguration?.linear_frequency_scale) {
       return new LinearScaleService(
@@ -29,11 +29,11 @@ export const useYAxis = (): AbstractScale => {
         currentConfiguration?.multi_linear_frequency_scale.inner_scales
       )
     }
-    return new LinearScaleService(height, maxFrequency)
+    return new LinearScaleService(height, data?.file.maxFrequency ?? 0)
   }, [
     currentConfiguration?.linear_frequency_scale,
     currentConfiguration?.multi_linear_frequency_scale,
-    maxFrequency,
+    data?.file.maxFrequency,
     height
   ]);
 

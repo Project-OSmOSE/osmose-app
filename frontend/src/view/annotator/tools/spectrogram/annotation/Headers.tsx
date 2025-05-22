@@ -1,7 +1,6 @@
 import React, { Fragment, MutableRefObject, useCallback, useMemo, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
-import { focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/types';
@@ -11,6 +10,7 @@ import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -41,7 +41,7 @@ export const AnnotationHeader: React.FC<{
                       onMouseLeave={ () => _setIsMouseHover(false) }
                       className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
                       innerClassName={ styles.inner }
-                      onClick={ () => dispatch(focusResult(annotation.id)) }>
+                      onClick={ () => dispatch(AnnotatorSlice.actions.focusResult(annotation.id)) }>
 
     <PlayButton annotation={ annotation } audioPlayer={ audioPlayer }/>
 
@@ -100,10 +100,10 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   const remove = useCallback(() => {
     switch (phase?.phase) {
       case 'Annotation':
-        dispatch(removeResult(annotation.id));
+        dispatch(AnnotatorSlice.actions.removeResult(annotation.id));
         break;
       case 'Verification':
-        dispatch(invalidateResult(annotation.id));
+        dispatch(AnnotatorSlice.actions.invalidateResult(annotation.id));
         break;
     }
   }, [ phase, annotation ])

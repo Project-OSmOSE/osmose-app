@@ -36,6 +36,7 @@ export interface DatasetFile {
 
   // Front only
   duration: number;
+  maxFrequency: number;
 }
 
 export interface SpectrogramConfiguration {
