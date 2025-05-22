@@ -17,7 +17,7 @@ class ModelFilter(filters.BaseFilterBackend):
                 value = request.query_params[param]
                 try:
                     _queryset = _queryset.filter(**{param: json.loads(value)})
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, TypeError):
                     _queryset = _queryset.filter(**{param: value})
             except FieldError:
                 continue
