@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ID } from '@/service/type.ts';
 import { getNewItemID } from '@/service/function';
-import { Colormap } from '@/services/utils/color.ts';
+import { Colormap } from '@/service/ui/color.ts';
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { UserAPI } from "@/service/api/user.ts";
 import { CampaignAPI } from "@/service/api/campaign.ts";

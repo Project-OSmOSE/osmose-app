@@ -1,7 +1,7 @@
 import { Select } from "@/components/form";
 import { useCurrentConfiguration } from "@/service/annotator/spectrogram";
 import { useAppDispatch, useAppSelector } from "@/service/app";
-import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color";
+import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/service/ui/color";
 import { IonButton, IonIcon } from "@ionic/react";
 import { invertModeSharp } from "ionicons/icons";
 import React, { useEffect, useState } from "react";

@@ -39,12 +39,11 @@ export function colorSpectro(canvas: HTMLCanvasElement, colormapName?: Colormap,
   context.putImageData(imgData, 0, 0);
 }
 
-// Linear Interpolation
-function lerp(v0: number, v1: number, t: number): number {
+function linearInterpolation(v0: number, v1: number, t: number): number {
   return v0 * (1 - t) + v1 * t;
 }
 
-export type ColorMapConfig = {
+type ColorMapConfig = {
   colormap?: Colormap | ColorStep[];
   nshades?: number;
   alpha?: number;
@@ -54,20 +53,17 @@ function _createColormap(spec: ColorMapConfig): number[][] {
   /*
    * Default Options
    */
-  let indicies,
-    fromrgba: number[],
+  let fromrgba: number[],
     torgba: number[],
     nsteps: number,
     cmap: ColorStep[],
     colormap: Colormap | ColorStep[] | undefined,
-    nshades: number,
-    colors: number[][],
     alpha: number | number[],
     i;
 
   if (!spec) spec = {};
 
-  nshades = (spec.nshades || 72) - 1;
+  const nshades = (spec.nshades || 72) - 1;
 
   colormap = spec.colormap;
   if (!colormap) colormap = COLORMAP_GREYS;
@@ -109,7 +105,7 @@ function _createColormap(spec: ColorMapConfig): number[][] {
   }
 
   // map index points from 0..1 to 0..n-1
-  indicies = cmap.map(function (c) {
+  const indicies = cmap.map(function (c) {
     return Math.round(c.index * nshades);
   });
 
@@ -135,19 +131,19 @@ function _createColormap(spec: ColorMapConfig): number[][] {
    * map increasing linear values between indicies to
    * linear steps in colorvalues
    */
-  colors = [];
+  const colors: number[][] = [];
   for (i = 0; i < indicies.length - 1; ++i) {
     nsteps = indicies[i + 1] - indicies[i];
     fromrgba = steps[i];
     torgba = steps[i + 1];
 
-    for (var j = 0; j < nsteps; j++) {
-      var amt = j / nsteps
+    for (let j = 0; j < nsteps; j++) {
+      const amt = j / nsteps;
       colors.push([
-        Math.round(lerp(fromrgba[0], torgba[0], amt)),
-        Math.round(lerp(fromrgba[1], torgba[1], amt)),
-        Math.round(lerp(fromrgba[2], torgba[2], amt)),
-        lerp(fromrgba[3], torgba[3], amt)
+        Math.round(linearInterpolation(fromrgba[0], torgba[0], amt)),
+        Math.round(linearInterpolation(fromrgba[1], torgba[1], amt)),
+        Math.round(linearInterpolation(fromrgba[2], torgba[2], amt)),
+        linearInterpolation(fromrgba[3], torgba[3], amt)
       ])
     }
   }
@@ -156,7 +152,7 @@ function _createColormap(spec: ColorMapConfig): number[][] {
   colors.push(cmap[cmap.length - 1].rgb.concat(alpha[1]))
 
   return colors;
-};
+}
 
 export function interpolate(value: number, minSource: number, maxSource: number, minTarget: number, maxTarget: number): number {
   const ratio: number = (maxTarget - minTarget) / (maxSource - minSource);

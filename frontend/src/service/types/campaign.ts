@@ -1,5 +1,5 @@
 import { User } from "./user.ts";
-import { Colormap } from "@/services/utils/color.ts";
+import { Colormap } from '@/service/ui/color.ts';
 import { DatasetFile } from "./data.ts";
 
 export type AnnotationCampaignUsage = 'Create' | 'Check';

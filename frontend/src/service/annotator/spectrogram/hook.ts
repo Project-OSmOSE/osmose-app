@@ -4,8 +4,8 @@ import { useAppSelector } from '@/service/app.ts';
 import { BoxBounds, SpectrogramConfiguration } from "@/service/types";
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
-import { buildErrorMessage } from '@/services/utils/format.tsx';
-import { colorSpectro, interpolate } from '@/services/utils/color.ts';
+import { buildErrorMessage } from '@/service/function';
+import { colorSpectro, interpolate } from '@/service/ui/color.ts';
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 

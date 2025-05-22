@@ -11,7 +11,7 @@ import React, {
   WheelEvent
 } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { useAudioService } from "@/service/ui/audio";
 import { AnnotationResult, BoxBounds } from '@/service/types';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'

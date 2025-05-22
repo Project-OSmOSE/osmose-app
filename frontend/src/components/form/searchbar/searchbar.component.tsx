@@ -1,10 +1,10 @@
 import React, { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { IonItem, IonList, IonSearchbar } from "@ionic/react";
 import { Item } from "@/types/item.ts";
-import { searchFilter } from "@/services/utils/search.ts";
 import { createPortal } from "react-dom";
 import styles from './searchbar.module.scss';
 import { usePopover } from "@/service/ui/popover.ts";
+import { searchFilter } from "@/service/function.ts";
 
 interface Props {
   values: Array<Item>;

@@ -1,6 +1,6 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { useAudioService } from "@/service/ui/audio";
 import styles from './annotator-tools.module.scss'
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";

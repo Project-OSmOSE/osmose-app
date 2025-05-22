@@ -1,5 +1,5 @@
 import { ChannelConfiguration } from "@pam-standardization/metadatax-ts";
-import { Colormap } from "@/services/utils/color.ts";
+import { Colormap } from '@/service/ui/color.ts';
 import { LinearScale, MultiLinearScale } from "@/service/dataset/spectrogram-configuration/scale";
 
 export type Dataset = {

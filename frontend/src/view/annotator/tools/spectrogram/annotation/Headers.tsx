@@ -4,7 +4,7 @@ import styles from './annotation.module.scss';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/types';
-import { useAudioService } from '@/services/annotator/audio.service.ts';
+import { useAudioService } from "@/service/ui/audio";
 import { TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal

@@ -7,7 +7,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { useToast } from "@/service/ui";
 import { useNavigate } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
+import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/service/ui/color.ts";
 import { WarningText } from "@/components/ui";
 import { DatasetAPI } from "@/service/api/dataset.ts";
 import { CampaignAPI, PostAnnotationCampaign } from "@/service/api/campaign.ts";

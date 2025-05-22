@@ -22,7 +22,7 @@ import { Results } from "@/view/annotator/tools/bloc/Results.tsx";
 import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.tsx";
 import { useCurrentConfiguration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
-import { Colormap } from "@/services/utils/color.ts";
+import { Colormap } from '@/service/ui/color.ts';
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
