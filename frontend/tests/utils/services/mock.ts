@@ -101,7 +101,7 @@ export class Mock {
         my_progress: 0,
         my_total: 0,
         phase
-      } : CAMPAIGN_PHASE }))
+      } : { ...CAMPAIGN_PHASE, phase } }))
   }
 
   public async spectrograms(empty: boolean = false) {

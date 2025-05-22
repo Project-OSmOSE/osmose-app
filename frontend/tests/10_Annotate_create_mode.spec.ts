@@ -1,5 +1,5 @@
 import { ESSENTIAL, expect, test } from './utils';
-import { CAMPAIGN, COMMENT, CONFIDENCE, FILE_RANGE, LABEL, UserType } from './fixtures';
+import { CAMPAIGN, CAMPAIGN_PHASE, COMMENT, CONFIDENCE, FILE_RANGE, LABEL, UserType } from './fixtures';
 import { BoxBounds } from '../src/service/types';
 
 // Utils
@@ -105,7 +105,7 @@ const TEST = {
       if (submit === 'mouse') {
         await test.step('Can submit - mouse', async () => {
           const [ request ] = await Promise.all([
-            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
+            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
             page.annotator.submitButton.click()
           ])
           const submittedData = request.postDataJSON();
@@ -115,7 +115,7 @@ const TEST = {
       } else {
         await test.step('Can submit - keyboard', async () => {
           const [ request ] = await Promise.all([
-            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
+            page.waitForRequest(`/api/annotator/campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }/file/${ FILE_RANGE.unsubmittedFile.id }/`),
             page.keyboard.press('Enter')
           ])
           const submittedData = request.postDataJSON();
@@ -134,7 +134,7 @@ test.describe('Annotator', () => {
   test(`Can go back to campaign`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Annotation' });
     await page.annotator.backToCampaignButton.click();
-    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }`)
+    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }`)
   })
 
   TEST.empty('annotator', { submit: 'mouse' })

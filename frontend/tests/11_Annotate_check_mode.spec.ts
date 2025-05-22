@@ -8,7 +8,7 @@ const STEP = {
     boxIsValid: boolean
   }) => test.step('Submit', async () => {
     const [ request ] = await Promise.all([
-      page.waitForRequest(/annotator\/campaign\/-?\d\/file\/-?\d/g),
+      page.waitForRequest(/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g),
       page.getByRole('button', { name: 'Submit & load next recording' }).click()
     ])
     const submittedResults = request.postDataJSON().results;
@@ -116,7 +116,7 @@ test.describe('Annotator', () => {
     })
 
     const [ request ] = await Promise.all([
-      page.waitForRequest(/annotator\/campaign\/-?\d\/file\/-?\d/g),
+      page.waitForRequest(/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g),
       page.getByRole('button', { name: 'Submit & load next recording' }).click()
     ])
     const submittedResults = request.postDataJSON().results;
@@ -158,7 +158,7 @@ test.describe('Annotator', () => {
     })
 
     const [ request ] = await Promise.all([
-      page.waitForRequest(/annotator\/campaign\/-?\d\/file\/-?\d/g),
+      page.waitForRequest(/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g),
       page.getByRole('button', { name: 'Submit & load next recording' }).click()
     ])
     const submittedResults = request.postDataJSON().results;
@@ -190,7 +190,7 @@ test.describe('Annotator', () => {
     })
 
     const [ request ] = await Promise.all([
-      page.waitForRequest(/annotator\/campaign\/-?\d\/file\/-?\d/g),
+      page.waitForRequest(/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g),
       page.getByRole('button', { name: 'Submit & load next recording' }).click()
     ])
     const submittedResults = request.postDataJSON().results;

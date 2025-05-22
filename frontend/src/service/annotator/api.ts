@@ -20,6 +20,7 @@ import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { FileFilter } from "@/service/api/annotation-file-range.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { selectFileFilters } from "@/service/slices/filter.ts";
+import { extendDatasetFile } from "@/service/api/dataset.ts";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -87,7 +88,14 @@ const _AnnotatorAPI = createApi({
       providesTags: (result, error, arg) => [ {
         type: 'Annotator',
         id: `${ arg.campaignID }-${ arg.phaseID }-${ arg.fileID }`
-      } ]
+      } ],
+      transformResponse(data: AnnotatorData): AnnotatorData {
+        console.log(data, extendDatasetFile(data.file))
+        return {
+          ...data,
+          file: extendDatasetFile(data.file)
+        }
+      }
     }),
     post: builder.mutation<void, {
       campaign: AnnotationCampaign,

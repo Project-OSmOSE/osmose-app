@@ -115,8 +115,8 @@ export const EditAnnotators: React.FC = () => {
 
   // Navigation
   const back = useCallback(() => {
-    if (campaign) navigate(`/annotation-campaign/${ campaign.id }`)
-  }, [ campaign ])
+    if (campaign && phase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }`)
+  }, [ campaign, phase ])
 
   // Submit
   const submit = useCallback(() => {

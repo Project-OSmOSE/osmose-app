@@ -20,5 +20,5 @@ export const ConfidenceSetAPI = API.injectEndpoints({
 export const useGetConfidenceSetForCurrentCampaign = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { data, ...info } = ConfidenceSetAPI.endpoints.retrieveConfidenceSet.useQuery(campaign?.confidence_indicator_set ?? skipToken)
-  return useMemo(() => ({ confidenceSet: data, ...info, }), [ data, info ])
+  return useMemo(() => ({ confidenceSet: campaign?.confidence_indicator_set ? data : undefined, ...info, }), [ data, info, campaign ])
 }

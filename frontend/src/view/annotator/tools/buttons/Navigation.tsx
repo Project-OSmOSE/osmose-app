@@ -79,9 +79,9 @@ export const NavigationButtons: React.FC = () => {
     try {
       await post()
       if (next_file_id.current) {
-        navigate(`/annotation-campaign/${ campaign?.id }/file/${ next_file_id.current }`);
+        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
       } else {
-        navigate(`/annotation-campaign/${ campaign?.id }`)
+        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }`)
       }
     } catch (e: any) {
       toast.presentError(e)
@@ -93,12 +93,12 @@ export const NavigationButtons: React.FC = () => {
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (await canNavigate())
-      navigate(`/annotation-campaign/${ campaign?.id }/file/${ previous_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ previous_file_id.current }`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (await canNavigate())
-      navigate(`/annotation-campaign/${ campaign?.id }/file/${ next_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
   }
 
   if (!isEditable) return <div/>
