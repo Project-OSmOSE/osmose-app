@@ -3,13 +3,13 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { Progress, WarningText } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
-import { ResultImportSlice } from "@/service/campaign/result/import";
 import styles from "@/view/campaign/edit/edit.module.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DetectorConfiguration } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const Upload: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign();
@@ -35,7 +35,7 @@ export const Upload: React.FC = () => {
 
   const { upload } = useUploadAnnotationChunk(onUploaded)
   const reset = useCallback(() => {
-    dispatch(ResultImportSlice.actions.clear())
+    dispatch(ImportAnnotationsSlice.actions.clear())
   }, [])
 
   const buttons = useMemo(() => {

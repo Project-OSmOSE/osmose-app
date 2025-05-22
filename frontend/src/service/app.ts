@@ -2,19 +2,19 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { useDispatch, useSelector } from "react-redux";
 import { EventSlice } from "@/service/events";
-import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 import { API } from "@/service/api";
 import { getUserOnLoginMiddleware } from "@/service/api/user.ts";
 import { logoutOn401Listener } from "@/service/api/auth.ts";
 import { AuthSlice } from "@/service/slices/auth.ts";
 import { FilterSlice } from "@/service/slices/filter.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const AppStore = configureStore({
   reducer: {
     [EventSlice.reducerPath]: EventSlice.reducer,
     [AnnotatorSlice.reducerPath]: AnnotatorSlice.reducer,
-    [ResultImportSlice.reducerPath]: ResultImportSlice.reducer,
+    [ImportAnnotationsSlice.reducerPath]: ImportAnnotationsSlice.reducer,
 
     [API.reducerPath]: API.reducer,
     auth: AuthSlice.reducer,

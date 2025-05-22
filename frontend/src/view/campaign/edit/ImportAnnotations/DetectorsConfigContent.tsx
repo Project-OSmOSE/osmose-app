@@ -3,8 +3,8 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { FormBloc, Select, Textarea } from "@/components/form";
 import { Detector, DetectorConfiguration } from "@/service/types";
 import styles from './importAnnotations.module.scss'
-import { ResultImportSlice } from "@/service/campaign/result/import";
 import { DetectorAPI } from "@/service/api/detector.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const DetectorsConfigContent: React.FC = () => {
   const { data: allDetectors } = DetectorAPI.endpoints.listDetector.useQuery();
@@ -29,16 +29,16 @@ export const DetectorsConfigContent: React.FC = () => {
 
   const onSelectConfiguration = useCallback((id: string | number | undefined, name: string) => {
     if (typeof id === 'undefined' || (typeof id === 'string' && isNaN(+id)) || (typeof id === 'number' && id === -1)) {
-      dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: '' }));
+      dispatch(ImportAnnotationsSlice.actions.mapConfiguration({ name, configuration: '' }));
     } else {
       const knownDetector = allDetectors?.find(d => d.name === name) ?? detectors.mapToKnown[name];
-      dispatch(ResultImportSlice.actions.mapConfiguration({
+      dispatch(ImportAnnotationsSlice.actions.mapConfiguration({
         name, configuration: knownDetector?.configurations?.find(c => c.id === +id)
       }));
     }
   }, [ allDetectors, detectors.mapToKnown ])
   const onConfigurationTextUpdated = useCallback((e: ChangeEvent<HTMLTextAreaElement>, name: string) => {
-    dispatch(ResultImportSlice.actions.mapConfiguration({ name, configuration: e.target.value }));
+    dispatch(ImportAnnotationsSlice.actions.mapConfiguration({ name, configuration: e.target.value }));
   }, [])
 
   if (file.state !== 'loaded' || detectors.selection.length === 0) return <Fragment/>

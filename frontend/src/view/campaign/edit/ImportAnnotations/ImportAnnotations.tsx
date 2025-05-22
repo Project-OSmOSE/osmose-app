@@ -5,10 +5,10 @@ import styles from '../edit.module.scss';
 import { DetectorsContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsContent.tsx";
 import { DetectorsConfigContent } from "@/view/campaign/edit/ImportAnnotations/DetectorsConfigContent.tsx";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
-import { ResultImportSlice } from "@/service/campaign/result/import";
 import { FileSelector } from "@/view/campaign/edit/ImportAnnotations/file/Selector.tsx";
 import { Upload } from "@/view/campaign/edit/ImportAnnotations/Upload.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const ImportAnnotations: React.FC = () => {
   const location = useLocation();
@@ -19,7 +19,7 @@ export const ImportAnnotations: React.FC = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(ResultImportSlice.actions.clear())
+    dispatch(ImportAnnotationsSlice.actions.clear())
   }, []);
 
   // Navigation

@@ -5,13 +5,13 @@ import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import { ACCEPT_CSV_MIME_TYPE } from "@/consts/csv.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
-import { loadFile, ResultImportSlice } from "@/service/campaign/result/import";
 import { cloudUploadOutline, refreshOutline } from "ionicons/icons";
 import { FormBloc } from "@/components/form";
 import { LoadInformation } from "./LoadInformation.tsx";
 import { FileErrorDescription } from "./ErrorDescription.tsx";
 import { WarningText } from "@/components/ui";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { ImportAnnotationsSlice, loadFile } from "@/service/slices/import-annotations.ts";
 
 export const FileSelector: React.FC = () => {
   const {
@@ -55,7 +55,7 @@ export const FileSelector: React.FC = () => {
   }, [])
 
   const reset = useCallback(() => {
-    dispatch(ResultImportSlice.actions.clear())
+    dispatch(ImportAnnotationsSlice.actions.clear())
   }, [])
 
   const dragNDropContent = useMemo(() => {

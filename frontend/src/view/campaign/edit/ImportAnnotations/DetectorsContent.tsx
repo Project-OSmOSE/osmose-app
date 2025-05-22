@@ -5,9 +5,9 @@ import styles from './importAnnotations.module.scss'
 import { CheckboxChangeEventDetail, IonCheckbox, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import { alertOutline } from "ionicons/icons";
-import { ResultImportSlice } from "@/service/campaign/result/import";
 import { WarningText } from "@/components/ui";
 import { DetectorAPI } from "@/service/api/detector.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const DetectorsContent: React.FC = () => {
   const { data: allDetectors, isFetching: isLoadingDetectors, error: detectorsLoadError } =  DetectorAPI.endpoints.listDetector.useQuery();
@@ -17,21 +17,21 @@ export const DetectorsContent: React.FC = () => {
 
   const onChange = useCallback((e: CustomEvent<CheckboxChangeEventDetail>, detectorName: string) => {
     if (e.detail.checked) {
-      dispatch(ResultImportSlice.actions.selectDetector(detectorName));
+      dispatch(ImportAnnotationsSlice.actions.selectDetector(detectorName));
     } else {
-      dispatch(ResultImportSlice.actions.unselectDetector(detectorName));
+      dispatch(ImportAnnotationsSlice.actions.unselectDetector(detectorName));
     }
   }, [])
   const onDetectorChange = useCallback((id: string | number | undefined, detectorName: string) => {
     if (typeof id === 'undefined' || (typeof id === 'string' && isNaN(+id)) || (typeof id === 'number' && id === -1)) {
-      dispatch(ResultImportSlice.actions.mapDetector({ name: detectorName, detector: undefined }));
+      dispatch(ImportAnnotationsSlice.actions.mapDetector({ name: detectorName, detector: undefined }));
     } else {
-      dispatch(ResultImportSlice.actions.mapDetector({
+      dispatch(ImportAnnotationsSlice.actions.mapDetector({
         name: detectorName,
         detector: allDetectors?.find(d => d.id === +id)
       }));
     }
-    dispatch(ResultImportSlice.actions.selectDetector(detectorName));
+    dispatch(ImportAnnotationsSlice.actions.selectDetector(detectorName));
   }, [ allDetectors ])
 
   if (file.state !== 'loaded') return <Fragment/>
@@ -65,7 +65,7 @@ const DetectorEntry: React.FC<{
 
   useEffect(() => {
     if (isKnown) // By default, select detector if it already matches to a known one
-      dispatch(ResultImportSlice.actions.selectDetector(initialName));
+      dispatch(ImportAnnotationsSlice.actions.selectDetector(initialName));
   }, []);
 
   return <div key={ initialName }

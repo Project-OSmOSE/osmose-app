@@ -6,9 +6,8 @@ import { ID } from "@/service/type.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useCallback, useEffect, useMemo } from "react";
-import { CHUNK_SIZE } from "@/service/campaign/result/import/type.ts";
-import { ResultImportSlice } from "@/service/campaign/result/import";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { CHUNK_SIZE, ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 
 export const AnnotationAPI = API.injectEndpoints({
@@ -129,7 +128,7 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
       force_datetime: isDatetimeForced,
       force_max_frequency: isMaxFrequencyForced
     }
-    dispatch(ResultImportSlice.actions.updateUpload({
+    dispatch(ImportAnnotationsSlice.actions.updateUpload({
       state: 'uploading',
       uploaded: uploadInfo.state === 'initial' ? 0 : uploadInfo.uploaded,
       total: rows.length,
@@ -146,7 +145,7 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
     if (uploadInfo.state !== 'uploading') return;
     if (!fulfilledTimeStamp || !startedTimeStamp) return;
     const duration = uploadInfo.duration + (fulfilledTimeStamp - startedTimeStamp);
-    dispatch(ResultImportSlice.actions.updateUpload({
+    dispatch(ImportAnnotationsSlice.actions.updateUpload({
       ...uploadInfo,
       duration,
       remainingDurationEstimation: (uploadInfo.total - uploadInfo.uploaded) * duration / uploadInfo.uploaded,
@@ -156,7 +155,7 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
   // Manage chunk import failed
   useEffect(() => {
     if (uploadInfo.state !== 'uploading') return;
-    if (error) dispatch(ResultImportSlice.actions.updateUpload({
+    if (error) dispatch(ImportAnnotationsSlice.actions.updateUpload({
       ...uploadInfo,
       state: 'error',
       error: getErrorMessage(error) ?? 'Unknown error',
@@ -172,7 +171,7 @@ export const useUploadAnnotationChunk = (onFulfilled: () => void) => {
     if (!originalArgs) return;
     const uploaded = uploadInfo.uploaded + originalArgs.data.length - 1; // Don't count headers
     const state = uploadInfo.total > uploaded ? 'uploading' : 'fulfilled';
-    dispatch(ResultImportSlice.actions.updateUpload({ ...uploadInfo, uploaded, state }))
+    dispatch(ImportAnnotationsSlice.actions.updateUpload({ ...uploadInfo, uploaded, state }))
     reset();
     if (state === 'uploading') uploadChunk(undefined, uploaded, {
       force_datetime: uploadInfo.force_datetime,
