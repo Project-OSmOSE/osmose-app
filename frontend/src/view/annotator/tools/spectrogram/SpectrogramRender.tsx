@@ -13,14 +13,7 @@ import React, {
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { useAudioService } from "@/services/annotator/audio.service.ts";
 import { AnnotationResult, BoxBounds } from '@/service/types';
-import {
-  addResult,
-  AnnotatorAPI,
-  leavePointerPosition,
-  setFileIsSeen,
-  setPointerPosition,
-  zoom
-} from '@/service/annotator';
+import { addResult, leavePointerPosition, setFileIsSeen, setPointerPosition, zoom } from '@/service/annotator';
 import { useToast } from "@/service/ui";
 import styles from '../annotator-tools.module.scss'
 import { YAxis } from "@/view/annotator/tools/spectrogram/YAxis.tsx";
@@ -36,6 +29,7 @@ import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 interface Props {
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
@@ -47,7 +41,7 @@ export interface SpectrogramRender {
 }
 
 export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ audioPlayer, }, ref) => {
-  const { data } = AnnotatorAPI.useRetrieveQuery();
+  const { data } = useRetrieveAnnotator();
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const { configurations } = useListSpectrogramForCurrentCampaign();

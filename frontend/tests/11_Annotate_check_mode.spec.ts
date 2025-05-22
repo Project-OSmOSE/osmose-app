@@ -22,7 +22,7 @@ const STEP = {
 }
 
 // Tests
-test.describe('Annotator', () => {
+test.describe('Annotator', {tag: '@annotator'}, () => {
   test(`Empty`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Verification', empty: true });
     await page.annotator.resultsBlock.waitFor()

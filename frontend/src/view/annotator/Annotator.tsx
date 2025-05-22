@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
-import { AnnotatorAPI } from "@/service/annotator";
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
@@ -27,13 +26,14 @@ import { Colormap } from "@/services/utils/color.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useAnnotatorFile } from "@/service/annotator/hook.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const Annotator: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
-  const { isFetching, error, data: annotatorData } = AnnotatorAPI.useRetrieveQuery()
+  const { isFetching, error, data: annotatorData } = useRetrieveAnnotator()
   const colormapClass: Colormap = useMemo(() => {
     if (!currentConfiguration) return "Greys";
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;

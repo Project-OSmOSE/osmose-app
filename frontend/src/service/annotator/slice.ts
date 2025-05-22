@@ -3,7 +3,6 @@ import { AnnotatorState, } from './type';
 import { AcousticFeatures, AnnotationComment, AnnotationResult, AnnotationResultBounds, Phase } from '@/service/types';
 import { getDefaultConfidence, getPresenceLabels } from './function.ts';
 import { ID } from '@/service/type.ts';
-import { AnnotatorAPI } from './api.ts';
 import { getNewItemID } from '@/service/function';
 import { Colormap } from '@/services/utils/color.ts';
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
@@ -11,6 +10,7 @@ import { UserAPI } from "@/service/api/user.ts";
 import { CampaignAPI } from "@/service/api/campaign.ts";
 import { SpectrogramConfigurationAPI } from "@/service/api/spectrogram-configuration.ts";
 import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
+import { AnnotatorAPI } from "@/service/api/annotator.ts";
 
 function _focusTask(state: AnnotatorState) {
   state.focusedResultID = undefined;
@@ -473,7 +473,7 @@ export const AnnotatorSlice = createSlice({
         }
       )
       builder.addMatcher(
-        AnnotatorAPI.endpoints.retrieve.matchFulfilled,
+        AnnotatorAPI.endpoints.retrieveAnnotator.matchFulfilled,
         (state, { payload }) => {
           // initialize slice
           Object.assign(state, payload);

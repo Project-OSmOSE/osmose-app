@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { useDispatch, useSelector } from "react-redux";
-import { AnnotatorAPI, AnnotatorSlice } from '@/service/annotator';
+import { AnnotatorSlice } from '@/service/annotator';
 import { EventSlice } from "@/service/events";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 import { API } from "@/service/api";
@@ -19,8 +19,6 @@ export const AppStore = configureStore({
     [API.reducerPath]: API.reducer,
     auth: AuthSlice.reducer,
     filter: FilterSlice.reducer,
-
-    [AnnotatorAPI.reducerPath]: AnnotatorAPI.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -28,8 +26,6 @@ export const AppStore = configureStore({
       .concat(API.middleware)
       .concat(getUserOnLoginMiddleware.middleware)
       .concat(logoutOn401Listener.middleware)
-
-      .concat(AnnotatorAPI.middleware)
 })
 
 export type AppState = ReturnType<typeof AppStore.getState>;

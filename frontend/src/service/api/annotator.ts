@@ -1,6 +1,3 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { getAuthenticatedBaseQuery } from '@/service/auth';
-import { AnnotatorData, AnnotatorState } from './type.ts';
 import { ID } from '@/service/type.ts';
 import {
   AcousticFeatures,
@@ -21,6 +18,8 @@ import { FileFilter } from "@/service/api/annotation-file-range.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { selectFileFilters } from "@/service/slices/filter.ts";
 import { extendDatasetFile } from "@/service/api/dataset.ts";
+import { API } from "@/service/api/index.ts";
+import { AnnotatorData, AnnotatorState } from "@/service/annotator";
 
 type WriteAnnotationResult =
   Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
@@ -68,19 +67,16 @@ function transformBaseResult(result: AnnotationResult, phase: Phase): Omit<Write
   }
 }
 
-const _AnnotatorAPI = createApi({
-  reducerPath: 'annotatorApi',
-  baseQuery: getAuthenticatedBaseQuery('/api/annotator/'),
-  tagTypes: [ 'Annotator' ],
-  endpoints: (builder) => ({
-    retrieve: builder.query<AnnotatorData, { campaignID: ID, phaseID: ID, fileID: ID } & FileFilter>({
+export const AnnotatorAPI = API.injectEndpoints({
+  endpoints: builder => ({
+    retrieveAnnotator: builder.query<AnnotatorData, { campaignID: ID, phaseID: ID, fileID: ID } & FileFilter>({
       query: ({
                 campaignID,
                 phaseID,
                 fileID,
                 ...params
               }) => ({
-        url: `campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/`,
+        url: `annotator/campaign/${ campaignID }/phase/${ phaseID }/file/${ fileID }/`,
         params
       }),
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -97,7 +93,7 @@ const _AnnotatorAPI = createApi({
         }
       }
     }),
-    post: builder.mutation<void, {
+    postAnnotator: builder.mutation<void, {
       campaign: AnnotationCampaign,
       phase: AnnotationCampaignPhase,
       fileID: ID,
@@ -129,7 +125,7 @@ const _AnnotatorAPI = createApi({
         const post_task_comments: WriteAnnotationComment[] = transformCommentsForWriting(task_comments)
 
         return {
-          url: `campaign/${ campaign.id }/phase/${ phase.id }/file/${ fileID }/`,
+          url: `annotator/campaign/${ campaign.id }/phase/${ phase.id }/file/${ fileID }/`,
           method: 'POST',
           body: {
             results: post_results,
@@ -151,22 +147,22 @@ const _AnnotatorAPI = createApi({
   })
 })
 
-export const useRetrieveQuery = () => {
+export const useRetrieveAnnotator = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const { fileID } = useParams<{ fileID: string }>();
   const filters = useAppSelector(selectFileFilters)
 
-  return _AnnotatorAPI.useRetrieveQuery(
+  return AnnotatorAPI.endpoints.retrieveAnnotator.useQuery(
     (campaign && phase && fileID) ?
       { campaignID: campaign.id, phaseID: phase.id, fileID, ...filters }
       : skipToken);
 }
 
-export const usePostMutation = () => {
+export const usePostAnnotator = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
-  const [ _post ] = _AnnotatorAPI.usePostMutation()
+  const [ _post ] = AnnotatorAPI.endpoints.postAnnotator.useMutation()
   const annotator = useAppSelector(state => state.annotator);
   const _annotator = useRef<AnnotatorState>(annotator)
   const _campaign = useRef<AnnotationCampaign | undefined>(campaign)
@@ -192,11 +188,4 @@ export const usePostMutation = () => {
       sessionStart: new Date(_annotator.current.sessionStart),
     }).unwrap()
   }, [ _post, _campaign.current, _phase.current, _annotator.current ])
-}
-
-
-export const AnnotatorAPI = {
-  ..._AnnotatorAPI,
-  useRetrieveQuery,
-  usePostMutation
 }

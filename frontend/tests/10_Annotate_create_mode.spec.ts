@@ -129,7 +129,7 @@ const TEST = {
 
 // Tests
 
-test.describe('Annotator', () => {
+test.describe('Annotator', {tag: '@annotator'}, () => {
 
   test(`Can go back to campaign`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Annotation' });
