@@ -42,7 +42,7 @@ export const CampaignPhaseTab: React.FC<{ phase: Phase }> = ({ phase: phaseType 
   return <Deactivatable disabled={ isFetchingPhases } loading={ isFetchingPhases }>
     { phase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }` }
                      className={ [ styles.tab, currentPhase?.id === phase.id ? styles.active : undefined ].join(' ') }>
-        Annotation
+      { phaseType }
 
       { hasAdminAccess && phase?.id === currentPhase?.id && !phase?.ended_by &&
           <IonIcon icon={ closeOutline } slot='end' onClick={ end }/> }
