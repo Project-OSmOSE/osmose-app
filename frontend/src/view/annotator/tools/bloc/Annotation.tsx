@@ -39,7 +39,6 @@ export const TimeInfo: React.FC<{
   }, [ annotation ])
   const isCorrected = useMemo(() => corrected_start_time || corrected_end_time, [ corrected_start_time, corrected_end_time ])
 
-  if (annotation.type === 'Weak') return <Fragment/>
   return <div className={ styles.bounds }>
     <IoTimeOutline className={ styles.mainIcon }/>
 

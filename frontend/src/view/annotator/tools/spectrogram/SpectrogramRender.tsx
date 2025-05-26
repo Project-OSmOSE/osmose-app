@@ -83,7 +83,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
   const isEditable: boolean = useMemo(() => !campaign?.archive && !phase?.ended_by && !!data?.is_assigned, [ campaign, phase, data ])
-  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && phase?.phase === 'Annotation' && !!focusedLabel && isEditable, [ canAddAnnotations, focusedLabel, phase, isEditable ]);
+  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && !!focusedLabel && isEditable, [ canAddAnnotations, focusedLabel, isEditable ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled

@@ -1,12 +1,12 @@
 import { ESSENTIAL, expect, test } from './utils';
 import { CAMPAIGN, CAMPAIGN_PHASE, COMMENT, CONFIDENCE, FILE_RANGE, LABEL, UserType } from './fixtures';
-import { BoxBounds } from '../src/service/types';
+import { BoxBounds, Phase } from '../src/service/types';
 
 // Utils
 const TEST = {
-  empty: (as: UserType, { submit }: { submit: 'mouse' | 'key' }) => {
+  empty: (as: UserType, { submit, phase }: { submit: 'mouse' | 'key', phase: Phase }) => {
     return test(`Empty (submit ${ submit })`, ESSENTIAL, async ({ page }) => {
-      await page.annotator.go(as, { phase: 'Annotation', empty: true });
+      await page.annotator.go(as, { phase, empty: true });
       await expect(page.getByText('Confidence indicator ')).toBeVisible();
 
       await test.step('See no results', () => expect(page.getByText('No results')).toBeVisible())
@@ -129,7 +129,7 @@ const TEST = {
 
 // Tests
 
-test.describe('Annotator', {tag: '@annotator'}, () => {
+test.describe('"Annotation" phase', {tag: '@annotator'}, () => {
 
   test(`Can go back to campaign`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Annotation' });
@@ -137,8 +137,8 @@ test.describe('Annotator', {tag: '@annotator'}, () => {
     await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }`)
   })
 
-  TEST.empty('annotator', { submit: 'mouse' })
-  TEST.empty('annotator', { submit: 'key' })
+  TEST.empty('annotator', { phase: 'Annotation', submit: 'mouse' })
+  TEST.empty('annotator', { phase: 'Annotation', submit: 'key' })
 
   test(`Empty | allow point annotation`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Annotation', empty: true, allowPoint: true });
@@ -172,6 +172,53 @@ test.describe('Annotator', {tag: '@annotator'}, () => {
 
   test(`No confidence`, ESSENTIAL, async ({ page }) => {
     await page.annotator.go('annotator', { phase: 'Annotation', noConfidence: true });
+    await expect(page.getByText('Confidence indicator ')).not.toBeVisible();
+  })
+})
+
+test.describe('"Verification" phase', {tag: '@annotator'}, () => {
+
+  test(`Can go back to campaign`, ESSENTIAL, async ({ page }) => {
+    await page.annotator.go('annotator', { phase: 'Verification' });
+    await page.annotator.backToCampaignButton.click();
+    await page.waitForURL(`/app/annotation-campaign/${ CAMPAIGN.id }/phase/${ CAMPAIGN_PHASE.id }`)
+  })
+
+  TEST.empty('annotator', { phase: 'Verification', submit: 'mouse' })
+  TEST.empty('annotator', { phase: 'Verification', submit: 'key' })
+
+  test(`Empty | allow point annotation`, ESSENTIAL, async ({ page }) => {
+    await page.annotator.go('annotator', { phase: 'Verification', empty: true, allowPoint: true });
+
+    await test.step('Can add presence - mouse', async () => {
+      const label = page.annotator.getLabel(LABEL.classic);
+      expect(await label.getLabelState()).toBeFalsy();
+      await label.addPresence();
+      await expect(label.getWeakResult()).toBeVisible();
+      expect(await label.getLabelState()).toBeTruthy();
+    })
+
+    await test.step('Can add point', async () => {
+      const label = page.annotator.getLabel(LABEL.classic);
+      await label.getWeakResult().click();
+
+      const bounds = await page.annotator.draw('Point');
+
+      await expect(label.getNthStrongResult(0)).toBeVisible();
+      await expect(page.annotator.resultsBlock.getByText(Math.floor(bounds.start_time).toString()).first()).toBeVisible();
+      await expect(page.annotator.resultsBlock.getByText(bounds.start_frequency.toString()).first()).toBeVisible();
+    })
+
+    await test.step('Can remove point', async () => {
+      await page.annotator.removeStrong()
+      const label = page.annotator.getLabel(LABEL.withFeatures);
+      await expect(label.getNthStrongResult(0)).not.toBeVisible();
+    })
+
+  })
+
+  test(`No confidence`, ESSENTIAL, async ({ page }) => {
+    await page.annotator.go('annotator', { phase: 'Verification', noConfidence: true });
     await expect(page.getByText('Confidence indicator ')).not.toBeVisible();
   })
 })

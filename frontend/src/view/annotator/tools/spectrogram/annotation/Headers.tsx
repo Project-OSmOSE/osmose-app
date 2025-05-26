@@ -11,6 +11,7 @@ import {
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { UserAPI } from "@/service/api/user.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -95,18 +96,16 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
   const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery()
   const dispatch = useAppDispatch();
 
   const remove = useCallback(() => {
-    switch (phase?.phase) {
-      case 'Annotation':
-        dispatch(AnnotatorSlice.actions.removeResult(annotation.id));
-        break;
-      case 'Verification':
-        dispatch(AnnotatorSlice.actions.invalidateResult(annotation.id));
-        break;
+    if (phase?.phase === 'Annotation' || annotation.annotator === user?.id) {
+      dispatch(AnnotatorSlice.actions.removeResult(annotation.id));
+    } else {
+      dispatch(AnnotatorSlice.actions.invalidateResult(annotation.id));
     }
-  }, [ phase, annotation ])
+  }, [ phase, annotation, user ])
 
   return (
     <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>

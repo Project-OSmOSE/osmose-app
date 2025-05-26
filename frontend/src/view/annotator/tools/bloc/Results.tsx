@@ -122,14 +122,14 @@ const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, on
 const ResultDetectorInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const { phase } = useRetrieveCurrentPhase()
   const { data: user } = UserAPI.endpoints.retrieveUser.useQuery(result.annotator ?? skipToken)
+  const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery()
   if (!phase || phase.phase === 'Annotation') return <Fragment/>
 
   if (result.detector_configuration) return <TableContent className={ className } onClick={ onClick }>
     <RiRobot2Fill/>
     <p>{ result.detector_configuration?.detector }</p>
   </TableContent>
-
-  return <TableContent className={ className } onClick={ onClick }>
+  return <TableContent className={ [className, result.annotator === currentUser?.id ? 'disabled' : ''].join(' ') } onClick={ onClick }>
     <RiUser3Fill/>
     <p>{ user?.display_name }</p>
   </TableContent>
@@ -148,6 +148,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
   const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery()
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;
@@ -182,7 +183,8 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
   }, [ setIsModalOpen ]);
 
   if (phase?.phase !== 'Verification') return <Fragment/>
-  return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
+  if (result.annotator === user?.id) return <TableContent className={ className } onClick={ onClick }/>
+  return <TableContent className={ className } onClick={ onClick }>
     <IonButton className="validate"
                color={ validation ? 'success' : 'medium' }
                fill={ validation ? 'solid' : 'outline' }

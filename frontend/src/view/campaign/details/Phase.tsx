@@ -118,11 +118,11 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
           Duration
         </TableHead>
         <TableHead topSticky>
-          Annotations
+          Annotations<br/>to check
           <AnnotationsFilter onUpdate={ onFilterUpdated }/>
         </TableHead>
         { phase.phase === 'Verification' && <TableHead topSticky>
-            Validated annotations
+            Validated<br/>annotations
         </TableHead> }
         <TableHead topSticky>
           Status

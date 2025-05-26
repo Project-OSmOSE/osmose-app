@@ -106,16 +106,11 @@ export const Annotator: React.FC = () => {
         </div>
 
         <div
-            className={ [ styles.blocContainer, phase?.phase === 'Verification' ? styles.check : styles.create ].join(' ') }>
-          { isEditable && phase?.phase === 'Annotation' && <Fragment>
+            className={ styles.blocContainer }>
+          { isEditable && <Fragment>
               <CurrentAnnotation/>
               <Labels/>
               <ConfidenceIndicator/>
-              <Comment/>
-              <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
-          </Fragment> }
-          { isEditable && phase?.phase === 'Verification' && <Fragment>
-              <CurrentAnnotation/>
               <Comment/>
               <Results onSelect={ r => spectrogramRenderRef.current?.onResultSelected(r) }/>
           </Fragment> }
