@@ -1,5 +1,5 @@
 """Test AnnotationCampaignViewSet"""
-# pylint: disable=missing-class-docstring, missing-function-docstring
+# pylint: disable=missing-class-docstring, missing-function-docstring, duplicate-code
 from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status
@@ -24,7 +24,7 @@ creation_data = {
 
 
 class CreateUnauthenticatedTestCase(APITestCase):
-    """Test AnnotationFileRangeViewSet when request is unauthenticated"""
+    """Test AnnotationCampaign when request is unauthenticated"""
 
     def test_create(self):
         """ViewSet returns 401 if no user is authenticated"""
