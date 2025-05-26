@@ -1,3 +1,4 @@
+"""Campaign phase tests"""
 from .create import (
     CreateUnauthenticatedTestCase,
     CreateCampaignOwnerAuthenticatedTestCase,

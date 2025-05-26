@@ -29,6 +29,7 @@ class IsArchivedFilter(admin.SimpleListFilter):
 
 @admin.register(AnnotationCampaignPhase)
 class AnnotationCampaignPhaseAdmin(admin.ModelAdmin):
+    """Administration for Campaign Phase"""
 
     list_display = (
         "id",

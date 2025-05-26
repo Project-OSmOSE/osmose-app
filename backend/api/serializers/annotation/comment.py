@@ -4,7 +4,8 @@ from rest_framework import serializers
 from backend.api.models import (
     AnnotationResult,
     AnnotationComment,
-    DatasetFile, AnnotationCampaignPhase,
+    DatasetFile,
+    AnnotationCampaignPhase,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer

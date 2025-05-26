@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
-from backend.api.views.annotation.campaign import REPORT_HEADERS
+from backend.api.views.annotation.phase import REPORT_HEADERS
 from backend.utils.tests import AuthenticatedTestCase, empty_fixtures, all_fixtures
 
 URL = reverse("annotation-campaign-phase-report", kwargs={"pk": 1})

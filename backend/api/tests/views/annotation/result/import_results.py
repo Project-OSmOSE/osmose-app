@@ -279,7 +279,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
         self.assertEqual(
             phase.annotation_campaign.label_set.labels.count(), old_labels_count + 1
         )
-        self.assertNotEquals(phase.annotation_campaign.label_set, old_label_set)
+        self.assertNotEqual(phase.annotation_campaign.label_set, old_label_set)
         self.assertEqual(old_label_set.labels.count(), old_labels_count)
 
     def test_empty_post_duplicate_used_confidence_set(self):
@@ -331,7 +331,7 @@ class ImportCampaignOwnerAuthenticatedTestCase(ImportBaseUserAuthenticatedTestCa
             phase.annotation_campaign.confidence_indicator_set.confidence_indicators.count(),
             old_indicators_count + 1,
         )
-        self.assertNotEquals(
+        self.assertNotEqual(
             phase.annotation_campaign.confidence_indicator_set, old_confidence_set
         )
         self.assertEqual(

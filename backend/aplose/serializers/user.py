@@ -14,14 +14,16 @@ from backend.utils.serializers import EnumField
 
 
 class UserDisplayNameSerializer(serializers.SlugRelatedField):
+    """Serializer that returns user display name instead of the whole object"""
+
     def __init__(self, **kwargs):
         kwargs.pop("read_only")
         super().__init__(slug_field="username", read_only=True, **kwargs)
 
-    def to_representation(self, user: User) -> str:
-        name = super().to_representation(user)
-        if user.first_name and user.last_name:
-            name = f"{user.first_name} {upper(user.last_name)}"
+    def to_representation(self, obj: User) -> str:
+        name = super().to_representation(obj)
+        if obj.first_name and obj.last_name:
+            name = f"{obj.first_name} {upper(obj.last_name)}"
         return name
 
 

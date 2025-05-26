@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0079_annotationresult_create_update_dates'),
+        ("api", "0079_annotationresult_create_update_dates"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='annotationcampaign',
-            name='label_set',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.labelset'),
+            model_name="annotationcampaign",
+            name="label_set",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.labelset",
+            ),
         ),
     ]

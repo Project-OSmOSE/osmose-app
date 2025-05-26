@@ -7,24 +7,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0078_annotationcampaignphase'),
+        ("api", "0078_annotationcampaignphase"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='annotationresult',
-            name='last_updated_at',
+            model_name="annotationresult",
+            name="last_updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='annotationresultvalidation',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="annotationresultvalidation",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='annotationresultvalidation',
-            name='last_updated_at',
+            model_name="annotationresultvalidation",
+            name="last_updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

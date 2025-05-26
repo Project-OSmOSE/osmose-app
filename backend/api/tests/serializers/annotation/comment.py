@@ -3,7 +3,9 @@
 from django.test import TestCase
 
 from backend.api.models import (
-    AnnotationComment, AnnotationCampaignPhase, AnnotationFileRange,
+    AnnotationComment,
+    AnnotationCampaignPhase,
+    AnnotationFileRange,
 )
 from backend.api.serializers import (
     AnnotationCommentSerializer,

@@ -169,7 +169,8 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             self.get_create_instances(validated_data)
         )
 
-    def _get_time_limits(self, validated_data, file: DatasetFile) -> (float, float):
+    def _get_bounds(self, validated_data, file: DatasetFile) -> dict:
+        is_box: bool = validated_data["is_box"]
         start: datetime = validated_data["start_datetime"]
         end: datetime = validated_data["end_datetime"]
         if start < file.start:
@@ -180,7 +181,39 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             end_time = to_seconds(file.end - file.start)
         else:
             end_time = to_seconds(end - file.start)
-        return start_time, end_time
+
+        start_frequency = (
+            validated_data["min_frequency"]
+            if "min_frequency" in validated_data and is_box
+            else 0
+        )
+        end_frequency = (
+            validated_data["max_frequency"]
+            if "max_frequency" in validated_data and is_box
+            else file.dataset.audio_metadatum.dataset_sr / 2
+        )
+
+        if (
+            start_time == 0
+            and end_time == to_seconds(file.end - file.start)
+            and start_frequency == 0
+            and end_frequency == file.dataset.audio_metadatum.dataset_sr / 2
+        ):
+            return {"type": AnnotationResultType.WEAK}
+        if start_time == end_time and (
+            start_frequency == end_frequency or validated_data["max_frequency"] is None
+        ):
+            return {
+                "type": AnnotationResultType.POINT,
+                "start_time": start_time,
+                "start_frequency": start_frequency,
+            }
+        return {
+            "type": AnnotationResultType.BOX,
+            "start_time": start_time,
+            "end_time": end_time,
+            "end_frequency": end_frequency,
+        }
 
     def get_create_instances(self, validated_data) -> list[AnnotationResult]:
         """Get instances to be created"""
@@ -255,48 +288,15 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             return [AnnotationResult(**params)]
 
         instances = []
-        dataset: Dataset = validated_data["dataset"]
         for file in files:
-            start_time, end_time = self._get_time_limits(validated_data, file)
-
-            start_frequency = (
-                validated_data["min_frequency"]
-                if "min_frequency" in validated_data and is_box
-                else 0
-            )
-            end_frequency = (
-                validated_data["max_frequency"]
-                if "max_frequency" in validated_data and is_box
-                else dataset.audio_metadatum.dataset_sr / 2
-            )
-
             params = {
                 "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
                 "dataset_file": file,
+                **self._get_bounds(validated_data, file),
             }
-            if (
-                start_time == 0
-                and end_time == to_seconds(file.end - file.start)
-                and start_frequency == 0
-                and end_frequency == dataset.audio_metadatum.dataset_sr / 2
-            ):
-                params["type"] = AnnotationResultType.WEAK
-            elif start_time == end_time and (
-                start_frequency == end_frequency
-                or validated_data["max_frequency"] is None
-            ):
-                params["type"] = AnnotationResultType.POINT
-                params["start_frequency"] = start_frequency
-                params["start_time"] = start_time
-            else:
-                params["type"] = AnnotationResultType.BOX
-                params["start_frequency"] = start_frequency
-                params["end_frequency"] = end_frequency
-                params["start_time"] = start_time
-                params["end_time"] = end_time
             if not AnnotationResult.objects.filter(**params).exists():
                 instances.append(AnnotationResult(**params))
 

@@ -179,6 +179,9 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
             data["label_set"] = new_label_set.id
         return super().run_validation(data)
 
+    def create(self, validated_data):
+        pass
+
     def update(self, instance: AnnotationCampaign, validated_data):
         if "label_set" in validated_data:
             instance.label_set = validated_data.get("label_set")

@@ -90,6 +90,8 @@ class CampaignPhaseAccessFilter(filters.BaseFilterBackend):
 
 
 class CampaignPhasePostPatchPermission(permissions.BasePermission):
+    """Permission for campaign phase post and patch queries"""
+
     def has_permission(self, request, view):
         if request.method == "POST":
             campaign_id = request.data.get("annotation_campaign", None)
@@ -555,7 +557,7 @@ class AnnotationCampaignPhaseViewSet(
         return response
 
     @action(detail=True, methods=["POST"], url_path="end", url_name="end")
-    def end(self, request, pk: int = None):
+    def end(self, request):
         """Ends the given phase"""
         phase: AnnotationCampaignPhase = self.get_object()
         phase.end(self.request.user)
