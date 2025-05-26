@@ -6,19 +6,16 @@ import { FadedText, Link, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
-import { CreateAnnotationPhaseButton, CreateVerificationPhaseButton } from "@/components/AnnotationCampaign/Phase";
+import { CampaignPhaseTab } from "@/components/AnnotationCampaign/Phase";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
-import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
     campaign,
     isLoading: isLoadingCampaign,
     error: errorLoadingCampaign,
-    hasAdminAccess
   } = useRetrieveCurrentCampaign();
-  const { annotationPhase, verificationPhase, isFetching: isFetchingPhases } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
 
   const toast = useToast();
@@ -55,23 +52,8 @@ export const AnnotationCampaignDetail: React.FC = () => {
         Information
       </Link>
 
-      {/* Annotation phase */ }
-      <Deactivatable disabled={ isFetchingPhases } loading={ isFetchingPhases }>
-        { annotationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ annotationPhase.id }` }
-                                   className={ phase?.id === annotationPhase.id ? styles.active : undefined }>
-            Annotation
-        </Link> }
-        { !annotationPhase && hasAdminAccess && <CreateAnnotationPhaseButton/> }
-      </Deactivatable>
-
-      {/* Verification phase */ }
-      <Deactivatable disabled={ isFetchingPhases } loading={ isFetchingPhases }>
-        { verificationPhase && <Link appPath={ `/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }` }
-                                     className={ phase?.id === verificationPhase.id ? styles.active : undefined }>
-            Verification
-        </Link> }
-        { !verificationPhase && hasAdminAccess && <CreateVerificationPhaseButton/> }
-      </Deactivatable>
+      <CampaignPhaseTab phase='Annotation'/>
+      <CampaignPhaseTab phase='Verification'/>
     </div>
 
     <Outlet/>

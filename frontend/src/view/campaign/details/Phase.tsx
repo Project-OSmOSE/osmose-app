@@ -83,7 +83,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    </div>
 
                    { isEditable && phase.phase === "Annotation" && <Link fill='outline' color='medium' size='small'
-                                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
+                                                                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
                        Import annotations
                    </Link> }
 
@@ -145,8 +145,8 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
       { isFetching && <IonSpinner/> }
       { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       { files && files.count === 0 && <p>You have no files to annotate.</p> }
-      { campaign?.archive && <p>The campaign is archived. No more annotation can be done.</p> }
-      { phase?.ended_by && <p>The phase is . No more annotation can be done.</p> }
+      { campaign?.archive ? <p>The campaign is archived. No more annotation can be done.</p> :
+        (phase?.ended_by && <p>The phase is ended. No more annotation can be done.</p>) }
 
     </div>
   </div>

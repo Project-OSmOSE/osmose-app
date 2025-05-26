@@ -27,8 +27,9 @@ export const AnnotationCampaignArchiveButton: React.FC = () => {
         } ]
       })
     }
-    const progress = phases.reduce((previousValue, p) => previousValue + p.global_progress, 0);
+    const progress = phases.reduce((previousValue, p) => previousValue + (p.ended_by ? p.global_total : p.global_progress), 0);
     const total = phases.reduce((previousValue, p) => previousValue + p.global_total, 0);
+    console.log(phases, progress, total)
     if (progress < total) {
       // If annotators haven't finished yet, ask for confirmation
       return alert.showAlert({

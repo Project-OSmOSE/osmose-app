@@ -51,7 +51,7 @@ export const CampaignPhaseAPI = API.injectEndpoints({
         url: `annotation-campaign-phase/${ phaseID }/end/`,
         method: 'POST',
       }),
-      invalidatesTags: phase => phase ? [ { type: "CampaignPhase", id: phase.id } ] : [],
+      invalidatesTags: phase => phase ? [ { type: "CampaignPhase", id: phase.id }, 'Campaign' ] : ['Campaign'],
     }),
     downloadCampaignPhaseReport: builder.mutation<void, {
       phaseID: ID;

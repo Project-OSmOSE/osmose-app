@@ -5,6 +5,16 @@ import { openOutline } from "ionicons/icons";
 import { Button } from "./Button";
 import { To, useNavigate } from "react-router-dom";
 
+export const useAppLink = (appPath?: To | undefined, onClick?: () => void) => {
+  const navigate = useNavigate();
+  const open = useCallback(() => {
+    if (appPath) navigate(appPath)
+    if (onClick) onClick()
+  }, [ appPath ])
+  const openAux = useCallback(() => window.open(`/app${ appPath }`, "_blank"), [ appPath ])
+  return { open, openAux }
+}
+
 export const Link: React.FC<{
   href?: string | undefined;
   appPath?: To | undefined;
@@ -16,12 +26,7 @@ export const Link: React.FC<{
   target?: HTMLAttributeAnchorTarget | undefined;
   onClick?: () => void;
 }> = ({ children, color = 'dark', href, size, target, fill = 'clear', appPath, className, onClick }) => {
-  const navigate = useNavigate();
-  const open = useCallback(() => {
-    if (appPath) navigate(appPath)
-    if (onClick) onClick()
-  }, [ appPath ])
-  const openAux = useCallback(() => window.open(`/app${ appPath }`, "_blank"), [ appPath ])
+  const { open, openAux } = useAppLink(appPath, onClick);
 
   if (href !== undefined) return <a style={ { textDecoration: 'none' } } className={ className }
                                     target={ target } rel="noopener, noreferrer"
