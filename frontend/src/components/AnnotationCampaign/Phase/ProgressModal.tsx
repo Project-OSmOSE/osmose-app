@@ -109,14 +109,14 @@ export const ProgressModal: React.FC<{
   function onDownloadStatus() {
     if (phase && campaign) downloadStatus({
       phaseID: phase.id,
-      filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
+      filename: `${ campaign.name } ${ phase.phase }`.replaceAll(' ', '_') + '_status.csv'
     })
   }
 
   function onDownloadReport() {
     if (phase && campaign) downloadReport({
       phaseID: phase.id,
-      filename: campaign.name.replaceAll(' ', '_') + '_results.csv'
+      filename: `${ campaign.name } ${ phase.phase }`.replaceAll(' ', '_') + '_results.csv'
     })
   }
 

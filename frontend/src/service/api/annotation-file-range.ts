@@ -97,7 +97,7 @@ export const AnnotationFileRangeAPI = API.injectEndpoints({
       transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
         return ranges.map(extendFileRange);
       },
-      invalidatesTags: [ 'FileRange', 'FileRangeFiles' ]
+      invalidatesTags: [ 'FileRange', 'FileRangeFiles', 'Campaign', 'CampaignPhase' ]
     })
   })
 })
