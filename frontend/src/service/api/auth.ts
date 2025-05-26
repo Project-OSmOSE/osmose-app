@@ -1,8 +1,8 @@
-import { API } from "./index.ts";
+import { API, API_TAGS } from "./index.ts";
 import { Token } from "@/service/types";
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 
-type LoginResponse = { access: Token, refresh: Token}
+type LoginResponse = { access: Token, refresh: Token }
 
 export const AuthAPI = API.injectEndpoints({
   endpoints: (builder) => ({
@@ -25,12 +25,7 @@ export const AuthAPI = API.injectEndpoints({
           data: undefined
         }
       },
-      invalidatesTags: [
-        'Token',
-        { type: 'User', id: 'self' },
-        'Campaign',
-        'FileRange',
-      ],
+      invalidatesTags: API_TAGS,
     })
   })
 })

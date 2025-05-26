@@ -7,7 +7,8 @@ from rest_framework.request import Request
 from backend.api.models import (
     AnnotationResult,
     DatasetFile,
-    AnnotationComment, AnnotationCampaignPhase,
+    AnnotationComment,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationCommentSerializer,
@@ -24,8 +25,8 @@ class CommentAccessFilter(filters.BaseFilterBackend):
         if request.user.is_staff:
             return queryset
         return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
-            | Q(annotation_campaign__archive__isnull=True)
+            Q(annotation_campaign_phase__annotation_campaign__owner=request.user)
+            | Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
         )
 
 

@@ -8,12 +8,18 @@ import { KEY_DOWN_EVENT } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
-import { LabelSet } from "@/service/types";
+import { AnnotationCampaignPhase, LabelSet } from "@/service/types";
 import { AnnotatorSlice, getPresenceLabels } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const Labels: React.FC = () => {
+  const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
+  const phaseRef = useRef<AnnotationCampaignPhase | undefined>(phase)
+  useEffect(() => {
+    phaseRef.current = phase
+  }, [ phase ]);
 
   const {
     results,
@@ -46,7 +52,7 @@ export const Labels: React.FC = () => {
   }, [ presenceLabels ]);
 
   function onKbdEvent(event: KeyboardEvent) {
-    if (!_labelSet.current) return;
+    if (!_labelSet.current || !phaseRef.current) return;
     const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, _labelSet.current.labels.length);
 
     if (event.key === "'") {
@@ -59,7 +65,7 @@ export const Labels: React.FC = () => {
       const calledLabel = _labelSet.current.labels[i];
       if (_focused.current === calledLabel) continue;
       if (!_presenceLabels.current.includes(calledLabel)) {
-        dispatch(AnnotatorSlice.actions.addPresenceResult(calledLabel));
+        dispatch(AnnotatorSlice.actions.addPresenceResult({ label: calledLabel, phaseID: phaseRef.current.id }));
       } else {
         dispatch(AnnotatorSlice.actions.focusTask())
         dispatch(AnnotatorSlice.actions.focusLabel(calledLabel))
@@ -88,6 +94,7 @@ export const Labels: React.FC = () => {
 }
 
 export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
+  const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
   const {
     results,
@@ -102,13 +109,14 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
   const alert = useAlert();
 
   const select = useCallback(() => {
+    if (!phase) return;
     if (isUsed) {
       dispatch(AnnotatorSlice.actions.focusLabel(label));
     } else {
-      dispatch(AnnotatorSlice.actions.addPresenceResult(label));
+      dispatch(AnnotatorSlice.actions.addPresenceResult({ label, phaseID: phase.id }));
       dispatch(AnnotatorSlice.actions.focusLabel(label));
     }
-  }, [ label ])
+  }, [ label, phase ])
 
   const hideAllButCurrent = useCallback(() => {
     dispatch(AnnotatorSlice.actions.hideLabels(labelSet?.labels ?? []));

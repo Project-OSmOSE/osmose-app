@@ -69,7 +69,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
 
   // Services
-    const { containerWidth, height, width } = useSpectrogramDimensions()
+  const { containerWidth, height, width } = useSpectrogramDimensions()
   const { xAxis, yAxis } = useAxis()
   const { resetCanvas, drawSpectrogram, drawResult } = useDisplaySpectrogram(canvasRef);
 
@@ -284,7 +284,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onEndNewAnnotation = (e: PointerEvent<HTMLDivElement>) => {
-    if (_newResult.current) {
+    if (phase && _newResult.current) {
       const data = pointerService.getFreqTime(e);
       if (data) {
         _newResult.current.end_time = data.time;
@@ -309,14 +309,15 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       const width = xAxis.valuesToPositionRange(_newResult.current.start_time, _newResult.current.end_time);
       const height = yAxis.valuesToPositionRange(_newResult.current.start_frequency, _newResult.current.end_frequency);
       if (width > 2 && height > 2) {
-        dispatch(AnnotatorSlice.actions.addResult(_newResult.current))
+        dispatch(AnnotatorSlice.actions.addResult({ ..._newResult.current, phaseID: phase.id }))
       } else if (campaign?.allow_point_annotation) {
         dispatch(AnnotatorSlice.actions.addResult({
           type: 'Point',
           start_time: _newResult.current.start_time,
           start_frequency: _newResult.current.start_frequency,
           end_time: null,
-          end_frequency: null
+          end_frequency: null,
+          phaseID: phase.id
         }))
       }
     }

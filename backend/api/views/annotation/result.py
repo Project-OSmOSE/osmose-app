@@ -79,6 +79,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         queryset: QuerySet[AnnotationResult] = (
             super().get_queryset().filter(is_update_of__isnull=True)
         )
+        print("get_queryset", queryset)
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
         if self.action in ["list", "retrieve"]:
             if self.request.query_params.get("for_phase"):
@@ -149,11 +150,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return [
             {
                 **r,
-                "annotation_campaign_phase": phase_id,
                 "dataset_file": file_id,
-                "annotator": user_id
-                if r.get("detector_configuration") is None
-                else None,
                 "comments": [
                     {
                         **c,
@@ -190,9 +187,26 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             new_results, phase.id, file.id, user_id
         )
         current_results = AnnotationResultViewSet.queryset.filter(
-            annotation_campaign_phase_id=phase.id,
             dataset_file_id=file.id,
-        ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
+        )
+        if phase.phase == Phase.ANNOTATION:
+            current_results = current_results.filter(
+                annotation_campaign_phase_id=phase.id,
+                annotator_id=user_id,
+            )
+        else:
+            current_results = current_results.filter(
+                Q(
+                    annotation_campaign_phase_id=phase.id,
+                    annotator_id=user_id,
+                )
+                | (
+                    ~Q(annotation_campaign_phase_id=phase.id, annotator_id=user_id)
+                    & Q(
+                        annotation_campaign_phase__annotation_campaign=phase.annotation_campaign
+                    )
+                )
+            )
         serializer = AnnotationResultViewSet.serializer_class(
             current_results,
             many=True,
@@ -289,7 +303,8 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer.save()
         instances: list[AnnotationResult] = serializer.instance
         AnnotationTask.objects.filter(
-            annotation_campaign_phase_id=phase_id,
+            annotation_campaign_phase__annotation_campaign=phase.annotation_campaign,
+            annotation_campaign_phase__phase=Phase.VERIFICATION,
             dataset_file_id__in=[r.dataset_file_id for r in instances],
         ).update(status=AnnotationTask.Status.CREATED)
         list_serializer: AnnotationResultSerializer = self.get_serializer_class()(

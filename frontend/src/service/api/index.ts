@@ -31,31 +31,32 @@ const baseQueryWithReauth: BaseQueryFn<
   return result
 }
 
+export const API_TAGS = [
+  'Token',
+  'User',
+  'UserGroup',
+
+  'Dataset',
+  'DatasetToImport',
+  'AudioMetadata',
+  'SpectrogramConfiguration',
+
+  'Campaign',
+  'CampaignPhase',
+
+  'FileRange',
+  'FileRangeFiles',
+
+  'Detector',
+
+  'SQL',
+
+  'Collaborator',
+]
 export const API = createApi({
   reducerPath: 'apiRTK',
   baseQuery: baseQueryWithReauth,
-  tagTypes: [
-    'Token',
-    'User',
-    'UserGroup',
-
-    'Dataset',
-    'DatasetToImport',
-    'AudioMetadata',
-    'SpectrogramConfiguration',
-
-    'Campaign',
-    'CampaignPhase',
-
-    'FileRange',
-    'FileRangeFiles',
-
-    'Detector',
-
-    'SQL',
-
-    'Collaborator',
-  ],
+  tagTypes: API_TAGS,
   endpoints: () => ({})
 })
 

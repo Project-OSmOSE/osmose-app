@@ -11,6 +11,7 @@ import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 import {
   AcousticFeatures,
   AnnotationCampaign,
+  AnnotationCampaignPhase,
   AnnotationComment,
   AnnotationResult,
   AnnotationResultBounds,
@@ -24,6 +25,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useEffect, useRef } from "react";
 import { useAlert } from "@/service/ui";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export type AnnotatorState = Partial<AnnotatorData> & {
   spectrogram_configurations: SpectrogramConfiguration[];
@@ -55,6 +57,8 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   sessionStart: number;
   confidenceIndicators?: ConfidenceIndicator[];
   canAddAnnotations?: boolean;
+
+  phaseID?: number;
 }
 
 export function getDefaultConfidence(state: AnnotatorState) {
@@ -84,13 +88,14 @@ function _focusResult(state: AnnotatorState, { payload }: { payload: ID }) {
   state.focusedCommentID = result.comments.find(c => c)?.id;
 }
 
-function getUpdatedTo(result: AnnotationResult, label?: string, newBounds?: AnnotationResultBounds): AnnotationResult[] {
+function getUpdatedTo(state: AnnotatorState, result: AnnotationResult, label?: string, newBounds?: AnnotationResultBounds): AnnotationResult[] {
   let updated_to: AnnotationResult = {
     ...result,
+    annotation_campaign_phase: state.phaseID!,
     label: label ?? result.label,
     ...newBounds,
     detector_configuration: null,
-    annotator: -1,
+    annotator: state.userID!,
     id: -1,
     validations: []
   };
@@ -145,12 +150,12 @@ export const AnnotatorSlice = createSlice({
   reducers: {
     focusResult: _focusResult,
     focusTask: _focusTask,
-    addResult: (state, { payload }: { payload: AnnotationResultBounds }) => {
+    addResult: (state, { payload: {phaseID, ...annotation} }: { payload: AnnotationResultBounds & {phaseID: number} }) => {
       const newResult: AnnotationResult = {
-        ...payload,
+        ...annotation,
         id: getNewItemID(state.results),
-        annotator: -1,
-        annotation_campaign_phase: -1,
+        annotator: state.userID!,
+        annotation_campaign_phase: phaseID,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
@@ -176,14 +181,14 @@ export const AnnotatorSlice = createSlice({
           currentResult = { ...currentResult, ...newBounds }
           break;
         case 'Verification':
-          currentResult.updated_to = getUpdatedTo(currentResult, undefined, newBounds)
+          currentResult.updated_to = getUpdatedTo(state, currentResult, undefined, newBounds)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
             currentResult.validations = [ {
               id: -1,
               is_valid: false,
-              annotator: -1,
+              annotator: state.userID!,
               result: currentResult.id
             } ]
           }
@@ -195,22 +200,22 @@ export const AnnotatorSlice = createSlice({
       state.results = state.results?.map(r => state.focusedResultID === r.id ? currentResult : r)
       _focusResult(state, { payload: currentResult.id })
     },
-    addPresenceResult: (state, { payload }: { payload: string }) => {
-      const existingPresence = state.results?.find(r => r.label === payload && r.type === 'Weak')
+    addPresenceResult: (state, { payload: {label, phaseID} }: { payload: { label: string, phaseID: number } }) => {
+      const existingPresence = state.results?.find(r => r.label === label && r.type === 'Weak')
       if (existingPresence) {
         _focusResult(state, { payload: existingPresence.id })
         return
       }
       const newResult: AnnotationResult = {
         id: getNewItemID(state.results),
-        annotator: -1,
-        annotation_campaign_phase: -1,
+        annotator: state.userID!,
+        annotation_campaign_phase: phaseID,
         dataset_file: -1,
         detector_configuration: null,
         comments: [],
         validations: [],
         confidence_indicator: state.focusedConfidenceLabel ?? null,
-        label: payload,
+        label,
         end_frequency: null,
         end_time: null,
         start_time: null,
@@ -262,8 +267,8 @@ export const AnnotatorSlice = createSlice({
           if (!results?.find(r => r.label === label && r.type === 'Weak')) {
             results.push({
               id: getNewItemID(state.results),
-              annotator: -1,
-              annotation_campaign_phase: -1,
+              annotator: state.userID!,
+              annotation_campaign_phase: state.phaseID!,
               dataset_file: -1,
               detector_configuration: null,
               comments: [],
@@ -281,14 +286,14 @@ export const AnnotatorSlice = createSlice({
           }
           break;
         case 'Verification':
-          currentResult.updated_to = getUpdatedTo(currentResult, label)
+          currentResult.updated_to = getUpdatedTo(state, currentResult,  label)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
             currentResult.validations = [ {
               id: -1,
               is_valid: false,
-              annotator: -1,
+              annotator: state.userID!,
               result: currentResult.id
             } ]
           }
@@ -379,7 +384,7 @@ export const AnnotatorSlice = createSlice({
             validations.push({
               id: -1,
               is_valid: true,
-              annotator: -1,
+              annotator: state.userID!,
               result: r.id
             })
           }
@@ -398,14 +403,14 @@ export const AnnotatorSlice = createSlice({
       state.results = state.results?.map(r => {
         let validations = r.validations;
         let updated_to = r.updated_to
-        if (r.id === payload || (result.type == 'Weak' && r.label === result.label && r.type !== 'Weak')) {
+        if (r.id === payload || (result.type == 'Weak' && r.label === result.label)) {
           if (validations.length > 0) {
             validations = validations.map(v => ({ ...v, is_valid: false }))
           } else {
             validations.push({
               id: -1,
               is_valid: false,
-              annotator: -1,
+              annotator: state.userID!,
               result: r.id
             })
           }
@@ -561,6 +566,9 @@ export const AnnotatorSlice = createSlice({
     onUserUpdated: (state, { payload }: { payload: User }) => {
       state.userID = payload.id;
     },
+    onPhaseUpdated: (state, { payload }: { payload: AnnotationCampaignPhase }) => {
+      state.phaseID = payload.id;
+    },
     onConfidenceSetUpdated: (state, { payload }: { payload: ConfidenceIndicatorSet }) => {
       state.confidenceIndicators = payload.confidence_indicators;
     },
@@ -607,6 +615,11 @@ export const useAnnotatorSliceSetup = () => {
   useEffect(() => {
     if (campaign) dispatch(AnnotatorSlice.actions.onCampaignUpdated(campaign))
   }, [ campaign ]);
+
+  const { phase } = useRetrieveCurrentPhase()
+  useEffect(() => {
+    if (phase) dispatch(AnnotatorSlice.actions.onPhaseUpdated(phase))
+  }, [ phase ]);
 
   const { data } = useRetrieveAnnotator();
   useEffect(() => {

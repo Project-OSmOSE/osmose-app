@@ -3,7 +3,7 @@ import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
-import { RiRobot2Fill } from 'react-icons/ri';
+import { RiRobot2Fill, RiUser3Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/types';
 import styles from './bloc.module.scss';
 import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
@@ -15,6 +15,8 @@ import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annot
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { UserAPI } from "@/service/api/user.ts";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 
 export const Results: React.FC<{
@@ -118,11 +120,18 @@ const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, on
 }
 
 const ResultDetectorInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  if (!result.detector_configuration) return <Fragment/>
-  return <TableContent className={ className } onClick={ onClick }>
-    <RiRobot2Fill/>
+  const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.retrieveUser.useQuery(result.annotator ?? skipToken)
+  if (!phase || phase.phase === 'Annotation') return <Fragment/>
 
+  if (result.detector_configuration) return <TableContent className={ className } onClick={ onClick }>
+    <RiRobot2Fill/>
     <p>{ result.detector_configuration?.detector }</p>
+  </TableContent>
+
+  return <TableContent className={ className } onClick={ onClick }>
+    <RiUser3Fill/>
+    <p>{ user?.display_name }</p>
   </TableContent>
 }
 
@@ -152,11 +161,14 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const onInvalidate = (event: MouseEvent) => {
     event.stopPropagation()
-    setIsModalOpen(true)
+    if (result.type === 'Weak') {
+      remove()
+    } else setIsModalOpen(true)
   }
 
   const move = useCallback(() => {
     setIsModalOpen(false);
+    dispatch(AnnotatorSlice.actions.focusResult(result.id))
   }, [ setIsModalOpen ]);
 
   const updateLabel = useCallback(() => {
@@ -189,12 +201,10 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
       <h5>Why do you want to invalidate this result?</h5>
 
       <div>
-        { result.type !== 'Weak' && <Fragment>
-            <p>The position or dimension of the annotation is incorrect</p>
-            <Button fill='outline' onClick={ move }>
-                Move or resize
-            </Button>
-        </Fragment> }
+        <p>The position or dimension of the annotation is incorrect</p>
+        <Button fill='outline' onClick={ move }>
+          Move or resize
+        </Button>
       </div>
       <div>
         <p>The label is incorrect</p>

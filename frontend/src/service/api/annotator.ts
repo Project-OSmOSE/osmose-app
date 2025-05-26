@@ -23,7 +23,7 @@ import { API } from "@/service/api/index.ts";
 import { AnnotatorState } from "@/service/slices/annotator.ts";
 
 type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign_phase" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
+  Omit<AnnotationResult, "id" | "comments" | "validations" | "dataset_file" | "confidence_indicator" | "detector_configuration" | 'type' | 'updated_to'>
   & {
   id?: number;
   confidence_indicator: string | undefined;
@@ -65,6 +65,8 @@ function transformBaseResult(result: AnnotationResult, phase: Phase): Omit<Write
     start_frequency: result.start_frequency,
     end_frequency: result.end_frequency,
     acoustic_features: result.acoustic_features,
+    annotation_campaign_phase: result.annotation_campaign_phase,
+    annotator: result.annotator
   }
 }
 
@@ -87,7 +89,6 @@ export const AnnotatorAPI = API.injectEndpoints({
         id: `${ arg.campaignID }-${ arg.phaseID }-${ arg.fileID }`
       } ],
       transformResponse(data: AnnotatorData): AnnotatorData {
-        console.log(data, extendDatasetFile(data.file))
         return {
           ...data,
           file: extendDatasetFile(data.file)
