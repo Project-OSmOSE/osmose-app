@@ -6,7 +6,7 @@ import { useAppSelector } from '@/service/app';
 import { useToast } from "@/service/ui";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
-import { KEY_DOWN_EVENT } from "@/service/events";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 import { useCanNavigate } from "@/service/slices/annotator";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
@@ -46,13 +46,6 @@ export const NavigationButtons: React.FC = () => {
 
   const canNavigate = useCanNavigate()
 
-  useEffect(() => {
-    KEY_DOWN_EVENT.add(onKbdEvent);
-    return () => {
-      KEY_DOWN_EVENT.remove(onKbdEvent);
-    }
-  }, []);
-
   function onKbdEvent(event: KeyboardEvent) {
     switch (event.code) {
       case 'Enter':
@@ -69,6 +62,8 @@ export const NavigationButtons: React.FC = () => {
         break;
     }
   }
+
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const submit = async () => {
     if (!didSeeAllFile.current) {

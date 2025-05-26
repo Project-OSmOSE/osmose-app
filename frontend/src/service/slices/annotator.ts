@@ -571,6 +571,7 @@ export const AnnotatorSlice = createSlice({
     },
     onConfidenceSetUpdated: (state, { payload }: { payload: ConfidenceIndicatorSet }) => {
       state.confidenceIndicators = payload.confidence_indicators;
+      state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
     },
   },
 })

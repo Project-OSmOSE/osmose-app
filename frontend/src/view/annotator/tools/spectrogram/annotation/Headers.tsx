@@ -5,13 +5,14 @@ import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizont
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/types';
 import { useAudioService } from "@/service/ui/audio";
-import { TooltipOverlay } from "@/components/ui";
+import { Kbd, TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 import { UserAPI } from "@/service/api/user.ts";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -107,8 +108,17 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
     }
   }, [ phase, annotation, user ])
 
+  const onKbdEvent = useCallback((event: KeyboardEvent) => {
+    switch (event.code) {
+      case 'Delete':
+        remove()
+        break;
+    }
+  }, [ remove ])
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
+
   return (
-    <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>
+    <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
       <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') }
                   onClick={ remove }/>

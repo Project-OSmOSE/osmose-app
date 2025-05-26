@@ -129,7 +129,8 @@ const ResultDetectorInfo: React.FC<ResultItemProps> = ({ result, className, onCl
     <RiRobot2Fill/>
     <p>{ result.detector_configuration?.detector }</p>
   </TableContent>
-  return <TableContent className={ [className, result.annotator === currentUser?.id ? 'disabled' : ''].join(' ') } onClick={ onClick }>
+  return <TableContent className={ [ className, result.annotator === currentUser?.id ? 'disabled' : '' ].join(' ') }
+                       onClick={ onClick }>
     <RiUser3Fill/>
     <p>{ user?.display_name }</p>
   </TableContent>

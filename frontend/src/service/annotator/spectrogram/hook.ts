@@ -12,10 +12,12 @@ import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const useSpectrogramDimensions = () => {
   const { zoomLevel } = useAppSelector(state => state.annotator.userPreferences)
+  const { disableSpectrogramResize } = useAppSelector(state => state.settings)
   const ratio = useMemo(() => {
+    if (disableSpectrogramResize) return 1;
     const screenRatio = (1920 / (window.screen.width * window.devicePixelRatio))
     return window.devicePixelRatio * screenRatio;
-  }, [ window.devicePixelRatio, window.screen ]);
+  }, [ window.devicePixelRatio, window.screen, disableSpectrogramResize ]);
   const containerWidth = useMemo(() => SPECTRO_WIDTH / ratio, [ ratio ])
   const width = useMemo(() => containerWidth * zoomLevel, [ containerWidth, zoomLevel ])
   const height = useMemo(() => SPECTRO_HEIGHT / ratio, [ ratio ])

@@ -1,11 +1,11 @@
-import React, { Fragment, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import styles from './annotator.module.scss';
 import { IonSpinner } from "@ionic/react";
 import { FadedText, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { AudioPlayer } from "@/view/annotator/tools/AudioPlayer.tsx";
 import { AudioDownloadButton } from "@/view/annotator/tools/buttons/AudioDownload.tsx";
-import { useAppSelector } from "@/service/app.ts";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { NFFTSelect } from "@/view/annotator/tools/select/NFFTSelect.tsx";
 import { ColormapConfiguration } from '@/view/annotator/tools/select/ColormapConfiguration.tsx';
@@ -26,6 +26,8 @@ import { Colormap } from '@/service/ui/color.ts';
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { SettingsSlice } from "@/service/slices/settings.ts";
+import { Input } from "@/components/form";
 
 export const Annotator: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign()
@@ -38,6 +40,8 @@ export const Annotator: React.FC = () => {
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
     return colormap ?? "Greys";
   }, [ colormap, currentConfiguration ]);
+  const { disableSpectrogramResize } = useAppSelector(state => state.settings);
+  const dispatch = useAppDispatch()
 
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
@@ -52,6 +56,14 @@ export const Annotator: React.FC = () => {
   useEffect(() => {
     localIsPaused.current = audio.isPaused;
   }, [ audio.isPaused ])
+
+  const toggleSpectrogramResize = useCallback(() => {
+    if (disableSpectrogramResize) {
+      dispatch(SettingsSlice.actions.allowSpectrogramResize())
+    } else {
+      dispatch(SettingsSlice.actions.disableSpectrogramResize())
+    }
+  }, [ disableSpectrogramResize ])
 
   return <div className={ [ styles.annotator, colormapClass ].join(' ') }>
 
@@ -117,6 +129,9 @@ export const Annotator: React.FC = () => {
         </div>
 
         <div className={ styles.downloadButtons }>
+            <Input type="checkbox" label="Disable automatic spectrogram resize"
+                   checked={ disableSpectrogramResize } onChange={ toggleSpectrogramResize }/>
+
             <AudioDownloadButton/>
             <SpectrogramDownloadButton render={ spectrogramRenderRef }/>
         </div>

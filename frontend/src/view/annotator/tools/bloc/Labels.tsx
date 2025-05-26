@@ -4,7 +4,7 @@ import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import styles from './bloc.module.scss';
 import { useAlert } from "@/service/ui";
-import { KEY_DOWN_EVENT } from "@/service/events";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
@@ -29,12 +29,6 @@ export const Labels: React.FC = () => {
   const presenceLabels = useMemo(() => getPresenceLabels(results), [ results ])
   const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    KEY_DOWN_EVENT.add(onKbdEvent);
-    return () => {
-      KEY_DOWN_EVENT.remove(onKbdEvent);
-    }
-  }, []);
   const _focused = useRef<string | undefined>(focusedLabel);
   useEffect(() => {
     _focused.current = focusedLabel;
@@ -72,6 +66,7 @@ export const Labels: React.FC = () => {
       }
     }
   }
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const showAll = useCallback(() => {
     dispatch(AnnotatorSlice.actions.showAllLabels())

@@ -133,6 +133,10 @@ ion-chip.active {
 
   &.presenceLabel {
     grid-column: 1 / 4;
+
+    span {
+      font-size: 0.8rem;
+    }
   }
 
   &.strongLabel p {

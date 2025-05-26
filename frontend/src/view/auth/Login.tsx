@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
-import { NON_FILTERED_KEY_DOWN_EVENT } from "@/service/events";
+import { NON_FILTERED_KEY_DOWN_EVENT, useEvent } from "@/service/events";
 import { AuthAPI } from "@/service/api/auth.ts";
 import { useAppSelector } from "@/service/app.ts";
 import { selectIsConnected } from "@/service/slices/auth.ts";
@@ -33,10 +33,8 @@ export const Login: React.FC = () => {
   const toast = useToast()
 
   useEffect(() => {
-    NON_FILTERED_KEY_DOWN_EVENT.add(onKbdEvent);
-
     return () => {
-      NON_FILTERED_KEY_DOWN_EVENT.remove(onKbdEvent);
+      toast.dismiss()
     }
   }, []);
 
@@ -56,6 +54,7 @@ export const Login: React.FC = () => {
         break;
     }
   }
+  useEvent(NON_FILTERED_KEY_DOWN_EVENT, onKbdEvent);
 
   const submit = async () => {
     setErrors({})
