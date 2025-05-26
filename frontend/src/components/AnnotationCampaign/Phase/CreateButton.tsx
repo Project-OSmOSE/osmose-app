@@ -58,12 +58,16 @@ export const CreateAnnotationPhaseModal: React.FC<{
   const navigate = useNavigate()
 
   const [ errors, setErrors ] = useState<Errors>({});
-  const [ labelSet, setLabelSet ] = useState<LabelSet | undefined>();
+  const [ labelSet, setLabelSet ] = useState<LabelSet | null | undefined>(); // null stands for empty label set
   const [ labels_with_acoustic_features, setLabelsWithAcousticFeatures ] = useState<Array<string>>([]);
   const [ confidenceSet, setConfidenceSet ] = useState<ConfidenceIndicatorSet | undefined>();
   const [ allow_point_annotation, setAllowPointAnnotation ] = useState<boolean>(false);
   const onLabelSetChange = useCallback((value: number | string | undefined) => {
-    setLabelSet(allLabelSets?.find(l => l.id === value))
+    if (value === 0) {
+      setLabelSet(null)
+    } else {
+      setLabelSet(allLabelSets?.find(l => l.id === value))
+    }
     setErrors(prev => ({ ...prev, label_set: undefined }))
   }, [ allLabelSets ])
   const onLabelWithAcousticFeaturesChange = useCallback((selection: Array<string>) => {
@@ -83,7 +87,7 @@ export const CreateAnnotationPhaseModal: React.FC<{
     if (!campaign) return;
     await patchCampaign({
       id: campaign.id,
-      label_set: labelSet?.id,
+      label_set: labelSet === null ? 0 : labelSet?.id,
       confidence_indicator_set: confidenceSet?.id,
       labels_with_acoustic_features,
       allow_point_annotation,
@@ -108,12 +112,15 @@ export const CreateAnnotationPhaseModal: React.FC<{
         { labelSetsError &&
             <WarningText>Fail loading label sets:<br/>{ getErrorMessage(labelSetsError) }</WarningText> }
         { allLabelSets && <Select label="Label set" placeholder="Select a label set" error={ errors.label_set }
-                                  options={ allLabelSets?.map(s => ({ value: s.id, label: s.name })) ?? [] }
+                                  options={ [ { value: 0, label: 'Empty' }, ...(allLabelSets?.map(s => ({
+                                    value: s.id,
+                                    label: s.name
+                                  })) ?? []) ] }
                                   optionsContainer="alert"
                                   disabled={ !allLabelSets?.length }
-                                  value={ labelSet?.id }
+                                  value={ labelSet === null ? 0 : labelSet?.id }
                                   onValueSelected={ onLabelSetChange }
-                                  required={ true }>
+                                  required>
           { labelSet && (<LabelSetDisplay set={ labelSet }
                                           labelsWithAcousticFeatures={ labels_with_acoustic_features }
                                           setLabelsWithAcousticFeatures={ onLabelWithAcousticFeaturesChange }/>) }
@@ -217,7 +224,8 @@ export const CreateVerificationPhaseButton: React.FC = () => {
 
       <div className={ styles.content }>
         <p>In a "Verification" phase, you can validate, invalidate, or add missing annotations.</p>
-        <p>The annotations see come from the "Annotation" phase and are either made by your annotators or imported (for exemple the output of an automatic detector)</p>
+        <p>The annotations see come from the "Annotation" phase and are either made by your annotators or imported (for
+          exemple the output of an automatic detector)</p>
         <p>Do you really want to create a "Verification" phase?</p>
         { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       </div>
@@ -239,6 +247,7 @@ export const CreateVerificationPhaseButton: React.FC = () => {
       </div>
     </Modal>, document.body) }
 
-    { annotationModal.isOpen && createPortal(<CreateAnnotationPhaseModal onClose={ annotationModal.close }/>, document.body) }
+    { annotationModal.isOpen && createPortal(<CreateAnnotationPhaseModal
+      onClose={ annotationModal.close }/>, document.body) }
   </Fragment>
 }

@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytz
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from backend.api.models import (
     AnnotationCampaign,
@@ -144,34 +145,7 @@ class AnnotationCampaignSerializer(serializers.ModelSerializer):
                 code="min_value",
             )
         self.validate_spectro_configs_in_datasets(attrs)
-        # if attrs["usage"] == AnnotationCampaignUsage.CREATE:
-        #     self.validate_create_usage(attrs)
-        # if attrs["usage"] == AnnotationCampaignUsage.CHECK:
-        #     attrs["label_set"], _ = LabelSet.objects.get_or_create(
-        #         name=f"{attrs['name']} label set"
-        #     )
-        # if "labels_with_acoustic_features" in attrs:
-        #     label_set: LabelSet = attrs["label_set"]
-        #     for label in attrs["labels_with_acoustic_features"]:
-        #         if not label_set.labels.filter(name=label).exists():
-        #             if attrs["usage"] == AnnotationCampaignUsage.CREATE:
-        #                 message = (
-        #                     "Label with acoustic features should belong to label set"
-        #                 )
-        #                 raise serializers.ValidationError(
-        #                     {"labels_with_acoustic_features": message},
-        #                 )
-        #             if attrs["usage"] == AnnotationCampaignUsage.CHECK:
-        #                 label_obj, _ = Label.objects.get_or_create(name=label)
-        #                 label_set.labels.add(label_obj)
         return attrs
-
-    # def create(self, validated_data):
-    #     if validated_data["usage"] == AnnotationCampaignUsage.CHECK:
-    #         validated_data["label_set"], _ = LabelSet.objects.get_or_create(
-    #             name=f"{validated_data['name']} label set"
-    #         )
-    #     return super().create(validated_data)
 
 
 class AnnotationCampaignPatchSerializer(serializers.Serializer):
@@ -199,8 +173,11 @@ class AnnotationCampaignPatchSerializer(serializers.Serializer):
     class Meta:
         fields = "__all__"
 
-    def create(self, validated_data):
-        pass
+    def run_validation(self, data: dict = empty):
+        if "label_set" in data and data.get("label_set") == 0:
+            new_label_set = LabelSet.create_for_campaign(self.instance)
+            data["label_set"] = new_label_set.id
+        return super().run_validation(data)
 
     def update(self, instance: AnnotationCampaign, validated_data):
         if "label_set" in validated_data:
