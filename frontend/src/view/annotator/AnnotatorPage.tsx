@@ -6,7 +6,7 @@ import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useCanNavigate } from "@/service/slices/annotator";
+import { useAnnotatorSliceSetup, useCanNavigate } from "@/service/slices/annotator";
 import { useAppSelector } from "@/service/app.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { UserAPI } from "@/service/api/user.ts";
@@ -18,6 +18,7 @@ export const AnnotatorPage: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const { data } = useRetrieveAnnotator();
+  useAnnotatorSliceSetup()
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])

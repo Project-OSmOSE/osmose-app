@@ -92,6 +92,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   useEffect(() => {
     updateCanvas()
   }, [
+    data?.file,
     configurations,
     userPreferences.spectrogramConfigurationID,
     userPreferences.colormap,

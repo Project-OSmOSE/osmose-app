@@ -54,7 +54,7 @@ export const useDisplaySpectrogram = (
   useEffect(() => {
     images.current = new Map()
     failedSources.current = []
-  }, [ spectrogramConfigurationID ]);
+  }, [ spectrogramConfigurationID, data?.file ]);
 
   function areAllImagesLoaded(): boolean {
     const currentImages = images.current.get(zoomLevel);

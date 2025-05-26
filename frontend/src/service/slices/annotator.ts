@@ -4,21 +4,24 @@ import { getNewItemID } from '@/service/function';
 import { Colormap } from '@/service/ui/color.ts';
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { UserAPI } from "@/service/api/user.ts";
-import { CampaignAPI } from "@/service/api/campaign.ts";
-import { SpectrogramConfigurationAPI } from "@/service/api/spectrogram-configuration.ts";
-import { ConfidenceSetAPI } from "@/service/api/confidence-set.ts";
-import { AnnotatorAPI } from "@/service/api/annotator.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
+import { useGetConfidenceSetForCurrentCampaign } from "@/service/api/confidence-set.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 import {
   AcousticFeatures,
+  AnnotationCampaign,
   AnnotationComment,
   AnnotationResult,
   AnnotationResultBounds,
   AnnotatorData,
   ConfidenceIndicator,
+  ConfidenceIndicatorSet,
   Phase,
-  SpectrogramConfiguration
+  SpectrogramConfiguration,
+  User
 } from "@/service/types";
-import { useAppSelector } from "@/service/app.ts";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useEffect, useRef } from "react";
 import { useAlert } from "@/service/ui";
 
@@ -516,67 +519,52 @@ export const AnnotatorSlice = createSlice({
     },
     showAllLabels(state) {
       state.ui.hiddenLabels = []
-    }
-  },
-  extraReducers:
-    (builder) => {
-      builder.addMatcher(
-        SpectrogramConfigurationAPI.endpoints.listSpectrogramConfiguration.matchFulfilled, (state, { payload }) => {
-          state.spectrogram_configurations = payload
-        }
-      )
-      builder.addMatcher(
-        AnnotatorAPI.endpoints.retrieveAnnotator.matchFulfilled,
-        (state, { payload }) => {
-          // initialize slice
-          Object.assign(state, payload);
-          state.focusedCommentID = payload.task_comments && payload.task_comments.length > 0 ? payload.task_comments[0].id : undefined;
-          state.focusedResultID = undefined;
-          state.focusedLabel = undefined;
-          state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
-          state.hasChanged = false;
-          state.audio = {
-            time: 0,
-            isPaused: true,
-          }
-          state.userPreferences = {
-            ...state.userPreferences,
-            brightness: 50,
-            contrast: 50,
-          }
-          state.sessionStart = Date.now();
-          state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
-          state.ui.hiddenLabels = []
-        },
-      )
-      builder.addMatcher(
-        CampaignAPI.endpoints.retrieveCampaign.matchFulfilled,
-        (state, { payload }) => {
-          // Reset user preferences if new campaign
-          if (state.campaignID !== payload.id) {
-            state.userPreferences.audioSpeed = 1;
-            state.userPreferences.zoomLevel = 1;
-            state.userPreferences.brightness = 50;
-            state.userPreferences.contrast = 50;
-            state.userPreferences.colormap = undefined;
-            state.userPreferences.colormapInverted = undefined;
-          }
-          state.campaignID = payload.id;
-        },
-      )
-      builder.addMatcher(
-        ConfidenceSetAPI.endpoints.retrieveConfidenceSet.matchFulfilled,
-        (state, { payload }) => {
-          state.confidenceIndicators = payload.confidence_indicators;
-        },
-      )
-      builder.addMatcher(
-        UserAPI.endpoints.getCurrentUser.matchFulfilled,
-        (state, { payload }) => {
-          state.userID = payload.id;
-        },
-      )
     },
+
+    // Events
+    onSpectrogramConfigurationsUpdated: (state, { payload }: { payload: SpectrogramConfiguration[] }) => {
+      state.spectrogram_configurations = payload
+    },
+    onAnnotatorUpdated: (state, { payload }: { payload: AnnotatorData }) => {
+      // initialize slice
+      Object.assign(state, payload);
+      state.focusedCommentID = payload.task_comments && payload.task_comments.length > 0 ? payload.task_comments[0].id : undefined;
+      state.focusedResultID = undefined;
+      state.focusedLabel = undefined;
+      state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
+      state.hasChanged = false;
+      state.audio = {
+        time: 0,
+        isPaused: true,
+      }
+      state.userPreferences = {
+        ...state.userPreferences,
+        brightness: 50,
+        contrast: 50,
+      }
+      state.sessionStart = Date.now();
+      state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
+      state.ui.hiddenLabels = []
+    },
+    onCampaignUpdated: (state, { payload }: { payload: AnnotationCampaign }) => {
+      // Reset user preferences if new campaign
+      if (state.campaignID !== payload.id) {
+        state.userPreferences.audioSpeed = 1;
+        state.userPreferences.zoomLevel = 1;
+        state.userPreferences.brightness = 50;
+        state.userPreferences.contrast = 50;
+        state.userPreferences.colormap = undefined;
+        state.userPreferences.colormapInverted = undefined;
+      }
+      state.campaignID = payload.id;
+    },
+    onUserUpdated: (state, { payload }: { payload: User }) => {
+      state.userID = payload.id;
+    },
+    onConfidenceSetUpdated: (state, { payload }: { payload: ConfidenceIndicatorSet }) => {
+      state.confidenceIndicators = payload.confidence_indicators;
+    },
+  },
 })
 
 export const useCanNavigate = () => {
@@ -605,4 +593,34 @@ export const useCanNavigate = () => {
   }
 
   return canNavigate;
+}
+
+export const useAnnotatorSliceSetup = () => {
+  const dispatch = useAppDispatch()
+
+  const { configurations } = useListSpectrogramForCurrentCampaign()
+  useEffect(() => {
+    dispatch(AnnotatorSlice.actions.onSpectrogramConfigurationsUpdated(configurations ?? []))
+  }, [ configurations ]);
+
+  const { campaign } = useRetrieveCurrentCampaign()
+  useEffect(() => {
+    if (campaign) dispatch(AnnotatorSlice.actions.onCampaignUpdated(campaign))
+  }, [ campaign ]);
+
+  const { data } = useRetrieveAnnotator();
+  useEffect(() => {
+    if (data) dispatch(AnnotatorSlice.actions.onAnnotatorUpdated(data))
+  }, [ data ]);
+
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery()
+  useEffect(() => {
+    if (user) dispatch(AnnotatorSlice.actions.onUserUpdated(user))
+  }, [ user ]);
+
+  const { confidenceSet } = useGetConfidenceSetForCurrentCampaign()
+  useEffect(() => {
+    if (confidenceSet) dispatch(AnnotatorSlice.actions.onConfidenceSetUpdated(confidenceSet))
+  }, [ confidenceSet ]);
+
 }
