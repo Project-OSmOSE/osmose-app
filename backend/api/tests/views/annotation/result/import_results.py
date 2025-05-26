@@ -78,8 +78,13 @@ class ImportBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
             annotation_campaign=campaign,
             created_by_id=3,
         )
+        verification_phase, _ = AnnotationCampaignPhase.objects.get_or_create(
+            phase=Phase.VERIFICATION,
+            annotation_campaign=campaign,
+            created_by_id=3,
+        )
         task = AnnotationTask.objects.create(
-            annotation_campaign_phase=phase,
+            annotation_campaign_phase=verification_phase,
             dataset_file_id=2,
             annotator_id=1,
             status=AnnotationTask.Status.FINISHED,

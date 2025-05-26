@@ -30,28 +30,6 @@ empty_data = {
     "task_comments": [],
     "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
 }
-create_presence_result = {
-    "label": "Boat",
-    "confidence_indicator": "confident",
-}
-create_box_result = {
-    "label": "Boat",
-    "confidence_indicator": "confident",
-    "start_time": 0,
-    "end_time": 10,
-    "start_frequency": 5,
-    "end_frequency": 25,
-}
-
-filled_data = {
-    "results": [create_presence_result, create_box_result],
-    "task_comments": [
-        {
-            "comment": "Test A",
-        }
-    ],
-    "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
-}
 
 
 class PostUnauthenticatedTestCase(APITestCase):
@@ -157,7 +135,36 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         result_old_count = AnnotationResult.objects.count()
         comment_old_count = AnnotationComment.objects.count()
         response = self.client.post(
-            URL, data=json.dumps(filled_data), content_type="application/json"
+            URL,
+            data=json.dumps(
+                {
+                    "results": [
+                        {
+                            "label": "Boat",
+                            "confidence_indicator": "confident",
+                            "annotation_campaign_phase": 1,
+                            "annotator": 4,
+                        },
+                        {
+                            "label": "Boat",
+                            "confidence_indicator": "confident",
+                            "start_time": 0,
+                            "end_time": 10,
+                            "start_frequency": 5,
+                            "end_frequency": 25,
+                            "annotation_campaign_phase": 1,
+                            "annotator": 4,
+                        },
+                    ],
+                    "task_comments": [
+                        {
+                            "comment": "Test A",
+                        }
+                    ],
+                    "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
+                }
+            ),
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationResult.objects.count(), result_old_count + 2)
