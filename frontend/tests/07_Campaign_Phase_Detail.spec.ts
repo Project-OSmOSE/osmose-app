@@ -108,7 +108,7 @@ test.describe('Annotator', () => {
 test.describe('Campaign creator', () => {
 
   test('Can import annotations', async ({ page }) => {
-    await page.campaign.detail.go('creator', { phase: 'Verification' });
+    await page.campaign.detail.go('creator', { phase: 'Annotation' });
     await STEP.accessImportAnnotations(page)
   })
 
@@ -151,7 +151,7 @@ test.describe('Campaign creator', () => {
 })
 
 test('Staff', async ({ page }) => {
-  await page.campaign.detail.go('staff', { phase: 'Verification' });
+  await page.campaign.detail.go('staff', { phase: 'Annotation' });
 
   await STEP.accessImportAnnotations(page)
   await STEP.accessDownloadCSV(page)
@@ -159,7 +159,7 @@ test('Staff', async ({ page }) => {
 })
 
 test('Superuser', ESSENTIAL, async ({ page }) => {
-  await page.campaign.detail.go('superuser', { phase: 'Verification' });
+  await page.campaign.detail.go('superuser', { phase: 'Annotation' });
 
   await STEP.accessImportAnnotations(page)
   await STEP.accessDownloadCSV(page)
