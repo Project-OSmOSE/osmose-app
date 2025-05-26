@@ -557,8 +557,9 @@ class AnnotationCampaignPhaseViewSet(
         return response
 
     @action(detail=True, methods=["POST"], url_path="end", url_name="end")
-    def end(self, request):
+    def end(self, request, pk: int = None):
         """Ends the given phase"""
+        # pylint: disable=unused-argument
         phase: AnnotationCampaignPhase = self.get_object()
         phase.end(self.request.user)
         serializer = self.get_serializer(phase)

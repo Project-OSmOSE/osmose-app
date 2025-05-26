@@ -212,6 +212,7 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             "type": AnnotationResultType.BOX,
             "start_time": start_time,
             "end_time": end_time,
+            "start_frequency": start_frequency,
             "end_frequency": end_frequency,
         }
 
