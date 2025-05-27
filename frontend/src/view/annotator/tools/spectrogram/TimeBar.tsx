@@ -1,7 +1,8 @@
-import React from "react";
+import React, { Fragment } from "react";
 import styles from "@/view/annotator/tools/annotator-tools.module.scss";
 import { useAppSelector } from "@/service/app.ts";
-import { useFileDuration, useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
+import { useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.ts';
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const TimeBar: React.FC = () => {
   // Data
@@ -9,9 +10,10 @@ export const TimeBar: React.FC = () => {
 
   // Memo
   const { width } = useSpectrogramDimensions()
-  const duration = useFileDuration()
+  const { data } = useRetrieveAnnotator()
 
+  if (!data) return <Fragment/>
   return (
-    <div className={ styles.timeBar } style={ { left: time * width / duration } }/>
+    <div className={ styles.timeBar } style={ { left: time * width / data.file.duration } }/>
   )
 }

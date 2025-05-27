@@ -1,11 +1,12 @@
 import React, { ReactNode, useState } from "react";
-import styles from './layout.module.scss'
-import logo from "/images/ode_logo_192x192.png";
-import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
+import { DocumentationButton } from "@/components/ui";
 import { IonButton, IonIcon } from "@ionic/react";
 import { closeOutline, menuOutline } from "ionicons/icons";
-import { useGetCurrentUserQuery } from "@/service/user";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import logo from "/images/ode_logo_192x192.png";
+import styles from './layout.module.scss'
+import { useAppSelector } from "@/service/app.ts";
+import { selectCurrentUser } from "@/service/api/user.ts";
 
 export const Header: React.FC<{
   buttons?: ReactNode;
@@ -15,8 +16,8 @@ export const Header: React.FC<{
 }> = ({ children, buttons, size, canNavigate }) => {
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
-  const { data: user } = useGetCurrentUserQuery()
-  const history = useHistory();
+  const user = useAppSelector(selectCurrentUser)
+  const navigate = useNavigate ();
 
   function toggleOpening() {
     setIsOpen(previous => !previous);
@@ -25,10 +26,10 @@ export const Header: React.FC<{
   async function onAPLOSEClick() {
     if (user) {
       if (!canNavigate || await canNavigate()) {
-        history.push(`/annotation-campaign/`);
+        navigate(`/annotation-campaign/`);
       }
     } else {
-      history.push(`/`);
+      navigate(`/`);
     }
   }
 

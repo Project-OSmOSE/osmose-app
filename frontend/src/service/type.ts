@@ -4,8 +4,8 @@ export type ID = string | number;
 type BaseType = string | number | boolean
 export type QueryParams = { [key in string]: BaseType | Array<BaseType> }
 
-export type Errors<T> = {
-  [P in keyof T]?: string;
+export type Optionable<T> = {
+  [P in keyof T]?: T[P];
 }
 
 export type Paginated<T> = {
@@ -14,4 +14,9 @@ export type Paginated<T> = {
   next: string;
   previous: string;
   results: Array<T>;
+}
+
+export type PaginationParams = {
+  page: number,
+  page_size?: number,
 }

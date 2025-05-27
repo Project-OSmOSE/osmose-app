@@ -1,6 +1,8 @@
 # View the campaign results
 
-To view the results, you must access a campaign.
+To view the results, go to the desired phase of a campaign, then click on "Detailed progression".
+
+![](/campaign-creator/campaign-detail-actions.png)
 
 ![](/campaigns/campaign-detail.png)
 

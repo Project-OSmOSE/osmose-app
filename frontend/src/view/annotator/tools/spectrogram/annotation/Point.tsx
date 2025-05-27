@@ -1,20 +1,22 @@
 import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
-import { PointResult } from '@/service/campaign/result';
-import { updateFocusResultBounds } from '@/service/annotator';
+import { PointResult } from '@/service/types';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
-  // Data
-  const { label_set, campaign } = useAnnotator();
+  const { phase } = useRetrieveCurrentPhase()
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
+    // Data
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -35,6 +37,10 @@ export const Point: React.FC<{
   useEffect(() => {
     _start_time.current = annotation.start_time;
     _start_frequency.current = annotation.start_frequency;
+    if (annotation.updated_to.length > 0) {
+      _start_time.current = annotation.updated_to[0].start_time;
+      _start_frequency.current = annotation.updated_to[0].start_frequency;
+    }
   }, [ annotation.start_time, annotation.start_frequency ]);
 
 
@@ -58,7 +64,12 @@ export const Point: React.FC<{
   useEffect(() => setLeft(_left.current), [ _left.current ]);
 
   // Memo
-  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label)%10 }` : '', [ label_set, annotation.label ]);
+  const colorClassName: string = useMemo(() => {
+    if (!labelSet) return '';
+    let label = annotation.label
+    if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
+    return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
+  }, [ labelSet, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {
@@ -80,16 +91,20 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
-    dispatch(updateFocusResultBounds({
-      type: 'Point',
-      start_time: _xAxis.current.positionToValue(_left.current),
-      end_time: null,
-      start_frequency: _yAxis.current.positionToValue(_top.current),
-      end_frequency: null,
+    if (!phase) return;
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
+      newBounds: {
+        type: 'Point',
+        start_time: _xAxis.current.positionToValue(_left.current),
+        end_time: null,
+        start_frequency: _yAxis.current.positionToValue(_top.current),
+        end_frequency: null,
+      },
+      phase: phase.phase
     }))
   }
 
-  return <ExtendedDiv draggable={ isActive && campaign?.usage === 'Create' }
+  return <ExtendedDiv draggable={ isActive }
                       top={ top }
                       left={ left }
                       onUp={ onValidateMove }

@@ -1,7 +1,10 @@
-import { ESSENTIAL, expect, test, URL } from './utils';
+import { API_URL, ESSENTIAL, expect, test, URL } from './utils';
 
 test('Global', ESSENTIAL, async ({ page }) => {
-  await page.home.go();
+  await Promise.all([
+    page.home.go(),
+    page.waitForRequest(API_URL.collaborators)
+  ])
 
   await test.step('Has OSmOSE website link', async () => {
     const url = await page.getByRole('link', { name: 'OSmOSE', exact: true }).getAttribute('href')

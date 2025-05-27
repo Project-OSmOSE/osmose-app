@@ -1,0 +1,42 @@
+
+.modal {
+  grid-template-rows: auto 1fr auto;
+
+  &.label {
+    grid-template-rows: auto auto 1fr auto;
+
+    > div:nth-last-child(2) {
+      overflow: auto;
+    }
+  }
+
+  .buttons {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+  }
+}
+
+.progressModal {
+  @media (max-width: 800px) {
+    .footer {
+      grid-auto-flow: row !important;
+      justify-content: center !important;
+      justify-items: center;
+      gap: 0.5rem;
+    }
+
+    .table.status {
+      grid-template-columns: 1fr minmax(10rem, auto);
+    }
+  }
+}
+
+.line {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 1ch;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
+}

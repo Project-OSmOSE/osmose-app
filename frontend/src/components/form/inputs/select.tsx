@@ -18,6 +18,8 @@ import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import styles from './inputs.module.scss'
 import { IonRadioGroupCustomEvent } from "@ionic/core/dist/types/components";
 import { Label } from "@/components/form/inputs/Label.tsx";
+import { useSearchedData } from "@/service/ui/search.ts";
+import { usePopover } from "@/service/ui/popover.ts";
 
 export type SelectValue = number | string | undefined;
 
@@ -53,7 +55,8 @@ export const Select: React.FC<SelectProperties> = ({
                                                      isLoading = false,
                                                      ...props
                                                    }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { containerRef, top, right } = usePopover();
+
   const inputRef = useRef<HTMLDivElement | null>(null);
   const selectButtonRef = useRef<HTMLButtonElement | null>(null);
   const selectLabelRef = useRef<HTMLParagraphElement | null>(null);
@@ -134,17 +137,21 @@ export const Select: React.FC<SelectProperties> = ({
               onClick={ () => !disabled && setIsOpen(!isOpen) }
               className={ !value && !hasSelectedItem ? styles.placeholder : '' }
               title={ buttonItem.label }>
-        <p ref={ selectLabelRef }>{ buttonItem.img ? <img ref={ selectImgRef } src={buttonItem.img} alt={buttonItem.label} /> : buttonItem.label }</p>
+        <p ref={ selectLabelRef }>{ buttonItem.img ?
+          <img ref={ selectImgRef } src={ buttonItem.img } alt={ buttonItem.label }/> : buttonItem.label }</p>
         <IonIcon ref={ iconRef } icon={ isOpen ? caretUp : caretDown }/>
       </button>
 
-      { optionsContainer === 'popover' && <div id="options" className={ styles.options } ref={ optionsRef }>
+      { optionsContainer === 'popover' && isOpen && createPortal(<div id="options"
+                                                                      className={ styles.options }
+                                                                      style={ { top: top + 8, right } }
+                                                                      ref={ optionsRef }>
         { getOptions().map(v => <div className={ styles.item } onClick={ () => {
           onValueSelected(v.value === -9 ? undefined : v.value)
           setHasSelectedItem(true)
           setIsOpen(false)
-        } } key={ v.value }>{ v.img && <img src={v.img} alt={v.label} />} { v.label }</div>) }
-      </div> }
+        } } key={ v.value }>{ v.img && <img src={ v.img } alt={ v.label }/> } { v.label }</div>) }
+      </div>, document.body) }
 
       { optionsContainer === 'alert' && isOpen &&
           <SelectModal header={ placeholder } options={ getOptions() } onClose={ option => {
@@ -169,11 +176,17 @@ const SelectModal: React.FC<{
   const [ selected, setSelected ] = useState<Item | undefined>();
   const [ search, setSearch ] = useState<string | undefined>();
 
+  const searchbar = useRef<HTMLIonSearchbarElement | null>(null)
 
-  const filteredOptions = useMemo(() => {
-    if (!search) return options;
-    return options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
-  }, [ options, search ]);
+  useEffect(() => {
+    searchbar.current?.getInputElement().then(input => input.focus())
+  }, [ searchbar.current ]);
+
+  const searchedOptions = useSearchedData({
+    items: options,
+    search,
+    fields: [ 'label' ]
+  })
 
   function onSearchUpdated(event: CustomEvent<SearchbarInputEventDetail>) {
     setSearch(event.detail.value ?? undefined);
@@ -190,12 +203,12 @@ const SelectModal: React.FC<{
   return createPortal(<Modal className={ styles.selectAlert }>
     <ModalHeader title={ header } onClose={ onClose }/>
 
-    <IonSearchbar onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+    <IonSearchbar ref={ searchbar } onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
 
     <IonRadioGroup className={ styles.radioGroup }
                    value={ selected?.value }
                    onIonChange={ onSelect }>
-      { filteredOptions.map((option, i) => (
+      { searchedOptions.map((option, i) => (
         <IonRadio key={ i }
                   value={ option.value }
                   labelPlacement='end'>

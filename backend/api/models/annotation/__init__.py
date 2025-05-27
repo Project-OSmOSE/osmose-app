@@ -3,6 +3,8 @@ from .campaign import (
     AnnotationCampaign,
     AnnotationCampaignArchive,
     AnnotationCampaignUsage,
+    AnnotationCampaignPhase,
+    Phase,
 )
 from .confidence import (
     ConfidenceIndicator,

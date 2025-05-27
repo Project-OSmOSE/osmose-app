@@ -19,13 +19,9 @@ from .list import (
     ListFilledBaseUserAuthenticatedTestCase,
     ListFilledBaseUserNoCampaignAuthenticatedTestCase,
 )
-from .report import (
-    ReportFilledBaseUserAuthenticatedTestCase,
-    ReportFilledCampaignOwnerAuthenticatedTestCase,
-    ReportUnauthenticatedTestCase,
-    ReportFilledBaseUserNoCampaignAuthenticatedTestCase,
-    ReportFilledAdminAuthenticatedTestCase,
-    ReportEmptyAdminAuthenticatedTestCase,
+from .patch import (
+    PatchUnauthenticatedTestCase,
+    PatchAdminAuthenticatedTestCase,
 )
 from .retrieve import (
     RetrieveUnauthenticatedTestCase,

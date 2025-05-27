@@ -2,9 +2,17 @@ import { useIonToast } from "@ionic/react";
 import { closeCircle } from "ionicons/icons";
 import { ToastButton } from "@ionic/core/dist/types/components/toast/toast-interface";
 import { getErrorMessage } from "@/service/function.ts";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 export const useToast = () => {
   const [ present, dismiss ] = useIonToast();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Dismiss on navigation
+    dismiss()
+  }, [location]);
 
   function presentError(e: any, canForce: boolean = false, forceText: string = 'Create anyway'): Promise<boolean> {
     return new Promise<boolean>((resolve) => {

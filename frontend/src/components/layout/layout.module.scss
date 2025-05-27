@@ -300,8 +300,9 @@
   height: 100vh;
   overflow: hidden;
   padding: 1rem 0 0 1rem;
-  gap: 0 2rem;
+  gap: 0 1rem;
   scrollbar-gutter: stable;
+  font-family: var(--ion-font-family), sans-serif;
 
   .navbar {
     grid-row: 1 / -1;
@@ -314,18 +315,19 @@
   .content {
     display: grid;
     align-items: start;
-    padding-left: 1rem;
-    padding-right: 3rem;
+    align-content: start;
+    //padding-left: 1rem;
+    //padding-right: 3rem;
     min-height: 0;
-    @media (max-width: 800px) {
-      padding-right: 1rem;
-    }
+    overflow: hidden;
+    gap: 2rem;
 
     h2 {
-      padding: 0.5rem 0;
+      padding: 0.5rem 0 0;
       margin: 0;
       justify-self: center;
       text-align: center;
+      word-break: break-word;
     }
   }
 
@@ -338,7 +340,7 @@
   @media (max-width: 800px) {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
-    padding: 0;
+    padding: 0 !important;
     gap: 1rem;
     overflow: auto;
 
@@ -349,6 +351,11 @@
     .footer {
       grid-column: 1;
       grid-row: 3;
+    }
+
+    .content, .footer {
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
   }
 

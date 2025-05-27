@@ -2,7 +2,7 @@ import { Locator, Page, test } from '@playwright/test';
 import { Mock, Modal, UI } from '../services';
 import { UserType } from '../../fixtures';
 import { CampaignListPage } from './campaign-list';
-import { AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { Phase } from '../../../src/service/types';
 
 type LabelModalExtend = {
   getCheckbox: (text: string) => Locator;
@@ -34,7 +34,7 @@ export class CampaignDetailPage {
   }
 
   get resumeButton(): Locator {
-    return this.page.getByRole('button', { name: 'Resume annotation' });
+    return this.page.getByRole('button', { name: 'Resume' });
   }
 
   constructor(private page: Page,
@@ -45,14 +45,14 @@ export class CampaignDetailPage {
 
   async go(as: UserType, options?: {
     empty?: boolean,
-    mode?: AnnotationCampaignUsage,
+    phase?: Phase,
     noConfidence?: boolean
     allowPoint?: boolean
   }) {
     await test.step('Navigate to Campaign detail', async () => {
       await this.list.go(as)
 
-      await this.mock.campaignDetail(options?.empty, options?.mode, !options?.noConfidence, options?.allowPoint)
+      await this.mock.campaignDetail(options?.empty, options?.phase, !options?.noConfidence, options?.allowPoint)
       await this.mock.fileRanges(options?.empty)
       await this.mock.fileRangesFiles(options?.empty)
       await this.mock.spectrograms(options?.empty)
@@ -73,7 +73,7 @@ export class CampaignDetailPage {
   }
 
   async openLabelModal(): Promise<LabelModal> {
-    const modal = await this.ui.openModal({ name: 'Detailed label set' })
+    const modal = await this.ui.openModal({ name: 'Update labels with features' })
     const ui = this.ui;
     return Object.assign(modal, {
       getCheckbox(label: string) {
@@ -86,6 +86,7 @@ export class CampaignDetailPage {
   }
 
   async openSpectrogramModal(): Promise<MetadataModal> {
+    await this.mock.spectrograms()
     const modal = await this.ui.openModal({ name: 'Spectrogram configuration' })
     return Object.assign(modal, {
       get downloadButton(): Locator {

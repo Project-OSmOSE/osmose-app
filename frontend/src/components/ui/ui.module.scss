@@ -37,7 +37,7 @@
   align-items: center;
   justify-items: center;
   padding: 2rem;
-  z-index: 3;
+  z-index: 5;
 
   @media (max-width: 800px) {
     padding: 1rem;
@@ -127,4 +127,93 @@
   padding: 0.5rem;
   gap: 0.5rem;
   display: grid;
+  z-index: 5;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem
+}
+
+.table {
+  text-align: center;
+  display: grid;
+  //noinspection CssInvalidFunction
+  grid-template-columns: 1fr repeat(calc(var(--content-columns, 1) - 1), auto);
+  gap: 0.25rem 0;
+  overflow-x: auto;
+
+  &.uniqueColumn {
+    grid-template-columns: 1fr;
+  }
+
+  &.firstColumnSticky > .first {
+    border: none;
+    border-right: 1px solid rgba(var(--ion-color-medium-rgb), 0.5);
+    position: sticky;
+    left: 0;
+    background: white;
+  }
+
+  &.small {
+    gap: 0.25rem 0;
+
+    > .head,
+    > .content {
+      padding: 0.1rem 0.5rem;
+    }
+  }
+
+  > .head {
+    font-weight: 300;
+    z-index: 1;
+  }
+
+  > .head,
+  > .content {
+    padding: 0.25rem 1rem;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    align-content: center;
+    align-items: center;
+    border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.5);
+
+    &.first {
+      border: none
+    }
+  }
+
+  > .divider {
+    height: 1px;
+    background: rgba(var(--ion-color-medium-rgb), 0.5);
+    grid-column: 1 / -1;
+  }
+}
+
+.deactivatable {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+
+  > div {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
