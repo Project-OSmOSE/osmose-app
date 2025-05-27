@@ -2,7 +2,10 @@ import React, { Fragment, useCallback, useMemo } from "react";
 import { Phase } from "@/service/types";
 import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
 import { Link } from "@/components/ui";
-import { CreateAnnotationPhaseButton } from "@/components/AnnotationCampaign/Phase/CreateButton.tsx";
+import {
+  CreateAnnotationPhaseButton,
+  CreateVerificationPhaseButton
+} from "@/components/AnnotationCampaign/Phase/CreateButton.tsx";
 import {
   CampaignPhaseAPI,
   useListPhasesForCurrentCampaign,
@@ -47,6 +50,7 @@ export const CampaignPhaseTab: React.FC<{ phase: Phase }> = ({ phase: phaseType 
       { hasAdminAccess && phase?.id === currentPhase?.id && !phase?.ended_by &&
           <IonIcon icon={ closeOutline } slot='end' onClick={ end }/> }
     </Link> }
-    { !phase && hasAdminAccess && <CreateAnnotationPhaseButton/> }
+    { !phase && hasAdminAccess && (phaseType === 'Annotation' ? <CreateAnnotationPhaseButton/> :
+      <CreateVerificationPhaseButton/>) }
   </Deactivatable>
 }

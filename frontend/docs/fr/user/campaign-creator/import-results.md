@@ -1,6 +1,10 @@
 # Importer des annotations
 
-Avec le mode "Check annotations", vous pouvez importer de nouvelles annotations.
+Depuis une phase "Annotation", vous pouvez importer de nouvelles annotations.
+
+![](/campaign-creator/campaign-detail-actions.png)
+
+En haut de la page, cliquez sur le bouton "Import annotations".
 
 ### Uploader un fichier CSV
 

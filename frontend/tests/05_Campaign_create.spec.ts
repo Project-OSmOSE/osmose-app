@@ -35,20 +35,6 @@ test.describe('Annotator', () => {
     await expect(page.getByRole('heading', { name: CAMPAIGN.name })).toBeVisible()
   })
 
-  // test('[Check] Can submit only required fields', ESSENTIAL, async ({ page }) => {
-  //   await page.campaign.create.go('annotator');
-  //   await page.campaign.create.fillGlobal()
-  //   await page.campaign.create.fillData()
-  //   await page.campaign.create.selectMode('Check annotations')
-  //
-  //   await Promise.all([
-  //     page.waitForRequest(API_URL.campaign.create),
-  //     page.campaign.create.createButton.click()
-  //   ]);
-  //
-  //   await expect(page.getByRole('heading', { name: "Import annotations" })).toBeVisible()
-  // })
-
   test('Can submit complete form', ESSENTIAL, async ({ page }) => {
     await page.campaign.create.go('annotator');
     await page.campaign.create.fillGlobal({ complete: true });

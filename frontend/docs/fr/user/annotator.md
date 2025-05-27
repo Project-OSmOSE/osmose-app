@@ -142,25 +142,15 @@ Vous aurez ensuite les mêmes informations que pour une boîte.
 
 ### Valider une annotation
 
-En mode vérification, le bloc "Annotations" contient toutes les données du détecteur que vous devez confirmer ou
-infirmer.
+En phase de vérification, le bloc "Annotations" contient toutes les données du détecteur ou des annotateurs que vous
+devez confirmer ou infirmer.
 
 ![](/annotator/check-list.png)
 
 Voici un exemple avec une présence.
-Vous trouverez les mêmes informations que dans le mode Création d'annotations, plus le nom du détecteur (ici «
-PAMGuard »).
 
 Les boutons à droite vous permettent de choisir si vous trouvez l'annotation correcte ou non.
 Vous pouvez modifier le label de l'annotation et déplacer ou redimensionner l'annotation incorrecte.
-
-Comme dans le mode Création d'annotations, chaque boîte est affichée sur le spectrogramme et peut être écoutée.
-
-::: info
-
-Veuillez noter qu'il n'est pas possible d'ajouter des annotations manquantes dans ce mode.
-
-:::
 
 ### Ajouter des commentaires
 
@@ -188,8 +178,10 @@ sélectionnant le niveau approprié dans le bloc "Confidence indicator".
 
 ### Caractéristiques acoustiques
 
-Lorsque vous créez une boîte avec un label permettant des caractéristiques acoustiques, un bloc apparaît à côté de votre boîte.
-Si vous définissez la qualité (Quality) comme bonne (Good), vous pourrez spécifier les caractéristiques acoustiques du signal.
+Lorsque vous créez une boîte avec un label permettant des caractéristiques acoustiques, un bloc apparaît à côté de votre
+boîte.
+Si vous définissez la qualité (Quality) comme bonne (Good), vous pourrez spécifier les caractéristiques acoustiques du
+signal.
 ![](/annotator/acoustic-features.png)
 
 | Champs                 | Unité | Description                                                                                                     |
