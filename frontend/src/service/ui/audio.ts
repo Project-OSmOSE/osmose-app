@@ -38,10 +38,8 @@ export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null
   }
 
   function play(annotation?: AnnotationResult) {
-    if (annotation && player.current) {
-      seek(annotation.start_time)
-      dispatch(AnnotatorSlice.actions.setStopTime(annotation.end_time ?? undefined))
-    }
+    if (annotation?.start_time) seek(annotation.start_time)
+    dispatch(AnnotatorSlice.actions.setStopTime(annotation?.end_time ?? undefined))
     player.current?.play().catch(e => {
       toast.presentError(`Audio failed playing: ${ e }`)
     });
