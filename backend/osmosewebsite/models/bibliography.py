@@ -21,6 +21,12 @@ class PublicationType(models.TextChoices):
     CONFERENCE = ("C", "Conference")
 
 
+class BibliographyTag(models.Model):
+    """Bibliography tag"""
+
+    name = models.CharField(max_length=255, unique=True)
+
+
 class Bibliography(models.Model):
     """Bibliography model"""
 
@@ -75,6 +81,7 @@ class Bibliography(models.Model):
 
     title = models.CharField(max_length=255)
     doi = models.CharField(max_length=255, null=True, blank=True, unique=True)
+    tags = models.ManyToManyField(BibliographyTag, blank=True)
 
     publication_status = models.CharField(
         choices=PublicationStatus.choices,
