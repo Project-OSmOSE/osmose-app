@@ -1,7 +1,7 @@
 """OSmOSE Website API Models - TeamMembers"""
 from django.db import models
-from django.db.models import signals
-from django.dispatch import receiver
+
+from .scientist import Scientist
 
 
 class TeamMember(models.Model):
@@ -9,9 +9,13 @@ class TeamMember(models.Model):
 
     level = models.IntegerField("Sorting level", blank=True, null=True)
 
-    firstname = models.CharField(max_length=100)
-    lastname = models.CharField(max_length=100, blank=True, null=True)
+    scientist = models.ForeignKey(
+        to=Scientist,
+        on_delete=models.RESTRICT,
+        related_name="team_members",
+    )
     position = models.CharField(max_length=255)
+
     biography = models.TextField(blank=True, null=True)
     picture = models.URLField()
 
@@ -28,24 +32,4 @@ class TeamMember(models.Model):
         ordering = ["level"]
 
     def __str__(self):
-        if self.lastname:
-            return self.firstname + " " + self.lastname
-        return self.firstname
-
-    @property
-    def bibliography_name(self):
-        """Get name for bibliography display"""
-        return f"{self.lastname}, {self.firstname[0]}."
-
-
-@receiver(
-    signal=signals.pre_delete,
-    sender=TeamMember,
-)
-def on_author_team_member_deleted(sender, instance: TeamMember, **kwargs):
-    """On author team member is deleted, replace it by its name"""
-
-    instance.authors.update(
-        name=instance.bibliography_name,
-        team_member=None,
-    )
+        return self.scientist.__str__()

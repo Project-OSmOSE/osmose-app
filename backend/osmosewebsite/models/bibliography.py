@@ -2,7 +2,7 @@
 from django.db import models
 from django.db.models import Q
 
-from .team_member import TeamMember
+from .scientist import Scientist, Institution
 
 
 class PublicationStatus(models.TextChoices):
@@ -119,9 +119,10 @@ class Bibliography(models.Model):
     @property
     def publication(self):
         """Get publication status and date when apply"""
+        status = PublicationStatus(self.publication_status).label
         if self.publication_status == PublicationStatus.PUBLISHED:
-            return f"{self.publication_status} {self.publication_date}"
-        return self.publication_status
+            return f"{status} {self.publication_date}"
+        return status
 
 
 class Author(models.Model):
@@ -129,20 +130,9 @@ class Author(models.Model):
 
     class Meta:
         unique_together = (("order", "bibliography"),)
-        constraints = [
-            models.CheckConstraint(
-                name="Author has a name XOR a team member",
-                check=(
-                    Q(name__isnull=False, team_member__isnull=True)
-                    | Q(name__isnull=True, team_member__isnull=False)
-                ),
-            )
-        ]
 
     def __str__(self):
-        if self.team_member:
-            return f"{self.order} {self.team_member.bibliography_name}"
-        return f"{self.order} {self.name}"
+        return f"{self.order} {self.scientist.short_name}"
 
     order = models.PositiveIntegerField()
     bibliography = models.ForeignKey(
@@ -150,18 +140,13 @@ class Author(models.Model):
         on_delete=models.CASCADE,
         related_name="authors",
     )
-
-    # Author denomination
-    team_member = models.ForeignKey(
-        to=TeamMember,
-        on_delete=models.DO_NOTHING,
+    scientist = models.ForeignKey(
+        to=Scientist,
+        on_delete=models.CASCADE,
         related_name="authors",
         blank=True,
         null=True,
     )
-    name = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="Required if no team member is provided (format: {lastname}, {first letter of firstname}.)",
+    institutions = models.ManyToManyField(
+        Institution, related_name="bibliography_authors"
     )
