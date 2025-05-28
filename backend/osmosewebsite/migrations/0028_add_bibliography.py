@@ -198,6 +198,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 related_name="bibliography_authors",
                 to="osmosewebsite.Institution",
+                blank=True,
             ),
         ),
         migrations.AlterUniqueTogether(

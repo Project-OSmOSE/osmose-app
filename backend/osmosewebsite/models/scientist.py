@@ -17,12 +17,17 @@ class Institution(models.Model):
 class Scientist(models.Model):
     """Scientist model"""
 
+    class Meta:
+        unique_together = (("first_name", "last_name"),)
+
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    institutions = models.ManyToManyField(Institution, related_name="scientists")
+    institutions = models.ManyToManyField(
+        Institution, related_name="scientists", blank=True
+    )
 
     @property
     def short_name(self) -> str:

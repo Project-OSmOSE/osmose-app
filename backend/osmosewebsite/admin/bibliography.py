@@ -1,7 +1,21 @@
 """OSmOSE Website - Collaborator"""
 from django.contrib import admin
 
+from backend.api.admin import get_many_to_many
 from backend.osmosewebsite.models import Bibliography, Author
+from backend.osmosewebsite.models.bibliography import BibliographyTag
+
+
+@admin.register(BibliographyTag)
+class BibliographyTagAdmin(admin.ModelAdmin):
+    """Bibliography Tag Admin"""
+
+    list_display = [
+        "name",
+    ]
+    search_fields = [
+        "name",
+    ]
 
 
 class AuthorInline(admin.TabularInline):
@@ -16,7 +30,7 @@ class AuthorInline(admin.TabularInline):
 class BibliographyAdmin(admin.ModelAdmin):
     """Collaborator presentation in DjangoAdmin"""
 
-    list_display = ["title", "doi", "publication", "type"]
+    list_display = ["title", "doi", "publication", "type", "show_tags"]
     search_fields = [
         "title",
         "doi",
@@ -31,6 +45,7 @@ class BibliographyAdmin(admin.ModelAdmin):
                     "publication_status",
                     "publication_date",
                     "type",
+                    "tags",
                 ]
             },
         ],
@@ -69,6 +84,12 @@ class BibliographyAdmin(admin.ModelAdmin):
             },
         ],
     ]
+    filter_horizontal = ("tags",)
     inlines = [
         AuthorInline,
     ]
+
+    @admin.display(description="Tags")
+    def show_tags(self, obj: Bibliography):
+        """show_tags"""
+        return get_many_to_many(obj, "tags", "name")

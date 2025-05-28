@@ -9,10 +9,10 @@ class TeamMember(models.Model):
 
     level = models.IntegerField("Sorting level", blank=True, null=True)
 
-    scientist = models.ForeignKey(
+    scientist = models.OneToOneField(
         to=Scientist,
         on_delete=models.RESTRICT,
-        related_name="team_members",
+        related_name="team_member",
     )
     position = models.CharField(max_length=255)
 

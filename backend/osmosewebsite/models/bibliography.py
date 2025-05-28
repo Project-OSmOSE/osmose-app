@@ -24,6 +24,9 @@ class PublicationType(models.TextChoices):
 class BibliographyTag(models.Model):
     """Bibliography tag"""
 
+    def __str__(self):
+        return self.name
+
     name = models.CharField(max_length=255, unique=True)
 
 
@@ -155,5 +158,5 @@ class Author(models.Model):
         null=True,
     )
     institutions = models.ManyToManyField(
-        Institution, related_name="bibliography_authors"
+        Institution, related_name="bibliography_authors", blank=True
     )

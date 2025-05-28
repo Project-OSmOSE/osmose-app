@@ -1,17 +1,67 @@
 import { PageTitle } from "../../components/PageTitle";
 
 import imgTitle from '../../img/illust/pexels-element-digital-1370295_thin.webp';
+import { useFetchArray } from "../../utils";
+import { Bibliography } from "../../models/bibliography";
+import React, { useEffect, useMemo, useState } from "react";
+import styles from './Publications.module.scss'
+import { BibliographyCard } from "../../components/Bibliography/Bibliography";
+
+
+export function sortBibliography(a: Bibliography, b: Bibliography): number {
+  if (a.publication_status !== 'Published') return -1
+  if (b.publication_status !== 'Published') return 1
+  return new Date(b.publication_date).getTime() - new Date(b.publication_date).getTime()
+}
 
 export const Publications: React.FC = () => {
+  const fetchBibliography = useFetchArray<Bibliography[]>('/api/bibliography');
+  const [ bibliography, setBibliography ] = useState<(Bibliography & {
+    section: number | 'Draft' | 'In Review'
+  })[]>([]);
+
+  const sections = useMemo(() => {
+    return [ ...new Set(bibliography.map(b => b.section)) ].sort((a, b) => {
+      if (a === 'Draft') return -1;
+      if (b === 'Draft') return 1;
+      if (a === 'In Review') return -1;
+      if (b === 'In Review') return 1;
+      return b - a
+    })
+  }, [ bibliography ])
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchBibliography().then(data => {
+      if (!isMounted) return;
+      setBibliography(data?.sort(sortBibliography)?.map(b => ({
+        ...b,
+        section: b.publication_status === 'Published' ? new Date(b.publication_date).getFullYear() : b.publication_status
+      })) ?? [])
+    });
+
+    return () => {
+      isMounted = false;
+    }
+  }, []);
 
   return (
-    <div id="publications-page">
+    <div>
       <PageTitle img={ imgTitle } imgAlt="Publications Banner">
         SCIENTIFIC PUBLICATIONS
       </PageTitle>
 
-      <div className="container">
-        <section className="my-5">
+      <div className={ styles.content }>
+
+        { sections.map(section => <section>
+          <h6>{ section }</h6>
+
+          { bibliography.filter(b => b.section === section).map((b: Bibliography) =>
+            <BibliographyCard reference={ b } key={ b.id }/>) }
+        </section>) }
+
+
+        <section>
           <h2>Peer reviewed articles</h2>
 
           <ul>

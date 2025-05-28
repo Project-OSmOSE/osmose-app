@@ -65,7 +65,9 @@ class Migration(migrations.Migration):
                 (
                     "institutions",
                     models.ManyToManyField(
-                        related_name="scientists", to="osmosewebsite.Institution"
+                        related_name="scientists",
+                        to="osmosewebsite.Institution",
+                        blank=True,
                     ),
                 ),
             ],

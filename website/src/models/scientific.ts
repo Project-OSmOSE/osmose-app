@@ -13,4 +13,6 @@ export interface Scientist {
 
     full_name: string; // ex: John Doe
     short_name: string; // ex: Doe, J.
+
+    team_member: number | null; //Pk
 }

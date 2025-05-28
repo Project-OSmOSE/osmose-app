@@ -20,6 +20,8 @@ class ScientistSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField(read_only=True)
     short_name = serializers.CharField(read_only=True)
 
+    team_member = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Scientist
         fields = "__all__"

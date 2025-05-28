@@ -15,7 +15,7 @@ from .scientist import InstitutionSerializer, ScientistSerializer
 class AuthorSerializer(serializers.ModelSerializer):
     """Serializer meant to output Author data"""
 
-    scientists = ScientistSerializer(many=True, read_only=True)
+    scientist = ScientistSerializer(read_only=True)
     institutions = InstitutionSerializer(many=True, read_only=True)
 
     class Meta:
