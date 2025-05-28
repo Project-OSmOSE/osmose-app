@@ -1,7 +1,8 @@
 """All Django models available"""
 
-from .team_member import TeamMember
+from .bibliography import Bibliography, PublicationType, PublicationStatus, Author
 from .collaborator import Collaborator
 from .news import News
-from .scientific_talk import ScientificTalk
 from .project import Project
+from .scientific_talk import ScientificTalk
+from .team_member import TeamMember

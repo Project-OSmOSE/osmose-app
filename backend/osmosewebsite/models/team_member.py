@@ -1,5 +1,7 @@
 """OSmOSE Website API Models - TeamMembers"""
 from django.db import models
+from django.db.models import signals
+from django.dispatch import receiver
 
 
 class TeamMember(models.Model):
@@ -29,3 +31,16 @@ class TeamMember(models.Model):
         if self.lastname:
             return self.firstname + " " + self.lastname
         return self.firstname
+
+
+@receiver(
+    signal=signals.pre_delete,
+    sender=TeamMember,
+)
+def on_author_team_member_deleted(sender, instance: TeamMember, **kwargs):
+    """On author team member is deleted, replace it by its name"""
+
+    instance.authors.update(
+        name=f"{instance.lastname}, {instance.firstname[0]}.",
+        team_member=None,
+    )
