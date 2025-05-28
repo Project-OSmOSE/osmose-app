@@ -6,6 +6,7 @@ from backend.osmosewebsite.models import (
     News,
     Collaborator,
 )
+from .bibliography import BibliographyAdmin
 from .collaborator import CollaboratorAdmin
 from .news import NewsAdmin
 from .project import ProjectAdmin

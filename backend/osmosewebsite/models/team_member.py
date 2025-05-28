@@ -32,6 +32,11 @@ class TeamMember(models.Model):
             return self.firstname + " " + self.lastname
         return self.firstname
 
+    @property
+    def bibliography_name(self):
+        """Get name for bibliography display"""
+        return f"{self.lastname}, {self.firstname[0]}."
+
 
 @receiver(
     signal=signals.pre_delete,
@@ -41,6 +46,6 @@ def on_author_team_member_deleted(sender, instance: TeamMember, **kwargs):
     """On author team member is deleted, replace it by its name"""
 
     instance.authors.update(
-        name=f"{instance.lastname}, {instance.firstname[0]}.",
+        name=instance.bibliography_name,
         team_member=None,
     )

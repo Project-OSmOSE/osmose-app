@@ -24,6 +24,7 @@ class Bibliography(models.Model):
     """Bibliography model"""
 
     class Meta:
+        verbose_name_plural = "Bibliography"
         constraints = [
             models.CheckConstraint(
                 name="Published publication has a publication date",
@@ -43,9 +44,6 @@ class Bibliography(models.Model):
                 | Q(
                     type=PublicationType.ARTICLE,
                     journal__isnull=False,
-                    volumes__isnull=False,
-                    pages_from__isnull=False,
-                    pages_to__isnull=False,
                 ),
             ),
             models.CheckConstraint(
@@ -60,6 +58,9 @@ class Bibliography(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return self.title
+
     title = models.CharField(max_length=255)
     doi = models.CharField(max_length=255, null=True, blank=True, unique=True)
 
@@ -67,7 +68,9 @@ class Bibliography(models.Model):
         choices=PublicationStatus.choices,
         max_length=1,
     )
-    publication_date = models.DateField(null=True, blank=True)
+    publication_date = models.DateField(
+        null=True, blank=True, help_text="Required for any published bibliography"
+    )
 
     type = models.CharField(
         choices=PublicationType.choices,
@@ -75,7 +78,9 @@ class Bibliography(models.Model):
     )
 
     # Article fields
-    journal = models.CharField(max_length=255, null=True, blank=True)
+    journal = models.CharField(
+        max_length=255, null=True, blank=True, help_text="Required for an article"
+    )
     volumes = models.CharField(max_length=255, null=True, blank=True)
     pages_from = models.PositiveIntegerField(null=True, blank=True)
     pages_to = models.PositiveIntegerField(null=True, blank=True)
@@ -83,7 +88,17 @@ class Bibliography(models.Model):
     article_nb = models.PositiveIntegerField(null=True, blank=True)
 
     # Software fields
-    publication_place = models.CharField(max_length=255, null=True, blank=True)
+    publication_place = models.CharField(
+        max_length=255, null=True, blank=True, help_text="Required for a software"
+    )
+    repository_url = models.URLField(null=True, blank=True)
+
+    @property
+    def publication(self):
+        """Get publication status and date when apply"""
+        if self.publication_status == PublicationStatus.PUBLISHED:
+            return f"{self.publication_status} {self.publication_date}"
+        return self.publication_status
 
 
 class Author(models.Model):
@@ -101,6 +116,11 @@ class Author(models.Model):
             )
         ]
 
+    def __str__(self):
+        if self.team_member:
+            return f"{self.order} {self.team_member.bibliography_name}"
+        return f"{self.order} {self.name}"
+
     order = models.PositiveIntegerField()
     bibliography = models.ForeignKey(
         to=Bibliography,
@@ -109,11 +129,16 @@ class Author(models.Model):
     )
 
     # Author denomination
-    name = models.CharField(max_length=255, null=True, blank=True)
     team_member = models.ForeignKey(
         to=TeamMember,
         on_delete=models.DO_NOTHING,
         related_name="authors",
         blank=True,
         null=True,
+    )
+    name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Required if no team member is provided (format: {lastname}, {first letter of firstname}.)",
     )
