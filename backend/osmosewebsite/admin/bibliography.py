@@ -49,6 +49,16 @@ class BibliographyAdmin(admin.ModelAdmin):
             },
         ],
         [
+            "Conference",
+            {
+                "fields": [
+                    "conference",
+                    "conference_location",
+                ],
+                "classes": ["collapse"],
+            },
+        ],
+        [
             "Software",
             {
                 "fields": [

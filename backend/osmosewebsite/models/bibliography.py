@@ -18,6 +18,7 @@ class PublicationType(models.TextChoices):
 
     SOFTWARE = ("S", "Software")
     ARTICLE = ("A", "Article")
+    CONFERENCE = ("C", "Conference")
 
 
 class Bibliography(models.Model):
@@ -56,6 +57,17 @@ class Bibliography(models.Model):
                     publication_place__isnull=False,
                 ),
             ),
+            models.CheckConstraint(
+                name="Conference has required fields",
+                check=~Q(
+                    type=PublicationType.CONFERENCE,
+                )
+                | Q(
+                    type=PublicationType.CONFERENCE,
+                    conference__isnull=False,
+                    conference_location__isnull=False,
+                ),
+            ),
         ]
 
     def __str__(self):
@@ -92,6 +104,17 @@ class Bibliography(models.Model):
         max_length=255, null=True, blank=True, help_text="Required for a software"
     )
     repository_url = models.URLField(null=True, blank=True)
+
+    # Conference fields
+    conference = models.CharField(
+        max_length=255, null=True, blank=True, help_text="Required for a conference"
+    )
+    conference_location = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Required for a conference (format: {City}, {Country})",
+    )
 
     @property
     def publication(self):
