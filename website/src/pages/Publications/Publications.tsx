@@ -2,10 +2,11 @@ import { PageTitle } from "../../components/PageTitle";
 
 import imgTitle from '../../img/illust/pexels-element-digital-1370295_thin.webp';
 import { useFetchArray } from "../../utils";
-import { Bibliography } from "../../models/bibliography";
+import { Bibliography, PublicationType } from "../../models/bibliography";
 import React, { useEffect, useMemo, useState } from "react";
 import styles from './Publications.module.scss'
 import { BibliographyCard } from "../../components/Bibliography/Bibliography";
+import { ChipGroup } from "../../components/Chip";
 
 
 export function sortBibliography(a: Bibliography, b: Bibliography): number {
@@ -19,6 +20,10 @@ export const Publications: React.FC = () => {
   const [ bibliography, setBibliography ] = useState<(Bibliography & {
     section: number | 'Draft' | 'In Review'
   })[]>([]);
+
+  const [ typeFilter, setTypeFilter ] = useState<PublicationType[]>([ 'Article', 'Conference', 'Software' ]);
+  const [ allTags, setAllTags ] = useState<string[]>([]);
+  const [ tagFilter, setTagFilter ] = useState<string[]>([]);
 
   const sections = useMemo(() => {
     return [ ...new Set(bibliography.map(b => b.section)) ].sort((a, b) => {
@@ -38,6 +43,8 @@ export const Publications: React.FC = () => {
         ...b,
         section: b.publication_status === 'Published' ? new Date(b.publication_date).getFullYear() : b.publication_status
       })) ?? [])
+      const tags = [...new Set(data?.flatMap(b => b.tags) ?? [])]
+      setAllTags(tags)
     });
 
     return () => {
@@ -46,20 +53,36 @@ export const Publications: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <PageTitle img={ imgTitle } imgAlt="Publications Banner">
+    <div className={ styles.page }>
+      <PageTitle className={ styles.title }
+                 img={ imgTitle }
+                 imgAlt="Publications Banner">
         SCIENTIFIC PUBLICATIONS
       </PageTitle>
 
+      <div className={ styles.nav }>
+        <div className={ styles.filter }>
+          <h6>Type</h6>
+          <ChipGroup labels={ [ 'Article', 'Conference', 'Software' ] as PublicationType[] }
+                     activeLabels={ typeFilter }
+                     setActiveLabels={ newLabels => setTypeFilter(newLabels as PublicationType[]) }/>
+        </div>
+        <div className={ styles.filter }>
+          <h6>Tags</h6>
+          <ChipGroup labels={ allTags } activeLabels={ tagFilter }
+                     setActiveLabels={ newLabels => setTagFilter(newLabels) }/>
+        </div>
+      </div>
+
       <div className={ styles.content }>
 
-        { sections.map(section => <section>
-          <h6>{ section }</h6>
-
-          { bibliography.filter(b => b.section === section).map((b: Bibliography) =>
-            <BibliographyCard reference={ b } key={ b.id }/>) }
-        </section>) }
-
+        { sections.map(section => <Section key={ section }
+                                           section={ section }
+                                           bibliography={ bibliography
+                                             .filter(b => typeFilter.includes(b.type))
+                                             .filter(b => tagFilter.length === 0 || b.tags.find(t => tagFilter.includes(t)))
+                                             .filter(b => b.section === section) }
+        />) }
 
         <section>
           <h2>Peer reviewed articles</h2>
@@ -238,3 +261,15 @@ export const Publications: React.FC = () => {
     </div>
   );
 };
+
+export const Section: React.FC<{
+  section: number | 'Draft' | 'In Review',
+  bibliography: Bibliography[],
+}> = ({ section, bibliography }) => (
+  <section>
+    <h6>{ section }</h6>
+
+    { bibliography.map((b: Bibliography) => <BibliographyCard reference={ b } key={ b.id }/>) }
+    { bibliography.length === 0 && <p className={ styles.low }>No publications matching the filters</p> }
+  </section>
+)

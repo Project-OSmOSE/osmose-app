@@ -4,8 +4,13 @@
   padding: 0.25rem 1rem 0.25rem 0.5rem;
   display: grid;
   border-radius: 0.5rem;
-  column-gap: 0.5rem;
-  grid-template-columns: 1fr auto;
+  column-gap: 0.75rem;
+  grid-template-columns: 1rem 1fr 1.25rem;
+  text-transform: none;
+  min-height: calc(10ch + 0.5rem);
+
+  color: var(--bs-body-color) !important;
+  text-decoration: none !important;
 
   .title {
     font-weight: 500;
@@ -18,17 +23,11 @@
   .doiLinks {
     opacity: 0;
     pointer-events: none;
-    grid-column: 2;
+    grid-column: 3;
     grid-row: 1 / 4;
     align-self: center;
     display: grid;
     align-items: center;
-    gap: 1rem;
-    grid-template-columns: 1fr 1fr;
-
-    .doi {
-      grid-column: 2;
-    }
 
     svg {
       width: 1.25rem;
@@ -50,6 +49,22 @@
     }
   }
 
+  .type {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    justify-self: center;
+    align-self: center;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    text-transform: uppercase;
+    font-weight: 100;
+    opacity: 0.5;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    color: var(--ion-color-primary);
+    user-select: none;
+  }
+
   &:hover {
     box-shadow: rgba(#000, 0.05) 0 0 12px, rgba(#000, 0.08) 0 0 6px;
     transition: 150ms ease-out;
@@ -57,6 +72,15 @@
     .doiLinks {
       opacity: 1;
       pointer-events: initial;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    grid-template-columns: 1rem 1fr;
+    column-gap: 0.5rem;
+
+    .doiLinks {
+      display: none;
     }
   }
 }

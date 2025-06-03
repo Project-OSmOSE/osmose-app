@@ -3,15 +3,10 @@ import { Bibliography } from "../../models/bibliography";
 import styles from "./item.module.scss";
 import { Authors } from "./Authors";
 import { IoLinkOutline } from "react-icons/io5";
-import { SiGithub } from "react-icons/si";
 
 export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ reference }) => {
   const status = useMemo(() => reference.publication_status === 'Published' ? reference.publication_date : reference.publication_status, [ reference ]);
-  const link = useMemo(() => `https://doi.org/${ reference.doi }`, [ reference ]);
-  const hasSecondLink = useMemo(() => {
-    if (reference.type !== 'Software') return false;
-    return !!reference.repository_url
-  }, [ reference ])
+  const link = useMemo(() => reference.doi ? `https://doi.org/${ reference.doi }` : undefined, [ reference ]);
 
   const details = useMemo(() => {
     const d = [];
@@ -31,30 +26,34 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
         d.push(reference.conference_location)
         break;
       case "Software":
-        d.push(reference.publication_place)
         break;
     }
     return d;
   }, [ reference ])
 
-  return <div className={ styles.bibliography }>
+  return <a className={ styles.bibliography }
+            href={ link }
+            target="_blank" rel="noopener noreferrer">
     <p className={ styles.title }>{ reference.title }</p>
     <p className={ styles.details }>
-      <Authors authors={ reference.authors }/>, ({ status }). { details.join(', ') }
+      <Authors authors={ reference.authors }/>, ({ status }). { details.join(', ') } { reference.type === 'Software' &&
+        <a href={ reference.repository_url ?? undefined }
+           target="_blank" rel="noopener noreferrer">
+          { reference.publication_place }
+        </a> }
     </p>
     { reference.tags.length > 0 && <div className={ styles.tags }>
       { reference.tags.map(tag => <p>{ tag }</p>) }
     </div> }
 
-    <div className={ [ styles.doiLinks, (reference.doi || hasSecondLink) ? 'exists' : '' ].join(' ') }>
-      { reference.type === 'Software' && reference.repository_url && <a href={ reference.repository_url }
-                                                                        target="_blank" rel="noopener noreferrer">
-          <SiGithub/>
-      </a> }
-      <a href={ link } className={ styles.doi }
-         target="_blank" rel="noopener noreferrer">
-        <IoLinkOutline/>
-      </a>
+    <div className={ styles.doiLinks }>
+      { reference.doi &&
+          <a href={ link } className={ styles.doi }
+             target="_blank" rel="noopener noreferrer">
+              <IoLinkOutline/>
+          </a> }
     </div>
-  </div>
+
+    <div className={ styles.type }>{ reference.type }</div>
+  </a>
 }

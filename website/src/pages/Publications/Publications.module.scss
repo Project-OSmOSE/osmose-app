@@ -1,23 +1,55 @@
-.content {
+.page {
   display: grid;
-  gap: 2rem;
-  max-width: 50rem;
-  margin: 4rem auto;
-  padding: 0 2rem;
+  grid-template-columns: 0 3fr 6fr 2fr 0;
+  gap: 0 4rem;
+  grid-template-areas: "title title title title title"
+                       "0 nav content 1 2";
+
+  .title {
+    grid-area: title;
+  }
+
+  .nav {
+    grid-area: nav;
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+
+    .filter {
+      display: grid;
+      gap: 0.5rem;
+    }
+  }
+
+  .content {
+    grid-area: content;
+    display: grid;
+    gap: 2rem;
+
+    section {
+      display: grid;
+      gap: 0.5rem;
+    }
+  }
 
   @media screen and (max-width: 1200px) {
-    margin: 2rem auto;
-    gap: 1rem;
+    grid-template-columns: 0 1fr 2fr 0;
+    gap: 0 2rem;
   }
 
   @media screen and (max-width: 800px) {
-    margin: 1rem auto;
+    grid-template-columns: 1fr;
+    grid-template-areas: "title" "nav" "content";
     gap: 1rem;
-    padding: 0 1rem;
-  }
 
-  section {
-    display: grid;
-    gap: 0.5rem;
+    .nav, .content {
+      padding: 0 0.5rem;
+    }
   }
+}
+
+
+.low {
+  font-size: 0.9rem;
+  opacity: 0.5;
 }
