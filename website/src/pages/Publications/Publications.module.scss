@@ -4,6 +4,7 @@
   gap: 0 4rem;
   grid-template-areas: "title title title title title"
                        "0 nav content 1 2";
+  padding-bottom: 4rem;
 
   .title {
     grid-area: title;
@@ -47,7 +48,6 @@
     }
   }
 }
-
 
 .low {
   font-size: 0.9rem;

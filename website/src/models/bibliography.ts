@@ -1,11 +1,11 @@
 import { Scientist } from "./scientific";
 import { Institution } from "@pam-standardization/metadatax-ts";
 
-export type PublicationStatus = 'Draft' | 'In Review' | 'Published';
-export type PublicationType = 'Software' | 'Article' | 'Conference';
+export type PublicationStatus = 'Upcoming' | 'Published';
+export type PublicationType = 'Software' | 'Article' | 'Conference' | 'Poster';
 
 type BibliographyStatus = {
-    publication_status: 'Draft' | 'In Review';
+    publication_status: 'Upcoming';
 } | {
     publication_status: 'Published';
     publication_date: string; // Date
@@ -35,8 +35,16 @@ export type ConferenceBibliography = BaseBibliography & {
     type: 'Conference';
     conference: string;
     conference_location: string;
+    conference_abstract_book_url: string | null; // URL
 }
-export type Bibliography = ArticleBibliography | SoftwareBibliography | ConferenceBibliography;
+export type PosterBibliography = BaseBibliography & {
+    type: 'Poster';
+    conference: string;
+    conference_location: string;
+    conference_abstract_book_url: string | null; // URL
+    poster_url: string | null; // URL
+}
+export type Bibliography = ArticleBibliography | SoftwareBibliography | ConferenceBibliography | PosterBibliography;
 
 export interface Author {
     id: string;

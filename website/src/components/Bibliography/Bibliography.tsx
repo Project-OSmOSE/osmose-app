@@ -1,34 +1,33 @@
 import React, { useMemo } from "react";
-import { Bibliography } from "../../models/bibliography";
+import {
+  ArticleBibliography,
+  Bibliography,
+  ConferenceBibliography,
+  PosterBibliography,
+  SoftwareBibliography
+} from "../../models/bibliography";
 import styles from "./item.module.scss";
 import { Authors } from "./Authors";
 import { IoLinkOutline } from "react-icons/io5";
 
 export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ reference }) => {
   const status = useMemo(() => reference.publication_status === 'Published' ? reference.publication_date : reference.publication_status, [ reference ]);
-  const link = useMemo(() => reference.doi ? `https://doi.org/${ reference.doi }` : undefined, [ reference ]);
+  const link = useMemo(() => {
+    if (reference.doi) return `https://doi.org/${ reference.doi }`
+    if (reference.type === 'Poster' && reference.poster_url) return reference.poster_url
+    return undefined
+  }, [ reference ]);
 
   const details = useMemo(() => {
-    const d = [];
     switch (reference.type) {
       case "Article":
-        d.push(reference.journal)
-        d.push(reference.volumes)
-        if (reference.pages_from) {
-          if (reference.pages_to) d.push(`p${ reference.pages_from }-${ reference.pages_to }`);
-          else d.push(`p${ reference.pages_from }`);
-        }
-        if (reference.issue_nb) d.push(reference.issue_nb)
-        if (reference.article_nb) d.push(reference.article_nb)
-        break;
-      case "Conference":
-        d.push(reference.conference)
-        d.push(reference.conference_location)
-        break;
+        return <ArticleDetail article={ reference }/>
       case "Software":
-        break;
+        return <SoftwareDetail software={ reference }/>
+      case "Conference":
+      case "Poster":
+        return <ConferenceDetail conference={ reference }/>
     }
-    return d;
   }, [ reference ])
 
   return <a className={ styles.bibliography }
@@ -36,11 +35,7 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
             target="_blank" rel="noopener noreferrer">
     <p className={ styles.title }>{ reference.title }</p>
     <p className={ styles.details }>
-      <Authors authors={ reference.authors }/>, ({ status }). { details.join(', ') } { reference.type === 'Software' &&
-        <a href={ reference.repository_url ?? undefined }
-           target="_blank" rel="noopener noreferrer">
-          { reference.publication_place }
-        </a> }
+      <Authors authors={ reference.authors }/>, ({ status }). { details }
     </p>
     { reference.tags.length > 0 && <div className={ styles.tags }>
       { reference.tags.map(tag => <p>{ tag }</p>) }
@@ -57,3 +52,36 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
     <div className={ styles.type }>{ reference.type }</div>
   </a>
 }
+
+export const ArticleDetail: React.FC<{ article: ArticleBibliography }> = ({ article }) => {
+  const details = useMemo(() => {
+    const d = [];
+    d.push(article.journal)
+    d.push(article.volumes)
+    if (article.pages_from) {
+      if (article.pages_to) d.push(`p${ article.pages_from }-${ article.pages_to }`);
+      else d.push(`p${ article.pages_from }`);
+    }
+    if (article.issue_nb) d.push(article.issue_nb)
+    if (article.article_nb) d.push(article.article_nb)
+    return d;
+  }, [ article ])
+
+  return <span>{ details.join(', ') }</span>
+}
+
+export const ConferenceDetail: React.FC<{ conference: ConferenceBibliography | PosterBibliography }> = ({ conference }) => (
+  <span>
+    <a href={ conference.conference_abstract_book_url ?? undefined }
+       target="_blank" rel="noopener noreferrer">
+    { conference.conference }
+  </a>, { conference.conference_location }
+  </span>
+)
+
+export const SoftwareDetail: React.FC<{ software: SoftwareBibliography }> = ({ software }) => (
+  <a href={ software.repository_url ?? undefined }
+     target="_blank" rel="noopener noreferrer">
+    { software.publication_place }
+  </a>
+)

@@ -8,8 +8,7 @@ from .scientist import Scientist, Institution
 class PublicationStatus(models.TextChoices):
     """Bibliography publication status"""
 
-    DRAFT = ("D", "Draft")
-    IN_REVIEW = ("R", "In Review")
+    UPCOMING = ("U", "Upcoming")
     PUBLISHED = ("P", "Published")
 
 
@@ -19,6 +18,7 @@ class PublicationType(models.TextChoices):
     SOFTWARE = ("S", "Software")
     ARTICLE = ("A", "Article")
     CONFERENCE = ("C", "Conference")
+    POSTER = ("P", "Poster")
 
 
 class BibliographyTag(models.Model):
@@ -115,16 +115,20 @@ class Bibliography(models.Model):
     )
     repository_url = models.URLField(null=True, blank=True)
 
-    # Conference fields
+    # Conference & Poster fields
     conference = models.CharField(
         max_length=255, null=True, blank=True, help_text="Required for a conference"
     )
+    conference_abstract_book_url = models.URLField(null=True, blank=True)
     conference_location = models.CharField(
         max_length=255,
         null=True,
         blank=True,
         help_text="Required for a conference (format: {City}, {Country})",
     )
+
+    # Poster fields
+    poster_url = models.URLField(null=True, blank=True)
 
     @property
     def publication(self):

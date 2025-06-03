@@ -64,11 +64,21 @@ class BibliographyAdmin(admin.ModelAdmin):
             },
         ],
         [
-            "Conference",
+            "Conference & Poster",
             {
                 "fields": [
                     "conference",
                     "conference_location",
+                    "conference_abstract_book_url",
+                ],
+                "classes": ["collapse"],
+            },
+        ],
+        [
+            "Poster",
+            {
+                "fields": [
+                    "poster_url",
                 ],
                 "classes": ["collapse"],
             },
