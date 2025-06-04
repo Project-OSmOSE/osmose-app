@@ -1,8 +1,22 @@
+- model: osmosewebsite.scientist
+  pk: 1
+  fields:
+    first_name: user1
+    last_name: user1
+- model: osmosewebsite.scientist
+  pk: 2
+  fields:
+    first_name: user2
+    last_name: user2
+- model: osmosewebsite.scientist
+  pk: 3
+  fields:
+    first_name: user3
+    last_name: user3
 - model: osmosewebsite.teammember
   pk: 1
   fields:
-    firstname: user1
-    lastname: user1
+    scientist: 1
     position: job1
     level: 5
     biography: biography1
@@ -16,8 +30,7 @@
 - model: osmosewebsite.teammember
   pk: 2
   fields:
-    firstname: user2
-    lastname: user2
+    scientist: 2
     position: job2
     level: 1
     biography: biography2
@@ -31,8 +44,7 @@
 - model: osmosewebsite.teammember
   pk: 3
   fields:
-    firstname: user3
-    lastname: user3
+    scientist: 3
     position: job3
     level: 2
     biography: biography3

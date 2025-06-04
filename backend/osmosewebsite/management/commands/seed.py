@@ -14,6 +14,7 @@ from backend.osmosewebsite.models import (
     Collaborator,
     Project,
     ScientificTalk,
+    Scientist,
 )
 
 fake = Faker()
@@ -62,9 +63,12 @@ class Command(BaseCommand):
         for _ in range(0, random.randrange(start=5, stop=25)):
             profile = fake.profile()
             websites = profile["website"]
+            scientist = Scientist.objects.create(
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+            )
             TeamMember.objects.create(
-                firstname=fake.first_name(),
-                lastname=fake.last_name(),
+                scientist=scientist,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
@@ -77,9 +81,12 @@ class Command(BaseCommand):
         for _ in range(0, random.randrange(start=1, stop=15)):
             profile = fake.profile()
             websites = profile["website"]
+            scientist = Scientist.objects.create(
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+            )
             TeamMember.objects.create(
-                firstname=fake.first_name(),
-                lastname=fake.last_name(),
+                scientist=scientist,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",

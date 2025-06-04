@@ -1,32 +1,35 @@
 """OSmOSE Website - Team Member"""
-from django.contrib.admin import ModelAdmin, action
+from django.contrib import admin
+
+from backend.api.admin import get_many_to_many
+from backend.osmosewebsite.models import TeamMember
 
 
-@action(description="Mark selected members as former members")
+@admin.action(description="Mark selected members as former members")
 # pylint: disable-next=unused-argument
 def make_former(model_admin, request, queryset):
     """TeamMember admin action to make it a former member"""
     queryset.update(is_former_member=True)
 
 
-class TeamMemberAdmin(ModelAdmin):
+@admin.register(TeamMember)
+class TeamMemberAdmin(admin.ModelAdmin):
     """TeamMember presentation in DjangoAdmin"""
 
     list_display = [
-        "lastname",
-        "firstname",
+        "__str__",
+        "show_institutions",
         "position",
         "is_former_member",
         "level",
     ]
-    search_fields = ["lastname", "firstname"]
+    search_fields = ["scientist__first_name", "scientist__last_name"]
     fieldsets = [
         (
             None,
             {
                 "fields": [
-                    "lastname",
-                    "firstname",
+                    "scientist",
                     "position",
                     "picture",
                     "biography",
@@ -49,3 +52,8 @@ class TeamMemberAdmin(ModelAdmin):
         ),
     ]
     actions = [make_former]
+
+    @admin.display(description="Institutions")
+    def show_institutions(self, obj):
+        """show_spectro_configs"""
+        return get_many_to_many(obj.scientist, "institutions", "name")

@@ -19,7 +19,7 @@ export const ScientificTalksPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    fetchTalks({ currentPage, pageSize }).then(data => {
+    fetchTalks({ page: currentPage, page_size: pageSize }).then(data => {
       if (isMounted) {
         setTalksTotal(data?.count ?? 0);
         setTalks(data?.results ?? []);
