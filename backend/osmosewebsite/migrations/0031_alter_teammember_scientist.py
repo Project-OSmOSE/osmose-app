@@ -7,13 +7,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0030_add_scientist_constraint'),
+        ("osmosewebsite", "0030_add_scientist_constraint"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='teammember',
-            name='scientist',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.RESTRICT, related_name='team_member', to='osmosewebsite.scientist'),
+            model_name="teammember",
+            name="scientist",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.RESTRICT,
+                related_name="team_member",
+                to="osmosewebsite.scientist",
+            ),
         ),
     ]

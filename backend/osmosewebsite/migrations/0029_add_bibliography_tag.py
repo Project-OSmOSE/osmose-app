@@ -6,20 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0028_add_bibliography'),
+        ("osmosewebsite", "0028_add_bibliography"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BibliographyTag',
+            name="BibliographyTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
         ),
         migrations.AddField(
-            model_name='bibliography',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='osmosewebsite.BibliographyTag'),
+            model_name="bibliography",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True, to="osmosewebsite.BibliographyTag"
+            ),
         ),
     ]

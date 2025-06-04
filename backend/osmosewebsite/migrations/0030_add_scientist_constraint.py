@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('osmosewebsite', '0029_add_bibliography_tag'),
+        ("osmosewebsite", "0029_add_bibliography_tag"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='scientist',
-            unique_together={('first_name', 'last_name')},
+            name="scientist",
+            unique_together={("first_name", "last_name")},
         ),
     ]

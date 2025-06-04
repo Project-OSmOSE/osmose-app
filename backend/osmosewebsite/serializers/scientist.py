@@ -28,4 +28,4 @@ class ScientistSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, obj: Scientist) -> str:
         """Return scientist long name"""
-        return obj.__str__()
+        return str(obj)
