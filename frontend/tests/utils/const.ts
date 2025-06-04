@@ -1,3 +1,5 @@
+import { CAMPAIGN } from "../fixtures";
+
 export const ESSENTIAL = { tag: '@essential' };
 
 export const URL = {
@@ -14,12 +16,16 @@ export const API_URL = {
     self: /api\/user\/self\/?/g
   },
   campaign: {
-    list: /\/api\/annotation-campaign\/?/g,
+    list: /\/api\/annotation-campaign\/?\??.*/g,
     create: '/api/annotation-campaign/',
-    detail: /\/api\/annotation-campaign\/-?\d\/?/g,
+    detail: `/api/annotation-campaign/${ CAMPAIGN.id }/`,
     archive: /\/api\/annotation-campaign\/-?\d\/archive\/?/g,
-    report: /\/api\/annotation-campaign\/-?\d\/report/g,
-    reportStatus: /\/api\/annotation-campaign\/-?\d\/report-status/g
+  },
+  phase: {
+    list: /\/api\/annotation-campaign-phase\/?\?/g,
+    detail: /\/api\/annotation-campaign-phase\/\d\/?/g,
+    report: /\/api\/annotation-campaign-phase\/-?\d\/report/g,
+    reportStatus: /\/api\/annotation-campaign-phase\/-?\d\/report-status/g
   },
   dataset: {
     list: '/api/dataset/',
@@ -29,15 +35,15 @@ export const API_URL = {
   },
   fileRanges: {
     list: /\/api\/annotation-file-range\/?/g,
-    file: /\/api\/annotation-file-range\/campaign\/-?\d\/files/g,
-    post: /\/api\/annotation-file-range\/campaign\/-?\d\//g,
+    file: /\/api\/annotation-file-range\/phase\/-?\d\/files/g,
+    post: /\/api\/annotation-file-range\/phase\/-?\d\//g,
   },
   annotatorGroup: {
     list: /\/api\/annotator-group\/?/g,
     detail: /\/api\/annotator-group\/-?\d\//g,
   },
   spectrogram: {
-    list: /\/api\/spectrogram-configuration\/?/g,
+    list: /\/api\/spectrogram-configuration\/?.*/g,
     export: /\/api\/spectrogram-configuration\/export\/?/g,
   },
   audio: {
@@ -52,9 +58,9 @@ export const API_URL = {
     list: /\/api\/confidence-indicator\/?/g,
     detail: /\/api\/confidence-indicator\/-?\d\/?/g,
   },
-  annotator: /api\/annotator\/campaign\/-?\d\/file\/-?\d/g,
+  annotator: /api\/annotator\/campaign\/-?\d\/phase\/-?\d\/file\/-?\d/g,
   result: {
-    import: /api\/annotation-result\/campaign\/-?\d\/import\//g
+    import: /api\/annotation-result\/campaign\/-?\d\/phase\/-?\d\/import\//g
   },
   detector: {
     list: /api\/detector/g

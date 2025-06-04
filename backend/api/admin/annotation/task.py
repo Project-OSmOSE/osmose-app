@@ -12,16 +12,16 @@ class AnnotationFileRangeAdmin(admin.ModelAdmin):
         "first_file_index",
         "last_file_index",
         "annotator",
-        "annotation_campaign",
+        "annotation_campaign_phase",
         "files_count",
     )
     search_fields = (
-        "annotation_campaign__name",
+        "annotation_campaign_phase__annotation_campaign__name",
         "annotator__username",
         "annotator__first_name",
         "annotator__last_name",
     )
-    list_filter = ("annotation_campaign", "annotator")
+    list_filter = ("annotation_campaign_phase__annotation_campaign", "annotator")
 
 
 @admin.register(AnnotationTask)
@@ -30,9 +30,13 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
 
     list_display = (
         "status",
-        "annotation_campaign",
+        "annotation_campaign_phase",
         "dataset_file",
         "annotator",
     )
     search_fields = ("dataset_file__filename",)
-    list_filter = ("status", "annotation_campaign", "annotator")
+    list_filter = (
+        "status",
+        "annotation_campaign_phase__annotation_campaign",
+        "annotator",
+    )

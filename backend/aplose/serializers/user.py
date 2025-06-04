@@ -1,5 +1,6 @@
 """User DRF serializers file"""
 from django.contrib.auth.password_validation import validate_password
+from django.template.defaultfilters import upper
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -10,6 +11,20 @@ from backend.utils.serializers import EnumField
 
 # Serializers have too many false-positives on the following warnings:
 # pylint: disable=missing-function-docstring, abstract-method
+
+
+class UserDisplayNameSerializer(serializers.SlugRelatedField):
+    """Serializer that returns user display name instead of the whole object"""
+
+    def __init__(self, **kwargs):
+        kwargs.pop("read_only")
+        super().__init__(slug_field="username", read_only=True, **kwargs)
+
+    def to_representation(self, obj: User) -> str:
+        name = super().to_representation(obj)
+        if obj.first_name and obj.last_name:
+            name = f"{obj.first_name} {upper(obj.last_name)}"
+        return name
 
 
 class UserSerializer(serializers.ModelSerializer):

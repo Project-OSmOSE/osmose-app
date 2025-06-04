@@ -11,10 +11,8 @@ from rest_framework.test import APITestCase
 from backend.api.models import AnnotationFileRange
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
-URL = reverse("annotation-file-range-campaign", kwargs={"campaign_id": 1})
-URL_unknown_campaign = reverse(
-    "annotation-file-range-campaign", kwargs={"campaign_id": 27}
-)
+URL = reverse("annotation-file-range-phase", kwargs={"phase_id": 1})
+URL_unknown_campaign = reverse("annotation-file-range-phase", kwargs={"phase_id": 27})
 
 existing_ranges = [
     {
@@ -250,7 +248,7 @@ class PostCampaignOwnerAuthenticatedTestCase(PostBaseUserAuthenticatedTestCase):
     def test_post_delete_all(self):
         initial_count = AnnotationFileRange.objects.count()
         response = self.client.post(
-            reverse("annotation-file-range-campaign", kwargs={"campaign_id": 2}),
+            reverse("annotation-file-range-phase", kwargs={"phase_id": 2}),
             data=json.dumps({"data": []}),
             content_type="application/json",
         )

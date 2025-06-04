@@ -12,42 +12,22 @@ from backend.api.models import (
 )
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
-URL = reverse("annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": 9})
+URL = reverse(
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": 9}
+)
 URL_unknown_campaign = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": -1, "file_id": 9}
+    "annotator-campaign-file", kwargs={"campaign_id": -1, "phase_id": -1, "file_id": 9}
 )
 URL_unknown_file = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": -1}
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": -1}
 )
 URL_with_annotations = reverse(
-    "annotator-campaign-file", kwargs={"campaign_id": 1, "file_id": 7}
+    "annotator-campaign-file", kwargs={"campaign_id": 1, "phase_id": 1, "file_id": 7}
 )
 
 empty_data = {
     "results": [],
     "task_comments": [],
-    "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
-}
-create_presence_result = {
-    "label": "Boat",
-    "confidence_indicator": "confident",
-}
-create_box_result = {
-    "label": "Boat",
-    "confidence_indicator": "confident",
-    "start_time": 0,
-    "end_time": 10,
-    "start_frequency": 5,
-    "end_frequency": 25,
-}
-
-filled_data = {
-    "results": [create_presence_result, create_box_result],
-    "task_comments": [
-        {
-            "comment": "Test A",
-        }
-    ],
     "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
 }
 
@@ -121,7 +101,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["end_time"], None)
         self.assertEqual(response_result["start_frequency"], None)
         self.assertEqual(response_result["end_frequency"], None)
-        self.assertEqual(response_result["annotation_campaign"], 1)
+        self.assertEqual(response_result["annotation_campaign_phase"], 1)
         self.assertEqual(response_result["annotator"], 4)
         self.assertEqual(response_result["dataset_file"], file_id)
         self.assertEqual(response_result["detector_configuration"], None)
@@ -134,7 +114,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["end_time"], 10)
         self.assertEqual(response_result["start_frequency"], 5)
         self.assertEqual(response_result["end_frequency"], 25)
-        self.assertEqual(response_result["annotation_campaign"], 1)
+        self.assertEqual(response_result["annotation_campaign_phase"], 1)
         self.assertEqual(response_result["annotator"], 4)
         self.assertEqual(response_result["dataset_file"], file_id)
         self.assertEqual(response_result["detector_configuration"], None)
@@ -155,7 +135,36 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         result_old_count = AnnotationResult.objects.count()
         comment_old_count = AnnotationComment.objects.count()
         response = self.client.post(
-            URL, data=json.dumps(filled_data), content_type="application/json"
+            URL,
+            data=json.dumps(
+                {
+                    "results": [
+                        {
+                            "label": "Boat",
+                            "confidence_indicator": "confident",
+                            "annotation_campaign_phase": 1,
+                            "annotator": 4,
+                        },
+                        {
+                            "label": "Boat",
+                            "confidence_indicator": "confident",
+                            "start_time": 0,
+                            "end_time": 10,
+                            "start_frequency": 5,
+                            "end_frequency": 25,
+                            "annotation_campaign_phase": 1,
+                            "annotator": 4,
+                        },
+                    ],
+                    "task_comments": [
+                        {
+                            "comment": "Test A",
+                        }
+                    ],
+                    "session": {"start": "2024-11-11T08:10", "end": "2024-11-11T08:15"},
+                }
+            ),
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AnnotationResult.objects.count(), result_old_count + 2)

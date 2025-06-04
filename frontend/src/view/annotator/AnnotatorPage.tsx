@@ -1,41 +1,29 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
-import { IonButton, IonIcon, IonNote } from "@ionic/react";
+import { IonIcon, IonNote } from "@ionic/react";
 import { Annotator } from "@/view/annotator/Annotator.tsx";
 import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { useToast } from "@/service/ui";
-import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
+import { useAnnotatorSliceSetup, useCanNavigate } from "@/service/slices/annotator";
 import { useAppSelector } from "@/service/app.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { UserAPI } from "@/service/api/user.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const AnnotatorPage: React.FC = () => {
-  const {
-    campaignID,
-    annotatorData,
-    campaign,
-  } = useAnnotator();
+  UserAPI.endpoints.getCurrentUser.useQuery()
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
+  const { data } = useRetrieveAnnotator();
+  useAnnotatorSliceSetup()
 
-  const toast = useToast();
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
+  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
 
   const canNavigate = useCanNavigate()
-
-  useEffect(() => {
-    return () => {
-      toast.dismiss();
-    }
-  }, [])
-
-  async function backToCampaign() {
-    if (await canNavigate())
-      window.open(`/app/annotation-campaign/${ campaignID }`, "_self")
-  }
-
-  function auxBackToCampaign() {
-    window.open(`/app/annotation-campaign/${ campaignID }`, "_blank")
-  }
 
   useEffect(() => {
     if (pointerPosition) { // Disable scroll
@@ -43,7 +31,7 @@ export const AnnotatorPage: React.FC = () => {
     } else { // Enable scroll
       document.getElementsByTagName('html')[0].style.overflowY = 'unset';
     }
-  }, [pointerPosition]);
+  }, [ pointerPosition ]);
 
   // 'page' class is for playwright tests
   return <div className={ [ styles.page, 'page' ].join(' ') }>
@@ -58,22 +46,26 @@ export const AnnotatorPage: React.FC = () => {
                   </Link>
               }
 
-              <IonButton color='medium' fill='outline' size='small'
-                         onClick={ backToCampaign } onAuxClick={ auxBackToCampaign }>
+              <Link color='medium' fill='outline' size='small'
+                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
                 Back to campaign
-              </IonButton>
+              </Link>
             </Fragment> }>
-      { annotatorData && campaign && <div className={ styles.info }>
+      { data && campaign && <div className={ styles.info }>
           <p>
-            { campaign.name } <IoChevronForwardOutline/> { annotatorData.file.filename } { annotatorData.is_submitted &&
+            { campaign.name } <IoChevronForwardOutline/> { data.file.filename } { data.is_submitted &&
               <IoCheckmarkCircleOutline/> }
           </p>
-        { annotatorData.is_assigned &&
+        { isEditable &&
             <Progress label='Position'
                       className={ styles.progress }
-                      value={ annotatorData.current_task_index + 1 }
-                      total={ annotatorData.total_tasks }/> }
-        { !annotatorData.is_assigned && <IonNote>You are not assigned to annotate this file.</IonNote> }
+                      value={ data.current_task_index + 1 }
+                      total={ data.total_tasks }/> }
+        { campaign?.archive ? <IonNote>You cannot annotate an archived campaign.</IonNote> :
+          phase?.ended_by ? <IonNote>You cannot annotate an ended phase.</IonNote> :
+            !data.is_assigned ? <IonNote>You are not assigned to annotate this file.</IonNote> :
+              <Fragment/>
+        }
       </div> }
     </Header>
 

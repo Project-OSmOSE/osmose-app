@@ -1,6 +1,4 @@
-import { SpectrogramConfiguration } from '../../src/service/dataset/spectrogram-configuration';
-import { Dataset, ImportDataset } from '../../src/service/dataset';
-import { AudioMetadatum } from '../../src/service/dataset/audio-metatada';
+import { AudioMetadatum, Dataset, ImportDataset, SpectrogramConfiguration } from '../../src/service/types';
 
 export const DATASET_SR: number = 480
 export const SPECTROGRAM_CONFIGURATION: SpectrogramConfiguration = {
@@ -34,6 +32,8 @@ export const SPECTROGRAM_CONFIGURATION: SpectrogramConfiguration = {
   dataset_sr: DATASET_SR,
   spectro_duration: 10,
   zoom_level: 2,
+
+  scale_name: 'Default'
 }
 export const AUDIO_METADATA: AudioMetadatum = {
   id: 1,

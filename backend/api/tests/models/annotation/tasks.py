@@ -34,7 +34,7 @@ class AnnotationFileRangeTestCase(TestCase):
         AnnotationFileRange.objects.create(
             first_file_index=file_range.first_file_index,
             last_file_index=file_range.last_file_index,
-            annotation_campaign_id=file_range.annotation_campaign_id,
+            annotation_campaign_phase_id=file_range.annotation_campaign_phase_id,
             annotator_id=file_range.annotator_id,
         )
         self.assertEqual(AnnotationFileRange.objects.count(), 7)

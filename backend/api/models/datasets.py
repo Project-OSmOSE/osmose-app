@@ -88,7 +88,7 @@ class DatasetFileManager(models.Manager):
     def filter_for_file_range(self, file_range: "AnnotationFileRange"):
         """Get files for a given file range"""
         return self.filter(
-            dataset__in=file_range.annotation_campaign.datasets.all(),
+            dataset__in=file_range.annotation_campaign_phase.annotation_campaign.datasets.all(),
             id__gte=file_range.first_file_id,
             id__lte=file_range.last_file_id,
         )
