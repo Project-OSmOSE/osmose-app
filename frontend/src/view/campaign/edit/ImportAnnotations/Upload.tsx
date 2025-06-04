@@ -5,7 +5,6 @@ import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import styles from "@/view/campaign/edit/edit.module.scss";
 import { useLocation, useNavigate } from "react-router-dom";
-import { DetectorConfiguration } from "@/service/types";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
@@ -39,11 +38,16 @@ export const Upload: React.FC = () => {
   }, [])
 
   const buttons = useMemo(() => {
-    const finalDetectors = new Set(Object.entries(detectors.mapToKnown).map(([ key, value ]) => value?.name ?? key))
-    const configuredDetectors = Object.values(detectors.mapToConfiguration).filter((value: DetectorConfiguration | string | undefined) => !!value)
+    const allSelectedAnnotatorsHasConfiguration = detectors.selection.map(detector => {
+      const name = detectors.mapToKnown[detector]?.name ?? detector
+      let config = detectors.mapToConfiguration[name]
+      if (!config) return false;
+      if (typeof config !== 'string') config = config.configuration
+      return !!config;
+    }).reduce((a, b) => a && b, true)
     const canImport = file.state === 'loaded'
       && detectors.selection.length > 0
-      && finalDetectors.size === configuredDetectors.length
+      && allSelectedAnnotatorsHasConfiguration
       && uploadInfo.state !== 'uploading';
     return <div className={ styles.buttons }>
       <IonButton color='medium' fill='outline' onClick={ back }>
