@@ -268,11 +268,9 @@ class AnnotationResultImportSerializer(serializers.Serializer):
                             confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
                         )
                     phase.annotation_campaign.save()
-            is_default = validated_data["confidence_indicator"].pop("is_default", None)
             ConfidenceIndicatorSetIndicator.objects.get_or_create(
                 confidence_indicator=confidence_indicator,
                 confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
-                is_default=is_default or False,
             )
 
         if not is_box and files.count() == 1:
