@@ -16,7 +16,6 @@ export const AuthAPI = API.injectEndpoints({
         document.cookie = `token=${ response.access };max-age=28000;path=/`;
         return response;
       },
-      providesTags: [ 'Token' ],
     }),
     logout: builder.mutation<undefined, void>({
       queryFn: async () => {

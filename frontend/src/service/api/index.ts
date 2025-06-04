@@ -32,7 +32,6 @@ const baseQueryWithReauth: BaseQueryFn<
 }
 
 export const API_TAGS = [
-  'Token',
   'User',
   'UserGroup',
 
