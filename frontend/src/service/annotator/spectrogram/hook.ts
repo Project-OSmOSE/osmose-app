@@ -64,6 +64,7 @@ export const useDisplaySpectrogram = (
   }
 
   async function loadImages() {
+    console.debug('[Load images]', currentConfiguration, data?.file)
     if (!currentConfiguration || !data?.file) {
       images.current = new Map();
       return;
@@ -71,6 +72,7 @@ export const useDisplaySpectrogram = (
 
     if (areAllImagesLoaded()) return;
 
+    console.debug('[Load images] will load')
     const filename = data.file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(zoomLevel)).map(async (_, index) => {
@@ -104,7 +106,9 @@ export const useDisplaySpectrogram = (
   }
 
   async function drawSpectrogram() {
+    console.debug('[Draw spectrogram]', canvas.current)
     const context = canvas.current?.getContext('2d', { alpha: false });
+    console.debug('[Draw spectrogram]', context, data?.file)
     if (!canvas.current || !context || !data?.file) return;
 
     if (!areAllImagesLoaded()) await loadImages();
