@@ -341,7 +341,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     if (event.type !== 'scroll') return;
     const div = event.currentTarget;
     const left = div.scrollWidth - div.scrollLeft - div.clientWidth;
-    if (left === 0) dispatch(AnnotatorSlice.actions.setFileIsSeen())
+    console.log(left)
+    if (left <= 0) dispatch(AnnotatorSlice.actions.setFileIsSeen())
   }
 
   return (
