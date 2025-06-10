@@ -83,6 +83,7 @@ function _focusResult(state: AnnotatorState, { payload }: { payload: ID }) {
   const result = state.results?.find(r => r.id === payload);
   if (!result) return _focusTask(state);
   state.focusedResultID = result.id;
+  console.log('onAnnotatorUpdated - focusResult', result.label)
   state.focusedLabel = result.label;
   state.focusedConfidenceLabel = result.confidence_indicator ?? undefined;
   state.focusedCommentID = result.comments.find(c => c)?.id;
@@ -251,6 +252,7 @@ export const AnnotatorSlice = createSlice({
       _focusTask(state);
     },
     focusLabel: (state, { payload }: { payload: string }) => {
+      console.log('onAnnotatorUpdated - focusLabel')
       state.focusedLabel = payload;
     },
     updateLabel: (state, { payload: { label, phase } }: {
@@ -531,6 +533,7 @@ export const AnnotatorSlice = createSlice({
       state.spectrogram_configurations = payload
     },
     onAnnotatorUpdated: (state, { payload }: { payload: AnnotatorData }) => {
+      console.log('onAnnotatorUpdated')
       // initialize slice
       Object.assign(state, payload);
       state.focusedCommentID = payload.task_comments && payload.task_comments.length > 0 ? payload.task_comments[0].id : undefined;

@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
@@ -66,6 +66,7 @@ export const Labels: React.FC = () => {
       }
     }
   }
+
   useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const showAll = useCallback(() => {
@@ -101,7 +102,13 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
   const color = useMemo(() => (index % 10).toString(), [ index ])
   const buttonColor = useMemo(() => focusedLabel === label ? undefined : color, [ color, focusedLabel, label ])
   const dispatch = useAppDispatch()
+  const [ className, setClassName ] = useState<string>('');
   const alert = useAlert();
+
+  useEffect(() => {
+    if (!focusedLabel || focusedLabel !== label) setClassName('')
+    else setClassName(styles.activeLabel)
+  }, [ focusedLabel, label ])
 
   const select = useCallback(() => {
     if (!phase) return;
@@ -146,7 +153,7 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
 
   return (
     <IonChip outline={ !isUsed }
-             className={ focusedLabel === label ? styles.activeLabel : '' }
+             className={ className }
              onClick={ select }
              color={ color }>
       { focusedLabel === label && <IonIcon src={ checkmarkOutline }/> }
