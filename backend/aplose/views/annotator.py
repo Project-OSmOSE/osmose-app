@@ -1,7 +1,6 @@
 """Annotator viewset"""
 
 from django.db import transaction
-
 # pylint: disable=protected-access
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -16,6 +15,7 @@ from backend.api.models import (
     AnnotationTask,
     AnnotationFileRange,
     AnnotationCampaignPhase,
+    Phase,
 )
 from backend.api.serializers import (
     AnnotationSessionSerializer,
@@ -186,6 +186,13 @@ class AnnotatorViewSet(viewsets.ViewSet):
         )
         task.status = AnnotationTask.Status.FINISHED
         task.save()
+        if phase.phase == Phase.ANNOTATION:
+            # Mark as unsubmitted verification task of other users on this file
+            AnnotationTask.objects.filter(
+                annotation_campaign_phase__annotation_campaign=phase.annotation_campaign,
+                annotation_campaign_phase__phase=Phase.VERIFICATION,
+                dataset_file_id=file_id,
+            ).filter(~Q(annotator=request.user)).update(status=AnnotationTask.Status.CREATED)
         session_serializer = AnnotationSessionSerializer(
             data={
                 **request.data["session"],
