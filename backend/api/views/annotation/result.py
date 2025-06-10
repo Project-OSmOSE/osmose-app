@@ -79,7 +79,6 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         queryset: QuerySet[AnnotationResult] = (
             super().get_queryset().filter(is_update_of__isnull=True)
         )
-        print("get_queryset", queryset)
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
         if self.action in ["list", "retrieve"]:
             if self.request.query_params.get("for_phase"):

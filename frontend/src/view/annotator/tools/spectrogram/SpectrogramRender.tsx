@@ -93,9 +93,16 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }, [ isDrawingEnabled ]);
 
   useEffect(() => {
+    console.log('[Update canvas] data file was updated')
     updateCanvas()
   }, [
     data?.file,
+  ])
+
+  useEffect(() => {
+    console.log('[Update canvas] spectrogram was updated')
+    updateCanvas()
+  }, [
     configurations,
     userPreferences.spectrogramConfigurationID,
     userPreferences.colormap,
@@ -140,6 +147,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     }
     wrapper.scrollLeft = Math.floor(newCenter - containerWidth / 2);
     _setZoom(userPreferences.zoomLevel);
+    console.log('[Update canvas] zoomLevel updated')
     updateCanvas()
   }, [ userPreferences.zoomLevel ]);
 
@@ -162,6 +170,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   // On current newAnnotation changed
   useEffect(() => {
+    console.log('[Update canvas] newResult updated')
     updateCanvas();
   }, [ newResult?.end_time, newResult?.end_frequency, newResult ])
 
@@ -172,9 +181,11 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       if (!context) throw new Error('Cannot get fake canvas 2D context');
 
       // Get spectro images
+      console.log('[Update canvas] getCanvasData updated')
       await updateCanvas()
       const spectroDataURL = canvasRef.current?.toDataURL('image/png');
       if (!spectroDataURL) throw new Error('Cannot recover spectro dataURL');
+      console.log('[Update canvas] getCanvasData 2 updated')
       updateCanvas();
       const spectroImg = new Image();
 
