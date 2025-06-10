@@ -26,7 +26,7 @@ import { useFileFilters } from "@/service/slices/filter.ts";
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { params, updateParams, clearParams } = useFileFilters(true)
 
-  const { campaign } = useRetrieveCurrentCampaign()
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
   const { annotationPhase } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const [ page, setPage ] = useState<number>(1);
@@ -83,8 +83,8 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                      <ProgressModalButton/>
                    </div>
 
-                   { isEditable && <ManageAnnotatorsButton/> }
-                   { isEditable && phase.phase === "Annotation" && <ImportAnnotationsButton/> }
+                   { isEditable && hasAdminAccess && <ManageAnnotatorsButton/> }
+                   { isEditable && hasAdminAccess && phase.phase === "Annotation" && <ImportAnnotationsButton/> }
 
                    { (!error && isEditable) && <ResumeButton files={files} disabled={!isResumeEnabled}/> }
                  </div> }/>

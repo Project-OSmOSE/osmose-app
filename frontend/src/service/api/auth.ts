@@ -6,7 +6,7 @@ type LoginResponse = { access: Token, refresh: Token }
 
 export const AuthAPI = API.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.query<LoginResponse, { username: string, password: string }>({
+    login: builder.mutation<LoginResponse, { username: string, password: string }>({
       query: (credentials) => ({
         url: 'token/',
         method: 'POST',
@@ -16,6 +16,7 @@ export const AuthAPI = API.injectEndpoints({
         document.cookie = `token=${ response.access };max-age=28000;path=/`;
         return response;
       },
+      invalidatesTags: [ ...API_TAGS, { type: 'User', id: 'self' } ],
     }),
     logout: builder.mutation<undefined, void>({
       queryFn: async () => {
@@ -24,7 +25,7 @@ export const AuthAPI = API.injectEndpoints({
           data: undefined
         }
       },
-      invalidatesTags: API_TAGS,
+      invalidatesTags: [ ...API_TAGS, { type: 'User', id: 'self' } ],
     })
   })
 })

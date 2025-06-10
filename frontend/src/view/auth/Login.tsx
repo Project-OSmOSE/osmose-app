@@ -29,7 +29,7 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
-  const [ login, { isLoading, error: loginError } ] = AuthAPI.endpoints.login.useLazyQuery();
+  const [ login, { isLoading, error: loginError } ] = AuthAPI.endpoints.login.useMutation();
   const toast = useToast()
 
   useEffect(() => {
