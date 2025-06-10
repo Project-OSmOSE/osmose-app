@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert, useToast } from "@/service/ui";
-import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
+import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage, getNewItemID } from "@/service/function.ts";
 import { User } from "@/service/types";
 import { QueryStatus } from "@reduxjs/toolkit/query";
@@ -36,7 +36,11 @@ export const EditAnnotators: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
-  const { data: allUsers, isFetching: isFetchingUsers, error: errorLoadingUsers } = UserAPI.endpoints.listUser.useQuery()
+  const {
+    data: allUsers,
+    isFetching: isFetchingUsers,
+    error: errorLoadingUsers
+  } = UserAPI.endpoints.listUser.useQuery()
   const {
     data: allGroups,
     isFetching: isFetchingGroups,
@@ -139,6 +143,7 @@ export const EditAnnotators: React.FC = () => {
     <div className={ styles.title }>
       <h2>Manage annotators</h2>
       { campaign && <h5>{ campaign.name }</h5> }
+      { phase && <p>{ phase.phase }</p> }
     </div>
 
     <FormBloc className={ styles.annotators }>
@@ -187,6 +192,10 @@ export const EditAnnotators: React.FC = () => {
       <Searchbar placeholder="Search annotator..."
                  values={ availableUsers.map(a => ({ value: `${ a.type }-${ a.id }`, label: a.display })) }
                  onValueSelected={ addFileRange }/>
+
+      { phase?.phase === 'Verification' &&
+          <IonNote>To fully verify your annotations, you should have a verification user that is not an annotator or at
+              least two verification users</IonNote> }
 
       <div className={ styles.buttons }>
         <IonButton color='medium' fill='outline' onClick={ back }>
