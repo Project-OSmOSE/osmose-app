@@ -14,11 +14,14 @@ export const NFFTSelect: React.FC = () => {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
+    console.debug('[Update spectro] 1', selectedID)
     if (!selectedID) return;
     const configs: SpectrogramConfiguration[] = configurations ?? [];
+    console.debug('[Update spectro] 2', configs)
     if (configs.find(c => c.id === selectedID)) return;
     const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
     const newID = simpleSpectrogramID ?? Math.min(...configs.map(s => s.id));
+    console.debug('[Update spectro] 3', simpleSpectrogramID, newID)
     dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(newID))
   }, [selectedID]);
 
