@@ -10,6 +10,7 @@ import { MOUSE_DOWN_EVENT } from "@/service/events";
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -21,10 +22,11 @@ export const Box: React.FC<RegionProps> = ({
                                              annotation,
                                              audioPlayer
                                            }) => {
+  const { campaign } = useRetrieveCurrentCampaign();
   const { phase } = useRetrieveCurrentPhase()
   // Data
   const { labelSet } = useGetLabelSetForCurrentCampaign();
-    const { focusedResultID } = useAppSelector(state => state.annotator);
+  const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
   // Scales
@@ -88,7 +90,11 @@ export const Box: React.FC<RegionProps> = ({
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
     return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
   }, [ labelSet, annotation ]);
-  const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
+  const isActive = useMemo(() => {
+    if (campaign?.archive) return false;
+    if (phase?.ended_at) return false;
+    return annotation.id === focusedResultID
+  }, [ campaign, phase, annotation.id, focusedResultID ]);
 
   function updateLeft() {
     if (_start_time.current === null) return;

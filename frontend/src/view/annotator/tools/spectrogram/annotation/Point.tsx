@@ -9,11 +9,13 @@ import styles from '../../annotator-tools.module.scss'
 import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
+  const { campaign } = useRetrieveCurrentCampaign();
   const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
     // Data
@@ -70,7 +72,11 @@ export const Point: React.FC<{
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
     return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
   }, [ labelSet, annotation ]);
-  const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
+  const isActive = useMemo(() => {
+    if (campaign?.archive) return false;
+    if (phase?.ended_at) return false;
+    return annotation.id === focusedResultID
+  }, [ campaign, phase, annotation.id, focusedResultID ]);
 
   function updateLeft() {
     if (_start_time.current === null) return;
