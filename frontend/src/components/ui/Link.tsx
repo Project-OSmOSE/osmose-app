@@ -1,5 +1,5 @@
 import React, { Fragment, HTMLAttributeAnchorTarget, ReactNode, useCallback } from "react";
-import { IonIcon } from "@ionic/react";
+import { IonButton, IonIcon } from "@ionic/react";
 import { Color } from "@ionic/core";
 import { openOutline } from "ionicons/icons";
 import { Button } from "./Button";
@@ -25,14 +25,25 @@ export const Link: React.FC<{
   className?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
   onClick?: () => void;
-}> = ({ children, color = 'dark', href, size, target, fill = 'clear', appPath, className, onClick }) => {
+} & React.ComponentProps<typeof IonButton>> = ({
+                                                 children,
+                                                 color = 'dark',
+                                                 href,
+                                                 size,
+                                                 target,
+                                                 fill = 'clear',
+                                                 appPath,
+                                                 className,
+                                                 onClick,
+                                                 ...props
+                                               }) => {
   const { open, openAux } = useAppLink(appPath, onClick);
 
   if (href !== undefined) return <a style={ { textDecoration: 'none' } } className={ className }
                                     target={ target } rel="noopener, noreferrer"
                                     href={ href }
                                     onClick={ onClick }>
-    <Button color={ color } fill={ fill } size={ size }>
+    <Button color={ color } fill={ fill } size={ size } { ...props }>
       { children }
       { target === '_blank' && <IonIcon icon={ openOutline } slot='end'/> }
     </Button>
@@ -40,7 +51,8 @@ export const Link: React.FC<{
   if (appPath !== undefined) return <Button color={ color } fill={ fill } size={ size }
                                             className={ className }
                                             onClick={ target === '_blank' ? openAux : open }
-                                            onAuxClick={ target === '_blank' ? undefined : openAux }>
+                                            onAuxClick={ target === '_blank' ? undefined : openAux }
+                                            { ...props }>
     { children }
     { target === '_blank' && <IonIcon icon={ openOutline } slot='end'/> }
   </Button>

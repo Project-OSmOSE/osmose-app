@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import {
@@ -9,14 +9,14 @@ import {
   TableContent,
   TableDivider,
   TableHead,
+  TooltipOverlay,
   WarningText
 } from "@/components/ui";
 import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
-import { caretDown, caretUp, downloadOutline } from "ionicons/icons";
+import { analytics, caretDown, caretUp, downloadOutline } from "ionicons/icons";
 import { AnnotationFileRange, User } from "@/service/types";
 import styles from './styles.module.scss';
 import { Progress } from "@/components/ui/Progress.tsx";
-import { useNavigate } from "react-router-dom";
 import { useModal } from "@/service/ui/modal.ts";
 import { createPortal } from "react-dom";
 import { UserAPI } from "@/service/api/user.ts";
@@ -35,12 +35,14 @@ type Sort = {
   sort: 'ASC' | 'DESC';
 }
 
-export const ProgressModalButton: React.FC<{ size?: 'small' | 'default' | 'large' }> = ({ size }) => {
+export const ProgressModalButton: React.FC = () => {
   const modal = useModal()
   return <Fragment>
-    <IonButton fill='outline' color='medium' size={ size } className='ion-text-wrap' onClick={ modal.toggle }>
-      Detailed progression
-    </IonButton>
+    <TooltipOverlay tooltipContent={ <p>Annotators progression</p> } anchor='right'>
+      <IonButton fill='clear' color='medium' onClick={ modal.toggle } aria-label='Progress'>
+        <IonIcon icon={ analytics } slot='icon-only'/>
+      </IonButton>
+    </TooltipOverlay>
     { modal.isOpen && createPortal(<ProgressModal onClose={ modal.toggle }/>, document.body) }
   </Fragment>
 }
@@ -51,12 +53,10 @@ export const ProgressModal: React.FC<{
   const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const toast = useToast();
-  const navigate = useNavigate();
   const { data: users, isFetching: isLoadingUsers, error: userError } = UserAPI.endpoints.listUser.useQuery();
   const { fileRanges, isFetching: isLoadingFileRanges, error: fileRangeError } = useListFileRangesForCurrentPhase();
   const [ downloadStatus, { error: statusError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseStatus.useMutation()
   const [ downloadReport, { error: reportError } ] = CampaignPhaseAPI.endpoints.downloadCampaignPhaseReport.useMutation()
-  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
 
   const [ progress, setProgress ] = useState<Array<Progression>>([]);
   const [ sort, setSort ] = useState<Sort>({ entry: 'Progress', sort: 'DESC' });
@@ -118,10 +118,6 @@ export const ProgressModal: React.FC<{
       phaseID: phase.id,
       filename: `${ campaign.name } ${ phase.phase }`.replaceAll(' ', '_') + '_results.csv'
     })
-  }
-
-  function manageAnnotator() {
-    navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/edit-annotators`);
   }
 
   const sortProgress = useCallback((a: Progression, b: Progression) => {
@@ -210,11 +206,8 @@ export const ProgressModal: React.FC<{
                 </IonButton>
             </Fragment> }
           </div>
-
-          { isEditable && <IonButton onClick={ manageAnnotator }>Manage annotators</IonButton> }
         </ModalFooter>
-      )
-      }
+      ) }
     </Modal>
   )
 }

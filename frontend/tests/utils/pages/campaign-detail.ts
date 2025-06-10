@@ -16,7 +16,6 @@ type MetadataModalExtend = {
 type ProgressModalExtend = {
   get downloadResultsButton(): Locator;
   get downloadStatusButton(): Locator;
-  get manageButton(): Locator;
 }
 
 export type LabelModal = Modal & LabelModalExtend
@@ -30,11 +29,15 @@ export class CampaignDetailPage {
   }
 
   get importAnnotationsButton(): Locator {
-    return this.page.getByRole('button', { name: 'Import annotations' });
+    return this.page.locator('button[aria-label=Import]');
   }
 
   get resumeButton(): Locator {
-    return this.page.getByRole('button', { name: 'Resume' });
+    return this.page.locator('button[aria-label=Resume]');
+  }
+
+  get manageButton(): Locator {
+    return this.page.locator('button[aria-label=Manage]');
   }
 
   constructor(private page: Page,
@@ -105,16 +108,13 @@ export class CampaignDetailPage {
   }
 
   async openProgressModal(): Promise<ProgressModal> {
-    const modal = await this.ui.openModal({ name: 'Detailed progression' })
+    const modal = await this.ui.openModal({ ariaLabel: 'Progress' })
     return Object.assign(modal, {
       get downloadResultsButton(): Locator {
         return modal.getByRole('button', { name: 'Results' })
       },
       get downloadStatusButton(): Locator {
         return modal.getByRole('button', { name: 'Status' })
-      },
-      get manageButton(): Locator {
-        return modal.getByRole('button', { name: 'Manage annotators' })
       },
     } as ProgressModalExtend);
   }

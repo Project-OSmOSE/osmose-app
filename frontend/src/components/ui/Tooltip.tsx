@@ -10,8 +10,9 @@ export const TooltipOverlay: React.FC<{
   children: ReactElement;
   tooltipContent: ReactNode;
   title?: string;
-}> = ({ children, tooltipContent, title }) => {
-  const { containerRef, top, left } = usePopover()
+  anchor?: 'left' | 'right'
+}> = ({ children, tooltipContent, title, anchor = 'left' }) => {
+  const { containerRef, top, left, right } = usePopover()
   const containerID: string = useMemo(() => uuidv4(), []);
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
@@ -25,10 +26,15 @@ export const TooltipOverlay: React.FC<{
   }, [ isShown ]);
 
 
-  const position: CSSProperties = useMemo(() => ({
-    position: 'absolute', top: top + 8, left,
-    transition: 'opacity 150ms ease-in-out', opacity: isShown ? 1 : 0,
-  }), [ containerRef.current, isShown, top, left ]);
+  const position: CSSProperties = useMemo(() => {
+    let anchorPosition = {}
+    if (anchor === 'left') anchorPosition = { left }
+    if (anchor === 'right') anchorPosition = { right }
+    return {
+      position: 'absolute', top: top + 8, ...anchorPosition,
+      transition: 'opacity 150ms ease-in-out', opacity: isShown ? 1 : 0,
+    }
+  }, [ containerRef.current, isShown, top, left, right ]);
 
   const onMouseMove = useCallback((event: MouseEvent) => {
     const elements: Element[] = document.elementsFromPoint(event.clientX, event.clientY);

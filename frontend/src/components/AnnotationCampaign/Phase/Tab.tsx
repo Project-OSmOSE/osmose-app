@@ -26,7 +26,6 @@ export const CampaignPhaseTab: React.FC<{ phase: Phase }> = ({ phase: phaseType 
   const alert = useAlert();
 
   const end = useCallback(async () => {
-    console.log('end ^^')
     if (!phase) return;
     if (phase.global_progress < phase.global_total) {
       // If annotators haven't finished yet, ask for confirmation

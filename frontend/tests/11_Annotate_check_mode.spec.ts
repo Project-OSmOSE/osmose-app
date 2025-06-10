@@ -28,9 +28,8 @@ test.describe('"Verification" phase', {tag: '@annotator'}, () => {
     await page.annotator.resultsBlock.waitFor()
 
     await test.step('Initial state', async () => {
-      await expect(page.getByText('Labels list')).not.toBeVisible()
-      await expect(page.getByText('Presence / Absence')).not.toBeVisible()
-      await expect(page.getByText('Confidence indicator')).not.toBeVisible()
+      await expect(page.getByText('Labels')).toBeVisible()
+      await expect(page.getByText('Confidence indicator')).toBeVisible()
       await expect(page.getByText('No results')).toBeVisible()
     })
   })

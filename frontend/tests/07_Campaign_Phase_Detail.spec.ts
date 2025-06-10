@@ -18,8 +18,8 @@ const STEP = {
     })
   },
   accessManageAnnotators: (page: Page) => test.step('Access manage annotators', async () => {
+    await expect(page.campaign.detail.manageButton).toBeEnabled();
     const modal = await page.campaign.detail.openProgressModal();
-    await expect(modal.manageButton).toBeEnabled();
     await modal.close()
   }),
 }
@@ -29,6 +29,11 @@ const STEP = {
 test.describe('Annotator', () => {
   test('Progress', async ({ page }) => {
     await page.campaign.detail.go('annotator');
+
+    await test.step('Cannot manage', async () => {
+      await expect(page.campaign.detail.manageButton).not.toBeVisible()
+    })
+
     const modal = await page.campaign.detail.openProgressModal();
     await expect(modal.getByText(`${ USERS.annotator.first_name } ${ USERS.annotator.last_name }`)).toBeVisible();
     await expect(modal.getByText(USERS.creator.first_name)).not.toBeVisible();
@@ -36,10 +41,6 @@ test.describe('Annotator', () => {
     await test.step('Cannot download', async () => {
       await expect(modal.downloadStatusButton).not.toBeVisible()
       await expect(modal.downloadStatusButton).not.toBeVisible()
-    })
-
-    await test.step('Cannot manage', async () => {
-      await expect(modal.manageButton).not.toBeVisible()
     })
   })
 
@@ -129,10 +130,9 @@ test.describe('Campaign creator', () => {
 
   test('Can manage annotators', async ({ page }) => {
     await page.campaign.detail.go('creator');
-    const modal = await page.campaign.detail.openProgressModal()
     await Promise.all([
       page.waitForURL(/.*\/annotation-campaign\/-?\d+\/phase\/-?\d+\/edit\/?/g),
-      modal.manageButton.click(),
+      page.campaign.detail.manageButton.click(),
     ])
   })
 
@@ -140,10 +140,10 @@ test.describe('Campaign creator', () => {
     await page.campaign.detail.go('creator', { empty: true });
 
     await test.step('Progress', async () => {
+      await expect(page.campaign.detail.manageButton).toBeVisible();
       const modal = await page.campaign.detail.openProgressModal();
       await expect(modal.downloadStatusButton).not.toBeVisible();
       await expect(modal.downloadStatusButton).not.toBeVisible();
-      await expect(modal.manageButton).toBeVisible();
       await modal.close()
     })
   })

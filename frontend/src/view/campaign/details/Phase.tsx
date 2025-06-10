@@ -1,10 +1,17 @@
 import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styles from './styles.module.scss'
-import { PhaseGlobalProgress, PhaseUserProgress, ProgressModalButton } from "@/components/AnnotationCampaign/Phase";
+import {
+  ImportAnnotationsButton,
+  ManageAnnotatorsButton,
+  PhaseGlobalProgress,
+  PhaseUserProgress,
+  ProgressModalButton,
+  ResumeButton
+} from "@/components/AnnotationCampaign/Phase";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { ActionBar } from "@/components/layout";
-import { checkmarkCircle, chevronForwardOutline, ellipseOutline, playOutline, refreshOutline } from "ionicons/icons";
-import { Button, Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
+import { checkmarkCircle, chevronForwardOutline, ellipseOutline, refreshOutline } from "ionicons/icons";
+import { Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
@@ -22,7 +29,6 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { campaign } = useRetrieveCurrentCampaign()
   const { annotationPhase } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
-  const navigate = useNavigate()
   const [ page, setPage ] = useState<number>(1);
 
   AnnotationFileRangeAPI.endpoints.listFilesWithPagination.useQuery({
@@ -41,11 +47,6 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
     return params.with_user_annotations === undefined && params.filename__icontains === undefined && params.is_submitted === undefined
   }, [ params ]);
   const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
-
-  const resume = useCallback(() => {
-    if (!campaign || !phase || !files) return;
-    navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ files.resume }`);
-  }, [ campaign, phase, files ])
 
   const updateSearch = useCallback((search: string) => {
     updateParams({ filename__icontains: search })
@@ -79,31 +80,19 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                    <div className={ styles.progress }>
                      <PhaseUserProgress phase={ phase }/>
                      <PhaseGlobalProgress phase={ phase }/>
-                     <ProgressModalButton size='small'/>
+                     <ProgressModalButton/>
                    </div>
 
-                   { isEditable && phase.phase === "Annotation" && <Link fill='outline' color='medium' size='small'
-                                                                         appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/import-annotations` }>
-                       Import annotations
-                   </Link> }
+                   { isEditable && <ManageAnnotatorsButton/> }
+                   { isEditable && phase.phase === "Annotation" && <ImportAnnotationsButton/> }
 
-                   { (!error && isEditable) && <Button color="primary" fill='outline' size='small'
-                                                       disabled={ !(files && files.count > 0) || !files?.resume || !isResumeEnabled }
-                                                       disabledExplanation={ files && files.count > 0 ? 'Cannot resume if filters are activated.' : 'No files to annotate' }
-                                                       style={ { pointerEvents: 'unset' } }
-                                                       onClick={ resume }>
-                       Resume
-                       <IonIcon icon={ playOutline } slot="end"/>
-                   </Button> }
+                   { (!error && isEditable) && <ResumeButton files={files} disabled={!isResumeEnabled}/> }
                  </div> }/>
 
       { phase.phase === 'Verification' && !phase.has_annotations && annotationPhase &&
           <WarningText>
               Your campaign doesn't have any annotations to check
-            { isEditable && <Link
-                appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ annotationPhase.id }/import-annotations` }>
-                Import annotations
-            </Link> }
+            { isEditable && <ImportAnnotationsButton/> }
           </WarningText> }
 
       <Table columns={ phase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>
