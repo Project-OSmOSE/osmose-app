@@ -23,7 +23,7 @@ export const NFFTSelect: React.FC = () => {
     const newID = simpleSpectrogramID ?? Math.min(...configs.map(s => s.id));
     console.debug('[Update spectro] 3', simpleSpectrogramID, newID)
     dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(newID))
-  }, [selectedID]);
+  }, [selectedID, configurations]);
 
   const options = useMemo(() => {
     if (!configurations) return []
