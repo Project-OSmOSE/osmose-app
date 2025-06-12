@@ -107,7 +107,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
           Duration
         </TableHead>
         <TableHead topSticky>
-          Annotations<br/>to check
+          Annotations{ phase.phase === 'Verification' && <Fragment><br/>to check</Fragment> }
           <AnnotationsFilter onUpdate={ onFilterUpdated }/>
         </TableHead>
         { phase.phase === 'Verification' && <TableHead topSticky>
