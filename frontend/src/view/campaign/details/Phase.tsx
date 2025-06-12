@@ -26,7 +26,7 @@ import { useFileFilters } from "@/service/slices/filter.ts";
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { params, updateParams, clearParams } = useFileFilters(true)
 
-  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { campaign } = useRetrieveCurrentCampaign()
   const { annotationPhase } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
   const [ page, setPage ] = useState<number>(1);
@@ -46,7 +46,6 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const isResumeEnabled = useMemo(() => {
     return params.with_user_annotations === undefined && params.filename__icontains === undefined && params.is_submitted === undefined
   }, [ params ]);
-  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by, [ campaign, phase ])
 
   const updateSearch = useCallback((search: string) => {
     updateParams({ filename__icontains: search })
@@ -83,16 +82,16 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
                      <ProgressModalButton/>
                    </div>
 
-                   { isEditable && hasAdminAccess && <ManageAnnotatorsButton/> }
-                   { isEditable && hasAdminAccess && phase.phase === "Annotation" && <ImportAnnotationsButton/> }
+                   <ManageAnnotatorsButton/>
+                   <ImportAnnotationsButton/>
 
-                   { (!error && isEditable) && <ResumeButton files={files} disabled={!isResumeEnabled}/> }
+                   { !error && <ResumeButton files={ files } disabled={ !isResumeEnabled }/> }
                  </div> }/>
 
       { phase.phase === 'Verification' && !phase.has_annotations && annotationPhase &&
           <WarningText>
               Your campaign doesn't have any annotations to check
-            { isEditable && <ImportAnnotationsButton/> }
+              <ImportAnnotationsButton/>
           </WarningText> }
 
       <Table columns={ phase.phase === 'Verification' ? 7 : 6 } className={ styles.filesTable }>

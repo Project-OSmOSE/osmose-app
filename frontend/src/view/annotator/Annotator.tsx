@@ -23,18 +23,14 @@ import { PlaybackRateSelect } from "@/view/annotator/tools/select/PlaybackRate.t
 import { useCurrentConfiguration } from '@/service/annotator/spectrogram';
 import { Labels } from "@/view/annotator/tools/bloc/Labels.tsx";
 import { Colormap } from '@/service/ui/color.ts';
-import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 import { SettingsSlice } from "@/service/slices/settings.ts";
 import { Input } from "@/components/form";
 
 export const Annotator: React.FC = () => {
-  const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
-  const { isFetching, error, data } = useRetrieveAnnotator()
+  const { isFetching, error, data, isEditable } = useRetrieveAnnotator()
   const colormapClass: Colormap = useMemo(() => {
     if (!currentConfiguration) return "Greys";
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;
@@ -46,7 +42,6 @@ export const Annotator: React.FC = () => {
   // State
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const audio = useAppSelector(state => state.annotator.audio)
-  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
 
   // Refs
   const localIsPaused = useRef<boolean>(true);

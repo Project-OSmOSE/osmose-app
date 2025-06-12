@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
@@ -14,7 +14,7 @@ import { usePostAnnotator, useRetrieveAnnotator } from "@/service/api/annotator.
 
 
 export const NavigationButtons: React.FC = () => {
-  const { data } = useRetrieveAnnotator();
+  const { data, isEditable } = useRetrieveAnnotator();
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
 
@@ -27,7 +27,6 @@ export const NavigationButtons: React.FC = () => {
   const {
     didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
-  const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
 
   const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
   useEffect(() => {

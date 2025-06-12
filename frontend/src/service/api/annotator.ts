@@ -12,7 +12,7 @@ import {
 } from "@/service/types";
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "@/service/app.ts";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { FileFilter } from "@/service/api/annotation-file-range.ts";
@@ -151,14 +151,16 @@ export const AnnotatorAPI = API.injectEndpoints({
 
 export const useRetrieveAnnotator = () => {
   const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { phase, isEditable: isPhaseEditable } = useRetrieveCurrentPhase()
   const { fileID } = useParams<{ fileID: string }>();
   const filters = useAppSelector(selectFileFilters)
-
-  return AnnotatorAPI.endpoints.retrieveAnnotator.useQuery(
+  const { data, ...info } = AnnotatorAPI.endpoints.retrieveAnnotator.useQuery(
     (campaign && phase && fileID) ?
       { campaignID: campaign.id, phaseID: phase.id, fileID, ...filters }
       : skipToken);
+
+  const isEditable = useMemo(() => isPhaseEditable && data?.is_assigned, [ isPhaseEditable, data ])
+  return useMemo(() => ({ data, isEditable, ...info, }), [ data, isEditable, info ])
 }
 
 export const usePostAnnotator = () => {

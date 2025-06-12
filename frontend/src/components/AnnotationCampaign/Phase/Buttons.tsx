@@ -12,7 +12,7 @@ export const ResumeButton: React.FC<{
   disabled?: boolean
 }> = ({ files, disabled = false }) => {
   const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { phase, isEditable } = useRetrieveCurrentPhase()
   const navigate = useNavigate()
 
   const tooltip: string = useMemo(() => {
@@ -26,6 +26,7 @@ export const ResumeButton: React.FC<{
     navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ files.resume }`);
   }, [ campaign, phase, files ])
 
+  if (!isEditable) return <Fragment/>
   return <TooltipOverlay tooltipContent={ <p>{ tooltip }</p> } anchor='right'>
     <Button color="primary" fill='outline' aria-label='Resume'
             disabled={ !(files && files.count > 0) || !files?.resume || disabled }
@@ -37,15 +38,18 @@ export const ResumeButton: React.FC<{
 }
 
 export const ImportAnnotationsButton: React.FC = () => {
-  const { campaign,  } = useRetrieveCurrentCampaign()
+  const { campaign, hasAdminAccess  } = useRetrieveCurrentCampaign()
   const { verificationPhase } = useListPhasesForCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { phase, isEditable } = useRetrieveCurrentPhase()
 
   const path = useMemo(() => {
     return `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/import-annotations`
   }, [ campaign, phase ])
 
+  if (phase?.phase !== 'Annotation') return <Fragment/>
   if (!verificationPhase) return <Fragment/>
+  if (!hasAdminAccess) return <Fragment/>
+  if (!isEditable) return <Fragment/>
   return <TooltipOverlay tooltipContent={ <p>Import annotations for verification</p> } anchor='right'>
     <Link appPath={ path } fill='outline' color='medium' aria-label='Import'>
       <IonIcon icon={ cloudDownloadOutline } slot='icon-only'/>
@@ -54,13 +58,15 @@ export const ImportAnnotationsButton: React.FC = () => {
 }
 
 export const ManageAnnotatorsButton: React.FC = () => {
-  const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { phase, isEditable } = useRetrieveCurrentPhase()
 
   const path = useMemo(() => {
     return `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/edit-annotators`
   }, [ campaign, phase ])
 
+  if (!hasAdminAccess) return <Fragment/>
+  if (!isEditable) return <Fragment/>
   return <TooltipOverlay tooltipContent={ <p>Manage annotators</p> } anchor='right'>
     <Link appPath={ path } fill='outline' color='medium' aria-label='Manage'>
       <IonIcon icon={ peopleOutline } slot='icon-only'/>
