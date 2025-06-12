@@ -44,6 +44,7 @@ export const AcousticFeatures: React.FC = () => {
 
   useEffect(() => {
     if (!annotation?.end_time) return;
+    console.log(annotation)
     const newLeft = xAxis.valueToPosition(annotation.end_time) + 80;
     _left.current = newLeft;
     setLeft(newLeft);
@@ -123,7 +124,8 @@ export const AcousticFeatures: React.FC = () => {
   if (!annotation) return;
   if (!campaign?.labels_with_acoustic_features.includes(annotation.label)) return;
   if (annotation.type !== 'Box') return;
-  return <div style={ { top, left } }
+  // @ts-expect-error: --left isn't recognized
+  return <div style={ { top, '--left': `${ left }px` } }
               className={ [ styles.bloc, styles.features ].join(' ') }
               onMouseDown={ e => e.stopPropagation() }>
     <ExtendedDiv draggable={ true } onTopMove={ onTopMove } onLeftMove={ onLeftMove }
