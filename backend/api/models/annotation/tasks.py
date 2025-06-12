@@ -5,7 +5,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef, Func, F
 
-from .campaign import AnnotationCampaignPhase
+from .campaign import AnnotationCampaignPhase, Phase
+from .result import AnnotationResult
 from ..datasets import DatasetFile
 
 
@@ -72,6 +73,40 @@ class AnnotationFileRange(models.Model):
         related_name="file_ranges",
     )
 
+    @property
+    def tasks(self) -> QuerySet[AnnotationTask]:
+        return AnnotationTask.objects.filter(
+            annotation_campaign_phase=self.annotation_campaign_phase,
+            annotator_id=self.annotator_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
+        )
+
+    @property
+    def results(self) -> QuerySet[AnnotationResult]:
+        if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
+            return AnnotationResult.objects.filter(
+                annotation_campaign_phase__annotation_campaign_id=self.annotation_campaign_phase.annotation_campaign_id,
+                dataset_file_id__gte=self.first_file_id,
+                dataset_file_id__lte=self.last_file_id,
+            ).filter(
+                (
+                    Q(annotation_campaign_phase_id=self.id)
+                    & Q(annotator_id=self.annotator_id)
+                )
+                | (
+                    ~Q(annotation_campaign_phase_id=self.id)
+                    & ~Q(annotator_id=self.annotator_id)
+                )
+            )
+        else:
+            return AnnotationResult.objects.filter(
+                annotation_campaign_phase=self.annotation_campaign_phase,
+                annotator_id=self.annotator_id,
+                dataset_file_id__gte=self.first_file_id,
+                dataset_file_id__lte=self.last_file_id,
+            )
+
     def save(self, *args, **kwargs):
         self.files_count = self.last_file_index - self.first_file_index + 1
         allowed_datasets = (
@@ -83,39 +118,33 @@ class AnnotationFileRange(models.Model):
 
         # When updating: remove tasks not related anymore
         if self.first_file_id is not None and self.last_file_id is not None:
-            self._get_tasks().filter(
+            self.tasks.annotate(
+                other_range_exist=Exists(
+                    Subquery(
+                        AnnotationFileRange.objects.filter(
+                            ~Q(id=self.id)
+                            & Q(
+                                annotator_id=self.annotator_id,
+                                annotation_campaign_phase=self.annotation_campaign_phase,
+                                first_file_id__lte=OuterRef("pk"),
+                                last_file_id__gte=OuterRef("pk"),
+                            )
+                        )
+                    )
+                )
+            ).filter(
                 Q(dataset_file_id__gt=new_last_file_id)
                 | Q(dataset_file_id__lt=new_first_file_id)
-            ).filter(other_range_exist=False).delete()
+            ).filter(
+                other_range_exist=False
+            ).delete()
 
         self.first_file_id = new_first_file_id
         self.last_file_id = new_last_file_id
         super().save(*args, **kwargs)
 
-    def _get_tasks(self) -> QuerySet[AnnotationTask]:
-        return AnnotationTask.objects.filter(
-            annotation_campaign_phase=self.annotation_campaign_phase,
-            annotator_id=self.annotator_id,
-            dataset_file_id__gte=self.first_file_id,
-            dataset_file_id__lte=self.last_file_id,
-        ).annotate(
-            other_range_exist=Exists(
-                Subquery(
-                    AnnotationFileRange.objects.filter(
-                        ~Q(id=self.id)
-                        & Q(
-                            annotator_id=self.annotator_id,
-                            annotation_campaign_phase=self.annotation_campaign_phase,
-                            first_file_id__lte=OuterRef("pk"),
-                            last_file_id__gte=OuterRef("pk"),
-                        )
-                    )
-                )
-            )
-        )
-
     def delete(self, using=None, keep_parents=False):
-        self._get_tasks().filter(other_range_exist=False).delete()
+        self.tasks.filter(other_range_exist=False).delete()
         return super().delete(using, keep_parents)
 
     @staticmethod

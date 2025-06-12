@@ -8,6 +8,9 @@ from django.db.models import (
     OuterRef,
     Count,
     Value,
+    Subquery,
+    Func,
+    F,
 )
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions, filters
@@ -33,37 +36,47 @@ from backend.utils.filters import ModelFilter, get_boolean_query_param
 class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
     """Filter dataset files from file ranges"""
 
+    @staticmethod
+    def get_results_for_file_range(
+        file_range,
+        user_annotations: Optional[bool],
+        user_id: int,
+        features: Optional[bool],
+    ):
+        """Recover matching results"""
+        results = file_range.results
+        if features is not None:
+            results = results.filter(acoustic_features__isnull=not features)
+
+        if user_annotations is not None:
+            file_filter = Q(dataset_file_id=OuterRef("id"))
+            if file_range.annotation_campaign_phase.phase == Phase.ANNOTATION:
+                file_filter = file_filter & Q(annotator_id=user_id)
+            elif file_range.annotation_campaign_phase.phase == Phase.VERIFICATION:
+                file_filter = file_filter & ~Q(annotator_id=user_id)
+            if user_annotations:
+                results = results.filter(file_filter)
+            else:
+                results = results.filter(~file_filter)
+
+        return results
+
     def filter_queryset(
         self, request: Request, queryset: QuerySet[AnnotationFileRange], view
     ) -> QuerySet[DatasetFile]:
         """Get filtered dataset files"""
-        if not queryset.exists():
-            return DatasetFile.objects.none()
-        campaign_ids = queryset.values_list(
-            "annotation_campaign_phase__annotation_campaign",
-            flat=True,
-        )
-
-        id_filter = None
+        files = DatasetFile.objects.none()
         for file_range in queryset:
-            file_range_filter = Q(
-                id__gte=file_range.first_file_id, id__lte=file_range.last_file_id
+            files = files | self._filter_queryset_for_file_range(
+                request, file_range, view
             )
-            if id_filter is None:
-                id_filter = file_range_filter
-            else:
-                id_filter = id_filter | file_range_filter
+        return files.order_by("start", "id")
 
-        if id_filter is None:
-            return DatasetFile.objects.none()
-
-        files = (
-            DatasetFile.objects.select_related("dataset")
-            .prefetch_related("dataset__annotation_campaigns")
-            .filter(dataset__annotation_campaigns__in=campaign_ids)
-            .filter(id_filter)
-        )
-
+    def _filter_queryset_for_file_range(
+        self, request: Request, file_range: AnnotationFileRange, view
+    ) -> QuerySet[DatasetFile]:
+        """Get filtered dataset files for a specific file_range"""
+        files = DatasetFile.objects.filter_for_file_range(file_range)
         files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
             request, files, view
         )
@@ -71,14 +84,33 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
         )
-        if with_user_annotations is not None:
-            with_user_annotations_filter = Q(
-                annotation_results__annotator=request.user
-            ) | Q(annotation_results__detector_configuration__isnull=False)
-            if with_user_annotations:
-                files = files.filter(with_user_annotations_filter)
-            else:
-                files = files.filter(~with_user_annotations_filter)
+        with_features = get_boolean_query_param(
+            request, "annotation_results__acoustic_features__isnull"
+        )
+        results = self.get_results_for_file_range(
+            file_range,
+            user_annotations=with_user_annotations
+            if with_user_annotations is not False
+            else True,
+            user_id=request.user.id,
+            features=with_features,
+        )
+        files = files.filter(
+            Exists(results) if with_user_annotations is not False else ~Exists(results),
+        )
+
+        files = files.annotate(
+            results_count=Subquery(
+                self.get_results_for_file_range(
+                    file_range,
+                    user_annotations=True,
+                    user_id=request.user.id,
+                    features=with_features,
+                )
+                .annotate(count=Func(F("id"), function="count"))
+                .values("count")
+            ),
+        )
 
         is_submitted = get_boolean_query_param(request, "is_submitted")
         if is_submitted is not None:
@@ -205,25 +237,26 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             annotation_results__annotation_campaign_phase_id=phase_id,
             annotation_results__annotator_id=self.request.user.id,
         )
-        annotation_results_count = Value(0)
+        # annotation_results_count = Value(0)
         validated_annotation_results_count = Value(0)
         if phase is not None:
             if phase.phase == Phase.ANNOTATION:
-                annotation_results_count = Count(
-                    "annotation_results",
-                    filter=created_annotations_filter,
-                    distinct=True,
-                )
+                # annotation_results_count = Count(
+                #     "annotation_results",
+                #     filter=created_annotations_filter,
+                #     distinct=True,
+                # )
+                pass
             if phase.phase == Phase.VERIFICATION:
                 annotation_results_count_filter = Q(
                     annotation_results__annotation_campaign_phase__phase=Phase.ANNOTATION,
                     annotation_results__annotation_campaign_phase__annotation_campaign_id=phase.annotation_campaign_id,
                 ) & ~Q(annotation_results__annotator_id=self.request.user.id)
-                annotation_results_count = Count(
-                    "annotation_results",
-                    filter=annotation_results_count_filter,
-                    distinct=True,
-                )
+                # annotation_results_count = Count(
+                #     "annotation_results",
+                #     filter=annotation_results_count_filter,
+                #     distinct=True,
+                # )
                 validated_annotation_results_count = Count(
                     "annotation_results",
                     filter=(
@@ -251,7 +284,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                         status=AnnotationTask.Status.FINISHED,
                     )
                 ),
-                results_count=annotation_results_count,
+                # results_count=annotation_results_count,
                 validated_results_count=validated_annotation_results_count,
             )
         )
