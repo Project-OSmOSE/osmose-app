@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import { Button, Link, TooltipOverlay } from "@/components/ui";
 import { IonIcon } from "@ionic/react";
 import { cloudDownloadOutline, peopleOutline, playOutline } from "ionicons/icons";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { PaginatedAnnotationFiles } from "@/service/api/annotation-file-range.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -27,7 +27,7 @@ export const ResumeButton: React.FC<{
   }, [ campaign, phase, files ])
 
   return <TooltipOverlay tooltipContent={ <p>{ tooltip }</p> } anchor='right'>
-    <Button color="primary" fill='solid' aria-label='Resume'
+    <Button color="primary" fill='outline' aria-label='Resume'
             disabled={ !(files && files.count > 0) || !files?.resume || disabled }
             style={ { pointerEvents: 'unset' } }
             onClick={ resume }>
@@ -37,14 +37,16 @@ export const ResumeButton: React.FC<{
 }
 
 export const ImportAnnotationsButton: React.FC = () => {
-  const { campaign } = useRetrieveCurrentCampaign()
+  const { campaign,  } = useRetrieveCurrentCampaign()
+  const { verificationPhase } = useListPhasesForCurrentCampaign()
   const { phase } = useRetrieveCurrentPhase()
 
   const path = useMemo(() => {
     return `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/import-annotations`
   }, [ campaign, phase ])
 
-  return <TooltipOverlay tooltipContent={ <p>Import annotations</p> } anchor='right'>
+  if (!verificationPhase) return <Fragment/>
+  return <TooltipOverlay tooltipContent={ <p>Import annotations for verification</p> } anchor='right'>
     <Link appPath={ path } fill='outline' color='medium' aria-label='Import'>
       <IonIcon icon={ cloudDownloadOutline } slot='icon-only'/>
     </Link>

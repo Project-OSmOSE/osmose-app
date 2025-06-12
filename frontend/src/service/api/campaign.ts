@@ -95,6 +95,6 @@ export const useRetrieveCurrentCampaign = () => {
   return useMemo(() => ({
     campaign,
     ...info,
-    hasAdminAccess: !!user && (user.is_staff || user.is_superuser || campaign?.owner?.id === user.id)
+    hasAdminAccess: !!user && (user.is_staff || user.is_superuser || campaign?.owner?.id === user.id),
   }), [ campaign, info ])
 }
