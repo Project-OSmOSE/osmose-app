@@ -1,3 +1,5 @@
+$box-width: 3px;
+
 .header {
   cursor: default !important;
   display: grid;
@@ -6,16 +8,25 @@
   color: var(--ion-color-contrast);
   position: absolute;
   left: 50%;
-  width: calc(100% + 4px); /* Box border size */
+  width: calc(100% + 2 * $box-width); /* Box border size */
   min-width: fit-content;
 
   &.over {
     top: 0;
     transform: translate(-50%, -100%);
+
+    &.stickLeft, &.stickRight {
+      transform: translate(0%, -100%);
+    }
   }
+
   &.bellow {
     bottom: 0;
     transform: translate(-50%, 100%);
+
+    &.stickLeft, &.stickRight {
+      transform: translate(0%, 100%);
+    }
   }
 
   .inner {
@@ -47,14 +58,23 @@
       stroke-width: 3rem;
     }
   }
+
+  &.stickLeft {
+    left: calc(-1 * $box-width);
+  }
+
+  &.stickRight {
+    left: unset;
+    right: calc(-1 * $box-width);
+  }
 }
 
 .annotation {
-  border-width: 3px;
+  border-width: $box-width;
 
   .inner {
-   cursor: crosshair;
- }
+    cursor: crosshair;
+  }
 
   &.disabled {
     opacity: 0.75;

@@ -13,6 +13,7 @@ import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 import { UserAPI } from "@/service/api/user.ts";
 import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -25,6 +26,8 @@ export const AnnotationHeader: React.FC<{
   annotation: AnnotationResult,
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ active, top, onTopMove, onLeftMove, setIsMouseHover, onValidateMove, className, annotation, audioPlayer }) => {
+  const { data } = useRetrieveAnnotator();
+
   const dispatch = useAppDispatch();
   const _setIsMouseHover = useCallback((value: boolean) => {
     if (!setIsMouseHover) return;
@@ -35,13 +38,24 @@ export const AnnotationHeader: React.FC<{
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
     return label;
   }, [ annotation ]);
+
+  const headerStickSideClass = useMemo(() => {
+    if (!data || annotation.type === 'Weak') return ''
+    const end = annotation.type === 'Box' ? annotation.end_time : annotation.start_time;
+    if (end > (data.file.duration * 0.9))
+      return styles.stickRight
+    if (annotation.start_time < (data.file.duration * 0.1))
+      return styles.stickLeft
+    return ''
+  }, [ annotation, data?.file ])
+
   return <ExtendedDiv draggable={ active }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
                       onMouseEnter={ () => _setIsMouseHover(true) }
                       onMouseMove={ () => _setIsMouseHover(true) }
                       onMouseLeave={ () => _setIsMouseHover(false) }
-                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
+                      className={ [ styles.header, headerStickSideClass, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
                       innerClassName={ styles.inner }
                       onClick={ () => dispatch(AnnotatorSlice.actions.focusResult(annotation.id)) }>
 
