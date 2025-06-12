@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import styles from './annotator.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { IonIcon, IonNote } from "@ionic/react";
@@ -7,11 +7,12 @@ import { Link, Progress } from "@/components/ui";
 import { helpBuoyOutline } from "ionicons/icons";
 import { IoCheckmarkCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useAnnotatorSliceSetup, useCanNavigate } from "@/service/slices/annotator";
-import { useAppSelector } from "@/service/app.ts";
+import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { UserAPI } from "@/service/api/user.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { API } from "@/service/api";
 
 export const AnnotatorPage: React.FC = () => {
   UserAPI.endpoints.getCurrentUser.useQuery()
@@ -19,6 +20,7 @@ export const AnnotatorPage: React.FC = () => {
   const { phase } = useRetrieveCurrentPhase()
   const { data } = useRetrieveAnnotator();
   useAnnotatorSliceSetup()
+  const dispatch = useAppDispatch()
 
   const pointerPosition = useAppSelector(state => state.annotator.ui.pointerPosition);
   const isEditable = useMemo(() => !campaign?.archive && !phase?.ended_by && data?.is_assigned, [ campaign, phase, data ])
@@ -32,6 +34,13 @@ export const AnnotatorPage: React.FC = () => {
       document.getElementsByTagName('html')[0].style.overflowY = 'unset';
     }
   }, [ pointerPosition ]);
+
+  const onBack = useCallback(() => {
+    dispatch(API.util.invalidateTags([ {
+      type: 'CampaignPhase',
+      id: phase?.id
+    } ]))
+  }, [ phase ])
 
   // 'page' class is for playwright tests
   return <div className={ [ styles.page, 'page' ].join(' ') }>
@@ -47,6 +56,7 @@ export const AnnotatorPage: React.FC = () => {
               }
 
               <Link color='medium' fill='outline' size='small'
+                    onClick={ onBack }
                     appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
                 Back to campaign
               </Link>
