@@ -118,34 +118,35 @@ class AnnotationFileRange(models.Model):
 
         # When updating: remove tasks not related anymore
         if self.first_file_id is not None and self.last_file_id is not None:
-            self.tasks.annotate(
-                other_range_exist=Exists(
-                    Subquery(
-                        AnnotationFileRange.objects.filter(
-                            ~Q(id=self.id)
-                            & Q(
-                                annotator_id=self.annotator_id,
-                                annotation_campaign_phase=self.annotation_campaign_phase,
-                                first_file_id__lte=OuterRef("pk"),
-                                last_file_id__gte=OuterRef("pk"),
-                            )
-                        )
-                    )
-                )
-            ).filter(
+            self._get_tasks().filter(
                 Q(dataset_file_id__gt=new_last_file_id)
                 | Q(dataset_file_id__lt=new_first_file_id)
-            ).filter(
-                other_range_exist=False
-            ).delete()
+            ).filter(other_range_exist=False).delete()
 
         self.first_file_id = new_first_file_id
         self.last_file_id = new_last_file_id
         super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
-        self.tasks.filter(other_range_exist=False).delete()
+        self._get_tasks().filter(other_range_exist=False).delete()
         return super().delete(using, keep_parents)
+
+    def _get_tasks(self) -> QuerySet[AnnotationTask]:
+        return self.tasks.annotate(
+            other_range_exist=Exists(
+                Subquery(
+                    AnnotationFileRange.objects.filter(
+                        ~Q(id=self.id)
+                        & Q(
+                            annotator_id=self.annotator_id,
+                            annotation_campaign_phase=self.annotation_campaign_phase,
+                            first_file_id__lte=OuterRef("pk"),
+                            last_file_id__gte=OuterRef("pk"),
+                        )
+                    )
+                )
+            )
+        )
 
     @staticmethod
     def get_connected_ranges(data):
