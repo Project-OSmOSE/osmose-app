@@ -44,13 +44,15 @@ export const Alert: React.FC<{
 
       { alert.type === 'Warning' && <Fragment>
           <IonButton color="medium" fill='clear' onClick={ hide }>Cancel</IonButton>
-        { alert.actions.map(action =>
-          <IonButton color="warning" fill='clear' onClick={ () => onAction(action) }>{ action.label }</IonButton>) }
+        { alert.actions.map((action, key) =>
+          <IonButton color="warning" fill='clear' onClick={ () => onAction(action) }
+                     key={ key }>{ action.label }</IonButton>) }
       </Fragment> }
 
       { alert.type === 'Error' && <Fragment>
-        { alert.actions.map(action =>
-          <IonButton color="danger" fill='clear' onClick={ () => onAction(action) }>{ action.label }</IonButton>) }
+        { alert.actions.map((action, key) =>
+          <IonButton color="danger" fill='clear' onClick={ () => onAction(action) }
+                     key={ key }>{ action.label }</IonButton>) }
           <IonButton color="medium" fill='clear' onClick={ hide }>Cancel</IonButton>
       </Fragment> }
     </ModalFooter>

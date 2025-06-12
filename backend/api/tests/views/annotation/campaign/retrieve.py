@@ -39,8 +39,7 @@ class RetrieveFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["name"], "Test SPM campaign")
         self.assertEqual(len(response.data["datasets"]), 1)
         self.assertEqual(response.data["owner"]["username"], "user1")
-        self.assertEqual(response.data["my_progress"], 1)
-        self.assertEqual(response.data["my_total"], 6)
+        self.assertEqual(response.data["phases"][0], 1)
         self.assertEqual(response.data["archive"], None)
 
     def test_retrieve_archived(self):
@@ -50,8 +49,7 @@ class RetrieveFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["name"], "Test RTF campaign")
         self.assertEqual(len(response.data["datasets"]), 1)
         self.assertEqual(response.data["owner"]["username"], "user1")
-        self.assertEqual(response.data["my_progress"], 0)
-        self.assertEqual(response.data["my_total"], 0)
+        self.assertEqual(response.data["phases"][0], 3)
         self.assertNotEqual(response.data["archive"], None)
 
 
@@ -66,8 +64,7 @@ class RetrieveFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["name"], "Test SPM campaign")
         self.assertEqual(len(response.data["datasets"]), 1)
         self.assertEqual(response.data["owner"]["username"], "user1")
-        self.assertEqual(response.data["my_progress"], 0)
-        self.assertEqual(response.data["my_total"], 0)
+        self.assertEqual(response.data["phases"][0], 1)
 
     def test_retrieve_archived(self):
         response = self.client.get(URL_archived)
@@ -76,8 +73,7 @@ class RetrieveFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["name"], "Test RTF campaign")
         self.assertEqual(len(response.data["datasets"]), 1)
         self.assertEqual(response.data["owner"]["username"], "user1")
-        self.assertEqual(response.data["my_progress"], 0)
-        self.assertEqual(response.data["my_total"], 0)
+        self.assertEqual(response.data["phases"][0], 3)
         self.assertNotEqual(response.data["archive"], None)
 
 
@@ -92,8 +88,7 @@ class RetrieveFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["name"], "Test SPM campaign")
         self.assertEqual(len(response.data["datasets"]), 1)
         self.assertEqual(response.data["owner"]["username"], "user1")
-        self.assertEqual(response.data["my_progress"], 0)
-        self.assertEqual(response.data["my_total"], 4)
+        self.assertEqual(response.data["phases"][0], 1)
 
     def test_retrieve_archived(self):
         response = self.client.get(URL_archived)

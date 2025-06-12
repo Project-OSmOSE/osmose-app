@@ -1,23 +1,20 @@
 import React, { Fragment, useCallback, useEffect, useRef } from "react";
-import { UserAPI } from "@/service/user";
 import { basicSetup, EditorView } from "codemirror";
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
-import { SqlAPI } from "@/service/sql";
-import { Button, Kbd } from "@/components/ui";
+import { Button, Kbd, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { Prec } from "@codemirror/state";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
 import { getErrorMessage } from "@/service/function.ts";
-import { Table, TableContent, TableDivider, TableHead } from "@/components/table/table.tsx";
 import styles from './sql.module.scss'
-import { Pagination } from "@/components/Pagination/Pagination.tsx";
+import { UserAPI } from "@/service/api/user.ts";
+import { SQLAPI } from "@/service/api/sql.ts";
 
 
 export const SqlQuery: React.FC = () => {
-  const { data: user } = UserAPI.useGetCurrentUserQuery();
-  const { data: schema } = SqlAPI.useSchemaQuery();
-  const [ run, { data: results, error } ] = SqlAPI.usePostMutation();
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery();
+  const { data: schema } = SQLAPI.endpoints.sqlSchema.useQuery();
+  const [ run, { data: results, error } ] = SQLAPI.endpoints.postSQL.useMutation();
 
   const editorContainerRef = useRef<HTMLDivElement | undefined>();
   const editorRef = useRef<EditorView | undefined>();
@@ -39,7 +36,6 @@ export const SqlQuery: React.FC = () => {
           dialect: PostgreSQL,
           upperCaseKeywords: true,
           schema
-
         }),
         keymap.of([ ...defaultKeymap, indentWithTab ]),
         Prec.highest(keymap.of([ {
@@ -93,7 +89,7 @@ export const SqlQuery: React.FC = () => {
     <Button fill="outline" className={ styles.download }
             onClick={ download } disabled={ !results }>Download</Button>
 
-    { error && <WarningMessage className={ styles.error }>{ getErrorMessage(error) }</WarningMessage> }
+    { error && <WarningText className={ styles.error }>{ getErrorMessage(error) }</WarningText> }
 
     { results && <Table className={ styles.results } columns={ results.columns.length }>
       { results.columns.map((c, i) => <TableHead topSticky leftSticky={ i === 0 }
@@ -106,6 +102,8 @@ export const SqlQuery: React.FC = () => {
       </Fragment>) }
     </Table> }
 
-    { results && <Pagination className={styles.pagination} currentPage={ pageRef.current } totalPages={ results.pageCount } setCurrentPage={ runQuery }/> }
+    { results &&
+        <Pagination className={ styles.pagination } currentPage={ pageRef.current } totalPages={ results.pageCount }
+                    setCurrentPage={ runQuery }/> }
   </div>
 }

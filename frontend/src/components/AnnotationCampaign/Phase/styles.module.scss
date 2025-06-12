@@ -1,0 +1,131 @@
+
+.modal {
+  grid-template-rows: auto 1fr auto;
+
+  &.label {
+    grid-template-rows: auto auto 1fr auto;
+
+    > div:nth-last-child(2) {
+      overflow: auto;
+    }
+  }
+
+  .content {
+    overflow-y: auto;
+    display: grid;
+    gap: 1rem;
+    height: 100%;
+    padding-right: 1rem;
+  }
+
+  .table {
+    overflow: auto;
+    grid-template-columns: 2fr 1fr;
+
+    .stickyHead {
+      position: sticky;
+      top: 0;
+      background: var(--ion-color-light);
+      z-index: 10;
+    }
+
+    .sortedHead {
+      cursor: pointer;
+      transition: 300ms;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+  "title caret-up"
+  "title caret-down";
+      column-gap: 0.5rem;
+      align-items: center;
+      align-content: center;
+
+      p {
+        grid-area: title;
+        user-select: none;
+      }
+
+      .up {
+        grid-area: caret-up;
+      }
+
+      .down {
+        grid-area: caret-down;
+      }
+
+      .up, .down {
+        color: rgba(var(--ion-color-medium-rgb), 0.5);
+
+        &.active {
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+
+    .progressContent {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+
+      > div {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0 0.25rem;
+
+        .total {
+          grid-column: 1 / -1;
+          text-align: center;
+          line-height: 0.9rem;
+        }
+      }
+
+      .icon {
+        font-size: .95rem;
+      }
+    }
+  }
+
+  .buttons {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 800px) {
+    .footer {
+      grid-auto-flow: row !important;
+      justify-content: center !important;
+      justify-items: center;
+      gap: 0.5rem;
+    }
+
+    .table.status {
+      grid-template-columns: 1fr minmax(10rem, auto);
+    }
+  }
+}
+
+.tab {
+  --padding-bottom: 0.25rem;
+  --padding-top: 0.5rem;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --border-radius: 0rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0);
+  border-bottom: none;
+
+  &.active {
+    border-color: rgba(var(--ion-color-medium-rgb), 0.5);
+  }
+
+  ion-icon {
+    pointer-events: auto;
+  }
+}

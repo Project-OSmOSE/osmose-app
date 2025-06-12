@@ -44,7 +44,9 @@ Le panneau latéral droit affiche toutes les informations relatives à la campag
 
 ### Fichiers à annoter
 
-La page “Annotation files” répertorie les fichiers qui vous ont été attribué pour l'annotation. Vous pouvez rechercher
+![](/campaigns/phase-detail.png)
+
+Les onglets de détail des phases répertorient les fichiers qui vous ont été attribué pour l'annotation. Vous pouvez rechercher
 un fichier spécifique ou n'afficher que les fichiers non soumis ou les fichiers avec annotations, ou filtrer parmi les
 labels présents. Vous pouvez également reprendre directement l'annotation (bouton "Resume annotation"), ce qui vous
 amènera au premier fichier non soumis.

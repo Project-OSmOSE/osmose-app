@@ -1,6 +1,7 @@
 import React from "react";
 import { IonButton } from "@ionic/react";
 import { TooltipOverlay } from "@/components/ui/Tooltip.tsx";
+import { Link } from "@/components/ui/Link.tsx";
 
 type Props = {
   disabledExplanation?: string;
@@ -14,3 +15,9 @@ export const Button: React.FC<Props> = ({ disabledExplanation, disabled,  ...pro
 
   return <IonButton disabled={ disabled } { ...props }/>
 }
+
+export const DocumentationButton: React.FC<{
+  size?: 'small' | 'default' | 'large';
+}> = ({ size }) => (
+  <Link color='medium' href='/doc/' size={ size } target='_blank'>Documentation</Link>
+)

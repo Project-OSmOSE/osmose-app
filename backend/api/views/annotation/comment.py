@@ -6,9 +6,9 @@ from rest_framework.request import Request
 
 from backend.api.models import (
     AnnotationResult,
-    AnnotationCampaign,
     DatasetFile,
     AnnotationComment,
+    AnnotationCampaignPhase,
 )
 from backend.api.serializers import (
     AnnotationCommentSerializer,
@@ -25,8 +25,8 @@ class CommentAccessFilter(filters.BaseFilterBackend):
         if request.user.is_staff:
             return queryset
         return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
-            | Q(annotation_campaign__archive__isnull=True)
+            Q(annotation_campaign_phase__annotation_campaign__owner=request.user)
+            | Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
         )
 
 
@@ -48,12 +48,12 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return queryset
 
     @staticmethod
-    def map_request_comments(comments: list[dict], campaign_id, file_id, user_id):
+    def map_request_comments(comments: list[dict], phase_id, file_id, user_id):
         """Map rcomments from request with the other request information"""
         return [
             {
                 **c,
-                "annotation_campaign": campaign_id,
+                "annotation_campaign_phase": phase_id,
                 "dataset_file": file_id,
                 "author": c["author"]
                 if "author" in c and c["author"] is not None
@@ -65,16 +65,16 @@ class AnnotationCommentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @staticmethod
     def update_comments(
         new_comments: list[dict],
-        campaign: AnnotationCampaign,
+        phase: AnnotationCampaignPhase,
         file: DatasetFile,
         user_id,
     ):
         """Update with given comments"""
         data = AnnotationCommentViewSet.map_request_comments(
-            new_comments, campaign.id, file.id, user_id
+            new_comments, phase.id, file.id, user_id
         )
         current_comments = AnnotationCommentViewSet.queryset.filter(
-            annotation_campaign_id=campaign.id,
+            annotation_campaign_phase_id=phase.id,
             dataset_file_id=file.id,
             author_id=user_id,
             annotation_result__isnull=True,

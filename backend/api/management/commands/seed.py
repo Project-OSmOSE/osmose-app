@@ -27,6 +27,7 @@ from backend.api.models import (
     SpectrogramConfiguration,
     AnnotationFileRange,
     ConfidenceIndicatorSetIndicator,
+    Phase,
 )
 from backend.aplose.models import AploseUser
 from backend.aplose.models.user import ExpertiseLevel
@@ -379,6 +380,10 @@ class Command(management.BaseCommand):
                 confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,
             )
+            phase = campaign.phases.create(
+                phase=Phase.ANNOTATION,
+                created_by=self.admin,
+            )
             self.campaigns.append(campaign)
             if dataset.name == "Test archived":
                 archive = AnnotationCampaignArchive.objects.create(by_user=self.admin)
@@ -394,7 +399,7 @@ class Command(management.BaseCommand):
                 last_index = dataset.files.count() - 1
                 file_ranges.append(
                     AnnotationFileRange(
-                        annotation_campaign_id=campaign.id,
+                        annotation_campaign_phase_id=phase.id,
                         annotator_id=user.id,
                         first_file_index=0,
                         first_file_id=dataset.files.all()[0].id,
@@ -407,10 +412,10 @@ class Command(management.BaseCommand):
 
     def _create_annotation_results(self):
         print(" ###### _create_annotation_results ######")
-        campaign = self.campaigns[0]
+        phase = self.campaigns[0].phases.first()
         labels = self.label_sets[0].labels.values_list("id", flat=True)
         file_range: AnnotationFileRange
-        for file_range in campaign.annotation_file_ranges.all():
+        for file_range in phase.file_ranges.all():
             done_files = DatasetFile.objects.filter_for_file_range(file_range)[
                 : randint(5, max(self.files_nb - 5, 5))
             ]
@@ -419,12 +424,12 @@ class Command(management.BaseCommand):
                     dataset_file=file,
                     annotator=file_range.annotator,
                     status=AnnotationTask.Status.FINISHED,
-                    annotation_campaign=campaign,
+                    annotation_campaign_phase=phase,
                 )
                 if randint(1, 3) >= 2:
                     AnnotationComment.objects.create(
                         comment="a comment",
-                        annotation_campaign_id=campaign.id,
+                        annotation_campaign_phase=phase,
                         dataset_file_id=task.dataset_file_id,
                         author_id=task.annotator_id,
                         annotation_result=None,
@@ -432,7 +437,7 @@ class Command(management.BaseCommand):
                 for _ in range(randint(1, 5)):
                     start_time = randint(0, 600)
                     start_frequency = randint(0, 10000)
-                    campaign.results.create(
+                    phase.results.create(
                         start_time=start_time,
                         end_time=start_time + randint(30, 300),
                         start_frequency=start_frequency,
@@ -453,7 +458,7 @@ class Command(management.BaseCommand):
                 comments.append(
                     AnnotationComment(
                         comment=f"a comment : {result.label.name}",
-                        annotation_campaign_id=result.annotation_campaign_id,
+                        annotation_campaign_phase_id=result.annotation_campaign_phase_id,
                         dataset_file_id=result.dataset_file_id,
                         author_id=result.annotator_id,
                         annotation_result=result,

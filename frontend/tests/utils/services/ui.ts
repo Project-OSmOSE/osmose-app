@@ -9,8 +9,9 @@ export class UI {
   constructor(private page: Page) {
   }
 
-  async openModal(button: { name: string }) {
-    await this.page.getByRole('button', button).click()
+  async openModal(button: { name: string } | { ariaLabel: string }) {
+    if ('name' in button) await this.page.getByRole('button', button).click()
+    else await this.page.locator(`button[aria-label=${ button.ariaLabel }]`).click()
     const modal = this.page.getByRole('dialog').first()
     await expect(modal).toBeVisible();
     return Object.assign(modal, {

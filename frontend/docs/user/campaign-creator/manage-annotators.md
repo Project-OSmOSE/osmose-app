@@ -1,6 +1,11 @@
 # Manage a campaign
 
-You can manage annotators of a campaign at any time
+You can manage annotators of a phase at any time
+
+![](/campaign-creator/campaign-detail-actions.png)
+
+At the top of the page, click on the "Detailed progression" button, then "Manage annotators".
+
 For each annotator you can specify the range of file he/she can annotate. You can set two different ranges for the same
 annotator.
 You can add new annotator with the search input.

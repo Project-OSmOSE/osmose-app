@@ -1,30 +1,31 @@
+$box-width: 3px;
+
 .header {
-  cursor: pointer !important;
+  cursor: default !important;
   display: grid;
   pointer-events: all;
   background: var(--ion-color-base);
   color: var(--ion-color-contrast);
   position: absolute;
   left: 50%;
-  width: calc(100% + 4px); /* Box border size */
+  width: calc(100% + 2 * $box-width); /* Box border size */
   min-width: fit-content;
 
   &.over {
     top: 0;
     transform: translate(-50%, -100%);
+
+    &.stickLeft, &.stickRight {
+      transform: translate(0%, -100%);
+    }
   }
+
   &.bellow {
     bottom: 0;
     transform: translate(-50%, 100%);
-  }
 
-  &.canBeRemoved {
-    .inner {
-      grid-template-columns: auto auto 1fr auto auto;
-
-      .delete {
-        display: block;
-      }
+    &.stickLeft, &.stickRight {
+      transform: translate(0%, 100%);
     }
   }
 
@@ -33,12 +34,13 @@
     align-items: center;
     align-content: center;
     justify-items: center;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto auto;
     border-radius: 0.25rem;
     padding: 0 0.25rem;
     gap: 0.5rem;
     white-space: nowrap;
     position: relative;
+    cursor: default !important;
 
     > * {
       font-size: .9rem;
@@ -52,22 +54,27 @@
       font-size: .75rem;
     }
 
-    .delete {
-      display: none;
-    }
-
     .outlineIcon path {
       stroke-width: 3rem;
     }
   }
+
+  &.stickLeft {
+    left: calc(-1 * $box-width);
+  }
+
+  &.stickRight {
+    left: unset;
+    right: calc(-1 * $box-width);
+  }
 }
 
 .annotation {
-  border-width: 3px;
+  border-width: $box-width;
 
   .inner {
-   cursor: crosshair;
- }
+    cursor: crosshair;
+  }
 
   &.disabled {
     opacity: 0.75;

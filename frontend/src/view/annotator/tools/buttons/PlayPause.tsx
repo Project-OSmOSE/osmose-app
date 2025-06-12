@@ -1,6 +1,6 @@
 import React, { MutableRefObject } from "react";
 import { useAppSelector } from '@/service/app';
-import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { useAudioService } from "@/service/ui/audio";
 import { IonButton, IonIcon } from "@ionic/react";
 import { pause, play } from "ionicons/icons";
 import { Kbd } from "@/components/ui/Kbd.tsx";

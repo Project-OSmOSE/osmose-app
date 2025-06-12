@@ -1,46 +1,53 @@
 import React, { Fragment, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/service/app.ts";
-import { Progress } from "@/components/ui";
+import { Progress, WarningText } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
-import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
-import { ResultImportSlice, useUploadResultChunk } from "@/service/campaign/result/import";
 import styles from "@/view/campaign/edit/edit.module.scss";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { CampaignAPI } from "@/service/campaign";
-import { DetectorConfiguration } from "@/service/campaign/detector";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
+import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const Upload: React.FC = () => {
-  const { id: campaignID } = useParams<{ id: string }>();
-  const { data: campaign } = CampaignAPI.useRetrieveQuery(campaignID);
+  const { campaign } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase()
+  const { verificationPhase } = useListPhasesForCurrentCampaign()
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const back = useCallback(() => {
-    if (campaign) history.push(`/annotation-campaign/${ campaign.id }`)
-  }, [ campaign ])
+    if (campaign && verificationPhase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }`)
+    else if (campaign && phase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }`)
+  }, [ campaign, verificationPhase, phase ])
 
   const onUploaded = useCallback(() => {
     if ((location.state as any)?.fromCreateCampaign) {
-      history.push(`/annotation-campaign/${ campaignID }/edit-annotators`, { fromImportAnnotations: true })
+      navigate(`/annotation-campaign/${ campaign?.id }/edit-annotators`, { state: { fromImportAnnotations: true } })
     } else {
       back()
     }
-  }, [ campaignID, location, history, back ])
+  }, [ campaign?.id, location, navigate, back ])
 
-  const { upload } = useUploadResultChunk(onUploaded)
+  const { upload } = useUploadAnnotationChunk(onUploaded)
   const reset = useCallback(() => {
-    dispatch(ResultImportSlice.actions.clear())
+    dispatch(ImportAnnotationsSlice.actions.clear())
   }, [])
 
   const buttons = useMemo(() => {
-    const finalDetectors = new Set(Object.entries(detectors.mapToKnown).map(([key, value]) => value?.name ?? key))
-    const configuredDetectors = Object.values(detectors.mapToConfiguration).filter((value: DetectorConfiguration | string | undefined) => !!value)
+    const allSelectedAnnotatorsHasConfiguration = detectors.selection.map(detector => {
+      const name = detectors.mapToKnown[detector]?.name ?? detector
+      let config = detectors.mapToConfiguration[name]
+      if (!config) return false;
+      if (typeof config !== 'string') config = config.configuration
+      return !!config;
+    }).reduce((a, b) => a && b, true)
     const canImport = file.state === 'loaded'
       && detectors.selection.length > 0
-      && finalDetectors.size === configuredDetectors.length
+      && allSelectedAnnotatorsHasConfiguration
       && uploadInfo.state !== 'uploading';
     return <div className={ styles.buttons }>
       <IonButton color='medium' fill='outline' onClick={ back }>
@@ -54,7 +61,7 @@ export const Upload: React.FC = () => {
     </div>
   }, [ upload, uploadInfo, detectors, back, file ])
 
-  if (campaign?.usage !== 'Check') return <Fragment/>
+  if (phase?.phase !== 'Annotation') return <Fragment/>
   if (uploadInfo.state === 'initial') return buttons
   return <Fragment>
     <Progress label='Upload' value={ uploadInfo.uploaded } total={ uploadInfo.total }/>
@@ -63,13 +70,18 @@ export const Upload: React.FC = () => {
         <IonNote>Estimated remaining
             time: { formatTime(uploadInfo.remainingDurationEstimation / 1000) } minutes</IonNote> }
 
-    { uploadInfo.state === 'error' && <WarningMessage>
+    { uploadInfo.state === 'error' && <WarningText>
         <p>{ uploadInfo.error }</p>
 
-      { uploadInfo.canForceDatetime && <IonButton color='warning' fill='clear' onClick={ () => upload({ force_datetime: true }) }>Import anyway</IonButton> }
-      { uploadInfo.canForceMaxFrequency && <IonButton color='warning' fill='clear' onClick={ () => upload({ force_max_frequency: true }) }>Import anyway</IonButton> }
-      { !(uploadInfo.canForceDatetime || uploadInfo.canForceMaxFrequency) && <IonButton color='primary' fill='clear' onClick={ reset }>Reset</IonButton> }
-    </WarningMessage> }
+      { uploadInfo.canForceDatetime &&
+          <IonButton color='warning' fill='clear' onClick={ () => upload({ force_datetime: true }) }>Import
+              anyway</IonButton> }
+      { uploadInfo.canForceMaxFrequency &&
+          <IonButton color='warning' fill='clear' onClick={ () => upload({ force_max_frequency: true }) }>Import
+              anyway</IonButton> }
+      { !(uploadInfo.canForceDatetime || uploadInfo.canForceMaxFrequency) &&
+          <IonButton color='primary' fill='clear' onClick={ reset }>Reset</IonButton> }
+    </WarningText> }
 
     { buttons }
   </Fragment>

@@ -3,9 +3,9 @@ from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationResult,
-    AnnotationCampaign,
     AnnotationComment,
     DatasetFile,
+    AnnotationCampaignPhase,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import ListSerializer
@@ -20,8 +20,8 @@ class AnnotationCommentSerializer(serializers.ModelSerializer):
         allow_null=True,
         required=False,
     )
-    annotation_campaign = serializers.PrimaryKeyRelatedField(
-        queryset=AnnotationCampaign.objects.all(),
+    annotation_campaign_phase = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaignPhase.objects.all(),
     )
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),

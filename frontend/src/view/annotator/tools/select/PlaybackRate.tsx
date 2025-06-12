@@ -1,6 +1,6 @@
 import React, { Fragment, MutableRefObject } from "react";
 import { useAppSelector } from '@/service/app';
-import { useAudioService } from "@/services/annotator/audio.service.ts";
+import { useAudioService } from "@/service/ui/audio";
 import { Select } from "@/components/form";
 
 const AVAILABLE_RATES: Array<number> = [ 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0 ];

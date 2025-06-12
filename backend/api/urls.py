@@ -13,6 +13,7 @@ from backend.api.views import (
     AudioMetadatumViewSet,
     SpectrogramConfigurationViewSet,
     DatasetFileViewSet,
+    AnnotationCampaignPhaseViewSet,
 )
 
 # API urls are meant to be used by our React frontend
@@ -23,6 +24,11 @@ api_router.register(r"detector", DetectorViewSet, basename="detector")
 api_router.register(r"label-set", LabelSetViewSet, basename="label-set")
 api_router.register(
     r"annotation-campaign", AnnotationCampaignViewSet, basename="annotation-campaign"
+)
+api_router.register(
+    r"annotation-campaign-phase",
+    AnnotationCampaignPhaseViewSet,
+    basename="annotation-campaign-phase",
 )
 api_router.register(
     r"annotation-file-range",

@@ -1,0 +1,24 @@
+.searchbar.withResults input {
+  border-radius: 1rem 1rem 0 0 !important;
+}
+
+.results {
+  position: absolute;
+  z-index: 10;
+  border-radius: 0 0 1rem 1rem;
+  --background: var(--ion-color-light-shade);
+  color: var(--ion-color-light-contrast);
+  padding: 0;
+  box-shadow: var(--aplose-box-shadow);
+
+  ion-item {
+    --background: var(--ion-color-light-shade);
+    cursor: pointer;
+
+    &.none {
+      font-style: italic;
+      opacity: 0.75;
+      cursor: default;
+    }
+  }
+}

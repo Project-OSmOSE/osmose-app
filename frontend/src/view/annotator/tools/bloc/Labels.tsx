@@ -1,28 +1,25 @@
-import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import {
-  addPresenceResult,
-  AnnotatorSlice,
-  focusLabel,
-  focusTask,
-  getPresenceLabels,
-  removePresence
-} from '@/service/annotator';
 import { IonChip, IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeCircle, eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import styles from './bloc.module.scss';
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { useAlert } from "@/service/ui";
 import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 import { AlphanumericKeys } from "@/consts/shorcuts.const.tsx";
-import { LabelSet } from "@/service/campaign/label-set";
 import { Button, Kbd, TooltipOverlay } from "@/components/ui";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { AnnotationCampaignPhase, LabelSet } from "@/service/types";
+import { AnnotatorSlice, getPresenceLabels } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 
 export const Labels: React.FC = () => {
-  const {
-    label_set,
-  } = useAnnotator();
+  const { phase } = useRetrieveCurrentPhase()
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
+  const phaseRef = useRef<AnnotationCampaignPhase | undefined>(phase)
+  useEffect(() => {
+    phaseRef.current = phase
+  }, [ phase ]);
 
   const {
     results,
@@ -37,10 +34,10 @@ export const Labels: React.FC = () => {
     _focused.current = focusedLabel;
   }, [ focusedLabel ]);
 
-  const _labelSet = useRef<LabelSet | undefined>(label_set);
+  const _labelSet = useRef<LabelSet | undefined>(labelSet);
   useEffect(() => {
-    _labelSet.current = label_set;
-  }, [ label_set ]);
+    _labelSet.current = labelSet;
+  }, [ labelSet ]);
 
 
   const _presenceLabels = useRef<string[]>(presenceLabels);
@@ -49,7 +46,7 @@ export const Labels: React.FC = () => {
   }, [ presenceLabels ]);
 
   function onKbdEvent(event: KeyboardEvent) {
-    if (!_labelSet.current) return;
+    if (!_labelSet.current || !phaseRef.current) return;
     const active_alphanumeric_keys = AlphanumericKeys[0].slice(0, _labelSet.current.labels.length);
 
     if (event.key === "'") {
@@ -62,13 +59,14 @@ export const Labels: React.FC = () => {
       const calledLabel = _labelSet.current.labels[i];
       if (_focused.current === calledLabel) continue;
       if (!_presenceLabels.current.includes(calledLabel)) {
-        dispatch(addPresenceResult(calledLabel));
+        dispatch(AnnotatorSlice.actions.addPresenceResult({ label: calledLabel, phaseID: phaseRef.current.id }));
       } else {
-        dispatch(focusTask())
-        dispatch(focusLabel(calledLabel))
+        dispatch(AnnotatorSlice.actions.focusTask())
+        dispatch(AnnotatorSlice.actions.focusLabel(calledLabel))
       }
     }
   }
+
   useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const showAll = useCallback(() => {
@@ -85,16 +83,15 @@ export const Labels: React.FC = () => {
                                                 className={ styles.showButton }>Show all</Button> }
       </h6>
       <div className={ styles.body }>
-        { label_set?.labels.map((label, key) => <LabelItem label={ label } key={ key } index={ key }/>) }
+        { labelSet?.labels.map((label, key) => <LabelItem label={ label } key={ key } index={ key }/>) }
       </div>
     </div>
   )
 }
 
 export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, index }) => {
-  const {
-    label_set,
-  } = useAnnotator();
+  const { phase } = useRetrieveCurrentPhase()
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
   const {
     results,
     focusedLabel,
@@ -105,21 +102,28 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
   const color = useMemo(() => (index % 10).toString(), [ index ])
   const buttonColor = useMemo(() => focusedLabel === label ? undefined : color, [ color, focusedLabel, label ])
   const dispatch = useAppDispatch()
+  const [ className, setClassName ] = useState<string>('');
   const alert = useAlert();
 
+  useEffect(() => {
+    if (!focusedLabel || focusedLabel !== label) setClassName('')
+    else setClassName(styles.activeLabel)
+  }, [ focusedLabel, label ])
+
   const select = useCallback(() => {
+    if (!phase) return;
     if (isUsed) {
-      dispatch(focusLabel(label));
+      dispatch(AnnotatorSlice.actions.focusLabel(label));
     } else {
-      dispatch(addPresenceResult(label));
-      dispatch(focusLabel(label));
+      dispatch(AnnotatorSlice.actions.addPresenceResult({ label, phaseID: phase.id }));
+      dispatch(AnnotatorSlice.actions.focusLabel(label));
     }
-  }, [ label ])
+  }, [ label, phase ])
 
   const hideAllButCurrent = useCallback(() => {
-    dispatch(AnnotatorSlice.actions.hideLabels(label_set?.labels ?? []));
+    dispatch(AnnotatorSlice.actions.hideLabels(labelSet?.labels ?? []));
     dispatch(AnnotatorSlice.actions.showLabel(label));
-  }, [ label, label_set ])
+  }, [ label, labelSet ])
 
   const show = useCallback((event: MouseEvent) => {
     event.stopPropagation();
@@ -142,14 +146,14 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
       message: `You are about to remove ${ results.filter(r => r.label === label).length } annotations using "${ label }" label. Are you sure?`,
       actions: [ {
         label: `Remove "${ label }" annotations`,
-        callback: () => dispatch(removePresence(label))
+        callback: () => dispatch(AnnotatorSlice.actions.removePresence(label))
       } ]
     })
   }, [ label, isUsed, results ])
 
   return (
     <IonChip outline={ !isUsed }
-             className={ focusedLabel === label ? styles.activeLabel : '' }
+             className={ className }
              onClick={ select }
              color={ color }>
       { focusedLabel === label && <IonIcon src={ checkmarkOutline }/> }

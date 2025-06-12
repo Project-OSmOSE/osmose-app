@@ -2,20 +2,20 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import styles from './auth.module.scss';
 import { Footer, Header } from "@/components/layout";
 import { Input } from "@/components/form";
-import { useAppSelector } from "@/service/app.ts";
-import { selectIsConnected, useLoginMutation } from "@/service/auth";
 import { IonButton } from "@ionic/react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getErrorMessage } from "@/service/function.ts";
 import { Button, Link } from "@/components/ui";
 import { useToast } from "@/service/ui";
-import { useGetCurrentUserQuery } from "@/service/user";
 import { NON_FILTERED_KEY_DOWN_EVENT, useEvent } from "@/service/events";
+import { AuthAPI } from "@/service/api/auth.ts";
+import { useAppSelector } from "@/service/app.ts";
+import { selectIsConnected } from "@/service/slices/auth.ts";
 
 export const Login: React.FC = () => {
 
   // State
-  const isConnected = useAppSelector(selectIsConnected);
+  const isConnected = useAppSelector(selectIsConnected)
   const [ username, setUsername ] = useState<string>('');
   const [ password, setPassword ] = useState<string>('');
   const [ errors, setErrors ] = useState<{ global?: string, username?: string, password?: string }>({});
@@ -26,12 +26,11 @@ export const Login: React.FC = () => {
   }, [ username, password ]);
 
   // Service
-  const history = useHistory();
-  const location = useLocation<any>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { from } = location.state || { from: { pathname: '/annotation-campaign' } };
-  const [ login, { isLoading, error: loginError } ] = useLoginMutation();
+  const [ login, { isLoading, error: loginError } ] = AuthAPI.endpoints.login.useMutation();
   const toast = useToast()
-  const { refetch } = useGetCurrentUserQuery()
 
   useEffect(() => {
     return () => {
@@ -44,7 +43,7 @@ export const Login: React.FC = () => {
   }, [ loginError ]);
 
   useEffect(() => {
-    if (isConnected) history.replace(from);
+    if (isConnected) navigate(from, { replace: true });
   }, [ isConnected ]);
 
   function onKbdEvent(event: KeyboardEvent) {
@@ -64,13 +63,12 @@ export const Login: React.FC = () => {
     if (!ref.current.username || !ref.current.password) return;
 
     await login(ref.current).unwrap()
-      .then(() => refetch().unwrap())
-      .then(() => history.replace(from))
+      .then(() => navigate(from, { replace: true }))
       .catch(error => setErrors({ global: getErrorMessage(error) }));
   }
 
   function goHome() {
-    history.push('/');
+    navigate('/');
   }
 
   return <div className={ styles.page }>
@@ -81,7 +79,7 @@ export const Login: React.FC = () => {
     <div className={ styles.content }>
       <h2>Login</h2>
 
-      <div className={ styles.inputs }>
+      <form className={ styles.inputs }>
         <Input id="loginInput"
                className="form-control"
                value={ username }
@@ -97,7 +95,7 @@ export const Login: React.FC = () => {
                label="Password"
                type="password"
                autoComplete="current-password"/>
-      </div>
+      </form>
       <div className={ styles.buttons }>
 
         <Button color='dark' fill='clear' onClick={ goHome }>Back to Home</Button>

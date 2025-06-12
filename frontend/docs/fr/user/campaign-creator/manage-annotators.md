@@ -1,6 +1,11 @@
 # Gérer une campagne
 
-Vous pouvez gérer les annotateurs d'une campagne à tout moment.
+Vous pouvez gérer les annotateurs d'une phase à tout moment.
+
+![](/campaign-creator/campaign-detail-actions.png)
+
+En haut de la page, cliquez sur le bouton "Detailed progression", puis "Manage annotators".
+
 Pour chaque annotateur, vous pouvez spécifier la plage de fichiers qu'il peut annoter. Vous pouvez définir deux plages
 différentes pour le même
 annotateur.

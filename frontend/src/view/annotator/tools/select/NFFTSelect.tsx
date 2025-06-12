@@ -1,45 +1,44 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { getScaleName, SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { selectSpectrogramConfiguration } from '@/service/annotator';
+import { SpectrogramConfiguration } from "@/service/types";
 import { Select } from "@/components/form";
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 
 export const NFFTSelect: React.FC = () => {
-  const {
-    annotatorData,
-  } = useAnnotator();
+  const { data } = useRetrieveAnnotator();
   const selectedID = useAppSelector(state => state.annotator.userPreferences.spectrogramConfigurationID);
-  const spectrogram_configurations = useAppSelector(state => state.annotator.spectrogram_configurations);
+  const { configurations } = useListSpectrogramForCurrentCampaign();
 
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (!selectedID) return;
-    const configs: SpectrogramConfiguration[] = spectrogram_configurations ?? [];
+    const configs: SpectrogramConfiguration[] = configurations ?? [];
     if (configs.find(c => c.id === selectedID)) return;
     const simpleSpectrogramID = configs?.find(s => !s.multi_linear_frequency_scale && !s.linear_frequency_scale)?.id;
     const newID = simpleSpectrogramID ?? Math.min(...configs.map(s => s.id));
-    dispatch(selectSpectrogramConfiguration(newID))
-  }, [selectedID]);
+    dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(newID))
+  }, [selectedID, configurations]);
 
   const options = useMemo(() => {
-    if (!annotatorData) return []
-    return annotatorData.spectrogram_configurations.map(c => {
+    if (!configurations) return []
+    return configurations.map(c => {
       let label = `nfft: ${ c.nfft }`;
       label += ` | winsize: ${ c.window_size }`
       label += ` | overlap: ${ c.overlap }`
-      label += ` | scale: ${ getScaleName(c) }`
+      label += ` | scale: ${ c.scale_name }`
       return { value: c.id, label }
     })
-  }, [ annotatorData?.spectrogram_configurations ]);
+  }, [ configurations ]);
 
   function select(value: string | number | undefined) {
     if (value === undefined) return;
-    dispatch(selectSpectrogramConfiguration(+value))
+    dispatch(AnnotatorSlice.actions.selectSpectrogramConfiguration(+value))
   }
 
-  if (!annotatorData) return <Fragment/>
+  if (!data) return <Fragment/>
   return <Select placeholder='Select a configuration'
                  options={ options }
                  optionsContainer='popover'

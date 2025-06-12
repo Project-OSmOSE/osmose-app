@@ -1,25 +1,26 @@
 import React, { useEffect, useRef } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { IonButton, IonIcon } from "@ionic/react";
 import { caretBack, caretForward } from "ionicons/icons";
 import { useAppSelector } from '@/service/app';
-import { useAnnotatorSubmitService } from "@/services/annotator/submit.service.ts";
 import { useToast } from "@/service/ui";
 import { Kbd, TooltipOverlay } from "@/components/ui";
 import styles from '../annotator-tools.module.scss'
 import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
-import { useAnnotator, useCanNavigate } from "@/service/annotator/hook.ts";
+import { useCanNavigate } from "@/service/slices/annotator";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { usePostAnnotator, useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 
 export const NavigationButtons: React.FC = () => {
-  const {
-    campaignID,
-    annotatorData,
-  } = useAnnotator();
+  const { data, isEditable } = useRetrieveAnnotator();
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
 
   // Services
-  const history = useHistory();
-  const submitService = useAnnotatorSubmitService();
+  const navigate = useNavigate();
+  const post = usePostAnnotator();
   const toast = useToast();
 
   // Data
@@ -27,14 +28,14 @@ export const NavigationButtons: React.FC = () => {
     didSeeAllFile: _didSeeAllFile,
   } = useAppSelector(state => state.annotator);
 
-  const previous_file_id = useRef<number | null>(annotatorData?.previous_file_id ?? null);
+  const previous_file_id = useRef<number | null>(data?.previous_file_id ?? null);
   useEffect(() => {
-    previous_file_id.current = annotatorData?.previous_file_id ?? null;
-  }, [ annotatorData?.previous_file_id ]);
-  const next_file_id = useRef<number | null>(annotatorData?.next_file_id ?? null);
+    previous_file_id.current = data?.previous_file_id ?? null;
+  }, [ data?.previous_file_id ]);
+  const next_file_id = useRef<number | null>(data?.next_file_id ?? null);
   useEffect(() => {
-    next_file_id.current = annotatorData?.next_file_id ?? null;
-  }, [ annotatorData?.next_file_id ]);
+    next_file_id.current = data?.next_file_id ?? null;
+  }, [ data?.next_file_id ]);
   const didSeeAllFile = useRef<boolean>(_didSeeAllFile);
   useEffect(() => {
     didSeeAllFile.current = _didSeeAllFile;
@@ -60,6 +61,7 @@ export const NavigationButtons: React.FC = () => {
         break;
     }
   }
+
   useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const submit = async () => {
@@ -69,11 +71,11 @@ export const NavigationButtons: React.FC = () => {
     }
     isSubmitting.current = true;
     try {
-      await submitService.submit()
+      await post()
       if (next_file_id.current) {
-        history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
       } else {
-        history.push(`/annotation-campaign/${ campaignID }`)
+        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }`)
       }
     } catch (e: any) {
       toast.presentError(e)
@@ -85,15 +87,15 @@ export const NavigationButtons: React.FC = () => {
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ previous_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ previous_file_id.current }`);
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
     if (await canNavigate())
-      history.push(`/annotation-campaign/${ campaignID }/file/${ next_file_id.current }`);
+      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
   }
 
-  if (!annotatorData?.is_assigned) return <div/>
+  if (!isEditable) return <div/>
   return (
     <div className={ styles.navigation }>
       <TooltipOverlay title='Shortcut' tooltipContent={ <p><Kbd keys='left'/> : Load previous recording</p> }>

@@ -31,7 +31,7 @@ class ListEmpyAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -41,8 +41,19 @@ class ListEmpyAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
-                "annotation_campaign": 1,
+                "for_current_user": "true",
+                "annotation_campaign_phase": 1,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_list_for_current_user_for_check_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "for_current_user": "true",
+                "annotation_campaign_phase": 5,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -62,7 +73,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -72,18 +83,30 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
-                "annotation_campaign": 1,
+                "for_current_user": "true",
+                "for_phase": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
 
+    def test_list_for_current_user_for_check_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "for_current_user": "true",
+                "for_phase": 5,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data[0]["updated_to"]), 0)
+
     def test_list_for_campaign(self):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "for_phase": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -103,18 +126,29 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 0)
 
     def test_list_for_current_user_for_campaign(self):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
-                "annotation_campaign": 1,
+                "for_current_user": "true",
+                "for_phase": 1,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_list_for_current_user_for_check_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "for_current_user": "true",
+                "for_phase": 5,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -124,7 +158,7 @@ class ListFilledCampaignOwnerAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "for_phase": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -144,7 +178,7 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
+                "for_current_user": "true",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -154,18 +188,30 @@ class ListFilledBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
         response = self.client.get(
             URL,
             {
-                "for_current_user": True,
-                "annotation_campaign": 1,
+                "for_current_user": "true",
+                "for_phase": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 6)
 
+    def test_list_for_current_user_for_check_campaign(self):
+        response = self.client.get(
+            URL,
+            {
+                "for_current_user": "true",
+                "for_phase": 5,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data[0]["updated_to"]), 1)
+
     def test_list_for_campaign(self):
         response = self.client.get(
             URL,
             {
-                "annotation_campaign": 1,
+                "for_phase": 1,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
