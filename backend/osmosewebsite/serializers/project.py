@@ -57,7 +57,7 @@ class DeploymentSerializer(DeploymentSerializerWithChannel):
         return dict(
             Counter(
                 AnnotationResult.objects.filter(
-                    annotation_campaign__datasets__related_channel_configuration__in=all_channels
+                    annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
                 ).values_list("label__name", flat=True)
             )
         )

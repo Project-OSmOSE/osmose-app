@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "backend.aplose.apps.AploseConfig",
     "tinymce",
     "metadatax",
+    "ontology",
     "backend.sql.apps.SqlConfig",
 ]
 
