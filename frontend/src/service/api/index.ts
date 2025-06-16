@@ -46,6 +46,8 @@ export const API_TAGS = [
   'FileRange',
   'FileRangeFiles',
 
+  'Annotator',
+
   'Detector',
 
   'SQL',
