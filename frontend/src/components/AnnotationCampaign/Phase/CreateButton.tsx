@@ -223,10 +223,9 @@ export const CreateVerificationPhaseButton: React.FC = () => {
       <ModalHeader title='New verification phase' onClose={ verificationModal.close }/>
 
       <div className={ styles.content }>
-        <p>In a "Verification" phase, you can validate, invalidate, or add missing annotations.</p>
-        <p>The annotations see come from the "Annotation" phase and are either made by your
-          annotators or imported (for
-          exemple the output of an automatic detector)</p>
+        <p>In a "Verification" phase, you can validate, reject, or add missing annotations.</p>
+        <p>Annotations come from the "Annotation" phase and may be created manually or imported (e.g., from an automatic
+          detector).</p>
         { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
       </div>
 
