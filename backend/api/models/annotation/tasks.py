@@ -75,6 +75,7 @@ class AnnotationFileRange(models.Model):
 
     @property
     def tasks(self) -> QuerySet[AnnotationTask]:
+        """Get file range tasks"""
         return AnnotationTask.objects.filter(
             annotation_campaign_phase=self.annotation_campaign_phase,
             annotator_id=self.annotator_id,
@@ -84,6 +85,7 @@ class AnnotationFileRange(models.Model):
 
     @property
     def results(self) -> QuerySet[AnnotationResult]:
+        """Get file range results"""
         if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
             return AnnotationResult.objects.filter(
                 annotation_campaign_phase__annotation_campaign_id=self.annotation_campaign_phase.annotation_campaign_id,
@@ -99,13 +101,12 @@ class AnnotationFileRange(models.Model):
                     & ~Q(annotator_id=self.annotator_id)
                 )
             )
-        else:
-            return AnnotationResult.objects.filter(
-                annotation_campaign_phase=self.annotation_campaign_phase,
-                annotator_id=self.annotator_id,
-                dataset_file_id__gte=self.first_file_id,
-                dataset_file_id__lte=self.last_file_id,
-            )
+        return AnnotationResult.objects.filter(
+            annotation_campaign_phase=self.annotation_campaign_phase,
+            annotator_id=self.annotator_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
+        )
 
     def save(self, *args, **kwargs):
         self.files_count = self.last_file_index - self.first_file_index + 1
