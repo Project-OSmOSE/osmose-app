@@ -23,6 +23,7 @@ import { OntologySourceAPI, Source } from "@/service/api/ontology/source.ts";
 import { FinalConnectionState } from "@xyflow/system/dist/esm/types/general";
 import type { NodeProps } from "@xyflow/react/dist/esm/types";
 import { API } from "@/service/api";
+import { getNode } from "@/view/ontology/utils.ts";
 
 type Node = _Node<(Source & { label: string }) | {
   label: 'Root',
@@ -33,39 +34,6 @@ type Node = _Node<(Source & { label: string }) | {
 
 const nodeOrigin: [ number, number ] = [ 0.5, 0 ];
 
-const COLUMN_SIZE = 192;
-const ROW_SIZE = 92;
-
-const RootNode: Node = {
-  id: '-1',
-  type: 'source',
-  data: {
-    label: 'Root',
-    english_name: 'Root',
-    parent: null,
-    id: -1
-  },
-  deletable: false,
-  position: { x: -COLUMN_SIZE, y: 0 },
-  sourcePosition: Position.Bottom,
-}
-
-function getNodeX(all: Source[], source: Source): number {
-  const parent = all.find(s => s.id === source.parent)
-  if (source.parent === null || !parent) return 0;
-  return COLUMN_SIZE + getNodeX(all, parent)
-}
-
-function getNodeY(all: Source[], source: Source): number {
-  const y = all.filter(s => s.parent === source.parent).indexOf(source) * ROW_SIZE
-  const parent = all.find(s => s.id === source.parent)
-  if (source.parent === null || !parent) return y;
-  return y + getNodeY(all, parent)
-}
-
-const getNodePosition = (all: Source[], source: Source) => ({ x: getNodeX(all, source), y: getNodeY(all, source) })
-
-
 export const SourceNode: React.FC<NodeProps & {
   data: any;
   type: any;
@@ -75,14 +43,13 @@ export const SourceNode: React.FC<NodeProps & {
       padding: '0.25rem 0.75rem',
       border: '2px solid var(--ion-color-primary)',
       borderRadius: '0.5rem',
-      width: `calc(${ COLUMN_SIZE }px - 4rem)`
     } }>
     <p style={ {
       fontFamily: '"Exo 2", Roboto',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      width: '100%',
-      wordWrap: 'break-word'
+      wordWrap: 'break-word',
+      width: '16ch'
     } }>{ data.label }</p>
     { data.label !== 'Root' && <Handle type="target" position={ Position.Left } isConnectable={ !data.parent }/> }
     <Handle type="source" position={ Position.Right }/>
@@ -96,27 +63,13 @@ export const OntologyFlow: React.FC = () => {
   const [ patch, ] = OntologySourceAPI.endpoints.patchOntologySource.useMutation();
   const [ del, ] = OntologySourceAPI.endpoints.deleteOntologySource.useMutation();
 
-  const [ nodes, setNodes, onNodesChange ] = useNodesState<Node>([ RootNode ]);
+  const [ nodes, setNodes, onNodesChange ] = useNodesState<Node>([]);
   const [ edges, setEdges, onEdgesChange ] = useEdgesState<Edge>([]);
   const { screenToFlowPosition } = useReactFlow();
   const onConnect = useCallback((params: Connection) => {
     setEdges((eds) => addEdge(params, eds))
   }, []);
 
-  const getTreeNodeAndParentEdge = useCallback((all: Source[], source: Source): [ Node, Edge ] => [
-    {
-      id: source.id.toString(),
-      type: 'source',
-      position: getNodePosition(all, source),
-      data: { ...source, label: source.english_name },
-    },
-    {
-      id: source.id.toString(),
-      source: source.parent?.toString() ?? RootNode.id,
-      target: source.id.toString(),
-      type: 'smoothstep'
-    }
-  ], [])
 
   useEffect(() => {
     return () => {
@@ -124,15 +77,9 @@ export const OntologyFlow: React.FC = () => {
     }
   }, []);
   useEffect(() => {
-    const newNodes: Node[] = [ RootNode ]
-    const newEdges: Edge[] = []
-    for (const source of initialSources ?? []) {
-      const [ node, edge ] = getTreeNodeAndParentEdge(initialSources ?? [], source)
-      newNodes.push(node);
-      newEdges.push(edge);
-    }
-    setNodes(newNodes)
-    setEdges(newEdges)
+    const { nodes, edges } = getNode(initialSources ?? [])
+    setNodes(nodes)
+    setEdges(edges)
   }, [ initialSources ]);
 
   const getNodeID = useCallback(() => {

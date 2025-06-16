@@ -12,13 +12,6 @@ export type SourceTree = {
   children: SourceTree[];
 }
 
-function getTreeChildren(all: Source[], id: number | null): SourceTree[] {
-  return all.filter(source => source.parent === id).map(source => ({
-    ...source,
-    children: getTreeChildren(all, source.id)
-  }))
-}
-
 export type Post<T extends { id: number }> = Omit<T, 'id'> & { id?: number }
 export type Patch<T extends { id: number }> = Pick<T, 'id'> & Partial<T>
 export type Delete<T extends { id: number }> = Pick<T, 'id'>
@@ -29,14 +22,6 @@ export const OntologySourceAPI = API.injectEndpoints({
     listOntologySource: builder.query<Source[], void>({
       query: () => `ontology/source/`,
       providesTags: [ 'OntologySource' ]
-    }),
-
-    getTreeOntologySource: builder.query<SourceTree[], void>({
-      query: () => `ontology/source/`,
-      providesTags: [ 'OntologySourceTree' ],
-      transformResponse(sources: Source[]): SourceTree[] {
-        return getTreeChildren(sources, null)
-      }
     }),
 
     postOntologySource: builder.mutation<Source, Post<Source>>({
