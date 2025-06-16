@@ -46,7 +46,7 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         """Recover matching results"""
         results = file_range.results
         if features is not None:
-            results = results.filter(acoustic_features__isnull=not features)
+            results = results.filter(acoustic_features__isnull=features)
 
         if user_annotations is not None:
             file_filter = Q(dataset_file_id=OuterRef("id"))
@@ -70,6 +70,7 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             files = files | self._filter_queryset_for_file_range(
                 request, file_range, view
             )
+
         return files.order_by("start", "id")
 
     def _filter_queryset_for_file_range(
@@ -80,6 +81,7 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
             request, files, view
         )
+        print(files)
 
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
@@ -95,9 +97,13 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             user_id=request.user.id,
             features=with_features,
         )
-        files = files.filter(
-            Exists(results) if with_user_annotations is not False else ~Exists(results),
-        )
+        if with_user_annotations is not None:
+            files = files.filter(
+                Exists(results)
+                if with_user_annotations is not False
+                else ~Exists(results),
+            )
+        print("2", files)
 
         files = files.annotate(
             results_count=Subquery(
