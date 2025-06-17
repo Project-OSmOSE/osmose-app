@@ -21,19 +21,6 @@ class Phase(models.TextChoices):
     VERIFICATION = "V", "Verification"
 
 
-class AnnotationCampaignUsage(models.IntegerChoices):
-    """Annotation campaign usage"""
-
-    CREATE = (
-        0,
-        "Create",
-    )
-    CHECK = (
-        1,
-        "Check",
-    )
-
-
 class AnnotationCampaignArchive(models.Model):
     """AnnotationCampaign archive information"""
 

@@ -23,8 +23,8 @@ export const AnnotationsFilter: React.FC<{
 
   const hasAnnotationsFilter = useMemo(() => params.with_user_annotations !== undefined, [ params ]);
   const isHasAnnotationsFilterDisabled = useMemo(() => {
-    return !!params.annotation_results__label__name || !!params.annotation_results__confidence_indicator__label
-      || !!params.annotation_results__detector_configuration__detector__name || params.annotation_results__acoustic_features__isnull !== undefined
+    return !!params.label__name || !!params.confidence_indicator__label
+      || !!params.detector_configuration__detector__name || params.acoustic_features__isnull !== undefined
   }, [ params ]);
   const [ filterModalOpen, setFilterModalOpen ] = useState<boolean>(false);
 
@@ -53,10 +53,10 @@ export const AnnotationsFilter: React.FC<{
   const setHasAnnotations = useCallback((option: BooleanOption) => {
     updateParams({
       with_user_annotations: booleanOptionToValue(option),
-      annotation_results__confidence_indicator__label: undefined,
-      annotation_results__label__name: undefined,
-      annotation_results__detector_configuration__detector__name: undefined,
-      annotation_results__acoustic_features__isnull: undefined,
+      confidence_indicator__label: undefined,
+      label__name: undefined,
+      detector_configuration__detector__name: undefined,
+      acoustic_features__isnull: undefined,
     })
     onUpdate()
   }, [ updateParams ])
@@ -64,7 +64,7 @@ export const AnnotationsFilter: React.FC<{
   const setAcousticFeatures = useCallback((option: BooleanOption) => {
     updateParams({
       with_user_annotations: true,
-      annotation_results__acoustic_features__isnull: booleanOptionToValue(option, true),
+      acoustic_features__isnull: booleanOptionToValue(option, true),
     })
     onUpdate()
   }, [ updateParams ])
@@ -72,7 +72,7 @@ export const AnnotationsFilter: React.FC<{
   const setLabel = useCallback((label: number | string | undefined) => {
     updateParams({
       with_user_annotations: true,
-      annotation_results__label__name: typeof label === 'number' ? label.toString() : label,
+      label__name: typeof label === 'number' ? label.toString() : label,
     })
     onUpdate()
   }, [ updateParams ])
@@ -80,7 +80,7 @@ export const AnnotationsFilter: React.FC<{
   const setConfidence = useCallback((label: number | string | undefined) => {
     updateParams({
       with_user_annotations: true,
-      annotation_results__confidence_indicator__label: typeof label === 'number' ? label.toString() : label,
+      confidence_indicator__label: typeof label === 'number' ? label.toString() : label,
     })
     onUpdate()
   }, [ updateParams ])
@@ -88,7 +88,7 @@ export const AnnotationsFilter: React.FC<{
   const setDetector = useCallback((label: number | string | undefined) => {
     updateParams({
       with_user_annotations: true,
-      annotation_results__detector_configuration__detector__name: typeof label === 'number' ? label.toString() : label,
+      detector_configuration__detector__name: typeof label === 'number' ? label.toString() : label,
     })
     onUpdate()
   }, [ updateParams ])
@@ -107,23 +107,23 @@ export const AnnotationsFilter: React.FC<{
 
       { labelSet && <Select label='Label' placeholder='Filter by label' optionsContainer='popover'
                             options={ labelSet.labels.map(l => ({ label: l, value: l })) }
-                            value={ params.annotation_results__label__name }
+                            value={ params.label__name }
                             onValueSelected={ setLabel }/> }
 
       { confidenceSet?.confidence_indicators &&
           <Select label='Confidence' placeholder='Filter by confidence' optionsContainer='popover'
                   options={ confidenceSet.confidence_indicators.map(c => ({ label: c.label, value: c.label })) }
-                  value={ params.annotation_results__confidence_indicator__label }
+                  value={ params.confidence_indicator__label }
                   onValueSelected={ setConfidence }/> }
 
       { detectors &&
           <Select label='Detectors' placeholder='Filter by detector' optionsContainer='popover'
                   options={ detectors.map(d => ({ label: d.name, value: d.name })) }
-                  value={ params.annotation_results__detector_configuration__detector__name }
+                  value={ params.detector_configuration__detector__name }
                   onValueSelected={ setDetector }/> }
 
       <Switch label='Acoustic features' options={ BOOLEAN_OPTIONS }
-              value={ valueToBooleanOption(params.annotation_results__acoustic_features__isnull, true) }
+              value={ valueToBooleanOption(params.acoustic_features__isnull, true) }
               onValueSelected={ setAcousticFeatures }/>
 
     </Modal>, document.body) }

@@ -25,6 +25,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationCampaignPhase,
     Phase,
+    AnnotationResult,
 )
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
@@ -38,13 +39,17 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
 
     @staticmethod
     def get_results_for_file_range(
+        request: Request,
+        view,
         file_range,
         user_annotations: Optional[bool],
         user_id: int,
         features: Optional[bool],
     ):
         """Recover matching results"""
-        results = file_range.results
+        results: QuerySet[AnnotationResult] = ModelFilter().filter_queryset(
+            request, file_range.results, view
+        )
         if features is not None:
             results = results.filter(acoustic_features__isnull=features)
 
@@ -90,6 +95,8 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             request, "annotation_results__acoustic_features__isnull"
         )
         results = self.get_results_for_file_range(
+            request,
+            view,
             file_range,
             user_annotations=with_user_annotations
             if with_user_annotations is not False
@@ -108,6 +115,8 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         files = files.annotate(
             results_count=Subquery(
                 self.get_results_for_file_range(
+                    request,
+                    view,
                     file_range,
                     user_annotations=True,
                     user_id=request.user.id,

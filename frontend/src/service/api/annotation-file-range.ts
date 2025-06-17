@@ -9,10 +9,10 @@ export type FileFilter = {
   filename__icontains?: string;
   is_submitted?: boolean;
   with_user_annotations?: boolean;
-  annotation_results__label__name?: string;
-  annotation_results__confidence_indicator__label?: string;
-  annotation_results__detector_configuration__detector__name?: string;
-  annotation_results__acoustic_features__isnull?: boolean;
+  label__name?: string;
+  confidence_indicator__label?: string;
+  detector_configuration__detector__name?: string;
+  acoustic_features__isnull?: boolean;
   end__gte?: string;
   start__lte?: string;
 }

@@ -2,7 +2,6 @@
 from .campaign import (
     AnnotationCampaign,
     AnnotationCampaignArchive,
-    AnnotationCampaignUsage,
     AnnotationCampaignPhase,
     Phase,
 )
