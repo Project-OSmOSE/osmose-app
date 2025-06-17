@@ -30,6 +30,7 @@ from backend.api.models import (
     DatasetFile,
     AnnotationCampaignPhase,
     AnnotationCampaign,
+    Phase,
 )
 from backend.api.models.annotation.result import AnnotationResultType
 from backend.api.serializers.annotation.campaign import (
@@ -66,6 +67,7 @@ REPORT_HEADERS = [  # headers
     "signal_has_harmonics",
     "signal_trend",
     "signal_steps_count",
+    "created_at_phase",
 ]
 
 
@@ -209,6 +211,18 @@ class AnnotationCampaignPhaseViewSet(
             default=None,
             output_field=models.CharField(),
         )
+        phase_type = Case(
+            When(
+                annotation_campaign_phase__phase=Phase.VERIFICATION,
+                then=Value("VERIFICATION"),
+            ),
+            When(
+                annotation_campaign_phase__phase=Phase.ANNOTATION,
+                then=Value("ANNOTATION"),
+            ),
+            default=None,
+            output_field=models.CharField(),
+        )
         max_confidence = (
             max(
                 campaign.confidence_indicator_set.confidence_indicators.values_list(
@@ -237,6 +251,7 @@ class AnnotationCampaignPhaseViewSet(
                 "confidence_indicator",
                 "acoustic_features",
                 "detector_configuration__detector",
+                "annotation_campaign_phase",
             )
             .prefetch_related(
                 "comments",
@@ -305,6 +320,7 @@ class AnnotationCampaignPhaseViewSet(
                 _start_frequency=F("start_frequency"),
                 _end_frequency=F("end_frequency"),
                 result_id=F("id"),
+                created_at_phase=phase_type,
             )
             .extra(
                 select={
@@ -453,7 +469,9 @@ class AnnotationCampaignPhaseViewSet(
         )
 
         # CSV
-        headers = REPORT_HEADERS + validate_users
+        headers = REPORT_HEADERS
+        if phase.phase == Phase.VERIFICATION:
+            headers = headers + validate_users
         writer = csv.DictWriter(response, fieldnames=headers)
         writer.writeheader()
 

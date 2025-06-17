@@ -86,7 +86,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
             request, files, view
         )
-        print(files)
 
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
@@ -110,7 +109,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
                 if with_user_annotations is not False
                 else ~Exists(results),
             )
-        print("2", files)
 
         files = files.annotate(
             results_count=Subquery(

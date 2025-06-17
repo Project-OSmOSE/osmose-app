@@ -169,6 +169,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                         else user_id,
                     }
                     for v in (r["validations"] if "validations" in r else [])
+                    if "annotator" in r and r["annotator"] != user_id
                 ],
             }
             for r in results
