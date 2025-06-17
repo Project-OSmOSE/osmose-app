@@ -172,7 +172,7 @@ const Platform: React.FC<{ platform: DeploymentAPI['platform'] }> = ({ platform 
 }
 
 const Labels: React.FC<{ annotated_labels?: { [key in string]: number } }> = ({ annotated_labels }) => {
-  if (!annotated_labels) return <Fragment/>
+  if (!annotated_labels || Object.keys(annotated_labels).length === 0) return <Fragment/>
   return <Fragment>
     <small>Labels</small>
     { Object.entries(annotated_labels).map(([ label, count ]) => <p key={ label }>

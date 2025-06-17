@@ -22,7 +22,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         )
         .select_related("project__website_project")
         .prefetch_related(
-            "channelconfiguration_set__aplose_datasets__annotation_campaigns__results__label"
+            "channelconfiguration_set__aplose_datasets__annotation_campaigns__phases__results__label"
         )
     )
 
