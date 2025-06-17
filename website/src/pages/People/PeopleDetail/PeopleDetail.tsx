@@ -9,7 +9,7 @@ import './PeopleDetail.css';
 
 export const PeopleDetail: React.FC = () => {
   const { id: memberID } = useParams<{ id: string; }>();
-  const [member, setMember] = useState<TeamMember>();
+  const [ member, setMember ] = useState<TeamMember>();
 
   const fetchDetail = useFetchDetail<TeamMember>('/people', '/api/members');
 
@@ -20,7 +20,7 @@ export const PeopleDetail: React.FC = () => {
     return () => {
       isMounted = false;
     }
-  }, [memberID]);
+  }, [ memberID ]);
 
 
   return (
@@ -28,11 +28,11 @@ export const PeopleDetail: React.FC = () => {
       <Back path="/people" pageName="People"></Back>
 
       <div className="title">
-        <h2>{ member?.firstname } { member?.lastname }</h2>
+        <h2>{ member?.scientist.full_name }</h2>
         <h5 className="text-muted">{ member?.position }</h5>
       </div>
 
-      <img src={ member?.picture } alt={ `${ member?.firstname } ${ member?.lastname }'s Portrait` }/>
+      <img src={ member?.picture } alt={ `${ member?.scientist.full_name }'s Portrait` }/>
 
       { member?.biography && <blockquote>❝&nbsp;{ member?.biography }&nbsp;❞</blockquote> }
 

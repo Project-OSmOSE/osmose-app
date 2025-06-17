@@ -30,7 +30,7 @@ export const Projects: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    fetchProjects({ currentPage, pageSize }).then(data => {
+    fetchProjects({ page: currentPage, page_size: pageSize }).then(data => {
       if (!isMounted) return;
       setProjectsTotal(data?.count ?? 0);
       setProjects(data?.results ?? []);
