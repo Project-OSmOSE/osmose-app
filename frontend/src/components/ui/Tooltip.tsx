@@ -1,21 +1,12 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IonNote } from "@ionic/react";
 import styles from './ui.module.scss'
 import { createPortal } from "react-dom";
-import { MOUSE_MOVE_EVENT } from "@/service/events";
+import { MOUSE_MOVE_EVENT, useEvent } from "@/service/events";
 import { v4 as uuidv4 } from 'uuid';
 
 export const TooltipOverlay: React.FC<{
-  children: ReactElement;
+  children: ReactNode;
   tooltipContent: ReactNode;
   title?: string;
 }> = ({ children, tooltipContent, title }) => {
@@ -24,13 +15,6 @@ export const TooltipOverlay: React.FC<{
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   const [ isShown, setIsShown ] = useState<boolean>(false);
-
-  useEffect(() => {
-    MOUSE_MOVE_EVENT.add(onMouseMove)
-    return () => {
-      MOUSE_MOVE_EVENT.remove(onMouseMove)
-    }
-  }, []);
 
   useEffect(() => {
     if (isOpen) setTimeout(() => setIsShown(true), 50);
@@ -60,6 +44,7 @@ export const TooltipOverlay: React.FC<{
     if (isOverContainer) setIsOpen(true);
     else setIsShown(false)
   }, [ containerID ]);
+  useEvent(MOUSE_MOVE_EVENT, onMouseMove);
 
   return <div ref={ containerRef } id={ containerID }>
     { children }

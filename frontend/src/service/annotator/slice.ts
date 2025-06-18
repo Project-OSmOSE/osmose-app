@@ -463,7 +463,7 @@ export const AnnotatorSlice = createSlice({
     },
     showAllLabels(state) {
       state.ui.hiddenLabels = []
-    }
+    },
   },
   extraReducers:
     (builder) => {
@@ -510,6 +510,7 @@ export const AnnotatorSlice = createSlice({
         ConfidenceSetAPI.endpoints.retrieve.matchFulfilled,
         (state, { payload }) => {
           state.confidenceIndicators = payload.confidence_indicators;
+          state.focusedConfidenceLabel = getDefaultConfidence(state)?.label;
         },
       )
       builder.addMatcher(

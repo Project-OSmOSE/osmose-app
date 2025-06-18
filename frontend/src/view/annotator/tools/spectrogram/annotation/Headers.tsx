@@ -7,10 +7,11 @@ import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
-import { TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
+import { Kbd, TooltipOverlay } from "@/components/ui";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -97,6 +98,15 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
 
+  const onKbdEvent = useCallback((event: KeyboardEvent) => {
+    switch (event.code) {
+      case 'Delete':
+        remove()
+        break;
+    }
+  }, [])
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
+
   const remove = useCallback(() => {
     switch (campaign?.usage) {
       case 'Create':
@@ -109,10 +119,9 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   }, [ campaign, annotation ])
 
   return (
-    <TooltipOverlay tooltipContent={ <p>Remove the annotation</p> }>
+    <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') }
-                  onClick={ remove }/>
+      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') } onClick={ remove }/>
     </TooltipOverlay>
   )
 }

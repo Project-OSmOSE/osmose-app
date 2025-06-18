@@ -16,6 +16,7 @@ import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 
 export const Results: React.FC<{
@@ -110,7 +111,7 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID ?? skipToken)
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
@@ -141,7 +142,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
   const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID ?? skipToken)
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;

@@ -9,6 +9,7 @@ import {
   MOUSE_UP_EVENT,
   NON_FILTERED_KEY_DOWN_EVENT
 } from "@/service/events/event.ts";
+import { Signal } from "signal-ts";
 
 export const useLoadEventService = () => {
   const areKbdShortcutsEnabled = useAppSelector(state => state.event.areKbdShortcutsEnabled);
@@ -61,4 +62,13 @@ export const useLoadEventService = () => {
   function onAuxClick(event: MouseEvent) {
     AUX_CLICK_EVENT.emit(event);
   }
+}
+
+export const useEvent = <T>(signal: Signal<T>, callback: (event: T) => void) => {
+  useEffect(() => {
+    signal.add(callback);
+    return () => {
+      signal.remove(callback);
+    }
+  }, []);
 }

@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/service/app';
 import { AnnotationResult } from '@/service/campaign/result';
 import { setAudioSpeed, setStopTime, setTime } from '@/service/annotator';
 import { useToast } from "@/service/ui";
-import { KEY_DOWN_EVENT } from "@/service/events";
+import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null>) => {
   // Data
@@ -21,14 +21,6 @@ export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null
     _isPaused.current = isPaused
   }, [ isPaused ]);
 
-  // Services
-  useEffect(() => {
-    KEY_DOWN_EVENT.add(onKbdEvent)
-    return () => {
-      KEY_DOWN_EVENT.remove(onKbdEvent)
-    }
-  }, []);
-
   // Methods
 
   function onKbdEvent(event: KeyboardEvent) {
@@ -37,6 +29,7 @@ export const useAudioService = (player: MutableRefObject<HTMLAudioElement | null
       playPause(results?.find(r => r.id === focusedResultID));
     }
   }
+  useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   function seek(time: number | null) {
     if (!player.current || time === null) return;

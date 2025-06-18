@@ -18,6 +18,7 @@ export const LabelInfo: React.FC<{
 
     <p className={ corrected_label ? 'disabled' : undefined }>
       { annotation.label }
+      <span>{ annotation.type === 'Weak' ? ` (Weak)` : '' }</span>
     </p>
 
     { corrected_label && <p>{ corrected_label }</p> }

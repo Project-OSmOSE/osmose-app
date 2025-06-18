@@ -1,7 +1,8 @@
+import { Scientist } from "./scientific";
+
 export interface TeamMember {
     id: string;
-    firstname: string;
-    lastname: string;
+    scientist: Scientist;
     position: string;
     biography?: string;
     picture: string;
@@ -14,6 +15,4 @@ export interface TeamMember {
     linkedin_url?: string;
 
     is_former_member?: boolean;
-
-
 }

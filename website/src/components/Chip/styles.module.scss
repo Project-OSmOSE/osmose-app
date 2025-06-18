@@ -1,0 +1,32 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  font-size: 0.9rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.25);
+  color: var(--ion-color-primary);
+  padding: 0.1rem 0.5rem;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 0.25rem;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    display: none;
+    opacity: 0.5;
+  }
+
+  &.active {
+    border-color: transparent;
+    background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+
+    svg {
+      display: initial;
+    }
+  }
+}

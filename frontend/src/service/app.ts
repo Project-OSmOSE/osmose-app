@@ -19,6 +19,7 @@ import { UISlice } from "@/service/ui";
 import { AnnotatorGroupAPI } from "@/service/annotator-group";
 import { ResultImportSlice } from "@/service/campaign/result/import/slice.ts";
 import { SqlAPI } from "@/service/sql";
+import { SettingsSlice } from "@/service/settings";
 
 export const AppStore = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const AppStore = configureStore({
     [AuthSlice.reducerPath]: AuthSlice.reducer,
     [AnnotatorSlice.reducerPath]: AnnotatorSlice.reducer,
     [ResultImportSlice.reducerPath]: ResultImportSlice.reducer,
+    [SettingsSlice.reducerPath]: SettingsSlice.reducer,
 
     [AuthAPI.reducerPath]: AuthAPI.reducer,
     [UserAPI.reducerPath]: UserAPI.reducer,
