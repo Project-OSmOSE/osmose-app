@@ -3,19 +3,19 @@ import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
-import { RiRobot2Fill } from 'react-icons/ri';
-import { AnnotationResult } from '@/service/campaign/result';
-import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
+import { RiRobot2Fill, RiUser3Fill } from 'react-icons/ri';
+import { AnnotationResult } from '@/service/types';
 import styles from './bloc.module.scss';
-import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
-import { useParams } from "react-router-dom";
-import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { Button, Modal, ModalHeader, Table, TableContent, TableDivider } from "@/components/ui";
 import { createPortal } from "react-dom";
-import { Button, Modal, ModalHeader } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
 import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { UserAPI } from "@/service/api/user.ts";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 
@@ -64,7 +64,7 @@ const Result: React.FC<{
   const dispatch = useAppDispatch()
   const isActive = useMemo(() => result.id === focusedResultID ? styles.active : undefined, [ result.id, focusedResultID ])
   const onClick = () => {
-    dispatch(focusResult(result.id))
+    dispatch(AnnotatorSlice.actions.focusResult(result.id))
     onSelect(result)
   }
 
@@ -110,8 +110,7 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
 )
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID ?? skipToken)
+  const { campaign } = useRetrieveCurrentCampaign()
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
@@ -121,11 +120,19 @@ const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, on
 }
 
 const ResultDetectorInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  if (!result.detector_configuration) return <Fragment/>
-  return <TableContent className={ className } onClick={ onClick }>
-    <RiRobot2Fill/>
+  const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.retrieveUser.useQuery(result.annotator ?? skipToken)
+  const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery()
+  if (!phase || phase.phase === 'Annotation') return <Fragment/>
 
+  if (result.detector_configuration) return <TableContent className={ className } onClick={ onClick }>
+    <RiRobot2Fill/>
     <p>{ result.detector_configuration?.detector }</p>
+  </TableContent>
+  return <TableContent className={ [ className, result.annotator === currentUser?.id ? 'disabled' : '' ].join(' ') }
+                       onClick={ onClick }>
+    <RiUser3Fill/>
+    <p>{ user?.display_name }</p>
   </TableContent>
 }
 
@@ -139,10 +146,10 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 )
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
-  const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
   const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID ?? skipToken)
+  const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery()
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;
@@ -151,16 +158,19 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const onValidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(validateResult(result.id))
+    dispatch(AnnotatorSlice.actions.validateResult(result.id))
   }
 
   const onInvalidate = (event: MouseEvent) => {
     event.stopPropagation()
-    setIsModalOpen(true)
+    if (result.type === 'Weak') {
+      remove()
+    } else setIsModalOpen(true)
   }
 
   const move = useCallback(() => {
     setIsModalOpen(false);
+    dispatch(AnnotatorSlice.actions.focusResult(result.id))
   }, [ setIsModalOpen ]);
 
   const updateLabel = useCallback(() => {
@@ -170,11 +180,12 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const remove = useCallback(() => {
     setIsModalOpen(false);
-    dispatch(invalidateResult(result.id))
+    dispatch(AnnotatorSlice.actions.invalidateResult(result.id))
   }, [ setIsModalOpen ]);
 
-  if (campaign?.usage !== 'Check') return <Fragment/>
-  return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
+  if (phase?.phase !== 'Verification') return <Fragment/>
+  if (result.annotator === user?.id) return <TableContent className={ className } onClick={ onClick }/>
+  return <TableContent className={ className } onClick={ onClick }>
     <IonButton className="validate"
                color={ validation ? 'success' : 'medium' }
                fill={ validation ? 'solid' : 'outline' }

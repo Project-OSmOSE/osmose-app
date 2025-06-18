@@ -1,14 +1,13 @@
 import { MutableRefObject, useEffect, useMemo, useRef } from 'react';
 import { SPECTRO_HEIGHT, SPECTRO_WIDTH } from './const.ts';
 import { useAppSelector } from '@/service/app.ts';
-import { SpectrogramConfiguration } from '@/service/dataset/spectrogram-configuration';
-import { useAnnotator } from '@/service/annotator/hook.ts';
-import { getDuration } from '@/service/dataset';
+import { BoxBounds, SpectrogramConfiguration } from "@/service/types";
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { useToast } from '@/service/ui';
-import { BoxBounds } from '@/service/campaign/result';
-import { buildErrorMessage } from '@/services/utils/format.tsx';
-import { colorSpectro, interpolate } from '@/services/utils/color.ts';
+import { buildErrorMessage } from '@/service/function';
+import { colorSpectro, interpolate } from '@/service/ui/color.ts';
+import { useListSpectrogramForCurrentCampaign } from "@/service/api/spectrogram-configuration.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 
 export const useSpectrogramDimensions = () => {
@@ -26,30 +25,19 @@ export const useSpectrogramDimensions = () => {
 }
 
 export const useCurrentConfiguration = (): SpectrogramConfiguration | undefined => {
-  const { annotatorData } = useAnnotator();
   const { spectrogramConfigurationID } = useAppSelector(state => state.annotator.userPreferences)
+  const { configurations } = useListSpectrogramForCurrentCampaign();
 
   return useMemo(() => {
-    return annotatorData?.spectrogram_configurations.find(c => c.id === spectrogramConfigurationID)
-  }, [ annotatorData?.spectrogram_configurations, spectrogramConfigurationID ]);
-}
-
-export const useFileDuration = () => {
-  const { annotatorData } = useAnnotator();
-  return useMemo(() => getDuration(annotatorData?.file), [ annotatorData?.file ])
-}
-
-export const useMaxFrequency = () => {
-  const { annotatorData } = useAnnotator();
-  return useMemo(() => (annotatorData?.file.dataset_sr ?? 0) / 2, [ annotatorData?.file.dataset_sr ])
+    return configurations?.find(c => c.id === spectrogramConfigurationID)
+  }, [ configurations, spectrogramConfigurationID ]);
 }
 
 export const useDisplaySpectrogram = (
   canvas: MutableRefObject<HTMLCanvasElement | null>,
 ) => {
-  const { annotatorData } = useAnnotator()
+  const { data } = useRetrieveAnnotator()
   const { xAxis, yAxis } = useAxis();
-  const duration = useFileDuration();
   const currentConfiguration = useCurrentConfiguration();
 
   const {
@@ -68,7 +56,7 @@ export const useDisplaySpectrogram = (
   useEffect(() => {
     images.current = new Map()
     failedSources.current = []
-  }, [ spectrogramConfigurationID ]);
+  }, [ spectrogramConfigurationID, data?.file ]);
 
   function areAllImagesLoaded(): boolean {
     const currentImages = images.current.get(zoomLevel);
@@ -76,14 +64,14 @@ export const useDisplaySpectrogram = (
   }
 
   async function loadImages() {
-    if (!currentConfiguration || !annotatorData) {
+    if (!currentConfiguration || !data?.file) {
       images.current = new Map();
       return;
     }
 
     if (areAllImagesLoaded()) return;
 
-    const filename = annotatorData.file.filename.split('.')[0]
+    const filename = data.file.filename.split('.')[0]
     return Promise.all(
       Array.from(new Array<HTMLImageElement | undefined>(zoomLevel)).map(async (_, index) => {
         const src = `${ currentConfiguration.folder_path.replaceAll('%5C', '/') }/${ filename }_${ zoomLevel }_${ index }.png`;
@@ -117,7 +105,7 @@ export const useDisplaySpectrogram = (
 
   async function drawSpectrogram() {
     const context = canvas.current?.getContext('2d', { alpha: false });
-    if (!canvas.current || !context) return;
+    if (!canvas.current || !context || !data?.file) return;
 
     if (!areAllImagesLoaded()) await loadImages();
     if (!areAllImagesLoaded()) return;
@@ -133,8 +121,8 @@ export const useDisplaySpectrogram = (
     for (const i in currentImages) {
       const index: number | undefined = i ? +i : undefined;
       if (index === undefined) continue;
-      const start = index * duration / zoomLevel;
-      const end = (index + 1) * duration / zoomLevel;
+      const start = index * data.file.duration / zoomLevel;
+      const end = (index + 1) * data.file.duration / zoomLevel;
       const image = currentImages[index];
       if (!image) continue
       context.drawImage(

@@ -3,7 +3,7 @@ import ast
 import csv
 from io import StringIO
 
-from django.db.models import QuerySet, Q, Prefetch, Exists, OuterRef
+from django.db.models import QuerySet, Q, Prefetch, F
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import action
@@ -12,11 +12,11 @@ from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationResult,
-    AnnotationCampaign,
     DatasetFile,
     AnnotationTask,
     AnnotationResultValidation,
-    AnnotationFileRange,
+    AnnotationCampaignPhase,
+    Phase,
 )
 from backend.api.serializers import (
     AnnotationResultSerializer,
@@ -36,12 +36,25 @@ class ResultAccessFilter(filters.BaseFilterBackend):
     ):
         if request.user.is_staff:
             return queryset
+
+        is_campaign_owner = Q(
+            annotation_campaign_phase__annotation_campaign__owner=request.user
+        )
+        campaign_isn_t_archived = Q(
+            annotation_campaign_phase__annotation_campaign__archive__isnull=True
+        )
+        is_annotator_on_campaign_on_this_file = Q(  # Whatever the phase type is
+            annotation_campaign_phase__annotation_campaign__phases__file_ranges__annotator=request.user,
+            annotation_campaign_phase__annotation_campaign__phases__file_ranges__first_file_id__lte=F(
+                "dataset_file_id"
+            ),
+            annotation_campaign_phase__annotation_campaign__phases__file_ranges__last_file_id__gte=F(
+                "dataset_file_id"
+            ),
+        )
         return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
-            | (
-                Q(annotation_campaign__archive__isnull=True)
-                & (Q(annotator=request.user) | Q(annotator__isnull=True))
-            )
+            is_campaign_owner
+            | (campaign_isn_t_archived & is_annotator_on_campaign_on_this_file)
         )
 
 
@@ -67,55 +80,80 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             super().get_queryset().filter(is_update_of__isnull=True)
         )
         for_current_user = get_boolean_query_param(self.request, "for_current_user")
-        if self.action in ["list", "retrieve"] and for_current_user:
-            user_file_ranges_exists = Exists(
-                AnnotationFileRange.objects.filter(
-                    annotator_id=self.request.user.id,
-                    annotation_campaign_id=OuterRef("annotation_campaign_id"),
-                    first_file_id__lte=OuterRef("dataset_file_id"),
-                    last_file_id__gte=OuterRef("dataset_file_id"),
+        if self.action in ["list", "retrieve"]:
+            if self.request.query_params.get("for_phase"):
+                phase: AnnotationCampaignPhase = get_object_or_404(
+                    AnnotationCampaignPhase,
+                    id=self.request.query_params.get("for_phase"),
                 )
-            )
-            queryset = (
-                queryset.filter(
-                    Q(annotator_id=self.request.user.id) | Q(annotator__isnull=True)
-                )
-                .annotate(is_assigned=user_file_ranges_exists)
-                .filter(is_assigned=True)
-                .prefetch_related(
-                    Prefetch(
-                        "validations",
-                        queryset=AnnotationResultValidation.objects.filter(
-                            annotator_id=self.request.user.id
-                        ),
+                if phase.phase == Phase.ANNOTATION:
+                    queryset = queryset.filter(annotation_campaign_phase=phase)
+                    if for_current_user:
+                        queryset = queryset.filter(annotator=self.request.user)
+                elif phase.phase == Phase.VERIFICATION:
+                    queryset = queryset.filter(
+                        annotation_campaign_phase__annotation_campaign=phase.annotation_campaign
+                    )
+                    if for_current_user:
+                        queryset = queryset.filter(
+                            Q(
+                                annotator=self.request.user,
+                                annotation_campaign_phase__phase=Phase.VERIFICATION,
+                            )
+                            | (
+                                ~Q(annotator=self.request.user)
+                                & Q(annotation_campaign_phase__phase=Phase.ANNOTATION)
+                            )
+                        )
+            if for_current_user:
+                is_annotator_on_campaign_on_this_file = Q(  # Whatever the phase type is
+                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__annotator=self.request.user,
+                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__first_file_id__lte=F(
+                        "dataset_file_id"
                     ),
-                    Prefetch(
-                        "updated_to",
-                        queryset=AnnotationResult.objects.filter(
-                            annotator_id=self.request.user.id
-                        ),
+                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__last_file_id__gte=F(
+                        "dataset_file_id"
                     ),
                 )
-            )
+                queryset = (
+                    queryset.filter(is_annotator_on_campaign_on_this_file)
+                    .filter(
+                        Q(annotator=self.request.user)
+                        | Q(
+                            annotation_campaign_phase__annotation_campaign__phases__phase=Phase.VERIFICATION,
+                            annotation_campaign_phase__phase=Phase.ANNOTATION,
+                        )
+                    )
+                    .prefetch_related(
+                        Prefetch(
+                            "validations",
+                            queryset=AnnotationResultValidation.objects.filter(
+                                annotator_id=self.request.user.id
+                            ),
+                        ),
+                        Prefetch(
+                            "updated_to",
+                            queryset=AnnotationResult.objects.filter(
+                                annotator_id=self.request.user.id
+                            ),
+                        ),
+                    )
+                )
         else:
             queryset = queryset.prefetch_related("validations", "updated_to")
         return queryset
 
     @staticmethod
-    def map_request_results(results: list[dict], campaign_id, file_id, user_id):
+    def map_request_results(results: list[dict], phase_id, file_id, user_id):
         """Map results from request with the other request information"""
         return [
             {
                 **r,
-                "annotation_campaign": campaign_id,
                 "dataset_file": file_id,
-                "annotator": user_id
-                if r.get("detector_configuration") is None
-                else None,
                 "comments": [
                     {
                         **c,
-                        "annotation_campaign": campaign_id,
+                        "annotation_campaign_phase": phase_id,
                         "dataset_file": file_id,
                         "author": c["author"]
                         if "author" in c and c["author"] is not None
@@ -131,6 +169,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                         else user_id,
                     }
                     for v in (r["validations"] if "validations" in r else [])
+                    if "annotator" in r and r["annotator"] != user_id
                 ],
             }
             for r in results
@@ -139,23 +178,40 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @staticmethod
     def update_results(
         new_results: list[dict],
-        campaign: AnnotationCampaign,
+        phase: AnnotationCampaignPhase,
         file: DatasetFile,
         user_id,
     ):
         """Update with given results"""
         data = AnnotationResultViewSet.map_request_results(
-            new_results, campaign.id, file.id, user_id
+            new_results, phase.id, file.id, user_id
         )
         current_results = AnnotationResultViewSet.queryset.filter(
-            annotation_campaign_id=campaign.id,
             dataset_file_id=file.id,
-        ).filter(Q(annotator_id=user_id) | Q(annotator__isnull=True))
+        )
+        if phase.phase == Phase.ANNOTATION:
+            current_results = current_results.filter(
+                annotation_campaign_phase_id=phase.id,
+                annotator_id=user_id,
+            )
+        else:
+            current_results = current_results.filter(
+                Q(
+                    annotation_campaign_phase_id=phase.id,
+                    annotator_id=user_id,
+                )
+                | (
+                    ~Q(annotation_campaign_phase_id=phase.id, annotator_id=user_id)
+                    & Q(
+                        annotation_campaign_phase__annotation_campaign=phase.annotation_campaign
+                    )
+                )
+            )
         serializer = AnnotationResultViewSet.serializer_class(
             current_results,
             many=True,
             data=data,
-            context={"campaign": campaign, "file": file},
+            context={"phase": phase, "file": file},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -164,15 +220,26 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(
         methods=["POST"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/import",
+        url_path="campaign/(?P<campaign_id>[^/.]+)/phase/(?P<phase_id>[^/.]+)/import",
         url_name="campaign-import",
     )
-    def import_results(self, request, campaign_id):
+    def import_results(self, request, campaign_id, phase_id):
         """Import result from automated detection"""
         # Check permission
-        campaign = get_object_or_404(AnnotationCampaign, id=campaign_id)
-        if campaign.owner_id != request.user.id and not request.user.is_staff:
+        phase = get_object_or_404(
+            AnnotationCampaignPhase, id=phase_id, annotation_campaign_id=campaign_id
+        )
+        if (
+            phase.annotation_campaign.owner_id != request.user.id
+            and not request.user.is_staff
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if phase.phase != Phase.ANNOTATION:
+            return Response(
+                "Import should always be made on annotation campaign",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         dataset_name = request.query_params.get("dataset_name")
         detectors_map = ast.literal_eval(request.query_params.get("detectors_map"))
@@ -215,7 +282,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     and row["confidence_indicator_label"]
                     and confidence_level
                     else None,
-                    "annotation_campaign": campaign_id,
+                    "annotation_campaig_phase": phase_id,
                 }
             )
 
@@ -223,7 +290,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = AnnotationResultImportListSerializer(
             data=data,
             context={
-                "campaign": campaign,
+                "phase": phase,
                 "force_datetime": get_boolean_query_param(
                     self.request, "force_datetime"
                 ),
@@ -236,7 +303,8 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer.save()
         instances: list[AnnotationResult] = serializer.instance
         AnnotationTask.objects.filter(
-            annotation_campaign=campaign,
+            annotation_campaign_phase__annotation_campaign=phase.annotation_campaign,
+            annotation_campaign_phase__phase=Phase.VERIFICATION,
             dataset_file_id__in=[r.dataset_file_id for r in instances],
         ).update(status=AnnotationTask.Status.CREATED)
         list_serializer: AnnotationResultSerializer = self.get_serializer_class()(

@@ -22,10 +22,9 @@ export class CampaignEditPage {
   async go(as: UserType, options?: { empty: boolean }) {
     await test.step('Navigate to Campaign detail', async () => {
       await this.detail.go(as, options)
-      const modal = await this.detail.openProgressModal();
       await this.mock.fileRanges(options?.empty)
       await this.mock.annotatorGroups(options?.empty)
-      await modal.manageButton.click();
+      await this.detail.manageButton.click();
     });
   }
 }

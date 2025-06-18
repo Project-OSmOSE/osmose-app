@@ -1,16 +1,18 @@
-import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { IonNote } from "@ionic/react";
 import styles from './ui.module.scss'
 import { createPortal } from "react-dom";
 import { MOUSE_MOVE_EVENT, useEvent } from "@/service/events";
 import { v4 as uuidv4 } from 'uuid';
+import { usePopover } from "@/service/ui/popover.ts";
 
 export const TooltipOverlay: React.FC<{
   children: ReactNode;
   tooltipContent: ReactNode;
   title?: string;
-}> = ({ children, tooltipContent, title }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  anchor?: 'left' | 'right'
+}> = ({ children, tooltipContent, title, anchor = 'left' }) => {
+  const { containerRef, top, left, right } = usePopover()
   const containerID: string = useMemo(() => uuidv4(), []);
 
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
@@ -25,18 +27,14 @@ export const TooltipOverlay: React.FC<{
 
 
   const position: CSSProperties = useMemo(() => {
-    let top = 0, left = 0;
-    if (containerRef.current) {
-      top = containerRef.current.offsetTop + containerRef.current.offsetHeight + 8;
-
-      const bounds = containerRef.current.getBoundingClientRect()
-      top = document.getElementsByTagName('html')[0].scrollTop + bounds.top + bounds.height + 8;
-      left = bounds.left;
-    }
+    let anchorPosition = {}
+    if (anchor === 'left') anchorPosition = { left }
+    if (anchor === 'right') anchorPosition = { right }
     return {
-      position: 'absolute', top, left, transition: 'opacity 150ms ease-in-out', opacity: isShown ? 1 : 0,
+      position: 'absolute', top: top + 8, ...anchorPosition,
+      transition: 'opacity 150ms ease-in-out', opacity: isShown ? 1 : 0,
     }
-  }, [ containerRef.current, isShown ]);
+  }, [ containerRef.current, isShown, top, left, right ]);
 
   const onMouseMove = useCallback((event: MouseEvent) => {
     const elements: Element[] = document.elementsFromPoint(event.clientX, event.clientY);

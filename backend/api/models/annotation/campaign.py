@@ -14,17 +14,11 @@ from .label import LabelSet, Label
 from ..datasets import DatasetFile
 
 
-class AnnotationCampaignUsage(models.IntegerChoices):
-    """Annotation campaign usage"""
+class Phase(models.TextChoices):
+    """Available type of phases of the annotation campaign"""
 
-    CREATE = (
-        0,
-        "Create",
-    )
-    CHECK = (
-        1,
-        "Check",
-    )
+    ANNOTATION = "A", "Annotation"
+    VERIFICATION = "V", "Verification"
 
 
 class AnnotationCampaignArchive(models.Model):
@@ -66,7 +60,9 @@ class AnnotationCampaign(models.Model):
     instructions_url = models.TextField(null=True, blank=True)
     deadline = models.DateField(null=True, blank=True)
 
-    label_set = models.ForeignKey(LabelSet, on_delete=models.CASCADE)
+    label_set = models.ForeignKey(
+        LabelSet, on_delete=models.CASCADE, null=True, blank=True
+    )
     labels_with_acoustic_features = models.ManyToManyField(Label, blank=True)
     allow_point_annotation = models.BooleanField(default=False)
     datasets = models.ManyToManyField("Dataset", related_name="annotation_campaigns")
@@ -80,16 +76,8 @@ class AnnotationCampaign(models.Model):
     annotation_scope = models.IntegerField(
         choices=AnnotationScope.choices, default=AnnotationScope.WHOLE
     )
-    usage = models.IntegerField(
-        choices=AnnotationCampaignUsage.choices, default=AnnotationCampaignUsage.CREATE
-    )
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    annotators = models.ManyToManyField(
-        to=settings.AUTH_USER_MODEL,
-        through="AnnotationFileRange",
-        related_name="campaigns",
-    )
     confidence_indicator_set = models.ForeignKey(
         ConfidenceIndicatorSet, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -107,11 +95,60 @@ class AnnotationCampaign(models.Model):
         self.archive = AnnotationCampaignArchive.objects.create(by_user=user)
         self.save()
 
+        for phase in self.phases.all():
+            phase.end(user)
+
     def get_sorted_files(self) -> QuerySet[DatasetFile]:
         """Return sorted dataset files"""
         return DatasetFile.objects.filter(
             dataset_id__in=self.datasets.values_list("id", flat=True)
         ).order_by("start", "id")
+
+
+class AnnotationCampaignPhase(models.Model):
+    """Annotation campaign phase"""
+
+    class Meta:
+        unique_together = (("phase", "annotation_campaign"),)
+
+    def __str__(self):
+        return f"{self.annotation_campaign} - {Phase(self.phase).label}"
+
+    phase = models.CharField(choices=Phase.choices, max_length=1)
+    annotation_campaign = models.ForeignKey(
+        AnnotationCampaign,
+        on_delete=models.CASCADE,
+        related_name="phases",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="created_phases",
+    )
+
+    ended_at = models.DateTimeField(blank=True, null=True)
+    ended_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ended_phases",
+        blank=True,
+        null=True,
+    )
+
+    @property
+    def is_open(self) -> bool:
+        """Get open state of the phase"""
+        if not self.ended_at or not self.ended_by:
+            return True
+        return False
+
+    def end(self, user: User):
+        """End the phase"""
+        self.ended_at = timezone.now()
+        self.ended_by = user
+        self.save()
 
 
 @receiver(

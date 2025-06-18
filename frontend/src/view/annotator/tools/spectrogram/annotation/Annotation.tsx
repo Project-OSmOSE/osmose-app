@@ -1,5 +1,5 @@
 import React, { Fragment, MutableRefObject, useMemo } from "react";
-import { AnnotationResult } from "@/service/campaign/result";
+import { AnnotationResult } from "@/service/types";
 import { Box } from "@/view/annotator/tools/spectrogram/annotation/Box.tsx";
 import { Point } from '@/view/annotator/tools/spectrogram/annotation/Point.tsx';
 import { useAppSelector } from "@/service/app.ts";

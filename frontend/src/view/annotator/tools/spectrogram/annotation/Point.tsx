@@ -1,20 +1,24 @@
 import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale } from '@/service/dataset/spectrogram-configuration/scale';
-import { PointResult } from '@/service/campaign/result';
-import { updateFocusResultBounds } from '@/service/annotator';
+import { PointResult } from '@/service/types';
 import { useAppDispatch, useAppSelector } from '@/service/app.ts';
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from '../../annotator-tools.module.scss'
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 export const Point: React.FC<{
   annotation: PointResult
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ annotation, audioPlayer }) => {
-  // Data
-  const { label_set, campaign } = useAnnotator();
+  const { campaign } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase()
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
+    // Data
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -63,12 +67,16 @@ export const Point: React.FC<{
 
   // Memo
   const colorClassName: string = useMemo(() => {
-    if (!label_set) return '';
+    if (!labelSet) return '';
     let label = annotation.label
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
-    return `ion-color-${ label_set.labels.indexOf(label)%10 }`
-  }, [ label_set, annotation ]);
-  const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
+    return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
+  }, [ labelSet, annotation ]);
+  const isActive = useMemo(() => {
+    if (campaign?.archive) return false;
+    if (phase?.ended_at) return false;
+    return annotation.id === focusedResultID
+  }, [ campaign, phase, annotation.id, focusedResultID ]);
 
   function updateLeft() {
     if (_start_time.current === null) return;
@@ -89,8 +97,8 @@ export const Point: React.FC<{
   }
 
   function onValidateMove() {
-    if (!campaign) return;
-    dispatch(updateFocusResultBounds({
+    if (!phase) return;
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: {
         type: 'Point',
         start_time: _xAxis.current.positionToValue(_left.current),
@@ -98,7 +106,7 @@ export const Point: React.FC<{
         start_frequency: _yAxis.current.positionToValue(_top.current),
         end_frequency: null,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 

@@ -6,6 +6,7 @@ import {
   AUDIO_METADATA,
   AUTH,
   CAMPAIGN,
+  CAMPAIGN_PHASE,
   CHECK_DATA,
   CONFIDENCE,
   CREATE_DATA,
@@ -19,8 +20,7 @@ import {
   UserType
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
-import { AnnotationFile } from '../../../src/service/campaign/annotation-file-range';
-import { AnnotationCampaign, AnnotationCampaignUsage } from '../../../src/service/campaign';
+import { AnnotationCampaign, AnnotationFile, Phase } from '../../../src/service/types';
 
 type Response = {
   status: number,
@@ -57,8 +57,14 @@ export class Mock {
   }
 
   public async campaigns(empty: boolean = false) {
-    const json = empty ? [] : [ CAMPAIGN ]
-    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.campaign.list, route => route.fulfill({
+      status: 200,
+      json: empty ? [] : [ CAMPAIGN ]
+    }))
+    await this.page.route(API_URL.phase.list, route => route.fulfill({
+      status: 200,
+      json: empty ? [] : [ CAMPAIGN_PHASE, { ...CAMPAIGN_PHASE, id: 2, phase: 'Verification' } ]
+    }))
   }
 
   public async campaignCreate(withErrors: boolean = false) {
@@ -85,22 +91,25 @@ export class Mock {
   }
 
   public async campaignDetail(empty: boolean = false,
-                              mode: AnnotationCampaignUsage = 'Create',
+                              phase: Phase = 'Annotation',
                               hasConfidence: boolean = true,
                               allowPoint: boolean = false) {
     const json: AnnotationCampaign = CAMPAIGN;
-    if (empty) {
-      json.progress = 0;
-      json.total = 0;
-      json.my_progress = 0;
-      json.my_total = 0;
-    }
-    json.usage = mode;
     if (!hasConfidence) {
       json.confidence_indicator_set = null;
     }
     if (allowPoint) json.allow_point_annotation = true;
     await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
+    await this.page.route(API_URL.phase.detail, route => route.fulfill({
+      status: 200, json: empty ? {
+        ...CAMPAIGN_PHASE,
+        progress: 0,
+        total: 0,
+        my_progress: 0,
+        my_total: 0,
+        phase
+      } : { ...CAMPAIGN_PHASE, phase }
+    }))
   }
 
   public async spectrograms(empty: boolean = false) {
@@ -163,14 +172,14 @@ export class Mock {
       count: results.length,
       resume: results.find(r => r.is_submitted === false)?.id
     }
-    await this.page.route(/\/api\/annotation-file-range\/campaign\/-?\d\/files/g, route => route.fulfill({
+    await this.page.route(/\/api\/annotation-file-range\/phase\/-?\d\/files/g, route => route.fulfill({
       status: 200,
       json
     }))
   }
 
-  public async annotator(type: AnnotationCampaignUsage = 'Create', empty: boolean = false) {
-    const json = type === 'Create' ? CREATE_DATA(empty) : CHECK_DATA(empty)
+  public async annotator(phase: Phase = 'Annotation', empty: boolean = false) {
+    const json = phase === 'Annotation' ? CREATE_DATA(empty) : CHECK_DATA(empty)
     await this.page.route(API_URL.annotator, (route, request) => {
       if (request.method() === 'GET') route.fulfill({ status: 200, json })
       else route.fulfill({ status: 200 })

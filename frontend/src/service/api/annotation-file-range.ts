@@ -1,0 +1,112 @@
+import { API } from "@/service/api/index.ts";
+import { useMemo } from "react";
+import { ID, Paginated, PaginationParams } from "@/service/type.ts";
+import { AnnotationFile, AnnotationFileRange } from "@/service/types";
+import { extendDatasetFile } from "@/service/api/dataset.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+
+export type FileFilter = {
+  filename__icontains?: string;
+  is_submitted?: boolean;
+  with_user_annotations?: boolean;
+  label__name?: string;
+  confidence_indicator__label?: string;
+  detector_configuration__detector__name?: string;
+  acoustic_features__isnull?: boolean;
+  end__gte?: string;
+  start__lte?: string;
+}
+
+export const FILES_PAGE_SIZE = 20;
+
+export type PaginatedAnnotationFiles = Paginated<AnnotationFile> & { resume?: number }
+
+export type PostAnnotationFileRange = Pick<AnnotationFileRange, 'id' | 'annotator'> &
+  Partial<Pick<AnnotationFileRange, 'first_file_index' | 'last_file_index'>>
+
+export function extendFileRange(range: AnnotationFileRange): AnnotationFileRange {
+  return {
+    ...range,
+    first_file_index: range.first_file_index + 1,
+    last_file_index: range.last_file_index + 1
+  }
+}
+
+export function extendAnnotationFile(file: AnnotationFile): AnnotationFile {
+  return {
+    ...file,
+    ...extendDatasetFile(file)
+  }
+}
+
+export const AnnotationFileRangeAPI = API.injectEndpoints({
+  endpoints: (builder) => ({
+    listFileRange: builder.query<Array<AnnotationFileRange>, {
+      annotation_campaign_phase?: ID,
+      for_current_user?: boolean,
+    }>({
+      query: (params) => ({ url: `annotation-file-range/`, params }),
+      transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
+        return ranges.map(extendFileRange);
+      },
+      providesTags: [ 'FileRange' ]
+    }),
+    listFilesWithPagination: builder.query<PaginatedAnnotationFiles, PaginationParams & FileFilter & {
+      phaseID: number,
+    }>({
+      query: ({ phaseID, ...params }) => ({
+        url: `annotation-file-range/phase/${ phaseID }/files/`,
+        params: {
+          page_size: FILES_PAGE_SIZE,
+          ...params
+        }
+      }),
+      transformResponse(paginatedFiles: Omit<PaginatedAnnotationFiles, 'pageCount'>, _, arg): PaginatedAnnotationFiles {
+        return {
+          ...paginatedFiles,
+          pageCount: Math.ceil(paginatedFiles.count / (arg.page_size ?? FILES_PAGE_SIZE)),
+          results: [ ...paginatedFiles.results ].map(extendAnnotationFile)
+        }
+      },
+      providesTags: [ 'FileRangeFiles' ]
+    }),
+
+    postFileRange: builder.mutation<Array<AnnotationFileRange>, {
+      phaseID: ID,
+      filesCount: number,
+      data: Array<PostAnnotationFileRange>,
+      force?: boolean
+    }>({
+      query: ({ phaseID, filesCount, data, force }) => ({
+        url: `annotation-file-range/phase/${ phaseID }/`,
+        method: 'POST',
+        body: {
+          data: data.map(range => {
+            const first_file_index = !range.first_file_index ? 1 : range.first_file_index;
+            const last_file_index = !range.last_file_index ? filesCount : range.last_file_index;
+            return {
+              id: range.id >= 0 ? range.id : undefined,
+              first_file_index: first_file_index - 1,
+              last_file_index: last_file_index - 1,
+              annotator: range.annotator
+            }
+          }),
+          force
+        }
+      }),
+      transformResponse: (ranges: Array<AnnotationFileRange>): Array<AnnotationFileRange> => {
+        return ranges.map(extendFileRange);
+      },
+      invalidatesTags: [ 'FileRange', 'FileRangeFiles', 'Campaign', 'CampaignPhase' ]
+    })
+  })
+})
+
+export const useListFileRangesForCurrentPhase = () => {
+  const { phase } = useRetrieveCurrentPhase()
+  const {
+    data,
+    ...info
+  } = AnnotationFileRangeAPI.endpoints.listFileRange.useQuery({ annotation_campaign_phase: phase?.id ?? -1 }, { skip: !phase })
+  return useMemo(() => ({ fileRanges: data, ...info, }), [ data, info ])
+}

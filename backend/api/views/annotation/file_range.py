@@ -7,6 +7,10 @@ from django.db.models import (
     Exists,
     OuterRef,
     Count,
+    Value,
+    Subquery,
+    Func,
+    F,
 )
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions, filters
@@ -17,10 +21,11 @@ from rest_framework.response import Response
 
 from backend.api.models import (
     AnnotationFileRange,
-    AnnotationCampaign,
     AnnotationTask,
     DatasetFile,
-    AnnotationCampaignUsage,
+    AnnotationCampaignPhase,
+    Phase,
+    AnnotationResult,
 )
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
@@ -32,34 +37,54 @@ from backend.utils.filters import ModelFilter, get_boolean_query_param
 class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
     """Filter dataset files from file ranges"""
 
+    @staticmethod
+    def get_results_for_file_range(
+        request: Request,
+        view,
+        file_range,
+        user_annotations: Optional[bool],
+    ):
+        """Recover matching results"""
+        user_id = request.user.id
+        features = get_boolean_query_param(
+            request, "annotation_results__acoustic_features__isnull"
+        )
+        results: QuerySet[AnnotationResult] = ModelFilter().filter_queryset(
+            request, file_range.results, view
+        )
+        if features is not None:
+            results = results.filter(acoustic_features__isnull=features)
+
+        if user_annotations is not None:
+            file_filter = Q(dataset_file_id=OuterRef("id"))
+            if file_range.annotation_campaign_phase.phase == Phase.ANNOTATION:
+                file_filter = file_filter & Q(annotator_id=user_id)
+            elif file_range.annotation_campaign_phase.phase == Phase.VERIFICATION:
+                file_filter = file_filter & ~Q(annotator_id=user_id)
+            if user_annotations:
+                results = results.filter(file_filter)
+            else:
+                results = results.filter(~file_filter)
+
+        return results
+
     def filter_queryset(
         self, request: Request, queryset: QuerySet[AnnotationFileRange], view
     ) -> QuerySet[DatasetFile]:
         """Get filtered dataset files"""
-        if not queryset.exists():
-            return DatasetFile.objects.none()
-        campaign_ids = queryset.values_list("annotation_campaign", flat=True)
-
-        id_filter = None
+        files = DatasetFile.objects.none()
         for file_range in queryset:
-            file_range_filter = Q(
-                id__gte=file_range.first_file_id, id__lte=file_range.last_file_id
+            files = files | self._filter_queryset_for_file_range(
+                request, file_range, view
             )
-            if id_filter is None:
-                id_filter = file_range_filter
-            else:
-                id_filter = id_filter | file_range_filter
 
-        if id_filter is None:
-            return DatasetFile.objects.none()
+        return files.order_by("start", "id")
 
-        files = (
-            DatasetFile.objects.select_related("dataset")
-            .prefetch_related("dataset__annotation_campaigns")
-            .filter(dataset__annotation_campaigns__in=campaign_ids)
-            .filter(id_filter)
-        )
-
+    def _filter_queryset_for_file_range(
+        self, request: Request, file_range: AnnotationFileRange, view
+    ) -> QuerySet[DatasetFile]:
+        """Get filtered dataset files for a specific file_range"""
+        files = DatasetFile.objects.filter_for_file_range(file_range)
         files: QuerySet[DatasetFile] = ModelFilter().filter_queryset(
             request, files, view
         )
@@ -67,14 +92,33 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
         )
+        results = self.get_results_for_file_range(
+            request,
+            view,
+            file_range,
+            user_annotations=with_user_annotations
+            if with_user_annotations is not False
+            else True,
+        )
         if with_user_annotations is not None:
-            with_user_annotations_filter = Q(
-                annotation_results__annotator=request.user
-            ) | Q(annotation_results__detector_configuration__isnull=False)
-            if with_user_annotations:
-                files = files.filter(with_user_annotations_filter)
-            else:
-                files = files.filter(~with_user_annotations_filter)
+            files = files.filter(
+                Exists(results)
+                if with_user_annotations is not False
+                else ~Exists(results),
+            )
+
+        files = files.annotate(
+            results_count=Subquery(
+                self.get_results_for_file_range(
+                    request,
+                    view,
+                    file_range,
+                    user_annotations=True,
+                )
+                .annotate(count=Func(F("id"), function="count"))
+                .values("count")
+            ),
+        )
 
         is_submitted = get_boolean_query_param(request, "is_submitted")
         if is_submitted is not None:
@@ -126,10 +170,12 @@ class AnnotationFileRangeFilter(filters.BaseFilterBackend):
         # (don't understand why, the result query is correct when executed directly in SQL console)
         # The .distinct() is necessary to assure the items are not doubled
         return queryset.filter(
-            Q(annotation_campaign__owner=request.user)
+            Q(annotation_campaign_phase__annotation_campaign__owner=request.user)
             | (
-                Q(annotation_campaign__archive__isnull=True)
-                & Q(annotation_campaign__annotators__id=request.user.id)
+                Q(annotation_campaign_phase__annotation_campaign__archive__isnull=True)
+                & Q(
+                    annotation_campaign_phase__file_ranges__annotator__id=request.user.id
+                )
             )
         ).distinct()
 
@@ -142,9 +188,9 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AnnotationFileRange.objects.select_related(
         "annotator",
         "annotator__aplose",
-        "annotation_campaign",
+        "annotation_campaign_phase",
     ).prefetch_related(
-        "annotation_campaign__datasets",
+        "annotation_campaign_phase__annotation_campaign__datasets",
     )
     serializer_class = AnnotationFileRangeSerializer
     filter_backends = (ModelFilter, AnnotationFileRangeFilter)
@@ -166,42 +212,73 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         """Check permission to post data for user"""
         if self.request.user.is_staff:
             return True
-        required_campaigns = AnnotationCampaign.objects.filter(
-            id__in=[data["annotation_campaign"] for data in request_data],
+        required_campaign_phases = AnnotationCampaignPhase.objects.filter(
+            id__in=[data["annotation_campaign_phase"] for data in request_data],
         )
-        required_owned_campaigns = required_campaigns.filter(owner=self.request.user)
+        required_owned_campaign_phases = required_campaign_phases.filter(
+            annotation_campaign__owner=self.request.user
+        )
         # Check if non-staff user is owner of all campaigns where changes are requested
-        return required_campaigns.count() == required_owned_campaigns.count()
+        return (
+            required_campaign_phases.count() == required_owned_campaign_phases.count()
+        )
 
     @action(
         methods=["GET"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)/files",
-        url_name="campaign-files",
+        url_path="phase/(?P<phase_id>[^/.]+)/files",
+        url_name="phase-files",
     )
-    def list_files(self, request, campaign_id: int = None):
+    def list_files(self, request, phase_id: int = None):
         """List files of an annotator within a campaign through its file ranges"""
         queryset: QuerySet[AnnotationFileRange] = self.filter_queryset(
             self.get_queryset()
-        ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
-        campaign: AnnotationCampaign = AnnotationCampaign.objects.filter(
-            id=campaign_id
+        ).filter(
+            annotator_id=self.request.user.id,
+            annotation_campaign_phase_id=phase_id,
+        )
+        phase: AnnotationCampaignPhase = AnnotationCampaignPhase.objects.filter(
+            id=phase_id
         ).first()
 
-        annotation_results_count_filter = Q(
-            annotation_results__annotation_campaign_id=campaign_id,
-        ) & (
-            Q(annotation_results__annotator_id=self.request.user.id)
-            | Q(annotation_results__detector_configuration__isnull=False)
+        created_annotations_filter = Q(
+            annotation_results__annotation_campaign_phase_id=phase_id,
+            annotation_results__annotator_id=self.request.user.id,
         )
-        validated_annotation_results_count_filter = annotation_results_count_filter & Q(
-            annotation_results__validations__annotator_id=self.request.user.id,
-            annotation_results__validations__is_valid=True,
-        )
-        if campaign is not None and campaign.usage == AnnotationCampaignUsage.CHECK:
-            annotation_results_count_filter = annotation_results_count_filter & ~Q(
-                annotation_results__updated_to__annotator_id=self.request.user.id
-            )
+        # annotation_results_count = Value(0)
+        validated_annotation_results_count = Value(0)
+        if phase is not None:
+            if phase.phase == Phase.ANNOTATION:
+                # annotation_results_count = Count(
+                #     "annotation_results",
+                #     filter=created_annotations_filter,
+                #     distinct=True,
+                # )
+                pass
+            if phase.phase == Phase.VERIFICATION:
+                annotation_results_count_filter = Q(
+                    annotation_results__annotation_campaign_phase__phase=Phase.ANNOTATION,
+                    annotation_results__annotation_campaign_phase__annotation_campaign_id=phase.annotation_campaign_id,
+                ) & ~Q(annotation_results__annotator_id=self.request.user.id)
+                # annotation_results_count = Count(
+                #     "annotation_results",
+                #     filter=annotation_results_count_filter,
+                #     distinct=True,
+                # )
+                validated_annotation_results_count = Count(
+                    "annotation_results",
+                    filter=(
+                        (
+                            annotation_results_count_filter
+                            & Q(
+                                annotation_results__validations__annotator_id=self.request.user.id,
+                                annotation_results__validations__is_valid=True,
+                            )
+                        )
+                        | created_annotations_filter
+                    ),
+                    distinct=True,
+                )
         files: QuerySet[DatasetFile] = (
             AnnotationFileRangeFilesFilter()
             .filter_queryset(request, queryset, self)
@@ -210,21 +287,12 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 is_submitted=Exists(
                     AnnotationTask.objects.filter(
                         dataset_file_id=OuterRef("pk"),
-                        annotation_campaign_id=campaign_id,
+                        annotation_campaign_phase_id=phase_id,
                         annotator_id=self.request.user.id,
                         status=AnnotationTask.Status.FINISHED,
                     )
                 ),
-                results_count=Count(
-                    "annotation_results",
-                    filter=annotation_results_count_filter,
-                    distinct=True,
-                ),
-                validated_results_count=Count(
-                    "annotation_results",
-                    filter=validated_annotation_results_count_filter,
-                    distinct=True,
-                ),
+                validated_results_count=validated_annotation_results_count,
             )
         )
         next_file = files.filter(is_submitted=False).first()
@@ -239,25 +307,25 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
     @action(
         methods=["POST"],
         detail=False,
-        url_path="campaign/(?P<campaign_id>[^/.]+)",
-        url_name="campaign",
+        url_path="phase/(?P<phase_id>[^/.]+)",
+        url_name="phase",
     )
     def update_for_campaign(
         self,
         request,
-        campaign_id: int = None,
+        phase_id: int = None,
     ):
         """POST an array of annotation file ranges, handle both update and create"""
 
-        campaign: AnnotationCampaign = get_object_or_404(
-            AnnotationCampaign,
-            id=campaign_id,
+        phase: AnnotationCampaignPhase = get_object_or_404(
+            AnnotationCampaignPhase,
+            id=phase_id,
         )
 
         data = [
             {
                 **d,
-                "annotation_campaign": campaign.id,
+                "annotation_campaign_phase": phase.id,
             }
             for d in request.data["data"]
         ]
@@ -266,7 +334,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = AnnotationFileRangeSerializer(
-            campaign.annotation_file_ranges,
+            phase.file_ranges,
             data=data,
             context={
                 "force": request.data["force"] if "force" in request.data else False
@@ -277,7 +345,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         serializer.save()
         return Response(
             AnnotationFileRangeSerializer(
-                campaign.annotation_file_ranges,
+                phase.file_ranges,
                 many=True,
             ).data,
             status=status.HTTP_200_OK,

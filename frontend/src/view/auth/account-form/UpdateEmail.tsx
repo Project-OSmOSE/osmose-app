@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { FormBloc, Input } from "@/components/form";
 import { IonButton, IonSpinner } from "@ionic/react";
 import styles from "@/view/auth/auth.module.scss";
-import { useGetCurrentUserQuery, usePatchUserMutation } from "@/service/user";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
+import { UserAPI } from "@/service/api/user.ts";
 
 export const UpdateEmail: React.FC = () => {
-  const { data: currentUser, refetch: refetchUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = UserAPI.endpoints.getCurrentUser.useQuery();
   const [ patchUser, {
     isLoading: isSubmitting,
     error: patchError,
     isSuccess: isPatchSuccessful
-  } ] = usePatchUserMutation();
+  } ] = UserAPI.endpoints.patchUser.useMutation();
 
   const toast = useToast();
 
@@ -38,7 +38,6 @@ export const UpdateEmail: React.FC = () => {
   useEffect(() => {
     if (isPatchSuccessful) {
       toast.presentSuccess('You email have been changed')
-      refetchUser()
     }
   }, [ isPatchSuccessful ]);
 

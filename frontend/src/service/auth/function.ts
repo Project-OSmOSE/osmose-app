@@ -1,11 +1,8 @@
-import { Token } from './type.ts';
-import { AppState } from '@/service/app';
-import { BaseQueryApi, FetchArgs } from '@reduxjs/toolkit/query';
+import { Token } from "@/service/types";
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { logout } from '@/service/auth/slice.ts';
 
-export function prepareHeadersWithToken(headers: Headers, { getState }: Pick<BaseQueryApi, 'getState'>) {
-  const token = (getState() as AppState).auth.token ?? getTokenFromCookie();
+export function prepareHeadersWithToken(headers: Headers) {
+  const token = getTokenFromCookie();
   if (token) headers.set('Authorization', `Bearer ${ token }`);
   return headers;
 }
@@ -16,15 +13,6 @@ export function getTokenFromCookie(): Token {
   return tokenCookie?.split('=').pop();
 }
 
-export const selectIsConnected = (state: AppState): boolean => {
-  if (state.auth.token) return true;
-  return !!getTokenFromCookie()
-}
-
 export function getAuthenticatedBaseQuery(baseUrl: string) {
-  return async function authenticatedBaseQuery(args: string | FetchArgs, api: BaseQueryApi, extraOptions: any) {
-    const result = await fetchBaseQuery({ baseUrl, prepareHeaders: prepareHeadersWithToken })(args, api, extraOptions);
-    if (result.error && result.error.status === 401) api.dispatch(logout())
-    return result;
-  }
+  return fetchBaseQuery({ baseUrl, prepareHeaders: prepareHeadersWithToken })
 }

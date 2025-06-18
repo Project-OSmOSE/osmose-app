@@ -5,7 +5,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import QuerySet, Q, Subquery, Exists, OuterRef, Func, F
 
-from .campaign import AnnotationCampaign
+from .campaign import AnnotationCampaignPhase, Phase
+from .result import AnnotationResult
 from ..datasets import DatasetFile
 
 
@@ -24,12 +25,12 @@ class AnnotationTask(models.Model):
 
     class Meta:
         ordering = ["dataset_file__start", "id"]
-        unique_together = (("dataset_file", "annotation_campaign", "annotator"),)
+        unique_together = (("dataset_file", "annotation_campaign_phase", "annotator"),)
 
     status = models.TextField(choices=Status.choices, default=Status.CREATED)
 
-    annotation_campaign = models.ForeignKey(
-        AnnotationCampaign, on_delete=models.CASCADE, related_name="tasks"
+    annotation_campaign_phase = models.ForeignKey(
+        AnnotationCampaignPhase, on_delete=models.CASCADE, related_name="tasks"
     )
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -66,19 +67,53 @@ class AnnotationFileRange(models.Model):
         on_delete=models.CASCADE,
         related_name="annotation_file_ranges",
     )
-    annotation_campaign = models.ForeignKey(
-        AnnotationCampaign,
+    annotation_campaign_phase = models.ForeignKey(
+        AnnotationCampaignPhase,
         on_delete=models.CASCADE,
-        related_name="annotation_file_ranges",
+        related_name="file_ranges",
     )
+
+    @property
+    def tasks(self) -> QuerySet[AnnotationTask]:
+        """Get file range tasks"""
+        return AnnotationTask.objects.filter(
+            annotation_campaign_phase=self.annotation_campaign_phase,
+            annotator_id=self.annotator_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
+        )
+
+    @property
+    def results(self) -> QuerySet[AnnotationResult]:
+        """Get file range results"""
+        if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
+            return AnnotationResult.objects.filter(
+                annotation_campaign_phase__annotation_campaign_id=self.annotation_campaign_phase.annotation_campaign_id,
+                dataset_file_id__gte=self.first_file_id,
+                dataset_file_id__lte=self.last_file_id,
+            ).filter(
+                (
+                    Q(annotation_campaign_phase_id=self.id)
+                    & Q(annotator_id=self.annotator_id)
+                )
+                | (
+                    ~Q(annotation_campaign_phase_id=self.id)
+                    & ~Q(annotator_id=self.annotator_id)
+                )
+            )
+        return AnnotationResult.objects.filter(
+            annotation_campaign_phase=self.annotation_campaign_phase,
+            annotator_id=self.annotator_id,
+            dataset_file_id__gte=self.first_file_id,
+            dataset_file_id__lte=self.last_file_id,
+        )
 
     def save(self, *args, **kwargs):
         self.files_count = self.last_file_index - self.first_file_index + 1
-        files = DatasetFile.objects.filter(
-            dataset_id__in=self.annotation_campaign.datasets.values_list(
-                "id", flat=True
-            )
+        allowed_datasets = (
+            self.annotation_campaign_phase.annotation_campaign.datasets.all()
         )
+        files = DatasetFile.objects.filter(dataset__in=allowed_datasets)
         new_first_file_id = files[self.first_file_index].id
         new_last_file_id = files[self.last_file_index].id
 
@@ -93,20 +128,19 @@ class AnnotationFileRange(models.Model):
         self.last_file_id = new_last_file_id
         super().save(*args, **kwargs)
 
+    def delete(self, using=None, keep_parents=False):
+        self._get_tasks().filter(other_range_exist=False).delete()
+        return super().delete(using, keep_parents)
+
     def _get_tasks(self) -> QuerySet[AnnotationTask]:
-        return AnnotationTask.objects.filter(
-            annotation_campaign_id=self.annotation_campaign_id,
-            annotator_id=self.annotator_id,
-            dataset_file_id__gte=self.first_file_id,
-            dataset_file_id__lte=self.last_file_id,
-        ).annotate(
+        return self.tasks.annotate(
             other_range_exist=Exists(
                 Subquery(
                     AnnotationFileRange.objects.filter(
                         ~Q(id=self.id)
                         & Q(
                             annotator_id=self.annotator_id,
-                            annotation_campaign_id=self.annotation_campaign_id,
+                            annotation_campaign_phase=self.annotation_campaign_phase,
                             first_file_id__lte=OuterRef("pk"),
                             last_file_id__gte=OuterRef("pk"),
                         )
@@ -115,17 +149,13 @@ class AnnotationFileRange(models.Model):
             )
         )
 
-    def delete(self, using=None, keep_parents=False):
-        self._get_tasks().filter(other_range_exist=False).delete()
-        return super().delete(using, keep_parents)
-
     @staticmethod
     def get_connected_ranges(data):
         """Recover connected ranges"""
         return (
             AnnotationFileRange.objects.filter(
                 annotator_id=data.annotator,
-                annotation_campaign_id=data.annotation_campaign,
+                annotation_campaign_phase_id=data.annotation_campaign_phase,
             )
             .exclude(id=data.id)
             .filter(
@@ -184,7 +214,7 @@ class AnnotationFileRange(models.Model):
                 instance = connected_ranges.order_by("id").first()
                 duplicates = AnnotationFileRange.objects.filter(
                     annotator_id=instance.annotator_id,
-                    annotation_campaign_id=instance.annotation_campaign,
+                    annotation_campaign_phase_id=instance.annotation_campaign_phase_id,
                     first_file_index=min_first_index,
                     last_file_index=max_last_index,
                 )
@@ -204,7 +234,7 @@ class AnnotationFileRange(models.Model):
         return Subquery(
             AnnotationTask.objects.filter(
                 annotator_id=OuterRef("annotator_id"),
-                annotation_campaign_id=OuterRef("annotation_campaign_id"),
+                annotation_campaign_phase_id=OuterRef("annotation_campaign_phase_id"),
                 dataset_file_id__gte=OuterRef("first_file_id"),
                 dataset_file_id__lte=OuterRef("last_file_id"),
                 status=AnnotationTask.Status.FINISHED,

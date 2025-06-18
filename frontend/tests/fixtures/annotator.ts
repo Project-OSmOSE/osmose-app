@@ -1,9 +1,6 @@
-import { AnnotatorData } from '../../src/service/annotator';
-import { AnnotationComment } from '../../src/service/campaign/comment';
-import { CAMPAIGN, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
+import { AnnotationComment, AnnotatorData, BoxResult, WeakResult } from '../../src/service/types';
+import { CAMPAIGN, CAMPAIGN_PHASE, CONFIDENCE, DETECTOR, FILE_RANGE, LABEL } from './campaign';
 import { USERS } from './user';
-import { BoxResult, WeakResult } from '../../src/service/campaign/result';
-import { DATASET } from './dataset';
 
 export const COMMENT = {
   task: {
@@ -33,7 +30,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: null,
     end_frequency: null,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [ COMMENT.presence ],
     confidence_indicator: CONFIDENCE.sure.label,
@@ -51,7 +48,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     start_frequency: 12,
     end_frequency: 40,
     acoustic_features: null,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     dataset_file: FILE_RANGE.unsubmittedFile.id,
     comments: [],
     confidence_indicator: CONFIDENCE.notSure.label,
@@ -72,7 +69,6 @@ export const CREATE_DATA: (empty?: boolean) => AnnotatorData = empty => ({
   current_task_index_in_filter: 2,
   previous_file_id: FILE_RANGE.submittedFile.id,
   next_file_id: null,
-  spectrogram_configurations: DATASET.spectros,
   userID: USERS.annotator.id,
   total_tasks: FILE_RANGE.range.files_count,
   total_tasks_in_filter: FILE_RANGE.range.files_count
@@ -96,7 +92,6 @@ export const CHECK_DATA: (empty?: boolean) => AnnotatorData = empty => ({
   current_task_index_in_filter: 2,
   previous_file_id: FILE_RANGE.submittedFile.id,
   next_file_id: null,
-  spectrogram_configurations: DATASET.spectros,
   userID: USERS.annotator.id,
   total_tasks: FILE_RANGE.range.files_count,
   total_tasks_in_filter: FILE_RANGE.range.files_count

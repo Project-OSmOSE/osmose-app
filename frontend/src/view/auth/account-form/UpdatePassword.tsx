@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { FormBloc, Input } from "@/components/form";
 import { IonButton, IonSpinner } from "@ionic/react";
 import styles from "@/view/auth/auth.module.scss";
-import { useUpdatePasswordMutation } from "@/service/user";
 import { useToast } from "@/service/ui";
 import { getErrorMessage } from "@/service/function.ts";
+import { UserAPI } from "@/service/api/user.ts";
 
 export const UpdatePassword: React.FC = () => {
   const [ updatePassword, {
     isLoading: isSubmittingPassword,
     error: passwordError,
     isSuccess: isPasswordUpdateSuccessful
-  } ] = useUpdatePasswordMutation();
+  } ] = UserAPI.endpoints.updateUserPassword.useMutation();
 
   const toast = useToast();
 

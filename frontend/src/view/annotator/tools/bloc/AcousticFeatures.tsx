@@ -1,31 +1,27 @@
 import React, { Fragment, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '@/service/app.ts';
-import {
-  AnnotatorSlice,
-  focusPresence,
-  updateCurrentResultAcousticFeatures,
-  updateFocusResultBounds
-} from '@/service/annotator';
-import { Table, TableContent, TableDivider, TableHead } from '@/components/table/table.tsx';
+import { Table, TableContent, TableDivider, TableHead } from "@/components/ui";
 import { Input, Select } from '@/components/form';
 import { IonButton, IonCheckbox, IonIcon, IonNote } from '@ionic/react';
 import { IoRemoveCircleOutline } from 'react-icons/io5';
 import styles from './bloc.module.scss';
-import { useAnnotator } from "@/service/annotator/hook.ts";
 import { createOutline } from 'ionicons/icons';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { CLICK_EVENT } from '@/service/events';
 import { usePointerService } from '@/service/annotator/spectrogram/pointer/';
-import { useCurrentAnnotation, useFileDuration, useMaxFrequency } from '@/service/annotator/spectrogram';
-import { SignalTrends } from '@/service/campaign/result';
+import { useCurrentAnnotation } from '@/service/annotator/spectrogram';
+import { SignalTrends } from '@/service/types';
 import { Item } from '@/types/item.ts';
 import { useXAxis } from '@/service/annotator/spectrogram/scale';
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const AcousticFeatures: React.FC = () => {
-  const {
-    annotatorData,
-    campaign,
-  } = useAnnotator();
+  const { campaign } = useRetrieveCurrentCampaign()
+  const { phase } = useRetrieveCurrentPhase()
+  const { data } = useRetrieveAnnotator()
   const xAxis = useXAxis();
 
   const initialLeft = useMemo(() => window.innerWidth - 500, [])
@@ -42,33 +38,32 @@ export const AcousticFeatures: React.FC = () => {
     setLeft(_left.current)
   }, [ _left.current ]);
 
-  const fileDuration = useFileDuration();
   const dispatch = useAppDispatch();
 
   const { annotation, duration } = useCurrentAnnotation()
-  const maxFrequency = useMaxFrequency();
 
   useEffect(() => {
     if (!annotation?.end_time) return;
+    console.log(annotation)
     const newLeft = xAxis.valueToPosition(annotation.end_time) + 80;
     _left.current = newLeft;
     setLeft(newLeft);
   }, [ annotation?.id ]);
 
   function setBad() {
-    dispatch(updateCurrentResultAcousticFeatures(null));
+    dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures(null));
   }
 
   function setGood() {
     if (annotation?.acoustic_features) return;
-    dispatch(updateCurrentResultAcousticFeatures({}));
+    dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({}));
   }
 
   function updateMinFrequency(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
-    if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
+    if (annotation?.type !== 'Box' || !phase) return;
+    if (data?.file) value = Math.min(value, data.file.dataset_sr)
     value = Math.max(value, 0)
-    dispatch(updateFocusResultBounds({
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: {
         type: annotation.type,
         start_frequency: value,
@@ -76,15 +71,15 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.end_time,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
   function updateMaxFrequency(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
-    if (annotatorData) value = Math.min(value, annotatorData.file.dataset_sr)
+    if (annotation?.type !== 'Box' || !phase) return;
+    if (data?.file) value = Math.min(value, data.file.dataset_sr)
     value = Math.max(value, 0)
-    dispatch(updateFocusResultBounds({
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: {
         type: annotation.type,
         start_frequency: Math.min(annotation.start_frequency ?? 0, value),
@@ -92,15 +87,15 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.end_time,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
   function updateDuration(value: number) {
-    if (annotation?.type !== 'Box' || !campaign) return;
-    if (duration) value = Math.min(value, fileDuration)
+    if (annotation?.type !== 'Box' || !phase || !data?.file) return;
+    if (duration) value = Math.min(value, data.file.duration)
     value = Math.max(value, 0)
-    dispatch(updateFocusResultBounds({
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: {
         type: annotation.type,
         start_frequency: annotation.start_frequency,
@@ -108,7 +103,7 @@ export const AcousticFeatures: React.FC = () => {
         start_time: annotation.start_time,
         end_time: annotation.start_time + value,
       },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 
@@ -129,13 +124,14 @@ export const AcousticFeatures: React.FC = () => {
   if (!annotation) return;
   if (!campaign?.labels_with_acoustic_features.includes(annotation.label)) return;
   if (annotation.type !== 'Box') return;
-  return <div style={ { top, left } }
+  // @ts-expect-error: --left isn't recognized
+  return <div style={ { top, '--left': `${ left }px` } }
               className={ [ styles.bloc, styles.features ].join(' ') }
               onMouseDown={ e => e.stopPropagation() }>
     <ExtendedDiv draggable={ true } onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                  className={ styles.header }><h6>
       Acoustic features
-      <IoRemoveCircleOutline onClick={ () => dispatch(focusPresence(annotation.label)) }/>
+      <IoRemoveCircleOutline onClick={ () => dispatch(AnnotatorSlice.actions.focusPresence(annotation.label)) }/>
     </h6></ExtendedDiv>
     <div className={ styles.body }>
 
@@ -164,8 +160,8 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>Min</TableContent>
           <TableContent className={ styles.cell }>
               <Input value={ annotation.start_frequency } type="number"
-                     min={ 0 } max={ maxFrequency }
-                     disabled={ campaign?.usage === 'Check' }
+                     min={ 0 } max={ data?.file.maxFrequency }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateMinFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -174,8 +170,8 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>Max</TableContent>
           <TableContent className={ styles.cell }>
               <Input value={ annotation.end_frequency } type="number"
-                     min={ 0 } max={ maxFrequency }
-                     disabled={ campaign?.usage === 'Check' }
+                     min={ 0 } max={ data?.file.maxFrequency }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateMaxFrequency(+e.currentTarget.value) }/>
               <IonNote>Hz</IonNote>
           </TableContent>
@@ -186,13 +182,13 @@ export const AcousticFeatures: React.FC = () => {
 
           <SelectableFrequencyRow label='Start'
                                   value={ annotation.acoustic_features.start_frequency ?? undefined }
-                                  max={ maxFrequency }
-                                  onChange={ v => dispatch(updateCurrentResultAcousticFeatures({ start_frequency: v })) }/>
+                                  max={ data?.file.maxFrequency }
+                                  onChange={ v => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ start_frequency: v })) }/>
 
           <SelectableFrequencyRow label='End'
                                   value={ annotation.acoustic_features.end_frequency ?? undefined }
-                                  max={ maxFrequency }
-                                  onChange={ v => dispatch(updateCurrentResultAcousticFeatures({ end_frequency: v })) }/>
+                                  max={ data?.file.maxFrequency }
+                                  onChange={ v => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ end_frequency: v })) }/>
 
         {/* Time */ }
           <TableDivider/>
@@ -200,8 +196,8 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent className={ styles.cell }>
               <Input value={ duration } type="number"
                      step={ 0.001 }
-                     min={ 0.01 } max={ fileDuration }
-                     disabled={ campaign?.usage === 'Check' }
+                     min={ 0.01 } max={ data?.file?.duration ?? 0 }
+                     disabled={ phase?.phase === 'Verification' }
                      onChange={ e => updateDuration(+e.currentTarget.value) }/>
               <IonNote>s</IonNote>
           </TableContent>
@@ -216,7 +212,7 @@ export const AcousticFeatures: React.FC = () => {
                       placeholder="Select a value"
                       optionsContainer="popover"
                       value={ annotation.acoustic_features?.trend ?? undefined }
-                      onValueSelected={ item => dispatch(updateCurrentResultAcousticFeatures({ trend: (item as string) ?? null })) }/>
+                      onValueSelected={ item => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ trend: (item as string) ?? null })) }/>
           </TableContent>
 
           <TableDivider className={ styles.span2ColsEnd }/>
@@ -224,7 +220,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>
               <Input value={ annotation.acoustic_features?.relative_min_frequency_count ?? undefined }
                      type="number" min={ 0 } placeholder="0"
-                     onChange={ e => dispatch(updateCurrentResultAcousticFeatures({ relative_min_frequency_count: +e.currentTarget.value })) }/>
+                     onChange={ e => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ relative_min_frequency_count: +e.currentTarget.value })) }/>
           </TableContent>
 
           <TableDivider className={ styles.span2ColsEnd }/>
@@ -232,7 +228,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>
               <Input value={ annotation.acoustic_features?.relative_max_frequency_count ?? undefined }
                      type="number" min={ 0 } placeholder="0"
-                     onChange={ e => dispatch(updateCurrentResultAcousticFeatures({ relative_max_frequency_count: +e.currentTarget.value })) }/>
+                     onChange={ e => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ relative_max_frequency_count: +e.currentTarget.value })) }/>
           </TableContent>
 
           <TableDivider className={ styles.span2ColsEnd }/>
@@ -245,7 +241,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>
               <Input value={ annotation.acoustic_features?.steps_count ?? undefined }
                      type="number" min={ 0 } placeholder="0"
-                     onChange={ e => dispatch(updateCurrentResultAcousticFeatures({ steps_count: +e.currentTarget.value })) }/>
+                     onChange={ e => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ steps_count: +e.currentTarget.value })) }/>
           </TableContent>
 
 
@@ -253,7 +249,7 @@ export const AcousticFeatures: React.FC = () => {
           <TableContent>Has harmonics</TableContent>
           <TableContent>
               <IonCheckbox checked={ !!annotation.acoustic_features?.has_harmonics }
-                           onClick={ e => dispatch(updateCurrentResultAcousticFeatures({ has_harmonics: e.currentTarget.checked })) }/>
+                           onClick={ e => dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({ has_harmonics: e.currentTarget.checked })) }/>
           </TableContent>
 
       </Table> }

@@ -4,21 +4,20 @@ import styles from './home.module.scss';
 import { IonButton, IonIcon } from "@ionic/react";
 import { chevronBackOutline, chevronForwardOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
-import { DocumentationButton } from "@/components/Buttons/Documentation-button.tsx";
-import { Button, Link } from "@/components/ui";
-import { useListCollaboratorsQuery } from "@/service/collaborator";
+import { Button, DocumentationButton, Link } from "@/components/ui";
+import { useNavigate } from 'react-router-dom';
+import { CollaboratorAPI } from "@/service/api/collaborator.ts";
 import { useAppSelector } from "@/service/app.ts";
-import { selectIsConnected } from "@/service/auth";
-import { useHistory } from 'react-router-dom';
+import { selectIsConnected } from "@/service/slices/auth.ts";
 
 
 export const Home: React.FC = () => {
-  const isConnected = useAppSelector(selectIsConnected);
-  const history = useHistory();
+  const isConnected = useAppSelector(selectIsConnected)
+  const navigate = useNavigate();
 
   function accessAplose() {
-    if (isConnected) history.push('/annotation-campaign');
-    else history.push('/login')
+    if (isConnected) navigate('/annotation-campaign');
+    else navigate('/login')
   }
 
   return (
@@ -177,8 +176,7 @@ const Resources: React.FC = () => (
     <div className={ styles.links }>
       <DocumentationButton/>
       /
-      <Link href="/app/images/campagne.pdf" target="_blank"
-            rel="noopener noreferrer" color='medium'>
+      <Link href="/app/images/campagne.pdf" target="_blank" color='medium'>
         Annotation Campaign APOCADO
       </Link>
     </div>
@@ -221,7 +219,7 @@ const Join: React.FC = () => (
 
 const Collaborators: React.FC = () => {
 
-  const { data: collaborators } = useListCollaboratorsQuery()
+  const { data: collaborators } = CollaboratorAPI.endpoints.listCollaborator.useQuery()
   return (
     <div className={ styles.bloc }>
       <h2>Collaborators & Funders</h2>

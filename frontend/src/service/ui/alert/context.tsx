@@ -31,7 +31,7 @@ export const AlertProvider: React.FC<AlertContextProvider> = ({ children }) => {
     } else {
       dispatch(EventSlice.actions.enableShortcuts())
     }
-  }, [alerts]);
+  }, [ alerts ]);
 
   // Function to hide an alert based on its index
   const hideAlert = useCallback((id: number) => {
@@ -52,7 +52,7 @@ export const AlertProvider: React.FC<AlertContextProvider> = ({ children }) => {
     <AlertContext.Provider value={ contextValue }>
       { children }
 
-      { alerts.map(alert => <Alert alert={ alert } hide={ () => hideAlert(alert.id) }/>) }
+      { alerts.map((alert, key) => <Alert alert={ alert } key={ key } hide={ () => hideAlert(alert.id) }/>) }
     </AlertContext.Provider>
   )
 }

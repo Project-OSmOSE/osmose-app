@@ -43,6 +43,8 @@ The right side panel display all the relevant information of the campaign:
 
 ### Annotation files
 
+![](/campaigns/phase-detail.png)
+
 The page shows the dataset files you were assigned for annotation. You can search a specific file or only show non
 submitted files or only files with annotations.
 You can also directly resume annotation, this will take you to the first unsubmitted file.

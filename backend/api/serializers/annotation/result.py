@@ -19,10 +19,12 @@ from backend.api.models import (
     Detector,
     DetectorConfiguration,
     ConfidenceIndicatorSet,
-    AnnotationCampaignUsage,
     ConfidenceIndicatorSetIndicator,
     AnnotationResultAcousticFeatures,
     SignalTrend,
+    AnnotationCampaignPhase,
+    Phase,
+    LabelSet,
 )
 from backend.aplose.models import User
 from backend.aplose.models.user import ExpertiseLevel
@@ -69,9 +71,9 @@ class AnnotationResultImportSerializer(serializers.Serializer):
 
     def get_fields(self):
         fields = super().get_fields()
-        campaign: AnnotationCampaign = self.context["campaign"]
+        phase: AnnotationCampaignPhase = self.context["phase"]
 
-        fields["dataset"].queryset = campaign.datasets
+        fields["dataset"].queryset = phase.annotation_campaign.datasets
 
         return fields
 
@@ -167,7 +169,8 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             self.get_create_instances(validated_data)
         )
 
-    def _get_time_limits(self, validated_data, file: DatasetFile) -> (float, float):
+    def _get_bounds(self, validated_data, file: DatasetFile) -> dict:
+        is_box: bool = validated_data["is_box"]
         start: datetime = validated_data["start_datetime"]
         end: datetime = validated_data["end_datetime"]
         if start < file.start:
@@ -178,46 +181,101 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             end_time = to_seconds(file.end - file.start)
         else:
             end_time = to_seconds(end - file.start)
-        return start_time, end_time
+
+        start_frequency = (
+            validated_data["min_frequency"]
+            if "min_frequency" in validated_data and is_box
+            else 0
+        )
+        end_frequency = (
+            validated_data["max_frequency"]
+            if "max_frequency" in validated_data and is_box
+            else file.dataset.audio_metadatum.dataset_sr / 2
+        )
+
+        if (
+            start_time == 0
+            and end_time == to_seconds(file.end - file.start)
+            and start_frequency == 0
+            and end_frequency == file.dataset.audio_metadatum.dataset_sr / 2
+        ):
+            return {"type": AnnotationResultType.WEAK}
+        if start_time == end_time and (
+            start_frequency == end_frequency or validated_data["max_frequency"] is None
+        ):
+            return {
+                "type": AnnotationResultType.POINT,
+                "start_time": start_time,
+                "start_frequency": start_frequency,
+            }
+        return {
+            "type": AnnotationResultType.BOX,
+            "start_time": start_time,
+            "end_time": end_time,
+            "start_frequency": start_frequency,
+            "end_frequency": end_frequency,
+        }
 
     def get_create_instances(self, validated_data) -> list[AnnotationResult]:
         """Get instances to be created"""
         is_box: bool = validated_data["is_box"]
 
         files: QuerySet[DatasetFile] = validated_data["files"]
-        campaign: AnnotationCampaign = self.context["campaign"]
+        phase: AnnotationCampaignPhase = self.context["phase"]
         detector, _ = Detector.objects.get_or_create(name=validated_data["detector"])
         detector_config, _ = DetectorConfiguration.objects.get_or_create(
             detector=detector,
             configuration=validated_data["detector_config"],
         )
         label, _ = Label.objects.get_or_create(name=validated_data["label"])
-        if not campaign.label_set.labels.filter(id=label.id).exists():
-            campaign.label_set.labels.add(label)
+        if not phase.annotation_campaign.label_set.labels.filter(id=label.id).exists():
+            if phase.annotation_campaign.label_set.annotationcampaign_set.count() > 1:
+                old_label_set = phase.annotation_campaign.label_set
+                phase.annotation_campaign.label_set = LabelSet.create_for_campaign(
+                    campaign=phase.annotation_campaign,
+                    labels=old_label_set.labels,
+                )
+                phase.annotation_campaign.save()
+            phase.annotation_campaign.label_set.labels.add(label)
         confidence_indicator = None
         if (
             "confidence_indicator" in validated_data
             and validated_data["confidence_indicator"] is not None
         ):
-            if campaign.confidence_indicator_set is None:
-                campaign.confidence_indicator_set = self.get_confidence_set(
-                    name=f"{campaign.name} confidence set"
-                )
-                campaign.save()
             confidence_indicator, _ = ConfidenceIndicator.objects.get_or_create(
                 label=validated_data["confidence_indicator"].get("label"),
                 level=validated_data["confidence_indicator"].get("level"),
             )
-            is_default = validated_data["confidence_indicator"].pop("is_default", None)
+            if phase.annotation_campaign.confidence_indicator_set is None:
+                phase.annotation_campaign.confidence_indicator_set = (
+                    self.get_confidence_set(name=phase.annotation_campaign.name)
+                )
+                phase.annotation_campaign.save()
+            elif not phase.annotation_campaign.confidence_indicator_set.confidence_indicators.filter(
+                id=confidence_indicator.id
+            ).exists():
+                if (
+                    phase.annotation_campaign.confidence_indicator_set.annotationcampaign_set.count()
+                    > 1
+                ):
+                    old_set = phase.annotation_campaign.confidence_indicator_set
+                    phase.annotation_campaign.confidence_indicator_set = (
+                        self.get_confidence_set(name=phase.annotation_campaign.name)
+                    )
+                    for indicator in old_set.confidence_indicators.all():
+                        ConfidenceIndicatorSetIndicator.objects.get_or_create(
+                            confidence_indicator=indicator,
+                            confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
+                        )
+                    phase.annotation_campaign.save()
             ConfidenceIndicatorSetIndicator.objects.get_or_create(
                 confidence_indicator=confidence_indicator,
-                confidence_indicator_set=campaign.confidence_indicator_set,
-                is_default=is_default or False,
+                confidence_indicator_set=phase.annotation_campaign.confidence_indicator_set,
             )
 
         if not is_box and files.count() == 1:
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
@@ -229,48 +287,15 @@ class AnnotationResultImportSerializer(serializers.Serializer):
             return [AnnotationResult(**params)]
 
         instances = []
-        dataset: Dataset = validated_data["dataset"]
         for file in files:
-            start_time, end_time = self._get_time_limits(validated_data, file)
-
-            start_frequency = (
-                validated_data["min_frequency"]
-                if "min_frequency" in validated_data and is_box
-                else 0
-            )
-            end_frequency = (
-                validated_data["max_frequency"]
-                if "max_frequency" in validated_data and is_box
-                else dataset.audio_metadatum.dataset_sr / 2
-            )
-
             params = {
-                "annotation_campaign": campaign,
+                "annotation_campaign_phase": phase,
                 "detector_configuration": detector_config,
                 "label": label,
                 "confidence_indicator": confidence_indicator,
                 "dataset_file": file,
+                **self._get_bounds(validated_data, file),
             }
-            if (
-                start_time == 0
-                and end_time == to_seconds(file.end - file.start)
-                and start_frequency == 0
-                and end_frequency == dataset.audio_metadatum.dataset_sr / 2
-            ):
-                params["type"] = AnnotationResultType.WEAK
-            elif start_time == end_time and (
-                start_frequency == end_frequency
-                or validated_data["max_frequency"] is None
-            ):
-                params["type"] = AnnotationResultType.POINT
-                params["start_frequency"] = start_frequency
-                params["start_time"] = start_time
-            else:
-                params["type"] = AnnotationResultType.BOX
-                params["start_frequency"] = start_frequency
-                params["end_frequency"] = end_frequency
-                params["start_time"] = start_time
-                params["end_time"] = end_time
             if not AnnotationResult.objects.filter(**params).exists():
                 instances.append(AnnotationResult(**params))
 
@@ -355,8 +380,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
     """Annotation result serializer for annotator"""
 
     id = serializers.IntegerField(required=False, allow_null=True)
-    annotation_campaign = serializers.PrimaryKeyRelatedField(
-        queryset=AnnotationCampaign.objects.all()
+    annotation_campaign_phase = serializers.PrimaryKeyRelatedField(
+        queryset=AnnotationCampaignPhase.objects.all()
     )
     label = serializers.SlugRelatedField(
         queryset=Label.objects.all(),
@@ -498,8 +523,8 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
         ):
             attrs["start_frequency"] = end_frequency
             attrs["end_frequency"] = start_frequency
-        campaign: Optional[AnnotationCampaign] = (
-            self.context["campaign"] if "campaign" in self.context else None
+        phase: Optional[AnnotationCampaignPhase] = (
+            self.context["phase"] if "phase" in self.context else None
         )
         detector_configuration = attrs.get("detector_configuration")
         if detector_configuration is not None:
@@ -511,14 +536,13 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
                 configuration=detector_configuration["configuration"],
             )
         if (
-            campaign is not None
-            and campaign.usage == AnnotationCampaignUsage.CHECK
+            phase is not None
+            and phase.phase == Phase.VERIFICATION
             and "annotator" in attrs
             and detector_configuration is not None
         ):
             attrs.pop("annotator")
-        validated = super().validate(attrs)
-        return validated
+        return super().validate(attrs)
 
     @transaction.atomic
     def create(self, validated_data):

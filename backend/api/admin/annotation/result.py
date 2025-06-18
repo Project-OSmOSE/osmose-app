@@ -7,6 +7,7 @@ from backend.api.models import (
     AnnotationResultAcousticFeatures,
     SignalTrend,
     AnnotationResult,
+    AnnotationResultValidation,
 )
 
 
@@ -23,7 +24,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "label",
         "confidence_indicator",
-        "annotation_campaign",
+        "annotation_campaign_phase",
         "dataset_file",
         "annotator",
         "detector_configuration",
@@ -38,15 +39,17 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "annotator__first_name",
         "annotator__last_name",
         "detector_configuration__detector__name",
+        "annotation_campaign_phase__annotation_campaign__name",
     )
     list_filter = (
         "type",
         "annotator_expertise_level",
-        "annotation_campaign",
+        "annotation_campaign_phase__annotation_campaign",
         "annotator",
     )
 
 
+@admin.register(AnnotationResultValidation)
 class AnnotationResultValidationAdmin(admin.ModelAdmin):
     """AnnotationResultValidation presentation in DjangoAdmin"""
 
@@ -62,7 +65,6 @@ class AnnotationResultValidationAdmin(admin.ModelAdmin):
         "annotator__username",
         "annotator__first_name",
         "annotator__last_name",
-        "result__annotation_campaign__name",
         "result__detector_configuration__detector__name",
     )
     list_filter = ("is_valid",)

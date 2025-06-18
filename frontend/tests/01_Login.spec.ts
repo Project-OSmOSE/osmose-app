@@ -12,6 +12,7 @@ test('Login - Unauthorized', ESSENTIAL, async ({ page }) => {
 test('Login - Success', ESSENTIAL, async ({ page }) => {
   await page.login.go();
   await page.login.fillForm();
+  await page.mock.userSelf('annotator')
   const request = await page.login.submit({ status: 200, submitAction: 'button' });
   expect(await request.postDataJSON()).toEqual({
     username: AUTH.username,
@@ -23,6 +24,7 @@ test('Login - Success', ESSENTIAL, async ({ page }) => {
 test('Login - Success with Enter key', ESSENTIAL, async ({ page }) => {
   await page.login.go();
   await page.login.fillForm();
+  await page.mock.userSelf('annotator')
   const request = await page.login.submit({ status: 200, submitAction: 'enterKey' });
   expect(await request.postDataJSON()).toEqual({
     username: AUTH.username,

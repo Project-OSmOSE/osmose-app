@@ -1,0 +1,13 @@
+.table {
+  overflow: auto;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.buttons {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}

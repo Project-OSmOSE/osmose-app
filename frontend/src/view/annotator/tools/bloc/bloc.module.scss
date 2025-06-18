@@ -154,6 +154,8 @@ ion-chip.active {
   user-select: none;
   z-index: 2;
   display: grid;
+  left: min(var(--left, 0), calc(100% - 26rem));
+  width: 25rem;
 
   h6 {
     cursor: move;

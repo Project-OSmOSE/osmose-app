@@ -1,14 +1,16 @@
 import React, { Fragment, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/service/app';
-import { BoxResult } from '@/service/campaign/result';
-import { updateFocusResultBounds } from '@/service/annotator';
-import { useAnnotator } from "@/service/annotator/hook.ts";
+import { BoxResult } from '@/service/types';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
 import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
+import { useGetLabelSetForCurrentCampaign } from "@/service/api/label-set.ts";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 
 type RegionProps = {
   annotation: BoxResult,
@@ -20,8 +22,10 @@ export const Box: React.FC<RegionProps> = ({
                                              annotation,
                                              audioPlayer
                                            }) => {
+  const { campaign } = useRetrieveCurrentCampaign();
+  const { phase } = useRetrieveCurrentPhase()
   // Data
-  const { label_set, campaign } = useAnnotator();
+  const { labelSet } = useGetLabelSetForCurrentCampaign();
   const { focusedResultID } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
@@ -81,12 +85,16 @@ export const Box: React.FC<RegionProps> = ({
 
   // Memo
   const colorClassName: string = useMemo(() => {
-    if (!label_set) return '';
+    if (!labelSet) return '';
     let label = annotation.label
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
-    return `ion-color-${ label_set.labels.indexOf(label) % 10 }`
-  }, [ label_set, annotation ]);
-  const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
+    return `ion-color-${ labelSet.labels.indexOf(label) % 10 }`
+  }, [ labelSet, annotation ]);
+  const isActive = useMemo(() => {
+    if (campaign?.archive) return false;
+    if (phase?.ended_at) return false;
+    return annotation.id === focusedResultID
+  }, [ campaign, phase, annotation.id, focusedResultID ]);
 
   function updateLeft() {
     if (_start_time.current === null) return;
@@ -133,7 +141,7 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   function onValidateMove() {
-    if (!campaign) return;
+    if (!phase) return;
     let end_frequency = _yAxis.current.positionToValue(_top.current);
     let start_frequency = _yAxis.current.positionToValue(_top.current + _height.current);
     let start_time = _xAxis.current.positionToValue(_left.current);
@@ -142,9 +150,9 @@ export const Box: React.FC<RegionProps> = ({
     if (_end_time.current && formatTime(end_time, true) === formatTime(_end_time.current, true)) end_time = _end_time.current;
     if (_start_frequency.current && _start_frequency.current.toFixed(2) === start_frequency.toFixed(2)) start_frequency = _start_frequency.current;
     if (_end_frequency.current && _end_frequency.current.toFixed(2) === end_frequency.toFixed(2)) end_frequency = _end_frequency.current;
-    dispatch(updateFocusResultBounds({
+    dispatch(AnnotatorSlice.actions.updateFocusResultBounds({
       newBounds: { type: 'Box', end_frequency, start_frequency, start_time, end_time },
-      usage: campaign.usage
+      phase: phase.phase
     }))
   }
 

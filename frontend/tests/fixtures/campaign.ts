@@ -1,11 +1,16 @@
 import { USERS } from './user';
-import { AnnotationCampaign } from '../../src/service/campaign';
-import { DATASET, DATASET_SR, SPECTROGRAM_CONFIGURATION } from './dataset';
-import { LabelSet } from '../../src/service/campaign/label-set';
-import { ConfidenceIndicator, ConfidenceIndicatorSet } from '../../src/service/campaign/confidence-set';
-import { AnnotationFile, AnnotationFileRange } from '../../src/service/campaign/annotation-file-range/type';
-import { Detector } from '../../src/service/campaign/detector';
-import { AnnotatorGroup } from "../../src/service/annotator-group";
+import {
+  AnnotationCampaign,
+  AnnotationCampaignPhase,
+  AnnotationFile,
+  AnnotationFileRange,
+  ConfidenceIndicator,
+  ConfidenceIndicatorSet,
+  Detector,
+  LabelSet,
+  UserGroup
+} from '../../src/service/types';
+import { DATASET, DATASET_SR } from './dataset';
 
 const deadline = new Date()
 deadline.setTime(0)
@@ -43,6 +48,20 @@ export const CONFIDENCE = {
   } satisfies ConfidenceIndicatorSet
 }
 
+export const CAMPAIGN_PHASE: AnnotationCampaignPhase = {
+  id: 1,
+  phase: 'Annotation',
+  created_by: `${ USERS.creator.first_name } ${ USERS.creator.last_name.toUpperCase() }`,
+  created_at: deadline.toISOString().split('T')[0],
+  ended_by: null,
+  ended_at: null,
+  user_progress: 5,
+  user_total: 10,
+  global_progress: 50,
+  global_total: 100,
+  has_annotations: true,
+  annotation_campaign: 1
+}
 export const CAMPAIGN = {
   id: 1,
   owner: USERS.creator,
@@ -56,24 +75,19 @@ export const CAMPAIGN = {
   confidence_indicator_set: CONFIDENCE.set.id,
   instructions_url: 'testurl.fr',
   datasets: [ DATASET.name ],
-  spectro_configs: [ SPECTROGRAM_CONFIGURATION.id ],
   labels_with_acoustic_features: [ LABEL.withFeatures ],
-  usage: 'Create',
   archive: null,
-  my_progress: 5,
-  my_total: 10,
-  progress: 50,
-  total: 100,
+  phases: [CAMPAIGN_PHASE.id],
   allow_image_tuning: false,
   allow_colormap_tuning: false,
   colormap_default: null,
   colormap_inverted_default: null,
-  annotations_count: 5,
 } satisfies AnnotationCampaign
 
 const start = new Date();
 const end = new Date(start.toISOString());
 end.setTime(start.getTime() + 10_000);
+const duration = end.getTime() - start.getTime()
 
 export const FILE_RANGE = {
   unsubmittedFile: {
@@ -86,7 +100,9 @@ export const FILE_RANGE = {
     start: start.toISOString(),
     end: end.toISOString(),
     size: 0,
-    audio_url: ''
+    audio_url: '',
+    validated_results_count: 0,
+    duration
   } satisfies AnnotationFile,
   submittedFile: {
     id: 2,
@@ -98,7 +114,9 @@ export const FILE_RANGE = {
     start: start.toISOString(),
     end: end.toISOString(),
     size: 0,
-    audio_url: ''
+    audio_url: '',
+    validated_results_count: 0,
+    duration
   } satisfies AnnotationFile,
   range: {
     id: 1,
@@ -106,12 +124,12 @@ export const FILE_RANGE = {
     first_file_index: 2,
     last_file_index: 3,
     finished_tasks_count: 1,
-    annotation_campaign: CAMPAIGN.id,
+    annotation_campaign_phase: CAMPAIGN_PHASE.id,
     annotator: USERS.annotator.id
   } satisfies AnnotationFileRange,
 }
 
-export const ANNOTATOR_GROUP: AnnotatorGroup = {
+export const ANNOTATOR_GROUP: UserGroup = {
   id: 1,
   name: 'Staff group',
   annotators: [ USERS.staff ]

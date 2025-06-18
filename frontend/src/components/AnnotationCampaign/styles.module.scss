@@ -1,0 +1,77 @@
+.card {
+  padding: 1rem;
+  gap: 1rem;
+  display: grid;
+  border-radius: 1rem;
+  background: var(--ion-color-light);
+  box-shadow: 0 0 8px rgba(var(--ion-color-dark-rgb), 0.25),
+  0 0 32px rgba(var(--ion-color-dark-rgb), 0.08);
+  font-family: var(--ion-font-family), sans-serif;
+  grid-template-areas: "head"
+                        "property"
+                        "user-progression"
+                        "progression"
+                        "buttons";
+  grid-template-rows: auto auto 1fr auto auto;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: var(--aplose-box-shadow);
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    grid-area: head;
+    overflow: hidden;
+
+    p {
+      margin: 0;
+    }
+
+    .campaign {
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      font-size: 1rem;
+      color: var(--ion-color-dark);
+      overflow: hidden;
+      max-width: 100%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .dataset {
+      font-weight: 500;
+      font-size: 0.8rem;
+      line-height: 0.8rem;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  .property {
+    display: grid;
+    gap: 0.5rem;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    font-weight: 500;
+    grid-area: property;
+
+    .icon {
+      opacity: 0.5;
+    }
+
+    .label {
+      font-weight: 300;
+    }
+  }
+
+  .progression {
+    grid-area: progression;
+  }
+
+  .userProgression {
+    grid-area: user-progression;
+  }
+}

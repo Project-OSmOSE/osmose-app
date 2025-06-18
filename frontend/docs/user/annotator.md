@@ -8,22 +8,26 @@ To annotate a file you must access a campaign and then click on a file access li
 
 The annotator is the main page of APLOSE. It allows to annotate audio recordings thanks to their spectrogram.
 
-
 ### Spectrogram visualisation
+
 The spectrogram is labelled with time and frequency axes.
-A selector above the spectrogram let you should between available FFT parameters for your spectrogram. You can also have different frequency scales.
+A selector above the spectrogram let you should between available FFT parameters for your spectrogram. You can also have
+different frequency scales.
 
 ![](/annotator/spectro-config.png)
 
 <!--@include: ../parts/frequency-scales.md-->
 
 ### Zoom in spectrogram
+
 A zoom feature is available on time only.
-You can zoom with the zoom buttons next to the spectrogram configuration selector or with the mouse wheel on the spectrogram.
+You can zoom with the zoom buttons next to the spectrogram configuration selector or with the mouse wheel on the
+spectrogram.
 
 ![](/annotator/zoom.png)
 
-The zoom is discrete: each zoom level offers pre-computed spectrogram, meaning zoom levels are decided by the creator of the dataset.
+The zoom is discrete: each zoom level offers pre-computed spectrogram, meaning zoom levels are decided by the creator of
+the dataset.
 
 ### Listen to the audio file
 
@@ -48,14 +52,15 @@ Use a headset for a better listening experience!
 :::
 
 ## Annotate
+
 We differentiate several types of annotations:
+
 - weak annotation: a label is present on the file
 - strong annotation: a label is present at this exact position (point) or area (box)
 
-
 For each strong annotation, there is a weak annotation associated to the same label.
 
-In the cas you loaded an already submitted file, your previous submission should appear and can be modified. 
+In the cas you loaded an already submitted file, your previous submission should appear and can be modified.
 
 ### Add a weak annotation
 
@@ -85,6 +90,7 @@ On click release, the annotation is created and selected.
 <small>_This is an example_</small>
 
 On the header of the annotation, you can see:
+
 - A play button to listen to your annotation
 - The associated label
 - A comment indicator (see the comment section bellow)
@@ -100,9 +106,10 @@ The information can also be found in the "Selected annotation" bloc right bellow
 
 ![](/annotator/selected-strong.png)
 
-To change the label of your annotation, you must select the annotation and then click on the right label in the "Labels list" bloc.
+To change the label of your annotation, you must select the annotation and then click on the right label in the "Labels
+list" bloc.
 
-::: info 
+::: info
 Please note the boxes cannot be moved or resized for now.
 :::
 
@@ -117,21 +124,15 @@ You'll then have the same information as for a box annotation.
 
 ### Check an annotation
 
-In check mode, the "Annotations" bloc contains all the detector output you need to confirm or infirm.
+In "verification" phase mode, the "Annotations" bloc contains all the detector or annotator output you need to confirm
+or infirm.
 
 ![](/annotator/check-list.png)
 
 Here is an example with a weak label.
-You can find the same information as in the Create annotations mode plus the name of the detector (here "PAMGuard").
 
 The buttons on the right let you choose either you find the annotation correct or not.
 You can change the annotation label and move or resize the incorrect annotation.
-
-Like in the Create annotations mode, each strong annotation is displayed on the spectrogram and can be listened.
-
-::: info
-Please note you cannot add missing annotations in this mode.
-:::
 
 ### Add comments
 
@@ -144,13 +145,15 @@ To add a comment to the task clik on the "Task Comment" button at the bottom of 
 
 ![](/annotator/comment-indicators.png)
 
-The comment icon changed based one the existence of a comment: the buble is filled if a comment exists for the annotation or task.
-This information is displayed for each annotation in the "Annotations" bloc or in its header on the spectrogram, and for the task on the "Task Comment" button at the bottom of the "Comments" bloc.
-
+The comment icon changed based one the existence of a comment: the buble is filled if a comment exists for the
+annotation or task.
+This information is displayed for each annotation in the "Annotations" bloc or in its header on the spectrogram, and for
+the task on the "Task Comment" button at the bottom of the "Comments" bloc.
 
 ### Specify confidence
 
-If your campaign allows you to, you can specify the confidence level you have on your annotation by selecting the appropriate one in the "Confidence indicator" bloc.
+If your campaign allows you to, you can specify the confidence level you have on your annotation by selecting the
+appropriate one in the "Confidence indicator" bloc.
 
 ![](/annotator/confidence.png)
 
@@ -184,7 +187,7 @@ The "enter" key on your keyboard is a shortcut for submitting your task and movi
 Use the left and right arrows on your keyboard to navigate between tasks.
 :::
 
-To save your changes, you must click on the "Submit & load next recording" button once you're done. 
+To save your changes, you must click on the "Submit & load next recording" button once you're done.
 This will automatically load the next file.
 
 The arrow buttons allows you to navigate between the files

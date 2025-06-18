@@ -1,17 +1,19 @@
 import React, { Fragment, MutableRefObject, useCallback, useMemo, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
-import { focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
-import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
-import { AnnotationResult } from '@/service/campaign/result';
-import { useAudioService } from '@/services/annotator/audio.service.ts';
+import { AnnotationResult } from '@/service/types';
+import { useAudioService } from "@/service/ui/audio";
+import { Kbd, TooltipOverlay } from "@/components/ui";
 import {
   AnnotationLabelUpdateModal
 } from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
-import { Kbd, TooltipOverlay } from "@/components/ui";
+import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
+import { AnnotatorSlice } from "@/service/slices/annotator.ts";
+import { UserAPI } from "@/service/api/user.ts";
 import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
+import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export const AnnotationHeader: React.FC<{
   active: boolean;
@@ -24,6 +26,8 @@ export const AnnotationHeader: React.FC<{
   annotation: AnnotationResult,
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ active, top, onTopMove, onLeftMove, setIsMouseHover, onValidateMove, className, annotation, audioPlayer }) => {
+  const { data } = useRetrieveAnnotator();
+
   const dispatch = useAppDispatch();
   const _setIsMouseHover = useCallback((value: boolean) => {
     if (!setIsMouseHover) return;
@@ -34,15 +38,26 @@ export const AnnotationHeader: React.FC<{
     if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
     return label;
   }, [ annotation ]);
+
+  const headerStickSideClass = useMemo(() => {
+    if (!data || annotation.type === 'Weak') return ''
+    const end = annotation.type === 'Box' ? annotation.end_time : annotation.start_time;
+    if (end > (data.file.duration * 0.9))
+      return styles.stickRight
+    if (annotation.start_time < (data.file.duration * 0.1))
+      return styles.stickLeft
+    return ''
+  }, [ annotation, data?.file ])
+
   return <ExtendedDiv draggable={ active }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
                       onMouseEnter={ () => _setIsMouseHover(true) }
                       onMouseMove={ () => _setIsMouseHover(true) }
                       onMouseLeave={ () => _setIsMouseHover(false) }
-                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
+                      className={ [ styles.header, headerStickSideClass, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
                       innerClassName={ styles.inner }
-                      onClick={ () => dispatch(focusResult(annotation.id)) }>
+                      onClick={ () => dispatch(AnnotatorSlice.actions.focusResult(annotation.id)) }>
 
     <PlayButton annotation={ annotation } audioPlayer={ audioPlayer }/>
 
@@ -95,8 +110,17 @@ export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({
 }
 
 export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
-  const { campaign } = useAnnotator();
+  const { phase } = useRetrieveCurrentPhase()
+  const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery()
   const dispatch = useAppDispatch();
+
+  const remove = useCallback(() => {
+    if (phase?.phase === 'Annotation' || annotation.annotator === user?.id) {
+      dispatch(AnnotatorSlice.actions.removeResult(annotation.id));
+    } else {
+      dispatch(AnnotatorSlice.actions.invalidateResult(annotation.id));
+    }
+  }, [ phase, annotation, user ])
 
   const onKbdEvent = useCallback((event: KeyboardEvent) => {
     switch (event.code) {
@@ -104,19 +128,8 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
         remove()
         break;
     }
-  }, [])
+  }, [ remove ])
   useEvent(KEY_DOWN_EVENT, onKbdEvent);
-
-  const remove = useCallback(() => {
-    switch (campaign?.usage) {
-      case 'Create':
-        dispatch(removeResult(annotation.id));
-        break;
-      case 'Check':
-        dispatch(invalidateResult(annotation.id));
-        break;
-    }
-  }, [ campaign, annotation ])
 
   return (
     <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>

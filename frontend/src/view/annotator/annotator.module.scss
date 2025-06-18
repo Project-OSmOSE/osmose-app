@@ -109,16 +109,8 @@
     display: grid;
     padding: 0 2rem;
     gap: 2rem;
-
-    &.create {
-      grid-template-columns: 32ch 2fr 1fr;
-      grid-template-areas: "current labels confidence" "comments results results";
-    }
-
-    &.check {
-      grid-template-columns: 32ch minmax(32ch, auto) 1fr;
-      grid-template-areas: "current comments results";
-    }
+    grid-template-columns: 32ch 2fr 1fr;
+    grid-template-areas: "current labels confidence" "comments results results";
   }
 
   .downloadButtons {

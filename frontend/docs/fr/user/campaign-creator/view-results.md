@@ -1,14 +1,8 @@
 # Voir les résultats de la campagne
 
-Pour visualiser les résultats, vous devez accéder à une campagne.
+Pour visualiser les résultats, vous devez accéder à la phase souhaitée d'une campagne, puis cliquer sur "Detailed progression".
 
-![](/campaigns/campaign-detail.png)
-
-Tous les détails de la campagne se trouvent ici.
-Pour plus d'informations à ce sujet, lisez la
-section [Annotation > Détail de la campagne](../campaign.md#detail-de-la-campagne).
-
-Vous pouvez accéder à la progression détaillée ("Detailed progression") de tous les annotateurs.
+![](/campaign-creator/campaign-detail-actions.png)
 
 ![](/campaign-creator/annotator-progression.png)
 
@@ -44,10 +38,6 @@ Un tableau contenant toutes les annotations et tous les commentaires laissés pa
 | signal_has_harmonics                |                  boolean                  | Si le signal présente des harmoniques                                    |
 | signal_trend                        | FLAT / ASCENDING / DESCENDING / MODULATED | Tendance générale du signal                                              |
 
-::: danger TODO
-add acoustic features
-:::
-
 ### Status
 
 Un tableau indiquant l'état de la soumission pour tous les fichiers et par tous les annotateurs.
@@ -57,7 +47,3 @@ Un tableau indiquant l'état de la soumission pour tous les fichiers et par tous
 | dataset      |                 string                 | Nom du dataset                                                   |
 | filename     |                 string                 | Nom du fichier                                                   |
 | [Annotators] | UNASSIGNED <br/>CREATED <br/> FINISHED | State of submission of the annotator (column) on the file (line) |
-
-::: danger TODO
-add acoustic features
-:::
