@@ -43,10 +43,12 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         view,
         file_range,
         user_annotations: Optional[bool],
-        user_id: int,
-        features: Optional[bool],
     ):
         """Recover matching results"""
+        user_id = request.user.id
+        features = get_boolean_query_param(
+            request, "annotation_results__acoustic_features__isnull"
+        )
         results: QuerySet[AnnotationResult] = ModelFilter().filter_queryset(
             request, file_range.results, view
         )
@@ -100,8 +102,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
             user_annotations=with_user_annotations
             if with_user_annotations is not False
             else True,
-            user_id=request.user.id,
-            features=with_features,
         )
         if with_user_annotations is not None:
             files = files.filter(
@@ -117,8 +117,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
                     view,
                     file_range,
                     user_annotations=True,
-                    user_id=request.user.id,
-                    features=with_features,
                 )
                 .annotate(count=Func(F("id"), function="count"))
                 .values("count")

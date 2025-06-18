@@ -54,10 +54,7 @@ class DeploymentSerializer(DeploymentSerializerWithChannel):
     def get_annotated_labels(self, deployment: Deployment):
         """Get annotated_labels related to the deployment"""
         all_channels = deployment.channelconfiguration_set.all()
-        return dict(
-            Counter(
-                AnnotationResult.objects.filter(
-                    annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
-                ).values_list("label__name", flat=True)
-            )
-        )
+        results = AnnotationResult.objects.filter(
+            annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
+        ).values_list("label__name", flat=True)
+        return dict(Counter(results))
