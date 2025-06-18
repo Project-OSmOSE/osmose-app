@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/service/app.ts";
 import { ResultImportSlice } from "@/service/campaign/result/import";
 import { FileSelector } from "@/view/campaign/edit/ImportAnnotations/file/Selector.tsx";
 import { Upload } from "@/view/campaign/edit/ImportAnnotations/Upload.tsx";
+import { AploseSkeleton } from "@/components/layout";
 
 export const ImportAnnotations: React.FC = () => {
   const location = useLocation();
@@ -30,7 +31,7 @@ export const ImportAnnotations: React.FC = () => {
     toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
   }, [ location, campaign ]);
 
-  return (
+  return <AploseSkeleton>
     <div
       className={ [ styles.page, styles[file.state], detectors.selection.length > 0 ? styles.withConfig : '' ].join(' ') }
       ref={ page }>
@@ -46,6 +47,6 @@ export const ImportAnnotations: React.FC = () => {
 
       <Upload/>
     </div>
-  )
+  </AploseSkeleton>
 }
 

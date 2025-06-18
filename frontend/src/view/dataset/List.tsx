@@ -7,6 +7,7 @@ import { Table, TableContent, TableDivider, TableHead } from '@/components/table
 import { useToast } from "@/service/ui";
 import { ImportDatasetsButton } from "@/view/dataset/buttons/ImportDatasets.tsx";
 import { WarningMessage } from "@/components/warning/warning-message.component.tsx";
+import { AploseSkeleton } from "@/components/layout";
 
 
 export const DatasetList: React.FC = () => {
@@ -25,7 +26,7 @@ export const DatasetList: React.FC = () => {
     }
   }, []);
 
-  return (
+  return <AploseSkeleton>
     <div className={ styles.listPage }>
       <h2>Datasets</h2>
 
@@ -59,5 +60,5 @@ export const DatasetList: React.FC = () => {
         </Fragment>) }
       </Table> }
     </div>
-  )
+  </AploseSkeleton>
 };

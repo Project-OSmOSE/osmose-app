@@ -1,24 +1,22 @@
-import React, { Fragment, MouseEvent, useMemo } from "react";
+import React, { Fragment, MouseEvent, useCallback, useMemo, useState } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import {
-  IoAnalyticsOutline,
-  IoChatbubbleEllipses,
-  IoChatbubbleOutline,
-  IoChevronForwardOutline,
-  IoPricetag,
-  IoTimeOutline
-} from 'react-icons/io5';
-import { FaHandshake } from 'react-icons/fa6';
+import { IoChatbubbleEllipses, IoChatbubbleOutline } from 'react-icons/io5';
 import { RiRobot2Fill } from 'react-icons/ri';
 import { AnnotationResult } from '@/service/campaign/result';
 import { focusResult, invalidateResult, validateResult } from '@/service/annotator';
-import { formatTime } from '@/service/dataset/spectrogram-configuration/scale';
 import styles from './bloc.module.scss';
 import { Table, TableContent, TableDivider } from "@/components/table/table.tsx";
 import { useParams } from "react-router-dom";
 import { useRetrieveCampaignQuery } from "@/service/campaign";
+import { createPortal } from "react-dom";
+import { Button, Modal, ModalHeader } from "@/components/ui";
+import {
+  AnnotationLabelUpdateModal
+} from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
+import { ConfidenceInfo, FrequencyInfo, LabelInfo, TimeInfo } from "@/view/annotator/tools/bloc/Annotation.tsx";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 
 export const Results: React.FC<{
@@ -91,29 +89,14 @@ type ResultItemProps = {
 const ResultTimeInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   if (result.type === 'Weak') return <Fragment/>
   return <TableContent className={ className } onClick={ onClick }>
-    <IoTimeOutline/>
-
-    <p>
-      { formatTime(result.start_time, true) }
-      { result.type === 'Box' && <Fragment>
-          <IoChevronForwardOutline/> { formatTime(result.end_time, true) }
-      </Fragment> }
-    </p>
+    <TimeInfo annotation={ result }/>
   </TableContent>
 }
 
 const ResultFrequencyInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   if (result.type === 'Weak') return <Fragment/>
-
   return <TableContent className={ className } onClick={ onClick }>
-    <IoAnalyticsOutline/>
-
-    <p>
-      { result.start_frequency?.toFixed(2) }Hz
-      { result.type === 'Box' && <Fragment>
-          &nbsp;<IoChevronForwardOutline/> { result.end_frequency?.toFixed(2) }Hz
-      </Fragment> }
-    </p>
+    <FrequencyInfo annotation={ result }/>
   </TableContent>
 }
 
@@ -122,23 +105,17 @@ const ResultLabelInfo: React.FC<ResultItemProps> = ({ result, className, onClick
     className={ [ className, result.type === 'Weak' ? styles.presenceLabel : styles.strongLabel ].join(' ') }
     isFirstColumn={ true }
     onClick={ onClick }>
-    <IoPricetag/>
-
-    <p>
-      { (result.label !== '') ? result.label : '-' }
-      <span>{ result.type === 'Weak' ? ` (Weak)` : '' }</span>
-    </p>
+    <LabelInfo annotation={ result }/>
   </TableContent>
 )
 
 const ResultConfidenceInfo: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const params = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID)
+  const { data: campaign } = useRetrieveCampaignQuery(params.campaignID ?? skipToken)
   if (!campaign?.confidence_indicator_set) return <Fragment/>
   return (
     <TableContent className={ className } onClick={ onClick }>
-      <FaHandshake/>
-      <p>{ (result.confidence_indicator !== '') ? result.confidence_indicator : '-' }</p>
+      <ConfidenceInfo annotation={ result }/>
     </TableContent>
   )
 }
@@ -163,7 +140,9 @@ const ResultCommentInfo: React.FC<ResultItemProps> = ({ result, className, onCli
 
 const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, onClick }) => {
   const { campaignID } = useParams<{ campaignID: string, fileID: string }>();
-  const { data: campaign } = useRetrieveCampaignQuery(campaignID)
+  const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
+  const [ isLabelModalOpen, setIsLabelModalOpen ] = useState<boolean>(false);
+  const { data: campaign } = useRetrieveCampaignQuery(campaignID ?? skipToken)
   const dispatch = useAppDispatch();
   const validation = useMemo(() => {
     if (result.validations.length === 0) return true;
@@ -177,8 +156,22 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const onInvalidate = (event: MouseEvent) => {
     event.stopPropagation()
-    dispatch(invalidateResult(result.id))
+    setIsModalOpen(true)
   }
+
+  const move = useCallback(() => {
+    setIsModalOpen(false);
+  }, [ setIsModalOpen ]);
+
+  const updateLabel = useCallback(() => {
+    setIsModalOpen(false);
+    setIsLabelModalOpen(true)
+  }, [ setIsModalOpen, setIsLabelModalOpen ]);
+
+  const remove = useCallback(() => {
+    setIsModalOpen(false);
+    dispatch(invalidateResult(result.id))
+  }, [ setIsModalOpen ]);
 
   if (campaign?.usage !== 'Check') return <Fragment/>
   return <TableContent className={ [ className ].join(' ') } onClick={ onClick }>
@@ -194,5 +187,35 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
                onClick={ onInvalidate }>
       <IonIcon slot="icon-only" icon={ closeOutline }/>
     </IonButton>
+
+    { isModalOpen && createPortal(<Modal className={ styles.invalidateModal } onClose={ () => setIsModalOpen(false) }>
+      <ModalHeader title="Invalidate a result" onClose={ () => setIsModalOpen(false) }/>
+      <h5>Why do you want to invalidate this result?</h5>
+
+      <div>
+        { result.type !== 'Weak' && <Fragment>
+            <p>The position or dimension of the annotation is incorrect</p>
+            <Button fill='outline' onClick={ move }>
+                Move or resize
+            </Button>
+        </Fragment> }
+      </div>
+      <div>
+        <p>The label is incorrect</p>
+        <Button fill='outline' onClick={ updateLabel }>
+          Change the label
+        </Button>
+      </div>
+      <div>
+        <p>The annotation shouldn't exist</p>
+        <Button fill='outline' onClick={ remove }>
+          Remove
+        </Button>
+      </div>
+
+    </Modal>, document.body) }
+
+    { isLabelModalOpen && <AnnotationLabelUpdateModal annotation={ result } isModalOpen={ isLabelModalOpen }
+                                                      setIsModalOpen={ setIsLabelModalOpen }/> }
   </TableContent>
 }

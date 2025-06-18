@@ -20,6 +20,7 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationTask,
     DatasetFile,
+    AnnotationCampaignUsage,
 )
 from backend.api.serializers import (
     AnnotationFileRangeSerializer,
@@ -183,7 +184,24 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
         queryset: QuerySet[AnnotationFileRange] = self.filter_queryset(
             self.get_queryset()
         ).filter(annotator_id=self.request.user.id, annotation_campaign_id=campaign_id)
+        campaign: AnnotationCampaign = AnnotationCampaign.objects.filter(
+            id=campaign_id
+        ).first()
 
+        annotation_results_count_filter = Q(
+            annotation_results__annotation_campaign_id=campaign_id,
+        ) & (
+            Q(annotation_results__annotator_id=self.request.user.id)
+            | Q(annotation_results__detector_configuration__isnull=False)
+        )
+        validated_annotation_results_count_filter = annotation_results_count_filter & Q(
+            annotation_results__validations__annotator_id=self.request.user.id,
+            annotation_results__validations__is_valid=True,
+        )
+        if campaign is not None and campaign.usage == AnnotationCampaignUsage.CHECK:
+            annotation_results_count_filter = annotation_results_count_filter & ~Q(
+                annotation_results__updated_to__annotator_id=self.request.user.id
+            )
         files: QuerySet[DatasetFile] = (
             AnnotationFileRangeFilesFilter()
             .filter_queryset(request, queryset, self)
@@ -199,13 +217,12 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                 ),
                 results_count=Count(
                     "annotation_results",
-                    filter=Q(
-                        annotation_results__annotation_campaign_id=campaign_id,
-                    )
-                    & (
-                        Q(annotation_results__annotator_id=self.request.user.id)
-                        | Q(annotation_results__detector_configuration__isnull=False)
-                    ),
+                    filter=annotation_results_count_filter,
+                    distinct=True,
+                ),
+                validated_results_count=Count(
+                    "annotation_results",
+                    filter=validated_annotation_results_count_filter,
                     distinct=True,
                 ),
             )

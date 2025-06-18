@@ -70,7 +70,12 @@ class CreateTestCase(TestCase):
         self.assertTrue(serializer.is_valid(raise_exception=True))
         self.assertDictEqual(
             dict(serializer.data),
-            {**presence_result, "id": None, "annotator_expertise_level": None},
+            {
+                **presence_result,
+                "id": None,
+                "annotator_expertise_level": None,
+                "updated_to": None,
+            },
         )
 
     def test_box(self):
@@ -78,7 +83,12 @@ class CreateTestCase(TestCase):
         self.assertTrue(serializer.is_valid(raise_exception=True))
         self.assertDictEqual(
             dict(serializer.data),
-            {**box_result, "id": None, "annotator_expertise_level": None},
+            {
+                **box_result,
+                "id": None,
+                "annotator_expertise_level": None,
+                "updated_to": None,
+            },
         )
 
     # Corrected
@@ -236,6 +246,7 @@ class UpdateTestCase(CreateTestCase):
             if result["acoustic_features"] is not None
             else None,
             "annotator_expertise_level": None,
+            "updated_to": [],
         }
 
     def _get_serializer(self, data, campaign_id=1):
@@ -297,5 +308,74 @@ class UpdateTestCase(CreateTestCase):
                 "end_time": 9 * 60.0,
                 "start_frequency": 7_000.0,
                 "end_frequency": 9_000.0,
+            },
+        )
+
+
+class CreateUpdateOfResultTestCase(TestCase):
+    fixtures = all_fixtures
+    maxDiff = None  # See all differences on failed tests
+
+    def _get_serializer(self, data):
+        return AnnotationResultSerializer(
+            data=data,
+            context={
+                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "file": DatasetFile.objects.get(pk=7),
+            },
+        )
+
+    def test_box_update_label(self):
+        result = {
+            "is_update_of": 1,
+            "label": "Mysticetes",
+            "confidence_indicator": "confident",
+            "start_time": 0.0,
+            "end_time": 20.0,
+            "start_frequency": 6.0,
+            "end_frequency": 12.0,
+            "dataset_file": 7,
+            "detector_configuration": None,
+            "annotation_campaign": 1,
+            "annotator": 3,
+            "validations": [],
+            "comments": [],
+            "acoustic_features": None,
+        }
+        serializer = self._get_serializer(result)
+        self.assertTrue(serializer.is_valid(raise_exception=True))
+        serializer.save()
+        expected_result = {**serializer.data}
+        del expected_result["id"]
+        del result["is_update_of"]
+        self.assertDictEqual(
+            expected_result,
+            {
+                **result,
+                "type": "Box",
+                "annotator_expertise_level": None,
+                "updated_to": [],
+            },
+        )
+        self.assertEqual(
+            AnnotationResult.objects.get(pk=1).updated_to.first().id,
+            serializer.instance.id,
+        )
+
+        updated_serializer = AnnotationResultSerializer(
+            instance=AnnotationResult.objects.get(pk=1),
+            context={
+                "campaign": AnnotationCampaign.objects.get(pk=1),
+                "file": DatasetFile.objects.get(pk=7),
+            },
+        )
+        self.assertDictEqual(
+            updated_serializer.data["updated_to"][0],
+            {
+                **result,
+                "type": "Box",
+                "annotator_expertise_level": None,
+                "updated_to": [],
+                "id": serializer.instance.id,
             },
         )

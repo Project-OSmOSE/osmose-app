@@ -20,6 +20,7 @@ import { useToast } from "@/service/ui";
 import { useHistory } from "react-router-dom";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Colormap, COLORMAP_GREYS, COLORMAPS } from "@/services/utils/color.ts";
+import { AploseSkeleton } from "@/components/layout";
 
 type Errors = { [key in (keyof WriteCheckAnnotationCampaign) | (keyof WriteCreateAnnotationCampaign)]?: string }
 
@@ -199,7 +200,7 @@ export const CreateCampaign: React.FC = () => {
     }
   }, [ createdCampaign, usage ]);
 
-  return (
+  return <AploseSkeleton>
     <div className={ styles.page } ref={ page }>
 
       <h2>Create Annotation Campaign</h2>
@@ -337,5 +338,5 @@ export const CreateCampaign: React.FC = () => {
         </IonButton>
       </div>
     </div>
-  )
+  </AploseSkeleton>
 }

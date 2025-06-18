@@ -149,16 +149,16 @@ infirmer.
 
 Voici un exemple avec une présence.
 Vous trouverez les mêmes informations que dans le mode Création d'annotations, plus le nom du détecteur (ici «
-mthieu »).
+PAMGuard »).
 
 Les boutons à droite vous permettent de choisir si vous trouvez l'annotation correcte ou non.
+Vous pouvez modifier le label de l'annotation et déplacer ou redimensionner l'annotation incorrecte.
 
 Comme dans le mode Création d'annotations, chaque boîte est affichée sur le spectrogramme et peut être écoutée.
 
 ::: info
 
-Veuillez noter que les annotations ne peuvent pas être modifiées (déplacées, redimensionnées, re-labellisées) pour le
-moment.
+Veuillez noter qu'il n'est pas possible d'ajouter des annotations manquantes dans ce mode.
 
 :::
 

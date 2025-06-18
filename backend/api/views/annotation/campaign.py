@@ -46,6 +46,8 @@ from backend.utils.renderers import CSVRenderer
 REPORT_HEADERS = [  # headers
     "dataset",
     "filename",
+    "result_id",
+    "is_update_of_id",
     "start_time",
     "end_time",
     "start_frequency",
@@ -282,6 +284,7 @@ class AnnotationCampaignViewSet(
                 _end_time=F("end_time"),
                 _start_frequency=F("start_frequency"),
                 _end_frequency=F("end_frequency"),
+                result_id=F("id"),
             )
             .extra(
                 select={

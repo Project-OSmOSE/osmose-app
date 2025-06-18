@@ -1,15 +1,16 @@
-import React, { Fragment, MutableRefObject, useCallback, useState } from 'react';
+import React, { Fragment, MutableRefObject, useCallback, useMemo, useState } from 'react';
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import styles from './annotation.module.scss';
-import { AnnotatorSlice, focusResult, removeResult } from '@/service/annotator';
+import { focusResult, invalidateResult, removeResult } from '@/service/annotator';
 import { IoChatbubbleEllipses, IoChatbubbleOutline, IoPlayCircle, IoSwapHorizontal, IoTrashBin } from 'react-icons/io5';
 import { useAnnotator } from '@/service/annotator/hook.ts';
 import { useAppDispatch } from '@/service/app.ts';
 import { AnnotationResult } from '@/service/campaign/result';
 import { useAudioService } from '@/services/annotator/audio.service.ts';
-import { Button, Kbd, Modal, ModalHeader, TooltipOverlay } from "@/components/ui";
-import { createPortal } from "react-dom";
-import { IonNote } from "@ionic/react";
+import {
+  AnnotationLabelUpdateModal
+} from "@/view/annotator/tools/spectrogram/annotation/AnnotationLabelUpdateModal.tsx";
+import { Kbd, TooltipOverlay } from "@/components/ui";
 import { KEY_DOWN_EVENT, useEvent } from "@/service/events";
 
 export const AnnotationHeader: React.FC<{
@@ -23,19 +24,23 @@ export const AnnotationHeader: React.FC<{
   annotation: AnnotationResult,
   audioPlayer: MutableRefObject<HTMLAudioElement | null>;
 }> = ({ active, top, onTopMove, onLeftMove, setIsMouseHover, onValidateMove, className, annotation, audioPlayer }) => {
-  const { campaign } = useAnnotator();
   const dispatch = useAppDispatch();
   const _setIsMouseHover = useCallback((value: boolean) => {
     if (!setIsMouseHover) return;
     setIsMouseHover(value);
   }, [ setIsMouseHover, ])
-  return <ExtendedDiv draggable={ active && campaign?.usage === 'Create' }
+  const label: string = useMemo(() => {
+    let label = annotation.label
+    if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
+    return label;
+  }, [ annotation ]);
+  return <ExtendedDiv draggable={ active }
                       onTopMove={ onTopMove } onLeftMove={ onLeftMove }
                       onUp={ onValidateMove }
                       onMouseEnter={ () => _setIsMouseHover(true) }
                       onMouseMove={ () => _setIsMouseHover(true) }
                       onMouseLeave={ () => _setIsMouseHover(false) }
-                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over, campaign?.usage === 'Create' ? styles.canBeRemoved : '' ].join(' ') }
+                      className={ [ styles.header, className, top < 24 ? styles.bellow : styles.over ].join(' ') }
                       innerClassName={ styles.inner }
                       onClick={ () => dispatch(focusResult(annotation.id)) }>
 
@@ -43,7 +48,7 @@ export const AnnotationHeader: React.FC<{
 
     <CommentInfo annotation={ annotation }/>
 
-    <p>{ annotation.label }</p>
+    <p>{ label }</p>
 
     <UpdateLabelButton annotation={ annotation }/>
 
@@ -73,38 +78,18 @@ export const CommentInfo: React.FC<{ annotation: AnnotationResult; }> = ({ annot
 }
 
 export const UpdateLabelButton: React.FC<{ annotation: AnnotationResult; }> = ({ annotation }) => {
-
   const [ isModalOpen, setIsModalOpen ] = useState<boolean>(false);
-
-  const updateLabel = useCallback((newLabel: string) => {
-    dispatch(AnnotatorSlice.actions.updateLabel(newLabel))
-    setIsModalOpen(false)
-  }, []);
-
-  const { campaign, label_set } = useAnnotator();
-  const dispatch = useAppDispatch();
-  if (campaign?.usage !== 'Create') return <Fragment/>;
 
   return (<Fragment>
       <TooltipOverlay tooltipContent={ <p>Update the label</p> }>
         {/* 'update-box' class is for playwright tests*/ }
-        <IoSwapHorizontal className={ [ styles.button, styles.delete, 'update-box' ].join(' ') }
+        <IoSwapHorizontal className={ [ styles.button, 'update-box' ].join(' ') }
                           onClick={ () => setIsModalOpen(true) }/>
       </TooltipOverlay>
 
-      { isModalOpen && createPortal(<Modal onClose={ () => setIsModalOpen(false) }>
-        <ModalHeader title="Update annotation label" onClose={ () => setIsModalOpen(false) }/>
-        <IonNote>Choose a new label</IonNote>
-        <div className={ styles.labelsButtons }>
-          { label_set?.labels.map((label, index) => <Button key={ label }
-                                                            fill='outline'
-                                                            disabled={ label === annotation.label }
-                                                            className={ `ion-color-${ index % 10 }` }
-                                                            onClick={ () => updateLabel(label) }>
-            { label }
-          </Button>) }
-        </div>
-      </Modal>, document.body) }
+      <AnnotationLabelUpdateModal annotation={ annotation }
+                                  isModalOpen={ isModalOpen }
+                                  setIsModalOpen={ setIsModalOpen }/>
     </Fragment>
   )
 }
@@ -123,14 +108,20 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   useEvent(KEY_DOWN_EVENT, onKbdEvent);
 
   const remove = useCallback(() => {
-    dispatch(removeResult(annotation.id))
-  }, [ annotation ])
+    switch (campaign?.usage) {
+      case 'Create':
+        dispatch(removeResult(annotation.id));
+        break;
+      case 'Check':
+        dispatch(invalidateResult(annotation.id));
+        break;
+    }
+  }, [ campaign, annotation ])
 
-  if (campaign?.usage !== 'Create') return <Fragment/>;
   return (
     <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, styles.delete, 'remove-box' ].join(' ') } onClick={ remove }/>
+      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') } onClick={ remove }/>
     </TooltipOverlay>
   )
 }

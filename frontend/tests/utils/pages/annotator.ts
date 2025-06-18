@@ -52,6 +52,7 @@ export class AnnotatorPage {
       },
       invalidate: async () => {
         await invalidateBtn.click()
+        await this.page.getByRole('button', { name: 'Remove' }).last().click()
       },
       expectState: async (isValid: boolean) => {
         await expect(validateBtn).toHaveAttribute('color', isValid ? 'success' : 'medium')
@@ -86,7 +87,11 @@ export class AnnotatorPage {
     allowPoint?: boolean
   }) {
     await test.step('Navigate to Annotator', async () => {
-      await this.detail.go(as, { noConfidence: options.noConfidence, mode: options.mode, allowPoint: options.allowPoint })
+      await this.detail.go(as, {
+        noConfidence: options.noConfidence,
+        mode: options.mode,
+        allowPoint: options.allowPoint
+      })
       await this.mock.confidenceSetDetail()
       await this.mock.detectors()
       await this.mock.labelSetDetail()

@@ -5,7 +5,7 @@ import { updateFocusResultBounds } from '@/service/annotator';
 import { useAnnotator } from "@/service/annotator/hook.ts";
 import { ExtendedDiv } from '@/components/ui/ExtendedDiv';
 import { useAxis } from '@/service/annotator/spectrogram/scale';
-import { AbstractScale } from "@/service/dataset/spectrogram-configuration/scale";
+import { AbstractScale, formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import { AnnotationHeader } from '@/view/annotator/tools/spectrogram/annotation/Headers.tsx';
 import styles from './annotation.module.scss'
 import { MOUSE_DOWN_EVENT } from "@/service/events";
@@ -46,7 +46,13 @@ export const Box: React.FC<RegionProps> = ({
     _end_time.current = annotation.end_time;
     _start_frequency.current = annotation.start_frequency;
     _end_frequency.current = annotation.end_frequency;
-  }, [ annotation.start_time, annotation.end_time, annotation.start_frequency, annotation.end_frequency ]);
+    if (annotation.updated_to.length > 0) {
+      _start_time.current = annotation.updated_to[0].start_time;
+      _end_time.current = annotation.updated_to[0].end_time;
+      _start_frequency.current = annotation.updated_to[0].start_frequency;
+      _end_frequency.current = annotation.updated_to[0].end_frequency;
+    }
+  }, [ annotation ]);
 
   // Coords bounds
   const _left = useRef<number>(0);
@@ -74,7 +80,12 @@ export const Box: React.FC<RegionProps> = ({
   useEffect(() => updateHeight, [ _yAxis.current, _start_frequency.current, _end_frequency.current ]);
 
   // Memo
-  const colorClassName: string = useMemo(() => label_set ? `ion-color-${ label_set.labels.indexOf(annotation.label)%10 }` : '', [ label_set, annotation.label ]);
+  const colorClassName: string = useMemo(() => {
+    if (!label_set) return '';
+    let label = annotation.label
+    if (annotation.updated_to.length > 0) label = annotation.updated_to[0].label;
+    return `ion-color-${ label_set.labels.indexOf(label) % 10 }`
+  }, [ label_set, annotation ]);
   const isActive = useMemo(() => annotation.id === focusedResultID, [ annotation.id, focusedResultID ]);
 
   function updateLeft() {
@@ -122,17 +133,23 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   function onValidateMove() {
+    if (!campaign) return;
+    let end_frequency = _yAxis.current.positionToValue(_top.current);
+    let start_frequency = _yAxis.current.positionToValue(_top.current + _height.current);
+    let start_time = _xAxis.current.positionToValue(_left.current);
+    let end_time = _xAxis.current.positionToValue(_left.current + _width.current);
+    if (_start_time.current && formatTime(start_time, true) === formatTime(_start_time.current, true)) start_time = _start_time.current;
+    if (_end_time.current && formatTime(end_time, true) === formatTime(_end_time.current, true)) end_time = _end_time.current;
+    if (_start_frequency.current && _start_frequency.current.toFixed(2) === start_frequency.toFixed(2)) start_frequency = _start_frequency.current;
+    if (_end_frequency.current && _end_frequency.current.toFixed(2) === end_frequency.toFixed(2)) end_frequency = _end_frequency.current;
     dispatch(updateFocusResultBounds({
-      type: 'Box',
-      end_frequency: _yAxis.current.positionToValue(_top.current),
-      start_frequency: _yAxis.current.positionToValue(_top.current + _height.current),
-      start_time: _xAxis.current.positionToValue(_left.current),
-      end_time: _xAxis.current.positionToValue(_left.current + _width.current),
+      newBounds: { type: 'Box', end_frequency, start_frequency, start_time, end_time },
+      usage: campaign.usage
     }))
   }
 
   if (top === null || left === null || height === null || width === null) return <Fragment/>
-  return <ExtendedDiv resizable={ isActive && campaign?.usage === 'Create' }
+  return <ExtendedDiv resizable={ isActive }
                       top={ top } height={ height }
                       left={ left } width={ width }
                       onUp={ onValidateMove }

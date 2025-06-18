@@ -40,6 +40,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     annotator: USERS.annotator.id,
     validations: [],
     detector_configuration: null,
+    updated_to: [],
   },
   box: {
     id: 2,
@@ -57,6 +58,7 @@ export const RESULTS: { presence: WeakResult, box: BoxResult } = {
     annotator: USERS.annotator.id,
     validations: [],
     detector_configuration: null,
+    updated_to: [],
   }
 }
 export const CREATE_DATA: (empty?: boolean) => AnnotatorData = empty => ({

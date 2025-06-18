@@ -1,13 +1,4 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IonNote } from "@ionic/react";
 import styles from './ui.module.scss'
 import { createPortal } from "react-dom";
@@ -15,7 +6,7 @@ import { MOUSE_MOVE_EVENT, useEvent } from "@/service/events";
 import { v4 as uuidv4 } from 'uuid';
 
 export const TooltipOverlay: React.FC<{
-  children: ReactElement;
+  children: ReactNode;
   tooltipContent: ReactNode;
   title?: string;
 }> = ({ children, tooltipContent, title }) => {

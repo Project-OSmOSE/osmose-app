@@ -1,5 +1,5 @@
 import { DetectorConfiguration } from '@/service/campaign/detector';
-import { AnnotationComment, WriteAnnotationComment } from '@/service/campaign/comment';
+import { AnnotationComment } from '@/service/campaign/comment';
 
 export interface AnnotationResultValidations {
   id: number;
@@ -36,6 +36,7 @@ interface BaseAnnotationResult {
   comments: Array<AnnotationComment>;
   validations: Array<AnnotationResultValidations>;
   acoustic_features: AcousticFeatures | null;
+  updated_to: AnnotationResult[];
 }
 
 export type WeakBounds = {
@@ -66,14 +67,3 @@ export type AnnotationResult = BaseAnnotationResult & AnnotationResultBounds
 export type WeakResult = BaseAnnotationResult & WeakBounds
 export type PointResult = BaseAnnotationResult & PointBounds
 export type BoxResult = BaseAnnotationResult & BoxBounds
-
-export type WriteAnnotationResult =
-  Omit<AnnotationResult, "id" | "comments" | "validations" | "annotation_campaign" | "dataset_file" | "annotator" | "confidence_indicator" | "detector_configuration" | 'type'>
-  & {
-  id?: number;
-  confidence_indicator: string | undefined;
-  detector_configuration: DetectorConfiguration & { detector: string } | undefined;
-  comments: Array<WriteAnnotationComment>;
-  validations: Array<Omit<AnnotationResultValidations, "id" | "annotator" | "result"> & { id?: number }>;
-  acoustic_features: AcousticFeatures | null;
-};

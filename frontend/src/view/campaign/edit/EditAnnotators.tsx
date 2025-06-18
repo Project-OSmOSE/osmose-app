@@ -14,6 +14,7 @@ import { FormBloc, Input, Searchbar } from "@/components/form";
 import { lockClosedOutline, trashBinOutline } from "ionicons/icons";
 import { Item } from "@/types/item.ts";
 import styles from './edit.module.scss';
+import { AploseSkeleton } from "@/components/layout";
 
 type SearchItem = {
   type: 'user' | 'group';
@@ -130,7 +131,7 @@ export const EditAnnotators: React.FC = () => {
     if (submissionStatus === QueryStatus.fulfilled) back()
   }, [ submissionStatus ]);
 
-  return (
+  return <AploseSkeleton>
     <div className={ styles.page } ref={ page }>
 
       <div className={ styles.title }>
@@ -195,7 +196,7 @@ export const EditAnnotators: React.FC = () => {
         </IonButton>
       </div>
     </div>
-  )
+  </AploseSkeleton>
 }
 
 const AnnotatorRangeLine: React.FC<{

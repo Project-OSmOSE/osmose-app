@@ -26,10 +26,12 @@ def check_report(test: APITestCase, response: Response):
     test.assertEqual(data[0], REPORT_HEADERS)
     # annotationresult id=7 ; because ordered by dataset_file__start and not id
     test.assertEqual(
-        data[1][:16],
+        data[1][:18],
         [
             "SPM Aural A 2010",
             "sound001.wav",
+            "7",
+            "",
             "108.2",
             "224.8",
             "7520.0",
@@ -52,13 +54,15 @@ def check_report_check(test: APITestCase, response: Response):
     test.assertEqual(response.status_code, status.HTTP_200_OK)
     reader = csv.reader(io.StringIO(response.content.decode("utf-8")))
     data = list(reader)
-    test.assertEqual(len(data), 2)
+    test.assertEqual(len(data), 3)
     test.assertEqual(data[0], REPORT_HEADERS + ["admin", "user2"])
     test.assertEqual(
         data[1],
         [  # annotationresult id=10
             "SPM Aural A 2010",
             "sound001.wav",
+            "10",
+            "",
             "108.2",
             "224.8",
             "7520.0",
@@ -83,6 +87,39 @@ def check_report_check(test: APITestCase, response: Response):
             "",
             "True",
             "False",
+        ],
+    )
+    test.assertEqual(
+        data[2],
+        [  # annotationresult id=11
+            "SPM Aural A 2010",
+            "sound001.wav",
+            "11",
+            "10",
+            "10.0",
+            "200.0",
+            "70.0",
+            "130.0",
+            "Mysticetes",
+            "user2",
+            "",
+            "2012-10-03T10:00:10.000+00:00",
+            "2012-10-03T10:03:20.000+00:00",
+            "1",
+            "BOX",
+            "no Confident",
+            "1/1",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
         ],
     )
 

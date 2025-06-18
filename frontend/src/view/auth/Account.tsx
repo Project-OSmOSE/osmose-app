@@ -8,6 +8,7 @@ import { FormBloc } from "@/components/form";
 import { useToast } from "@/service/ui";
 import { UpdatePassword } from "@/view/auth/account-form/UpdatePassword.tsx";
 import { UpdateEmail } from "@/view/auth/account-form/UpdateEmail.tsx";
+import { AploseSkeleton } from "@/components/layout";
 
 export const Account: React.FC = () => {
   const { data: currentUser, isLoading, error } = useGetCurrentUserQuery();
@@ -20,7 +21,7 @@ export const Account: React.FC = () => {
     }
   }, []);
 
-  return (
+  return <AploseSkeleton>
     <div className={ styles.loggedInPage }>
       <h2>Account</h2>
 
@@ -40,5 +41,5 @@ export const Account: React.FC = () => {
           <UpdatePassword/>
       </div> }
     </div>
-  )
+  </AploseSkeleton>
 }

@@ -91,11 +91,12 @@
       display: grid;
       justify-items: start;
       align-items: center;
-    }
-
-    &.currentAnnotation {
       gap: 0.5rem;
-      grid-template-columns: auto 1fr;
+
+      ion-note {
+        grid-column: 1 / -1;
+        font-style: italic;
+      }
     }
 
     p {
@@ -116,7 +117,7 @@ ion-chip.active {
 .item {
   display: grid;
   grid-auto-flow: column;
-  gap: 0.5rem;
+  gap: 0 0.5rem;
   align-items: center;
   justify-content: start;
 
@@ -261,4 +262,16 @@ ion-chip.active {
   gap: 0.5rem;
   padding-left: 0.5rem;
   align-items: center;
+}
+
+.bounds {
+  display: grid;
+  gap: 0 1rem;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  justify-items: start;
+
+  .mainIcon {
+    grid-row: 1 / 4;
+  }
 }

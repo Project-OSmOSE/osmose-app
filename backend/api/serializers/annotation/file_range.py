@@ -1,14 +1,12 @@
 """Serializer for annotation file range"""
 
-from django.db.models import OuterRef, Subquery, F, Func, Exists, QuerySet, Q
+from django.db.models import QuerySet, Q
 from rest_framework import serializers
 
 from backend.api.models import (
     AnnotationFileRange,
     AnnotationTask,
-    AnnotationResult,
     AnnotationCampaign,
-    DatasetFile,
 )
 from backend.aplose.models import User
 from backend.utils.serializers import EnumField
@@ -156,6 +154,7 @@ class FileRangeDatasetFileSerializer(DatasetFileSerializer):
 
     is_submitted = serializers.BooleanField(read_only=True)
     results_count = serializers.IntegerField(read_only=True)
+    validated_results_count = serializers.IntegerField(read_only=True)
 
     class Meta(DatasetFileSerializer.Meta):
         pass
@@ -171,38 +170,3 @@ class AnnotationTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnnotationTask
         exclude = ("annotation_campaign", "annotator")
-
-
-class AnnotationFileRangeFilesSerializer(AnnotationFileRangeSerializer):
-    """Serializer for annotation file range with detail files"""
-
-    files = serializers.SerializerMethodField(read_only=True)
-
-    class Meta(AnnotationFileRangeSerializer.Meta):
-        pass
-
-    def get_files(self, file_range: AnnotationFileRange):
-        """Get files within the range"""
-        files = DatasetFile.objects.filter_for_file_range(file_range).annotate(
-            is_submitted=Exists(
-                AnnotationTask.objects.filter(
-                    annotation_campaign_id=file_range.annotation_campaign_id,
-                    annotator_id=file_range.annotator_id,
-                    dataset_file_id=OuterRef("pk"),
-                    status=AnnotationTask.Status.FINISHED,
-                )
-            ),
-            results_count=Subquery(
-                AnnotationResult.objects.filter(
-                    annotation_campaign_id=file_range.annotation_campaign_id,
-                    dataset_file_id=OuterRef("pk"),
-                )
-                .filter(
-                    Q(annotator=file_range.annotator)
-                    | Q(detector_configuration__isnull=False)
-                )
-                .annotate(count=Func(F("id"), function="Count"))
-                .values("count")
-            ),
-        )
-        return FileRangeDatasetFileSerializer(files, many=True).data
