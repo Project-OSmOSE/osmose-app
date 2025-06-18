@@ -3,7 +3,6 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from backend.osmosewebsite.serializers.team_member import TeamMemberFields
 
 
 class TeamMemberViewSetTestCase(APITestCase):
@@ -32,8 +31,7 @@ class TeamMemberViewSetTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
-        self.assertEqual(list(response.data[0].keys()), TeamMemberFields)
-        self.assertEqual(response.data[0]["firstname"], "user2")
+        self.assertEqual(response.data[0]["scientist"]["first_name"], "user2")
         self.assertEqual(response.data[0]["position"], "job2")
         self.assertEqual(response.data[0]["is_former_member"], False)
 
@@ -42,7 +40,6 @@ class TeamMemberViewSetTestCase(APITestCase):
         url = reverse("members-detail", kwargs={"pk": 3})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data), TeamMemberFields)
-        self.assertEqual(response.data["firstname"], "user3")
+        self.assertEqual(response.data["scientist"]["first_name"], "user3")
         self.assertEqual(response.data["position"], "job3")
         self.assertEqual(response.data["is_former_member"], True)

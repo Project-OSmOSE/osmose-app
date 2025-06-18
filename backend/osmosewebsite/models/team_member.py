@@ -1,15 +1,21 @@
 """OSmOSE Website API Models - TeamMembers"""
 from django.db import models
 
+from .scientist import Scientist
+
 
 class TeamMember(models.Model):
     """TeamMember model"""
 
     level = models.IntegerField("Sorting level", blank=True, null=True)
 
-    firstname = models.CharField(max_length=100)
-    lastname = models.CharField(max_length=100, blank=True, null=True)
+    scientist = models.OneToOneField(
+        to=Scientist,
+        on_delete=models.RESTRICT,
+        related_name="team_member",
+    )
     position = models.CharField(max_length=255)
+
     biography = models.TextField(blank=True, null=True)
     picture = models.URLField()
 
@@ -26,6 +32,4 @@ class TeamMember(models.Model):
         ordering = ["level"]
 
     def __str__(self):
-        if self.lastname:
-            return self.firstname + " " + self.lastname
-        return self.firstname
+        return self.scientist.__str__()

@@ -1,0 +1,37 @@
+$spinner-size: 2rem;
+$spinner-width: 2px;
+
+.spinner {
+  align-items: center;
+  justify-self: center;
+  width: $spinner-size;
+  height: $spinner-size;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(0deg, white 33%, var(--ion-color-primary) 100%);
+  box-sizing: border-box;
+  animation: rotation 0.8s linear infinite;
+
+  &::after {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc($spinner-size - $spinner-width * 2);
+    height: calc($spinner-size - $spinner-width * 2);
+    border-radius: 50%;
+    background: white;
+  }
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(360deg)
+  }
+}

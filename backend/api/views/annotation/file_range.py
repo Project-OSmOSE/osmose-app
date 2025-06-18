@@ -292,7 +292,6 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
                         status=AnnotationTask.Status.FINISHED,
                     )
                 ),
-                # results_count=annotation_results_count,
                 validated_results_count=validated_annotation_results_count,
             )
         )

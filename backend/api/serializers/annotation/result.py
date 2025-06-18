@@ -542,8 +542,7 @@ class AnnotationResultSerializer(serializers.ModelSerializer):
             and detector_configuration is not None
         ):
             attrs.pop("annotator")
-        validated = super().validate(attrs)
-        return validated
+        return super().validate(attrs)
 
     @transaction.atomic
     def create(self, validated_data):

@@ -24,7 +24,7 @@ export const NewsPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    fetchNews({ currentPage, pageSize }).then(data => {
+    fetchNews({ page: currentPage, page_size: pageSize }).then(data => {
       if (!isMounted) return;
       setNewsTotal(data?.count ?? 0);
       setNews(data?.results ?? []);

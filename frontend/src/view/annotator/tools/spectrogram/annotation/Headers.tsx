@@ -134,8 +134,7 @@ export const TrashButton: React.FC<{ annotation: AnnotationResult; }> = ({ annot
   return (
     <TooltipOverlay tooltipContent={ <p><Kbd keys='delete'/> Remove the annotation</p> }>
       {/* 'remove-box' class is for playwright tests*/ }
-      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') }
-                  onClick={ remove }/>
+      <IoTrashBin className={ [ styles.button, 'remove-box' ].join(' ') } onClick={ remove }/>
     </TooltipOverlay>
   )
 }

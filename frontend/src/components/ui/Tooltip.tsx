@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { IonNote } from "@ionic/react";
 import styles from './ui.module.scss'
 import { createPortal } from "react-dom";
@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { usePopover } from "@/service/ui/popover.ts";
 
 export const TooltipOverlay: React.FC<{
-  children: ReactElement;
+  children: ReactNode;
   tooltipContent: ReactNode;
   title?: string;
   anchor?: 'left' | 'right'
