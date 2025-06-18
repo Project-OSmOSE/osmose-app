@@ -92,9 +92,6 @@ class AnnotationFileRangeFilesFilter(filters.BaseFilterBackend):
         with_user_annotations = get_boolean_query_param(
             request, "with_user_annotations"
         )
-        with_features = get_boolean_query_param(
-            request, "annotation_results__acoustic_features__isnull"
-        )
         results = self.get_results_for_file_range(
             request,
             view,

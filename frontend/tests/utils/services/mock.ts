@@ -57,8 +57,14 @@ export class Mock {
   }
 
   public async campaigns(empty: boolean = false) {
-    await this.page.route(API_URL.campaign.list, route => route.fulfill({ status: 200, json: empty ? [] : [ CAMPAIGN ] }))
-    await this.page.route(API_URL.phase.list, route => route.fulfill({ status: 200, json: empty ? [] : [ CAMPAIGN_PHASE ] }))
+    await this.page.route(API_URL.campaign.list, route => route.fulfill({
+      status: 200,
+      json: empty ? [] : [ CAMPAIGN ]
+    }))
+    await this.page.route(API_URL.phase.list, route => route.fulfill({
+      status: 200,
+      json: empty ? [] : [ CAMPAIGN_PHASE, { ...CAMPAIGN_PHASE, id: 2, phase: 'Verification' } ]
+    }))
   }
 
   public async campaignCreate(withErrors: boolean = false) {
@@ -94,14 +100,16 @@ export class Mock {
     }
     if (allowPoint) json.allow_point_annotation = true;
     await this.page.route(API_URL.campaign.detail, route => route.fulfill({ status: 200, json }))
-    await this.page.route(API_URL.phase.detail, route => route.fulfill({ status: 200, json: empty ? {
+    await this.page.route(API_URL.phase.detail, route => route.fulfill({
+      status: 200, json: empty ? {
         ...CAMPAIGN_PHASE,
         progress: 0,
         total: 0,
         my_progress: 0,
         my_total: 0,
         phase
-      } : { ...CAMPAIGN_PHASE, phase } }))
+      } : { ...CAMPAIGN_PHASE, phase }
+    }))
   }
 
   public async spectrograms(empty: boolean = false) {
