@@ -11,17 +11,17 @@ import {
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { ActionBar } from "@/components/layout";
 import { checkmarkCircle, chevronForwardOutline, ellipseOutline, refreshOutline } from "ionicons/icons";
-import { Link, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
-import { useNavigate } from "react-router-dom";
+import { Button, Pagination, Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
 import { AnnotationsFilter } from "@/view/campaign/details/filters/AnnotationsFilter.tsx";
 import { StatusFilter } from "@/view/campaign/details/filters/StatusFilter.tsx";
 import { DateFilter } from "@/view/campaign/details/filters/DateFilter.tsx";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { AnnotationCampaign, AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
+import { AnnotationCampaignPhase, AnnotationFile } from "@/service/types";
 import { AnnotationFileRangeAPI } from "@/service/api/annotation-file-range.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { useFileFilters } from "@/service/slices/filter.ts";
+import { useOpenAnnotator } from "@/service/annotator/hooks.ts";
 
 export const AnnotationCampaignPhaseDetail: React.FC = () => {
   const { params, updateParams, clearParams } = useFileFilters(true)
@@ -123,8 +123,7 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
 
         { files?.results?.map(file => <TaskItem key={ file.id }
                                                 file={ file }
-                                                phase={ phase }
-                                                campaign={ campaign }/>) }
+                                                phase={ phase }/>) }
       </Table>
 
       { files?.results && files.results.length > 0 &&
@@ -141,16 +140,15 @@ export const AnnotationCampaignPhaseDetail: React.FC = () => {
 }
 
 const TaskItem: React.FC<{
-  campaign: AnnotationCampaign;
   phase: AnnotationCampaignPhase;
   file: AnnotationFile;
-}> = ({ campaign, phase, file }) => {
-  const navigate = useNavigate()
+}> = ({ phase, file }) => {
   const startDate = useMemo(() => new Date(file.start), [ file.start ]);
   const duration = useMemo(() => new Date(new Date(file.end).getTime() - startDate.getTime()), [ file.end, file.start ]);
+  const openAnnotator = useOpenAnnotator()
 
   function access() {
-    navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ file.id }`);
+    openAnnotator(file.id)
   }
 
   return <Fragment>
@@ -167,11 +165,9 @@ const TaskItem: React.FC<{
           <IonIcon icon={ ellipseOutline } className={ styles.statusIcon } color='medium'/> }
     </TableContent>
     <TableContent disabled={ file.is_submitted }>
-      <Link color='dark' fill='clear' size='small' className={ styles.submit }
-            appPath={ `/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ file.id }` }
-            onClick={ access }>
+      <Button color='dark' fill='clear' size='small' className={ styles.submit } onClick={ access }>
         <IonIcon icon={ chevronForwardOutline } color='primary' slot='icon-only'/>
-      </Link>
+      </Button>
     </TableContent>
     <TableDivider/>
   </Fragment>

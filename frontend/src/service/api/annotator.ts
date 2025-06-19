@@ -17,7 +17,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { FileFilter } from "@/service/api/annotation-file-range.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
-import { selectFileFilters } from "@/service/slices/filter.ts";
+import { useFileFilters } from "@/service/slices/filter.ts";
 import { extendDatasetFile } from "@/service/api/dataset.ts";
 import { API } from "@/service/api/index.ts";
 import { AnnotatorState } from "@/service/slices/annotator.ts";
@@ -150,13 +150,14 @@ export const AnnotatorAPI = API.injectEndpoints({
 })
 
 export const useRetrieveAnnotator = () => {
+  const { params } = useFileFilters()
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase, isEditable: isPhaseEditable } = useRetrieveCurrentPhase()
   const { fileID } = useParams<{ fileID: string }>();
-  const filters = useAppSelector(selectFileFilters)
+  // const filters = useAppSelector(selectFileFilters)
   const { data, ...info } = AnnotatorAPI.endpoints.retrieveAnnotator.useQuery(
     (campaign && phase && fileID) ?
-      { campaignID: campaign.id, phaseID: phase.id, fileID, ...filters }
+      { campaignID: campaign.id, phaseID: phase.id, fileID, ...params }
       : skipToken);
 
   const isEditable = useMemo(() => isPhaseEditable && data?.is_assigned, [ isPhaseEditable, data ])

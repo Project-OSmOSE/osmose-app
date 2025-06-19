@@ -5,15 +5,14 @@ import { cloudDownloadOutline, peopleOutline, playOutline } from "ionicons/icons
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { PaginatedAnnotationFiles } from "@/service/api/annotation-file-range.ts";
-import { useNavigate } from "react-router-dom";
+import { useOpenAnnotator } from "@/service/annotator/hooks.ts";
 
 export const ResumeButton: React.FC<{
   files?: PaginatedAnnotationFiles,
   disabled?: boolean
 }> = ({ files, disabled = false }) => {
-  const { campaign } = useRetrieveCurrentCampaign()
-  const { phase, isEditable } = useRetrieveCurrentPhase()
-  const navigate = useNavigate()
+  const { isEditable } = useRetrieveCurrentPhase()
+  const openAnnotator = useOpenAnnotator()
 
   const tooltip: string = useMemo(() => {
     if (files && files.count > 0 && !files.resume) return 'Cannot resume if filters are activated'
@@ -22,9 +21,9 @@ export const ResumeButton: React.FC<{
   }, [ files, disabled ])
 
   const resume = useCallback(() => {
-    if (!campaign || !phase || !files) return;
-    navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }/file/${ files.resume }`);
-  }, [ campaign, phase, files ])
+    if (!files?.resume) return;
+    openAnnotator(files.resume)
+  }, [ files ])
 
   if (!isEditable) return <Fragment/>
   return <TooltipOverlay tooltipContent={ <p>{ tooltip }</p> } anchor='right'>
@@ -38,13 +37,13 @@ export const ResumeButton: React.FC<{
 }
 
 export const ImportAnnotationsButton: React.FC = () => {
-  const { campaign, hasAdminAccess  } = useRetrieveCurrentCampaign()
+  const { campaignID, hasAdminAccess } = useRetrieveCurrentCampaign()
   const { verificationPhase } = useListPhasesForCurrentCampaign()
-  const { phase, isEditable } = useRetrieveCurrentPhase()
+  const { phaseID, phase, isEditable } = useRetrieveCurrentPhase()
 
   const path = useMemo(() => {
-    return `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/import-annotations`
-  }, [ campaign, phase ])
+    return `/annotation-campaign/${ campaignID }/phase/${ phaseID }/import-annotations`
+  }, [ campaignID, phaseID ])
 
   if (phase?.phase !== 'Annotation') return <Fragment/>
   if (!verificationPhase) return <Fragment/>
@@ -58,12 +57,12 @@ export const ImportAnnotationsButton: React.FC = () => {
 }
 
 export const ManageAnnotatorsButton: React.FC = () => {
-  const { campaign, hasAdminAccess } = useRetrieveCurrentCampaign()
-  const { phase, isEditable } = useRetrieveCurrentPhase()
+  const { campaignID, hasAdminAccess } = useRetrieveCurrentCampaign()
+  const { phaseID, isEditable } = useRetrieveCurrentPhase()
 
   const path = useMemo(() => {
-    return `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/edit-annotators`
-  }, [ campaign, phase ])
+    return `/annotation-campaign/${ campaignID }/phase/${ phaseID }/edit-annotators`
+  }, [ campaignID, phaseID ])
 
   if (!hasAdminAccess) return <Fragment/>
   if (!isEditable) return <Fragment/>

@@ -93,8 +93,9 @@ export const useRetrieveCurrentCampaign = () => {
   const { data: campaign, ...info } = CampaignAPI.endpoints.retrieveCampaign.useQuery(campaignID ?? skipToken)
   const { data: user } = UserAPI.endpoints.getCurrentUser.useQuery();
   return useMemo(() => ({
+    campaignID,
     campaign,
     ...info,
     hasAdminAccess: !!user && (user.is_staff || user.is_superuser || campaign?.owner?.id === user.id),
-  }), [ campaign, info ])
+  }), [ campaignID, campaign, info ])
 }

@@ -11,12 +11,14 @@ import { useCanNavigate } from "@/service/slices/annotator";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { usePostAnnotator, useRetrieveAnnotator } from "@/service/api/annotator.ts";
+import { useOpenAnnotator } from "@/service/annotator/hooks.ts";
 
 
 export const NavigationButtons: React.FC = () => {
   const { data, isEditable } = useRetrieveAnnotator();
-  const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { campaignID } = useRetrieveCurrentCampaign()
+  const { phaseID } = useRetrieveCurrentPhase()
+  const openAnnotator = useOpenAnnotator()
 
   // Services
   const navigate = useNavigate();
@@ -73,9 +75,9 @@ export const NavigationButtons: React.FC = () => {
     try {
       await post()
       if (next_file_id.current) {
-        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
+        openAnnotator(next_file_id.current);
       } else {
-        navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }`)
+        navigate(`/annotation-campaign/${ campaignID }/phase/${ phaseID }`)
       }
     } catch (e: any) {
       toast.presentError(e)
@@ -86,13 +88,11 @@ export const NavigationButtons: React.FC = () => {
 
   const navPrevious = async () => {
     if (!previous_file_id.current) return;
-    if (await canNavigate())
-      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ previous_file_id.current }`);
+    if (await canNavigate()) openAnnotator(previous_file_id.current)
   }
   const navNext = async () => {
     if (!next_file_id.current) return;
-    if (await canNavigate())
-      navigate(`/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }/file/${ next_file_id.current }`);
+    if (await canNavigate()) openAnnotator(next_file_id.current)
   }
 
   if (!isEditable) return <div/>

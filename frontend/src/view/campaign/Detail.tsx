@@ -12,6 +12,7 @@ import { useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 
 export const AnnotationCampaignDetail: React.FC = () => {
   const {
+    campaignID,
     campaign,
     isLoading: isLoadingCampaign,
     error: errorLoadingCampaign,
@@ -47,7 +48,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
     </div>
 
     <div className={ styles.tabs }>
-      <Link appPath={ `/annotation-campaign/${ campaign.id }` }
+      <Link appPath={ `/annotation-campaign/${ campaignID }` }
             className={ !phase ? styles.active : undefined }>
         Information
       </Link>
