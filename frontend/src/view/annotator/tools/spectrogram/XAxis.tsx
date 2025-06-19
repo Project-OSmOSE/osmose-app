@@ -5,7 +5,7 @@ import { useSpectrogramDimensions } from '@/service/annotator/spectrogram/hook.t
 import { useRetrieveAnnotator } from "@/service/api/annotator.ts";
 
 export type AxisRef = {
-  toDataURL?(type?: string, quality?: any): string;
+  toDataURL(type?: string, quality?: any): string | undefined;
 }
 
 export const XAxis = React.forwardRef<AxisRef, {
@@ -14,7 +14,7 @@ export const XAxis = React.forwardRef<AxisRef, {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useImperativeHandle(ref, () => ({
-    toDataURL: canvasRef.current?.toDataURL
+    toDataURL: (type?: string, quality?: any) => canvasRef.current?.toDataURL(type, quality)
   }), [ canvasRef.current ]);
 
   const xAxis = useXAxis()

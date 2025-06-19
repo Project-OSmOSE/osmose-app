@@ -16,8 +16,8 @@ import { API } from "@/service/api";
 
 export const AnnotatorPage: React.FC = () => {
   UserAPI.endpoints.getCurrentUser.useQuery()
-  const { campaign } = useRetrieveCurrentCampaign()
-  const { phase } = useRetrieveCurrentPhase()
+  const { campaignID, campaign } = useRetrieveCurrentCampaign()
+  const { phaseID, phase } = useRetrieveCurrentPhase()
   const { data, isEditable } = useRetrieveAnnotator();
   useAnnotatorSliceSetup()
   const dispatch = useAppDispatch()
@@ -56,7 +56,7 @@ export const AnnotatorPage: React.FC = () => {
 
               <Link color='medium' fill='outline' size='small'
                     onClick={ onBack }
-                    appPath={ `/annotation-campaign/${ campaign?.id }/phase/${ phase?.id }` }>
+                    appPath={ `/annotation-campaign/${ campaignID }/phase/${ phaseID }` }>
                 Back to campaign
               </Link>
             </Fragment> }>

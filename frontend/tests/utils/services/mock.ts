@@ -172,10 +172,7 @@ export class Mock {
       count: results.length,
       resume: results.find(r => r.is_submitted === false)?.id
     }
-    await this.page.route(/\/api\/annotation-file-range\/phase\/-?\d\/files/g, route => route.fulfill({
-      status: 200,
-      json
-    }))
+    await this.page.route(API_URL.fileRanges.file, route => route.fulfill({ status: 200, json }))
   }
 
   public async annotator(phase: Phase = 'Annotation', empty: boolean = false) {

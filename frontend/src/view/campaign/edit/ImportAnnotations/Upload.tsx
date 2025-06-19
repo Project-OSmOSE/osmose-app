@@ -4,35 +4,26 @@ import { Progress, WarningText } from "@/components/ui";
 import { IonButton, IonNote, IonSpinner } from "@ionic/react";
 import { formatTime } from "@/service/dataset/spectrogram-configuration/scale";
 import styles from "@/view/campaign/edit/edit.module.scss";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
 import { useUploadAnnotationChunk } from "@/service/api/annotation.ts";
 import { useListPhasesForCurrentCampaign, useRetrieveCurrentPhase } from "@/service/api/campaign-phase.ts";
 import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 
 export const Upload: React.FC = () => {
-  const { campaign } = useRetrieveCurrentCampaign();
-  const { phase } = useRetrieveCurrentPhase()
+  const { campaignID } = useRetrieveCurrentCampaign();
+  const { phaseID, phase } = useRetrieveCurrentPhase()
   const { verificationPhase } = useListPhasesForCurrentCampaign()
   const { upload: uploadInfo, detectors, file } = useAppSelector(state => state.resultImport)
-  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const back = useCallback(() => {
-    if (campaign && verificationPhase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ verificationPhase.id }`)
-    else if (campaign && phase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }`)
-  }, [ campaign, verificationPhase, phase ])
+    if (verificationPhase) navigate(`/annotation-campaign/${ campaignID }/phase/${ verificationPhase.id }`)
+    else navigate(`/annotation-campaign/${ campaignID }/phase/${ phaseID }`)
+  }, [ campaignID, verificationPhase, phaseID ])
 
-  const onUploaded = useCallback(() => {
-    if ((location.state as any)?.fromCreateCampaign) {
-      navigate(`/annotation-campaign/${ campaign?.id }/edit-annotators`, { state: { fromImportAnnotations: true } })
-    } else {
-      back()
-    }
-  }, [ campaign?.id, location, navigate, back ])
-
-  const { upload } = useUploadAnnotationChunk(onUploaded)
+  const { upload } = useUploadAnnotationChunk(back)
   const reset = useCallback(() => {
     dispatch(ImportAnnotationsSlice.actions.clear())
   }, [])

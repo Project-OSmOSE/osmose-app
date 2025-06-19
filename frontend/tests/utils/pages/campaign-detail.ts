@@ -65,6 +65,7 @@ export class CampaignDetailPage {
       await this.mock.confidenceSetDetail()
       await this.mock.campaignArchive()
 
+      await this.mock.fileRangesFiles(options?.empty)
       await this.list.card.click();
     });
   }
@@ -107,7 +108,8 @@ export class CampaignDetailPage {
     } as MetadataModal);
   }
 
-  async openProgressModal(): Promise<ProgressModal> {
+  async openProgressModal(opt?: { empty?: boolean }): Promise<ProgressModal> {
+    await this.mock.fileRanges(opt?.empty)
     const modal = await this.ui.openModal({ ariaLabel: 'Progress' })
     return Object.assign(modal, {
       get downloadResultsButton(): Locator {

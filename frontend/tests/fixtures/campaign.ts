@@ -102,7 +102,8 @@ export const FILE_RANGE = {
     size: 0,
     audio_url: '',
     validated_results_count: 0,
-    duration
+    duration,
+    maxFrequency: DATASET_SR / 2
   } satisfies AnnotationFile,
   submittedFile: {
     id: 2,
@@ -116,7 +117,8 @@ export const FILE_RANGE = {
     size: 0,
     audio_url: '',
     validated_results_count: 0,
-    duration
+    duration,
+    maxFrequency: DATASET_SR / 2
   } satisfies AnnotationFile,
   range: {
     id: 1,

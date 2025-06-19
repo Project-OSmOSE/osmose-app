@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAlert, useToast } from "@/service/ui";
 import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage, getNewItemID } from "@/service/function.ts";
@@ -28,12 +28,12 @@ type SearchItem = {
 
 export const EditAnnotators: React.FC = () => {
   const {
+    campaignID,
     campaign,
     isFetching: isFetchingCampaign,
     error: errorLoadingCampaign,
   } = useRetrieveCurrentCampaign();
-  const { phase } = useRetrieveCurrentPhase()
-  const location = useLocation();
+  const { phaseID, phase } = useRetrieveCurrentPhase()
   const navigate = useNavigate();
   const toast = useToast();
   const {
@@ -56,12 +56,6 @@ export const EditAnnotators: React.FC = () => {
     error: errorSubmitting,
     status: submissionStatus
   } ] = AnnotationFileRangeAPI.endpoints.postFileRange.useMutation()
-
-  useEffect(() => {
-    if (!campaign || !location.state) return;
-    if ((location.state as any).fromCreateCampaign) toast.presentSuccess(`Campaign '${ campaign.name }' was successfully created`)
-    if ((location.state as any).fromImportAnnotations) toast.presentSuccess(`Annotations for campaign '${ campaign.name }' were successfully imported`)
-  }, [ location, campaign ]);
 
   // File ranges
   const [ fileRanges, setFileRanges ] = useState<Array<PostAnnotationFileRange & {
@@ -119,19 +113,19 @@ export const EditAnnotators: React.FC = () => {
 
   // Navigation
   const back = useCallback(() => {
-    if (campaign && phase) navigate(`/annotation-campaign/${ campaign.id }/phase/${ phase.id }`)
-  }, [ campaign, phase ])
+    navigate(`/annotation-campaign/${ campaignID }/phase/${ phaseID }`)
+  }, [ campaignID, phaseID ])
 
   // Submit
   const submit = useCallback(() => {
-    if (!phase || !campaign) return;
+    if (!phaseID || !campaign) return;
     postFileRanges({
-      phaseID: phase.id,
+      phaseID,
       filesCount: campaign.files_count,
       data: fileRanges,
       force: isForced
     })
-  }, [ fileRanges, phase, campaign, isForced ])
+  }, [ fileRanges, phaseID, campaign, isForced ])
   useEffect(() => {
     if (errorSubmitting) toast.presentError(errorSubmitting)
   }, [ errorSubmitting ]);

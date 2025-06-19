@@ -130,7 +130,7 @@ export const CreateCampaign: React.FC = () => {
   }, [ errorSubmittingCampaign ]);
   useEffect(() => {
     if (!createdCampaign) return;
-    navigate(`/annotation-campaign/${ createdCampaign.id }/`, { state: { fromCreateCampaign: true } }) // TODO
+    navigate(`/annotation-campaign/${ createdCampaign.id }/`)
   }, [ createdCampaign ]);
 
   return <div className={ styles.page } ref={ page }>

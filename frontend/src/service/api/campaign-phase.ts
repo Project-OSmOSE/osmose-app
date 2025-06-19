@@ -51,7 +51,7 @@ export const CampaignPhaseAPI = API.injectEndpoints({
         url: `annotation-campaign-phase/${ phaseID }/end/`,
         method: 'POST',
       }),
-      invalidatesTags: phase => phase ? [ { type: "CampaignPhase", id: phase.id }, 'Campaign' ] : ['Campaign'],
+      invalidatesTags: phase => phase ? [ { type: "CampaignPhase", id: phase.id }, 'Campaign' ] : [ 'Campaign' ],
     }),
     downloadCampaignPhaseReport: builder.mutation<void, {
       phaseID: ID;
@@ -83,7 +83,11 @@ export const useListPhasesForCurrentCampaign = () => {
   }, { skip: !campaign })
   const annotationPhase = useMemo(() => data?.find(p => p.phase === 'Annotation'), [ data ])
   const verificationPhase = useMemo(() => data?.find(p => p.phase === 'Verification'), [ data ])
-  return useMemo(() => ({ phases: data, annotationPhase, verificationPhase, ...info, }), [ data, annotationPhase, verificationPhase, info ])
+  return useMemo(() => ({
+    phases: data,
+    annotationPhase,
+    verificationPhase, ...info,
+  }), [ data, annotationPhase, verificationPhase, info ])
 }
 
 export const useRetrieveCurrentPhase = () => {
@@ -91,5 +95,10 @@ export const useRetrieveCurrentPhase = () => {
   const { phaseID } = useParams<{ phaseID?: string }>();
   const { data, ...info } = CampaignPhaseAPI.endpoints.retrieveCampaignPhase.useQuery(phaseID ?? skipToken)
   const isEditable = useMemo(() => !campaign?.archive && !data?.ended_by, [ campaign, data ])
-  return useMemo(() => ({ phase: phaseID ? data : undefined, isEditable, ...info, }), [ data, isEditable, info, phaseID ])
+  return useMemo(() => ({
+    phaseID,
+    phase: phaseID ? data : undefined,
+    isEditable,
+    ...info,
+  }), [ phaseID, data, isEditable, info, phaseID ])
 }

@@ -10,7 +10,7 @@ export const YAxis = React.forwardRef<AxisRef, {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useImperativeHandle(ref, () => ({
-    toDataURL: canvasRef.current?.toDataURL
+    toDataURL: (type?: string, quality?: any) => canvasRef.current?.toDataURL(type, quality)
   }), [ canvasRef.current ]);
 
   const yAxis = useYAxis()
