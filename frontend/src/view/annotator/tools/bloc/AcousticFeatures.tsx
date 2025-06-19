@@ -44,7 +44,6 @@ export const AcousticFeatures: React.FC = () => {
 
   useEffect(() => {
     if (!annotation?.end_time) return;
-    console.log(annotation)
     const newLeft = xAxis.valueToPosition(annotation.end_time) + 80;
     _left.current = newLeft;
     setLeft(newLeft);

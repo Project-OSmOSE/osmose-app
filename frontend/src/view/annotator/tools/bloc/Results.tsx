@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, useCallback, useMemo, useState } from "react";
+import React, { Fragment, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IonButton, IonIcon, IonNote } from "@ionic/react";
 import { useAppDispatch, useAppSelector } from '@/service/app';
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
@@ -156,6 +156,11 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
     else return result.validations[0].is_valid;
   }, [ result.validations ]);
 
+  const resultIdRef = useRef(result.id)
+  useEffect(() => {
+    resultIdRef.current = result.id;
+  }, [result.id]);
+
   const onValidate = (event: MouseEvent) => {
     event.stopPropagation()
     dispatch(AnnotatorSlice.actions.validateResult(result.id))
@@ -170,7 +175,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const move = useCallback(() => {
     setIsModalOpen(false);
-    dispatch(AnnotatorSlice.actions.focusResult(result.id))
+    dispatch(AnnotatorSlice.actions.focusResult(resultIdRef.current))
   }, [ setIsModalOpen ]);
 
   const updateLabel = useCallback(() => {
@@ -180,7 +185,7 @@ const ResultValidationButton: React.FC<ResultItemProps> = ({ result, className, 
 
   const remove = useCallback(() => {
     setIsModalOpen(false);
-    dispatch(AnnotatorSlice.actions.invalidateResult(result.id))
+    dispatch(AnnotatorSlice.actions.invalidateResult(resultIdRef.current))
   }, [ setIsModalOpen ]);
 
   if (phase?.phase !== 'Verification') return <Fragment/>

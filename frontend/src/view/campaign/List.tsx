@@ -10,11 +10,12 @@ import { UserAPI } from "@/service/api/user.ts";
 import { CampaignAPI } from "@/service/api/campaign.ts";
 import { CampaignPhaseAPI } from "@/service/api/campaign-phase.ts";
 import { Deactivatable } from "@/components/ui/Deactivatable.tsx";
-import { useCampaignFilters } from "@/service/slices/filter.ts";
+import { useCampaignFilters, useFileFilters } from "@/service/slices/filter.ts";
 
 
 export const AnnotationCampaignList: React.FC = () => {
   const { params, updateParams } = useCampaignFilters()
+  const { clearParams: clearFileFilters } = useFileFilters()
 
   // State
   const { presentError, dismiss: dismissToast } = useToast()
@@ -33,6 +34,7 @@ export const AnnotationCampaignList: React.FC = () => {
   } = CampaignPhaseAPI.endpoints.listCampaignPhase.useQuery({ campaigns }, { skip: !campaigns })
 
   useEffect(() => {
+    clearFileFilters()
     return () => {
       dismissToast()
     }
