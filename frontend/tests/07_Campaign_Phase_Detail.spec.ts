@@ -94,7 +94,7 @@ test.describe('Annotator', () => {
     await page.campaign.detail.go('annotator', { empty: true });
 
     await test.step('Progress', async () => {
-      const modal = await page.campaign.detail.openProgressModal();
+      const modal = await page.campaign.detail.openProgressModal({ empty: true });
       await expect(modal.getByText('No annotators')).toBeVisible();
       await modal.close()
     })
@@ -141,7 +141,7 @@ test.describe('Campaign creator', () => {
 
     await test.step('Progress', async () => {
       await expect(page.campaign.detail.manageButton).toBeVisible();
-      const modal = await page.campaign.detail.openProgressModal();
+      const modal = await page.campaign.detail.openProgressModal({ empty: true });
       await expect(modal.downloadStatusButton).not.toBeVisible();
       await expect(modal.downloadStatusButton).not.toBeVisible();
       await modal.close()

@@ -34,7 +34,7 @@ export const API_URL = {
     import: '/api/dataset/datawork_import/',
   },
   fileRanges: {
-    list: /\/api\/annotation-file-range\/?/g,
+    list: /api\/annotation-file-range(?!\/phase\/\d\/files)\/?/g,
     file: /\/api\/annotation-file-range\/phase\/-?\d\/files/g,
     post: /\/api\/annotation-file-range\/phase\/-?\d\//g,
   },
