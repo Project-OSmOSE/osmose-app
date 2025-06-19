@@ -144,7 +144,7 @@ export const AnnotatorAPI = API.injectEndpoints({
       invalidatesTags: (result, error, arg) => [ {
         type: 'Annotator',
         id: `${ arg.campaign.id }-${ arg.phase.id }-${ arg.fileID }`
-      } ]
+      }, 'FileRangeFiles', { type: "CampaignPhase", id: arg.phase.id } ]
     })
   })
 })
