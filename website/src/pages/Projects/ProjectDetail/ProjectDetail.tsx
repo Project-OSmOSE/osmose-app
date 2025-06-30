@@ -1,35 +1,95 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getYear, useFetchDetail } from "../../../utils";
+import { getYear, useFetchDetail, useFetchGql } from "../../../utils";
 import { Project } from "../../../models/project";
 import { CollaboratorsBanner } from "../../../components/CollaboratorsBanner/CollaboratorsBanner";
 import { ContactList } from "../../../components/ContactList/ContactList";
 import { HTMLContent } from "../../../components/HTMLContent/HTMLContent";
 import { Back } from "../../../components/Back/Back";
 import { DeploymentsMap } from "../../../components/DeploymentsMap";
-import { DeploymentAPI, DeploymentService } from "@pam-standardization/metadatax-ts";
 import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
+import { DeploymentNode, DeploymentNodeNodeConnection } from "../../../../../../metadatax-ts/src";
+import { gql } from "graphql-request";
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
 
   const [ project, setProject ] = useState<Project>();
 
-  const [ deployments, setDeployments ] = useState<Array<DeploymentAPI>>([]);
-  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentAPI | undefined>();
+  const [ deployments, setDeployments ] = useState<Array<DeploymentNode>>([]);
+  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentNode | undefined>();
 
   const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
+    const fetchDeployments = useFetchGql<{ allDeployments?: DeploymentNodeNodeConnection }>(gql`
+        query {
+            allDeployments(project_WebsiteProject_Id: ${projectID}) {
+                results {
+                    id,
+                    name
+                    latitude,
+                    longitude
+                    project {
+                        id
+                        name
+                        accessibility
+                        projectGoal
+                    }
+                    site {
+                        id
+                        name
+                    }
+                    campaign {
+                        id
+                        name
+                    }
+                    deploymentDate
+                    deploymentVessel
+                    recoveryDate
+                    recoveryVessel
+                    bathymetricDepth
+                    platform {
+                        id
+                        name
+                    }
+                    description
+                    contacts {
+                        edges {
+                            node {
+                                id
+                                role
+                                contact {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                    channelConfigurations {
+                        edges {
+                            node {
+                                id
+                                recorderSpecification {
+                                    id
+                                    samplingFrequency
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    `)
 
   useEffect(() => {
     let isMounted = true;
     fetchDetail(projectID).then(project => isMounted && setProject(project));
 
-    DeploymentService.list(`/api/projects/${ projectID }/deployments`)
-      .then(deployments => {
-        if (!isMounted) return;
-        setDeployments(deployments)
-      });
+    fetchDeployments().then(data => {
+      if (!isMounted) return;
+      console.log(data)
+      setDeployments(((data as any)?.allDeployments?.results ?? []).filter((d: any) => !!d) as DeploymentNode[])
+    })
 
     return () => {
       isMounted = false;
@@ -61,6 +121,7 @@ export const ProjectDetail: React.FC = () => {
 
       { deployments.length > 0 && <Fragment>
           <DeploymentsMap projectID={ +projectID }
+                          level='deployment'
                           allDeployments={ deployments }
                           selectedDeployment={ selectedDeployment }
                           setSelectedDeployment={ setSelectedDeployment }/>

@@ -3,9 +3,21 @@ export function getMinZoom(value: number, zoom = 1): number {
   return 2 ** (zoom + 1) > value ? zoom : getMinZoom(value, zoom + 1)
 }
 
-export function getRandomColor() {
-  return "#" + ((1 << 24) * Math.random() | 0).toString(16).padStart(6, "0");
+
+function componentToHex(c: number): string {
+  let hex = c.toString(16);
+  return hex.length === 1 ? "0" + hex : hex;
 }
+
+export function intToRGB(value: number): string {
+  //credit to https://stackoverflow.com/a/2262117/2737978 for the idea of how to implement
+  value *= 5623
+  let blue = 128 + Math.floor(value % 128);
+  let green = 128 + Math.floor(value / 128 % 128);
+  let red = 128 + Math.floor(value / 128 / 128 % 128);
+  return '#' + componentToHex(red) + componentToHex(green) + componentToHex(blue)
+}
+
 
 export function getColorLuma(color: string) {
   const c = color.substring(1);  // strip #

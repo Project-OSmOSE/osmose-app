@@ -6,12 +6,13 @@ import './Projects.css';
 
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getYear, useFetchArray } from "../../utils";
+import { getYear, useFetchArray, useFetchGql } from "../../utils";
 import { Project } from "../../models/project";
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from "@ionic/react";
 import { Pagination } from "../../components/Pagination/Pagination";
 import { DeploymentsMap } from "../../components/DeploymentsMap";
-import { DeploymentAPI, DeploymentService } from "@pam-standardization/metadatax-ts";
+import { gql } from "graphql-request";
+import { DeploymentNode, DeploymentNodeNodeConnection } from "../../../../../metadatax-ts/src";
 
 
 export const Projects: React.FC = () => {
@@ -23,10 +24,86 @@ export const Projects: React.FC = () => {
   const [ projectsTotal, setProjectsTotal ] = useState<number>(0);
   const [ projects, setProjects ] = useState<Array<Project>>([]);
 
-  const [ deployments, setDeployments ] = useState<Array<DeploymentAPI>>([]);
-  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentAPI | undefined>();
+  const [ deployments, setDeployments ] = useState<Array<DeploymentNode>>([]);
+  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentNode | undefined>();
 
   const fetchProjects = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
+  const fetchDeployments = useFetchGql<{ allDeployments?: DeploymentNodeNodeConnection }>(gql`
+    query {
+        allDeployments {
+            results {
+                id,
+                name
+                latitude,
+                longitude
+                project {
+                    id
+                    name
+                    accessibility
+                    projectGoal
+                    contacts {
+                        edges {
+                            node {
+                                id
+                                contact {
+                                    id
+                                    name
+                                    website
+                                }
+                                role
+                            }
+                        }
+                    }
+                    websiteProject {
+                        id
+                    }
+                }
+                site {
+                    id
+                    name
+                }
+                campaign {
+                    id
+                    name
+                }
+                deploymentDate
+                deploymentVessel
+                recoveryDate
+                recoveryVessel
+                bathymetricDepth
+                platform {
+                    id
+                    name
+                }
+                description
+                contacts {
+                    edges {
+                        node {
+                            id
+                            role
+                            contact {
+                                id
+                                name
+                                website
+                            }
+                        }
+                    }
+                }
+                channelConfigurations {
+                    edges {
+                        node {
+                            id
+                            recorderSpecification {
+                                id
+                                samplingFrequency
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+  `)
 
   useEffect(() => {
     let isMounted = true;
@@ -36,11 +113,10 @@ export const Projects: React.FC = () => {
       setProjects(data?.results ?? []);
     });
 
-    DeploymentService.list(`/api/projects/deployments`)
-      .then(deployments => {
-        if (!isMounted) return;
-        setDeployments(deployments)
-      });
+    fetchDeployments().then(data => {
+      if (!isMounted) return;
+      setDeployments((data?.allDeployments?.results ?? []).filter(d => !!d) as DeploymentNode[])
+    })
 
     return () => {
       isMounted = false;
@@ -56,6 +132,7 @@ export const Projects: React.FC = () => {
       <div className="content">
 
         <DeploymentsMap allDeployments={ deployments }
+                        level='project'
                         selectedDeployment={ selectedDeployment }
                         setSelectedDeployment={ setSelectedDeployment }/>
 

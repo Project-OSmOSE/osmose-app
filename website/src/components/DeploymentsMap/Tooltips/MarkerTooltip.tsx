@@ -1,17 +1,21 @@
 import React from "react";
-import { DeploymentAPI } from '@pam-standardization/metadatax-ts';
 import styles from './Tooltip.module.scss';
+import { DeploymentNode } from "../../../../../../metadatax-ts/src";
 
-export const MarkerTooltip: React.FC<{ deployment: DeploymentAPI }> = ({ deployment }) => {
+
+export const MarkerTooltip: React.FC<{ deployment: DeploymentNode }> = ({ deployment }) => {
+
   return (
     <div className={ styles.tooltip }>
       <p><small>Project:</small> { deployment.project.name }</p>
       { deployment.site && <p><small>Site:</small> { deployment.site.name }</p> }
       { deployment.campaign && <p><small>Campaign:</small> { deployment.campaign.name }</p> }
       <p><small>Deployment:</small> { deployment.name }</p>
-      { deployment.provider && <p><small>Provider:</small> { deployment.provider.name }</p> }
-      { deployment.deployment_date && <p><small>Launch:</small> { deployment.deployment_date }</p> }
-      { deployment.recovery_date && <p><small>Recovery:</small> { deployment.recovery_date }</p> }
+      { deployment.contacts.edges.filter(e => !!e && !!e.node).map(e => (
+        <p key={ e!.node!.id }><small>{ e!.node!.role }:</small> { e!.node!.contact.name }</p>
+      )) }
+      { deployment.deploymentDate && <p><small>Launch:</small> { deployment.deploymentDate }</p> }
+      { deployment.recoveryDate && <p><small>Recovery:</small> { deployment.recoveryDate }</p> }
     </div>
   )
 }

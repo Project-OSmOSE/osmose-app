@@ -26,7 +26,9 @@ https://www.django-rest-framework.org/api-guide/routers/
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
+from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from graphene_django.views import GraphQLView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from backend.api.urls import api_router
@@ -52,6 +54,7 @@ api_urlpatterns = [
     path("", include(aplose_router.urls)),
     path("", include(website_router.urls)),
     path("", include(sql_router.urls)),
+    path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
 ]
 
 # All paths are prefixed with backend or api for easier proxy use

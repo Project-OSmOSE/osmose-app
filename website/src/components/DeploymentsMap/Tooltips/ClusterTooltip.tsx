@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { DeploymentAPI } from '@pam-standardization/metadatax-ts';
 import styles from './Tooltip.module.scss';
+import { DeploymentNode } from "../../../../../../metadatax-ts/src";
 
-export const ClusterTooltip: React.FC<{ deployments: Array<DeploymentAPI> }> = ({ deployments }) => {
+export const ClusterTooltip: React.FC<{ deployments: Array<DeploymentNode> }> = ({ deployments }) => {
   const projects = useMemo(() => [ ...new Set(deployments.map(d => d.project.name)) ], [ deployments ]);
   const sites = useMemo(() => [ ...new Set(deployments.map(d => d.site?.name).filter(e => !!e)) ], [ deployments ]);
   const campaigns = useMemo(() => [ ...new Set(deployments.map(d => d.campaign?.name).filter(e => !!e)) ], [ deployments ]);

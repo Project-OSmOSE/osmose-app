@@ -24,7 +24,10 @@ export default (_: ConfigEnv): UserConfig => {
     },
     plugins: [ react() ],
     resolve: {
-      alias: [ { find: '@', replacement: resolve(__dirname, "./src") } ]
+      alias: [
+        { find: '@pam-standardization/metadatax-ts', replacement: '../metadatax-ts"' },
+        { find: '@', replacement: resolve(__dirname, "./src") },
+      ]
     },
   }
 };
