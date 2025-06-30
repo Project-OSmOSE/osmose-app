@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import QuerySet, Q
 from django.utils import timezone
-from metadatax.models import ChannelConfiguration
+from metadatax.acquisition.models import ChannelConfiguration
 
 
 class DatasetType(models.Model):

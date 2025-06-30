@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    "graphene_django",
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
@@ -35,6 +36,11 @@ INSTALLED_APPS = [
     "backend.aplose.apps.AploseConfig",
     "tinymce",
     "metadatax",
+    "metadatax.common",
+    "metadatax.ontology",
+    "metadatax.acquisition",
+    "metadatax.equipment",
+    "metadatax.data",
     "backend.sql.apps.SqlConfig",
 ]
 
@@ -169,3 +175,5 @@ TINYMCE_DEFAULT_CONFIG = {
     "default_link_target": "_blank",
     "image_title": "true",
 }
+
+GRAPHENE = {"SCHEMA": "backend.schema.schema"}

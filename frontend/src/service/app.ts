@@ -10,6 +10,7 @@ import { FilterSlice } from "@/service/slices/filter.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 import { SettingsSlice } from "@/service/slices/settings.ts";
+import { gqlAPI } from "@/features/gql.ts";
 
 export const AppStore = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const AppStore = configureStore({
     [SettingsSlice.reducerPath]: SettingsSlice.reducer,
 
     [API.reducerPath]: API.reducer,
+    [gqlAPI.reducerPath]: gqlAPI.reducer,
     auth: AuthSlice.reducer,
     filter: FilterSlice.reducer,
   },
@@ -26,6 +28,7 @@ export const AppStore = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(API.middleware)
+      .concat(gqlAPI.middleware)
       .concat(getUserOnLoginMiddleware.middleware)
       .concat(logoutOn401Listener.middleware)
 })

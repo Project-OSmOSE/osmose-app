@@ -1,35 +1,35 @@
 import React, { useMemo, useRef } from "react";
 import ReactApexChart from "react-apexcharts"
 import { ApexOptions } from "apexcharts";
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
-import { getRandomColor } from "../DeploymentsMap/utils.functions";
+import { intToRGB } from "../DeploymentsMap/utils.functions";
+import { DeploymentNode } from "../../../../../metadatax-ts/src";
 
 export const DeploymentsTimeline: React.FC<{
-  deployments: Array<DeploymentAPI>;
-  selectedDeployment: DeploymentAPI | undefined;
-  setSelectedDeployment: (deployment: DeploymentAPI | undefined) => void;
+  deployments: Array<DeploymentNode>;
+  selectedDeployment: DeploymentNode | undefined;
+  setSelectedDeployment: (deployment: DeploymentNode | undefined) => void;
 }> = ({ deployments, setSelectedDeployment }) => {
 
   const height: number = useMemo(() => 130 + [ ...new Set(deployments.map(d => d.site?.id)) ].length * 50, [ deployments ])
   const chart = useRef<ReactApexChart | null>(null);
 
   const series: ApexAxisChartSeries = useMemo(() => {
-    const campaigns = new Array<DeploymentAPI['campaign'] | null>();
+    const campaigns = new Array<DeploymentNode['campaign'] | null>();
     for (const deployment of deployments) {
       if (!deployment.campaign) {
         if (campaigns.find(c => !c) !== null) campaigns.push(null)
         continue;
       }
-      if (!campaigns.find(c => c?.id === deployment.campaign.id))
+      if (!campaigns.find(c => c?.id === deployment.campaign?.id))
         campaigns.push(deployment.campaign)
     }
     return campaigns.map(c => ({
       name: c?.name ?? 'No campaign',
-      data: deployments.filter(d => d.campaign?.id === c?.id && d.deployment_date && d.recovery_date).map(d => ({
+      data: deployments.filter(d => d.campaign?.id === c?.id && d.deploymentDate && d.recoveryDate).map(d => ({
         x: d.site?.name ?? "No site",
         y: [
-          new Date(d.deployment_date!).getTime(),
-          new Date(d.recovery_date!).getTime(),
+          new Date(d.deploymentDate!).getTime(),
+          new Date(d.recoveryDate!).getTime(),
         ],
         meta: d
       }))
@@ -55,13 +55,13 @@ export const DeploymentsTimeline: React.FC<{
             setSelectedDeployment(undefined)
           } else {
             const data = opts.config.series[opts.seriesIndex].data;
-            const deployment: DeploymentAPI = data[opts.dataPointIndex].meta;
+            const deployment: DeploymentNode = data[opts.dataPointIndex].meta;
             setSelectedDeployment(deployment)
           }
         }
       }
     },
-    colors: [ ...new Set(deployments.map(d => d.campaign?.id)) ].map(_ => getRandomColor()),
+    colors: [ ...new Set(deployments.map(d => +(d.campaign?.id ?? d.id))) ].map(intToRGB),
     plotOptions: {
       bar: {
         borderRadius: 2,
@@ -73,8 +73,8 @@ export const DeploymentsTimeline: React.FC<{
       enabled: true,
       formatter(val: string | number | number[], opts?: any): string | number {
         const data = opts.w.config.series[opts.seriesIndex].data;
-        const deployment: DeploymentAPI = data[opts.dataPointIndex].meta;
-        return deployment?.name
+        const deployment: DeploymentNode = data[opts.dataPointIndex].meta;
+        return deployment?.name ?? 'Deployment ' + deployment.id
       },
     },
     xaxis: {
@@ -91,7 +91,7 @@ export const DeploymentsTimeline: React.FC<{
                     series={ series }
                     type="rangeBar"
                     height={ height }
-                    style={{width: "100%"}}
+                    style={ { width: "100%" } }
                     width="100%"/>
 
   )
