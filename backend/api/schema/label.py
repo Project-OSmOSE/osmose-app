@@ -12,6 +12,8 @@ from .annotation_result import AnnotationResultNode
 class LabelFilter(FilterSet):
     """Label filter"""
 
+    # pylint: disable=line-too-long
+
     annotationresult__annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__deployment_id = NumberFilter(
         distinct=True,
     )
@@ -33,6 +35,7 @@ class ApiLabelNode(DjangoObjectType):
     annotationresult_set = DjangoPaginationConnectionField(AnnotationResultNode)
 
     class Meta:
+        # pylint: disable=missing-docstring
         model = Label
         fields = "__all__"
         filterset_class = LabelFilter

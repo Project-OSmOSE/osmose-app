@@ -20,6 +20,9 @@ class DeploymentFilter(MetadataxDeploymentFilter):
     project__website_project__id = NumberFilter()
 
     class Meta(MetadataxDeploymentFilter.Meta):
+        """Override of Metadatax deployment filter"""
+
+        # pylint: disable=missing-docstring
         pass
 
 
