@@ -1,3 +1,4 @@
+"""GraphQL Schema"""
 import graphene
 from django_filters import NumberFilter
 from graphene import relay
@@ -14,6 +15,8 @@ from .osmosewebsite.schema import OSmOSEWebsiteQuery
 
 
 class DeploymentFilter(MetadataxDeploymentFilter):
+    """Override of Metadatax deployment filter"""
+
     project__website_project__id = NumberFilter()
 
     class Meta(MetadataxDeploymentFilter.Meta):
@@ -21,6 +24,8 @@ class DeploymentFilter(MetadataxDeploymentFilter):
 
 
 class DeploymentNode(MetadataxDeploymentNode):
+    """Override of Metadatax deployment node"""
+
     class Meta:
         model = Deployment
         fields = "__all__"
@@ -34,6 +39,7 @@ class Query(
     MetadataxQuery,
     graphene.ObjectType,
 ):
+    """Global query"""
 
     all_deployments = DjangoPaginationConnectionField(DeploymentNode)
 

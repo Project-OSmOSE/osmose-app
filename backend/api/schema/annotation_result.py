@@ -1,3 +1,4 @@
+"""AnnotationResult graphql definitions"""
 import graphene
 from django_filters import FilterSet, NumberFilter
 from graphene import relay
@@ -7,6 +8,7 @@ from backend.api.models import AnnotationResult
 
 
 class AnnotationResultFilter(FilterSet):
+    """Annotation result filter"""
 
     annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__deployment_id = NumberFilter(
         distinct=True,
@@ -20,6 +22,8 @@ class AnnotationResultFilter(FilterSet):
 
 
 class AnnotationResultNode(DjangoObjectType):
+    """Annotation result node"""
+
     id = graphene.ID(required=True)
 
     class Meta:
