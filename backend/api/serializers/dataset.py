@@ -1,5 +1,5 @@
 """Dataset DRF serializers file"""
-from metadatax.serializers.acquisition import ChannelConfigurationSerializer
+from metadatax.acquisition.serializers import ChannelConfigurationSerializer
 from rest_framework import serializers
 
 from backend.api.models import (

@@ -15,6 +15,10 @@
     grid-auto-flow: column;
     gap: 0.5rem;
   }
+
+  .acquisitionTable {
+    overflow: auto;
+  }
 }
 
 .progressModal {

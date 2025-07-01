@@ -24,7 +24,9 @@ export default (_: ConfigEnv): UserConfig => {
     },
     plugins: [ react() ],
     resolve: {
-      alias: [ { find: '@', replacement: resolve(__dirname, "./src") } ]
+      alias: [
+        { find: '@', replacement: resolve(__dirname, "./src") },
+      ]
     },
   }
 };

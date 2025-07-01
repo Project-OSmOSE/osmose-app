@@ -2,24 +2,25 @@ import React, {
   ChangeEvent,
   Fragment,
   useCallback,
-  useEffect, useImperativeHandle,
+  useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState
 } from "react";
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { RangeSlider } from "../../../Inputs/RangeSlider";
 import { FilterRef } from "./FilterRef";
+import { Deployment } from "../../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 export const SampleRateFilter = React.forwardRef<FilterRef, {
-  deployments: Array<DeploymentAPI>,
+  deployments: Array<Deployment>,
   onUpdates: () => void;
 }>(({ deployments, onUpdates }, ref) => {
   const minInput = useRef<HTMLInputElement | null>(null);
   const maxInput = useRef<HTMLInputElement | null>(null);
 
   const greatestSampleRate: number = useMemo(() => {
-    const sampleRates = deployments.flatMap(d => d.channel.map(c => c.sampling_frequency));
+    const sampleRates = deployments.flatMap(d => d.channelConfigurations.edges.map(e => e?.node?.recorderSpecification?.samplingFrequency)).filter(f => f !== undefined) as number[];
     return Math.max(...sampleRates)
   }, [ deployments ]);
 
@@ -68,11 +69,11 @@ export const SampleRateFilter = React.forwardRef<FilterRef, {
   }, [ greatestSampleRate, minSampleRate ])
 
   const forwardedRef = useMemo(() => ({
-    filterDeployment: (d: DeploymentAPI) => {
-      return !!d.channel
-        .map(c => c.sampling_frequency)
-        .filter(f => !!f)
-        .find(f => minSampleRate <= f && maxSampleRate >= f);
+    filterDeployment: (d: Deployment) => {
+      return !!d.channelConfigurations.edges
+        .map(e => e?.node?.recorderSpecification?.samplingFrequency)
+        .filter(f => f !== undefined)
+        .find(f => minSampleRate <= f! && maxSampleRate >= f!);
     },
     reset: () => {
       setMinSampleRate(0);

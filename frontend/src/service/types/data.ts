@@ -1,4 +1,3 @@
-import { ChannelConfiguration } from "@pam-standardization/metadatax-ts";
 import { Colormap } from '@/service/ui/color.ts';
 import { LinearScale, MultiLinearScale } from "@/service/dataset/spectrogram-configuration/scale";
 
@@ -12,7 +11,23 @@ export type Dataset = {
   type: string;
   spectros: Array<SpectrogramConfiguration>;
   created_at: string;
-  related_channel_configuration: Array<ChannelConfiguration>
+  related_channel_configuration: Array<{
+    id: number;
+    deployment: number;
+    recorder_specification: {
+      id: number;
+      recorder: {
+        id: number;
+        model: string;
+        serial_number: string;
+      }
+      hydrophone: {
+        id: number;
+        model: string;
+        serial_number: string;
+      }
+    }
+  }>
 }
 
 export type ImportDataset = {

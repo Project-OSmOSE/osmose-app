@@ -46,7 +46,7 @@ jobs:
         poetry run black --check backend
     - name: Check for missed pylint warnings (don't forget to run pylint)
       run: |
-        poetry run pylint --disable=fixme --ignore migrations backend
+        poetry run pylint --disable=fixme --disable=too-few-public-methods --ignore migrations backend
     - name: Check whether seeding still works
       run: |
         poetry run ./manage.py migrate

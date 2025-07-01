@@ -31,21 +31,11 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
         .prefetch_related(
             "spectro_configs",
             "related_channel_configuration",
-            "related_channel_configuration__deployment",
-            "related_channel_configuration__deployment__platform",
-            "related_channel_configuration__deployment__platform__type",
-            "related_channel_configuration__deployment__project",
-            "related_channel_configuration__deployment__project__responsible_parties",
-            "related_channel_configuration__deployment__provider",
-            "related_channel_configuration__deployment__campaign",
-            "related_channel_configuration__deployment__site",
-            "related_channel_configuration__hydrophone",
-            "related_channel_configuration__hydrophone__model",
-            "related_channel_configuration__hydrophone__model__provider",
-            "related_channel_configuration__recorder",
-            "related_channel_configuration__recorder__model",
-            "related_channel_configuration__recorder__model__provider",
-            "related_channel_configuration__recording_format",
+            "related_channel_configuration__recorder_specification__hydrophone",
+            "related_channel_configuration__recorder_specification__hydrophone__provider",
+            "related_channel_configuration__recorder_specification__recorder",
+            "related_channel_configuration__recorder_specification__recorder__provider",
+            "related_channel_configuration__recorder_specification__recording_formats",
         )
         .annotate(files_count=Count("files"))
         .order_by("name")

@@ -48,6 +48,32 @@ export const useFetchArray = <T>(apiUrL: string) => {
   }
 }
 
+export const useFetchGql = <T>(query: string) => {
+  const history = useHistory();
+  const location = useLocation();
+
+  return async (): Promise<T | undefined> => {
+    try {
+      const body = JSON.stringify({query})
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        body,
+        headers: {
+          "Content-Type": "application/json"
+        },
+      });
+      if (!response.ok) throw response;
+      return (await response.json()).data;
+    } catch (e: any) {
+      if (e?.status === 404) {
+        history.push(location.pathname);
+        return;
+      }
+      console.error(`Cannot fetch gql, got error:`, e);
+    }
+  }
+}
+
 export const getFormattedDate = (date?: string) => {
   if (!date) return;
   return Intl.DateTimeFormat('en-US', {

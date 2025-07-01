@@ -11,32 +11,32 @@ import {
   MarkerCluster,
   MarkerClusterGroup
 } from 'leaflet';
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { ClusterTooltip, MarkerTooltip } from './Tooltips';
 import { clearMap, initMap, setMapView } from './map.functions';
 import './DeploymentsMap.css'
-import { getColorLuma, getRandomColor } from "./utils.functions";
+import { getColorLuma, intToRGB } from "./utils.functions";
 import { DeploymentPanel, FilterPanel } from "./Panels";
+import { Deployment } from "../../pages/Projects/ProjectDetail/ProjectDetail";
 
 interface Feature {
   properties: {
-    deployment: DeploymentAPI;
+    deployment: Deployment;
   }
 }
 
 export const DeploymentsMap: React.FC<{
+  level: 'project' | 'deployment',
   projectID?: number;
-  allDeployments: Array<DeploymentAPI>;
-  selectedDeployment: DeploymentAPI | undefined;
-  setSelectedDeployment: (deployment: DeploymentAPI | undefined) => void;
-}> = ({ projectID, allDeployments, selectedDeployment, setSelectedDeployment }) => {
+  allDeployments: Array<Deployment>;
+  selectedDeployment: Deployment | undefined;
+  setSelectedDeployment: (deployment: Deployment | undefined) => void;
+}> = ({ level, projectID, allDeployments, selectedDeployment, setSelectedDeployment }) => {
   const map = useRef<LeafletMap | null>(null);
   const clusterGroup = useRef<MarkerClusterGroup | null>(null);
   const mapID: string = useMemo(() => "map" + projectID ? '-' + projectID : '', [ projectID ]);
-  const projectColorMap = useRef<Map<number, string>>(new Map());
-  const deploymentsMarkers = useRef<Map<number, CircleMarker>>(new Map());
+  const deploymentsMarkers = useRef<Map<string, CircleMarker>>(new Map());
 
-  const [ filteredDeployments, setFilteredDeployments ] = useState<Array<DeploymentAPI>>([]);
+  const [ filteredDeployments, setFilteredDeployments ] = useState<Array<Deployment>>([]);
 
   useEffect(() => {
     if (map.current) clearMap(map.current);
@@ -60,29 +60,31 @@ export const DeploymentsMap: React.FC<{
     setDeploymentsToMap(
       map.current,
       filteredDeployments,
-      projectColorMap.current,
     );
   }, [ allDeployments, filteredDeployments ]);
 
   const setDeploymentsToMap = (map: LeafletMap,
-                               deployments: Array<DeploymentAPI>,
-                               projectColorMap: Map<number, string>): void => {
-    for (let project of new Set(deployments.map(d => d.project))) {
-      if (projectColorMap.has(project.id)) continue;
-      projectColorMap.set(project.id, getRandomColor());
-    }
+                               deployments: Array<Deployment>): void => {
 
     clusterGroup.current = new MarkerClusterGroup({
       maxClusterRadius: 40,
       iconCreateFunction: (cluster: MarkerCluster) => {
         const icon: Icon | DivIcon = (clusterGroup.current as any)._defaultIconCreateFunction(cluster);
-        const allDeployments: Array<DeploymentAPI> = cluster.getAllChildMarkers().map(child => {
+        const allDeployments: Array<Deployment> = cluster.getAllChildMarkers().map(child => {
           return child.feature?.properties.deployment;
         }).filter(element => !!element);
         const projects = [ ...new Set(allDeployments.map(d => d.project.id)) ]
+        const campaigns = [ ...new Set(allDeployments.map(d => d.campaign?.id).filter(id => id !== undefined)) ]
         cluster.bindTooltip(renderToStaticMarkup(<ClusterTooltip deployments={ allDeployments }/>))
         let color = "#999999"
-        if (projects.length === 1) color = projectColorMap.get(projects[0]) ?? color;
+        switch (level) {
+          case "project":
+            if (projects.length === 1) color = intToRGB(+projects[0]);
+            break;
+          case "deployment":
+            if (campaigns.length === 1) color = intToRGB(+campaigns[0]!);
+            break;
+        }
         icon.options.className += ' cluster-icon';
         return new DivIcon({
           ...icon.options,
@@ -103,7 +105,7 @@ export const DeploymentsMap: React.FC<{
       pointToLayer(feature: Feature, latlng: LatLng): Layer {
         const marker = new CircleMarker(latlng, {
           color: 'black',
-          fillColor: projectColorMap.get(feature.properties.deployment.project.id),
+          fillColor: intToRGB(+(level === 'project' ? feature.properties.deployment.project.id : feature.properties.deployment.campaign?.id ?? feature.properties.deployment.id)),
           fillOpacity: 1,
           radius: 10
         });
