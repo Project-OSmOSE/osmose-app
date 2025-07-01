@@ -646,22 +646,23 @@ description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
-files = []
-develop = true
+files = [
+    {file = "metadatax-0.4.0.tar.gz", hash = "sha256:c814e6c678bd82d880b8b6b5a05335500581ea6606f3a1f9098735696be48394"},
+]
 
 [package.dependencies]
-Django = "^3.2"
+Django = ">=3.2,<4.0"
 django-filter = ">=2"
-django-model-prefix = "^1.1.0"
-djangorestframework = "^3.15.1"
-graphene-django = "^3.2.3"
+django-model-prefix = ">=1.1.0,<2.0.0"
+djangorestframework = ">=3.15.1,<4.0.0"
+graphene-django = ">=3.2.3,<4.0.0"
 graphene-django-pagination = {url = "https://github.com/instruct-br/graphene-django-pagination/archive/master.zip"}
-psycopg2-binary = "^2.8.6"
-python-dotenv = "^1.0.1"
+psycopg2-binary = ">=2.8.6,<3.0.0"
+python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
-type = "directory"
-url = "../metadatax"
+type = "file"
+url = "metadatax-0.4.0.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1457,4 +1458,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "b577e7f2b21ad82f4ef724e95b94e302c61cd88e6cd6538368384ebcd2c89723"
+content-hash = "4db7be794d4ae6dcaa5e2e9c6c37ee537f539473053be409c5a47ca9ce0875ce"
