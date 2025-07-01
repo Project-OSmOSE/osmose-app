@@ -9,7 +9,8 @@ from metadatax.acquisition.schema.deployment import (
 )
 from metadatax.schema import Query as MetadataxQuery
 
-from backend.osmosewebsite.schema import OSmOSEWebsiteQuery
+from .api.schema import ApiQuery
+from .osmosewebsite.schema import OSmOSEWebsiteQuery
 
 
 class DeploymentFilter(MetadataxDeploymentFilter):
@@ -28,6 +29,7 @@ class DeploymentNode(MetadataxDeploymentNode):
 
 
 class Query(
+    ApiQuery,
     OSmOSEWebsiteQuery,
     MetadataxQuery,
     graphene.ObjectType,
