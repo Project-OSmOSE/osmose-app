@@ -1,3 +1,4 @@
+"""Label graphql definitions"""
 import graphene
 from django_filters import FilterSet, NumberFilter, OrderingFilter
 from graphene import relay
@@ -5,10 +6,11 @@ from graphene_django import DjangoObjectType
 from graphene_django_pagination import DjangoPaginationConnectionField
 
 from backend.api.models import Label
-from backend.api.schema import AnnotationResultNode
+from .annotation_result import AnnotationResultNode
 
 
 class LabelFilter(FilterSet):
+    """Label filter"""
 
     annotationresult__annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__deployment_id = NumberFilter(
         distinct=True,
@@ -24,6 +26,8 @@ class LabelFilter(FilterSet):
 
 
 class ApiLabelNode(DjangoObjectType):
+    """Label node"""
+
     id = graphene.ID(required=True)
 
     annotationresult_set = DjangoPaginationConnectionField(AnnotationResultNode)
