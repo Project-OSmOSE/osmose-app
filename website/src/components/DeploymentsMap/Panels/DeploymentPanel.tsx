@@ -1,8 +1,10 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { IoCaretUp, IoClose, IoDownloadOutline, IoOpenOutline } from "react-icons/io5";
 import styles from './panel.module.scss'
 import { DeploymentNode } from "../../../../../../metadatax-ts/src";
 import { ContactLink } from "../InstitutionLink/InstitutionLink";
+import { useFetchGql } from "../../../utils";
+import { gql } from "graphql-request";
 
 export const DeploymentPanel: React.FC<{
   deployment: DeploymentNode | undefined,
@@ -14,7 +16,28 @@ export const DeploymentPanel: React.FC<{
         disableProjectLink = false,
       }) => {
 
+  const [ labels, setLabels ] = useState<Array<any>>([]);
   const isOpenAccess = useMemo(() => deployment?.project.accessibility === 'Open access', [ deployment ]);
+  const fetchLabels = useFetchGql(gql`
+      query {
+          allApiLabels(annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${ deployment?.id }, orderBy: "id") {
+              results {
+                  id
+                  name
+                  annotationresultSet(annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${deployment?.id}) {
+                      totalCount
+                  }
+              }
+          }
+      }
+  `)
+
+  useEffect(() => {
+    if (!deployment) return;
+    fetchLabels().then((data: any) => {
+      setLabels((data?.allApiLabels?.results ?? []).filter((d: any) => !!d) as DeploymentNode[])
+    })
+  }, [deployment ]);
 
   if (!deployment) return <div className={ [ styles.panel, styles.empty, styles.deployment ].join(' ') }/>
 
@@ -51,7 +74,7 @@ export const DeploymentPanel: React.FC<{
 
       { isOpenAccess && <Platform platform={ deployment.platform }/> }
 
-      {/*{ isOpenAccess && <Labels annotated_labels={ deployment.annotated_labels }/> } TODO!!! */ }
+      { isOpenAccess && <Labels labels={ labels }/> }
 
       { isOpenAccess && <Description description={ deployment.description }/> }
     </div>
@@ -77,7 +100,8 @@ const Project: React.FC<{ project: DeploymentNode['project'], disableProjectLink
     <small>Project</small>
     <p>
       { project.name }
-      { !!(project as any).websiteProject && <a href={ `/projects/${ (project as any).websiteProject.id }` }> <IoOpenOutline/> </a> }
+      { !!(project as any).websiteProject &&
+          <a href={ `/projects/${ (project as any).websiteProject.id }` }> <IoOpenOutline/> </a> }
       { project.projectGoal && <Fragment>
           <br/>
           <small>{ project.projectGoal }</small>
@@ -144,6 +168,19 @@ const Platform: React.FC<{ platform: DeploymentNode['platform'] }> = ({ platform
   return <Fragment>
     <small>Platform</small>
     <p>{ platform.name }</p>
+  </Fragment>
+}
+
+const Labels: React.FC<{ labels?: any[] }> = ({ labels }) => {
+  if (!labels || labels.length === 0) return <Fragment/>
+  return <Fragment>
+    <small>Labels</small>
+    <p>
+      { labels.map((label: any) => <span key={ label.id }>
+        { label.name } ({ label.annotationresultSet.totalCount })
+        <br/>
+      </span>) }
+    </p>
   </Fragment>
 }
 
