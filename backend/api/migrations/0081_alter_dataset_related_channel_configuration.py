@@ -6,14 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('acquisition', '0003_auto_20250630_1401'),
-        ('api', '0080_alter_annotationcampaign_label_set'),
+        ("acquisition", "0003_auto_20250630_1401"),
+        ("api", "0080_alter_annotationcampaign_label_set"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='dataset',
-            name='related_channel_configuration',
-            field=models.ManyToManyField(related_name='aplose_datasets', to='acquisition.ChannelConfiguration'),
+            model_name="dataset",
+            name="related_channel_configuration",
+            field=models.ManyToManyField(
+                related_name="aplose_datasets", to="acquisition.ChannelConfiguration"
+            ),
         ),
     ]
