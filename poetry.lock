@@ -647,7 +647,7 @@ optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
 files = [
-    {file = "metadatax-0.4.0.tar.gz", hash = "sha256:c814e6c678bd82d880b8b6b5a05335500581ea6606f3a1f9098735696be48394"},
+    {file = "metadatax-0.4.0.tar.gz", hash = "sha256:5d547f89a01ab6231e6a54d64d5a957a2b415f7049364220192e02d2e62c3d48"},
 ]
 
 [package.dependencies]
