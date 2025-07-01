@@ -3,7 +3,7 @@ import { graphqlBaseQuery } from "../../../../metadatax-ts/src";
 
 export const gqlAPI = createApi({
   baseQuery: graphqlBaseQuery({
-    baseUrl: `${ window.location.origin }/api/metadatax/graphql`,
+    baseUrl: `${ window.location.origin }/api/graphql`,
   }),
     endpoints: () => ({})
 })
