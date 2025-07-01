@@ -10,10 +10,10 @@ import React, {
 } from "react";
 import { RangeSlider } from "../../../Inputs/RangeSlider";
 import { FilterRef } from "./FilterRef";
-import { DeploymentNode } from "../../../../../../../metadatax-ts/src";
+import { Deployment } from "../../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 export const SampleRateFilter = React.forwardRef<FilterRef, {
-  deployments: Array<DeploymentNode>,
+  deployments: Array<Deployment>,
   onUpdates: () => void;
 }>(({ deployments, onUpdates }, ref) => {
   const minInput = useRef<HTMLInputElement | null>(null);
@@ -69,7 +69,7 @@ export const SampleRateFilter = React.forwardRef<FilterRef, {
   }, [ greatestSampleRate, minSampleRate ])
 
   const forwardedRef = useMemo(() => ({
-    filterDeployment: (d: DeploymentNode) => {
+    filterDeployment: (d: Deployment) => {
       return !!d.channelConfigurations.edges
         .map(e => e?.node?.recorderSpecification?.samplingFrequency)
         .filter(f => f !== undefined)

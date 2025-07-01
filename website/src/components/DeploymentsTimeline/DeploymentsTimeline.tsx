@@ -2,19 +2,20 @@ import React, { useMemo, useRef } from "react";
 import ReactApexChart from "react-apexcharts"
 import { ApexOptions } from "apexcharts";
 import { intToRGB } from "../DeploymentsMap/utils.functions";
-import { DeploymentNode } from "../../../../../metadatax-ts/src";
+import { Deployment } from "../../pages/Projects/ProjectDetail/ProjectDetail";
+
 
 export const DeploymentsTimeline: React.FC<{
-  deployments: Array<DeploymentNode>;
-  selectedDeployment: DeploymentNode | undefined;
-  setSelectedDeployment: (deployment: DeploymentNode | undefined) => void;
+  deployments: Array<Deployment>;
+  selectedDeployment: Deployment | undefined;
+  setSelectedDeployment: (deployment: Deployment | undefined) => void;
 }> = ({ deployments, setSelectedDeployment }) => {
 
   const height: number = useMemo(() => 130 + [ ...new Set(deployments.map(d => d.site?.id)) ].length * 50, [ deployments ])
   const chart = useRef<ReactApexChart | null>(null);
 
   const series: ApexAxisChartSeries = useMemo(() => {
-    const campaigns = new Array<DeploymentNode['campaign'] | null>();
+    const campaigns = new Array<Deployment['campaign'] | null>();
     for (const deployment of deployments) {
       if (!deployment.campaign) {
         if (campaigns.find(c => !c) !== null) campaigns.push(null)
@@ -55,7 +56,7 @@ export const DeploymentsTimeline: React.FC<{
             setSelectedDeployment(undefined)
           } else {
             const data = opts.config.series[opts.seriesIndex].data;
-            const deployment: DeploymentNode = data[opts.dataPointIndex].meta;
+            const deployment: Deployment = data[opts.dataPointIndex].meta;
             setSelectedDeployment(deployment)
           }
         }
@@ -73,7 +74,7 @@ export const DeploymentsTimeline: React.FC<{
       enabled: true,
       formatter(val: string | number | number[], opts?: any): string | number {
         const data = opts.w.config.series[opts.seriesIndex].data;
-        const deployment: DeploymentNode = data[opts.dataPointIndex].meta;
+        const deployment: Deployment = data[opts.dataPointIndex].meta;
         return deployment?.name ?? 'Deployment ' + deployment.id
       },
     },

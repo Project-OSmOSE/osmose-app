@@ -9,19 +9,86 @@ import { Back } from "../../../components/Back/Back";
 import { DeploymentsMap } from "../../../components/DeploymentsMap";
 import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
-import { DeploymentNode, DeploymentNodeNodeConnection } from "../../../../../../metadatax-ts/src";
 import { gql } from "graphql-request";
+
+export type Deployment = {
+  id: string;
+  name: number;
+  latitude: number;
+  longitude: number;
+  project: {
+    id: string;
+    name: number;
+    accessibility: string;
+    projectGoal: string;
+    contacts: {
+      edges: {
+        node: {
+          id: string;
+          role: string;
+          contact: {
+            id: string;
+            name: string;
+            website: string;
+          }
+        }
+      }[]
+    }
+  }
+  site: {
+    id: string;
+    name: string;
+  }
+  campaign: {
+    id: string;
+    name: string;
+  }
+  platform: {
+    id: string;
+    name: string;
+  }
+  deploymentDate: string;
+  deploymentVessel: string;
+  recoveryDate: string;
+  recoveryVessel: string;
+  bathymetricDepth: number;
+  description: string;
+  contacts: {
+    edges: {
+      node: {
+        id: string;
+        role: string;
+        contact: {
+          id: string;
+          name: string;
+          website: string;
+        }
+      }
+    }[]
+  }
+  channelConfigurations: {
+    edges: {
+      node: {
+        id: string;
+        recorderSpecification: {
+          id: string;
+          samplingFrequency: number;
+        }
+      }
+    }[]
+  }
+}
 
 export const ProjectDetail: React.FC = () => {
   const { id: projectID } = useParams<{ id: string; }>();
 
   const [ project, setProject ] = useState<Project>();
 
-  const [ deployments, setDeployments ] = useState<Array<DeploymentNode>>([]);
-  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentNode | undefined>();
+  const [ deployments, setDeployments ] = useState<Array<Deployment>>([]);
+  const [ selectedDeployment, setSelectedDeployment ] = useState<any | undefined>();
 
   const fetchDetail = useFetchDetail<Project>('/projects', '/api/projects');
-    const fetchDeployments = useFetchGql<{ allDeployments?: DeploymentNodeNodeConnection }>(gql`
+    const fetchDeployments = useFetchGql<{ allDeployments?: { results: Deployment[] } }>(gql`
         query {
             allDeployments(project_WebsiteProject_Id: ${projectID}) {
                 results {
@@ -87,8 +154,7 @@ export const ProjectDetail: React.FC = () => {
 
     fetchDeployments().then(data => {
       if (!isMounted) return;
-      console.log(data)
-      setDeployments(((data as any)?.allDeployments?.results ?? []).filter((d: any) => !!d) as DeploymentNode[])
+      setDeployments((data?.allDeployments?.results ?? []).filter((d: any) => !!d) as Deployment[])
     })
 
     return () => {
@@ -126,8 +192,8 @@ export const ProjectDetail: React.FC = () => {
                           selectedDeployment={ selectedDeployment }
                           setSelectedDeployment={ setSelectedDeployment }/>
 
-          <DeploymentsTimeline deployments={ deployments }
-                               selectedDeployment={ selectedDeployment }
+          <DeploymentsTimeline deployments={ deployments as any }
+                               selectedDeployment={ selectedDeployment as any }
                                setSelectedDeployment={ setSelectedDeployment }/>
       </Fragment> }
 

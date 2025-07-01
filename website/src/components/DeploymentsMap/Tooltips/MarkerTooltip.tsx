@@ -1,9 +1,9 @@
 import React from "react";
 import styles from './Tooltip.module.scss';
-import { DeploymentNode } from "../../../../../../metadatax-ts/src";
+import { Deployment } from "../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 
-export const MarkerTooltip: React.FC<{ deployment: DeploymentNode }> = ({ deployment }) => {
+export const MarkerTooltip: React.FC<{ deployment: Deployment }> = ({ deployment }) => {
 
   return (
     <div className={ styles.tooltip }>

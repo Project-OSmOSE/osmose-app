@@ -1,1 +1,0 @@
-export { InstitutionLink } from './InstitutionLink';

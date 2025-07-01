@@ -3,7 +3,6 @@ import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import { getMinZoom } from './utils.functions'
-import { DeploymentNode } from "../../../../../metadatax-ts/src";
 
 export function initMap(id: string): LeafletMap {
   const map = new LeafletMap(id, {
@@ -34,7 +33,7 @@ export function clearMap(map: LeafletMap): void {
 }
 
 export function setMapView(map: LeafletMap,
-                           deployments: Array<DeploymentNode>): void {
+                           deployments: Array<{ latitude: number; longitude: number; }>): void {
   if (deployments.length === 0) {
     map.setView([ 0, 0 ], 2);
     return;

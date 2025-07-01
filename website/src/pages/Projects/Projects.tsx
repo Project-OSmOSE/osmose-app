@@ -12,7 +12,7 @@ import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle }
 import { Pagination } from "../../components/Pagination/Pagination";
 import { DeploymentsMap } from "../../components/DeploymentsMap";
 import { gql } from "graphql-request";
-import { DeploymentNode, DeploymentNodeNodeConnection } from "../../../../../metadatax-ts/src";
+import { Deployment } from "./ProjectDetail/ProjectDetail";
 
 
 export const Projects: React.FC = () => {
@@ -24,11 +24,11 @@ export const Projects: React.FC = () => {
   const [ projectsTotal, setProjectsTotal ] = useState<number>(0);
   const [ projects, setProjects ] = useState<Array<Project>>([]);
 
-  const [ deployments, setDeployments ] = useState<Array<DeploymentNode>>([]);
-  const [ selectedDeployment, setSelectedDeployment ] = useState<DeploymentNode | undefined>();
+  const [ deployments, setDeployments ] = useState<Array<Deployment>>([]);
+  const [ selectedDeployment, setSelectedDeployment ] = useState<Deployment | undefined>();
 
   const fetchProjects = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
-  const fetchDeployments = useFetchGql<{ allDeployments?: DeploymentNodeNodeConnection }>(gql`
+  const fetchDeployments = useFetchGql<{ allDeployments?: { results: Deployment[] } }>(gql`
     query {
         allDeployments {
             results {
@@ -115,7 +115,7 @@ export const Projects: React.FC = () => {
 
     fetchDeployments().then(data => {
       if (!isMounted) return;
-      setDeployments((data?.allDeployments?.results ?? []).filter(d => !!d) as DeploymentNode[])
+      setDeployments((data?.allDeployments?.results ?? []).filter(d => !!d) as Deployment[])
     })
 
     return () => {

@@ -1,5 +1,4 @@
 import { Scientist } from "./scientific";
-import { Institution } from "@pam-standardization/metadatax-ts";
 
 export type PublicationStatus = 'Upcoming' | 'Published';
 export type PublicationType = 'Software' | 'Article' | 'Conference' | 'Poster';
@@ -50,5 +49,5 @@ export interface Author {
     id: string;
     order: number;
     scientist: Scientist;
-    institutions: Institution[];
+    institutions: any[];
 }

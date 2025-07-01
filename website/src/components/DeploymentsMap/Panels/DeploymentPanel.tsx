@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { IoCaretUp, IoClose, IoDownloadOutline, IoOpenOutline } from "react-icons/io5";
 import styles from './panel.module.scss'
-import { DeploymentNode } from "../../../../../../metadatax-ts/src";
-import { ContactLink } from "../InstitutionLink/InstitutionLink";
 import { useFetchGql } from "../../../utils";
 import { gql } from "graphql-request";
+import { Deployment } from '../../../pages/Projects/ProjectDetail/ProjectDetail'
+import { ContactLink } from "../ContactLink";
 
 export const DeploymentPanel: React.FC<{
-  deployment: DeploymentNode | undefined,
+  deployment: Deployment | undefined,
   onClose: () => void,
   disableProjectLink?: boolean;
 }> = ({
@@ -35,7 +35,7 @@ export const DeploymentPanel: React.FC<{
   useEffect(() => {
     if (!deployment) return;
     fetchLabels().then((data: any) => {
-      setLabels((data?.allApiLabels?.results ?? []).filter((d: any) => !!d) as DeploymentNode[])
+      setLabels((data?.allApiLabels?.results ?? []).filter((d: any) => !!d) as Deployment[])
     })
   }, [deployment ]);
 
@@ -57,7 +57,7 @@ export const DeploymentPanel: React.FC<{
       <CampaignSite label="Campaign"
                     data={ deployment.campaign }/>
 
-      <Deployment deployment={ deployment }/>
+      <DeploymentInfo deployment={ deployment }/>
 
       <DateAndVessel label="Launch"
                      date={ deployment.deploymentDate }
@@ -81,7 +81,7 @@ export const DeploymentPanel: React.FC<{
   </div>
 }
 
-const DownloadAction: React.FC<{ deployment: DeploymentNode }> = ({ deployment }) => {
+const DownloadAction: React.FC<{ deployment: Deployment }> = ({ deployment }) => {
   const downloadData = useMemo(() => {
     return `data:text/json;charset=utf-8,${ encodeURIComponent(JSON.stringify(deployment)) }`
   }, [ deployment ])
@@ -92,7 +92,7 @@ const DownloadAction: React.FC<{ deployment: DeploymentNode }> = ({ deployment }
   </a>
 }
 
-const Project: React.FC<{ project: DeploymentNode['project'], disableProjectLink: boolean }> = ({
+const Project: React.FC<{ project: Deployment['project'], disableProjectLink: boolean }> = ({
                                                                                                   project,
                                                                                                   disableProjectLink
                                                                                                 }) => {
@@ -116,7 +116,7 @@ const Project: React.FC<{ project: DeploymentNode['project'], disableProjectLink
 
 const CampaignSite: React.FC<{
   label: 'Campaign' | 'Site',
-  data: DeploymentNode['campaign'] | DeploymentNode['site']
+  data: Deployment['campaign'] | Deployment['site']
 }> = ({ label, data }) => {
   if (!data) return <Fragment/>
   return <Fragment>
@@ -125,7 +125,7 @@ const CampaignSite: React.FC<{
   </Fragment>
 }
 
-const Deployment: React.FC<{ deployment: DeploymentNode }> = ({ deployment }) => (
+const DeploymentInfo: React.FC<{ deployment: Deployment }> = ({ deployment }) => (
   <Fragment>
     <small>Deployment</small>
     <p>
@@ -139,8 +139,8 @@ const Deployment: React.FC<{ deployment: DeploymentNode }> = ({ deployment }) =>
 
 const DateAndVessel: React.FC<{
   label: 'Launch' | 'Recovery',
-  date: DeploymentNode['deploymentDate'] | DeploymentNode['recoveryDate'],
-  vessel: DeploymentNode['deploymentVessel'] | DeploymentNode['recoveryVessel']
+  date: Deployment['deploymentDate'] | Deployment['recoveryDate'],
+  vessel: Deployment['deploymentVessel'] | Deployment['recoveryVessel'] | null
 }> = ({ label, date, vessel }) => {
   if (!date && !vessel) return <Fragment/>
   return <Fragment>
@@ -149,21 +149,21 @@ const DateAndVessel: React.FC<{
   </Fragment>
 }
 
-const Coordinates: React.FC<{ lat: DeploymentNode['latitude'], lon: DeploymentNode['longitude'] }> = ({ lat, lon }) => (
+const Coordinates: React.FC<{ lat: Deployment['latitude'], lon: Deployment['longitude'] }> = ({ lat, lon }) => (
   <Fragment>
     <small>Coordinates</small>
     <p>{ lat }, { lon }</p>
   </Fragment>
 )
 
-const BathymetricDepth: React.FC<{ depth: DeploymentNode['bathymetricDepth'] }> = ({ depth }) => (
+const BathymetricDepth: React.FC<{ depth: Deployment['bathymetricDepth'] }> = ({ depth }) => (
   <Fragment>
     <small>Bathymetric depth</small>
     <p>{ depth }</p>
   </Fragment>
 )
 
-const Platform: React.FC<{ platform: DeploymentNode['platform'] }> = ({ platform }) => {
+const Platform: React.FC<{ platform: Deployment['platform'] }> = ({ platform }) => {
   if (!platform) return <Fragment/>
   return <Fragment>
     <small>Platform</small>
@@ -184,7 +184,7 @@ const Labels: React.FC<{ labels?: any[] }> = ({ labels }) => {
   </Fragment>
 }
 
-const Description: React.FC<{ description: DeploymentNode['description'] }> = ({ description }) => {
+const Description: React.FC<{ description: Deployment['description'] }> = ({ description }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   if (!description) return <Fragment/>
   return <Fragment>

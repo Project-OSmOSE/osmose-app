@@ -16,27 +16,27 @@ import { clearMap, initMap, setMapView } from './map.functions';
 import './DeploymentsMap.css'
 import { getColorLuma, intToRGB } from "./utils.functions";
 import { DeploymentPanel, FilterPanel } from "./Panels";
-import { DeploymentNode } from "../../../../../metadatax-ts/src";
+import { Deployment } from "../../pages/Projects/ProjectDetail/ProjectDetail";
 
 interface Feature {
   properties: {
-    deployment: DeploymentNode;
+    deployment: Deployment;
   }
 }
 
 export const DeploymentsMap: React.FC<{
   level: 'project' | 'deployment',
   projectID?: number;
-  allDeployments: Array<DeploymentNode>;
-  selectedDeployment: DeploymentNode | undefined;
-  setSelectedDeployment: (deployment: DeploymentNode | undefined) => void;
+  allDeployments: Array<Deployment>;
+  selectedDeployment: Deployment | undefined;
+  setSelectedDeployment: (deployment: Deployment | undefined) => void;
 }> = ({ level, projectID, allDeployments, selectedDeployment, setSelectedDeployment }) => {
   const map = useRef<LeafletMap | null>(null);
   const clusterGroup = useRef<MarkerClusterGroup | null>(null);
   const mapID: string = useMemo(() => "map" + projectID ? '-' + projectID : '', [ projectID ]);
   const deploymentsMarkers = useRef<Map<string, CircleMarker>>(new Map());
 
-  const [ filteredDeployments, setFilteredDeployments ] = useState<Array<DeploymentNode>>([]);
+  const [ filteredDeployments, setFilteredDeployments ] = useState<Array<Deployment>>([]);
 
   useEffect(() => {
     if (map.current) clearMap(map.current);
@@ -64,13 +64,13 @@ export const DeploymentsMap: React.FC<{
   }, [ allDeployments, filteredDeployments ]);
 
   const setDeploymentsToMap = (map: LeafletMap,
-                               deployments: Array<DeploymentNode>): void => {
+                               deployments: Array<Deployment>): void => {
 
     clusterGroup.current = new MarkerClusterGroup({
       maxClusterRadius: 40,
       iconCreateFunction: (cluster: MarkerCluster) => {
         const icon: Icon | DivIcon = (clusterGroup.current as any)._defaultIconCreateFunction(cluster);
-        const allDeployments: Array<DeploymentNode> = cluster.getAllChildMarkers().map(child => {
+        const allDeployments: Array<Deployment> = cluster.getAllChildMarkers().map(child => {
           return child.feature?.properties.deployment;
         }).filter(element => !!element);
         const projects = [ ...new Set(allDeployments.map(d => d.project.id)) ]
