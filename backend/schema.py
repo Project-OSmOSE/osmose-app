@@ -23,13 +23,13 @@ class DeploymentFilter(MetadataxDeploymentFilter):
         """Override of Metadatax deployment filter"""
 
         # pylint: disable=missing-docstring
-        pass
 
 
 class DeploymentNode(MetadataxDeploymentNode):
     """Override of Metadatax deployment node"""
 
     class Meta:
+        # pylint: disable=missing-docstring
         model = Deployment
         fields = "__all__"
         filterset_class = DeploymentFilter
