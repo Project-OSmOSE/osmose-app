@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import styles from "./panel.module.scss";
 import { IoClose, IoFunnel, IoFunnelOutline, IoRefresh } from "react-icons/io5";
 import { FilterRef, SampleRateFilter } from "./Filters";
-import { DeploymentNode } from "../../../../../../metadatax-ts/src";
+import { Deployment } from "../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 type FilterProps = {
-  allDeployments: Array<DeploymentNode>,
-  onFilter: (filteredDeployments: Array<DeploymentNode>) => void
+  allDeployments: Array<Deployment>,
+  onFilter: (filteredDeployments: Array<Deployment>) => void
 }
 export const FilterPanel: React.FC<FilterProps> = ({
                                                      allDeployments,
