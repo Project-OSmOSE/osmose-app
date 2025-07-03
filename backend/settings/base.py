@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "tinymce",
     "metadatax",
     "metadatax.common",
+    "metadatax.bibliography",
     "metadatax.ontology",
     "metadatax.acquisition",
     "metadatax.equipment",

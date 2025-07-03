@@ -1,6 +1,7 @@
 """Label related models"""
 from django.db import models
 from django.db.models import QuerySet
+from metadatax.ontology.models import Label as MetadataxLabel
 
 
 class Label(models.Model):
@@ -13,6 +14,10 @@ class Label(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
+
+    metadatax_label = models.ForeignKey(
+        MetadataxLabel, on_delete=models.PROTECT, null=True, blank=True
+    )
 
 
 class LabelSet(models.Model):

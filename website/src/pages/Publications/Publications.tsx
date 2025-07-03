@@ -11,8 +11,8 @@ import { Spinner } from "../../components/Spinner";
 
 
 export function sortBibliography(a: Bibliography, b: Bibliography): number {
-  if (a.publication_status !== 'Published') return -1
-  if (b.publication_status !== 'Published') return 1
+  if (a.status !== 'Published') return -1
+  if (b.status !== 'Published') return 1
   return new Date(b.publication_date).getTime() - new Date(b.publication_date).getTime()
 }
 

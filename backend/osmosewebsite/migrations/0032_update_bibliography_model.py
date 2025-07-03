@@ -3,18 +3,16 @@
 from django.db import migrations, models
 from django.db.models import Q
 
-from backend.osmosewebsite.models import Bibliography
-
 
 def update_publication_status(apps, schema_editor):
-    bibliography_model: Bibliography = apps.get_model("osmosewebsite", "Bibliography")
+    bibliography_model = apps.get_model("osmosewebsite", "Bibliography")
     bibliography_model.objects.filter(~Q(publication_status="P")).update(
         publication_status="U"
     )
 
 
 def reverse_update_publication_status(apps, schema_editor):
-    bibliography_model: Bibliography = apps.get_model("osmosewebsite", "Bibliography")
+    bibliography_model = apps.get_model("osmosewebsite", "Bibliography")
     bibliography_model.objects.filter(~Q(publication_status="P")).update(
         publication_status="D"
     )
