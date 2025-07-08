@@ -56,7 +56,7 @@ export type AnnotatorState = Partial<AnnotatorData> & {
   },
   sessionStart: number;
   confidenceIndicators?: ConfidenceIndicator[];
-  canAddAnnotations?: boolean;
+  isSelectingFrequency: boolean;
 
   phaseID?: number;
 }
@@ -144,7 +144,7 @@ export const AnnotatorSlice = createSlice({
     ui: { hiddenLabels: [] },
     sessionStart: Date.now(),
     didSeeAllFile: false,
-    canAddAnnotations: true,
+    isSelectingFrequency: false,
     spectrogram_configurations: []
   } satisfies AnnotatorState as AnnotatorState,
   reducers: {
@@ -505,11 +505,11 @@ export const AnnotatorSlice = createSlice({
       })
       state.hasChanged = true;
     },
-    disableNewAnnotations: (state) => {
-      state.canAddAnnotations = false;
+    enableFrequencySelection: (state) => {
+      state.isSelectingFrequency = true;
     },
-    enableNewAnnotations: (state) => {
-      state.canAddAnnotations = true;
+    disableFrequencySelection: (state) => {
+      state.isSelectingFrequency = false;
     },
 
     // Hide/show labels

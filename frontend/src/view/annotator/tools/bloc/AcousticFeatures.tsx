@@ -270,13 +270,13 @@ const SelectableFrequencyRow: React.FC<{
   const select = useCallback(() => {
     setTimeout(() => CLICK_EVENT.add(onClick), 500);
     setIsSelecting(true)
-    dispatch(AnnotatorSlice.actions.disableNewAnnotations())
+    dispatch(AnnotatorSlice.actions.enableFrequencySelection())
   }, [ onClick ])
 
   const unselect = useCallback(() => {
     CLICK_EVENT.remove(onClick)
     setIsSelecting(false)
-    dispatch(AnnotatorSlice.actions.enableNewAnnotations())
+    dispatch(AnnotatorSlice.actions.disableFrequencySelection())
   }, [ onClick ])
 
   function toggleSelection() {
