@@ -19,7 +19,7 @@ export const Point: React.FC<{
   const { phase } = useRetrieveCurrentPhase()
   const { labelSet } = useGetLabelSetForCurrentCampaign();
     // Data
-  const { focusedResultID } = useAppSelector(state => state.annotator);
+  const { focusedResultID, isSelectingFrequency } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
   // Scales
@@ -110,7 +110,7 @@ export const Point: React.FC<{
     }))
   }
 
-  return <ExtendedDiv draggable={ isActive }
+  return <ExtendedDiv draggable={ isActive && !isSelectingFrequency }
                       top={ top }
                       left={ left }
                       onUp={ onValidateMove }
@@ -118,15 +118,23 @@ export const Point: React.FC<{
                       onLeftMove={ onLeftMove }
                       onMouseEnter={ () => setIsMouseHover(true) }
                       onMouseLeave={ () => setIsMouseHover(false) }
-                      className={ [ styles.point, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
+                      className={ [
+                        styles.point,
+                        colorClassName,
+                        isActive ? '' : styles.disabled,
+                        isSelectingFrequency ? styles.editDisabled : ''
+                      ].join(' ') }>
 
     { (isMouseHover || isActive) &&
-        <AnnotationHeader active={ isActive }
+        <AnnotationHeader active={ isActive && !isSelectingFrequency }
                           onTopMove={ onTopMove }
                           onLeftMove={ onLeftMove }
                           onValidateMove={ onValidateMove }
                           top={ top }
-                          className={ colorClassName }
+                          className={ [
+                            colorClassName,
+                            isSelectingFrequency ? styles.editDisabled : ''
+                          ].join(' ') }
                           annotation={ annotation }
                           audioPlayer={ audioPlayer }/> }
 

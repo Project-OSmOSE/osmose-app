@@ -26,7 +26,7 @@ export const Box: React.FC<RegionProps> = ({
   const { phase } = useRetrieveCurrentPhase()
   // Data
   const { labelSet } = useGetLabelSetForCurrentCampaign();
-  const { focusedResultID } = useAppSelector(state => state.annotator);
+  const { focusedResultID, isSelectingFrequency } = useAppSelector(state => state.annotator);
   const dispatch = useAppDispatch();
 
   // Scales
@@ -157,7 +157,7 @@ export const Box: React.FC<RegionProps> = ({
   }
 
   if (top === null || left === null || height === null || width === null) return <Fragment/>
-  return <ExtendedDiv resizable={ isActive }
+  return <ExtendedDiv resizable={ isActive && !isSelectingFrequency }
                       top={ top } height={ height }
                       left={ left } width={ width }
                       onUp={ onValidateMove }
@@ -168,16 +168,24 @@ export const Box: React.FC<RegionProps> = ({
                       onMouseLeave={ () => setIsMouseHover(false) }
                       innerClassName={ styles.inner }
                       onInnerMouseDown={ MOUSE_DOWN_EVENT.emit.bind(MOUSE_DOWN_EVENT) }
-                      className={ [ styles.annotation, colorClassName, isActive ? '' : styles.disabled ].join(' ') }>
+                      className={ [
+                        styles.annotation,
+                        colorClassName,
+                        isActive ? '' : styles.disabled,
+                        isSelectingFrequency ? styles.editDisabled : ''
+                      ].join(' ') }>
 
     { (isMouseHover || isActive) &&
-        <AnnotationHeader active={ isActive }
+        <AnnotationHeader active={ isActive && !isSelectingFrequency }
                           onTopMove={ onTopMove }
                           onLeftMove={ onLeftMove }
                           onValidateMove={ onValidateMove }
                           top={ top }
                           setIsMouseHover={ setIsMouseHover }
-                          className={ colorClassName }
+                          className={ [
+                            colorClassName,
+                            isSelectingFrequency ? styles.editDisabled : ''
+                          ].join(' ') }
                           annotation={ annotation }
                           audioPlayer={ audioPlayer }/> }
 

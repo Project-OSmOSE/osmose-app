@@ -79,6 +79,13 @@ $box-width: 3px;
   &.disabled {
     opacity: 0.75;
   }
+
+  &.editDisabled {
+    pointer-events: none !important;
+    * {
+      pointer-events: none !important;
+    }
+  }
 }
 
 .labelsButtons {

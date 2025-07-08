@@ -51,7 +51,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
     audio,
     userPreferences,
     ui,
-    canAddAnnotations
+    isSelectingFrequency
   } = useAppSelector(state => state.annotator)
   const {
     disableSpectrogramResize
@@ -86,7 +86,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   // Is drawing enabled? (always in box mode, when a label is selected in presence mode)
   const isEditable: boolean = useMemo(() => !campaign?.archive && !phase?.ended_by && !!data?.is_assigned, [ campaign, phase, data ])
-  const isDrawingEnabled = useMemo(() => !!canAddAnnotations && !!focusedLabel && isEditable, [ canAddAnnotations, focusedLabel, isEditable ]);
+  const isDrawingEnabled = useMemo(() => !isSelectingFrequency && !!focusedLabel && isEditable, [ isSelectingFrequency, focusedLabel, isEditable ]);
   const _isDrawingEnabled = useRef<boolean>(isDrawingEnabled)
   useEffect(() => {
     _isDrawingEnabled.current = isDrawingEnabled
@@ -357,7 +357,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
            onPointerLeave={ () => dispatch(AnnotatorSlice.actions.leavePointerPosition()) }>
 
         {/* 'drawable' class is for playwright tests */ }
-        <canvas className={ isDrawingEnabled ? `drawable ${ styles.drawable }` : '' }
+        <canvas className={ (isDrawingEnabled || isSelectingFrequency) ? `drawable ${ styles.drawable }` : '' }
                 ref={ canvasRef }
                 height={ height }
                 width={ width }
