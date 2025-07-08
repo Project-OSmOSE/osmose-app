@@ -3,6 +3,7 @@
   transition: 150ms ease-in;
   padding: 0.25rem 1rem 0.25rem 0.5rem;
   display: grid;
+  align-content: center;
   border-radius: 0.5rem;
   column-gap: 0.75rem;
   grid-template-columns: 1rem 1fr 1.25rem;
@@ -37,6 +38,7 @@
 
   .tags {
     display: flex;
+    gap: 0.25rem;
     flex-wrap: wrap;
     padding-bottom: 0.25rem;
 
