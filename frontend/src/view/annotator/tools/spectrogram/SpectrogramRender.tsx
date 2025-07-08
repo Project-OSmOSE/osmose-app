@@ -326,6 +326,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onWheel = (event: WheelEvent) => {
+    console.log('onWheel', event)
     // Disable zoom if the user wants horizontal scroll
     if (event.shiftKey) return;
 
@@ -356,6 +357,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
       <div onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }
+           onWheel={ onWheel }
            onPointerLeave={ () => dispatch(AnnotatorSlice.actions.leavePointerPosition()) }>
 
         {/* 'drawable' class is for playwright tests */ }
@@ -364,8 +366,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
                 height={ height }
                 width={ width }
                 onMouseDown={ onStartNewAnnotation }
-                onClick={ onClick }
-                onWheel={ onWheel }/>
+                onClick={ onClick }/>
 
         <TimeBar/>
 
