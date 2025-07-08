@@ -49,6 +49,26 @@ export const AcousticFeatures: React.FC = () => {
     setLeft(newLeft);
   }, [ annotation?.id ]);
 
+  useEffect(() => {
+    if (!annotation?.acoustic_features?.trend) return;
+    if (annotation?.acoustic_features?.start_frequency) return;
+    if (annotation?.acoustic_features?.end_frequency) return;
+    switch (annotation.acoustic_features.trend) {
+      case "Ascending":
+        dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({
+          start_frequency: annotation.start_frequency,
+          end_frequency: annotation.end_frequency,
+        }))
+        break;
+      case "Descending":
+        dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures({
+          start_frequency: annotation.end_frequency,
+          end_frequency: annotation.start_frequency,
+        }))
+        break;
+    }
+  }, [annotation?.acoustic_features?.trend]);
+
   function setBad() {
     dispatch(AnnotatorSlice.actions.updateCurrentResultAcousticFeatures(null));
   }
