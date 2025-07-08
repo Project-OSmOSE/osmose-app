@@ -30,7 +30,9 @@ import { Input } from "@/components/form";
 export const Annotator: React.FC = () => {
   const { colormap } = useAppSelector(state => state.annotator.userPreferences);
   const currentConfiguration = useCurrentConfiguration();
-  const { isFetching, error, data, isEditable } = useRetrieveAnnotator()
+  const { isFetching, error, data, isEditable } = useRetrieveAnnotator({
+    refetchOnMountOrArgChange: true
+  })
   const colormapClass: Colormap = useMemo(() => {
     if (!currentConfiguration) return "Greys";
     if (currentConfiguration.colormap !== "Greys") return currentConfiguration.colormap;

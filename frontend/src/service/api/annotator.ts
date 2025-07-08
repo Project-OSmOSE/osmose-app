@@ -149,7 +149,7 @@ export const AnnotatorAPI = API.injectEndpoints({
   })
 })
 
-export const useRetrieveAnnotator = () => {
+export const useRetrieveAnnotator = (args: { refetchOnMountOrArgChange: boolean } | void) => {
   const { params } = useFileFilters()
   const { campaign } = useRetrieveCurrentCampaign()
   const { phase, isEditable: isPhaseEditable } = useRetrieveCurrentPhase()
@@ -158,7 +158,9 @@ export const useRetrieveAnnotator = () => {
   const { data, ...info } = AnnotatorAPI.endpoints.retrieveAnnotator.useQuery(
     (campaign && phase && fileID) ?
       { campaignID: campaign.id, phaseID: phase.id, fileID, ...params }
-      : skipToken);
+      : skipToken, {
+      refetchOnMountOrArgChange: args?.refetchOnMountOrArgChange
+    });
 
   const isEditable = useMemo(() => isPhaseEditable && data?.is_assigned, [ isPhaseEditable, data ])
   return useMemo(() => ({ data, isEditable, ...info, }), [ data, isEditable, info ])
