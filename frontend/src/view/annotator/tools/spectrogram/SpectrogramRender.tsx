@@ -65,7 +65,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
   // Ref
   const renderRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const yAxisCanvasRef = useRef<AxisRef | null>(null);
   const xAxisCanvasRef = useRef<AxisRef | null>(null);
@@ -109,7 +108,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   // On zoom updated
   useEffect(() => {
     const canvas = canvasRef.current;
-    const wrapper = containerRef.current;
+    const wrapper = renderRef.current;
     if (!canvas || !wrapper || !data) return;
 
     // If zoom factor has changed
@@ -122,10 +121,12 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
     // Compute new center (before resizing)
     let newCenter: number;
+    console.log('onzoomupdated', ui.zoomOrigin)
     if (ui.zoomOrigin) {
       // x-coordinate has been given, center on it
       const bounds = canvas.getBoundingClientRect();
       newCenter = (ui.zoomOrigin.x - bounds.left) * userPreferences.zoomLevel / _zoom;
+      console.log('onzoomupdated', newCenter)
       const coords = {
         clientX: ui.zoomOrigin.x,
         clientY: ui.zoomOrigin.y
@@ -138,7 +139,8 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       // If no x-coordinate: center on currentTime
       newCenter = currentTime.current * newTimePxRatio;
     }
-    wrapper.scrollLeft = Math.floor(newCenter - containerWidth / 2);
+    wrapper.scrollTo({ left: Math.floor(newCenter - containerWidth / 2) })
+    console.log('onzoomupdated', Math.floor(newCenter - containerWidth / 2))
     _setZoom(userPreferences.zoomLevel);
     updateCanvas()
   }, [ userPreferences.zoomLevel ]);
@@ -148,7 +150,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   // On current audio time changed
   useEffect(() => {
     // Scroll if progress bar reach the right edge of the screen
-    const wrapper = containerRef.current;
+    const wrapper = renderRef.current;
     const canvas = canvasRef.current;
     if (!wrapper || !canvas || !data) return;
     const oldX: number = Math.floor(canvas.width * currentTime.current / data.file.duration);
@@ -352,7 +354,7 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
       <YAxis className={ styles.yAxis } ref={ yAxisCanvasRef }/>
 
-      <div ref={ containerRef } onMouseDown={ e => e.stopPropagation() }
+      <div onMouseDown={ e => e.stopPropagation() }
            className={ styles.spectrogram }
            onPointerLeave={ () => dispatch(AnnotatorSlice.actions.leavePointerPosition()) }>
 
