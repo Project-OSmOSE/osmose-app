@@ -27,6 +27,9 @@ import { SqlQuery } from "@/view/admin/sql/SqlQuery.tsx";
 import { AploseSkeleton } from "@/components/layout";
 import { selectCurrentUser } from "@/service/api/user.ts";
 import { selectIsConnected } from "@/service/slices/auth.ts";
+import { ReactFlowProvider } from "@xyflow/react";
+import { OntologySourcePage } from "@/features/ontology/source";
+import { OntologyPage } from "@/features/ontology";
 
 
 setupIonicReact({
@@ -37,11 +40,13 @@ setupIonicReact({
 export const App: React.FC = () => (
   <Provider store={ AppStore }>
     <AlertProvider>
-      <IonApp>
-        <BrowserRouter basename='/app/'>
-          <AppContent/>
-        </BrowserRouter>
-      </IonApp>
+      <ReactFlowProvider>
+        <IonApp>
+          <BrowserRouter basename='/app/'>
+            <AppContent/>
+          </BrowserRouter>
+        </IonApp>
+      </ReactFlowProvider>
     </AlertProvider>
   </Provider>
 )
@@ -92,6 +97,10 @@ const AppContent: React.FC = () => {
         { currentUser?.is_superuser &&
             <Route path='admin' element={ <AploseSkeleton/> }>
                 <Route path='sql' element={ <SqlQuery/> }/>
+                <Route path='ontology' element={ <OntologyPage/> }>
+                    <Route path='source' element={ <OntologySourcePage/> }/>
+                    <Route path='sound'/>
+                </Route>
             </Route>
         }
 

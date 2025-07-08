@@ -1,8 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { ClientError, request } from "graphql-request";
+import { ClientError, GraphQLClient, request } from "graphql-request";
+import { graphqlRequestBaseQuery } from "@rtk-query/graphql-request-base-query";
 
 export const graphqlBaseQuery = ({ baseUrl }: { baseUrl: string }) =>
-  async ({ body }:  { body: string }) => {
+  async ({ body }: { body: string }) => {
     try {
       const result = await request(baseUrl, body)
       return { data: result }
@@ -14,10 +15,9 @@ export const graphqlBaseQuery = ({ baseUrl }: { baseUrl: string }) =>
     }
   }
 
+export const client = new GraphQLClient(`/api/graphql`)
 
 export const gqlAPI = createApi({
-  baseQuery: graphqlBaseQuery({
-    baseUrl: `${ window.location.origin }/api/graphql`,
-  }),
-    endpoints: () => ({})
+  baseQuery: graphqlRequestBaseQuery({ client }),
+  endpoints: () => ({})
 })

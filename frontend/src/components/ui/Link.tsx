@@ -15,7 +15,7 @@ export const useAppLink = (appPath?: To | undefined, onClick?: () => void) => {
   return { open, openAux }
 }
 
-export const Link: React.FC<{
+export type LinkProps = {
   href?: string | undefined;
   appPath?: To | undefined;
   children: ReactNode;
@@ -25,7 +25,8 @@ export const Link: React.FC<{
   className?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
   onClick?: () => void;
-} & React.ComponentProps<typeof IonButton>> = ({
+} & React.ComponentProps<typeof IonButton>
+export const Link: React.FC<LinkProps> = ({
                                                  children,
                                                  color = 'dark',
                                                  href,

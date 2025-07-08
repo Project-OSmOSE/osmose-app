@@ -1,5 +1,5 @@
-import { gqlAPI } from "@/features/gql.ts";
 import { gql } from "graphql-request";
+import { gqlAPI } from "@/features/gql/baseApi.ts";
 
 export const DeploymentAPI = gqlAPI.injectEndpoints({
     endpoints: (builder) => ({

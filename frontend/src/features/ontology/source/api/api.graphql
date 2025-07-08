@@ -1,0 +1,43 @@
+query getAllSources{
+    allSources {
+        results {
+            id
+            englishName
+            parent {
+                id
+            }
+        }
+    }
+}
+
+mutation createSource($englishName: String!, $frenchName: String, $parent_id: String) {
+    postSource(input: {englishName: $englishName, frenchName: $frenchName, parent: $parent_id}) {
+        ok
+        data {
+            id
+        }
+        errors {
+            field,
+            messages
+        }
+    }
+}
+
+mutation updateParentSource($englishName: String!, $parent_id: String) {
+    postSource(input: {englishName: $englishName, parent: $parent_id}) {
+        ok
+        data {
+            id
+        }
+        errors {
+            field,
+            messages
+        }
+    }
+}
+
+mutation deleteSource($id: ID!) {
+    deleteSource(id: $id) {
+        ok
+    }
+}

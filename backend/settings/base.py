@@ -177,4 +177,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "image_title": "true",
 }
 
-GRAPHENE = {"SCHEMA": "backend.schema.schema"}
+GRAPHENE = {
+    "SCHEMA": "backend.schema.schema",
+    "MIDDLEWARE": ["graphene_django.debug.middleware.DjangoDebugMiddleware"],
+}

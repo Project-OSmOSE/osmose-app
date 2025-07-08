@@ -10,7 +10,7 @@ import { FilterSlice } from "@/service/slices/filter.ts";
 import { AnnotatorSlice } from "@/service/slices/annotator.ts";
 import { ImportAnnotationsSlice } from "@/service/slices/import-annotations.ts";
 import { SettingsSlice } from "@/service/slices/settings.ts";
-import { gqlAPI } from "@/features/gql.ts";
+import { gqlAPI } from "@/features/gql/baseApi.ts";
 
 export const AppStore = configureStore({
   reducer: {
