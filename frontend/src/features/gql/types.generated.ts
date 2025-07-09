@@ -3866,6 +3866,18 @@ export type QuerySiteByIdArgs = {
   id?: InputMaybe<Scalars['Int']['input']>;
 };
 
+
+/** Global query */
+export type QuerySoundByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QuerySourceByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type RecorderSpecificationNode = Node & {
   __typename?: 'RecorderSpecificationNode';
   /** Number of all the channels on the recorder, even if unused. */

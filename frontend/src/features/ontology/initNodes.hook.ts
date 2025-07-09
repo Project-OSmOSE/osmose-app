@@ -1,5 +1,5 @@
-import type { Source } from './source/api'
-import type { Sound } from './sound/api'
+import type { Source } from './source'
+import type { Sound } from './sound'
 import { useCallback, useMemo } from "react";
 import { Edge, Node } from "@xyflow/react";
 import { SourceNode } from "./node";
@@ -7,12 +7,14 @@ import { SourceNode } from "./node";
 const COLUMN_SIZE = 256;
 const ROW_GAP = 32;
 
-export const useGetInitialNodes = <T extends Source | Sound>(data: T[] | undefined) => {
+type DataType = Omit<Source | Sound, '__typename'>
+
+export const useGetInitialNodes = (data: DataType[] | undefined) => {
   const ROOT = useMemo(() => ({
     id: '-1',
     englishName: 'Root',
     parent: null,
-  } as T), [])
+  } as DataType), [])
   const calculateWordDimensions = useCallback((text: string) => {
     const div = document.createElement('div');
     div.setAttribute('style', `
@@ -24,7 +26,7 @@ export const useGetInitialNodes = <T extends Source | Sound>(data: T[] | undefin
       padding: 0.25rem 0;
       border: 2px solid dark;
   `);
-    div.innerHTML = text;
+    if (text !== ROOT.englishName) div.innerHTML = text + '<br/>&nbsp;';
     document.body.appendChild(div);
 
     const dimensions = {
@@ -35,22 +37,22 @@ export const useGetInitialNodes = <T extends Source | Sound>(data: T[] | undefin
     return dimensions;
   }, [])
 
-  const compareSource = useCallback((a: T, b: T) => a.englishName.localeCompare(b.englishName), []);
+  const compareSource = useCallback((a: DataType, b: DataType) => a.englishName.localeCompare(b.englishName), []);
 
-  const getNodeBase = useCallback((source: T): Omit<Node<T>, 'position'> => ({
+  const getNodeBase = useCallback((source: DataType): Omit<Node<DataType>, 'position'> => ({
     id: source.id.toString(),
     type: 'source',
     data: source,
   }), [])
 
 
-  const getNode = useCallback((source: T = ROOT, column: number = -1, y: number = 0): {
-    nodes: Node<T>[],
-    edges: Edge<Node<T>>[],
+  const getNode = useCallback((source: DataType = ROOT, column: number = -1, y: number = 0): {
+    nodes: Node<DataType>[],
+    edges: Edge<Node<DataType>>[],
     height: number
   } => {
-    const nodes: Node<T>[] = []
-    const edges: Edge<Node<T>>[] = []
+    const nodes: Node<DataType>[] = []
+    const edges: Edge<Node<DataType>>[] = []
     let height = calculateWordDimensions(source.englishName).height
     const parentID = source.parent?.id ?? ROOT.id
 
@@ -86,6 +88,7 @@ export const useGetInitialNodes = <T extends Source | Sound>(data: T[] | undefin
           y: childrenTop + childrenHeight / 2 - height / 2
         },
         deletable: source !== ROOT,
+        selectable: source !== ROOT,
         draggable: false,
       })
       height = Math.max(height, childrenHeight)

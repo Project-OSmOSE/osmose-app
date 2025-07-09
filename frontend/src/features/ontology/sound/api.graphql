@@ -10,6 +10,16 @@ query getAllSounds{
     }
 }
 
+query getDetailedSoundByID($id: ID!){
+    soundById(id: $id) {
+        id
+        englishName
+        frenchName
+        codeName
+        taxon
+    }
+}
+
 mutation createSound($englishName: String!, $frenchName: String, $parent_id: String) {
     postSound(input: {englishName: $englishName, frenchName: $frenchName, parent: $parent_id}) {
         ok
@@ -23,8 +33,8 @@ mutation createSound($englishName: String!, $frenchName: String, $parent_id: Str
     }
 }
 
-mutation updateParentSound($englishName: String!, $parent_id: String) {
-    postSound(input: {englishName: $englishName, parent: $parent_id}) {
+mutation updateSound($id: Int!, $englishName: String!, $frenchName: String, $codeName: String, $taxon: String, $parent_id: String) {
+    postSound(input: {id: $id, englishName: $englishName, frenchName: $frenchName,codeName: $codeName, taxon: $taxon, parent: $parent_id}) {
         ok
         data {
             id

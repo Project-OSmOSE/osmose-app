@@ -97,7 +97,7 @@ type Query {
     taxon: String
     taxon_Icontains: String
   ): SoundNodeNodeConnection
-  soundById: SoundNode
+  soundById(id: ID!): SoundNode
   allSources(
     """Query limit"""
     limit: Int
@@ -130,7 +130,7 @@ type Query {
     taxon: String
     taxon_Icontains: String
   ): SourceNodeNodeConnection
-  sourceById: SourceNode
+  sourceById(id: ID!): SourceNode
   allAuthors(
     """Query limit"""
     limit: Int

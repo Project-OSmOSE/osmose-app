@@ -20,6 +20,8 @@ export const Input: React.FC<InputProperties> = ({
                                                    note,
                                                    error,
                                                    value,
+                                                   onFocus,
+                                                   onBlur,
                                                    ...inputArgs
                                                  }) => {
   const className = [];
@@ -49,8 +51,14 @@ export const Input: React.FC<InputProperties> = ({
              value={ value }
              required={ required }
              disabled={ disabled }
-             onFocus={ () => dispatch(EventSlice.actions.disableShortcuts()) }
-             onBlur={ () => dispatch(EventSlice.actions.enableShortcuts()) }
+             onFocus={ e => {
+               dispatch(EventSlice.actions.disableShortcuts())
+               if (onFocus) onFocus(e)
+             } }
+             onBlur={ e => {
+               dispatch(EventSlice.actions.enableShortcuts())
+               if (onBlur) onBlur(e)
+             } }
              className={ `${ className.join(' ') } ${ inputArgs.className }` }/>
 
       { inputArgs.type === 'password' && <Fragment>

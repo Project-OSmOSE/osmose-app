@@ -21,7 +21,7 @@ export type NewNode<NodeType extends Record<string, unknown>> = {
   parentNode: Node<NodeType>;
 }
 
-export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ patch, del, onNew }: {
+export const useOntologyTreeFlow = <NodeType extends { id?: string; parent?: { id?: string } | null }>({ patch, del, onNew }: {
   patch: (value: NodeType) => void,
   del: (value: NodeType) => void,
   onNew: (info: NewNode<NodeType>) => void
@@ -60,9 +60,9 @@ export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ 
         const child = nodes.find(n => n.id === edge.target);
         const parent = nodes.find(n => n.id === edge.source);
         if (!child) continue;
-        const data = {
+        const data: NodeType = {
           ...child.data,
-          parent: parent?.data.id ?? null
+          parent: { id: parent?.data.id ?? null }
         }
         setNodes(nds => applyNodeChanges([ {
           type: 'replace',
@@ -110,7 +110,9 @@ export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ 
 
       const data = {
         ...child.data,
-        parent: parent.data.id
+        parent: {
+          id: parent.data.id
+        }
       } as any
       setNodes(nds => applyNodeChanges([ {
         type: 'replace',
