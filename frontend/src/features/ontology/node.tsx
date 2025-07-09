@@ -16,7 +16,7 @@ export const SourceNode: React.FC<Props> = ({ data }) => {
   return <div className={ [ styles.node, selected ? styles.selected : '' ].join(' ') }>
     <p>{ data.englishName }</p>
     { data.id !== "-1" && <IonNote>ID: { data.id }</IonNote> }
-    { data.englishName !== 'Root' && <Handle type="target" position={ Position.Left } isConnectable={ !data.parent }/> }
+    { data.englishName !== 'Root' && <Handle type="target" position={ Position.Left }/> }
     <Handle type="source" position={ Position.Right }/>
   </div>
 }
