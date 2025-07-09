@@ -118,7 +118,7 @@ export const LabelItem: React.FC<{ label: string, index: number }> = ({ label, i
       dispatch(AnnotatorSlice.actions.addPresenceResult({ label, phaseID: phase.id }));
       dispatch(AnnotatorSlice.actions.focusLabel(label));
     }
-  }, [ label, phase ])
+  }, [ label, phase, isUsed ])
 
   const hideAllButCurrent = useCallback(() => {
     dispatch(AnnotatorSlice.actions.hideLabels(labelSet?.labels ?? []));
