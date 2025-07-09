@@ -1,23 +1,23 @@
 import React, { useCallback, useEffect } from "react";
 import { Background, Controls, ReactFlow } from "@xyflow/react";
 import { NewNode, NODE_ORIGIN, useOntologyTreeFlow } from "@/features/ontology/flow.hook.ts";
-import { API, Source } from "./api";
+import { API, Sound } from "./api";
 import { NODE_TYPES, useGetInitialNodes } from "@/features/ontology/initNodes.hook.ts";
 
-export const OntologySourcePage: React.FC = () => {
-  const { data: initialSources } = API.endpoints.getAllSources.useQuery();
-  const [ updateParentSource ] = API.endpoints.updateParentSource.useMutation();
-  const [ deleteSource ] = API.endpoints.deleteSource.useMutation();
-  const getInitialNodes = useGetInitialNodes(initialSources);
+export const OntologySoundPage: React.FC = () => {
+  const { data: initialSounds } = API.endpoints.getAllSounds.useQuery();
+  const [ updateParentSound ] = API.endpoints.updateParentSound.useMutation();
+  const [ deleteSound ] = API.endpoints.deleteSound.useMutation();
+  const getInitialNodes = useGetInitialNodes(initialSounds);
 
-  const onNewNode = useCallback((info: NewNode<Source>) => {
+  const onNewNode = useCallback((info: NewNode<Sound>) => {
     const englishName = prompt("Node english name");
     if (!englishName) return;
-    updateParentSource({
+    updateParentSound({
       englishName,
       parent_id: info.parentNode.data.id !== "-1" ? info.parentNode.data.id.toString() : undefined
     })
-  }, [ updateParentSource ])
+  }, [ updateParentSound ])
 
   const {
     nodes,
@@ -30,22 +30,22 @@ export const OntologySourcePage: React.FC = () => {
     onEdgesDelete,
     onConnect,
     onConnectEnd
-  } = useOntologyTreeFlow<Source>({
+  } = useOntologyTreeFlow<Sound>({
     onNew: onNewNode,
-    patch: updateParentSource,
-    del: deleteSource
+    patch: updateParentSound,
+    del: deleteSound
   })
 
   useEffect(() => {
     return () => {
-      API.util.invalidateTags([ 'Source' ])
+      API.util.invalidateTags([ 'Sound' ])
     }
-  }, [ initialSources ]);
+  }, [ initialSounds ]);
   useEffect(() => {
     const { nodes, edges } = getInitialNodes()
     setNodes(nodes)
     setEdges(edges)
-  }, [ initialSources ]);
+  }, [ initialSounds ]);
 
 
   return <div style={ { height: '100%', width: '100%' } }>

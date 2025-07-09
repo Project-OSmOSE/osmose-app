@@ -1,17 +1,18 @@
-import { useCallback } from "react";
+import type { Source } from './source/api'
+import type { Sound } from './sound/api'
+import { useCallback, useMemo } from "react";
 import { Edge, Node } from "@xyflow/react";
-import { Source } from "./api";
+import { SourceNode } from "./node";
 
 const COLUMN_SIZE = 256;
 const ROW_GAP = 32;
 
-const RootSource: Source = {
-  id: '-1',
-  englishName: 'Root',
-  parent: null,
-} as Source
-
-export const useGetInitialNodes = (sources: Source[] | undefined) => {
+export const useGetInitialNodes = <T extends Source | Sound>(data: T[] | undefined) => {
+  const ROOT = useMemo(() => ({
+    id: '-1',
+    englishName: 'Root',
+    parent: null,
+  } as T), [])
   const calculateWordDimensions = useCallback((text: string) => {
     const div = document.createElement('div');
     div.setAttribute('style', `
@@ -34,27 +35,27 @@ export const useGetInitialNodes = (sources: Source[] | undefined) => {
     return dimensions;
   }, [])
 
-  const compareSource = useCallback((a: Source, b: Source) => a.englishName.localeCompare(b.englishName), []);
+  const compareSource = useCallback((a: T, b: T) => a.englishName.localeCompare(b.englishName), []);
 
-  const getNodeBase = useCallback((source: Source): Omit<Node<Source>, 'position'> => ({
+  const getNodeBase = useCallback((source: T): Omit<Node<T>, 'position'> => ({
     id: source.id.toString(),
     type: 'source',
     data: source,
   }), [])
 
 
-  const getNode = useCallback((source: Source = RootSource, column: number = -1, y: number = 0): {
-    nodes: Node<Source>[],
-    edges: Edge<Node<Source>>[],
+  const getNode = useCallback((source: T = ROOT, column: number = -1, y: number = 0): {
+    nodes: Node<T>[],
+    edges: Edge<Node<T>>[],
     height: number
   } => {
-    const nodes: Node<Source>[] = []
-    const edges: Edge<Node<Source>>[] = []
+    const nodes: Node<T>[] = []
+    const edges: Edge<Node<T>>[] = []
     let height = calculateWordDimensions(source.englishName).height
-    const parentID = source.parent?.id ?? RootSource.id
+    const parentID = source.parent?.id ?? ROOT.id
 
-    const children = sources?.filter(s => {
-      if (source === RootSource) return s.parent === null;
+    const children = data?.filter(s => {
+      if (source === ROOT) return s.parent === null;
       return s.parent?.id === source.id;
     }).sort(compareSource) ?? []
 
@@ -84,12 +85,12 @@ export const useGetInitialNodes = (sources: Source[] | undefined) => {
           x: column * COLUMN_SIZE,
           y: childrenTop + childrenHeight / 2 - height / 2
         },
-        deletable: source !== RootSource,
+        deletable: source !== ROOT,
         draggable: false,
       })
       height = Math.max(height, childrenHeight)
     }
-    if (source !== RootSource) {
+    if (source !== ROOT) {
       edges.push({
         id: source.id.toString(),
         source: parentID,
@@ -99,7 +100,9 @@ export const useGetInitialNodes = (sources: Source[] | undefined) => {
     }
 
     return { nodes, edges, height }
-  }, [ sources, calculateWordDimensions, compareSource, getNodeBase ])
+  }, [ data, calculateWordDimensions, compareSource, getNodeBase ])
 
   return getNode;
 }
+
+export const NODE_TYPES = { source: SourceNode }

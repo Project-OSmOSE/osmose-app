@@ -1202,10 +1202,10 @@ type BibliographyNode implements Node {
   """Required for any published bibliography"""
   publicationDate: Date
   type: TypeEnum!
-  softwareInformation: BibliographySoftwareNode!
-  articleInformation: BibliographyArticleNode!
-  conferenceInformation: BibliographyConferenceNode!
-  posterInformation: BibliographyPosterNode!
+  softwareInformation: BibliographySoftwareNode
+  articleInformation: BibliographyArticleNode
+  conferenceInformation: BibliographyConferenceNode
+  posterInformation: BibliographyPosterNode
   authors(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], order: Int, order_Lt: Int, order_Lte: Int, order_Gt: Int, order_Gte: Int, bibliographyId: ID, bibliographyId_In: [ID], contactId: ID, contactId_In: [ID], institutions: Decimal, institutions_In: [[ID]]): AuthorNodeConnection!
   relatedProjects(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, contacts_Id: Decimal, contacts_Id_In: [ID], projectType_Id: Decimal, projectType_Id_In: [ID], campaigns_Id: Decimal, campaigns_Id_In: [ID], sites_Id: Decimal, sites_Id_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], projectType: Decimal, accessibility: AccessibilityEnum, doi: String, startDate: Date, startDate_Lte: Date, startDate_Lt: Date, startDate_Gte: Date, startDate_Gt: Date, endDate: Date, endDate_Lte: Date, endDate_Lt: Date, endDate_Gte: Date, endDate_Gt: Date, projectGoal: String, projectGoal_Icontains: String, financing: FinancingEnum): ProjectNodeConnection!
   relatedSounds(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], associatedNames_Id: Decimal, associatedNames_Id_In: [ID], englishName: String, englishName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SoundNodeConnection!
@@ -2554,6 +2554,8 @@ type ApiLabelNodeNodeConnection {
 type Mutation {
   postSource(input: PostSourceMutationInput!): PostSourceMutationPayload
   deleteSource(id: ID): DeleteSourceMutation
+  postSound(input: PostSoundMutationInput!): PostSoundMutationPayload
+  deleteSound(id: ID): DeleteSoundMutation
 }
 
 type PostSourceMutationPayload {
@@ -2590,5 +2592,36 @@ input PostSourceMutationInput {
 }
 
 type DeleteSourceMutation {
+  ok: Boolean
+}
+
+type PostSoundMutationPayload {
+  id: Int
+  relatedBibliography: String
+  associatedNames: String
+  englishName: String
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+
+  """May contain more than one error for same field."""
+  errors: [ErrorType]
+  ok: Boolean
+  data: SoundNode
+  clientMutationId: String
+}
+
+input PostSoundMutationInput {
+  id: Int
+  englishName: String!
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+  clientMutationId: String
+}
+
+type DeleteSoundMutation {
   ok: Boolean
 }

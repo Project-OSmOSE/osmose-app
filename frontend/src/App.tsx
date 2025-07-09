@@ -28,8 +28,9 @@ import { AploseSkeleton } from "@/components/layout";
 import { selectCurrentUser } from "@/service/api/user.ts";
 import { selectIsConnected } from "@/service/slices/auth.ts";
 import { ReactFlowProvider } from "@xyflow/react";
-import { OntologySourcePage } from "@/features/ontology/source";
 import { OntologyPage } from "@/features/ontology";
+import { OntologySourcePage } from "@/features/ontology/source";
+import { OntologySoundPage } from "@/features/ontology/sound";
 
 
 setupIonicReact({
@@ -99,7 +100,7 @@ const AppContent: React.FC = () => {
                 <Route path='sql' element={ <SqlQuery/> }/>
                 <Route path='ontology' element={ <OntologyPage/> }>
                     <Route path='source' element={ <OntologySourcePage/> }/>
-                    <Route path='sound'/>
+                    <Route path='sound' element={ <OntologySoundPage/> }/>
                 </Route>
             </Route>
         }

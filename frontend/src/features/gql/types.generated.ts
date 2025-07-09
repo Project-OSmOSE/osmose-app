@@ -312,12 +312,12 @@ export type BibliographyConferenceNode = Node & {
 
 export type BibliographyNode = Node & {
   __typename?: 'BibliographyNode';
-  articleInformation: BibliographyArticleNode;
+  articleInformation?: Maybe<BibliographyArticleNode>;
   authors: AuthorNodeConnection;
-  conferenceInformation: BibliographyConferenceNode;
+  conferenceInformation?: Maybe<BibliographyConferenceNode>;
   doi?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  posterInformation: BibliographyPosterNode;
+  posterInformation?: Maybe<BibliographyPosterNode>;
   /** Required for any published bibliography */
   publicationDate?: Maybe<Scalars['Date']['output']>;
   relatedLabels: LabelNodeConnection;
@@ -325,7 +325,7 @@ export type BibliographyNode = Node & {
   relatedProjects: ProjectNodeConnection;
   relatedSounds: SoundNodeConnection;
   relatedSources: SourceNodeConnection;
-  softwareInformation: BibliographySoftwareNode;
+  softwareInformation?: Maybe<BibliographySoftwareNode>;
   status?: Maybe<Scalars['StatusEnum']['output']>;
   tags: TagNodeConnection;
   title: Scalars['String']['output'];
@@ -1294,6 +1294,11 @@ export type ContactRoleNodeNodeConnection = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type DeleteSoundMutation = {
+  __typename?: 'DeleteSoundMutation';
+  ok?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type DeleteSourceMutation = {
   __typename?: 'DeleteSourceMutation';
   ok?: Maybe<Scalars['Boolean']['output']>;
@@ -2150,13 +2155,25 @@ export type MaintenanceTypeNodeNodeConnection = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  deleteSound?: Maybe<DeleteSoundMutation>;
   deleteSource?: Maybe<DeleteSourceMutation>;
+  postSound?: Maybe<PostSoundMutationPayload>;
   postSource?: Maybe<PostSourceMutationPayload>;
+};
+
+
+export type MutationDeleteSoundArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
 export type MutationDeleteSourceArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type MutationPostSoundArgs = {
+  input: PostSoundMutationInput;
 };
 
 
@@ -2412,6 +2429,33 @@ export type PlatformTypeNodeNodeConnection = {
   /** Contains the nodes in this connection. */
   results: Array<Maybe<PlatformTypeNode>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PostSoundMutationInput = {
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  codeName?: InputMaybe<Scalars['String']['input']>;
+  englishName: Scalars['String']['input'];
+  frenchName?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  parent?: InputMaybe<Scalars['String']['input']>;
+  taxon?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostSoundMutationPayload = {
+  __typename?: 'PostSoundMutationPayload';
+  associatedNames?: Maybe<Scalars['String']['output']>;
+  clientMutationId?: Maybe<Scalars['String']['output']>;
+  codeName?: Maybe<Scalars['String']['output']>;
+  data?: Maybe<SoundNode>;
+  englishName?: Maybe<Scalars['String']['output']>;
+  /** May contain more than one error for same field. */
+  errors?: Maybe<Array<Maybe<ErrorType>>>;
+  frenchName?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+  ok?: Maybe<Scalars['Boolean']['output']>;
+  parent?: Maybe<Scalars['String']['output']>;
+  relatedBibliography?: Maybe<Scalars['String']['output']>;
+  taxon?: Maybe<Scalars['String']['output']>;
 };
 
 export type PostSourceMutationInput = {

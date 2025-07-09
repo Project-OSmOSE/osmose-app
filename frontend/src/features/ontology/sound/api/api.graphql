@@ -1,0 +1,43 @@
+query getAllSounds{
+    allSounds {
+        results {
+            id
+            englishName
+            parent {
+                id
+            }
+        }
+    }
+}
+
+mutation createSound($englishName: String!, $frenchName: String, $parent_id: String) {
+    postSound(input: {englishName: $englishName, frenchName: $frenchName, parent: $parent_id}) {
+        ok
+        data {
+            id
+        }
+        errors {
+            field,
+            messages
+        }
+    }
+}
+
+mutation updateParentSound($englishName: String!, $parent_id: String) {
+    postSound(input: {englishName: $englishName, parent: $parent_id}) {
+        ok
+        data {
+            id
+        }
+        errors {
+            field,
+            messages
+        }
+    }
+}
+
+mutation deleteSound($id: ID!) {
+    deleteSound(id: $id) {
+        ok
+    }
+}

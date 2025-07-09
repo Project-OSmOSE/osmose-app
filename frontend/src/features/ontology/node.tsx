@@ -1,9 +1,11 @@
 import React from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import styles from './source.module.scss'
-import { Source } from "./api";
+import styles from './ontology.module.scss'
+import { Sound } from "./sound/api";
+import { Source } from "./source/api";
 
-type Props = NodeProps & { data: Source; type: any }
+type Props = NodeProps & { data: Source | Sound; type: any }
+
 export const SourceNode: React.FC<Props> = ({ data, selected }) => {
   return <div className={ [ styles.node, selected ? styles.selected : '' ].join(' ') }>
     <p>{ data.englishName }</p>
