@@ -121,12 +121,10 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
 
     // Compute new center (before resizing)
     let newCenter: number;
-    console.log('onzoomupdated', ui.zoomOrigin)
     if (ui.zoomOrigin) {
       // x-coordinate has been given, center on it
       const bounds = canvas.getBoundingClientRect();
       newCenter = (ui.zoomOrigin.x - bounds.left) * userPreferences.zoomLevel / _zoom;
-      console.log('onzoomupdated', newCenter)
       const coords = {
         clientX: ui.zoomOrigin.x,
         clientY: ui.zoomOrigin.y
@@ -140,7 +138,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
       newCenter = currentTime.current * newTimePxRatio;
     }
     wrapper.scrollTo({ left: Math.floor(newCenter - containerWidth / 2) })
-    console.log('onzoomupdated', Math.floor(newCenter - containerWidth / 2))
     _setZoom(userPreferences.zoomLevel);
     updateCanvas()
   }, [ userPreferences.zoomLevel ]);
@@ -326,7 +323,6 @@ export const SpectrogramRender = React.forwardRef<SpectrogramRender, Props>(({ a
   }
 
   const onWheel = (event: WheelEvent) => {
-    console.log('onWheel', event)
     // Disable zoom if the user wants horizontal scroll
     if (event.shiftKey) return;
 

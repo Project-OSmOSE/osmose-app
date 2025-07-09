@@ -118,7 +118,7 @@ export const CreateCampaign: React.FC = () => {
       colormap_default,
       colormap_inverted_default
     })
-  }, [ name, desc, instructions_url, deadline, dataset, spectro_configs ])
+  }, [ name, desc, instructions_url, deadline, dataset, spectro_configs, allow_image_tuning, allow_colormap_tuning, colormap_default, colormap_inverted_default ])
   useEffect(() => {
     if (errorSubmittingCampaign) {
       toast.presentError(errorSubmittingCampaign)
