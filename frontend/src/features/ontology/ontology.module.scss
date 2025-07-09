@@ -54,6 +54,6 @@
   }
 
   &.selected {
-    background: var(--aplose-backdrop-color);
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
   }
 }
