@@ -18,7 +18,7 @@ export const OntologySourcePage: React.FC = () => {
     if (!englishName) return;
     updateParentSource({
       englishName,
-      parent_id: info.parentNode.data.id.toString()
+      parent_id: info.parentNode.data.id !== "-1" ? info.parentNode.data.id.toString() : undefined
     })
   }, [ updateParentSource ])
 

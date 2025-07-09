@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "backend.osmosewebsite.apps.OsmoseWebsiteConfig",
     "backend.aplose.apps.AploseConfig",
     "tinymce",
+    "django_admin_multiple_choice_list_filter",
     "metadatax",
     "metadatax.common",
     "metadatax.bibliography",

@@ -84,6 +84,8 @@ export const useGetInitialNodes = (sources: Source[] | undefined) => {
           x: column * COLUMN_SIZE,
           y: childrenTop + childrenHeight / 2 - height / 2
         },
+        deletable: source !== RootSource,
+        draggable: false,
       })
       height = Math.max(height, childrenHeight)
     }

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("acquisition", "0003_auto_20250630_1401"),
+        ("metadatax", "0025_migrate_database"),
         ("api", "0080_alter_annotationcampaign_label_set"),
     ]
 

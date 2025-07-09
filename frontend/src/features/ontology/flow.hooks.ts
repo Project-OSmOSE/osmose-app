@@ -12,7 +12,7 @@ import {
   useReactFlow
 } from "@xyflow/react";
 import { useCallback } from "react";
-import { FinalConnectionState } from "@xyflow/system/dist/esm/types/general";
+import { FinalConnectionState, InternalNodeBase } from "@xyflow/system";
 import '@xyflow/react/dist/style.css'
 
 export const NODE_ORIGIN: [ number, number ] = [ 0.5, 0 ];
@@ -98,9 +98,8 @@ export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ 
   }, []);
 
   const onConnectEnd = useCallback((_: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
-    console.debug('connectionState type', connectionState)
     if (connectionState.fromNode && connectionState.toNode) { // Node added
-      let child, parent: Node;
+      let child, parent: InternalNodeBase;
       if (connectionState.fromHandle!.type === 'source') {
         parent = connectionState.fromNode;
         child = connectionState.toNode;
@@ -112,7 +111,7 @@ export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ 
       const data = {
         ...child.data,
         parent: parent.data.id
-      }
+      } as any
       setNodes(nds => applyNodeChanges([ {
         type: 'replace',
         id: child.id,
@@ -125,7 +124,7 @@ export const useOntologyTreeFlow = <NodeType extends Record<string, unknown>>({ 
 
     // when a connection is dropped on the pane it's not valid
     if (!connectionState.isValid) {
-      onNew({ parentNode: connectionState.fromNode })
+      onNew({ parentNode: connectionState.fromNode as Node<NodeType> })
     }
   }, [ screenToFlowPosition, getNodeID, getEdgeID, nodes, onNew ],);
 

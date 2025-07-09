@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("osmosewebsite", "0033_alter_project_metadatax_project"),
-        ("bibliography", "0001_initial"),
+        ("bibliography", "00002_make_information_nullable_by_default"),
     ]
 
     operations = [

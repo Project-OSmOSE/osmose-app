@@ -12,7 +12,7 @@ type apiType = Omit<apiDefinitions, 'getAllSources'> & {
 }
 
 const enhancedAPI = api.enhanceEndpoints<TagType, apiType>({
-  addTagTypes: [ 'Source' ],
+  addTagTypes: Tags,
   endpoints: {
     getAllSources: {
       transformResponse(response: GetAllSourcesQuery) {

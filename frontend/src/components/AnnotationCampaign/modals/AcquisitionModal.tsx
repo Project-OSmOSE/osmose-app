@@ -15,7 +15,7 @@ import styles from './styles.module.scss';
 import { DatasetAPI } from "@/service/api/dataset.ts";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRetrieveCurrentCampaign } from "@/service/api/campaign.ts";
-import { DeploymentAPI } from "@/features/deployment.ts";
+import { API as DeploymentAPI } from "@/features/acquisition/deployment/api";
 
 export const AcquisitionModal: React.FC<{
   onClose?(): void;
@@ -26,7 +26,9 @@ export const AcquisitionModal: React.FC<{
     isFetching,
     error
   } = DatasetAPI.endpoints.listDataset.useQuery({ campaignID: campaign?.id ?? skipToken })
-  const { data: deployments } = DeploymentAPI.endpoints.getDeploymentsForIds.useQuery(datasets?.flatMap(d => d.related_channel_configuration.map(c => c.deployment)) ?? skipToken)
+  const { data: deployments } = DeploymentAPI.endpoints.getAllDeployments.useQuery({
+    ids: (datasets ?? []).flatMap(d => d.related_channel_configuration.map(c => c.deployment.toString()))
+  })
 
   const pluralize = useCallback((data: any[]) => data.length > 1 ? 's' : '', [])
 
@@ -57,8 +59,8 @@ export const AcquisitionModal: React.FC<{
       { error && <WarningText>{ getErrorMessage(error) }</WarningText> }
 
       { datasets && datasets.length > 0 &&
-      projectNames.length > 0 && deployments.length > 0 && recorders.length > 0 && hydrophones.length > 0 ?
-        <Table columns={ 2 } className={styles.acquisitionTable}>
+      projectNames.length > 0 && deployments && deployments.length > 0 && recorders.length > 0 && hydrophones.length > 0 ?
+        <Table columns={ 2 } className={ styles.acquisitionTable }>
           <TableHead isFirstColumn={ true } leftSticky>Project{ pluralize(projectNames) }</TableHead>
           <TableContent>{ projectNames.join(', ') }</TableContent>
           <TableDivider/>
