@@ -30,6 +30,7 @@ export const Panel: React.FC = () => {
   const isFetching = useMemo(() => isFetchingSound || isFetchingSource, [ isFetchingSource, isFetchingSound ])
 
   if (!type) return <Fragment/>
+  if (!id) return <div className={ styles.panel }/>
   return <div className={ styles.panel }>
     { isFetching && <IonSpinner/> }
     { !isFetching && source && type === 'source' && <Item data={ source } type='source' key={ source.id }/> }
