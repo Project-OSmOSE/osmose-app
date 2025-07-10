@@ -653,28 +653,29 @@ files = [
 
 [[package]]
 name = "metadatax"
-version = "0.4.2"
+version = "0.4.4"
 description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
-files = []
-develop = true
+files = [
+    {file = "metadatax-0.4.4.tar.gz", hash = "sha256:5705267a0c9f01326084400dbd44b33399db809db84e3b3ae24260d923757a84"},
+]
 
 [package.dependencies]
-Django = "^3.2"
-django-admin-multiple-choice-list-filter = "^0.1.1"
+Django = ">=3.2,<4.0"
+django-admin-multiple-choice-list-filter = ">=0.1.1,<0.2.0"
 django-filter = ">=2"
-django-model-prefix = "^1.1.0"
-djangorestframework = "^3.15.1"
-graphene-django = "^3.2.3"
+django-model-prefix = ">=1.1.0,<2.0.0"
+djangorestframework = ">=3.15.1,<4.0.0"
+graphene-django = ">=3.2.3,<4.0.0"
 graphene-django-pagination = {url = "https://github.com/instruct-br/graphene-django-pagination/archive/master.zip"}
-psycopg2-binary = "^2.8.6"
-python-dotenv = "^1.0.1"
+psycopg2-binary = ">=2.8.6,<3.0.0"
+python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
-type = "directory"
-url = "../metadatax"
+type = "url"
+url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.4/metadatax-0.4.4.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1470,4 +1471,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "b577e7f2b21ad82f4ef724e95b94e302c61cd88e6cd6538368384ebcd2c89723"
+content-hash = "98ef95f3a6c1c83d2c0175ee2b0f2c5fab0caae50ced09bfefd256f1afe8a792"

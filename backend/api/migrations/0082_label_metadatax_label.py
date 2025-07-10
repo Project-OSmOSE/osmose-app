@@ -7,14 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0002_link_to_bibliography'),
-        ('api', '0081_alter_dataset_related_channel_configuration'),
+        ("ontology", "0002_link_to_bibliography"),
+        ("api", "0081_alter_dataset_related_channel_configuration"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='label',
-            name='metadatax_label',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='ontology.label'),
+            model_name="label",
+            name="metadatax_label",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="ontology.label",
+            ),
         ),
     ]

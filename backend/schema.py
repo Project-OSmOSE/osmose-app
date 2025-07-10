@@ -36,7 +36,6 @@ class DeploymentNode(MetadataxDeploymentNode):
         interfaces = (relay.Node,)
 
 
-
 class Query(
     ApiQuery,
     OSmOSEWebsiteQuery,
