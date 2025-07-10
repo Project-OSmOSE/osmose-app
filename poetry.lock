@@ -608,24 +608,23 @@ description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
-files = [
-    {file = "metadatax-0.4.5.tar.gz", hash = "sha256:ec56e7b76fde9607a07b3dc5d702bd78bfee796cb0975815d5eb124eeab07cf9"},
-]
+files = []
+develop = true
 
 [package.dependencies]
-Django = ">=3.2,<4.0"
-django-admin-multiple-choice-list-filter = ">=0.1.1,<0.2.0"
+Django = "^3.2"
+django-admin-multiple-choice-list-filter = "^0.1.1"
 django-filter = ">=2"
-django-model-prefix = ">=1.1.0,<2.0.0"
-djangorestframework = ">=3.15.1,<4.0.0"
-graphene-django = ">=3.2.3,<4.0.0"
+django-model-prefix = "^1.1.0"
+djangorestframework = "^3.15.1"
+graphene-django = "^3.2.3"
 graphene-django-pagination = {url = "https://github.com/instruct-br/graphene-django-pagination/archive/master.zip"}
-psycopg2-binary = ">=2.8.6,<3.0.0"
-python-dotenv = ">=1.0.1,<2.0.0"
+psycopg2-binary = "^2.8.6"
+python-dotenv = "^1.0.1"
 
 [package.source]
-type = "url"
-url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.5/metadatax-0.4.5.tar.gz"
+type = "directory"
+url = "../metadatax"
 
 [[package]]
 name = "more-itertools"
@@ -1350,4 +1349,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "57ca9f802e062a0ce36e6e923807a1fd24ceee5fc78c3e1a54d2d68343bec4e9"
+content-hash = "520b7ca9629b4367cbeb2a0d85c1806df5b836c2020c98575770e3e524fb1c71"
