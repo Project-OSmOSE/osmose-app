@@ -1,4 +1,5 @@
 """GraphQL Schema"""
+
 import graphene
 from django_filters import NumberFilter
 from graphene import relay
@@ -29,7 +30,7 @@ class DeploymentNode(MetadataxDeploymentNode):
     """Override of Metadatax deployment node"""
 
     class Meta:
-        # pylint: disable=missing-docstring, too-few-public-method
+        # pylint: disable=missing-docstring, too-few-public-methods
         model = Deployment
         fields = "__all__"
         filterset_class = DeploymentFilter
@@ -44,7 +45,7 @@ class Query(
 ):
     """Global query"""
 
-    # pylint: too-few-public-method
+    # pylint: disable=too-few-public-methods
 
     all_deployments = DjangoPaginationConnectionField(DeploymentNode)
 
@@ -52,8 +53,7 @@ class Query(
 class Mutation(MetadataxMutation, graphene.ObjectType):
     """Global mutation"""
 
-    # pylint: too-few-public-method
-    pass
+    # pylint: disable=too-few-public-methods
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

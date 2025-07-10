@@ -17,6 +17,8 @@ from .team_member import TeamMemberSerializer
 
 
 class ContactSerializer(MetadataxContactSerializer):
+    """Contact serializer"""
+
     team_member = TeamMemberSerializer(read_only=True)
 
     class Meta(MetadataxContactSerializer.Meta):
@@ -43,18 +45,24 @@ class BibliographySoftwareSerializer(serializers.ModelSerializer):
 
 
 class BibliographyArticleSerializer(serializers.ModelSerializer):
+    """Bibliography article serializer"""
+
     class Meta:
         model = BibliographyArticle
         fields = "__all__"
 
 
 class BibliographyConferenceSerializer(serializers.ModelSerializer):
+    """Bibliography conference serializer"""
+
     class Meta:
         model = BibliographyConference
         fields = "__all__"
 
 
 class BibliographyPosterSerializer(serializers.ModelSerializer):
+    """Bibliography poster serializer"""
+
     class Meta:
         model = BibliographyPoster
         fields = "__all__"

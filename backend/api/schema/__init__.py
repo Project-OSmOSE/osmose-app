@@ -9,5 +9,7 @@ from .label import ApiLabelNode
 class ApiQuery(graphene.ObjectType):
     """API query"""
 
+    # pylint: disable=too-few-public-methods
+
     all_api_annotation_results = DjangoPaginationConnectionField(AnnotationResultNode)
     all_api_labels = DjangoPaginationConnectionField(ApiLabelNode)
