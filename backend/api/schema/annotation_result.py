@@ -28,7 +28,7 @@ class AnnotationResultNode(DjangoObjectType):
     id = graphene.ID(required=True)
 
     class Meta:
-        # pylint: disable=missing-docstring
+        # pylint: disable=missing-docstring, too-few-public-methods
         model = AnnotationResult
         fields = "__all__"
         filterset_class = AnnotationResultFilter

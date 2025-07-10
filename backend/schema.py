@@ -29,7 +29,7 @@ class DeploymentNode(MetadataxDeploymentNode):
     """Override of Metadatax deployment node"""
 
     class Meta:
-        # pylint: disable=missing-docstring
+        # pylint: disable=missing-docstring, too-few-public-method
         model = Deployment
         fields = "__all__"
         filterset_class = DeploymentFilter
@@ -44,10 +44,15 @@ class Query(
 ):
     """Global query"""
 
+    # pylint: too-few-public-method
+
     all_deployments = DjangoPaginationConnectionField(DeploymentNode)
 
 
 class Mutation(MetadataxMutation, graphene.ObjectType):
+    """Global mutation"""
+
+    # pylint: too-few-public-method
     pass
 
 

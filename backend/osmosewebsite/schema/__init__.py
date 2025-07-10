@@ -8,4 +8,6 @@ from .project import ProjectNode
 class OSmOSEWebsiteQuery(graphene.ObjectType):
     """OSmOSE Website query"""
 
+    # pylint: disable=too-few-public-methods
+
     all_website_projects = DjangoPaginationConnectionField(ProjectNode)

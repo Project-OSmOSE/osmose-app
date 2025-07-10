@@ -8,11 +8,19 @@ from metadatax.bibliography.models import (
     BibliographyPoster,
     Author,
 )
-from metadatax.common.serializers import ContactSerializer
+from metadatax.common.serializers import ContactSerializer as MetadataxContactSerializer
 from rest_framework import serializers
 
 from backend.utils.serializers import EnumField
 from .institution import InstitutionSerializer
+from .team_member import TeamMemberSerializer
+
+
+class ContactSerializer(MetadataxContactSerializer):
+    team_member = TeamMemberSerializer(read_only=True)
+
+    class Meta(MetadataxContactSerializer.Meta):
+        pass
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -27,6 +35,8 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class BibliographySoftwareSerializer(serializers.ModelSerializer):
+    """Bibliography software serializer"""
+
     class Meta:
         model = BibliographySoftware
         fields = "__all__"

@@ -3,112 +3,137 @@
 from django.db import migrations, models
 
 
-def migrate(apps, schema_editor):
-    OldBibliography = apps.get_model("osmosewebsite", "Bibliography")
-    TeamMember = apps.get_model("osmosewebsite", "TeamMember")
-    Bibliography = apps.get_model("bibliography", "Bibliography")
-    BibliographySoftware = apps.get_model("bibliography", "BibliographySoftware")
-    BibliographyArticle = apps.get_model("bibliography", "BibliographyArticle")
-    BibliographyConference = apps.get_model("bibliography", "BibliographyConference")
-    BibliographyPoster = apps.get_model("bibliography", "BibliographyPoster")
-    Tag = apps.get_model("bibliography", "Tag")
-    Author = apps.get_model("bibliography", "Author")
-    Contact = apps.get_model("common", "Contact")
-    Institution = apps.get_model("common", "Institution")
+class MigrationAction:
+    def __init__(self, apps, _):
+        self.TeamMember = apps.get_model("osmosewebsite", "TeamMember")
+        self.Bibliography = apps.get_model("bibliography", "Bibliography")
+        self.BibliographySoftware = apps.get_model(
+            "bibliography", "BibliographySoftware"
+        )
+        self.BibliographyArticle = apps.get_model("bibliography", "BibliographyArticle")
+        self.BibliographyConference = apps.get_model(
+            "bibliography", "BibliographyConference"
+        )
+        self.BibliographyPoster = apps.get_model("bibliography", "BibliographyPoster")
+        self.Tag = apps.get_model("bibliography", "Tag")
+        self.Author = apps.get_model("bibliography", "Author")
+        self.Contact = apps.get_model("common", "Contact")
+        self.Institution = apps.get_model("common", "Institution")
 
-    for biblio in OldBibliography.objects.all():
+        for member in self.TeamMember.objects.all():
+            self.update_member(member)
+
+        for biblio in apps.get_model("osmosewebsite", "Bibliography").objects.all():
+            self.migrate_biblio(biblio)
+
+        for scientist in apps.get_model("osmosewebsite", "Scientist").objects.all():
+            for institution in scientist.institutions.all():
+                scientist.metadatax_institutions.add(self.get_institution(institution))
+
+    def migrate_biblio(self, old_biblio):
         additional_information = {}
-        if biblio.type == "S":
+        if old_biblio.type == "S":
             additional_information[
                 "software_information"
-            ] = BibliographySoftware.objects.create(
-                publication_place=biblio.publication_place,
-                repository_url=biblio.repository_url,
+            ] = self.BibliographySoftware.objects.create(
+                publication_place=old_biblio.publication_place,
+                repository_url=old_biblio.repository_url,
             )
-        if biblio.type == "A":
+        if old_biblio.type == "A":
             additional_information[
                 "article_information"
-            ] = BibliographyArticle.objects.create(
-                journal=biblio.journal,
-                volumes=biblio.volumes,
-                pages_from=biblio.pages_from,
-                pages_to=biblio.pages_to,
-                issue_nb=biblio.issue_nb,
-                article_nb=biblio.article_nb,
+            ] = self.BibliographyArticle.objects.create(
+                journal=old_biblio.journal,
+                volumes=old_biblio.volumes,
+                pages_from=old_biblio.pages_from,
+                pages_to=old_biblio.pages_to,
+                issue_nb=old_biblio.issue_nb,
+                article_nb=old_biblio.article_nb,
             )
-        if biblio.type == "C":
+        if old_biblio.type == "C":
             additional_information[
                 "conference_information"
-            ] = BibliographyConference.objects.create(
-                conference_name=biblio.conference,
-                conference_location=biblio.conference_location,
-                conference_abstract_book_url=biblio.conference_abstract_book_url,
+            ] = self.BibliographyConference.objects.create(
+                conference_name=old_biblio.conference,
+                conference_location=old_biblio.conference_location,
+                conference_abstract_book_url=old_biblio.conference_abstract_book_url,
             )
-        if biblio.type == "P":
+        if old_biblio.type == "P":
             additional_information[
                 "poster_information"
-            ] = BibliographyPoster.objects.create(
-                poster_url=biblio.poster_url,
+            ] = self.BibliographyPoster.objects.create(
+                poster_url=old_biblio.poster_url,
             )
-            if biblio.conference is not None and biblio.conference_location is not None:
+            if (
+                old_biblio.conference is not None
+                and old_biblio.conference_location is not None
+            ):
                 additional_information[
                     "conference_information"
-                ] = BibliographyConference.objects.create(
-                    conference_name=biblio.conference,
-                    conference_location=biblio.conference_location,
-                    conference_abstract_book_url=biblio.conference_abstract_book_url,
+                ] = self.BibliographyConference.objects.create(
+                    conference_name=old_biblio.conference,
+                    conference_location=old_biblio.conference_location,
+                    conference_abstract_book_url=old_biblio.conference_abstract_book_url,
                 )
-        new_biblio = Bibliography.objects.create(
-            title=biblio.title,
-            doi=biblio.doi,
-            status=biblio.publication_status,
-            type=biblio.type,
-            publication_date=biblio.publication_date,
+        new_biblio = self.Bibliography.objects.create(
+            title=old_biblio.title,
+            doi=old_biblio.doi,
+            status=old_biblio.publication_status,
+            type=old_biblio.type,
+            publication_date=old_biblio.publication_date,
             **additional_information,
         )
 
-        for tag in biblio.tags.all():
-            new_tag, _ = Tag.objects.get_or_create(name=tag.name)
+        for tag in old_biblio.tags.all():
+            new_tag, _ = self.Tag.objects.get_or_create(name=tag.name)
             new_biblio.tags.add(new_tag)
 
-        for author in biblio.authors.all():
-            contact, _ = Contact.objects.get_or_create(
-                name=f"{author.scientist.first_name} {author.scientist.last_name}",
-            )
-            for institution in author.scientist.institutions.all():
-                new_institution, _ = Institution.objects.get_or_create(
-                    name=institution.name,
-                    city=institution.city,
-                    country=institution.country,
-                )
-                contact.current_institutions.add(new_institution)
-            new_author = Author.objects.create(
-                order=author.order,
-                bibliography=new_biblio,
-                contact=contact,
-            )
-            for institution in author.institutions.all():
-                new_institution, _ = Institution.objects.get_or_create(
-                    name=institution.name,
-                    city=institution.city,
-                    country=institution.country,
-                )
-                new_author.institutions.add(new_institution)
+        for author in old_biblio.authors.all():
+            self.get_author(author, new_biblio)
 
-    for member in TeamMember.objects.all():
-        contact, _ = Contact.objects.get_or_create(
-            name=f"{member.scientist.first_name} {member.scientist.last_name}",
+        new_biblio.save()
+
+    def update_member(self, member):
+        member.contact = self.get_contact(old_scientist=member.scientist)
+        member.save()
+
+    def get_author(self, old_author, biblio):
+        new_author = self.Author.objects.create(
+            order=old_author.order,
+            bibliography=biblio,
+            contact=self.get_contact(old_author.scientist),
         )
-        for institution in member.scientist.institutions.all():
-            new_institution, _ = Institution.objects.get_or_create(
+        for institution in old_author.institutions.all():
+            new_institution, _ = self.Institution.objects.get_or_create(
                 name=institution.name,
                 city=institution.city,
                 country=institution.country,
             )
-            contact.current_institutions.add(new_institution)
+            new_author.institutions.add(new_institution)
+        new_author.save()
+        return new_author
 
-        member.contact = contact
-        member.save()
+    def get_contact(self, old_scientist):
+        contact, _ = self.Contact.objects.get_or_create(
+            first_name=old_scientist.first_name,
+            last_name=old_scientist.last_name,
+        )
+        for institution in old_scientist.institutions.all():
+            contact.current_institutions.add(self.get_institution(institution))
+        contact.save()
+        return contact
+
+    def get_institution(self, old_institution):
+        new_institution, _ = self.Institution.objects.get_or_create(
+            name=old_institution.name,
+            city=old_institution.city,
+            country=old_institution.country,
+        )
+        return new_institution
+
+
+def log(apps, _):
+    print("ok")
 
 
 class Migration(migrations.Migration):
@@ -130,22 +155,26 @@ class Migration(migrations.Migration):
                 to="common.contact",
             ),
         ),
-        migrations.RunPython(migrate, migrations.RunPython.noop),
-        migrations.RemoveField(
-            model_name="bibliography",
-            name="tags",
-        ),
-        migrations.RemoveField(
-            model_name="teammember",
-            name="scientist",
-        ),
-        migrations.AlterField(
+        migrations.RunPython(log, migrations.RunPython.noop),
+        migrations.AddField(
             model_name="scientist",
-            name="institutions",
+            name="metadatax_institutions",
             field=models.ManyToManyField(
                 blank=True, related_name="scientists", to="common.Institution"
             ),
         ),
+        migrations.RunPython(MigrationAction, migrations.RunPython.noop),
+        migrations.RunPython(log, migrations.RunPython.noop),
+        migrations.RemoveField(
+            model_name="scientist",
+            name="institutions",
+        ),
+        migrations.RenameField(
+            model_name="scientist",
+            old_name="metadatax_institutions",
+            new_name="institutions",
+        ),
+        migrations.RunPython(log, migrations.RunPython.noop),
         migrations.AlterField(
             model_name="teammember",
             name="contact",
@@ -154,6 +183,15 @@ class Migration(migrations.Migration):
                 related_name="team_member",
                 to="common.contact",
             ),
+        ),
+        migrations.RunPython(log, migrations.RunPython.noop),
+        migrations.RemoveField(
+            model_name="teammember",
+            name="scientist",
+        ),
+        migrations.RemoveField(
+            model_name="bibliography",
+            name="tags",
         ),
         migrations.DeleteModel(
             name="Author",

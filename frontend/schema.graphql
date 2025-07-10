@@ -2551,6 +2551,7 @@ type ApiLabelNodeNodeConnection {
   totalCount: Int
 }
 
+"""Global mutation"""
 type Mutation {
   postSource(input: PostSourceMutationInput!): PostSourceMutationPayload
   deleteSource(id: ID): DeleteSourceMutation

@@ -15,6 +15,8 @@ class BibliographyViewSet(viewsets.ReadOnlyModelViewSet):
         "poster_information",
     ).prefetch_related(
         "authors",
+        "authors__contact",
+        "authors__contact__team_member",
         "tags",
     )
     serializer_class = BibliographySerializer

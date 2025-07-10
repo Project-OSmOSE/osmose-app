@@ -31,4 +31,4 @@ class TeamMember(models.Model):
         ordering = ["level"]
 
     def __str__(self):
-        return self.scientist.__str__()
+        return self.contact.__str__()

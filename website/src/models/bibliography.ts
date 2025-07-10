@@ -1,4 +1,4 @@
-import { Scientist } from "./scientific";
+import { TeamMember } from "./team";
 
 export type PublicationStatus = 'Upcoming' | 'Published';
 export type PublicationType = 'Software' | 'Article' | 'Conference' | 'Poster';
@@ -43,9 +43,27 @@ export type PosterInformation = {
   poster_url: string | null; // URL
 }
 
+export interface Contact {
+  id: number;
+  first_name: string;
+  last_name: string;
+  initial_names: string;
+  mail: string | null;
+  website: string | null;
+  current_institutions: number[]; //pk
+  team_member: TeamMember | null;
+}
+
+export interface Institution {
+  id: number;
+  name: string;
+  city: string;
+  country: string;
+}
+
 export interface Author {
   id: string;
   order: number;
-  scientist: Scientist;
-  institutions: any[];
+  contact: Contact;
+  institutions: Institution[];
 }

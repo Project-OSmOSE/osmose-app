@@ -42,7 +42,7 @@ export const Publications: React.FC = () => {
       if (!isMounted) return;
       setBibliography(data?.sort(sortBibliography)?.map(b => ({
         ...b,
-        section: b.publication_status === 'Published' ? new Date(b.publication_date).getFullYear() : b.publication_status
+        section: b.status === 'Published' ? new Date(b.publication_date).getFullYear() : b.status
       })) ?? [])
       const tags = [ ...new Set(data?.flatMap(b => b.tags) ?? []) ]
       setAllTags(tags)

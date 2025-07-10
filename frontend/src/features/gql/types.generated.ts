@@ -2153,6 +2153,7 @@ export type MaintenanceTypeNodeNodeConnection = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+/** Global mutation */
 export type Mutation = {
   __typename?: 'Mutation';
   deleteSound?: Maybe<DeleteSoundMutation>;
@@ -2162,21 +2163,25 @@ export type Mutation = {
 };
 
 
+/** Global mutation */
 export type MutationDeleteSoundArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
+/** Global mutation */
 export type MutationDeleteSourceArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
+/** Global mutation */
 export type MutationPostSoundArgs = {
   input: PostSoundMutationInput;
 };
 
 
+/** Global mutation */
 export type MutationPostSourceArgs = {
   input: PostSourceMutationInput;
 };

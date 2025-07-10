@@ -35,7 +35,7 @@ class ApiLabelNode(DjangoObjectType):
     annotationresult_set = DjangoPaginationConnectionField(AnnotationResultNode)
 
     class Meta:
-        # pylint: disable=missing-docstring
+        # pylint: disable=missing-docstring, too-few-public-methods
         model = Label
         fields = "__all__"
         filterset_class = LabelFilter

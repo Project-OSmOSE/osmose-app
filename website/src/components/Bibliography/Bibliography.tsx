@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import {
   ArticleInformation,
   Bibliography,
@@ -30,15 +30,19 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
     }
   }, [ reference ])
 
-  return <a className={ styles.bibliography }
-            href={ link }
-            target="_blank" rel="noopener noreferrer">
+  const openLink = useCallback(() => {
+    if (!link) return;
+    window.open(link, "_blank", "noopener noreferrer");
+  }, [ link ])
+
+  return <div className={ [ styles.bibliography, link && styles.clickable ].join(' ') }
+              onClick={ openLink }>
     <p className={ styles.title }>{ reference.title }</p>
     <p className={ styles.details }>
       <Authors authors={ reference.authors }/>, ({ status }). { details }
     </p>
     { reference.tags.length > 0 && <div className={ styles.tags }>
-      { reference.tags.map(tag => <p>{ tag }</p>) }
+      { reference.tags.map(tag => <p key={ tag }>{ tag }</p>) }
     </div> }
 
     <div className={ styles.doiLinks }>
@@ -50,7 +54,7 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
     </div>
 
     <div className={ styles.type }>{ reference.type }</div>
-  </a>
+  </div>
 }
 
 export const ArticleDetail: React.FC<{ info: ArticleInformation }> = ({ info }) => {
