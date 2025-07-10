@@ -6,7 +6,7 @@ authors = []
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
 Django = "^3.2"
 djangorestframework = "^3.12.4"
 djangorestframework-simplejwt = "^4.6.0"
@@ -19,10 +19,11 @@ python-dateutil = ">=2.4"
 metadatax = {url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.10/metadatax-0.4.10.tar.gz"}
 #metadatax = {path = "../metadatax", develop=true}
 whitenoise = "^6.9.0"
+osekit = "^0.2.5"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^5.2"
+pytest = "^8.3.5"
 coverage = { extras = ["toml"], version = "^6.3" }
 black = "^22.10.0"
 pylint = "3.3.7"
