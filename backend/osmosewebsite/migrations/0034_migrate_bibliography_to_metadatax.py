@@ -132,10 +132,6 @@ class MigrationAction:
         return new_institution
 
 
-def log(apps, _):
-    print("ok")
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -155,7 +151,6 @@ class Migration(migrations.Migration):
                 to="common.contact",
             ),
         ),
-        migrations.RunPython(log, migrations.RunPython.noop),
         migrations.AddField(
             model_name="scientist",
             name="metadatax_institutions",
@@ -164,7 +159,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(MigrationAction, migrations.RunPython.noop),
-        migrations.RunPython(log, migrations.RunPython.noop),
         migrations.RemoveField(
             model_name="scientist",
             name="institutions",
@@ -174,7 +168,6 @@ class Migration(migrations.Migration):
             old_name="metadatax_institutions",
             new_name="institutions",
         ),
-        migrations.RunPython(log, migrations.RunPython.noop),
         migrations.AlterField(
             model_name="teammember",
             name="contact",
@@ -184,7 +177,6 @@ class Migration(migrations.Migration):
                 to="common.contact",
             ),
         ),
-        migrations.RunPython(log, migrations.RunPython.noop),
         migrations.RemoveField(
             model_name="teammember",
             name="scientist",

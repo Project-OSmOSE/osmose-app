@@ -64,10 +64,11 @@ class Command(BaseCommand):
             profile = fake.profile()
             websites = profile["website"]
             contact = Contact.objects.create(
-                name=f"{fake.first_name()} {fake.last_name()}",
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
             )
             TeamMember.objects.create(
-                scientist=scientist,
+                contact=contact,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
@@ -81,10 +82,11 @@ class Command(BaseCommand):
             profile = fake.profile()
             websites = profile["website"]
             contact = Contact.objects.create(
-                name=f"{fake.first_name()} {fake.last_name()}",
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
             )
             TeamMember.objects.create(
-                scientist=scientist,
+                contact=contact,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
