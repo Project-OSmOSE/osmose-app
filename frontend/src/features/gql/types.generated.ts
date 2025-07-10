@@ -2811,6 +2811,12 @@ export type Query = {
 
 
 /** Global query */
+export type QueryAcousticDetectorSpecificationByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
 export type QueryAllAcousticDetectorSpecificationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   algorithmName?: InputMaybe<Scalars['String']['input']>;
@@ -3802,68 +3808,188 @@ export type QueryAllWebsiteProjectsArgs = {
 
 
 /** Global query */
+export type QueryAudioPropertyByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryAuthorByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryBibliographyArticleByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryBibliographyByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryBibliographyConferenceByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryBibliographyPosterByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryBibliographySoftwareByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
 export type QueryCampaignByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryChannelConfigurationByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryChannelConfigurationDetectorSpecificationByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryChannelConfigurationRecorderSpecificationByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryContactByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryContactRoleByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryDeploymentByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryDeploymentMobilePositionByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryDetectionPropertyByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryEquipmentByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryFileByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryFileFormatByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryHydrophoneSpecificationByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryLabelByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryMaintenanceByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryMaintenanceTypeByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryPhysicalDescriptorByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryPlatformByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryPlatformTypeByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryProjectByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QueryProjectTypeByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryRecorderSpecificationByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QuerySdCardSpecificationByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
 /** Global query */
 export type QuerySiteByIdArgs = {
-  id?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -3875,6 +4001,12 @@ export type QuerySoundByIdArgs = {
 
 /** Global query */
 export type QuerySourceByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryTagByIdArgs = {
   id: Scalars['ID']['input'];
 };
 

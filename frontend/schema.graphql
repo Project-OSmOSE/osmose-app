@@ -28,7 +28,7 @@ type Query {
     channelConfigurationDetectorSpecifications_Id: Decimal
     channelConfigurationDetectorSpecifications_Id_In: [ID]
   ): LabelNodeNodeConnection
-  labelById: LabelNode
+  labelById(id: ID!): LabelNode
   allPhysicalDescriptors(
     """Query limit"""
     limit: Int
@@ -64,7 +64,7 @@ type Query {
     meanDuration_Gt: Float
     meanDuration_Gte: Float
   ): PhysicalDescriptorNodeNodeConnection
-  physicalDescriptorById: PhysicalDescriptorNode
+  physicalDescriptorById(id: ID!): PhysicalDescriptorNode
   allSounds(
     """Query limit"""
     limit: Int
@@ -158,7 +158,7 @@ type Query {
     institutions: Decimal
     institutions_In: [[ID]]
   ): AuthorNodeNodeConnection
-  authorById: AuthorNode
+  authorById(id: ID!): AuthorNode
   allTags(
     """Query limit"""
     limit: Int
@@ -177,7 +177,7 @@ type Query {
     name: String
     name_Icontains: String
   ): TagNodeNodeConnection
-  tagById: TagNode
+  tagById(id: ID!): TagNode
   allBibliography(
     """Query limit"""
     limit: Int
@@ -206,11 +206,11 @@ type Query {
     publicationDate_Gte: Date
     type: TypeEnum
   ): BibliographyNodeNodeConnection
-  bibliographyById: BibliographyNode
-  bibliographyArticleById: BibliographyArticleNode
-  bibliographySoftwareById: BibliographySoftwareNode
-  bibliographyPosterById: BibliographyPosterNode
-  bibliographyConferenceById: BibliographyConferenceNode
+  bibliographyById(id: ID!): BibliographyNode
+  bibliographyArticleById(id: ID!): BibliographyArticleNode
+  bibliographySoftwareById(id: ID!): BibliographySoftwareNode
+  bibliographyPosterById(id: ID!): BibliographyPosterNode
+  bibliographyConferenceById(id: ID!): BibliographyConferenceNode
   allAcousticDetectorSpecifications(
     """Query limit"""
     limit: Int
@@ -243,7 +243,7 @@ type Query {
     algorithmName: String
     algorithmName_Icontains: String
   ): AcousticDetectorSpecificationNodeNodeConnection
-  acousticDetectorSpecificationById: AcousticDetectorSpecificationNode
+  acousticDetectorSpecificationById(id: ID!): AcousticDetectorSpecificationNode
   allEquipments(
     """Query limit"""
     limit: Int
@@ -298,7 +298,7 @@ type Query {
     maintenances_Id: Decimal
     maintenances_Id_In: [ID]
   ): EquipmentNodeNodeConnection
-  equipmentById: EquipmentNode
+  equipmentById(id: ID!): EquipmentNode
   allHydrophoneSpecifications(
     """Query limit"""
     limit: Int
@@ -368,7 +368,7 @@ type Query {
     noiseFloor_Gt: Float
     noiseFloor_Gte: Float
   ): HydrophoneSpecificationNodeNodeConnection
-  hydrophoneSpecificationById: HydrophoneSpecificationNode
+  hydrophoneSpecificationById(id: ID!): HydrophoneSpecificationNode
   allMaintenances(
     """Query limit"""
     limit: Int
@@ -398,7 +398,7 @@ type Query {
     date_Gt: Date
     date_Gte: Date
   ): MaintenanceNodeNodeConnection
-  maintenanceById: MaintenanceNode
+  maintenanceById(id: ID!): MaintenanceNode
   allMaintenanceTypes(
     """Query limit"""
     limit: Int
@@ -424,7 +424,7 @@ type Query {
     maintenances_Id: Decimal
     maintenances_Id_In: [ID]
   ): MaintenanceTypeNodeNodeConnection
-  maintenanceTypeById: MaintenanceTypeNode
+  maintenanceTypeById(id: ID!): MaintenanceTypeNode
   allPlatforms(
     """Query limit"""
     limit: Int
@@ -453,7 +453,7 @@ type Query {
     type: String
     isMobile: Boolean
   ): PlatformNodeNodeConnection
-  platformById: PlatformNode
+  platformById(id: ID!): PlatformNode
   allPlatformTypes(
     """Query limit"""
     limit: Int
@@ -475,7 +475,7 @@ type Query {
     name_Icontains: String
     isMobile: Boolean
   ): PlatformTypeNodeNodeConnection
-  platformTypeById: PlatformTypeNode
+  platformTypeById(id: ID!): PlatformTypeNode
   allRecorderSpecifications(
     """Query limit"""
     limit: Int
@@ -511,7 +511,7 @@ type Query {
     sdType: String
     sdType_Icontains: String
   ): RecorderSpecificationNodeNodeConnection
-  recorderSpecificationById: RecorderSpecificationNode
+  recorderSpecificationById(id: ID!): RecorderSpecificationNode
   allSdCardSpecifications(
     """Query limit"""
     limit: Int
@@ -535,7 +535,7 @@ type Query {
     capacity_Gt: Int
     capacity_Gte: Int
   ): SDCardSpecificationNodeNodeConnection
-  sdCardSpecificationById: SDCardSpecificationNode
+  sdCardSpecificationById(id: ID!): SDCardSpecificationNode
   allAudioProperties(
     """Query limit"""
     limit: Int
@@ -574,7 +574,7 @@ type Query {
     sampleDepth_Gt: Int
     sampleDepth_Gte: Int
   ): AudioPropertiesNodeNodeConnection
-  audioPropertyById: AudioPropertiesNode
+  audioPropertyById(id: ID!): AudioPropertiesNode
   allDetectionProperties(
     """Query limit"""
     limit: Int
@@ -603,7 +603,7 @@ type Query {
     end_Gt: DateTime
     end_Gte: DateTime
   ): DetectionPropertiesNodeNodeConnection
-  detectionPropertyById: DetectionPropertiesNode
+  detectionPropertyById(id: ID!): DetectionPropertiesNode
   allFile(
     """Query limit"""
     limit: Int
@@ -637,7 +637,7 @@ type Query {
     channelConfigurations_Id: Decimal
     channelConfigurations_Id_In: [ID]
   ): FileNodeNodeConnection
-  fileById: FileNode
+  fileById(id: ID!): FileNode
   allFileFormats(
     """Query limit"""
     limit: Int
@@ -662,7 +662,7 @@ type Query {
     files_Id: Decimal
     files_Id_In: [ID]
   ): FileFormatNodeNodeConnection
-  fileFormatById: FileFormatNode
+  fileFormatById(id: ID!): FileFormatNode
   allCampaigns(
     """Query limit"""
     limit: Int
@@ -685,7 +685,7 @@ type Query {
     deployments_Id: Decimal
     deployments_Id_In: [ID]
   ): CampaignNodeNodeConnection
-  campaignById(id: Int): CampaignNode
+  campaignById(id: ID!): CampaignNode
   allChannelConfigurations(
     """Query limit"""
     limit: Int
@@ -737,7 +737,7 @@ type Query {
     otherEquipments_Id: Decimal
     otherEquipments_Id_In: [ID]
   ): ChannelConfigurationNodeNodeConnection
-  channelConfigurationById(id: Int): ChannelConfigurationNode
+  channelConfigurationById(id: ID!): ChannelConfigurationNode
   allChannelConfigurationsDetectorSpecifications(
     """Query limit"""
     limit: Int
@@ -761,7 +761,7 @@ type Query {
     channelConfiguration_Id_In: [ID]
     outputFormats: String
   ): ChannelConfigurationDetectorSpecificationNodeNodeConnection
-  channelConfigurationDetectorSpecificationById(id: Int): ChannelConfigurationDetectorSpecificationNode
+  channelConfigurationDetectorSpecificationById(id: ID!): ChannelConfigurationDetectorSpecificationNode
   allChannelConfigurationsRecorderSpecifications(
     """Query limit"""
     limit: Int
@@ -785,7 +785,7 @@ type Query {
     channelConfiguration_Id_In: [ID]
     recordingFormats: String
   ): ChannelConfigurationRecorderSpecificationNodeNodeConnection
-  channelConfigurationRecorderSpecificationById(id: Int): ChannelConfigurationRecorderSpecificationNode
+  channelConfigurationRecorderSpecificationById(id: ID!): ChannelConfigurationRecorderSpecificationNode
   allDeployments(
     """Query limit"""
     limit: Int
@@ -849,7 +849,7 @@ type Query {
     description_Icontains: String
     project_WebsiteProject_Id: Decimal
   ): DeploymentNodeNodeConnection
-  deploymentById(id: Int): DeploymentNode
+  deploymentById(id: ID!): DeploymentNode
   allDeploymentMobilePositions(
     """Query limit"""
     limit: Int
@@ -903,7 +903,7 @@ type Query {
     roll_Gt: Float
     roll_Gte: Float
   ): DeploymentMobilePositionNodeNodeConnection
-  deploymentMobilePositionById(id: Int): DeploymentMobilePositionNode
+  deploymentMobilePositionById(id: ID!): DeploymentMobilePositionNode
   allProjects(
     """Query limit"""
     limit: Int
@@ -948,7 +948,7 @@ type Query {
     projectGoal_Icontains: String
     financing: FinancingEnum
   ): ProjectNodeNodeConnection
-  projectById(id: Int): ProjectNode
+  projectById(id: ID!): ProjectNode
   allProjectTypes(
     """Query limit"""
     limit: Int
@@ -969,7 +969,7 @@ type Query {
     projects_Id: Decimal
     projects_Id_In: [ID]
   ): ProjectTypeNodeNodeConnection
-  projectTypeById(id: Int): ProjectTypeNode
+  projectTypeById(id: ID!): ProjectTypeNode
   allSites(
     """Query limit"""
     limit: Int
@@ -992,7 +992,7 @@ type Query {
     deployments_Id: Decimal
     deployments_Id_In: [ID]
   ): SiteNodeNodeConnection
-  siteById(id: Int): SiteNode
+  siteById(id: ID!): SiteNode
   allContacts(
     """Query limit"""
     limit: Int
@@ -1013,7 +1013,7 @@ type Query {
     providedEquipments_Id: Decimal
     providedPlatforms_Id: Decimal
   ): ContactNodeNodeConnection
-  contactById(id: Int): ContactNode
+  contactById(id: ID!): ContactNode
   allContactRoles(
     """Query limit"""
     limit: Int
@@ -1043,7 +1043,7 @@ type Query {
     projects_Id: Decimal
     projects_Id_In: [ID]
   ): ContactRoleNodeNodeConnection
-  contactRoleById(id: Int): ContactRoleNode
+  contactRoleById(id: ID!): ContactRoleNode
   allWebsiteProjects(
     """Query limit"""
     limit: Int
