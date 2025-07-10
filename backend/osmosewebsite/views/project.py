@@ -1,6 +1,6 @@
 """ project DRF-Viewset file"""
+from metadatax.acquisition.views import DeploymentViewSet
 from metadatax.models import Accessibility
-from metadatax.view.acquisition import DeploymentViewSet
 from rest_framework import viewsets, permissions, decorators, response
 
 from backend.osmosewebsite.models import Project
@@ -22,7 +22,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         )
         .select_related("project__website_project")
         .prefetch_related(
-            "channelconfiguration_set__aplose_datasets__annotation_campaigns__phases__results__label"
+            "channel_configurations__aplose_datasets__annotation_campaigns__phases__results__label"
         )
     )
 

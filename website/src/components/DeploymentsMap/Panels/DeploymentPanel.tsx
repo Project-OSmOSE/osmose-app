@@ -1,11 +1,13 @@
-import React, { Fragment, useMemo, useState } from "react";
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
-import { IoCaretUp, IoClose, IoDownloadOutline, IoMailOutline, IoOpenOutline } from "react-icons/io5";
-import { InstitutionLink } from "../InstitutionLink";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
+import { IoCaretUp, IoClose, IoDownloadOutline, IoOpenOutline } from "react-icons/io5";
 import styles from './panel.module.scss'
+import { useFetchGql } from "../../../utils";
+import { gql } from "graphql-request";
+import { Deployment } from '../../../pages/Projects/ProjectDetail/ProjectDetail'
+import { ContactLink } from "../ContactLink";
 
 export const DeploymentPanel: React.FC<{
-  deployment: DeploymentAPI & { annotated_labels?: { [key in string]: number } } | undefined,
+  deployment: Deployment | undefined,
   onClose: () => void,
   disableProjectLink?: boolean;
 }> = ({
@@ -14,7 +16,28 @@ export const DeploymentPanel: React.FC<{
         disableProjectLink = false,
       }) => {
 
+  const [ labels, setLabels ] = useState<Array<any>>([]);
   const isOpenAccess = useMemo(() => deployment?.project.accessibility === 'Open access', [ deployment ]);
+  const fetchLabels = useFetchGql(gql`
+      query {
+          allApiLabels(annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${ deployment?.id }, orderBy: "id") {
+              results {
+                  id
+                  name
+                  annotationresultSet(annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${deployment?.id}) {
+                      totalCount
+                  }
+              }
+          }
+      }
+  `)
+
+  useEffect(() => {
+    if (!deployment) return;
+    fetchLabels().then((data: any) => {
+      setLabels((data?.allApiLabels?.results ?? []).filter((d: any) => !!d) as Deployment[])
+    })
+  }, [deployment ]);
 
   if (!deployment) return <div className={ [ styles.panel, styles.empty, styles.deployment ].join(' ') }/>
 
@@ -22,7 +45,7 @@ export const DeploymentPanel: React.FC<{
     <div className={ styles.head }>
       <button onClick={ onClose }><IoClose/></button>
       { isOpenAccess && <DownloadAction deployment={ deployment }/> }
-      <ContactAction project={ deployment.project }/>
+      {/*<ContactAction project={ deployment.project }/> TODO: remove or not??? */ }
     </div>
     <div className={ styles.content }>
       <Project project={ deployment.project }
@@ -34,31 +57,31 @@ export const DeploymentPanel: React.FC<{
       <CampaignSite label="Campaign"
                     data={ deployment.campaign }/>
 
-      <Deployment deployment={ deployment }/>
+      <DeploymentInfo deployment={ deployment }/>
 
       <DateAndVessel label="Launch"
-                     date={ deployment.deployment_date }
-                     vessel={ isOpenAccess ? deployment.deployment_vessel : null }/>
+                     date={ deployment.deploymentDate }
+                     vessel={ isOpenAccess ? deployment.deploymentVessel : null }/>
 
       <DateAndVessel label="Recovery"
-                     date={ deployment.recovery_date }
-                     vessel={ isOpenAccess ? deployment.recovery_vessel : null }/>
+                     date={ deployment.recoveryDate }
+                     vessel={ isOpenAccess ? deployment.recoveryVessel : null }/>
 
       <Coordinates lat={ deployment.latitude }
                    lon={ deployment.longitude }/>
 
-      <BathymetricDepth depth={ deployment.bathymetric_depth }/>
+      <BathymetricDepth depth={ deployment.bathymetricDepth }/>
 
       { isOpenAccess && <Platform platform={ deployment.platform }/> }
 
-      { isOpenAccess && <Labels annotated_labels={ deployment.annotated_labels }/> }
+      { isOpenAccess && <Labels labels={ labels }/> }
 
       { isOpenAccess && <Description description={ deployment.description }/> }
     </div>
   </div>
 }
 
-const DownloadAction: React.FC<{ deployment: DeploymentAPI }> = ({ deployment }) => {
+const DownloadAction: React.FC<{ deployment: Deployment }> = ({ deployment }) => {
   const downloadData = useMemo(() => {
     return `data:text/json;charset=utf-8,${ encodeURIComponent(JSON.stringify(deployment)) }`
   }, [ deployment ])
@@ -69,54 +92,31 @@ const DownloadAction: React.FC<{ deployment: DeploymentAPI }> = ({ deployment })
   </a>
 }
 
-const ContactAction: React.FC<{ project: DeploymentAPI['project'] }> = ({ project }) => {
-  const href: string | null = useMemo(() => {
-    const contacts = project.responsible_parties.filter(p => p.contact).map(p => p.contact);
-    if (contacts.length === 0) return null;
-    const subject = `Request information for ${ project.name }`;
-    const message = `Dear OSmOSE team,
-    
-    I am reaching out to request specific information regarding the ${ project.name } project.
-    
-    Thank you for your help!
-    
-    [Your name]
-    [Your institution]`;
-    return `mailto:${ contacts.join(';') }?subject=${ subject }&body=${ encodeURIComponent(message) }`;
-  }, [ project.name, project.responsible_parties ])
-  if (!href) return <Fragment/>;
-  return <a className={ styles.downloadButton }
-            href={ href }>
-    Contact <IoMailOutline/>
-  </a>
-}
-
-const Project: React.FC<{ project: DeploymentAPI['project'], disableProjectLink: boolean }> = ({
-                                                                                                 project,
-                                                                                                 disableProjectLink
-                                                                                               }) => {
-  const websiteProject: number | null = useMemo(() => disableProjectLink ? null : (project as any).website_project, [ project, disableProjectLink ]);
+const Project: React.FC<{ project: Deployment['project'], disableProjectLink: boolean }> = ({
+                                                                                                  project,
+                                                                                                  disableProjectLink
+                                                                                                }) => {
   return <Fragment>
     <small>Project</small>
     <p>
       { project.name }
-      { websiteProject !== null && <a href={ `/projects/${ websiteProject }` }> <IoOpenOutline/> </a> }
-      { project.project_goal && <Fragment>
+      { !!(project as any).websiteProject &&
+          <a href={ `/projects/${ (project as any).websiteProject.id }` }> <IoOpenOutline/> </a> }
+      { project.projectGoal && <Fragment>
           <br/>
-          <small>{ project.project_goal }</small>
+          <small>{ project.projectGoal }</small>
       </Fragment> }
-      { project.responsible_parties && <Fragment>
-          <br/>
-          <small>({ project.responsible_parties.map(i => <InstitutionLink institution={ i }
-                                                                          key={ i.id }/>) })</small>
-      </Fragment> }
+      { project.contacts.edges.map(e => <Fragment key={ e!.node!.id }>
+        <br/>
+        <small>({ e!.node!.role }: <ContactLink contact={ e!.node!.contact }/>)</small>
+      </Fragment>) }
     </p>
   </Fragment>
 }
 
 const CampaignSite: React.FC<{
   label: 'Campaign' | 'Site',
-  data: DeploymentAPI['campaign'] | DeploymentAPI['site']
+  data: Deployment['campaign'] | Deployment['site']
 }> = ({ label, data }) => {
   if (!data) return <Fragment/>
   return <Fragment>
@@ -125,22 +125,22 @@ const CampaignSite: React.FC<{
   </Fragment>
 }
 
-const Deployment: React.FC<{ deployment: DeploymentAPI }> = ({ deployment }) => (
+const DeploymentInfo: React.FC<{ deployment: Deployment }> = ({ deployment }) => (
   <Fragment>
     <small>Deployment</small>
     <p>
       { deployment.name }
-      { deployment.provider && <small>
-          <br/>(<InstitutionLink institution={ deployment.provider }/>)
-      </small> }
+      { deployment.contacts.edges.map(e => <small key={ e!.node!.id }>
+        <br/>({ e!.node!.role }: <ContactLink contact={ e!.node!.contact }/>)
+      </small>) }
     </p>
   </Fragment>
 )
 
 const DateAndVessel: React.FC<{
   label: 'Launch' | 'Recovery',
-  date: DeploymentAPI['deployment_date'] | DeploymentAPI['recovery_date'],
-  vessel: DeploymentAPI['deployment_vessel'] | DeploymentAPI['recovery_vessel']
+  date: Deployment['deploymentDate'] | Deployment['recoveryDate'],
+  vessel: Deployment['deploymentVessel'] | Deployment['recoveryVessel'] | null
 }> = ({ label, date, vessel }) => {
   if (!date && !vessel) return <Fragment/>
   return <Fragment>
@@ -149,21 +149,21 @@ const DateAndVessel: React.FC<{
   </Fragment>
 }
 
-const Coordinates: React.FC<{ lat: DeploymentAPI['latitude'], lon: DeploymentAPI['longitude'] }> = ({ lat, lon }) => (
+const Coordinates: React.FC<{ lat: Deployment['latitude'], lon: Deployment['longitude'] }> = ({ lat, lon }) => (
   <Fragment>
     <small>Coordinates</small>
     <p>{ lat }, { lon }</p>
   </Fragment>
 )
 
-const BathymetricDepth: React.FC<{ depth: DeploymentAPI['bathymetric_depth'] }> = ({ depth }) => (
+const BathymetricDepth: React.FC<{ depth: Deployment['bathymetricDepth'] }> = ({ depth }) => (
   <Fragment>
     <small>Bathymetric depth</small>
     <p>{ depth }</p>
   </Fragment>
 )
 
-const Platform: React.FC<{ platform: DeploymentAPI['platform'] }> = ({ platform }) => {
+const Platform: React.FC<{ platform: Deployment['platform'] }> = ({ platform }) => {
   if (!platform) return <Fragment/>
   return <Fragment>
     <small>Platform</small>
@@ -171,17 +171,20 @@ const Platform: React.FC<{ platform: DeploymentAPI['platform'] }> = ({ platform 
   </Fragment>
 }
 
-const Labels: React.FC<{ annotated_labels?: { [key in string]: number } }> = ({ annotated_labels }) => {
-  if (!annotated_labels || Object.keys(annotated_labels).length === 0) return <Fragment/>
+const Labels: React.FC<{ labels?: any[] }> = ({ labels }) => {
+  if (!labels || labels.length === 0) return <Fragment/>
   return <Fragment>
     <small>Labels</small>
-    { Object.entries(annotated_labels).map(([ label, count ]) => <p key={ label }>
-      { label } ({ count })
-    </p>) }
+    <p>
+      { labels.map((label: any) => <span key={ label.id }>
+        { label.name } ({ label.annotationresultSet.totalCount })
+        <br/>
+      </span>) }
+    </p>
   </Fragment>
 }
 
-const Description: React.FC<{ description: DeploymentAPI['description'] }> = ({ description }) => {
+const Description: React.FC<{ description: Deployment['description'] }> = ({ description }) => {
   const [ isOpen, setIsOpen ] = useState<boolean>(false);
   if (!description) return <Fragment/>
   return <Fragment>

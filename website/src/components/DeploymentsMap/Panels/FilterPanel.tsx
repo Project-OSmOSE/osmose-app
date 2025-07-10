@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styles from "./panel.module.scss";
 import { IoClose, IoFunnel, IoFunnelOutline, IoRefresh } from "react-icons/io5";
-import { SampleRateFilter, FilterRef } from "./Filters";
-
+import { FilterRef, SampleRateFilter } from "./Filters";
+import { Deployment } from "../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 type FilterProps = {
-  allDeployments: Array<DeploymentAPI>,
-  onFilter: (filteredDeployments: Array<DeploymentAPI>) => void
+  allDeployments: Array<Deployment>,
+  onFilter: (filteredDeployments: Array<Deployment>) => void
 }
 export const FilterPanel: React.FC<FilterProps> = ({
                                                      allDeployments,

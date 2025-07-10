@@ -1,44 +1,48 @@
-import React, { useMemo } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import {
-  ArticleBibliography,
+  ArticleInformation,
   Bibliography,
-  ConferenceBibliography,
-  PosterBibliography,
-  SoftwareBibliography
+  ConferenceInformation,
+  SoftwareInformation
 } from "../../models/bibliography";
 import styles from "./item.module.scss";
 import { Authors } from "./Authors";
 import { IoLinkOutline } from "react-icons/io5";
 
 export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ reference }) => {
-  const status = useMemo(() => reference.publication_status === 'Published' ? reference.publication_date : reference.publication_status, [ reference ]);
+  const status = useMemo(() => reference.status === 'Published' ? reference.publication_date : reference.status, [ reference ]);
   const link = useMemo(() => {
     if (reference.doi) return `https://doi.org/${ reference.doi }`
-    if (reference.type === 'Poster' && reference.poster_url) return reference.poster_url
+    if (reference.type === 'Poster' && reference.poster_information.poster_url) return reference.poster_information.poster_url
     return undefined
   }, [ reference ]);
 
   const details = useMemo(() => {
     switch (reference.type) {
       case "Article":
-        return <ArticleDetail article={ reference }/>
+        return <ArticleDetail info={ reference.article_information }/>
       case "Software":
-        return <SoftwareDetail software={ reference }/>
+        return <SoftwareDetail info={ reference.software_information }/>
       case "Conference":
       case "Poster":
-        return <ConferenceDetail conference={ reference }/>
+        if (!reference.conference_information) return <Fragment/>;
+        return <ConferenceDetail info={ reference.conference_information }/>
     }
   }, [ reference ])
 
-  return <a className={ styles.bibliography }
-            href={ link }
-            target="_blank" rel="noopener noreferrer">
+  const openLink = useCallback(() => {
+    if (!link) return;
+    window.open(link, "_blank", "noopener noreferrer");
+  }, [ link ])
+
+  return <div className={ [ styles.bibliography, link && styles.clickable ].join(' ') }
+              onClick={ openLink }>
     <p className={ styles.title }>{ reference.title }</p>
     <p className={ styles.details }>
       <Authors authors={ reference.authors }/>, ({ status }). { details }
     </p>
     { reference.tags.length > 0 && <div className={ styles.tags }>
-      { reference.tags.map(tag => <p>{ tag }</p>) }
+      { reference.tags.map(tag => <p key={ tag }>{ tag }</p>) }
     </div> }
 
     <div className={ styles.doiLinks }>
@@ -50,38 +54,38 @@ export const BibliographyCard: React.FC<{ reference: Bibliography }> = ({ refere
     </div>
 
     <div className={ styles.type }>{ reference.type }</div>
-  </a>
+  </div>
 }
 
-export const ArticleDetail: React.FC<{ article: ArticleBibliography }> = ({ article }) => {
+export const ArticleDetail: React.FC<{ info: ArticleInformation }> = ({ info }) => {
   const details = useMemo(() => {
     const d = [];
-    d.push(article.journal)
-    d.push(article.volumes)
-    if (article.pages_from) {
-      if (article.pages_to) d.push(`p${ article.pages_from }-${ article.pages_to }`);
-      else d.push(`p${ article.pages_from }`);
+    d.push(info.journal)
+    d.push(info.volumes)
+    if (info.pages_from) {
+      if (info.pages_to) d.push(`p${ info.pages_from }-${ info.pages_to }`);
+      else d.push(`p${ info.pages_from }`);
     }
-    if (article.issue_nb) d.push(article.issue_nb)
-    if (article.article_nb) d.push(article.article_nb)
+    if (info.issue_nb) d.push(info.issue_nb)
+    if (info.article_nb) d.push(info.article_nb)
     return d;
-  }, [ article ])
+  }, [ info ])
 
   return <span>{ details.join(', ') }</span>
 }
 
-export const ConferenceDetail: React.FC<{ conference: ConferenceBibliography | PosterBibliography }> = ({ conference }) => (
+export const ConferenceDetail: React.FC<{ info: ConferenceInformation }> = ({ info }) => (
   <span>
-    <a href={ conference.conference_abstract_book_url ?? undefined }
+    <a href={ info.conference_abstract_book_url ?? undefined }
        target="_blank" rel="noopener noreferrer">
-    { conference.conference }
-  </a>, { conference.conference_location }
+    { info.conference }
+  </a>, { info.conference_location }
   </span>
 )
 
-export const SoftwareDetail: React.FC<{ software: SoftwareBibliography }> = ({ software }) => (
-  <a href={ software.repository_url ?? undefined }
+export const SoftwareDetail: React.FC<{ info: SoftwareInformation }> = ({ info }) => (
+  <a href={ info.repository_url ?? undefined }
      target="_blank" rel="noopener noreferrer">
-    { software.publication_place }
+    { info.publication_place }
   </a>
 )

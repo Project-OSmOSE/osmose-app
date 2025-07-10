@@ -1,14 +1,14 @@
-- model: osmosewebsite.scientist
+- model: common.contact
   pk: 1
   fields:
     first_name: user1
     last_name: user1
-- model: osmosewebsite.scientist
+- model: common.contact
   pk: 2
   fields:
     first_name: user2
     last_name: user2
-- model: osmosewebsite.scientist
+- model: common.contact
   pk: 3
   fields:
     first_name: user3
@@ -16,7 +16,7 @@
 - model: osmosewebsite.teammember
   pk: 1
   fields:
-    scientist: 1
+    contact: 1
     position: job1
     level: 5
     biography: biography1
@@ -30,7 +30,7 @@
 - model: osmosewebsite.teammember
   pk: 2
   fields:
-    scientist: 2
+    contact: 2
     position: job2
     level: 1
     biography: biography2
@@ -44,7 +44,7 @@
 - model: osmosewebsite.teammember
   pk: 3
   fields:
-    scientist: 3
+    contact: 3
     position: job3
     level: 2
     biography: biography3

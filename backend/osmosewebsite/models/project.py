@@ -2,7 +2,7 @@
 
 from django.contrib.postgres import fields
 from django.db import models
-from metadatax.models import Project as MetadataxProject
+from metadatax.acquisition.models import Project as MetadataxProject
 from tinymce.models import HTMLField
 
 from .collaborator import Collaborator

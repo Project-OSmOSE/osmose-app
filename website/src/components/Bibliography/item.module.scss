@@ -13,6 +13,10 @@
   color: var(--bs-body-color) !important;
   text-decoration: none !important;
 
+  &.clickable {
+    cursor: pointer;
+  }
+
   .title {
     font-weight: 500;
   }

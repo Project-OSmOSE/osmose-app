@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
-# pylint: disable-next=line-too-long
+# pylint: disable=line-too-long
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -28,13 +28,21 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    "graphene_django",
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
     "backend.osmosewebsite.apps.OsmoseWebsiteConfig",
     "backend.aplose.apps.AploseConfig",
     "tinymce",
+    "django_admin_multiple_choice_list_filter",
     "metadatax",
+    "metadatax.common",
+    "metadatax.bibliography",
+    "metadatax.ontology",
+    "metadatax.acquisition",
+    "metadatax.equipment",
+    "metadatax.data",
     "backend.sql.apps.SqlConfig",
 ]
 
@@ -168,4 +176,9 @@ TINYMCE_DEFAULT_CONFIG = {
     "toolbar": "undo redo | formatselect blockquote | bold italic | alignleft aligncenter alignright alignjustify | bullist outdent indent | image | link unlink",
     "default_link_target": "_blank",
     "image_title": "true",
+}
+
+GRAPHENE = {
+    "SCHEMA": "backend.schema.schema",
+    "MIDDLEWARE": ["graphene_django.debug.middleware.DjangoDebugMiddleware"],
 }

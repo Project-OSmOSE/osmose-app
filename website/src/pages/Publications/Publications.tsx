@@ -11,8 +11,8 @@ import { Spinner } from "../../components/Spinner";
 
 
 export function sortBibliography(a: Bibliography, b: Bibliography): number {
-  if (a.publication_status !== 'Published') return -1
-  if (b.publication_status !== 'Published') return 1
+  if (a.status !== 'Published') return -1
+  if (b.status !== 'Published') return 1
   return new Date(b.publication_date).getTime() - new Date(b.publication_date).getTime()
 }
 
@@ -42,7 +42,7 @@ export const Publications: React.FC = () => {
       if (!isMounted) return;
       setBibliography(data?.sort(sortBibliography)?.map(b => ({
         ...b,
-        section: b.publication_status === 'Published' ? new Date(b.publication_date).getFullYear() : b.publication_status
+        section: b.status === 'Published' ? new Date(b.publication_date).getFullYear() : b.status
       })) ?? [])
       const tags = [ ...new Set(data?.flatMap(b => b.tags) ?? []) ]
       setAllTags(tags)

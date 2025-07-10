@@ -22,10 +22,10 @@ jobs:
           - 5432:5432
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.9
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: "3.9"
+        python-version: "3.12"
     - name: Set up poetry cache
       uses: actions/cache@v4
       with:
@@ -46,7 +46,7 @@ jobs:
         poetry run black --check backend
     - name: Check for missed pylint warnings (don't forget to run pylint)
       run: |
-        poetry run pylint --disable=fixme --ignore migrations backend
+        poetry run pylint --disable=fixme --disable=too-few-public-methods --ignore migrations backend
     - name: Check whether seeding still works
       run: |
         poetry run ./manage.py migrate

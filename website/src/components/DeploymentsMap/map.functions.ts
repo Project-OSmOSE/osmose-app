@@ -1,13 +1,7 @@
-import {
-  Map as LeafletMap,
-  TileLayer,
-  control,
-  LatLngExpression
-} from "leaflet";
+import { control, LatLngExpression, Map as LeafletMap, TileLayer } from "leaflet";
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
 import { getMinZoom } from './utils.functions'
 
 export function initMap(id: string): LeafletMap {
@@ -39,7 +33,7 @@ export function clearMap(map: LeafletMap): void {
 }
 
 export function setMapView(map: LeafletMap,
-                           deployments: Array<DeploymentAPI>): void {
+                           deployments: Array<{ latitude: number; longitude: number; }>): void {
   if (deployments.length === 0) {
     map.setView([ 0, 0 ], 2);
     return;

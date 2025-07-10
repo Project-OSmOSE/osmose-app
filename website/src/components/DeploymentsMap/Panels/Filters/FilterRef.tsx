@@ -1,11 +1,11 @@
-import { DeploymentAPI } from "@pam-standardization/metadatax-ts";
+import { Deployment } from "../../../../pages/Projects/ProjectDetail/ProjectDetail";
 
 export interface FilterRef {
   /**
    * Check if the deployment can be visible or not, depending on the filter configuration
-   * @param deployment {DeploymentAPI} the deployment to check
+   * @param deployment {Deployment} the deployment to check
    */
-  filterDeployment: (deployment: DeploymentAPI) => boolean;
+  filterDeployment: (deployment: Deployment) => boolean;
 
   /**
    * Reset filter to default values

@@ -1,0 +1,2628 @@
+"""Global query"""
+type Query {
+  allLabels(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    sourceId: ID
+    sourceId_In: [ID]
+    soundId: ID
+    soundId_In: [ID]
+    physicalDescriptor_Id: Decimal
+    physicalDescriptor_Id_In: [ID]
+    nickname: String
+    nickname_Icontains: String
+    acousticDetectors_Id: Decimal
+    acousticDetectors_Id_In: [ID]
+    channelConfigurationDetectorSpecifications_Id: Decimal
+    channelConfigurationDetectorSpecifications_Id_In: [ID]
+  ): LabelNodeNodeConnection
+  labelById(id: ID!): LabelNode
+  allPhysicalDescriptors(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    label_Id: Decimal
+    label_Id_In: [ID]
+    shape: SignalShapeEnum
+    plurality: SignalShapeEnum
+    minFrequency: Int
+    minFrequency_Lt: Int
+    minFrequency_Lte: Int
+    minFrequency_Gt: Int
+    minFrequency_Gte: Int
+    maxFrequency: Int
+    maxFrequency_Lt: Int
+    maxFrequency_Lte: Int
+    maxFrequency_Gt: Int
+    maxFrequency_Gte: Int
+    meanDuration: Float
+    meanDuration_Lt: Float
+    meanDuration_Lte: Float
+    meanDuration_Gt: Float
+    meanDuration_Gte: Float
+  ): PhysicalDescriptorNodeNodeConnection
+  physicalDescriptorById(id: ID!): PhysicalDescriptorNode
+  allSounds(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    parentId: ID
+    parentId_In: [ID]
+    children_Id: Decimal
+    children_Id_In: [ID]
+    labels_Id: Decimal
+    labels_Id_In: [ID]
+    associatedNames_Id: Decimal
+    associatedNames_Id_In: [ID]
+    englishName: String
+    englishName_Icontains: String
+    frenchName: String
+    frenchName_Icontains: String
+    codeName: String
+    codeName_Icontains: String
+    taxon: String
+    taxon_Icontains: String
+  ): SoundNodeNodeConnection
+  soundById(id: ID!): SoundNode
+  allSources(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    parentId: ID
+    parentId_In: [ID]
+    children_Id: Decimal
+    children_Id_In: [ID]
+    labels_Id: Decimal
+    labels_Id_In: [ID]
+    englishName: String
+    englishName_Icontains: String
+    latinName: String
+    latinName_Icontains: String
+    frenchName: String
+    frenchName_Icontains: String
+    codeName: String
+    codeName_Icontains: String
+    taxon: String
+    taxon_Icontains: String
+  ): SourceNodeNodeConnection
+  sourceById(id: ID!): SourceNode
+  allAuthors(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    order: Int
+    order_Lt: Int
+    order_Lte: Int
+    order_Gt: Int
+    order_Gte: Int
+    bibliographyId: ID
+    bibliographyId_In: [ID]
+    contactId: ID
+    contactId_In: [ID]
+    institutions: Decimal
+    institutions_In: [[ID]]
+  ): AuthorNodeNodeConnection
+  authorById(id: ID!): AuthorNode
+  allTags(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+  ): TagNodeNodeConnection
+  tagById(id: ID!): TagNode
+  allBibliography(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    title: String
+    title_Icontains: String
+    doi: String
+    tags_Name: String
+    tags_Name_In: [String]
+    status: StatusEnum
+    publicationDate: Date
+    publicationDate_Lt: Date
+    publicationDate_Lte: Date
+    publicationDate_Gt: Date
+    publicationDate_Gte: Date
+    type: TypeEnum
+  ): BibliographyNodeNodeConnection
+  bibliographyById(id: ID!): BibliographyNode
+  bibliographyArticleById(id: ID!): BibliographyArticleNode
+  bibliographySoftwareById(id: ID!): BibliographySoftwareNode
+  bibliographyPosterById(id: ID!): BibliographyPosterNode
+  bibliographyConferenceById(id: ID!): BibliographyConferenceNode
+  allAcousticDetectorSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    equipment_Id: Decimal
+    equipment_Id_In: [ID]
+    detectedLabels_Id: Decimal
+    detectedLabels_Id_In: [ID]
+    minFrequency: Int
+    minFrequency_Lt: Int
+    minFrequency_Lte: Int
+    minFrequency_Gt: Int
+    minFrequency_Gte: Int
+    maxFrequency: Int
+    maxFrequency_Lt: Int
+    maxFrequency_Lte: Int
+    maxFrequency_Gt: Int
+    maxFrequency_Gte: Int
+    algorithmName: String
+    algorithmName_Icontains: String
+  ): AcousticDetectorSpecificationNodeNodeConnection
+  acousticDetectorSpecificationById(id: ID!): AcousticDetectorSpecificationNode
+  allEquipments(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    model: String
+    model_Icontains: String
+    serialNumber: String
+    serialNumber_Icontains: String
+    ownerId: ID
+    ownerId_In: [ID]
+    providerId: ID
+    providerId_In: [ID]
+    sdCardSpecification_Isnull: Boolean
+    recorderSpecification_Isnull: Boolean
+    hydrophoneSpecification_Isnull: Boolean
+    acousticDetectorSpecification_Isnull: Boolean
+    purchaseDate: Date
+    purchaseDate_Lt: Date
+    purchaseDate_Lte: Date
+    purchaseDate_Gt: Date
+    purchaseDate_Gte: Date
+    name: String
+    name_Icontains: String
+    batterySlotsCount: Int
+    batterySlotsCount_Lt: Int
+    batterySlotsCount_Lte: Int
+    batterySlotsCount_Gt: Int
+    batterySlotsCount_Gte: Int
+    batteryType: String
+    batteryType_Icontains: String
+    cables: String
+    cables_Icontains: String
+    channelConfigurationDetectorSpecifications_Id: Decimal
+    channelConfigurationDetectorSpecifications_Id_In: [ID]
+    channelConfigurationHydrophoneSpecifications_Id: Decimal
+    channelConfigurationHydrophoneSpecifications_Id_In: [ID]
+    channelConfigurationRecorderSpecifications_Id: Decimal
+    channelConfigurationRecorderSpecifications_Id_In: [ID]
+    channelConfigurations_Id: Decimal
+    channelConfigurations_Id_In: [ID]
+    maintenances_Id: Decimal
+    maintenances_Id_In: [ID]
+  ): EquipmentNodeNodeConnection
+  equipmentById(id: ID!): EquipmentNode
+  allHydrophoneSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    equipment_Id: Decimal
+    equipment_Id_In: [ID]
+    sensitivity: Float
+    sensitivity_Lt: Float
+    sensitivity_Lte: Float
+    sensitivity_Gt: Float
+    sensitivity_Gte: Float
+    directivity: HydrophoneDirectivityEnum
+    operatingMinTemperature: Float
+    operatingMinTemperature_Lt: Float
+    operatingMinTemperature_Lte: Float
+    operatingMinTemperature_Gt: Float
+    operatingMinTemperature_Gte: Float
+    operatingMaxTemperature: Float
+    operatingMaxTemperature_Lt: Float
+    operatingMaxTemperature_Lte: Float
+    operatingMaxTemperature_Gt: Float
+    operatingMaxTemperature_Gte: Float
+    minBandwidth: Float
+    minBandwidth_Lt: Float
+    minBandwidth_Lte: Float
+    minBandwidth_Gt: Float
+    minBandwidth_Gte: Float
+    maxBandwidth: Float
+    maxBandwidth_Lt: Float
+    maxBandwidth_Lte: Float
+    maxBandwidth_Gt: Float
+    maxBandwidth_Gte: Float
+    minDynamicRange: Float
+    minDynamicRange_Lt: Float
+    minDynamicRange_Lte: Float
+    minDynamicRange_Gt: Float
+    minDynamicRange_Gte: Float
+    maxDynamicRange: Float
+    maxDynamicRange_Lt: Float
+    maxDynamicRange_Lte: Float
+    maxDynamicRange_Gt: Float
+    maxDynamicRange_Gte: Float
+    minOperatingDepth: Float
+    minOperatingDepth_Lt: Float
+    minOperatingDepth_Lte: Float
+    minOperatingDepth_Gt: Float
+    minOperatingDepth_Gte: Float
+    maxOperatingDepth: Float
+    maxOperatingDepth_Lt: Float
+    maxOperatingDepth_Lte: Float
+    maxOperatingDepth_Gt: Float
+    maxOperatingDepth_Gte: Float
+    noiseFloor: Float
+    noiseFloor_Lt: Float
+    noiseFloor_Lte: Float
+    noiseFloor_Gt: Float
+    noiseFloor_Gte: Float
+  ): HydrophoneSpecificationNodeNodeConnection
+  hydrophoneSpecificationById(id: ID!): HydrophoneSpecificationNode
+  allMaintenances(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    typeId: ID
+    typeId_In: [ID]
+    maintainerId: ID
+    maintainerId_In: [ID]
+    platformId: ID
+    platformId_In: [ID]
+    equipmentId: ID
+    equipmentId_In: [ID]
+    date: Date
+    date_Lt: Date
+    date_Lte: Date
+    date_Gt: Date
+    date_Gte: Date
+  ): MaintenanceNodeNodeConnection
+  maintenanceById(id: ID!): MaintenanceNode
+  allMaintenanceTypes(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    interval: Float
+    interval_Lt: Float
+    interval_Lte: Float
+    interval_Gt: Float
+    interval_Gte: Float
+    maintenances_Id: Decimal
+    maintenances_Id_In: [ID]
+  ): MaintenanceTypeNodeNodeConnection
+  maintenanceTypeById(id: ID!): MaintenanceTypeNode
+  allPlatforms(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    ownerId: ID
+    ownerId_In: [ID]
+    providerId: ID
+    providerId_In: [ID]
+    deployments_Id: Decimal
+    deployments_Id_In: [ID]
+    maintenances_Id: Decimal
+    maintenances_Id_In: [ID]
+    name: String
+    name_Icontains: String
+    type: String
+    isMobile: Boolean
+  ): PlatformNodeNodeConnection
+  platformById(id: ID!): PlatformNode
+  allPlatformTypes(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    platforms_Id: Decimal
+    platforms_Id_In: [ID]
+    name: String
+    name_Icontains: String
+    isMobile: Boolean
+  ): PlatformTypeNodeNodeConnection
+  platformTypeById(id: ID!): PlatformTypeNode
+  allRecorderSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    equipment_Id: Decimal
+    equipment_Id_In: [ID]
+    channelsCount: Int
+    channelsCount_Lt: Int
+    channelsCount_Lte: Int
+    channelsCount_Gt: Int
+    channelsCount_Gte: Int
+    sdSlotsCount: Int
+    sdSlotsCount_Lt: Int
+    sdSlotsCount_Lte: Int
+    sdSlotsCount_Gt: Int
+    sdSlotsCount_Gte: Int
+    sdMaximumCapacity: Int
+    sdMaximumCapacity_Lt: Int
+    sdMaximumCapacity_Lte: Int
+    sdMaximumCapacity_Gt: Int
+    sdMaximumCapacity_Gte: Int
+    sdType: String
+    sdType_Icontains: String
+  ): RecorderSpecificationNodeNodeConnection
+  recorderSpecificationById(id: ID!): RecorderSpecificationNode
+  allSdCardSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    equipment_Id: Decimal
+    equipment_Id_In: [ID]
+    capacity: Int
+    capacity_Lt: Int
+    capacity_Lte: Int
+    capacity_Gt: Int
+    capacity_Gte: Int
+  ): SDCardSpecificationNodeNodeConnection
+  sdCardSpecificationById(id: ID!): SDCardSpecificationNode
+  allAudioProperties(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    file_Id: Decimal
+    file_Id_In: [ID]
+    samplingFrequency: Int
+    samplingFrequency_Lt: Int
+    samplingFrequency_Lte: Int
+    samplingFrequency_Gt: Int
+    samplingFrequency_Gte: Int
+    initialTimestamp: DateTime
+    initialTimestamp_Lt: DateTime
+    initialTimestamp_Lte: DateTime
+    initialTimestamp_Gt: DateTime
+    initialTimestamp_Gte: DateTime
+    duration: Int
+    duration_Lt: Int
+    duration_Lte: Int
+    duration_Gt: Int
+    duration_Gte: Int
+    sampleDepth: Int
+    sampleDepth_Lt: Int
+    sampleDepth_Lte: Int
+    sampleDepth_Gt: Int
+    sampleDepth_Gte: Int
+  ): AudioPropertiesNodeNodeConnection
+  audioPropertyById(id: ID!): AudioPropertiesNode
+  allDetectionProperties(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    file_Id: Decimal
+    file_Id_In: [ID]
+    start: DateTime
+    start_Lt: DateTime
+    start_Lte: DateTime
+    start_Gt: DateTime
+    start_Gte: DateTime
+    end: DateTime
+    end_Lt: DateTime
+    end_Lte: DateTime
+    end_Gt: DateTime
+    end_Gte: DateTime
+  ): DetectionPropertiesNodeNodeConnection
+  detectionPropertyById(id: ID!): DetectionPropertiesNode
+  allFile(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    filename: String
+    filename_Icontains: String
+    format: String
+    audioPropertiesId: ID
+    audioPropertiesId_In: [ID]
+    detectionPropertiesId: ID
+    detectionPropertiesId_In: [ID]
+    storageLocation: String
+    storageLocation_Icontains: String
+    fileSize: BigInt
+    fileSize_Lt: BigInt
+    fileSize_Lte: BigInt
+    fileSize_Gt: BigInt
+    fileSize_Gte: BigInt
+    accessibility: AccessibilityEnum
+    channelConfigurations_Id: Decimal
+    channelConfigurations_Id_In: [ID]
+  ): FileNodeNodeConnection
+  fileById(id: ID!): FileNode
+  allFileFormats(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    channelConfigurationRecorderSpecifications_Id: Decimal
+    channelConfigurationRecorderSpecifications_Id_In: [ID]
+    channelConfigurationDetectorSpecifications_Id: Decimal
+    channelConfigurationDetectorSpecifications_Id_In: [ID]
+    files_Id: Decimal
+    files_Id_In: [ID]
+  ): FileFormatNodeNodeConnection
+  fileFormatById(id: ID!): FileFormatNode
+  allCampaigns(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    projectId: ID
+    projectId_In: [ID]
+    deployments_Id: Decimal
+    deployments_Id_In: [ID]
+  ): CampaignNodeNodeConnection
+  campaignById(id: ID!): CampaignNode
+  allChannelConfigurations(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    recorderSpecification_Isnull: Boolean
+    detectorSpecification_Isnull: Boolean
+    deploymentId: ID
+    deploymentId_In: [ID]
+    continuous: Boolean
+    dutyCycleOn: Int
+    dutyCycleOn_Lt: Int
+    dutyCycleOn_Lte: Int
+    dutyCycleOn_Gt: Int
+    dutyCycleOn_Gte: Int
+    dutyCycleOff: Int
+    dutyCycleOff_Lt: Int
+    dutyCycleOff_Lte: Int
+    dutyCycleOff_Gt: Int
+    dutyCycleOff_Gte: Int
+    instrumentDepth: Int
+    instrumentDepth_Lt: Int
+    instrumentDepth_Lte: Int
+    instrumentDepth_Gt: Int
+    instrumentDepth_Gte: Int
+    timezone: String
+    harvestStartingDate: DateTime
+    harvestStartingDate_Lt: DateTime
+    harvestStartingDate_Lte: DateTime
+    harvestStartingDate_Gt: DateTime
+    harvestStartingDate_Gte: DateTime
+    harvestEndingDate: DateTime
+    harvestEndingDate_Lt: DateTime
+    harvestEndingDate_Lte: DateTime
+    harvestEndingDate_Gt: DateTime
+    harvestEndingDate_Gte: DateTime
+    files_Id: Decimal
+    files_Id_In: [ID]
+    otherEquipments_Id: Decimal
+    otherEquipments_Id_In: [ID]
+  ): ChannelConfigurationNodeNodeConnection
+  channelConfigurationById(id: ID!): ChannelConfigurationNode
+  allChannelConfigurationsDetectorSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    detectorId: ID
+    detectorId_In: [ID]
+    labels_Id: Decimal
+    labels_Id_In: [ID]
+    channelConfiguration_Id: Decimal
+    channelConfiguration_Id_In: [ID]
+    outputFormats: String
+  ): ChannelConfigurationDetectorSpecificationNodeNodeConnection
+  channelConfigurationDetectorSpecificationById(id: ID!): ChannelConfigurationDetectorSpecificationNode
+  allChannelConfigurationsRecorderSpecifications(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    hydrophoneId: ID
+    hydrophoneId_In: [ID]
+    recorderId: ID
+    recorderId_In: [ID]
+    channelConfiguration_Id: Decimal
+    channelConfiguration_Id_In: [ID]
+    recordingFormats: String
+  ): ChannelConfigurationRecorderSpecificationNodeNodeConnection
+  channelConfigurationRecorderSpecificationById(id: ID!): ChannelConfigurationRecorderSpecificationNode
+  allDeployments(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    projectId: ID
+    projectId_In: [ID]
+    siteId: ID
+    siteId_In: [ID]
+    campaignId: ID
+    campaignId_In: [ID]
+    platformId: ID
+    platformId_In: [ID]
+    contacts_Id: Decimal
+    contacts_Id_In: [ID]
+    mobilePositions_Id: Decimal
+    mobilePositions_Id_In: [ID]
+    channelConfigurations_Id: Decimal
+    channelConfigurations_Id_In: [ID]
+    longitude: Float
+    longitude_Lt: Float
+    longitude_Lte: Float
+    longitude_Gt: Float
+    longitude_Gte: Float
+    latitude: Float
+    latitude_Lt: Float
+    latitude_Lte: Float
+    latitude_Gt: Float
+    latitude_Gte: Float
+    name: String
+    name_Icontains: String
+    bathymetricDepth: Int
+    bathymetricDepth_Lt: Int
+    bathymetricDepth_Lte: Int
+    bathymetricDepth_Gt: Int
+    bathymetricDepth_Gte: Int
+    deploymentDate: DateTime
+    deploymentDate_Lt: DateTime
+    deploymentDate_Lte: DateTime
+    deploymentDate_Gt: DateTime
+    deploymentDate_Gte: DateTime
+    deploymentVessel: String
+    deploymentVessel_Icontains: String
+    recoveryDate: DateTime
+    recoveryDate_Lt: DateTime
+    recoveryDate_Lte: DateTime
+    recoveryDate_Gt: DateTime
+    recoveryDate_Gte: DateTime
+    recoveryVessel: String
+    recoveryVessel_Icontains: String
+    description_Icontains: String
+    project_WebsiteProject_Id: Decimal
+  ): DeploymentNodeNodeConnection
+  deploymentById(id: ID!): DeploymentNode
+  allDeploymentMobilePositions(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    deploymentId: ID
+    deploymentId_In: [ID]
+    datetime: DateTime
+    datetime_Lt: DateTime
+    datetime_Lte: DateTime
+    datetime_Gt: DateTime
+    datetime_Gte: DateTime
+    longitude: Float
+    longitude_Lt: Float
+    longitude_Lte: Float
+    longitude_Gt: Float
+    longitude_Gte: Float
+    latitude: Float
+    latitude_Lt: Float
+    latitude_Lte: Float
+    latitude_Gt: Float
+    latitude_Gte: Float
+    depth: Float
+    depth_Lt: Float
+    depth_Lte: Float
+    depth_Gt: Float
+    depth_Gte: Float
+    heading: Float
+    heading_Lt: Float
+    heading_Lte: Float
+    heading_Gt: Float
+    heading_Gte: Float
+    pitch: Float
+    pitch_Lt: Float
+    pitch_Lte: Float
+    pitch_Gt: Float
+    pitch_Gte: Float
+    roll: Float
+    roll_Lt: Float
+    roll_Lte: Float
+    roll_Gt: Float
+    roll_Gte: Float
+  ): DeploymentMobilePositionNodeNodeConnection
+  deploymentMobilePositionById(id: ID!): DeploymentMobilePositionNode
+  allProjects(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    contacts_Id: Decimal
+    contacts_Id_In: [ID]
+    projectType_Id: Decimal
+    projectType_Id_In: [ID]
+    campaigns_Id: Decimal
+    campaigns_Id_In: [ID]
+    sites_Id: Decimal
+    sites_Id_In: [ID]
+    deployments_Id: Decimal
+    deployments_Id_In: [ID]
+    projectType: Decimal
+    accessibility: AccessibilityEnum
+    doi: String
+    startDate: Date
+    startDate_Lte: Date
+    startDate_Lt: Date
+    startDate_Gte: Date
+    startDate_Gt: Date
+    endDate: Date
+    endDate_Lte: Date
+    endDate_Lt: Date
+    endDate_Gte: Date
+    endDate_Gt: Date
+    projectGoal: String
+    projectGoal_Icontains: String
+    financing: FinancingEnum
+  ): ProjectNodeNodeConnection
+  projectById(id: ID!): ProjectNode
+  allProjectTypes(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    projects_Id: Decimal
+    projects_Id_In: [ID]
+  ): ProjectTypeNodeNodeConnection
+  projectTypeById(id: ID!): ProjectTypeNode
+  allSites(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    name: String
+    name_Icontains: String
+    projectId: ID
+    projectId_In: [ID]
+    deployments_Id: Decimal
+    deployments_Id_In: [ID]
+  ): SiteNodeNodeConnection
+  siteById(id: ID!): SiteNode
+  allContacts(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    roles_Id: Decimal
+    ownedEquipments_Id: Decimal
+    ownedPlatforms_Id: Decimal
+    performedMaintenances_Id: Decimal
+    providedEquipments_Id: Decimal
+    providedPlatforms_Id: Decimal
+  ): ContactNodeNodeConnection
+  contactById(id: ID!): ContactNode
+  allContactRoles(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    role: RoleEnum
+    contact_Id: Decimal
+    contact_Id_In: [ID]
+    contact_Name: String
+    contact_Name_Icontains: String
+    contact_Mail: String
+    contact_Mail_Icontains: String
+    contact_Website: String
+    contact_Website_Icontains: String
+    deployments_Id: Decimal
+    deployments_Id_In: [ID]
+    projects_Id: Decimal
+    projects_Id_In: [ID]
+  ): ContactRoleNodeNodeConnection
+  contactRoleById(id: ID!): ContactRoleNode
+  allWebsiteProjects(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+  ): ProjectNodeNodeConnection
+  allApiAnnotationResults(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: Decimal
+  ): AnnotationResultNodeNodeConnection
+  allApiLabels(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: Decimal
+
+    """Ordering"""
+    orderBy: String
+  ): ApiLabelNodeNodeConnection
+}
+
+type LabelNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [LabelNode]!
+  totalCount: Int
+}
+
+type PageInfoExtra {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+}
+
+type LabelNode implements Node {
+  id: ID!
+  source: SourceNode!
+  sound: SoundNode
+  nickname: String
+  relatedBibliography(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+  physicalDescriptor: PhysicalDescriptorNode
+  acousticDetectors(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], equipment_Id: Decimal, equipment_Id_In: [ID], detectedLabels_Id: Decimal, detectedLabels_Id_In: [ID], minFrequency: Int, minFrequency_Lt: Int, minFrequency_Lte: Int, minFrequency_Gt: Int, minFrequency_Gte: Int, maxFrequency: Int, maxFrequency_Lt: Int, maxFrequency_Lte: Int, maxFrequency_Gt: Int, maxFrequency_Gte: Int, algorithmName: String, algorithmName_Icontains: String): AcousticDetectorSpecificationNodeConnection!
+  channelConfigurationDetectorSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], detectorId: ID, detectorId_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], outputFormats: String): ChannelConfigurationDetectorSpecificationNodeConnection!
+  labelSet(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: Decimal
+
+    """Ordering"""
+    orderBy: String
+  ): ApiLabelNodeConnection!
+}
+
+"""An object with an ID"""
+interface Node {
+  """The ID of the object"""
+  id: ID!
+}
+
+type SourceNode implements Node {
+  id: ID!
+  englishName: String!
+  latinName: String
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: SourceNode
+  relatedBibliography(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+  children(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], englishName: String, englishName_Icontains: String, latinName: String, latinName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SourceNodeConnection!
+  labels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], physicalDescriptor_Id: Decimal, physicalDescriptor_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID]): LabelNodeConnection!
+}
+
+type BibliographyNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [BibliographyNodeEdge]!
+}
+
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""A Relay edge containing a `BibliographyNode` and its cursor."""
+type BibliographyNodeEdge {
+  """The item at the end of the edge"""
+  node: BibliographyNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type BibliographyNode implements Node {
+  id: ID!
+  title: String!
+  doi: String
+  tags(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String): TagNodeConnection!
+  status: StatusEnum
+
+  """Required for any published bibliography"""
+  publicationDate: Date
+  type: TypeEnum!
+  softwareInformation: BibliographySoftwareNode
+  articleInformation: BibliographyArticleNode
+  conferenceInformation: BibliographyConferenceNode
+  posterInformation: BibliographyPosterNode
+  authors(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], order: Int, order_Lt: Int, order_Lte: Int, order_Gt: Int, order_Gte: Int, bibliographyId: ID, bibliographyId_In: [ID], contactId: ID, contactId_In: [ID], institutions: Decimal, institutions_In: [[ID]]): AuthorNodeConnection!
+  relatedProjects(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, contacts_Id: Decimal, contacts_Id_In: [ID], projectType_Id: Decimal, projectType_Id_In: [ID], campaigns_Id: Decimal, campaigns_Id_In: [ID], sites_Id: Decimal, sites_Id_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], projectType: Decimal, accessibility: AccessibilityEnum, doi: String, startDate: Date, startDate_Lte: Date, startDate_Lt: Date, startDate_Gte: Date, startDate_Gt: Date, endDate: Date, endDate_Lte: Date, endDate_Lt: Date, endDate_Gte: Date, endDate_Gt: Date, projectGoal: String, projectGoal_Icontains: String, financing: FinancingEnum): ProjectNodeConnection!
+  relatedSounds(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], associatedNames_Id: Decimal, associatedNames_Id_In: [ID], englishName: String, englishName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SoundNodeConnection!
+  relatedSources(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], englishName: String, englishName_Icontains: String, latinName: String, latinName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SourceNodeConnection!
+  relatedLabels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], physicalDescriptor_Id: Decimal, physicalDescriptor_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID]): LabelNodeConnection!
+  relatedPhysicalDescriptors(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], label_Id: Decimal, label_Id_In: [ID], shape: SignalShapeEnum, plurality: SignalShapeEnum, minFrequency: Int, minFrequency_Lt: Int, minFrequency_Lte: Int, minFrequency_Gt: Int, minFrequency_Gte: Int, maxFrequency: Int, maxFrequency_Lt: Int, maxFrequency_Lte: Int, maxFrequency_Gt: Int, maxFrequency_Gte: Int, meanDuration: Float, meanDuration_Lt: Float, meanDuration_Lte: Float, meanDuration_Gt: Float, meanDuration_Gte: Float): PhysicalDescriptorNodeConnection!
+}
+
+type TagNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [TagNodeEdge]!
+}
+
+"""A Relay edge containing a `TagNode` and its cursor."""
+type TagNodeEdge {
+  """The item at the end of the edge"""
+  node: TagNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type TagNode implements Node {
+  id: ID!
+  name: String!
+  bibliographySet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+}
+
+scalar StatusEnum
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+scalar TypeEnum
+
+type BibliographySoftwareNode implements Node {
+  id: ID!
+
+  """Required for a software"""
+  publicationPlace: String!
+  repositoryUrl: String
+  bibliography: BibliographyNode
+}
+
+type BibliographyArticleNode implements Node {
+  id: ID!
+
+  """Required for an article"""
+  journal: String!
+  volumes: String
+  pagesFrom: Int
+  pagesTo: Int
+  issueNb: Int
+  articleNb: Int
+  bibliography: BibliographyNode
+}
+
+type BibliographyConferenceNode implements Node {
+  id: ID!
+
+  """Required for a conference"""
+  conferenceName: String!
+
+  """Required for a conference (format: {City}, {Country})"""
+  conferenceLocation: String!
+  conferenceAbstractBookUrl: String
+  bibliography: BibliographyNode
+}
+
+type BibliographyPosterNode implements Node {
+  id: ID!
+  posterUrl: String
+  bibliography: BibliographyNode
+}
+
+type AuthorNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [AuthorNodeEdge]!
+}
+
+"""A Relay edge containing a `AuthorNode` and its cursor."""
+type AuthorNodeEdge {
+  """The item at the end of the edge"""
+  node: AuthorNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type AuthorNode implements Node {
+  """The ID of the object"""
+  id: ID!
+  order: Int!
+  bibliography: BibliographyNode!
+  contact: ContactNode
+}
+
+type ContactNode implements Node {
+  id: ID!
+  name: String!
+  mail: String
+  website: String
+  roles(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], role: RoleEnum, contact_Id: Decimal, contact_Id_In: [ID], contact_Name: String, contact_Name_Icontains: String, contact_Mail: String, contact_Mail_Icontains: String, contact_Website: String, contact_Website_Icontains: String, deployments_Id: Decimal, deployments_Id_In: [ID], projects_Id: Decimal, projects_Id_In: [ID]): ContactRoleNodeConnection!
+  authors(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], order: Int, order_Lt: Int, order_Lte: Int, order_Gt: Int, order_Gte: Int, bibliographyId: ID, bibliographyId_In: [ID], contactId: ID, contactId_In: [ID], institutions: Decimal, institutions_In: [[ID]]): AuthorNodeConnection!
+  ownedEquipments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], model: String, model_Icontains: String, serialNumber: String, serialNumber_Icontains: String, ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], sdCardSpecification_Isnull: Boolean, recorderSpecification_Isnull: Boolean, hydrophoneSpecification_Isnull: Boolean, acousticDetectorSpecification_Isnull: Boolean, purchaseDate: Date, purchaseDate_Lt: Date, purchaseDate_Lte: Date, purchaseDate_Gt: Date, purchaseDate_Gte: Date, name: String, name_Icontains: String, batterySlotsCount: Int, batterySlotsCount_Lt: Int, batterySlotsCount_Lte: Int, batterySlotsCount_Gt: Int, batterySlotsCount_Gte: Int, batteryType: String, batteryType_Icontains: String, cables: String, cables_Icontains: String, channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], channelConfigurationHydrophoneSpecifications_Id: Decimal, channelConfigurationHydrophoneSpecifications_Id_In: [ID], channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID]): EquipmentNodeConnection!
+  providedEquipments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], model: String, model_Icontains: String, serialNumber: String, serialNumber_Icontains: String, ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], sdCardSpecification_Isnull: Boolean, recorderSpecification_Isnull: Boolean, hydrophoneSpecification_Isnull: Boolean, acousticDetectorSpecification_Isnull: Boolean, purchaseDate: Date, purchaseDate_Lt: Date, purchaseDate_Lte: Date, purchaseDate_Gt: Date, purchaseDate_Gte: Date, name: String, name_Icontains: String, batterySlotsCount: Int, batterySlotsCount_Lt: Int, batterySlotsCount_Lte: Int, batterySlotsCount_Gt: Int, batterySlotsCount_Gte: Int, batteryType: String, batteryType_Icontains: String, cables: String, cables_Icontains: String, channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], channelConfigurationHydrophoneSpecifications_Id: Decimal, channelConfigurationHydrophoneSpecifications_Id_In: [ID], channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID]): EquipmentNodeConnection!
+  ownedPlatforms(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID], name: String, name_Icontains: String, type: String, isMobile: Boolean): PlatformNodeConnection!
+  providedPlatforms(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID], name: String, name_Icontains: String, type: String, isMobile: Boolean): PlatformNodeConnection!
+  performedMaintenances(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], typeId: ID, typeId_In: [ID], maintainerId: ID, maintainerId_In: [ID], platformId: ID, platformId_In: [ID], equipmentId: ID, equipmentId_In: [ID], date: Date, date_Lt: Date, date_Lte: Date, date_Gt: Date, date_Gte: Date): MaintenanceNodeConnection!
+}
+
+type ContactRoleNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ContactRoleNodeEdge]!
+}
+
+"""A Relay edge containing a `ContactRoleNode` and its cursor."""
+type ContactRoleNodeEdge {
+  """The item at the end of the edge"""
+  node: ContactRoleNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ContactRoleNode implements Node {
+  id: ID!
+  contact: ContactNode!
+  role: RoleEnum
+
+  """Should have at least one 'Main Contact'"""
+  projects(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, contacts_Id: Decimal, contacts_Id_In: [ID], projectType_Id: Decimal, projectType_Id_In: [ID], campaigns_Id: Decimal, campaigns_Id_In: [ID], sites_Id: Decimal, sites_Id_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], projectType: Decimal, accessibility: AccessibilityEnum, doi: String, startDate: Date, startDate_Lte: Date, startDate_Lt: Date, startDate_Gte: Date, startDate_Gt: Date, endDate: Date, endDate_Lte: Date, endDate_Lt: Date, endDate_Gte: Date, endDate_Gt: Date, projectGoal: String, projectGoal_Icontains: String, financing: FinancingEnum): ProjectNodeConnection!
+
+  """Contacts related to the deployment."""
+  deployments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], projectId: ID, projectId_In: [ID], siteId: ID, siteId_In: [ID], campaignId: ID, campaignId_In: [ID], platformId: ID, platformId_In: [ID], contacts_Id: Decimal, contacts_Id_In: [ID], mobilePositions_Id: Decimal, mobilePositions_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, name: String, name_Icontains: String, bathymetricDepth: Int, bathymetricDepth_Lt: Int, bathymetricDepth_Lte: Int, bathymetricDepth_Gt: Int, bathymetricDepth_Gte: Int, deploymentDate: DateTime, deploymentDate_Lt: DateTime, deploymentDate_Lte: DateTime, deploymentDate_Gt: DateTime, deploymentDate_Gte: DateTime, deploymentVessel: String, deploymentVessel_Icontains: String, recoveryDate: DateTime, recoveryDate_Lt: DateTime, recoveryDate_Lte: DateTime, recoveryDate_Gt: DateTime, recoveryDate_Gte: DateTime, recoveryVessel: String, recoveryVessel_Icontains: String, description_Icontains: String, project_WebsiteProject_Id: Decimal): DeploymentNodeConnection!
+}
+
+scalar RoleEnum
+
+type ProjectNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectNodeEdge]!
+}
+
+"""A Relay edge containing a `ProjectNode` and its cursor."""
+type ProjectNodeEdge {
+  """The item at the end of the edge"""
+  node: ProjectNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProjectNode implements Node {
+  id: ID!
+
+  """Name of the project"""
+  name: String!
+
+  """Should have at least one 'Main Contact'"""
+  contacts(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], role: RoleEnum, contact_Id: Decimal, contact_Id_In: [ID], contact_Name: String, contact_Name_Icontains: String, contact_Mail: String, contact_Mail_Icontains: String, contact_Website: String, contact_Website_Icontains: String, deployments_Id: Decimal, deployments_Id_In: [ID], projects_Id: Decimal, projects_Id_In: [ID]): ContactRoleNodeConnection!
+  accessibility: AccessibilityEnum
+
+  """Digital Object Identifier of the data, if existing."""
+  doi: String
+
+  """
+  Description of the type of the project (e.g., research, marine renewable energies, long monitoring,...).
+  """
+  projectType: ProjectTypeNode
+  startDate: Date
+  endDate: Date
+
+  """Description of the goal of the project."""
+  projectGoal: String
+  financing: FinancingEnum
+  relatedBibliography(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+
+  """Project associated to this campaign"""
+  campaigns(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, projectId: ID, projectId_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID]): CampaignNodeConnection!
+
+  """Project associated to this site"""
+  sites(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, projectId: ID, projectId_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID]): SiteNodeConnection!
+
+  """Project associated to this deployment"""
+  deployments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], projectId: ID, projectId_In: [ID], siteId: ID, siteId_In: [ID], campaignId: ID, campaignId_In: [ID], platformId: ID, platformId_In: [ID], contacts_Id: Decimal, contacts_Id_In: [ID], mobilePositions_Id: Decimal, mobilePositions_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, name: String, name_Icontains: String, bathymetricDepth: Int, bathymetricDepth_Lt: Int, bathymetricDepth_Lte: Int, bathymetricDepth_Gt: Int, bathymetricDepth_Gte: Int, deploymentDate: DateTime, deploymentDate_Lt: DateTime, deploymentDate_Lte: DateTime, deploymentDate_Gt: DateTime, deploymentDate_Gte: DateTime, deploymentVessel: String, deploymentVessel_Icontains: String, recoveryDate: DateTime, recoveryDate_Lt: DateTime, recoveryDate_Lte: DateTime, recoveryDate_Gt: DateTime, recoveryDate_Gte: DateTime, recoveryVessel: String, recoveryVessel_Icontains: String, description_Icontains: String, project_WebsiteProject_Id: Decimal): DeploymentNodeConnection!
+  websiteProject: ProjectNode
+}
+
+"""The `Decimal` scalar type represents a python Decimal."""
+scalar Decimal
+
+scalar AccessibilityEnum
+
+type ProjectTypeNode implements Node {
+  id: ID!
+
+  """Description of the type of the project"""
+  name: String!
+
+  """
+  Description of the type of the project (e.g., research, marine renewable energies, long monitoring,...).
+  """
+  projects(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, contacts_Id: Decimal, contacts_Id_In: [ID], projectType_Id: Decimal, projectType_Id_In: [ID], campaigns_Id: Decimal, campaigns_Id_In: [ID], sites_Id: Decimal, sites_Id_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], projectType: Decimal, accessibility: AccessibilityEnum, doi: String, startDate: Date, startDate_Lte: Date, startDate_Lt: Date, startDate_Gte: Date, startDate_Gt: Date, endDate: Date, endDate_Lte: Date, endDate_Lt: Date, endDate_Gte: Date, endDate_Gt: Date, projectGoal: String, projectGoal_Icontains: String, financing: FinancingEnum): ProjectNodeConnection!
+}
+
+scalar FinancingEnum
+
+type CampaignNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [CampaignNodeEdge]!
+}
+
+"""A Relay edge containing a `CampaignNode` and its cursor."""
+type CampaignNodeEdge {
+  """The item at the end of the edge"""
+  node: CampaignNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type CampaignNode implements Node {
+  id: ID!
+
+  """Name of the campaign during which the instrument was deployed."""
+  name: String!
+
+  """Project associated to this campaign"""
+  project: ProjectNode!
+
+  """Campaign during which the instrument was deployed."""
+  deployments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], projectId: ID, projectId_In: [ID], siteId: ID, siteId_In: [ID], campaignId: ID, campaignId_In: [ID], platformId: ID, platformId_In: [ID], contacts_Id: Decimal, contacts_Id_In: [ID], mobilePositions_Id: Decimal, mobilePositions_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, name: String, name_Icontains: String, bathymetricDepth: Int, bathymetricDepth_Lt: Int, bathymetricDepth_Lte: Int, bathymetricDepth_Gt: Int, bathymetricDepth_Gte: Int, deploymentDate: DateTime, deploymentDate_Lt: DateTime, deploymentDate_Lte: DateTime, deploymentDate_Gt: DateTime, deploymentDate_Gte: DateTime, deploymentVessel: String, deploymentVessel_Icontains: String, recoveryDate: DateTime, recoveryDate_Lt: DateTime, recoveryDate_Lte: DateTime, recoveryDate_Gt: DateTime, recoveryDate_Gte: DateTime, recoveryVessel: String, recoveryVessel_Icontains: String, description_Icontains: String, project_WebsiteProject_Id: Decimal): DeploymentNodeConnection!
+}
+
+type DeploymentNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [DeploymentNodeEdge]!
+}
+
+"""A Relay edge containing a `DeploymentNode` and its cursor."""
+type DeploymentNodeEdge {
+  """The item at the end of the edge"""
+  node: DeploymentNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type DeploymentNode implements Node {
+  id: ID!
+
+  """Project associated to this deployment"""
+  project: ProjectNode!
+
+  """Longitude of the platform position (WGS84 decimal degree)."""
+  longitude: Float!
+
+  """Latitude of the platform position (WGS84 decimal degrees)."""
+  latitude: Float!
+
+  """Name of the deployment."""
+  name: String
+
+  """
+  Conceptual location. A site may group together several platforms in relatively close proximity, or describes a location where regular deployments are carried out.
+  """
+  site: SiteNode
+
+  """Campaign during which the instrument was deployed."""
+  campaign: CampaignNode
+
+  """Support of the deployed instruments"""
+  platform: PlatformNode
+
+  """
+  Underwater depth of ocean floor at the platform position (in positive meters).
+  """
+  bathymetricDepth: Int
+
+  """Date and time at which the measurement system was deployed in UTC."""
+  deploymentDate: DateTime
+
+  """Name of the vehicle associated with the deployment."""
+  deploymentVessel: String
+
+  """Date and time at which the measurement system was recovered in UTC."""
+  recoveryDate: DateTime
+
+  """Name of the vehicle associated with the recovery."""
+  recoveryVessel: String
+
+  """Contacts related to the deployment."""
+  contacts(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], role: RoleEnum, contact_Id: Decimal, contact_Id_In: [ID], contact_Name: String, contact_Name_Icontains: String, contact_Mail: String, contact_Mail_Icontains: String, contact_Website: String, contact_Website_Icontains: String, deployments_Id: Decimal, deployments_Id_In: [ID], projects_Id: Decimal, projects_Id_In: [ID]): ContactRoleNodeConnection!
+
+  """
+  Optional description of deployment and recovery conditions (weather, technical issues,...).
+  """
+  description: String
+  channelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], otherEquipments_Id: Decimal, otherEquipments_Id_In: [ID]): ChannelConfigurationNodeConnection!
+
+  """Related deployment"""
+  mobilePositions(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], deploymentId: ID, deploymentId_In: [ID], datetime: DateTime, datetime_Lt: DateTime, datetime_Lte: DateTime, datetime_Gt: DateTime, datetime_Gte: DateTime, longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, depth: Float, depth_Lt: Float, depth_Lte: Float, depth_Gt: Float, depth_Gte: Float, heading: Float, heading_Lt: Float, heading_Lte: Float, heading_Gt: Float, heading_Gte: Float, pitch: Float, pitch_Lt: Float, pitch_Lte: Float, pitch_Gt: Float, pitch_Gte: Float, roll: Float, roll_Lt: Float, roll_Lte: Float, roll_Gt: Float, roll_Gte: Float): DeploymentMobilePositionNodeConnection!
+}
+
+type SiteNode implements Node {
+  id: ID!
+
+  """
+  Name of the platform conceptual location. A site may group together several platforms in relatively close proximity, or describes a location where regular deployments are carried out.
+  """
+  name: String!
+
+  """Project associated to this site"""
+  project: ProjectNode!
+
+  """
+  Conceptual location. A site may group together several platforms in relatively close proximity, or describes a location where regular deployments are carried out.
+  """
+  deployments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], projectId: ID, projectId_In: [ID], siteId: ID, siteId_In: [ID], campaignId: ID, campaignId_In: [ID], platformId: ID, platformId_In: [ID], contacts_Id: Decimal, contacts_Id_In: [ID], mobilePositions_Id: Decimal, mobilePositions_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, name: String, name_Icontains: String, bathymetricDepth: Int, bathymetricDepth_Lt: Int, bathymetricDepth_Lte: Int, bathymetricDepth_Gt: Int, bathymetricDepth_Gte: Int, deploymentDate: DateTime, deploymentDate_Lt: DateTime, deploymentDate_Lte: DateTime, deploymentDate_Gt: DateTime, deploymentDate_Gte: DateTime, deploymentVessel: String, deploymentVessel_Icontains: String, recoveryDate: DateTime, recoveryDate_Lt: DateTime, recoveryDate_Lte: DateTime, recoveryDate_Gt: DateTime, recoveryDate_Gte: DateTime, recoveryVessel: String, recoveryVessel_Icontains: String, description_Icontains: String, project_WebsiteProject_Id: Decimal): DeploymentNodeConnection!
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+type PlatformNode implements Node {
+  id: ID!
+  owner: ContactNode!
+  provider: ContactNode!
+  type: PlatformTypeNode!
+  name: String
+  description: String
+  maintenances(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], typeId: ID, typeId_In: [ID], maintainerId: ID, maintainerId_In: [ID], platformId: ID, platformId_In: [ID], equipmentId: ID, equipmentId_In: [ID], date: Date, date_Lt: Date, date_Lte: Date, date_Gt: Date, date_Gte: Date): MaintenanceNodeConnection!
+
+  """Support of the deployed instruments"""
+  deployments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], projectId: ID, projectId_In: [ID], siteId: ID, siteId_In: [ID], campaignId: ID, campaignId_In: [ID], platformId: ID, platformId_In: [ID], contacts_Id: Decimal, contacts_Id_In: [ID], mobilePositions_Id: Decimal, mobilePositions_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], longitude: Float, longitude_Lt: Float, longitude_Lte: Float, longitude_Gt: Float, longitude_Gte: Float, latitude: Float, latitude_Lt: Float, latitude_Lte: Float, latitude_Gt: Float, latitude_Gte: Float, name: String, name_Icontains: String, bathymetricDepth: Int, bathymetricDepth_Lt: Int, bathymetricDepth_Lte: Int, bathymetricDepth_Gt: Int, bathymetricDepth_Gte: Int, deploymentDate: DateTime, deploymentDate_Lt: DateTime, deploymentDate_Lte: DateTime, deploymentDate_Gt: DateTime, deploymentDate_Gte: DateTime, deploymentVessel: String, deploymentVessel_Icontains: String, recoveryDate: DateTime, recoveryDate_Lt: DateTime, recoveryDate_Lte: DateTime, recoveryDate_Gt: DateTime, recoveryDate_Gte: DateTime, recoveryVessel: String, recoveryVessel_Icontains: String, description_Icontains: String, project_WebsiteProject_Id: Decimal): DeploymentNodeConnection!
+}
+
+type PlatformTypeNode implements Node {
+  id: ID!
+  name: String!
+  isMobile: Boolean!
+  platforms(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], deployments_Id: Decimal, deployments_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID], name: String, name_Icontains: String, type: String, isMobile: Boolean): PlatformNodeConnection!
+}
+
+type PlatformNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PlatformNodeEdge]!
+}
+
+"""A Relay edge containing a `PlatformNode` and its cursor."""
+type PlatformNodeEdge {
+  """The item at the end of the edge"""
+  node: PlatformNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type MaintenanceNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [MaintenanceNodeEdge]!
+}
+
+"""A Relay edge containing a `MaintenanceNode` and its cursor."""
+type MaintenanceNodeEdge {
+  """The item at the end of the edge"""
+  node: MaintenanceNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type MaintenanceNode implements Node {
+  id: ID!
+  type: MaintenanceTypeNode!
+  date: Date!
+  description: String
+  maintainer: ContactNode
+  platform: PlatformNode
+  equipment: EquipmentNode
+}
+
+type MaintenanceTypeNode implements Node {
+  id: ID!
+  name: String!
+  description: String
+  interval: Float
+  maintenances(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], typeId: ID, typeId_In: [ID], maintainerId: ID, maintainerId_In: [ID], platformId: ID, platformId_In: [ID], equipmentId: ID, equipmentId_In: [ID], date: Date, date_Lt: Date, date_Lte: Date, date_Gt: Date, date_Gte: Date): MaintenanceNodeConnection!
+}
+
+type EquipmentNode implements Node {
+  id: ID!
+  model: String!
+  serialNumber: String!
+  owner: ContactNode!
+  provider: ContactNode!
+  sdCardSpecification: SDCardSpecificationNode
+  recorderSpecification: RecorderSpecificationNode
+  hydrophoneSpecification: HydrophoneSpecificationNode
+  acousticDetectorSpecification: AcousticDetectorSpecificationNode
+  purchaseDate: Date
+  name: String
+  batterySlotsCount: Int
+  batteryType: String
+  cables: String
+  maintenances(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], typeId: ID, typeId_In: [ID], maintainerId: ID, maintainerId_In: [ID], platformId: ID, platformId_In: [ID], equipmentId: ID, equipmentId_In: [ID], date: Date, date_Lt: Date, date_Lte: Date, date_Gt: Date, date_Gte: Date): MaintenanceNodeConnection!
+  channelConfigurationDetectorSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], detectorId: ID, detectorId_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], outputFormats: String): ChannelConfigurationDetectorSpecificationNodeConnection!
+  channelConfigurationRecorderSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], hydrophoneId: ID, hydrophoneId_In: [ID], recorderId: ID, recorderId_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], recordingFormats: String): ChannelConfigurationRecorderSpecificationNodeConnection!
+  channelConfigurationHydrophoneSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], hydrophoneId: ID, hydrophoneId_In: [ID], recorderId: ID, recorderId_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], recordingFormats: String): ChannelConfigurationRecorderSpecificationNodeConnection!
+  channelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], otherEquipments_Id: Decimal, otherEquipments_Id_In: [ID]): ChannelConfigurationNodeConnection!
+}
+
+type SDCardSpecificationNode implements Node {
+  id: ID!
+
+  """in byte"""
+  capacity: Int!
+  equipment: EquipmentNode
+}
+
+type RecorderSpecificationNode implements Node {
+  id: ID!
+
+  """Number of all the channels on the recorder, even if unused."""
+  channelsCount: Int
+  sdSlotsCount: Int
+
+  """In byte"""
+  sdMaximumCapacity: Int
+  sdType: String
+  equipment: EquipmentNode
+}
+
+type HydrophoneSpecificationNode implements Node {
+  id: ID!
+  sensitivity: Float!
+  directivity: HydrophoneDirectivityEnum
+
+  """Minimal temperature where the hydrophone operates (in degree Celsius)"""
+  operatingMinTemperature: Float
+
+  """Maximal temperature where the hydrophone operates (in degree Celsius)"""
+  operatingMaxTemperature: Float
+
+  """
+  Lower limiting frequency for a more or less flat response of the hydrophone, pre-amplification included if applicable.
+  """
+  minBandwidth: Float
+
+  """
+  Upper limiting frequency within a more or less flat response of the hydrophone, pre-amplification included if applicable.
+  """
+  maxBandwidth: Float
+
+  """
+  Lowest level which the hydrophone can handle (dB SPL RMS or peak), pre-amplification included if applicable.
+  """
+  minDynamicRange: Float
+
+  """
+  Highest level which the hydrophone can handle (dB SPL RMS or peak), pre-amplification included if applicable.
+  """
+  maxDynamicRange: Float
+
+  """Minimum depth at which hydrophone operates (in positive meters)."""
+  minOperatingDepth: Float
+
+  """Maximum depth at which hydrophone operates (in positive meters)."""
+  maxOperatingDepth: Float
+
+  """
+  Self noise of the hydrophone (dB re 1µPa^2/Hz), pre-amplification included if applicable.<br>Average on bandwidth or a fix frequency (generally @5kHz for example). Possibility to 'below sea-state zero' (equivalent to around 30dB @5kHz) could be nice because it is often described like that.
+  """
+  noiseFloor: Float
+  equipment: EquipmentNode
+}
+
+scalar HydrophoneDirectivityEnum
+
+type AcousticDetectorSpecificationNode implements Node {
+  id: ID!
+  detectedLabels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], physicalDescriptor_Id: Decimal, physicalDescriptor_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID]): LabelNodeConnection!
+  minFrequency: Int
+  maxFrequency: Int
+  algorithmName: String
+  equipment: EquipmentNode
+}
+
+type LabelNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [LabelNodeEdge]!
+}
+
+"""A Relay edge containing a `LabelNode` and its cursor."""
+type LabelNodeEdge {
+  """The item at the end of the edge"""
+  node: LabelNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationDetectorSpecificationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationDetectorSpecificationNodeEdge]!
+}
+
+"""
+A Relay edge containing a `ChannelConfigurationDetectorSpecificationNode` and its cursor.
+"""
+type ChannelConfigurationDetectorSpecificationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationDetectorSpecificationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationDetectorSpecificationNode implements Node {
+  id: ID!
+  detector: EquipmentNode!
+  outputFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
+  labels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], physicalDescriptor_Id: Decimal, physicalDescriptor_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID]): LabelNodeConnection!
+
+  """Minimum frequency (in Hertz)."""
+  minFrequency: Int
+
+  """Maximum frequency (in Hertz)."""
+  maxFrequency: Int
+  filter: String
+  configuration: String
+  channelConfiguration: ChannelConfigurationNode
+}
+
+type FileFormatNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileFormatNodeEdge]!
+}
+
+"""A Relay edge containing a `FileFormatNode` and its cursor."""
+type FileFormatNodeEdge {
+  """The item at the end of the edge"""
+  node: FileFormatNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type FileFormatNode implements Node {
+  id: ID!
+
+  """Format of the file"""
+  name: String!
+
+  """Format of the audio file."""
+  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
+  channelConfigurationDetectorSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], detectorId: ID, detectorId_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], outputFormats: String): ChannelConfigurationDetectorSpecificationNodeConnection!
+  channelConfigurationRecorderSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], hydrophoneId: ID, hydrophoneId_In: [ID], recorderId: ID, recorderId_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], recordingFormats: String): ChannelConfigurationRecorderSpecificationNodeConnection!
+}
+
+type FileNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileNodeEdge]!
+}
+
+"""A Relay edge containing a `FileNode` and its cursor."""
+type FileNodeEdge {
+  """The item at the end of the edge"""
+  node: FileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type FileNode implements Node {
+  id: ID!
+
+  """Name of the file, with extension."""
+  filename: String!
+
+  """Format of the audio file."""
+  format: FileFormatNode!
+  audioProperties: AudioPropertiesNode
+  detectionProperties: DetectionPropertiesNode
+
+  """Description of the path to access the data."""
+  storageLocation: String
+
+  """Total number of bytes of the audio file (in bytes)."""
+  fileSize: BigInt
+  accessibility: AccessibilityEnum
+  channelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], otherEquipments_Id: Decimal, otherEquipments_Id_In: [ID]): ChannelConfigurationNodeConnection!
+}
+
+type AudioPropertiesNode implements Node {
+  id: ID!
+
+  """
+  Sampling frequency of the audio file (in Hertz). If it is different from the channel sampling frequency, resampling has been performed.
+  """
+  samplingFrequency: Int!
+
+  """Date and time of the audio file start (in UTC)."""
+  initialTimestamp: DateTime!
+
+  """Duration of the audio file (in seconds)."""
+  duration: Int!
+
+  """
+  Number of quantization bits used to represent each sample (in bits). If it is different from the channel sampling frequency, re-quantization has been performed.
+  """
+  sampleDepth: Int
+  file: FileNode
+}
+
+type DetectionPropertiesNode implements Node {
+  id: ID!
+
+  """Start of the detection file covering (in UTC)."""
+  start: DateTime!
+
+  """End of the detection file covering (in UTC)."""
+  end: DateTime!
+  file: FileNode
+}
+
+"""
+The `BigInt` scalar type represents non-fractional whole numeric values.
+`BigInt` is not constrained to 32-bit like the `Int` type and thus is a less
+compatible type.
+"""
+scalar BigInt
+
+type ChannelConfigurationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationNodeEdge]!
+}
+
+"""A Relay edge containing a `ChannelConfigurationNode` and its cursor."""
+type ChannelConfigurationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationNode implements Node {
+  id: ID!
+  deployment: DeploymentNode!
+  recorderSpecification: ChannelConfigurationRecorderSpecificationNode
+  detectorSpecification: ChannelConfigurationDetectorSpecificationNode
+  otherEquipments(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], model: String, model_Icontains: String, serialNumber: String, serialNumber_Icontains: String, ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], sdCardSpecification_Isnull: Boolean, recorderSpecification_Isnull: Boolean, hydrophoneSpecification_Isnull: Boolean, acousticDetectorSpecification_Isnull: Boolean, purchaseDate: Date, purchaseDate_Lt: Date, purchaseDate_Lte: Date, purchaseDate_Gt: Date, purchaseDate_Gte: Date, name: String, name_Icontains: String, batterySlotsCount: Int, batterySlotsCount_Lt: Int, batterySlotsCount_Lte: Int, batterySlotsCount_Gt: Int, batterySlotsCount_Gte: Int, batteryType: String, batteryType_Icontains: String, cables: String, cables_Icontains: String, channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], channelConfigurationHydrophoneSpecifications_Id: Decimal, channelConfigurationHydrophoneSpecifications_Id_In: [ID], channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID]): EquipmentNodeConnection!
+
+  """
+  Boolean indicating if the record is continuous (1) or has a duty cycle (0).
+  """
+  continuous: Boolean
+
+  """
+  If it's not Continuous, time length (in second) during which the recorder is on.
+  """
+  dutyCycleOn: Int
+
+  """
+  If it's not Continuous, time length (in second) during which the recorder is off.
+  """
+  dutyCycleOff: Int
+
+  """Immersion depth of instrument (in positive meters)."""
+  instrumentDepth: Int
+  timezone: String
+  extraInformation: String
+
+  """
+  Harvest start date at which the channel configuration was idle to record (in UTC).
+  """
+  harvestStartingDate: DateTime
+
+  """
+  Harvest stop date at which the channel configuration finished to record in (in UTC).
+  """
+  harvestEndingDate: DateTime
+  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
+}
+
+type ChannelConfigurationRecorderSpecificationNode implements Node {
+  id: ID!
+  recorder: EquipmentNode!
+  hydrophone: EquipmentNode!
+  recordingFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
+
+  """Sampling frequency of the recording channel (in Hertz)."""
+  samplingFrequency: Int!
+
+  """
+  Number of quantization bits used to represent each sample by the recorder channel (in bits).
+  """
+  sampleDepth: Int!
+
+  """
+  Gain of the channel (recorder), with correction factors if applicable, without hydrophone sensibility (in dB). If end-to-end calibration with hydrophone sensibility, set it in Sensitivity and set Gain to 0 dB.<br>Gain G of the channel such that : data(uPa) = data(volt)*10^((-Sh-G)/20). See Sensitivity for Sh definition.
+  """
+  gain: Float!
+
+  """Name of the channel used for recording."""
+  channelName: String
+  channelConfiguration: ChannelConfigurationNode
+}
+
+type EquipmentNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [EquipmentNodeEdge]!
+}
+
+"""A Relay edge containing a `EquipmentNode` and its cursor."""
+type EquipmentNodeEdge {
+  """The item at the end of the edge"""
+  node: EquipmentNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationRecorderSpecificationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationRecorderSpecificationNodeEdge]!
+}
+
+"""
+A Relay edge containing a `ChannelConfigurationRecorderSpecificationNode` and its cursor.
+"""
+type ChannelConfigurationRecorderSpecificationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationRecorderSpecificationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type DeploymentMobilePositionNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [DeploymentMobilePositionNodeEdge]!
+}
+
+"""
+A Relay edge containing a `DeploymentMobilePositionNode` and its cursor.
+"""
+type DeploymentMobilePositionNodeEdge {
+  """The item at the end of the edge"""
+  node: DeploymentMobilePositionNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type DeploymentMobilePositionNode implements Node {
+  id: ID!
+
+  """Related deployment"""
+  deployment: DeploymentNode!
+
+  """Datetime for the mobile platform position"""
+  datetime: DateTime!
+
+  """Longitude of the mobile platform"""
+  longitude: Float!
+
+  """Latitude of the mobile platform"""
+  latitude: Float!
+
+  """Hydrophone depth of the mobile platform (In positive meters)"""
+  depth: Float!
+
+  """Heading of the mobile platform"""
+  heading: Float
+
+  """Pitch of the mobile platform"""
+  pitch: Float
+
+  """Roll of the mobile platform"""
+  roll: Float
+}
+
+type SiteNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [SiteNodeEdge]!
+}
+
+"""A Relay edge containing a `SiteNode` and its cursor."""
+type SiteNodeEdge {
+  """The item at the end of the edge"""
+  node: SiteNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type SoundNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [SoundNodeEdge]!
+}
+
+"""A Relay edge containing a `SoundNode` and its cursor."""
+type SoundNodeEdge {
+  """The item at the end of the edge"""
+  node: SoundNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type SoundNode implements Node {
+  id: ID!
+  englishName: String!
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: SoundNode
+  associatedNames(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], associatedNames_Id: Decimal, associatedNames_Id_In: [ID], englishName: String, englishName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SoundNodeConnection!
+  relatedBibliography(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+  children(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], associatedNames_Id: Decimal, associatedNames_Id_In: [ID], englishName: String, englishName_Icontains: String, frenchName: String, frenchName_Icontains: String, codeName: String, codeName_Icontains: String, taxon: String, taxon_Icontains: String): SoundNodeConnection!
+  labels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], physicalDescriptor_Id: Decimal, physicalDescriptor_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID]): LabelNodeConnection!
+}
+
+type SourceNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [SourceNodeEdge]!
+}
+
+"""A Relay edge containing a `SourceNode` and its cursor."""
+type SourceNodeEdge {
+  """The item at the end of the edge"""
+  node: SourceNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PhysicalDescriptorNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PhysicalDescriptorNodeEdge]!
+}
+
+"""A Relay edge containing a `PhysicalDescriptorNode` and its cursor."""
+type PhysicalDescriptorNodeEdge {
+  """The item at the end of the edge"""
+  node: PhysicalDescriptorNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PhysicalDescriptorNode implements Node {
+  id: ID!
+  shape: SignalShapeEnum
+  plurality: SignalShapeEnum
+  label: LabelNode!
+  minFrequency: Int
+  maxFrequency: Int
+  meanDuration: Float
+  description: String
+  relatedBibliography(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], title: String, title_Icontains: String, doi: String, tags_Name: String, tags_Name_In: [String], status: StatusEnum, publicationDate: Date, publicationDate_Lt: Date, publicationDate_Lte: Date, publicationDate_Gt: Date, publicationDate_Gte: Date, type: TypeEnum): BibliographyNodeConnection!
+}
+
+scalar SignalShapeEnum
+
+type AcousticDetectorSpecificationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [AcousticDetectorSpecificationNodeEdge]!
+}
+
+"""
+A Relay edge containing a `AcousticDetectorSpecificationNode` and its cursor.
+"""
+type AcousticDetectorSpecificationNodeEdge {
+  """The item at the end of the edge"""
+  node: AcousticDetectorSpecificationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ApiLabelNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ApiLabelNodeEdge]!
+}
+
+"""A Relay edge containing a `ApiLabelNode` and its cursor."""
+type ApiLabelNodeEdge {
+  """The item at the end of the edge"""
+  node: ApiLabelNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""Label node"""
+type ApiLabelNode implements Node {
+  id: ID!
+  name: String!
+  metadataxLabel: LabelNode
+  annotationresultSet(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    id: ID
+    id_In: [ID]
+    annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: Decimal
+  ): AnnotationResultNodeNodeConnection
+}
+
+type AnnotationResultNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [AnnotationResultNode]!
+  totalCount: Int
+}
+
+"""Annotation result node"""
+type AnnotationResultNode implements Node {
+  id: ID!
+
+  """Type of the annotation"""
+  type: ApiAnnotationResultTypeChoices!
+  startTime: Float
+  endTime: Float
+  startFrequency: Float
+  endFrequency: Float
+  label: ApiLabelNode!
+
+  """Expertise level of the annotator."""
+  annotatorExpertiseLevel: ApiAnnotationResultAnnotatorExpertiseLevelChoices
+  isUpdateOf: AnnotationResultNode
+  createdAt: DateTime!
+  lastUpdatedAt: DateTime!
+  updatedTo(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: Decimal): AnnotationResultNodeConnection!
+}
+
+"""An enumeration."""
+enum ApiAnnotationResultTypeChoices {
+  """Weak"""
+  W
+
+  """Point"""
+  P
+
+  """Box"""
+  B
+}
+
+"""An enumeration."""
+enum ApiAnnotationResultAnnotatorExpertiseLevelChoices {
+  """Expert"""
+  E
+
+  """Average"""
+  A
+
+  """Novice"""
+  N
+}
+
+type AnnotationResultNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [AnnotationResultNodeEdge]!
+}
+
+"""A Relay edge containing a `AnnotationResultNode` and its cursor."""
+type AnnotationResultNodeEdge {
+  """The item at the end of the edge"""
+  node: AnnotationResultNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PhysicalDescriptorNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [PhysicalDescriptorNode]!
+  totalCount: Int
+}
+
+type SoundNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [SoundNode]!
+  totalCount: Int
+}
+
+type SourceNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [SourceNode]!
+  totalCount: Int
+}
+
+type AuthorNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [AuthorNode]!
+  totalCount: Int
+}
+
+type TagNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [TagNode]!
+  totalCount: Int
+}
+
+type BibliographyNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [BibliographyNode]!
+  totalCount: Int
+}
+
+type AcousticDetectorSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [AcousticDetectorSpecificationNode]!
+  totalCount: Int
+}
+
+type EquipmentNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [EquipmentNode]!
+  totalCount: Int
+}
+
+type HydrophoneSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [HydrophoneSpecificationNode]!
+  totalCount: Int
+}
+
+type MaintenanceNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [MaintenanceNode]!
+  totalCount: Int
+}
+
+type MaintenanceTypeNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [MaintenanceTypeNode]!
+  totalCount: Int
+}
+
+type PlatformNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [PlatformNode]!
+  totalCount: Int
+}
+
+type PlatformTypeNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [PlatformTypeNode]!
+  totalCount: Int
+}
+
+type RecorderSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [RecorderSpecificationNode]!
+  totalCount: Int
+}
+
+type SDCardSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [SDCardSpecificationNode]!
+  totalCount: Int
+}
+
+type AudioPropertiesNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [AudioPropertiesNode]!
+  totalCount: Int
+}
+
+type DetectionPropertiesNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [DetectionPropertiesNode]!
+  totalCount: Int
+}
+
+type FileNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [FileNode]!
+  totalCount: Int
+}
+
+type FileFormatNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [FileFormatNode]!
+  totalCount: Int
+}
+
+type CampaignNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [CampaignNode]!
+  totalCount: Int
+}
+
+type ChannelConfigurationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ChannelConfigurationNode]!
+  totalCount: Int
+}
+
+type ChannelConfigurationDetectorSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ChannelConfigurationDetectorSpecificationNode]!
+  totalCount: Int
+}
+
+type ChannelConfigurationRecorderSpecificationNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ChannelConfigurationRecorderSpecificationNode]!
+  totalCount: Int
+}
+
+type DeploymentNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [DeploymentNode]!
+  totalCount: Int
+}
+
+type DeploymentMobilePositionNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [DeploymentMobilePositionNode]!
+  totalCount: Int
+}
+
+type ProjectNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ProjectNode]!
+  totalCount: Int
+}
+
+type ProjectTypeNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ProjectTypeNode]!
+  totalCount: Int
+}
+
+type SiteNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [SiteNode]!
+  totalCount: Int
+}
+
+type ContactNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ContactNode]!
+  totalCount: Int
+}
+
+type ContactRoleNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ContactRoleNode]!
+  totalCount: Int
+}
+
+type ApiLabelNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [ApiLabelNode]!
+  totalCount: Int
+}
+
+"""Global mutation"""
+type Mutation {
+  postSource(input: PostSourceMutationInput!): PostSourceMutationPayload
+  deleteSource(id: ID): DeleteSourceMutation
+  postSound(input: PostSoundMutationInput!): PostSoundMutationPayload
+  deleteSound(id: ID): DeleteSoundMutation
+}
+
+type PostSourceMutationPayload {
+  id: Int
+  relatedBibliography: String
+  englishName: String
+  latinName: String
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+
+  """May contain more than one error for same field."""
+  errors: [ErrorType]
+  ok: Boolean
+  data: SourceNode
+  clientMutationId: String
+}
+
+type ErrorType {
+  field: String!
+  messages: [String!]!
+}
+
+input PostSourceMutationInput {
+  id: Int
+  englishName: String!
+  latinName: String
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+  clientMutationId: String
+}
+
+type DeleteSourceMutation {
+  ok: Boolean
+}
+
+type PostSoundMutationPayload {
+  id: Int
+  relatedBibliography: String
+  associatedNames: String
+  englishName: String
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+
+  """May contain more than one error for same field."""
+  errors: [ErrorType]
+  ok: Boolean
+  data: SoundNode
+  clientMutationId: String
+}
+
+input PostSoundMutationInput {
+  id: Int
+  englishName: String!
+  frenchName: String
+  codeName: String
+  taxon: String
+  parent: String
+  clientMutationId: String
+}
+
+type DeleteSoundMutation {
+  ok: Boolean
+}

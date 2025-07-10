@@ -19,7 +19,9 @@
     "osmose:run": "cd website && npm run start",
     "reset data": "npm run database:remove && npm run database:create && npm run server:migrate && npm run server:seed",
     "launch": "concurrently --kill-others-on-fail \"npm run database:run && npm run server:migrate && npm run server:run\" \"npm run aplose:run\" \"npm run osmose:run\"",
-    "beforeCommit": "npm run \"server:makemigrations\" && npm run \"server:format\" && npm run \"server:lint\""
+    "beforeCommit": "npm run \"server:makemigrations\" && npm run \"server:format\" && npm run \"server:lint\"",
+    "grapqhl:generate-schema": "python -m poetry run python ./manage.py graphql_schema --schema backend.schema.schema --out frontend/schema.graphql",
+    "grapqhl:watch-generate-schema": "python -m poetry run python ./manage.py graphql_schema --schema backend.schema.schema --out frontend/schema.graphql --watch"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

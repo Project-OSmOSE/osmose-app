@@ -7,6 +7,7 @@ from random import Random
 
 from django.core.management.base import BaseCommand
 from faker import Faker
+from metadatax.common.models import Contact
 
 from backend.osmosewebsite.models import (
     TeamMember,
@@ -14,7 +15,6 @@ from backend.osmosewebsite.models import (
     Collaborator,
     Project,
     ScientificTalk,
-    Scientist,
 )
 
 fake = Faker()
@@ -63,12 +63,12 @@ class Command(BaseCommand):
         for _ in range(0, random.randrange(start=5, stop=25)):
             profile = fake.profile()
             websites = profile["website"]
-            scientist = Scientist.objects.create(
+            contact = Contact.objects.create(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
             )
             TeamMember.objects.create(
-                scientist=scientist,
+                contact=contact,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",
@@ -81,12 +81,12 @@ class Command(BaseCommand):
         for _ in range(0, random.randrange(start=1, stop=15)):
             profile = fake.profile()
             websites = profile["website"]
-            scientist = Scientist.objects.create(
+            contact = Contact.objects.create(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
             )
             TeamMember.objects.create(
-                scientist=scientist,
+                contact=contact,
                 position=profile["job"],
                 biography="\n".join(fake.paragraphs(5)),
                 picture=f"https://api.dicebear.com/7.x/identicon/svg?seed={profile['name']}",

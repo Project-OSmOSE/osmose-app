@@ -1,11 +1,11 @@
 """Project DRF serializers file"""
 from collections import Counter
 
-from metadatax.models import Deployment
-from metadatax.serializers.acquisition import (
-    DeploymentSerializerWithChannel,
+from metadatax.acquisition.serializers import (
+    DeploymentExportSerializer,
     ProjectSerializer as SourceMetadataxProjectSerializer,
 )
+from metadatax.models import Deployment
 from rest_framework import serializers
 
 from backend.osmosewebsite.models import Project
@@ -44,7 +44,7 @@ class MetadataxProjectSerializer(SourceMetadataxProjectSerializer):
     website_project = serializers.PrimaryKeyRelatedField(read_only=True)
 
 
-class DeploymentSerializer(DeploymentSerializerWithChannel):
+class DeploymentSerializer(DeploymentExportSerializer):
     """Add project to basic Deployment serializer"""
 
     project = MetadataxProjectSerializer()
@@ -53,7 +53,7 @@ class DeploymentSerializer(DeploymentSerializerWithChannel):
 
     def get_annotated_labels(self, deployment: Deployment):
         """Get annotated_labels related to the deployment"""
-        all_channels = deployment.channelconfiguration_set.all()
+        all_channels = deployment.channel_configurations.all()
         results = AnnotationResult.objects.filter(
             annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
         ).values_list("label__name", flat=True)

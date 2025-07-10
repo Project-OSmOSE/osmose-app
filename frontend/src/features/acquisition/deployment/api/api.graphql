@@ -1,0 +1,12 @@
+query getAllDeployments($ids: [ID]){
+    allDeployments(id_In: $ids) {
+        results {
+            id
+            name
+            project {
+                id
+                name
+            }
+        }
+    }
+}
