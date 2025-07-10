@@ -50,10 +50,10 @@ class Query(
     all_deployments = DjangoPaginationConnectionField(DeploymentNode)
 
 
-class Mutation(MetadataxMutation, graphene.ObjectType):
+class Mutation(
+    MetadataxMutation, graphene.ObjectType
+):  # pylint: disable=too-few-public-methods
     """Global mutation"""
-
-    # pylint: disable=too-few-public-methods
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
