@@ -1,17 +1,16 @@
 """Project DRF serializers file"""
-from collections import Counter
 
 from metadatax.acquisition.serializers import (
     DeploymentExportSerializer,
     ProjectSerializer as SourceMetadataxProjectSerializer,
 )
-from metadatax.models import Deployment
 from rest_framework import serializers
 
 from backend.osmosewebsite.models import Project
 from .collaborator import CollaboratorSerializer
 from .team_member import TeamMemberSerializer
-from ...api.models import AnnotationResult
+
+# from ...api.models import AnnotationResult
 
 ProjectFields = [
     "id",
@@ -51,10 +50,10 @@ class DeploymentSerializer(DeploymentExportSerializer):
 
     annotated_labels = serializers.SerializerMethodField(read_only=True)
 
-    def get_annotated_labels(self, deployment: Deployment):
-        """Get annotated_labels related to the deployment"""
-        all_channels = deployment.channel_configurations.all()
-        results = AnnotationResult.objects.filter(
-            annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
-        ).values_list("label__name", flat=True)
-        return dict(Counter(results))
+    # def get_annotated_labels(self, deployment: Deployment):
+    #     """Get annotated_labels related to the deployment"""
+    #     all_channels = deployment.channel_configurations.all()
+    #     results = AnnotationResult.objects.filter(
+    #         annotation_campaign_phase__annotation_campaign__datasets__related_channel_configuration__in=all_channels
+    #     ).values_list("label__name", flat=True)
+    #     return dict(Counter(results))

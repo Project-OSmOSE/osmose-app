@@ -1,32 +1,14 @@
-""" Models for Annotations """
-from .campaign import (
-    AnnotationCampaign,
-    AnnotationCampaignArchive,
-    AnnotationCampaignPhase,
-    Phase,
-)
-from .confidence import (
-    ConfidenceIndicator,
-    ConfidenceIndicatorSet,
-    ConfidenceIndicatorSetIndicator,
-)
-from .detector import (
-    Detector,
-    DetectorConfiguration,
-)
-from .label import (
-    Label,
-    LabelSet,
-)
-from .result import (
-    AnnotationResult,
-    AnnotationResultValidation,
-    AnnotationComment,
-    AnnotationResultAcousticFeatures,
-    SignalTrend,
-)
-from .tasks import (
-    AnnotationTask,
-    AnnotationFileRange,
-    AnnotationSession,
-)
+from .acoustic_features import AcousticFeatures
+from .annotation import Annotation
+from .annotation_campaign import AnnotationCampaign
+from .annotation_comment import AnnotationComment
+from .annotation_file_range import AnnotationFileRange
+from .annotation_phase import AnnotationPhase
+from .annotation_task import AnnotationTask
+from .annotation_validation import AnnotationValidation
+from .confidence import Confidence
+from .confidence_set import ConfidenceSet
+from .detector import Detector
+from .detector_configuration import DetectorConfiguration
+from .label import Label
+from .label_set import LabelSet

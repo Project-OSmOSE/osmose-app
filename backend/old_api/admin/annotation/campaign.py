@@ -59,7 +59,6 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "label_set",
         "show_labels_with_acoustic_features",
         "allow_point_annotation",
-        "annotation_scope",
         "owner",
         "show_spectro_configs",
         "show_datasets",

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from random import randint, choice
 
+from backend.api.actions.frequency_scales import get_frequency_scales
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core import management
@@ -8,7 +9,6 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from faker import Faker
 
-from backend.api.actions.frequency_scales import get_frequency_scales
 from backend.api.models import (
     DatasetType,
     GeoMetadatum,
@@ -375,7 +375,6 @@ class Command(management.BaseCommand):
                     datetime.strptime("2010-11-02", "%Y-%m-%d")
                 ),
                 instructions_url=self.fake.uri(),
-                annotation_scope=2,
                 label_set=LabelSet.objects.first(),
                 confidence_indicator_set=ConfidenceIndicatorSet.objects.first(),
                 owner=self.admin,

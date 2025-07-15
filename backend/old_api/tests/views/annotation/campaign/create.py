@@ -48,9 +48,6 @@ class CreateAdminAuthenticatedTestCase(AuthenticatedTestCase):
         self.assertEqual(response.data["id"], campaign.id)
         self.assertEqual(response.data["confidence_indicator_set"], None)
         self.assertEqual(response.data["label_set"], None)
-        self.assertEqual(
-            response.data["annotation_scope"], AnnotationCampaign.AnnotationScope.WHOLE
-        )
         self.assertEqual(response.data["datasets"], ["SPM Aural A 2010"])
         self.assertEqual(response.data["archive"], None)
         self.assertEqual(response.data["allow_point_annotation"], False)

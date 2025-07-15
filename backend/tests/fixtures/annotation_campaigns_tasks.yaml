@@ -7,7 +7,6 @@
     deadline: 2010-11-02 00:00:00+00:00
     label_set: 1
     confidence_indicator_set: 1
-    annotation_scope: 1
     owner: 3
     datasets:
     - 1
@@ -138,7 +137,6 @@
     instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
     deadline: 2010-11-02 00:00:00+00:00
     label_set: 1
-    annotation_scope: 1
     owner: 3
     datasets:
     - 1
@@ -180,7 +178,6 @@
     instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
     deadline: 2010-11-02 00:00:00+00:00
     label_set: 1
-    annotation_scope: 1
     owner: 3
     archive: 1
     datasets:
@@ -208,7 +205,6 @@
     deadline: 2010-11-02 00:00:00+00:00
     label_set: 1
     confidence_indicator_set: 1
-    annotation_scope: 1
     owner: 3
     datasets:
     - 1

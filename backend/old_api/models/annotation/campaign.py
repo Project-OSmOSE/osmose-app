@@ -73,9 +73,7 @@ class AnnotationCampaign(models.Model):
     allow_colormap_tuning = models.BooleanField(blank=False, default=False)
     colormap_default = models.TextField(null=True, blank=True)
     colormap_inverted_default = models.BooleanField(blank=True, null=True)
-    annotation_scope = models.IntegerField(
-        choices=AnnotationScope.choices, default=AnnotationScope.WHOLE
-    )
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     confidence_indicator_set = models.ForeignKey(
