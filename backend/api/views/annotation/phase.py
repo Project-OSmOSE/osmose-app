@@ -551,8 +551,8 @@ class AnnotationCampaignPhaseViewSet(
                 dataset_file_id=OuterRef("pk"), annotator__username=user
             )
             range_sub = file_ranges.filter(
-                first_file_id__lte=OuterRef("pk"),
-                last_file_id__gte=OuterRef("pk"),
+                from_datetime__gte=OuterRef("start"),
+                to_datetime__lte=OuterRef("end"),
                 annotator__username=user,
             )
             query = Case(

@@ -59,8 +59,10 @@ class AnnotationFileRange(models.Model):
 
     first_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     last_file_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    first_file_id = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    last_file_id = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+
+    from_datetime = models.DateTimeField()
+    to_datetime = models.DateTimeField()
+
     files_count = models.PositiveIntegerField()
     annotator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -79,8 +81,8 @@ class AnnotationFileRange(models.Model):
         return AnnotationTask.objects.filter(
             annotation_campaign_phase=self.annotation_campaign_phase,
             annotator_id=self.annotator_id,
-            dataset_file_id__gte=self.first_file_id,
-            dataset_file_id__lte=self.last_file_id,
+            dataset_file__start__gte=self.from_datetime,
+            dataset_file__end__lte=self.to_datetime,
         )
 
     @property
@@ -89,8 +91,8 @@ class AnnotationFileRange(models.Model):
         if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
             return AnnotationResult.objects.filter(
                 annotation_campaign_phase__annotation_campaign_id=self.annotation_campaign_phase.annotation_campaign_id,
-                dataset_file_id__gte=self.first_file_id,
-                dataset_file_id__lte=self.last_file_id,
+                dataset_file__start__gte=self.from_datetime,
+                dataset_file__end__lte=self.to_datetime,
             ).filter(
                 (
                     Q(annotation_campaign_phase_id=self.id)
@@ -104,8 +106,8 @@ class AnnotationFileRange(models.Model):
         return AnnotationResult.objects.filter(
             annotation_campaign_phase=self.annotation_campaign_phase,
             annotator_id=self.annotator_id,
-            dataset_file_id__gte=self.first_file_id,
-            dataset_file_id__lte=self.last_file_id,
+            dataset_file__start__gte=self.from_datetime,
+            dataset_file__end__lte=self.to_datetime,
         )
 
     def save(self, *args, **kwargs):
@@ -113,19 +115,24 @@ class AnnotationFileRange(models.Model):
         allowed_datasets = (
             self.annotation_campaign_phase.annotation_campaign.datasets.all()
         )
-        files = DatasetFile.objects.filter(dataset__in=allowed_datasets)
-        new_first_file_id = files[self.first_file_index].id
-        new_last_file_id = files[self.last_file_index].id
+        files = DatasetFile.objects.filter(dataset__in=allowed_datasets).order_by(
+            "start"
+        )
+        print(self.last_file_index, files[self.last_file_index].id)
+        from_datetime = files[self.first_file_index].start
+        to_datetime = files[self.last_file_index].end
+        if from_datetime > to_datetime:
+            from_datetime, to_datetime = to_datetime, from_datetime
 
         # When updating: remove tasks not related anymore
-        if self.first_file_id is not None and self.last_file_id is not None:
+        if self.from_datetime is not None and self.to_datetime is not None:
             self._get_tasks().filter(
-                Q(dataset_file_id__gt=new_last_file_id)
-                | Q(dataset_file_id__lt=new_first_file_id)
+                Q(dataset_file__start__lt=from_datetime)
+                | Q(dataset_file__end__gt=to_datetime)
             ).filter(other_range_exist=False).delete()
 
-        self.first_file_id = new_first_file_id
-        self.last_file_id = new_last_file_id
+        self.from_datetime = from_datetime
+        self.to_datetime = to_datetime
         super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
@@ -141,8 +148,8 @@ class AnnotationFileRange(models.Model):
                         & Q(
                             annotator_id=self.annotator_id,
                             annotation_campaign_phase=self.annotation_campaign_phase,
-                            first_file_id__lte=OuterRef("pk"),
-                            last_file_id__gte=OuterRef("pk"),
+                            from_datetime__lte=OuterRef("dataset_file__start"),
+                            to_datetime__gte=OuterRef("dataset_file__end"),
                         )
                     )
                 )
@@ -235,8 +242,8 @@ class AnnotationFileRange(models.Model):
             AnnotationTask.objects.filter(
                 annotator_id=OuterRef("annotator_id"),
                 annotation_campaign_phase_id=OuterRef("annotation_campaign_phase_id"),
-                dataset_file_id__gte=OuterRef("first_file_id"),
-                dataset_file_id__lte=OuterRef("last_file_id"),
+                dataset_file__start__gte=OuterRef("from_datetime"),
+                dataset_file__end__lte=OuterRef("to_datetime"),
                 status=AnnotationTask.Status.FINISHED,
             )
             .annotate(count=Func(F("id"), function="Count"))

@@ -44,6 +44,7 @@ class AnnotatorViewSet(viewsets.ViewSet):
         """Get all data for annotator"""
 
         campaign = AnnotationCampaign.objects.get(pk=campaign_id)
+        file = DatasetFile.objects.get(pk=file_id)
         file_ranges = AnnotationFileRange.objects.filter(
             annotation_campaign_phase_id=phase_id,
             annotator_id=request.user.id,
@@ -51,8 +52,8 @@ class AnnotatorViewSet(viewsets.ViewSet):
         is_assigned = (
             campaign.archive is None
             and file_ranges.filter(
-                first_file_id__lte=file_id,
-                last_file_id__gte=file_id,
+                from_datetime__gte=file.start,
+                to_datetime__lte=file.end,
             ).exists()
         )
         filtered_files = AnnotationFileRangeFilesFilter().filter_queryset(
@@ -90,13 +91,13 @@ class AnnotatorViewSet(viewsets.ViewSet):
 
             current_file = DatasetFile.objects.get(pk=file_id)
 
-            min_id = min(file_ranges.values_list("first_file_id", flat=True))
-            max_id = max(file_ranges.values_list("last_file_id", flat=True))
+            min_datetime = min(file_ranges.values_list("from_datetime", flat=True))
+            max_datetime = max(file_ranges.values_list("to_datetime", flat=True))
 
             all_files = DatasetFile.objects.filter(
                 dataset__annotation_campaigns=campaign_id,
-                id__gte=min_id,
-                id__lte=max_id,
+                id__gte=min_datetime,
+                id__lte=max_datetime,
             )
             total_tasks = all_files.count()
 

@@ -402,9 +402,9 @@ class Command(management.BaseCommand):
                         annotation_campaign_phase_id=phase.id,
                         annotator_id=user.id,
                         first_file_index=0,
-                        first_file_id=dataset.files.all()[0].id,
                         last_file_index=last_index,
-                        last_file_id=dataset.files.all()[last_index - 1].id,
+                        from_datetime=dataset.files.first().start,
+                        to_datetime=dataset.files.last().end,
                         files_count=dataset.files.count(),
                     )
                 )

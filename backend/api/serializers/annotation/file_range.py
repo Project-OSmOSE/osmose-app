@@ -111,7 +111,7 @@ class AnnotationFileRangeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationFileRange
-        exclude = ("first_file_id", "last_file_id")
+        exclude = ("from_datetime", "to_datetime")
         list_serializer_class = AnnotationFileRangeListSerializer
 
     def check_max_value(self, data: dict):

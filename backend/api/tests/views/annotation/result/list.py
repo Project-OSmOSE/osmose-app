@@ -77,7 +77,7 @@ class ListFilledAdminAuthenticatedTestCase(AuthenticatedTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data), 3)
 
     def test_list_for_current_user_for_campaign(self):
         response = self.client.get(

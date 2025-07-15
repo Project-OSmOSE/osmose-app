@@ -3,7 +3,7 @@ import ast
 import csv
 from io import StringIO
 
-from django.db.models import QuerySet, Q, Prefetch, F
+from django.db.models import QuerySet, Q, Prefetch, F, Subquery, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import action
@@ -45,11 +45,11 @@ class ResultAccessFilter(filters.BaseFilterBackend):
         )
         is_annotator_on_campaign_on_this_file = Q(  # Whatever the phase type is
             annotation_campaign_phase__annotation_campaign__phases__file_ranges__annotator=request.user,
-            annotation_campaign_phase__annotation_campaign__phases__file_ranges__first_file_id__lte=F(
-                "dataset_file_id"
+            annotation_campaign_phase__annotation_campaign__phases__file_ranges__from_datetime__gte=F(
+                "dataset_file__start"
             ),
-            annotation_campaign_phase__annotation_campaign__phases__file_ranges__last_file_id__gte=F(
-                "dataset_file_id"
+            annotation_campaign_phase__annotation_campaign__phases__file_ranges__to_datetime__lte=F(
+                "dataset_file__end"
             ),
         )
         return queryset.filter(
@@ -106,38 +106,37 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                             )
                         )
             if for_current_user:
-                is_annotator_on_campaign_on_this_file = Q(  # Whatever the phase type is
-                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__annotator=self.request.user,
-                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__first_file_id__lte=F(
-                        "dataset_file_id"
-                    ),
-                    annotation_campaign_phase__annotation_campaign__phases__file_ranges__last_file_id__gte=F(
-                        "dataset_file_id"
-                    ),
+                annotator_results = queryset.filter(annotator=self.request.user)
+
+                user_verification_phases = AnnotationCampaignPhase.objects.filter(
+                    file_ranges__annotator=self.request.user,
+                    phase=Phase.VERIFICATION,
                 )
-                queryset = (
-                    queryset.filter(is_annotator_on_campaign_on_this_file)
-                    .filter(
-                        Q(annotator=self.request.user)
-                        | Q(
-                            annotation_campaign_phase__annotation_campaign__phases__phase=Phase.VERIFICATION,
-                            annotation_campaign_phase__phase=Phase.ANNOTATION,
-                        )
-                    )
-                    .prefetch_related(
-                        Prefetch(
-                            "validations",
-                            queryset=AnnotationResultValidation.objects.filter(
-                                annotator_id=self.request.user.id
+                results_for_verification = queryset.filter(
+                    annotation_campaign_phase_id__in=Subquery(
+                        user_verification_phases.filter(
+                            file_ranges__from_datetime__lte=OuterRef(
+                                "dataset_file__start"
                             ),
-                        ),
-                        Prefetch(
-                            "updated_to",
-                            queryset=AnnotationResult.objects.filter(
-                                annotator_id=self.request.user.id
-                            ),
-                        ),
+                            file_ranges__to_datetime__gte=OuterRef("dataset_file__end"),
+                        ).values_list("id", flat=True)
                     )
+                )
+
+                queryset = annotator_results | results_for_verification
+                queryset = queryset.prefetch_related(
+                    Prefetch(
+                        "validations",
+                        queryset=AnnotationResultValidation.objects.filter(
+                            annotator_id=self.request.user.id
+                        ),
+                    ),
+                    Prefetch(
+                        "updated_to",
+                        queryset=AnnotationResult.objects.filter(
+                            annotator_id=self.request.user.id
+                        ),
+                    ),
                 )
         else:
             queryset = queryset.prefetch_related("validations", "updated_to")
