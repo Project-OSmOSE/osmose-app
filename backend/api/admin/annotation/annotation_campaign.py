@@ -1,46 +1,11 @@
-"""Campaign admin model"""
+"""API annotation annotation campaign administration"""
 from django.contrib import admin
 from django.contrib import messages
+from django.utils.html import html_safe
 
-from backend.api.models import AnnotationCampaign, AnnotationCampaignPhase
-from ..__utils__ import get_many_to_many
-
-
-class IsArchivedFilter(admin.SimpleListFilter):
-    """Filter archived campaign"""
-
-    title = "Is archived"
-    parameter_name = "is_archived"
-
-    def lookups(self, request, model_admin):
-        return (
-            ("Yes", "Yes"),
-            ("No", "No"),
-        )
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value == "Yes":
-            return queryset.filter(archive__isnull=False)
-        if value == "No":
-            return queryset.filter(archive__isnull=True)
-        return queryset
-
-
-@admin.register(AnnotationCampaignPhase)
-class AnnotationCampaignPhaseAdmin(admin.ModelAdmin):
-    """Administration for Campaign Phase"""
-
-    list_display = (
-        "id",
-        "annotation_campaign",
-        "phase",
-        "created_at",
-        "created_by",
-        "ended_at",
-        "ended_by",
-    )
-    search_fields = ("annotation_campaign__name",)
+from backend.api.models import AnnotationCampaign
+from backend.utils.admin import get_many_to_many
+from ..common import IsArchivedFilter
 
 
 @admin.register(AnnotationCampaign)
@@ -48,23 +13,30 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
     """AnnotationCampaign presentation in DjangoAdmin"""
 
     readonly_fields = ("archive",)
-    # pylint: disable=R0801
+
     list_display = (
+        "id",
         "name",
-        "desc",
+        "description",
         "created_at",
         "archive",
         "instructions_url",
         "deadline",
         "label_set",
-        "show_labels_with_acoustic_features",
+        "get_labels_with_acoustic_features",
         "allow_point_annotation",
         "owner",
-        "show_spectro_configs",
-        "show_datasets",
-        "confidence_indicator_set",
+        "show_spectrogram_analysis",
+        "dataset",
+        "confidence_set",
+        "image_tuning",
+        "colormap_tuning",
     )
-    search_fields = ("name", "desc", "datasets__name")
+
+    search_fields = (
+        "name",
+        "dataset__name",
+    )
 
     list_filter = (
         "phases__phase",
@@ -119,22 +91,27 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
                 f"The following campaigns were not archived: {', '.join(not_archived_campaigns)}",
             )
 
-    @admin.display(description="Spectrogram configurations")
-    def show_spectro_configs(self, obj):
-        """show_spectro_configs"""
-        return get_many_to_many(obj, "spectro_configs", "name")
-
-    @admin.display(description="Datasets")
-    def show_datasets(self, obj):
-        """show_datasets"""
-        return get_many_to_many(obj, "datasets", "name")
-
     @admin.display(description="Labels for acoustic features")
-    def show_labels_with_acoustic_features(self, obj):
+    def get_labels_with_acoustic_features(self, obj: AnnotationCampaign):
         """show_labels_with_acoustic_features"""
         return get_many_to_many(obj, "labels_with_acoustic_features", "name")
 
-    @admin.display(description="Is archived")
-    def is_archived(self, campaign: AnnotationCampaign) -> bool:
-        """is_archived"""
-        return campaign.archive is not None
+    @admin.display(description="Spectrogram analysis")
+    def show_spectrogram_analysis(self, obj: AnnotationCampaign):
+        """show_spectro_configs"""
+        return get_many_to_many(obj, "analysis", "name")
+
+    @admin.display(description="Image tuning")
+    def image_tuning(self, obj: AnnotationCampaign):
+        """image_tuning information"""
+        return obj.allow_image_tuning
+
+    @admin.display(description="Colormap tuning")
+    def colormap_tuning(self, obj: AnnotationCampaign):
+        """colormap_tuning information"""
+        if obj.allow_colormap_tuning:
+            inverted = "(inverted)" if obj.colormap_inverted_default else ""
+            return html_safe(
+                f"""{obj.allow_colormap_tuning}<br/>{obj.colormap_default} {inverted}"""
+            )
+        return obj.allow_colormap_tuning

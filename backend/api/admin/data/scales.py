@@ -1,9 +1,8 @@
-"""Spectrogram scales admin configuration"""
+"""API data scales administration"""
 from django.contrib import admin
-from django.urls import reverse
-from django.utils.html import format_html
 
 from backend.api.models import LinearScale, MultiLinearScale
+from backend.utils.admin import get_edit_links_for_queryset
 
 
 @admin.register(LinearScale)
@@ -30,8 +29,7 @@ class MultiLinearScaleAdmin(admin.ModelAdmin):
     @admin.display(description="Inner scales")
     def inner_scales_links(self, obj: MultiLinearScale) -> str:
         """Get direct link to inner scales"""
-        links = []
-        for scale in obj.inner_scales.all():
-            link = reverse("admin:api_linearscale_change", args=[scale.id])
-            links.append(format_html('<a href="{}">{}</a>', link, scale))
-        return format_html("<br>".join(links))
+        return get_edit_links_for_queryset(
+            obj.inner_scales.all(),
+            "admin:api_linearscale_change",
+        )

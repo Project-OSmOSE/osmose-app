@@ -86,7 +86,7 @@ class Annotation(models.Model):
     annotator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="annotation_results",
+        related_name="annotations",
         null=True,
         blank=True,
     )
@@ -100,21 +100,21 @@ class Annotation(models.Model):
     spectrogram = models.ForeignKey(
         Spectrogram,
         on_delete=models.CASCADE,
-        related_name="annotation_results",
+        related_name="annotations",
         null=True,
         blank=True,
     )
     detector_configuration = models.ForeignKey(
         DetectorConfiguration,
         on_delete=models.CASCADE,
-        related_name="annotation_results",
+        related_name="annotations",
         null=True,
         blank=True,
     )
     acoustic_features = models.OneToOneField(
         AcousticFeatures,
         on_delete=models.SET_NULL,
-        related_name="annotation_result",
+        related_name="annotation",
         blank=True,
         null=True,
         help_text="Acoustic features add a better description to the signal",

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from backend.aplose.models import User
 from .confidence_set import ConfidenceSet
 from .label import Label
 from .label_set import LabelSet
@@ -13,8 +14,6 @@ from ..data import Dataset, SpectrogramAnalysis
 class AnnotationCampaign(models.Model):
     """Campaign to make annotation on the designated dataset with the given label set and confidence indicator set"""
 
-    AnnotationScope = models.IntegerChoices("AnnotationScope", "RECTANGLE WHOLE")
-
     class Meta:
         ordering = ["name"]
 
@@ -23,8 +22,8 @@ class AnnotationCampaign(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True, blank=True)
-    instructions_url = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    instructions_url = models.URLField(null=True, blank=True)
     deadline = models.DateField(null=True, blank=True)
 
     label_set = models.ForeignKey(
@@ -59,15 +58,14 @@ class AnnotationCampaign(models.Model):
         null=True,
     )
 
-    # TODO:
-    # def do_archive(self, user: User):
-    #     """Archive current campaign"""
-    #     if self.archive is not None:
-    #         return
-    #     self.archive = Archive.objects.create(by_user=user)
-    #     self.save()
-    #     for phase in self.phases.all():
-    #         phase.end(user)
+    def do_archive(self, user: User):
+        """Archive current campaign"""
+        if self.archive is not None:
+            return
+        self.archive = Archive.objects.create(by_user=user)
+        self.save()
+        for phase in self.phases.all():
+            phase.end(user)
 
     # TODO:
     # def get_sorted_files(self) -> QuerySet[Spectrogram]:
@@ -85,5 +83,8 @@ class AnnotationCampaignAnalysis(models.Model):
         AnnotationCampaign, on_delete=models.CASCADE
     )
     analysis = models.ForeignKey(SpectrogramAnalysis, on_delete=models.PROTECT)
+
+    def save(self, **kwargs):
+        super().save(**kwargs)
 
     # TODO: check analysis is from the same dataset as campaign

@@ -15,10 +15,10 @@ class LabelSet(models.Model):
         return str(self.name)
 
     name = models.CharField(max_length=255, unique=True)
-    desc = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     labels = models.ManyToManyField(Label)
 
-    #TODO:
+    # TODO:
     # @staticmethod
     # def create_for_campaign(
     #     campaign: "AnnotationCampaign",

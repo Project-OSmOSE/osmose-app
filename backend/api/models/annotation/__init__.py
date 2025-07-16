@@ -7,7 +7,7 @@ from .annotation_phase import AnnotationPhase
 from .annotation_task import AnnotationTask
 from .annotation_validation import AnnotationValidation
 from .confidence import Confidence
-from .confidence_set import ConfidenceSet
+from .confidence_set import ConfidenceSet, ConfidenceIndicatorSetIndicator
 from .detector import Detector
 from .detector_configuration import DetectorConfiguration
 from .label import Label

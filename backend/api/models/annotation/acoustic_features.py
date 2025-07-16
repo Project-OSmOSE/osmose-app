@@ -53,3 +53,8 @@ class AcousticFeatures(models.Model):
         validators=[MinValueValidator(0)],
         help_text="Number of steps (flat segment) in the signal",
     )
+
+    @property
+    def inflexion_point_count(self) -> int:
+        """Number of inflexion point count"""
+        return self.relative_min_frequency_count + self.relative_min_frequency_count
