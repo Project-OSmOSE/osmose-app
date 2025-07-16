@@ -1,18 +1,18 @@
-import { Scientist } from "./scientific";
+import { Contact } from "./bibliography";
 
 export interface TeamMember {
-    id: string;
-    scientist: Scientist;
-    position: string;
-    biography?: string;
-    picture: string;
+  id: string;
+  contact: Contact;
+  position: string;
+  biography?: string;
+  picture: string;
 
-    mail_address?: string;
+  mail_address?: string;
 
-    research_gate_url?: string;
-    personal_website_url?: string;
-    github_url?: string;
-    linkedin_url?: string;
+  research_gate_url?: string;
+  personal_website_url?: string;
+  github_url?: string;
+  linkedin_url?: string;
 
-    is_former_member?: boolean;
+  is_former_member?: boolean;
 }
