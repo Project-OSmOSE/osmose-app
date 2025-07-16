@@ -20,7 +20,9 @@ metadatax = {url = "https://github.com/PAM-Standardization/metadatax/releases/do
 #metadatax = {path = "../metadatax", develop=true}
 whitenoise = "^6.9.0"
 osekit = "^0.2.5"
-
+graphene-django = "^3.2.3"
+graphene-django-pagination = {url = "https://github.com/instruct-br/graphene-django-pagination/archive/master.zip"}
+django-filter = ">=2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"

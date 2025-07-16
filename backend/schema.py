@@ -11,7 +11,7 @@ from metadatax.acquisition.schema.deployment import (
 )
 from metadatax.schema import Query as MetadataxQuery, Mutation as MetadataxMutation
 
-from .api.schema import ApiQuery
+from .api.schema import APIQuery
 from .osmosewebsite.schema import OSmOSEWebsiteQuery
 
 
@@ -38,7 +38,7 @@ class DeploymentNode(MetadataxDeploymentNode):
 
 
 class Query(
-    ApiQuery,
+    APIQuery,
     OSmOSEWebsiteQuery,
     MetadataxQuery,
     graphene.ObjectType,

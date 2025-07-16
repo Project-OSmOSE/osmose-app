@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "graphene_django",
+    "django_filters",
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
