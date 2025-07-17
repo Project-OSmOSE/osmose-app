@@ -3,12 +3,10 @@
 import django.core.validators
 from django.db import migrations, models
 
-from backend.api.models import AnnotationFileRange, DatasetFile
-
 
 def add_limit_ids(apps, schema_editor):
-    model: AnnotationFileRange = apps.get_model("api", "AnnotationFileRange")
-    model_file: DatasetFile = apps.get_model("api", "DatasetFile")
+    model = apps.get_model("api", "AnnotationFileRange")
+    model_file = apps.get_model("api", "DatasetFile")
     for r in model.objects.all():
         files = model_file.objects.filter(
             dataset_id__in=r.annotation_campaign.datasets.values_list("id", flat=True)

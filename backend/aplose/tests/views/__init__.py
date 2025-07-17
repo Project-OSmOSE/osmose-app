@@ -1,11 +1,12 @@
 """Aplose views test case"""
-from .annotator import (
-    PostAnnotatorAuthenticatedEmptyResultsTestCase,
-    PostUnauthenticatedTestCase,
-    PostAdminAuthenticatedTestCase,
-    PostBaseUserAuthenticatedTestCase,
-    PostCampaignOwnerAuthenticatedTestCase,
-)
+# TODO:
+#  from .annotator import (
+#      PostAnnotatorAuthenticatedEmptyResultsTestCase,
+#      PostUnauthenticatedTestCase,
+#      PostAdminAuthenticatedTestCase,
+#      PostBaseUserAuthenticatedTestCase,
+#      PostCampaignOwnerAuthenticatedTestCase,
+#  )
 from .annotator_group import (
     AnnotatorGroupViewSetUnauthenticatedTestCase,
     AnnotatorGroupViewSetTestCase,

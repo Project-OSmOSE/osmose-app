@@ -3,22 +3,10 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-from backend.api.models import (
-    ConfidenceIndicatorSet,
-    ConfidenceIndicator,
-    ConfidenceIndicatorSetIndicator,
-)
-
 
 def migrate_relation(apps, schema_editor):
-    set: ConfidenceIndicatorSet.__class__ = apps.get_model(
-        "api", "ConfidenceIndicatorSet"
-    )
-    relation: ConfidenceIndicatorSetIndicator.__class__ = apps.get_model(
-        "api", "ConfidenceIndicatorSetIndicator"
-    )
-    confidence_set: ConfidenceIndicatorSet
-    confidence_indicator: ConfidenceIndicator
+    set = apps.get_model("api", "ConfidenceIndicatorSet")
+    relation = apps.get_model("api", "ConfidenceIndicatorSetIndicator")
     relations = []
     for confidence_set in set.objects.all():
         for confidence_indicator in confidence_set.old_confidence_indicators.all():
@@ -33,12 +21,7 @@ def migrate_relation(apps, schema_editor):
 
 
 def reverse_migrate_relation(apps, schema_editor):
-    relation: ConfidenceIndicatorSetIndicator.__class__ = apps.get_model(
-        "api", "ConfidenceIndicatorSetIndicator"
-    )
-    confidence_set: ConfidenceIndicatorSet
-    confidence_indicator: ConfidenceIndicator
-    confidence_relation: ConfidenceIndicatorSetIndicator
+    relation = apps.get_model("api", "ConfidenceIndicatorSetIndicator")
     for confidence_relation in relation.objects.all():
         confidence_relation.confidence_indicator.old_confidence_indicator_set = (
             confidence_relation.confidence_indicator_set
