@@ -1,0 +1,11 @@
+
+- model: api.acousticfeatures
+  pk: 1
+  fields:
+    start_frequency: 200
+    end_frequency: 150
+    relative_max_frequency_count: 3
+    relative_min_frequency_count: 2
+    has_harmonics: False
+    trend: FLAT
+    steps_count:

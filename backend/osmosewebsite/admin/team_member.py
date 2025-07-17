@@ -1,8 +1,8 @@
 """OSmOSE Website - Team Member"""
 from django.contrib import admin
 
-from backend.api.admin import get_many_to_many
 from backend.osmosewebsite.models import TeamMember
+from backend.utils.admin import get_many_to_many
 
 
 @admin.action(description="Mark selected members as former members")

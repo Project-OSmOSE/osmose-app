@@ -1,0 +1,72 @@
+- model: api.session
+  pk: 1
+  fields:
+    start: 2022-01-24 15:11:07+00:00
+    end: 2022-01-24 15:11:24+00:00
+    session_output:
+      annotations:
+        - end_time: 278.48869277440707
+          start_time: 119.63596249310535
+          end_frequency: 12864.0
+          start_frequency: 6432.0
+          label_id: 2
+        - end_time: 535.1351351351351
+          start_time: 433.8665195808053
+          end_frequency: 9888.0
+          start_frequency: 3936.0
+          label_id: 4
+        - end_time: 746.607832322118
+          start_time: 649.3105350248208
+          end_frequency: 14976.0
+          start_frequency: 11232.0
+          label_id: 5
+      task_end_time: 1643037084
+      task_start_time: 1643037067
+- model: api.session
+  pk: 2
+  fields:
+    start: 2022-01-24 15:11:25+00:00
+    end: 2022-01-24 15:11:35+00:00
+    session_output:
+      annotations:
+        - end_time: 234.80419194704908
+          start_time: 92.33314947600661
+          end_frequency: 13024.0
+          start_frequency: 5216.0
+          label_id: 1
+        - end_time: 501.3789299503585
+          start_time: 417.9812465526751
+          end_frequency: 14912.0
+          start_frequency: 11104.0
+          label_id: 3
+        - end_time: 677.6061776061775
+          start_time: 569.8841698841699
+          end_frequency: 7680.0
+          start_frequency: 4160.0
+          label_id: 1
+      task_end_time: 1643037095
+      task_start_time: 1643037085
+- model: api.session
+  pk: 3
+  fields:
+    start: 2022-01-24 15:12:35+00:00
+    end: 2022-01-24 15:12:43+00:00
+    session_output:
+      annotations:
+        - end_time: 224.8
+          start_time: 108.2
+          end_frequency: 13696.0
+          start_frequency: 7520.0
+          label_id: 2
+        - end_time: 419.9669056811914
+          start_time: 293.3811362382791
+          end_frequency: 13056.0
+          start_frequency: 7008.0
+          label_id: 5
+        - end_time: 570.3805846662989
+          start_time: 472.5868725868726
+          end_frequency: 10880.0
+          start_frequency: 5088.0
+          label_id: 4
+      task_end_time: 1643037163
+      task_start_time: 1643037155

@@ -1,0 +1,18 @@
+- model: api.dataset
+  pk: 1
+  fields:
+    created_at: 2023-11-02
+    name: SPM Aural A 2010
+    description: null
+    path: seed/dataset_path
+    owner: 1
+    legacy: true
+- model: api.dataset
+  pk: 2
+  fields:
+    created_at: 2023-10-02
+    name: Another Dataset
+    description: null
+    path: seed/dataset_path
+    owner: 1
+    legacy: true

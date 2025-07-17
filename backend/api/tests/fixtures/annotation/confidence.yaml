@@ -1,0 +1,10 @@
+- model: api.confidence
+  pk: 1
+  fields:
+    label: confident
+    level: 0
+- model: api.confidence
+  pk: 2
+  fields:
+    label: no Confident
+    level: 1

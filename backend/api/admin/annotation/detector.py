@@ -1,16 +1,13 @@
-"""Detector model"""
+"""API annotation Detector administration"""
 from django.contrib import admin
 
+from backend.api.models import Detector
 
+
+@admin.register(Detector)
 class DetectorAdmin(admin.ModelAdmin):
-    """Detector in DjangoAdmin"""
+    """Detector presentation in DjangoAdmin"""
 
-    search_fields = ["name", "configurations__configuration"]
-    list_display = ["name"]
+    list_display = ("id", "name", "specification")
 
-
-class DetectorConfigurationAdmin(admin.ModelAdmin):
-    """Detector in DjangoAdmin"""
-
-    search_fields = ["configuration", "detector"]
-    list_display = ["configuration", "detector"]
+    search_fields = ("name", "configurations__configuration")

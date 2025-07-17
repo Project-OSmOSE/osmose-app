@@ -1,0 +1,4 @@
+- model: api.colormap
+  pk: 1
+  fields:
+    name: Greys

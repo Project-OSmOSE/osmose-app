@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from backend.api.models import (
-    AnnotationResult,
     AnnotationComment,
+    Annotation,
 )
 from backend.utils.tests import AuthenticatedTestCase, all_fixtures
 
@@ -48,7 +48,7 @@ class PostBaseUserAuthenticatedTestCase(AuthenticatedTestCase):
     fixtures = all_fixtures
 
     def _check_delete_previous(self):
-        deleted_results = AnnotationResult.objects.filter(id__in=[1, 2, 3])
+        deleted_results = Annotation.objects.filter(id__in=[1, 2, 3])
         self.assertEqual(deleted_results.exists(), False)
 
     def test_post_unknown_campaign(self):
@@ -91,9 +91,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
     username = "user2"
     url = URL
 
-    def _check_presence(
-        self, response_result: dict, result: AnnotationResult, file_id: int
-    ):
+    def _check_presence(self, response_result: dict, result: Annotation, file_id: int):
         self.assertEqual(response_result["id"], result.id)
         self.assertEqual(response_result["label"], "Boat")
         self.assertEqual(response_result["confidence_indicator"], "confident")
@@ -106,7 +104,7 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["dataset_file"], file_id)
         self.assertEqual(response_result["detector_configuration"], None)
 
-    def _check_box(self, response_result: dict, result: AnnotationResult, file_id: int):
+    def _check_box(self, response_result: dict, result: Annotation, file_id: int):
         self.assertEqual(response_result["id"], result.id)
         self.assertEqual(response_result["label"], "Boat")
         self.assertEqual(response_result["confidence_indicator"], "confident")
@@ -120,19 +118,19 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
         self.assertEqual(response_result["detector_configuration"], None)
 
     def test_post(self):
-        old_count = AnnotationResult.objects.count()
+        old_count = Annotation.objects.count()
         old_comment_count = AnnotationComment.objects.count()
         response = self.client.post(
             URL, data=json.dumps(empty_data), content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(AnnotationResult.objects.count(), old_count)
+        self.assertEqual(Annotation.objects.count(), old_count)
         self.assertEqual(AnnotationComment.objects.count(), old_comment_count)
         self.assertEqual(len(response.data["results"]), 0)
         self.assertEqual(len(response.data["task_comments"]), 0)
 
     def test_post_all(self):
-        result_old_count = AnnotationResult.objects.count()
+        result_old_count = Annotation.objects.count()
         comment_old_count = AnnotationComment.objects.count()
         response = self.client.post(
             URL,
@@ -167,10 +165,10 @@ class PostAnnotatorAuthenticatedEmptyResultsTestCase(PostBaseUserAuthenticatedTe
             content_type="application/json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(AnnotationResult.objects.count(), result_old_count + 2)
+        self.assertEqual(Annotation.objects.count(), result_old_count + 2)
         self.assertEqual(AnnotationComment.objects.count(), comment_old_count + 1)
-        presence = AnnotationResult.objects.filter(start_time__isnull=True).latest("id")
-        box = AnnotationResult.objects.exclude(id=presence.id).latest("id")
+        presence = Annotation.objects.filter(start_time__isnull=True).latest("id")
+        box = Annotation.objects.exclude(id=presence.id).latest("id")
         comment = AnnotationComment.objects.latest("id")
         self._check_presence(response.data["results"][0], presence, 9)
         self._check_box(response.data["results"][1], box, 9)

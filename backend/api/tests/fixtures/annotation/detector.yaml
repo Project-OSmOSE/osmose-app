@@ -1,0 +1,4 @@
+- model: api.detector
+  pk: 1
+  fields:
+    name: Detector 1

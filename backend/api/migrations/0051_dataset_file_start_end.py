@@ -4,22 +4,21 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-from backend.api.models import AudioMetadatum, DatasetFile
-
 
 def remove_audio_metadata(apps, schema_editor):
-    audio_metadatum: AudioMetadatum = apps.get_model("api", "AudioMetadatum")
-    dataset_file: DatasetFile = apps.get_model("api", "DatasetFile")
+    audio_metadatum = apps.get_model("api", "AudioMetadatum")
+    dataset_file = apps.get_model("api", "DatasetFile")
     audio_metadatum.objects.filter(
         id__in=dataset_file.objects.values_list("audio_metadatum_id", flat=True)
     ).delete()
 
 
 def reverse_remove_audio_metadata(apps, schema_editor):
-    dataset_file: DatasetFile = apps.get_model("api", "DatasetFile")
+    audio_metadatum = apps.get_model("api", "AudioMetadatum")
+    dataset_file = apps.get_model("api", "DatasetFile")
 
     for file in dataset_file.objects.all():
-        file.audio_metadatum = AudioMetadatum()
+        file.audio_metadatum = audio_metadatum()
 
 
 class Migration(migrations.Migration):

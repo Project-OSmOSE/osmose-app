@@ -1,21 +1,12 @@
-""" Annotation admin management """
-from django.contrib import admin
-
-from backend.api.models.annotation import (
-    Detector,
-    DetectorConfiguration,
-)
-from .campaign import AnnotationCampaignAdmin
-from .confidence import ConfidenceIndicatorAdmin, ConfidenceIndicatorSetAdmin
-from .detector import (
-    DetectorAdmin,
-    DetectorConfigurationAdmin,
-)
-from .result import (
-    AnnotationResultAdmin,
-    AnnotationResultValidationAdmin,
-)
-from .task import AnnotationTaskAdmin
-
-admin.site.register(Detector, DetectorAdmin)
-admin.site.register(DetectorConfiguration, DetectorConfigurationAdmin)
+"""API annotation administration"""
+from .acoustic_features import AcousticFeaturesAdmin
+from .annotation import AnnotationAdmin
+from .annotation_campaign import AnnotationCampaignAdmin
+from .annotation_comment import AnnotationCommentAdmin
+from .annotation_file_range import AnnotationFileRangeAdmin
+from .annotation_phase import AnnotationPhaseAdmin
+from .annotation_task import AnnotationTaskAdmin
+from .annotation_validation import AnnotationValidationAdmin
+from .confidence import ConfidenceAdmin
+from .detector import DetectorAdmin
+from .detector_configuration import DetectorConfigurationAdmin

@@ -1,0 +1,20 @@
+
+- model: api.labelset
+  pk: 1
+  fields:
+    name: Test SPM campaign
+    description: Label set made for Test SPM campaign
+    labels:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+- model: api.labelset
+  pk: 2
+  fields:
+    name: Test DCLDE LF campaign
+    description: Test annotation campaign DCLDE LF 2015
+    labels:
+    - 6
+    - 7

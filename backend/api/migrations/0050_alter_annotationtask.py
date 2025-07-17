@@ -7,16 +7,16 @@ from backend.api.models import AnnotationTask
 
 def update_status(apps, schema_editor):
     task: AnnotationTask = apps.get_model("api", "AnnotationTask")
-    task.objects.filter(status=0).update(status_new=AnnotationTask.Status.CREATED)
-    task.objects.filter(status=1).update(status_new=AnnotationTask.Status.STARTED)
-    task.objects.filter(status=2).update(status_new=AnnotationTask.Status.FINISHED)
+    task.objects.filter(status=0).update(status_new="C")
+    task.objects.filter(status=1).update(status_new="S")
+    task.objects.filter(status=2).update(status_new="F")
 
 
 def reverse_update_status(apps, schema_editor):
     task: AnnotationTask = apps.get_model("api", "AnnotationTask")
-    task.objects.filter(status_new=AnnotationTask.Status.CREATED).update(status=0)
-    task.objects.filter(status_new=AnnotationTask.Status.STARTED).update(status=1)
-    task.objects.filter(status_new=AnnotationTask.Status.FINISHED).update(status=2)
+    task.objects.filter(status_new="C").update(status=0)
+    task.objects.filter(status_new="S").update(status=1)
+    task.objects.filter(status_new="F").update(status=2)
 
 
 class Migration(migrations.Migration):
