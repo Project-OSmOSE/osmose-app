@@ -7,7 +7,6 @@ class File(models.Model):
     """File model - Abstract"""
 
     class Meta:
-        unique_together = ("filename", "format")
         abstract = True
 
     def __str__(self):

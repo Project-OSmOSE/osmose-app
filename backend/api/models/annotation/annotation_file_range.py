@@ -49,7 +49,7 @@ class AnnotationFileRange(models.Model):
         analysis_ids = self.annotation_phase.annotation_campaign.analysis.values_list(
             "id", flat=True
         )
-        files = Spectrogram.objects.filter(analysis_id__in=analysis_ids)
+        files = Spectrogram.objects.filter(analysis__id__in=analysis_ids)
 
         from_datetime = files[self.first_file_index].start
         to_datetime = files[self.last_file_index].end
@@ -230,10 +230,12 @@ def clean_orphan_tasks():
 @receiver(signal=signals.post_save, sender=AnnotationFileRange)
 def after_save(sender, instance, **kwargs):
     """After file range saved"""
+    print(" > after save")
     clean_orphan_tasks()
 
 
 @receiver(signal=signals.post_delete, sender=AnnotationFileRange)
 def after_delete(sender, instance, **kwargs):
-    """After file range saved"""
+    """After file range deleted"""
+    print(" > after delete")
     clean_orphan_tasks()

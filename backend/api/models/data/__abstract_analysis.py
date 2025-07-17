@@ -5,7 +5,7 @@ from django.db import models
 from .dataset import Dataset
 
 
-class AbstractAnalysis(models.Model):
+class Analysis(models.Model):
     """Abstract analysis"""
 
     class Meta:

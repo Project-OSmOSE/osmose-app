@@ -26,22 +26,3 @@
   pk: 7
   fields:
     name: 40-Hz
-- model: api.labelset
-  pk: 1
-  fields:
-    name: Test SPM campaign
-    desc: Label set made for Test SPM campaign
-    labels:
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-- model: api.labelset
-  pk: 2
-  fields:
-    name: Test DCLDE LF campaign
-    desc: Test annotation campaign DCLDE LF 2015
-    labels:
-    - 6
-    - 7

@@ -1,0 +1,17 @@
+- model: api.fft
+  pk: 1
+  fields:
+    nfft: 4096
+    window_size: 2000
+    overlap: 0.9
+    sampling_frequency: 128000.0
+    legacy: true
+
+- model: api.fft
+  pk: 2
+  fields:
+    nfft: 2048
+    window_size: 1000
+    overlap: 0.9
+    sampling_frequency: 128000.0
+    legacy: true

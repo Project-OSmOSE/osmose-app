@@ -2,16 +2,21 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from backend.api.models import AnnotationCampaign, LabelSet
+from backend.api.models import AnnotationCampaign, LabelSet, Dataset
 from backend.aplose.models import User
 
 
 class AnnotationCampaignModelTestCase(TestCase):
     def test_cannot_set_features_labels_outside_label_set(self):
+        user = User.objects.create(username="Test")
         campaign = AnnotationCampaign.objects.create(
             name="Test",
+            dataset=Dataset.objects.create(
+                name="Test",
+                owner=user,
+            ),
             label_set=LabelSet.objects.create(name="Test"),
-            owner=User.objects.create(username="Test"),
+            owner=user,
         )
 
         self.assertRaises(

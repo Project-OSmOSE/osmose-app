@@ -1,0 +1,54 @@
+- model: api.annotationcampaign
+  pk: 1
+  fields:
+    name: Test SPM campaign
+    description: Test annotation campaign
+    instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
+    deadline: 2010-11-02 00:00:00+00:00
+    label_set: 1
+    confidence_set: 1
+    owner: 3
+    dataset: 1
+    analysis:
+    - 1
+
+- model: api.annotationcampaign
+  pk: 2
+  fields:
+    name: Test DCLDE LF campaign
+    description: Test label set DCLDE LF 2015
+    instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
+    deadline: 2010-11-02 00:00:00+00:00
+    label_set: 1
+    owner: 3
+    dataset: 1
+    analysis:
+    - 1
+
+- model: api.annotationcampaign
+  pk: 3
+  fields:
+    name: Test RTF campaign
+    description: Test annotation campaign
+    instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
+    deadline: 2010-11-02 00:00:00+00:00
+    label_set: 1
+    owner: 3
+    archive: 1
+    dataset: 1
+    analysis:
+    - 1
+
+- model: api.annotationcampaign
+  pk: 4
+  fields:
+    name: Test Z check campaign
+    description: Test check annotation campaign
+    instructions_url: https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon
+    deadline: 2010-11-02 00:00:00+00:00
+    label_set: 1
+    confidence_set: 1
+    owner: 3
+    dataset: 1
+    analysis:
+    - 1

@@ -20,8 +20,8 @@ class AnnotationFileRangeTestCase(TestCase):
         self.assertEqual(AnnotationTask.objects.count(), 12)
 
     def test_delete_also_delete_tasks(self):
-        self.assertEqual(AnnotationTask.objects.count(), 13)
         self.assertEqual(AnnotationFileRange.objects.count(), 6)
+        self.assertEqual(AnnotationTask.objects.count(), 13)
         AnnotationFileRange.objects.get(pk=1).delete()
         self.assertEqual(AnnotationFileRange.objects.count(), 5)
         self.assertEqual(AnnotationTask.objects.count(), 7)
@@ -34,7 +34,9 @@ class AnnotationFileRangeTestCase(TestCase):
         AnnotationFileRange.objects.create(
             first_file_index=file_range.first_file_index,
             last_file_index=file_range.last_file_index,
-            annotation_campaign_phase_id=file_range.annotation_campaign_phase_id,
+            from_datetime=file_range.from_datetime,
+            to_datetime=file_range.to_datetime,
+            annotation_phase_id=file_range.annotation_phase_id,
             annotator_id=file_range.annotator_id,
         )
         self.assertEqual(AnnotationFileRange.objects.count(), 7)

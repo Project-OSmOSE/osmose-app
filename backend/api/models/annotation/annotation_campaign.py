@@ -1,6 +1,11 @@
 """Campaign model"""
+from typing import Optional
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import signals
+from django.dispatch import receiver
 from django.utils import timezone
 
 from backend.aplose.models import User
@@ -88,3 +93,30 @@ class AnnotationCampaignAnalysis(models.Model):
         super().save(**kwargs)
 
     # TODO: check analysis is from the same dataset as campaign
+
+
+@receiver(
+    signal=signals.m2m_changed,
+    sender=AnnotationCampaign.labels_with_acoustic_features.through,
+)
+def check_labels_features_in_label_set(sender, **kwargs):
+    """Check added labels in labels_with_acoustic_features does belong to the campaign label_set"""
+    # pylint: disable=unused-argument
+    action = kwargs.pop("action", None)
+    if action != "pre_add":
+        return
+    campaign: Optional[AnnotationCampaign] = kwargs.pop("instance", None)
+    if not campaign:
+        return
+    pk_set = kwargs.pop("pk_set", {})
+    for pk in pk_set:
+        label = Label.objects.get(pk=pk)
+        if not label:
+            continue
+        if label not in campaign.label_set.labels.all():
+            raise ValidationError(
+                {
+                    "labels_with_acoustic_features": "Label with acoustic features should belong to label set"
+                },
+                code="invalid",
+            )

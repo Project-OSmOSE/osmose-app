@@ -14,7 +14,7 @@ UPDATE_DATA = {"query": "UPDATE api_label SET name='test'"}
 
 
 class SqlViewSetUnauthenticatedTestCase(APITestCase):
-    fixtures = ["users", "label_sets"]
+    fixtures = ["users", "label_set", "label"]
 
     def test_post(self):
         response = self.client.post(URL, SELECT_DATA)
@@ -23,7 +23,7 @@ class SqlViewSetUnauthenticatedTestCase(APITestCase):
 
 class SqlViewSetBaseUserTestCase(AuthenticatedTestCase):
     username = "user1"
-    fixtures = ["users", "label_sets"]
+    fixtures = ["users", "label_set", "label"]
 
     def test_post(self):
         response = self.client.post(URL, SELECT_DATA)
@@ -37,7 +37,7 @@ class SqlViewSetStaffUserTestCase(SqlViewSetBaseUserTestCase):
 class SqlViewSetSuperuserUserTestCase(AuthenticatedTestCase):
 
     username = "admin"
-    fixtures = ["users", "label_sets"]
+    fixtures = ["users", "label_set", "label"]
 
     def test_post(self):
         response = self.client.post(URL, SELECT_DATA)

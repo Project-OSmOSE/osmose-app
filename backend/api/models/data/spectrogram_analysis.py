@@ -4,14 +4,14 @@ from django.conf import settings
 from django.db import models
 from django.db.models import CheckConstraint, Q
 
-from .__abstract_analysis import AbstractAnalysis
+from .__abstract_analysis import Analysis
 from .colormap import Colormap
 from .dataset import Dataset
 from .fft import FFT
 from .legacy_spectrogram_configuration import LegacySpectrogramConfiguration
 
 
-class SpectrogramAnalysis(AbstractAnalysis, models.Model):
+class SpectrogramAnalysis(Analysis, models.Model):
     """Spectrogram analysis"""
 
     class Meta:
