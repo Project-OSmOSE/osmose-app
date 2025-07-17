@@ -1,0 +1,114 @@
+# AnnotationFileRange 1
+- model: api.annotationtask
+  pk: 1
+  fields:
+    status: F
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 1
+- model: api.annotationtask
+  pk: 2
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 2
+- model: api.annotationtask
+  pk: 3
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 3
+- model: api.annotationtask
+  pk: 4
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 4
+- model: api.annotationtask
+  pk: 5
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 5
+- model: api.annotationtask
+  pk: 6
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 1
+    spectrogram: 6
+
+# AnnotationFileRange 3
+- model: api.annotationtask
+  pk: 7
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 4
+    spectrogram: 7
+- model: api.annotationtask
+  pk: 8
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 4
+    spectrogram: 8
+- model: api.annotationtask
+  pk: 9
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 4
+    spectrogram: 9
+- model: api.annotationtask
+  pk: 10
+  fields:
+    status: C
+    annotation_phase: 1
+    annotator: 4
+    spectrogram: 10
+
+# AnnotationFileRange 2
+- model: api.annotationtask
+  pk: 12
+  fields:
+    status: C
+    annotation_phase: 2
+    annotator: 1
+    spectrogram: 1
+- model: api.annotationtask
+  pk: 13
+  fields:
+    status: C
+    annotation_phase: 2
+    annotator: 1
+    spectrogram: 2
+
+# AnnotationFileRange 4
+- model: api.annotationtask
+  pk: 14
+  fields:
+    status: C
+    annotation_phase: 2
+    annotator: 4
+    spectrogram: 4
+
+- model: api.annotationtasksession
+  pk: 1
+  fields:
+    session: 1
+    annotation_task: 7
+- model: api.annotationtasksession
+  pk: 2
+  fields:
+    session: 2
+    annotation_task: 8
+- model: api.annotationtasksession
+  pk: 3
+  fields:
+    session: 3
+    annotation_task: 1

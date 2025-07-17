@@ -1,13 +1,5 @@
-"""All Django models available"""
+"""API models"""
 
-from backend.api.models.datasets import (
-    DatasetType,
-    Dataset,
-    DatasetFile,
-)
-from backend.api.models.metadata import (
-    AudioMetadatum,
-    GeoMetadatum,
-)
 from .annotation import *
-from .spectrogram import *
+from .common import *
+from .data import *

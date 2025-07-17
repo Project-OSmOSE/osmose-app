@@ -1,3 +1,2 @@
-"""Models test case"""
+"""API models tests"""
 from .annotation import *
-from .metadata import MetadataTestCase

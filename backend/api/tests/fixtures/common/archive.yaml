@@ -1,0 +1,5 @@
+- model: api.archive
+  pk: 1
+  fields:
+    date: 2010-11-02 00:00:00+00:00
+    by_user: 1

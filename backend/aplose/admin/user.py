@@ -4,8 +4,8 @@ from typing import Optional
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from backend.api.admin import get_many_to_many
 from backend.aplose.models import AploseUser, User, ExpertiseLevel, AnnotatorGroup
+from backend.utils.admin import get_many_to_many
 
 
 class AploseUserInline(admin.StackedInline):

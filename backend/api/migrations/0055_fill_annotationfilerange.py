@@ -2,27 +2,17 @@
 
 from django.db import migrations
 
-from backend.api.models import (
-    AnnotationFileRange,
-    AnnotationCampaign,
-    DatasetFile,
-    AnnotationTask,
-)
-
 
 def fill_annotation_file_range(apps, schema_editor):
-    file_range: AnnotationFileRange.__class__ = apps.get_model(
-        "api", "AnnotationFileRange"
-    )
-    campaign_model: AnnotationCampaign.__class__ = apps.get_model(
-        "api", "AnnotationCampaign"
-    )
+    file_range = apps.get_model("api", "AnnotationFileRange")
+    campaign_model = apps.get_model("api", "AnnotationCampaign")
+    dataset_file_model = apps.get_model("api", "DatasetFile")
 
     ranges = []
 
     for campaign in campaign_model.objects.all():
         all_files = (
-            DatasetFile.objects.filter(
+            dataset_file_model.objects.filter(
                 dataset_id__in=campaign.datasets.values_list("id", flat=True)
             )
             .order_by("start", "id")
@@ -74,18 +64,16 @@ def fill_annotation_file_range(apps, schema_editor):
 
 
 def fill_annotation_task(apps, schema_editor):
-    task: AnnotationTask.__class__ = apps.get_model("api", "AnnotationTask")
-    campaign_model: AnnotationCampaign.__class__ = apps.get_model(
-        "api", "AnnotationCampaign"
-    )
+    task = apps.get_model("api", "AnnotationTask")
+    campaign_model = apps.get_model("api", "AnnotationCampaign")
+    dataset_file_model = apps.get_model("api", "DatasetFile")
 
     tasks = []
-    campaign: AnnotationCampaign
     for campaign in campaign_model.objects.all():
         if campaign.annotation_file_ranges.count() == 0:
             continue
         all_files = (
-            DatasetFile.objects.filter(
+            dataset_file_model.objects.filter(
                 dataset_id__in=campaign.datasets.values_list("id", flat=True)
             )
             .order_by("start", "id")
@@ -117,7 +105,7 @@ def fill_annotation_task(apps, schema_editor):
                         annotator_id=annotation_range.annotator_id,
                         annotation_campaign_id=campaign.id,
                         dataset_file_id=file_id,
-                        status=AnnotationTask.Status.CREATED,
+                        status="C",
                     )
                 )
     task.objects.bulk_create(tasks)
