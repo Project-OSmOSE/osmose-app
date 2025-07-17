@@ -73,14 +73,16 @@ class AnnotationCampaign(models.Model):
             phase.end(user)
 
     # TODO:
-    # def get_sorted_files(self) -> QuerySet[Spectrogram]:
-    #     """Return sorted dataset files"""
-    #     return Spectrogram.objects.filter(analysis=self.analysis).order_by(
-    #         "start", "id"
-    #     )
+    #  def get_sorted_files(self) -> QuerySet[Spectrogram]:
+    #      """Return sorted dataset files"""
+    #      return Spectrogram.objects.filter(analysis=self.analysis).order_by(
+    #          "start", "id"
+    #      )
 
 
 class AnnotationCampaignAnalysis(models.Model):
+    """AnnotationCampaign <> Analysis manyToMany relation table"""
+
     class Meta:
         unique_together = ("annotation_campaign", "analysis")
 
@@ -88,9 +90,6 @@ class AnnotationCampaignAnalysis(models.Model):
         AnnotationCampaign, on_delete=models.CASCADE
     )
     analysis = models.ForeignKey(SpectrogramAnalysis, on_delete=models.PROTECT)
-
-    def save(self, **kwargs):
-        super().save(**kwargs)
 
     # TODO: check analysis is from the same dataset as campaign
 

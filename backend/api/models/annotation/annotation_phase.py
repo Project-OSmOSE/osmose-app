@@ -44,16 +44,16 @@ class AnnotationPhase(models.Model):
     )
 
     # TODO:
-    # @property
-    # def is_open(self) -> bool:
-    #     """Get open state of the phase"""
-    #     if not self.ended_at or not self.ended_by:
-    #         return True
-    #     return False
+    #  @property
+    #  def is_open(self) -> bool:
+    #      """Get open state of the phase"""
+    #      if not self.ended_at or not self.ended_by:
+    #          return True
+    #      return False
 
     # TODO:
-    # def end(self, user: User):
-    #     """End the phase"""
-    #     self.ended_at = timezone.now()
-    #     self.ended_by = user
-    #     self.save()
+    #  def end(self, user: User):
+    #      """End the phase"""
+    #      self.ended_at = timezone.now()
+    #      self.ended_by = user
+    #      self.save()

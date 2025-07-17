@@ -7,6 +7,7 @@ from backend.utils.admin import get_many_to_many
 
 @admin.register(Spectrogram)
 class SpectrogramAdmin(admin.ModelAdmin):
+    """Spectrogram administration"""
 
     list_display = [
         "filename",

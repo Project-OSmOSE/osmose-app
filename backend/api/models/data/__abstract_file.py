@@ -3,7 +3,7 @@ from django.db import models
 from metadatax.models.data import FileFormat
 
 
-class File(models.Model):
+class AbstractFile(models.Model):
     """File model - Abstract"""
 
     class Meta:

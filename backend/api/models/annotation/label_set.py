@@ -19,17 +19,17 @@ class LabelSet(models.Model):
     labels = models.ManyToManyField(Label)
 
     # TODO:
-    # @staticmethod
-    # def create_for_campaign(
-    #     campaign: "AnnotationCampaign",
-    #     labels: QuerySet[Label] = Label.objects.none(),
-    #     index: int = 0,
-    # ):
-    #     """Recover new label set based on the campaign name"""
-    #     real_name = campaign.name if index == 0 else f"{campaign.name} ({index})"
-    #     if LabelSet.objects.filter(name=real_name).exists():
-    #         return LabelSet.create_for_campaign(campaign, labels, index + 1)
-    #     label_set = LabelSet.objects.create(name=real_name)
-    #     for label in labels.all():
-    #         label_set.labels.add(label)
-    #     return label_set
+    #  @staticmethod
+    #  def create_for_campaign(
+    #      campaign: "AnnotationCampaign",
+    #      labels: QuerySet[Label] = Label.objects.none(),
+    #      index: int = 0,
+    #  ):
+    #      """Recover new label set based on the campaign name"""
+    #      real_name = campaign.name if index == 0 else f"{campaign.name} ({index})"
+    #      if LabelSet.objects.filter(name=real_name).exists():
+    #          return LabelSet.create_for_campaign(campaign, labels, index + 1)
+    #      label_set = LabelSet.objects.create(name=real_name)
+    #      for label in labels.all():
+    #          label_set.labels.add(label)
+    #      return label_set

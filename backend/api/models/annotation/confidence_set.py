@@ -23,10 +23,10 @@ class ConfidenceSet(models.Model):
     )
 
     # TODO:
-    # @property
-    # def max_level(self):
-    #     """Give the max level among confidence indicators"""
-    #     return max(i.level for i in self.confidence_indicators.all())
+    #  @property
+    #  def max_level(self):
+    #      """Give the max level among confidence indicators"""
+    #      return max(i.level for i in self.confidence_indicators.all())
 
 
 class ConfidenceIndicatorSetIndicator(models.Model):

@@ -1,12 +1,12 @@
 """Spectrogram model"""
 from django.db import models
 
-from .__abstract_file import File
+from .__abstract_file import AbstractFile
 from .__abstract_time_segment import TimeSegment
 from .spectrogram_analysis import SpectrogramAnalysis
 
 
-class Spectrogram(File, TimeSegment, models.Model):
+class Spectrogram(AbstractFile, TimeSegment, models.Model):
     """Spectrogram model"""
 
     class Meta:

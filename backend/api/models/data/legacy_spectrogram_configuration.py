@@ -53,9 +53,9 @@ class LegacySpectrogramConfiguration(models.Model):
     )
 
     # TODO:
-    # def zoom_tiles(self, tile_name):
-    #     """Generate zoom tile filenames for SpectrogramConfiguration"""
-    #     for zoom_power in range(0, self.zoom_level + 1):
-    #         zoom_level = 2**zoom_power
-    #         for zoom_tile in range(0, zoom_level):
-    #             yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"
+    #  def zoom_tiles(self, tile_name):
+    #      """Generate zoom tile filenames for SpectrogramConfiguration"""
+    #      for zoom_power in range(0, self.zoom_level + 1):
+    #          zoom_level = 2**zoom_power
+    #          for zoom_tile in range(0, zoom_level):
+    #              yield f"{tile_name}_{zoom_level}_{zoom_tile}.png"

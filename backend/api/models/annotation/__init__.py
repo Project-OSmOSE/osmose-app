@@ -1,3 +1,4 @@
+"""API annotation models"""
 from .acoustic_features import AcousticFeatures
 from .annotation import Annotation
 from .annotation_campaign import AnnotationCampaign

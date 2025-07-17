@@ -8,13 +8,6 @@ from backend.api.models import Detector
 class DetectorAdmin(admin.ModelAdmin):
     """Detector presentation in DjangoAdmin"""
 
-    list_display = (
-        "id",
-        "name",
-        "specification"
-    )
+    list_display = ("id", "name", "specification")
 
-    search_fields = (
-        "name",
-        "configurations__configuration"
-    )
+    search_fields = ("name", "configurations__configuration")

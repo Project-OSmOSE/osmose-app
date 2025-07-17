@@ -11,6 +11,7 @@ class LinearScaleNode(DjangoObjectType):
     id = ID(required=True)
 
     class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
         model = LinearScale
         fields = "__all__"
         filter_fields = "__all__"
@@ -23,6 +24,7 @@ class MultiLinearScaleNode(DjangoObjectType):
     id = ID(required=True)
 
     class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
         model = MultiLinearScale
         fields = "__all__"
         filter_fields = "__all__"

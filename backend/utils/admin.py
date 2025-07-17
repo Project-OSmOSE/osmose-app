@@ -34,4 +34,5 @@ def get_edit_links_for_queryset(queryset: QuerySet, viewname: str):
 
 
 def get_edit_link(viewname: str, obj):
+    """Get change link for given object - used in admin fields"""
     return format_html('<a href="{}">{}</a>', reverse(viewname, args=[obj.id]), obj)

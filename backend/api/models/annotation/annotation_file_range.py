@@ -59,156 +59,157 @@ class AnnotationFileRange(models.Model):
         super().save(*args, **kwargs)
 
     # TODO:
-    # @property
-    # def tasks(self) -> QuerySet[AnnotationTask]:
-    #     """Get file range tasks"""
-    #     return AnnotationTask.objects.filter(
-    #         annotation_phase_id=self.annotation_phase_id,
-    #         annotator_id=self.annotator_id,
-    #         spectrogram__start__gte=self.from_datetime,
-    #         spectrogram__end__lte=self.to_datetime,
-    #     )
+    #  @property
+    #  def tasks(self) -> QuerySet[AnnotationTask]:
+    #      """Get file range tasks"""
+    #      return AnnotationTask.objects.filter(
+    #          annotation_phase_id=self.annotation_phase_id,
+    #          annotator_id=self.annotator_id,
+    #          spectrogram__start__gte=self.from_datetime,
+    #          spectrogram__end__lte=self.to_datetime,
+    #      )
 
     # TODO:
-    # @property
-    # def results(self) -> QuerySet[AnnotationResult]:
-    #     """Get file range results"""
-    #     if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
-    #         return AnnotationResult.objects.filter(
-    #             annotation_campaign_phase__annotation_campaign_id=self.annotation_campaign_phase.annotation_campaign_id,
-    #             dataset_file__start__gte=self.from_datetime,
-    #             dataset_file__end__lte=self.to_datetime,
-    #         ).filter(
-    #             (
-    #                     Q(annotation_campaign_phase_id=self.id)
-    #                     & Q(annotator_id=self.annotator_id)
-    #             )
-    #             | (
-    #                     ~Q(annotation_campaign_phase_id=self.id)
-    #                     & ~Q(annotator_id=self.annotator_id)
-    #             )
-    #         )
-    #     return AnnotationResult.objects.filter(
-    #         annotation_campaign_phase=self.annotation_campaign_phase,
-    #         annotator_id=self.annotator_id,
-    #         dataset_file__start__gte=self.from_datetime,
-    #         dataset_file__end__lte=self.to_datetime,
-    #     )
+    #  @property
+    #  def results(self) -> QuerySet[AnnotationResult]:
+    #      """Get file range results"""
+    #      if self.annotation_campaign_phase.phase == Phase.VERIFICATION:
+    #          campaign_id = self.annotation_campaign_phase.annotation_campaign_id
+    #          return AnnotationResult.objects.filter(
+    #              annotation_campaign_phase__annotation_campaign_id=campaign_id,
+    #              dataset_file__start__gte=self.from_datetime,
+    #              dataset_file__end__lte=self.to_datetime,
+    #          ).filter(
+    #              (
+    #                      Q(annotation_campaign_phase_id=self.id)
+    #                      & Q(annotator_id=self.annotator_id)
+    #              )
+    #              | (
+    #                      ~Q(annotation_campaign_phase_id=self.id)
+    #                      & ~Q(annotator_id=self.annotator_id)
+    #              )
+    #          )
+    #      return AnnotationResult.objects.filter(
+    #          annotation_campaign_phase=self.annotation_campaign_phase,
+    #          annotator_id=self.annotator_id,
+    #          dataset_file__start__gte=self.from_datetime,
+    #          dataset_file__end__lte=self.to_datetime,
+    #      )
 
     # TODO:
-    # def _get_tasks(self) -> QuerySet[AnnotationTask]:
-    #     return self.tasks.annotate(
-    #         other_range_exist=Exists(
-    #             Subquery(
-    #                 AnnotationFileRange.objects.filter(
-    #                     ~Q(id=self.id)
-    #                     & Q(
-    #                         annotator_id=self.annotator_id,
-    #                         annotation_campaign_phase=self.annotation_campaign_phase,
-    #                         from_datetime__lte=OuterRef("dataset_file__start"),
-    #                         to_datetime__gte=OuterRef("dataset_file__end"),
-    #                     )
-    #                 )
-    #             )
-    #         )
-    #     )
+    #  def _get_tasks(self) -> QuerySet[AnnotationTask]:
+    #      return self.tasks.annotate(
+    #          other_range_exist=Exists(
+    #              Subquery(
+    #                  AnnotationFileRange.objects.filter(
+    #                      ~Q(id=self.id)
+    #                      & Q(
+    #                          annotator_id=self.annotator_id,
+    #                          annotation_campaign_phase=self.annotation_campaign_phase,
+    #                          from_datetime__lte=OuterRef("dataset_file__start"),
+    #                          to_datetime__gte=OuterRef("dataset_file__end"),
+    #                      )
+    #                  )
+    #              )
+    #          )
+    #      )
 
     # TODO:
-    # @staticmethod
-    # def get_connected_ranges(data):
-    #     """Recover connected ranges"""
-    #     return (
-    #         AnnotationFileRange.objects.filter(
-    #             annotator_id=data.annotator,
-    #             annotation_campaign_phase_id=data.annotation_campaign_phase,
-    #         )
-    #         .exclude(id=data.id)
-    #         .filter(
-    #             # get bigger
-    #             Q(
-    #                 first_file_index__lte=data.first_file_index,
-    #                 last_file_index__gte=data.last_file_index,
-    #             )
-    #             # get littler
-    #             | Q(
-    #                 first_file_index__gte=data.first_file_index,
-    #                 last_file_index__lte=data.last_file_index,
-    #             )
-    #             # get mixted
-    #             | Q(
-    #                 first_file_index__lte=data.first_file_index,
-    #                 last_file_index__gte=data.first_file_index,
-    #                 last_file_index__lte=data.last_file_index,
-    #             )
-    #             | Q(
-    #                 first_file_index__gte=data.first_file_index,
-    #                 first_file_index__lte=data.last_file_index,
-    #                 last_file_index__gte=data.last_file_index,
-    #             )
-    #             # get siblings
-    #             | Q(first_file_index=data.last_file_index + 1)
-    #             | Q(last_file_index=data.first_file_index - 1)
-    #         )
-    #     )
+    #  @staticmethod
+    #  def get_connected_ranges(data):
+    #      """Recover connected ranges"""
+    #      return (
+    #          AnnotationFileRange.objects.filter(
+    #              annotator_id=data.annotator,
+    #              annotation_campaign_phase_id=data.annotation_campaign_phase,
+    #          )
+    #          .exclude(id=data.id)
+    #          .filter(
+    #              # get bigger
+    #              Q(
+    #                  first_file_index__lte=data.first_file_index,
+    #                  last_file_index__gte=data.last_file_index,
+    #              )
+    #              # get littler
+    #              | Q(
+    #                  first_file_index__gte=data.first_file_index,
+    #                  last_file_index__lte=data.last_file_index,
+    #              )
+    #              # get mixted
+    #              | Q(
+    #                  first_file_index__lte=data.first_file_index,
+    #                  last_file_index__gte=data.first_file_index,
+    #                  last_file_index__lte=data.last_file_index,
+    #              )
+    #              | Q(
+    #                  first_file_index__gte=data.first_file_index,
+    #                  first_file_index__lte=data.last_file_index,
+    #                  last_file_index__gte=data.last_file_index,
+    #              )
+    #              # get siblings
+    #              | Q(first_file_index=data.last_file_index + 1)
+    #              | Q(last_file_index=data.first_file_index - 1)
+    #          )
+    #      )
 
     # TODO:
-    # @staticmethod
-    # def clean_connected_ranges(data: list[dict]):
-    #     """Clean connected ranges to limit the number of different items"""
-    #     ids = [file_range["id"] for file_range in data]
-    #     return_ids = []
-    #     for range_id in ids:
-    #         queryset = AnnotationFileRange.objects.filter(id=range_id)
-    #         if not queryset.exists():
-    #             continue
-    #         item = queryset.first()
-    #         connected_ranges = AnnotationFileRange.get_connected_ranges(item)
-    #         if connected_ranges.exists():
-    #             # update connected
-    #             min_first_index = min(
-    #                 connected_ranges.order_by("first_file_index")
-    #                 .first()
-    #                 .first_file_index,
-    #                 item.first_file_index,
-    #                 )
-    #             max_last_index = max(
-    #                 connected_ranges.order_by("-last_file_index")
-    #                 .first()
-    #                 .last_file_index,
-    #                 item.last_file_index,
-    #                 )
-    #             instance = connected_ranges.order_by("id").first()
-    #             duplicates = AnnotationFileRange.objects.filter(
-    #                 annotator_id=instance.annotator_id,
-    #                 annotation_campaign_phase_id=instance.annotation_campaign_phase_id,
-    #                 first_file_index=min_first_index,
-    #                 last_file_index=max_last_index,
-    #             )
-    #             if duplicates.exists():
-    #                 instance = duplicates.first()
-    #             else:
-    #                 instance.first_file_index = min_first_index
-    #                 instance.last_file_index = max_last_index
-    #                 instance.save()
-    #             return_ids.append(instance.id)
-    #             connected_ranges.exclude(id=instance.id).delete()
-    #     return AnnotationFileRange.objects.filter(id__in=return_ids)
+    #  @staticmethod
+    #  def clean_connected_ranges(data: list[dict]):
+    #      """Clean connected ranges to limit the number of different items"""
+    #      ids = [file_range["id"] for file_range in data]
+    #      return_ids = []
+    #      for range_id in ids:
+    #          queryset = AnnotationFileRange.objects.filter(id=range_id)
+    #          if not queryset.exists():
+    #              continue
+    #          item = queryset.first()
+    #          connected_ranges = AnnotationFileRange.get_connected_ranges(item)
+    #          if connected_ranges.exists():
+    #              # update connected
+    #              min_first_index = min(
+    #                  connected_ranges.order_by("first_file_index")
+    #                  .first()
+    #                  .first_file_index,
+    #                  item.first_file_index,
+    #                  )
+    #              max_last_index = max(
+    #                  connected_ranges.order_by("-last_file_index")
+    #                  .first()
+    #                  .last_file_index,
+    #                  item.last_file_index,
+    #                  )
+    #              instance = connected_ranges.order_by("id").first()
+    #              duplicates = AnnotationFileRange.objects.filter(
+    #                  annotator_id=instance.annotator_id,
+    #                  annotation_campaign_phase_id=instance.annotation_campaign_phase_id,
+    #                  first_file_index=min_first_index,
+    #                  last_file_index=max_last_index,
+    #              )
+    #              if duplicates.exists():
+    #                  instance = duplicates.first()
+    #              else:
+    #                  instance.first_file_index = min_first_index
+    #                  instance.last_file_index = max_last_index
+    #                  instance.save()
+    #              return_ids.append(instance.id)
+    #              connected_ranges.exclude(id=instance.id).delete()
+    #      return AnnotationFileRange.objects.filter(id__in=return_ids)
 
     # TODO:
-    # @staticmethod
-    # def get_finished_task_count_query() -> Subquery:
-    #     """Avoid duplicated code"""
-    #     return Subquery(
-    #         AnnotationTask.objects.filter(
-    #             annotator_id=OuterRef("annotator_id"),
-    #             annotation_campaign_phase_id=OuterRef("annotation_campaign_phase_id"),
-    #             dataset_file__start__gte=OuterRef("from_datetime"),
-    #             dataset_file__end__lte=OuterRef("to_datetime"),
-    #             status=AnnotationTask.Status.FINISHED,
-    #         )
-    #         .annotate(count=Func(F("id"), function="Count"))
-    #         .values("count")
-    #     )
+    #  @staticmethod
+    #  def get_finished_task_count_query() -> Subquery:
+    #      """Avoid duplicated code"""
+    #      return Subquery(
+    #          AnnotationTask.objects.filter(
+    #              annotator_id=OuterRef("annotator_id"),
+    #              annotation_campaign_phase_id=OuterRef("annotation_campaign_phase_id"),
+    #              dataset_file__start__gte=OuterRef("from_datetime"),
+    #              dataset_file__end__lte=OuterRef("to_datetime"),
+    #              status=AnnotationTask.Status.FINISHED,
+    #          )
+    #          .annotate(count=Func(F("id"), function="Count"))
+    #          .values("count")
+    #      )
 
 
 def clean_orphan_tasks():
@@ -228,14 +229,12 @@ def clean_orphan_tasks():
 
 
 @receiver(signal=signals.post_save, sender=AnnotationFileRange)
-def after_save(sender, instance, **kwargs):
+def after_save(**kwargs):
     """After file range saved"""
-    print(" > after save")
     clean_orphan_tasks()
 
 
 @receiver(signal=signals.post_delete, sender=AnnotationFileRange)
-def after_delete(sender, instance, **kwargs):
+def after_delete(**kwargs):
     """After file range deleted"""
-    print(" > after delete")
     clean_orphan_tasks()
