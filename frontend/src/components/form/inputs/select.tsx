@@ -185,7 +185,7 @@ const SelectModal: React.FC<{
   const searchedOptions = useSearchedData({
     items: options,
     search,
-    fields: [ 'label' ]
+    mapping: (option: Item) => [ option.label ]
   })
 
   function onSearchUpdated(event: CustomEvent<SearchbarInputEventDetail>) {

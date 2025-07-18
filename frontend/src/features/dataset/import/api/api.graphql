@@ -1,0 +1,11 @@
+query getAvailableDatasetsForImport {
+    allDatasetsAvailableForImport {
+        name
+        path
+        legacy
+        analysis {
+            name
+            path
+        }
+    }
+}
