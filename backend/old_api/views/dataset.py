@@ -1,6 +1,11 @@
 """Dataset DRF-Viewset file"""
 import csv
 
+from backend.api.actions import datawork_import
+from backend.api.actions.check_new_spectro_config_errors import (
+    check_new_spectro_config_errors,
+)
+from backend.api.serializers import DatasetSerializer
 from django.conf import settings
 from django.db.models import Count, OuterRef, Subquery
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -9,12 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
-from backend.api.actions import datawork_import
-from backend.api.actions.check_new_spectro_config_errors import (
-    check_new_spectro_config_errors,
-)
 from backend.api.models import Dataset
-from backend.api.serializers import DatasetSerializer
 from backend.utils.filters import ModelFilter
 
 
@@ -74,7 +74,7 @@ class DatasetViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["POST"])
     def datawork_import(self, request):
         """Import new datasets from datawork"""
-        if not request.user.is_staff:
+        if not request.user.is_staff_or_superuser:
             return HttpResponse("Forbidden", status=403)
 
         try:

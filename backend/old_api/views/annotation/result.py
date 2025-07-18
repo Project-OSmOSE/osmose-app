@@ -3,6 +3,10 @@ import ast
 import csv
 from io import StringIO
 
+from backend.api.serializers import (
+    AnnotationResultSerializer,
+    AnnotationResultImportListSerializer,
+)
 from django.db.models import QuerySet, Q, Prefetch, F, Subquery, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, mixins
@@ -18,10 +22,6 @@ from backend.api.models import (
     AnnotationCampaignPhase,
     Phase,
 )
-from backend.api.serializers import (
-    AnnotationResultSerializer,
-    AnnotationResultImportListSerializer,
-)
 from backend.utils.filters import ModelFilter, get_boolean_query_param
 
 
@@ -34,7 +34,7 @@ class ResultAccessFilter(filters.BaseFilterBackend):
     def filter_queryset(
         self, request: Request, queryset: QuerySet[AnnotationResult], view
     ):
-        if request.user.is_staff:
+        if request.user.is_staff_or_superuser:
             return queryset
 
         is_campaign_owner = Q(
@@ -230,7 +230,7 @@ class AnnotationResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         if (
             phase.annotation_campaign.owner_id != request.user.id
-            and not request.user.is_staff
+            and not request.user.is_staff_or_superuser
         ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 

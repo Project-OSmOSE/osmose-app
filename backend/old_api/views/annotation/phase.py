@@ -1,6 +1,10 @@
 """Annotation campaign DRF-Viewset file"""
 import csv
 
+from backend.api.models.annotation.result import AnnotationResultType
+from backend.api.serializers.annotation.campaign import (
+    AnnotationCampaignPhaseSerializer,
+)
 from django.db import models
 from django.db.models import (
     Q,
@@ -31,10 +35,6 @@ from backend.api.models import (
     AnnotationCampaignPhase,
     AnnotationCampaign,
     Phase,
-)
-from backend.api.models.annotation.result import AnnotationResultType
-from backend.api.serializers.annotation.campaign import (
-    AnnotationCampaignPhaseSerializer,
 )
 from backend.aplose.models.user import ExpertiseLevel
 from backend.utils.filters import ModelFilter
@@ -75,7 +75,7 @@ class CampaignPhaseAccessFilter(filters.BaseFilterBackend):
     """Filter campaign phase access base on user"""
 
     def filter_queryset(self, request: Request, queryset, view):
-        if request.user.is_staff:
+        if request.user.is_staff_or_superuser:
             return queryset
         return queryset.filter(
             Q(annotation_campaign__owner_id=request.user.id)
@@ -104,7 +104,7 @@ class CampaignPhasePostPatchPermission(permissions.BasePermission):
                 campaign: AnnotationCampaign = campaign.first()
                 if campaign.archive is not None:
                     return False
-                if request.user.is_staff or request.user == campaign.owner:
+                if request.user.is_staff_or_superuser or request.user == campaign.owner:
                     return True
                 return False
         return super().has_permission(request, view)
@@ -115,7 +115,7 @@ class CampaignPhasePostPatchPermission(permissions.BasePermission):
                 return False
             if not obj.is_open:
                 return False
-            if request.user.is_staff or request.user == obj.annotation_campaign.owner:
+            if request.user.is_staff_or_superuser or request.user == obj.annotation_campaign.owner:
                 return True
             return False
         return super().has_object_permission(request, view, obj)
