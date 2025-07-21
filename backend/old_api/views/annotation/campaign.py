@@ -1,5 +1,11 @@
 """Annotation campaign DRF-Viewset file"""
 
+from backend.api.serializers import (
+    AnnotationCampaignSerializer,
+)
+from backend.api.serializers.annotation.campaign import (
+    AnnotationCampaignPatchSerializer,
+)
 from django.db import transaction
 from django.db.models import (
     Q,
@@ -17,12 +23,6 @@ from backend.api.models import (
     AnnotationCampaign,
     AnnotationFileRange,
 )
-from backend.api.serializers import (
-    AnnotationCampaignSerializer,
-)
-from backend.api.serializers.annotation.campaign import (
-    AnnotationCampaignPatchSerializer,
-)
 from backend.utils.filters import ModelFilter
 
 
@@ -30,7 +30,7 @@ class CampaignAccessFilter(filters.BaseFilterBackend):
     """Filter campaign access base on user"""
 
     def filter_queryset(self, request: Request, queryset, view):
-        if request.user.is_staff:
+        if request.user.is_staff_or_superuser:
             return queryset
         return queryset.filter(
             Q(owner_id=request.user.id)
@@ -55,7 +55,7 @@ class CampaignPatchPermission(permissions.BasePermission):
         if request.method == "PATCH":
             if obj.archive is not None:
                 return False
-            if request.user.is_staff or request.user == obj.owner:
+            if request.user.is_staff_or_superuser or request.user == obj.owner:
                 return True
             return False
         return super().has_object_permission(request, view, obj)
@@ -112,7 +112,10 @@ class AnnotationCampaignViewSet(
         """Archive campaign"""
         # pylint: disable=unused-argument
         campaign: AnnotationCampaign = self.get_object()
-        if campaign.owner_id != request.user.id and not request.user.is_staff:
+        if (
+            campaign.owner_id != request.user.id
+            and not request.user.is_staff_or_superuser
+        ):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         campaign.do_archive(request.user)

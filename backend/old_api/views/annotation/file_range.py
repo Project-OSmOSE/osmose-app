@@ -1,6 +1,10 @@
 """Viewset for annotation file range"""
 from typing import Optional
 
+from backend.api.serializers import (
+    AnnotationFileRangeSerializer,
+)
+from backend.api.serializers.annotation.file_range import FileRangeDatasetFileSerializer
 from django.db.models import (
     QuerySet,
     Q,
@@ -27,10 +31,6 @@ from backend.api.models import (
     Phase,
     AnnotationResult,
 )
-from backend.api.serializers import (
-    AnnotationFileRangeSerializer,
-)
-from backend.api.serializers.annotation.file_range import FileRangeDatasetFileSerializer
 from backend.utils.filters import ModelFilter, get_boolean_query_param
 
 
@@ -164,7 +164,7 @@ class AnnotationFileRangeFilter(filters.BaseFilterBackend):
     def filter_queryset(
         self, request: Request, queryset: QuerySet[AnnotationFileRange], view
     ):
-        if request.user.is_staff:
+        if request.user.is_staff_or_superuser:
             return queryset
         # When testing with campaign owner which is not an annotators, all items are doubled
         # (don't understand why, the result query is correct when executed directly in SQL console)
@@ -210,7 +210,7 @@ class AnnotationFileRangeViewSet(viewsets.ReadOnlyModelViewSet):
 
     def can_user_post_data(self, request_data: list[dict]) -> bool:
         """Check permission to post data for user"""
-        if self.request.user.is_staff:
+        if self.request.user.is_staff_or_superuser:
             return True
         required_campaign_phases = AnnotationCampaignPhase.objects.filter(
             id__in=[data["annotation_campaign_phase"] for data in request_data],

@@ -1,6 +1,5 @@
 import { API } from "@/service/api/index.ts";
 import { ID } from "@/service/type.ts";
-import { v4 as uuidV4 } from "uuid";
 import { Dataset, DatasetFile, ImportDataset } from "@/service/types";
 import { extendSpectrogram } from "@/service/api/spectrogram-configuration.ts";
 
@@ -37,13 +36,6 @@ export const DatasetAPI = API.injectEndpoints({
       transformResponse(configs: Array<Dataset>): Array<Dataset> {
         return [ ...configs ].map(extendDataset)
       }
-    }),
-    listDatasetForImport: builder.query<Array<ImportDataset>, void>({
-      query: () => 'dataset/list_to_import/',
-      transformResponse: (response: Array<Omit<ImportDataset, 'id'>>) => {
-        return response.map(d => ({ ...d, id: uuidV4() }))
-      },
-      providesTags: [ { type: 'DatasetToImport' } ]
     }),
 
     importDataset: builder.mutation<Array<ImportDataset>, Array<ImportDataset>>({

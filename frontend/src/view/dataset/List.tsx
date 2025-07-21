@@ -2,11 +2,11 @@ import React, { Fragment, useMemo } from 'react';
 import { IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from '@/service/function.ts';
 import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
-import { ImportDatasetButton } from "@/components/Dataset";
 import styles from './styles.module.scss'
 import { AudioMetadataModalButton } from "@/components/Dataset/AudioMetadata";
 import { SpectrogramMetadataModalButton } from "@/components/Dataset/SpectrogramMetadata";
 import { DatasetAPI } from "@/service/api/dataset.ts";
+import { ImportDatasetButton } from "@/features/dataset/import";
 
 
 export const DatasetList: React.FC = () => {
@@ -15,7 +15,7 @@ export const DatasetList: React.FC = () => {
   const { data: datasets, error: datasetsError, isLoading } = DatasetAPI.endpoints.listDataset.useQuery()
   const sortedDatasets = useMemo(() =>
       [ ...(datasets ?? []) ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
-    [datasets]
+    [ datasets ]
   )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,0 +1,26 @@
+{
+    "datasets": {
+        "my_first_analysis": {
+            "class": "SpectroDataset",
+            "json": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\processed\\my_first_analysis\\my_first_analysis.json"
+        },
+        "original": {
+            "class": "AudioDataset",
+            "json": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\original.json"
+        }
+    },
+    "depth": 200,
+    "folder": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit",
+    "gps_coordinates": [
+        -49.47,
+        70.09
+    ],
+    "instrument": {
+        "end_to_end_db": 150.0,
+        "gain_db": 0.0,
+        "peak_voltage": 1.0,
+        "sensitivity": 1.0
+    },
+    "strptime_format": "%y_%m_%d_%H_%M_%S",
+    "timezone": "UTC"
+}
