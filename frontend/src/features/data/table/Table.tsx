@@ -1,9 +1,10 @@
 import React, { Fragment } from "react";
-import { DatasetAPI } from "./api";
 import { IonNote, IonSpinner } from "@ionic/react";
 import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import styles from "./styles.module.scss";
+import { DatasetAPI } from "@/features/data/dataset/api";
+import { DatasetNameAccess } from "@/features/data";
 
 export const DatasetTable: React.FC = () => {
 
@@ -20,12 +21,12 @@ export const DatasetTable: React.FC = () => {
     <TableHead topSticky>Number of files</TableHead>
     <TableHead topSticky>Start date</TableHead>
     <TableHead topSticky>End date</TableHead>
-    {/*<TableHead topSticky>Audio</TableHead>*/ }
-    {/*<TableHead topSticky>Spectrogram</TableHead>*/ }
     <TableDivider/>
 
     { datasets.map(d => <Fragment key={ d.name }>
-      <TableContent isFirstColumn={ true }>{ d.name }</TableContent>
+      <TableContent isFirstColumn={ true }>
+        <DatasetNameAccess dataset={ d }/>
+      </TableContent>
       <TableContent>{ new Date(d.createdAt).toLocaleDateString() }</TableContent>
       <TableContent>{ d.analysisCount }</TableContent>
       <TableContent>{ d.filesCount }</TableContent>

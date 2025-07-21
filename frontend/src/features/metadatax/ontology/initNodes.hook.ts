@@ -1,8 +1,7 @@
-import type { Source } from './source'
-import type { Sound } from './sound'
 import { useCallback, useMemo } from "react";
 import { Edge, Node } from "@xyflow/react";
-import { SourceNode } from "./node";
+import { SourceNode } from "./node.tsx";
+import { Sound, Source } from "@/features/metadatax/ontology/api";
 
 const COLUMN_SIZE = 256;
 const ROW_GAP = 32;

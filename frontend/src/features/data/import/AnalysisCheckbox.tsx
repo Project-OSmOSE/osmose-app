@@ -1,7 +1,7 @@
 import React, { MouseEvent, useCallback } from "react";
 import styles from './styles.module.scss'
-import { ImportAnalysis } from "./api";
 import { IonCheckbox } from "@ionic/react";
+import { ImportAnalysis } from "@/features/data/dataset/api";
 
 export const AnalysisCheckbox: React.FC<{
   analysis: ImportAnalysis,

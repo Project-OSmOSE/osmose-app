@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import styles from './styles.module.scss'
-import { ImportAnalysis, ImportDataset } from './api'
+import { ImportAnalysis, ImportDataset } from '@/features/data/dataset/api'
 import { IonCheckbox, IonNote } from "@ionic/react";
-import { AnalysisCheckbox } from "@/features/dataset/import/AnalysisCheckbox.tsx";
+import { AnalysisCheckbox } from "./AnalysisCheckbox.tsx";
 import { useSearchedData } from "@/service/ui/search.ts";
 
 export const DatasetCheckbox: React.FC<{

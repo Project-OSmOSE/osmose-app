@@ -12,13 +12,13 @@ import {
 } from "@ionic/react";
 import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import { cloudUploadOutline } from "ionicons/icons";
-import { ImportDataset, ImportDatasetAPI } from "./api";
+import { DatasetAPI, ImportDataset } from "@/features/data/dataset/api";
 import { DatasetCheckbox } from "./DatasetCheckbox.tsx";
 import { DatasetImportHelpButton } from "./HelpButton.tsx";
 
 export const ImportDatasetModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
-  const { data: availableDatasets, isLoading } = ImportDatasetAPI.endpoints.getAvailableDatasetsForImport.useQuery()
+  const { data: availableDatasets, isLoading } = DatasetAPI.endpoints.getAvailableDatasetsForImport.useQuery()
 
   const [ search, setSearch ] = useState<string | undefined>();
   const [ selectAllDatasets, setSelectAllDatasets ] = useState<boolean>(false);

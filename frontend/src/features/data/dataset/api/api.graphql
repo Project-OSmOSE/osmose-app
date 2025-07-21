@@ -1,6 +1,7 @@
 query getDatasets {
     allDatasets(orderBy: "-createdAt") {
         results {
+            id
             name
             description
             createdAt
@@ -9,6 +10,18 @@ query getDatasets {
             filesCount
             start
             end
+        }
+    }
+}
+
+query getAvailableDatasetsForImport {
+    allDatasetsAvailableForImport {
+        name
+        path
+        legacy
+        analysis {
+            name
+            path
         }
     }
 }

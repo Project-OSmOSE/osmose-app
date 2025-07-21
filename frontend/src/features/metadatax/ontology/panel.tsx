@@ -1,7 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import styles from './ontology.module.scss'
-import { DetailedSource, SourceAPI } from "./source";
-import { DetailedSound, SoundAPI } from "./sound";
+import { DetailedSound, DetailedSource, OntologyAPI } from "@/features/metadatax/ontology/api";
 import { IonSpinner } from "@ionic/react";
 import { Input } from "@/components/form";
 import { Label } from "@/components/form/inputs/Label.tsx";
@@ -20,12 +19,12 @@ export const Panel: React.FC = () => {
   const {
     data: source,
     isFetching: isFetchingSource
-  } = SourceAPI.endpoints.getDetailedSourceByID.useQuery({ id: id ?? '' }, { skip: !id || type !== 'source' });
+  } = OntologyAPI.endpoints.getDetailedSourceByID.useQuery({ id: id ?? '' }, { skip: !id || type !== 'source' });
 
   const {
     data: sound,
     isFetching: isFetchingSound
-  } = SoundAPI.endpoints.getDetailedSoundByID.useQuery({ id: id ?? '' }, { skip: !id || type !== 'sound' });
+  } = OntologyAPI.endpoints.getDetailedSoundByID.useQuery({ id: id ?? '' }, { skip: !id || type !== 'sound' });
 
   const isFetching = useMemo(() => isFetchingSound || isFetchingSource, [ isFetchingSource, isFetchingSound ])
 
@@ -42,8 +41,8 @@ const Item: React.FC<{ data: DetailedSource, type: 'source' } | { data: Detailed
                                                                                                              data,
                                                                                                              type
                                                                                                            }) => {
-  const [ updateSource ] = SourceAPI.endpoints.updateSource.useMutation()
-  const [ updateSound ] = SoundAPI.endpoints.updateSound.useMutation()
+  const [ updateSource ] = OntologyAPI.endpoints.updateSource.useMutation()
+  const [ updateSound ] = OntologyAPI.endpoints.updateSound.useMutation()
 
   const [ englishName, setEnglishName ] = useState<string>(data.englishName);
   const [ frenchName, setFrenchName ] = useState<string | undefined>(data.frenchName ?? undefined);

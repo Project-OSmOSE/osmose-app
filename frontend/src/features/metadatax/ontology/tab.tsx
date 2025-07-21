@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import styles from './ontology.module.scss'
 import { Background, Controls, Node, ReactFlow, useOnSelectionChange } from "@xyflow/react";
-import { NewNode, NODE_ORIGIN, useOntologyTreeFlow } from "@/features/ontology/flow.hook.ts";
-import { Source, SourceAPI } from "./source";
-import { Sound, SoundAPI } from "./sound";
-import { NODE_TYPES, useGetInitialNodes } from "@/features/ontology/initNodes.hook.ts";
-import { Panel } from './panel'
+import { NewNode, NODE_ORIGIN, useOntologyTreeFlow } from "@/features/metadatax/ontology/flow.hook.ts";
+import { OntologyAPI, Sound, Source } from "@/features/metadatax/ontology/api";
+
+import { NODE_TYPES, useGetInitialNodes } from "@/features/metadatax/ontology/initNodes.hook.ts";
+import { Panel } from './panel.tsx'
 import { useLocation, useNavigate } from "react-router-dom";
 
 type DataType = Omit<Source | Sound, '__typename'>
@@ -17,15 +17,15 @@ export const OntologyTab: React.FC = () => {
     if (location.pathname.includes('sound')) return 'sound';
   }, [ location ])
 
-  const { data: initialSources } = SourceAPI.endpoints.getAllSources.useQuery({}, { skip: type !== 'source' });
-  const [ createSource ] = SourceAPI.endpoints.createSource.useMutation();
-  const [ updateSource ] = SourceAPI.endpoints.updateSource.useMutation();
-  const [ deleteSource ] = SourceAPI.endpoints.deleteSource.useMutation();
+  const { data: initialSources } = OntologyAPI.endpoints.getAllSources.useQuery({}, { skip: type !== 'source' });
+  const [ createSource ] = OntologyAPI.endpoints.createSource.useMutation();
+  const [ updateSource ] = OntologyAPI.endpoints.updateSource.useMutation();
+  const [ deleteSource ] = OntologyAPI.endpoints.deleteSource.useMutation();
 
-  const { data: initialSounds } = SoundAPI.endpoints.getAllSounds.useQuery({}, { skip: type !== 'sound' });
-  const [ createSound ] = SoundAPI.endpoints.createSound.useMutation();
-  const [ updateSound ] = SoundAPI.endpoints.updateSound.useMutation();
-  const [ deleteSound ] = SoundAPI.endpoints.deleteSound.useMutation();
+  const { data: initialSounds } = OntologyAPI.endpoints.getAllSounds.useQuery({}, { skip: type !== 'sound' });
+  const [ createSound ] = OntologyAPI.endpoints.createSound.useMutation();
+  const [ updateSound ] = OntologyAPI.endpoints.updateSound.useMutation();
+  const [ deleteSound ] = OntologyAPI.endpoints.deleteSound.useMutation();
 
   const getInitialNodes = useGetInitialNodes(type === 'source' ? initialSources : type === 'sound' ? initialSounds : undefined);
   const navigate = useNavigate()

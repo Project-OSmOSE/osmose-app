@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import styles from './ontology.module.scss'
-import { Sound } from "./sound";
-import { Source } from "./source";
+import { Sound, Source } from "@/features/metadatax/ontology/api";
 import { IonNote } from "@ionic/react";
 import { useParams } from "react-router-dom";
 

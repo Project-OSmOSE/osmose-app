@@ -3,7 +3,7 @@ import { useModal } from "@/service/ui/modal.ts";
 import { IonButton, IonIcon } from "@ionic/react";
 import { downloadOutline } from "ionicons/icons";
 import { createPortal } from "react-dom";
-import { ImportDatasetModal } from "./Modal";
+import { ImportDatasetModal } from "./Modal.tsx";
 
 export const ImportDatasetButton: React.FC = () => {
   const modal = useModal();

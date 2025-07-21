@@ -28,7 +28,7 @@ import { AploseSkeleton } from "@/components/layout";
 import { selectCurrentUser } from "@/service/api/user.ts";
 import { selectIsConnected } from "@/service/slices/auth.ts";
 import { ReactFlowProvider } from "@xyflow/react";
-import { OntologyPage, OntologyTab } from "@/features/ontology";
+import { OntologyPage, OntologyTab } from "@/features/metadatax/ontology";
 
 
 setupIonicReact({
