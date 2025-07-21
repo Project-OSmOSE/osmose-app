@@ -5,15 +5,14 @@ from os.path import isfile, join, exists
 from pathlib import Path
 
 from django.conf import settings
-from graphene import relay, ID, List, NonNull, String, Boolean, ObjectType
-from graphene_django import DjangoObjectType
+from graphene import relay, List, NonNull, String, Boolean, ObjectType
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
 )
 from typing_extensions import deprecated, Optional
 
 from backend.api.models import Dataset
-from backend.utils.schema import AuthenticatedDjangoConnectionField
+from backend.utils.schema import AuthenticatedDjangoConnectionField, ApiObjectType
 from .spectrogram_analysis import (
     ImportSpectrogramAnalysisType,
     legacy_resolve_all_spectrogram_analysis_available_for_import,
@@ -22,10 +21,9 @@ from .spectrogram_analysis import (
 from .spectrogram_analysis import SpectrogramAnalysisNode
 
 
-class DatasetNode(DjangoObjectType):
+class DatasetNode(ApiObjectType):
     """Dataset schema"""
 
-    id = ID(required=True)
     spectrogram_analysis = AuthenticatedDjangoConnectionField(SpectrogramAnalysisNode)
 
     class Meta:

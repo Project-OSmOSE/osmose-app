@@ -1,14 +1,12 @@
 """ConfidenceSet schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import ConfidenceSet
+from backend.utils.schema import ApiObjectType
 
 
-class ConfidenceSetNode(DjangoObjectType):
+class ConfidenceSetNode(ApiObjectType):
     """ConfidenceSet schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

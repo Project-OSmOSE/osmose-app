@@ -3,6 +3,9 @@ import logging
 import traceback
 from enum import Enum
 
+import graphene_django_optimizer as gql_optimizer
+from graphene import ID
+from graphene_django import DjangoObjectType
 from graphene_django_pagination import DjangoPaginationConnectionField
 from graphql import GraphQLResolveInfo
 from rest_framework import status
@@ -78,3 +81,17 @@ class AuthenticatedDjangoConnectionField(DjangoPaginationConnectionField):
         return super().resolve_queryset(
             connection, iterable, info, args, filtering_args, filterset_class
         )
+
+
+class ApiObjectType(DjangoObjectType):
+    """Dataset schema"""
+
+    id = ID(required=True)
+
+    class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
+        abstract = True
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return gql_optimizer.query(queryset, info)

@@ -3,8 +3,7 @@ from os import listdir
 from os.path import join, isfile, exists
 
 from django.conf import settings
-from graphene import relay, ID, ObjectType, NonNull, String
-from graphene_django import DjangoObjectType
+from graphene import relay, ObjectType, NonNull, String
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
     SpectroDataset as OSEkitSpectroDataset,
@@ -12,14 +11,13 @@ from osekit.public_api.dataset import (
 from typing_extensions import deprecated
 
 from backend.api.models import SpectrogramAnalysis
-from backend.utils.schema import AuthenticatedDjangoConnectionField
+from backend.utils.schema import AuthenticatedDjangoConnectionField, ApiObjectType
 from .spectrogram import SpectrogramNode
 
 
-class SpectrogramAnalysisNode(DjangoObjectType):
+class SpectrogramAnalysisNode(ApiObjectType):
     """SpectrogramAnalysis schema"""
 
-    id = ID(required=True)
     spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
 
     class Meta:

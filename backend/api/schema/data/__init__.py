@@ -2,6 +2,7 @@
 
 import graphene
 from graphene import List
+from graphene_django.debug import DjangoDebug
 
 from backend.utils.schema import (
     GraphQLPermissions,
@@ -25,8 +26,11 @@ from .spectrogram_analysis import SpectrogramAnalysisNode
 class APIDataQuery(graphene.ObjectType):  # pylint: disable=too-few-public-methods
     """API GraphQL queries"""
 
+    debug = graphene.Field(DjangoDebug, name="_debug")
+
     all_colormaps = AuthenticatedDjangoConnectionField(ColormapNode)
     all_datasets = AuthenticatedDjangoConnectionField(DatasetNode)
+
     all_ffts = AuthenticatedDjangoConnectionField(FFTNode)
     all_legacy_spectrogram_configurations = AuthenticatedDjangoConnectionField(
         LegacySpectrogramConfigurationNode
