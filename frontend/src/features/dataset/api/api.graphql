@@ -1,19 +1,14 @@
 query getDatasets {
-    allDatasets {
+    allDatasets(orderBy: "-createdAt") {
         results {
             name
             description
             createdAt
             legacy
-            spectrogramAnalysis {
-                results {
-                    startDate
-                    endDate
-                    spectrograms {
-                        totalCount
-                    }
-                }
-            }
+            analysisCount
+            filesCount
+            start
+            end
         }
     }
 }

@@ -6,12 +6,7 @@ type N<T> = NonNullable<T>
 const Tags = [ 'Dataset' ]
 type TagType = typeof Tags[number]
 
-type _Dataset = N<N<N<GetDatasetsQuery['allDatasets']>['results']>[number]>
-type Dataset = Omit<_Dataset, 'spectrogramAnalysis'> & {
-  spectrogramsCount: number;
-  startDate?: Date;
-  endDate?: Date;
-}
+type Dataset = N<N<N<GetDatasetsQuery['allDatasets']>['results']>[number]>
 
 type apiDefinitions = DefinitionsFromApi<typeof api>;
 type apiType = Omit<apiDefinitions, 'getDatasets'> & {
@@ -23,18 +18,7 @@ const enhancedAPI = api.enhanceEndpoints<TagType, apiType>({
   endpoints: {
     getDatasets: {
       transformResponse(response: GetDatasetsQuery) {
-        return (response?.allDatasets?.results?.filter(r => r !== null) ?? [])?.map(d => {
-          let startDate = undefined;
-          let endDate = undefined;
-          let spectrogramsCount = 0;
-          const analysis = d.spectrogramAnalysis?.results?.filter(a => !!a);
-          if (analysis && analysis.length > 0) {
-            startDate = new Date(Math.min(...analysis.map(a => new Date(a.startDate).getTime())))
-            endDate = new Date(Math.max(...analysis.map(a => new Date(a.endDate).getTime())))
-            spectrogramsCount = analysis.reduce((prev, a) => prev + (a.spectrograms?.totalCount ?? 0), 0)
-          }
-          return { ...d, startDate, endDate, spectrogramsCount } as Dataset
-        })
+        return (response?.allDatasets?.results?.filter(r => r !== null) ?? [])
       },
       providesTags: [ 'Dataset' ],
     },

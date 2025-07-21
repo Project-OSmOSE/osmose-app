@@ -9,7 +9,7 @@ export const ImportDatasetButton: React.FC = () => {
   const modal = useModal();
 
   return <Fragment>
-    <IonButton color='primary' fill='outline'
+    <IonButton color='primary' fill='clear'
                style={ { zIndex: 2 } }
                onClick={ modal.toggle }>
       <IonIcon icon={ downloadOutline } slot='start'/>

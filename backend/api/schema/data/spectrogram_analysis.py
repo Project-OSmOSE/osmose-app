@@ -3,7 +3,8 @@ from os import listdir
 from os.path import join, isfile, exists
 
 from django.conf import settings
-from graphene import relay, ObjectType, NonNull, String
+from django.db.models import Count
+from graphene import relay, ObjectType, NonNull, String, Int
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
     SpectroDataset as OSEkitSpectroDataset,
@@ -19,6 +20,7 @@ class SpectrogramAnalysisNode(ApiObjectType):
     """SpectrogramAnalysis schema"""
 
     spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
+    files_count = Int()
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
@@ -26,6 +28,15 @@ class SpectrogramAnalysisNode(ApiObjectType):
         fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(
+            queryset.annotate(
+                files_count=Count("spectrograms"),
+            ),
+            info,
+        )
 
 
 class ImportSpectrogramAnalysisType(

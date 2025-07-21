@@ -5,7 +5,9 @@ from os.path import isfile, join, exists
 from pathlib import Path
 
 from django.conf import settings
-from graphene import relay, List, NonNull, String, Boolean, ObjectType
+from django.db.models import Count, Min
+from django_filters import FilterSet, OrderingFilter
+from graphene import relay, List, NonNull, String, Boolean, ObjectType, Int, Date
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
 )
@@ -21,17 +23,45 @@ from .spectrogram_analysis import (
 from .spectrogram_analysis import SpectrogramAnalysisNode
 
 
-class DatasetNode(ApiObjectType):
-    """Dataset schema"""
-
-    spectrogram_analysis = AuthenticatedDjangoConnectionField(SpectrogramAnalysisNode)
+class DatasetFilter(FilterSet):
+    """Dataset filters"""
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = Dataset
         fields = "__all__"
-        filter_fields = "__all__"
+
+    order_by = OrderingFilter(fields=("created_at",))
+
+
+class DatasetNode(ApiObjectType):
+    """Dataset schema"""
+
+    spectrogram_analysis = AuthenticatedDjangoConnectionField(SpectrogramAnalysisNode)
+    analysis_count = Int()
+    files_count = Int()
+
+    start = Date()
+    end = Date()
+
+    class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
+        model = Dataset
+        fields = "__all__"
+        filterset_class = DatasetFilter
         interfaces = (relay.Node,)
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(
+            queryset.annotate(
+                analysis_count=Count("spectrogram_analysis", distinct=True),
+                files_count=Count("spectrogram_analysis__spectrograms", distinct=True),
+                start=Min("spectrogram_analysis__start_date"),
+                end=Min("spectrogram_analysis__end_date"),
+            ),
+            info,
+        )
 
 
 class ImportDatasetType(ObjectType):  # pylint: disable=too-few-public-methods

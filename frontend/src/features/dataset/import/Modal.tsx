@@ -13,7 +13,8 @@ import {
 import { Modal, ModalFooter, ModalHeader } from "@/components/ui";
 import { cloudUploadOutline } from "ionicons/icons";
 import { ImportDataset, ImportDatasetAPI } from "./api";
-import { DatasetCheckbox } from "@/features/dataset/import/DatasetCheckbox.tsx";
+import { DatasetCheckbox } from "./DatasetCheckbox.tsx";
+import { DatasetImportHelpButton } from "./HelpButton.tsx";
 
 export const ImportDatasetModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
@@ -133,7 +134,8 @@ export const ImportDatasetModal: React.FC<{ onClose: () => void }> = ({ onClose 
           </div>
 
           <ModalFooter className={ styles.buttons }>
-              <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
+              <DatasetImportHelpButton/>
+
             { isLoading && <IonSpinner/> }
             { datasetSelectionCount > 0 &&
                 <p>{ datasetSelectionCount } Dataset selected ({ analysisSelectionCount } analysis)</p> }
