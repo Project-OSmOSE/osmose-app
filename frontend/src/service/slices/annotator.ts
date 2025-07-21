@@ -552,6 +552,8 @@ export const AnnotatorSlice = createSlice({
       state.sessionStart = Date.now();
       state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
       state.ui.hiddenLabels = []
+
+      if (payload.results.length > 0) _focusResult(state, { payload: payload.results[0].id })
     },
     onCampaignUpdated: (state, { payload }: { payload: AnnotationCampaign }) => {
       // Reset user preferences if new campaign
