@@ -1862,7 +1862,7 @@ export type DatasetNode = Node & {
   legacy: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   path: Scalars['String']['output'];
-  spectrogramAnalysis: SpectrogramAnalysisNodeConnection;
+  spectrogramAnalysis?: Maybe<SpectrogramAnalysisNodeNodeConnection>;
 };
 
 
@@ -1910,8 +1910,10 @@ export type DatasetNodeSpectrogramAnalysisArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   legacy?: InputMaybe<Scalars['Boolean']['input']>;
   legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  ordering?: InputMaybe<Scalars['String']['input']>;
   owner?: InputMaybe<Scalars['ID']['input']>;
   path?: InputMaybe<Scalars['String']['input']>;
   startDate?: InputMaybe<Scalars['Date']['input']>;
@@ -6226,7 +6228,7 @@ export type SpectrogramAnalysisNode = Node & {
   legacyConfiguration?: Maybe<LegacySpectrogramConfigurationNode>;
   name: Scalars['String']['output'];
   path: Scalars['String']['output'];
-  spectrograms: SpectrogramNodeConnection;
+  spectrograms?: Maybe<SpectrogramNodeNodeConnection>;
   startDate?: Maybe<Scalars['Date']['output']>;
 };
 
@@ -6268,7 +6270,9 @@ export type SpectrogramAnalysisNodeSpectrogramsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   format?: InputMaybe<Scalars['ID']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  ordering?: InputMaybe<Scalars['String']['input']>;
   start?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
@@ -6390,23 +6394,6 @@ export type SpectrogramNodeAnnotationsArgs = {
   startFrequency?: InputMaybe<Scalars['Float']['input']>;
   startTime?: InputMaybe<Scalars['Float']['input']>;
   type?: InputMaybe<ApiAnnotationTypeChoices>;
-};
-
-export type SpectrogramNodeConnection = {
-  __typename?: 'SpectrogramNodeConnection';
-  /** Contains the nodes in this connection. */
-  edges: Array<Maybe<SpectrogramNodeEdge>>;
-  /** Pagination data for this connection. */
-  pageInfo: PageInfo;
-};
-
-/** A Relay edge containing a `SpectrogramNode` and its cursor. */
-export type SpectrogramNodeEdge = {
-  __typename?: 'SpectrogramNodeEdge';
-  /** A cursor for use in pagination */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of the edge */
-  node?: Maybe<SpectrogramNode>;
 };
 
 export type SpectrogramNodeNodeConnection = {

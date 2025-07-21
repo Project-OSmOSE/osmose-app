@@ -12,12 +12,15 @@ from osekit.public_api.dataset import (
 from typing_extensions import deprecated
 
 from backend.api.models import SpectrogramAnalysis
+from backend.utils.schema import AuthenticatedDjangoConnectionField
+from .spectrogram import SpectrogramNode
 
 
 class SpectrogramAnalysisNode(DjangoObjectType):
     """SpectrogramAnalysis schema"""
 
     id = ID(required=True)
+    spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

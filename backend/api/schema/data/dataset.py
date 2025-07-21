@@ -13,17 +13,20 @@ from osekit.public_api.dataset import (
 from typing_extensions import deprecated, Optional
 
 from backend.api.models import Dataset
+from backend.utils.schema import AuthenticatedDjangoConnectionField
 from .spectrogram_analysis import (
     ImportSpectrogramAnalysisType,
     legacy_resolve_all_spectrogram_analysis_available_for_import,
     resolve_all_spectrogram_analysis_available_for_import,
 )
+from .spectrogram_analysis import SpectrogramAnalysisNode
 
 
 class DatasetNode(DjangoObjectType):
     """Dataset schema"""
 
     id = ID(required=True)
+    spectrogram_analysis = AuthenticatedDjangoConnectionField(SpectrogramAnalysisNode)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

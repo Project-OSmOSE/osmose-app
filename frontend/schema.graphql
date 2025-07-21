@@ -2432,25 +2432,45 @@ type DatasetNode implements Node {
   description: String
   path: String!
   legacy: Boolean!
-  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    createdAt: DateTime
+    name: String
+    description: String
+    path: String
+    legacy: Boolean
+    startDate: Date
+    endDate: Date
+    owner: ID
+    dataset: ID
+    dataDuration: Float
+    fft: ID
+    colormap: ID
+    legacyConfiguration: ID
+    dynamicMin: Float
+    dynamicMax: Float
+  ): SpectrogramAnalysisNodeNodeConnection
   annotationCampaigns(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
 }
 
-type SpectrogramAnalysisNodeConnection {
+type SpectrogramAnalysisNodeNodeConnection {
   """Pagination data for this connection."""
-  pageInfo: PageInfo!
+  pageInfo: PageInfoExtra!
 
   """Contains the nodes in this connection."""
-  edges: [SpectrogramAnalysisNodeEdge]!
-}
-
-"""A Relay edge containing a `SpectrogramAnalysisNode` and its cursor."""
-type SpectrogramAnalysisNodeEdge {
-  """The item at the end of the edge"""
-  node: SpectrogramAnalysisNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
+  results: [SpectrogramAnalysisNode]!
+  totalCount: Int
 }
 
 """SpectrogramAnalysis schema"""
@@ -2472,7 +2492,25 @@ type SpectrogramAnalysisNode implements Node {
   legacyConfiguration: LegacySpectrogramConfigurationNode
   dynamicMin: Float!
   dynamicMax: Float!
-  spectrograms(offset: Int, before: String, after: String, first: Int, last: Int, format: ID, filename: String, start: DateTime, end: DateTime, analysis: ID): SpectrogramNodeConnection!
+  spectrograms(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    format: ID
+    filename: String
+    start: DateTime
+    end: DateTime
+    analysis: ID
+  ): SpectrogramNodeNodeConnection
   annotationCampaigns(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
 }
 
@@ -2487,6 +2525,23 @@ type FFTNode implements Node {
   scaling: String
   legacy: Boolean!
   spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+}
+
+type SpectrogramAnalysisNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [SpectrogramAnalysisNodeEdge]!
+}
+
+"""A Relay edge containing a `SpectrogramAnalysisNode` and its cursor."""
+type SpectrogramAnalysisNodeEdge {
+  """The item at the end of the edge"""
+  node: SpectrogramAnalysisNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 """Colormap schema"""
@@ -2587,21 +2642,13 @@ type LegacySpectrogramConfigurationNodeEdge {
   cursor: String!
 }
 
-type SpectrogramNodeConnection {
+type SpectrogramNodeNodeConnection {
   """Pagination data for this connection."""
-  pageInfo: PageInfo!
+  pageInfo: PageInfoExtra!
 
   """Contains the nodes in this connection."""
-  edges: [SpectrogramNodeEdge]!
-}
-
-"""A Relay edge containing a `SpectrogramNode` and its cursor."""
-type SpectrogramNodeEdge {
-  """The item at the end of the edge"""
-  node: SpectrogramNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
+  results: [SpectrogramNode]!
+  totalCount: Int
 }
 
 """Spectrogram schema"""
@@ -3575,24 +3622,6 @@ type MultiLinearScaleNodeNodeConnection {
 
   """Contains the nodes in this connection."""
   results: [MultiLinearScaleNode]!
-  totalCount: Int
-}
-
-type SpectrogramNodeNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfoExtra!
-
-  """Contains the nodes in this connection."""
-  results: [SpectrogramNode]!
-  totalCount: Int
-}
-
-type SpectrogramAnalysisNodeNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfoExtra!
-
-  """Contains the nodes in this connection."""
-  results: [SpectrogramAnalysisNode]!
   totalCount: Int
 }
 
