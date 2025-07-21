@@ -150,7 +150,9 @@ export const AnnotatorSlice = createSlice({
   reducers: {
     focusResult: _focusResult,
     focusTask: _focusTask,
-    addResult: (state, { payload: {phaseID, ...annotation} }: { payload: AnnotationResultBounds & {phaseID: number} }) => {
+    addResult: (state, { payload: { phaseID, ...annotation } }: {
+      payload: AnnotationResultBounds & { phaseID: number }
+    }) => {
       const newResult: AnnotationResult = {
         ...annotation,
         id: getNewItemID(state.results),
@@ -200,10 +202,10 @@ export const AnnotatorSlice = createSlice({
       state.results = state.results?.map(r => state.focusedResultID === r.id ? currentResult : r)
       _focusResult(state, { payload: currentResult.id })
     },
-    addPresenceResult: (state, { payload: {label, phaseID} }: { payload: { label: string, phaseID: number } }) => {
+    addPresenceResult: (state, { payload: { label, phaseID } }: { payload: { label: string, phaseID: number } }) => {
       const existingPresence = state.results?.find(r => r.label === label && r.type === 'Weak')
       if (existingPresence) {
-        _focusResult(state, { payload: existingPresence.id })
+        _focusResult(state, { payload: existing - Presence.id })
         return
       }
       const newResult: AnnotationResult = {
@@ -286,7 +288,7 @@ export const AnnotatorSlice = createSlice({
           }
           break;
         case 'Verification':
-          currentResult.updated_to = getUpdatedTo(state, currentResult,  label)
+          currentResult.updated_to = getUpdatedTo(state, currentResult, label)
           if (currentResult.validations.length > 0) {
             currentResult.validations = currentResult.validations.map(v => ({ ...v, is_valid: false }))
           } else {
@@ -550,6 +552,8 @@ export const AnnotatorSlice = createSlice({
       state.sessionStart = Date.now();
       state.didSeeAllFile = state.userPreferences.zoomLevel === 1;
       state.ui.hiddenLabels = []
+
+      if (payload.results.length > 0) _focusResult(state, { payload: payload.results[0].id })
     },
     onCampaignUpdated: (state, { payload }: { payload: AnnotationCampaign }) => {
       // Reset user preferences if new campaign
