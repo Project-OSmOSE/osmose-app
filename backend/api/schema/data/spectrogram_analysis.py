@@ -30,7 +30,9 @@ class SpectrogramAnalysisNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
-class ImportSpectrogramAnalysisType(ObjectType):
+class ImportSpectrogramAnalysisType(
+    ObjectType
+):  # pylint: disable=too-few-public-methods
     """Type for import dataset"""
 
     name = NonNull(String)

@@ -115,7 +115,10 @@ class CampaignPhasePostPatchPermission(permissions.BasePermission):
                 return False
             if not obj.is_open:
                 return False
-            if request.user.is_staff_or_superuser or request.user == obj.annotation_campaign.owner:
+            if (
+                request.user.is_staff_or_superuser
+                or request.user == obj.annotation_campaign.owner
+            ):
                 return True
             return False
         return super().has_object_permission(request, view, obj)

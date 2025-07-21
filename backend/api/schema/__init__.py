@@ -13,5 +13,3 @@ class APIQuery(
     graphene.ObjectType,
 ):  # pylint: disable=too-few-public-methods
     """API GraphQL queries"""
-
-    pass

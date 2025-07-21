@@ -103,39 +103,45 @@ export const ImportDatasetModal: React.FC<{ onClose: () => void }> = ({ onClose 
   }, [ isLoading, availableDatasets, selectAllDatasets ])
 
   return (
-    <Modal onClose={ onClose } className={ styles.importModal }>
+    <Modal onClose={ onClose }
+           className={ [ styles.importModal, (!isLoading && !!availableDatasets && availableDatasets.length > 0) ? styles.filled : 'empty' ].join(' ') }>
       <ModalHeader title='Import a dataset'
                    onClose={ onClose }/>
 
-      { isLoading ? <IonSpinner/> : <Fragment>
+      { isLoading && <IonSpinner/> }
 
-        <IonSearchbar ref={ searchbar } onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+      { !isLoading && !!availableDatasets && availableDatasets.length == 0 &&
+          <IonNote>There is no new dataset or analysis</IonNote> }
 
-        <div className={ styles.content }>
-          <div className={ styles.allDatasets } onClick={ toggleSelectAllDatasets }>
-            <IonCheckbox checked={ selectAllDatasets } disabled={ isLoading }/>
-            <span><b>All datasets</b><IonNote>{ availableDatasets && search && ` (${ searchDatasets.length }/${ availableDatasets.length } datasets)` }</IonNote></span>
+      { !isLoading && !!availableDatasets && availableDatasets.length > 0 && <Fragment>
+
+          <IonSearchbar ref={ searchbar } onIonInput={ onSearchUpdated } onIonClear={ onSearchCleared }/>
+
+          <div className={ styles.content }>
+              <div className={ styles.allDatasets } onClick={ toggleSelectAllDatasets }>
+                  <IonCheckbox checked={ selectAllDatasets } disabled={ isLoading }/>
+                  <span><b>All datasets</b><IonNote>{ availableDatasets && search && ` (${ searchDatasets.length }/${ availableDatasets.length } datasets)` }</IonNote></span>
+              </div>
+
+            { searchDatasets.map(d => <DatasetCheckbox key={ [ d.name, d.path ].join(' ') }
+                                                       dataset={ d }
+                                                       search={ search }
+                                                       disabled={ isLoading }
+                                                       selected={ datasetSelection.get(d.name) }
+                                                       onSelect={ onDatasetSelected }
+                                                       onUnSelect={ onDatasetUnSelected }/>) }
           </div>
 
-          { searchDatasets.map(d => <DatasetCheckbox key={ [ d.name, d.path ].join(' ') }
-                                                     dataset={ d }
-                                                     search={ search }
-                                                     disabled={ isLoading }
-                                                     selected={ datasetSelection.get(d.name) }
-                                                     onSelect={ onDatasetSelected }
-                                                     onUnSelect={ onDatasetUnSelected }/>) }
-        </div>
-
-        <ModalFooter className={ styles.buttons }>
-          <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
-          { isLoading && <IonSpinner/> }
-          { datasetSelectionCount > 0 &&
-              <p>{ datasetSelectionCount } Dataset selected ({ analysisSelectionCount } analysis)</p> }
-          <IonButton onClick={ console.debug } disabled={ isLoading } color='primary' fill='solid'>
-            <IonIcon slot='start' icon={ cloudUploadOutline }/>
-            Import datasets
-          </IonButton>
-        </ModalFooter>
+          <ModalFooter className={ styles.buttons }>
+              <IonButton onClick={ onClose } disabled={ isLoading } color='medium' fill='outline'>Cancel</IonButton>
+            { isLoading && <IonSpinner/> }
+            { datasetSelectionCount > 0 &&
+                <p>{ datasetSelectionCount } Dataset selected ({ analysisSelectionCount } analysis)</p> }
+              <IonButton onClick={ console.debug } disabled={ isLoading } color='primary' fill='solid'>
+                  <IonIcon slot='start' icon={ cloudUploadOutline }/>
+                  Import datasets
+              </IonButton>
+          </ModalFooter>
 
       </Fragment> }
     </Modal>

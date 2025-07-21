@@ -13,7 +13,6 @@ import {
   DATASET,
   DETECTOR,
   FILE_RANGE,
-  IMPORT_DATASET,
   LABEL,
   SPECTROGRAM_CONFIGURATION,
   USERS,
@@ -21,6 +20,7 @@ import {
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
 import { AnnotationCampaign, AnnotationFile, Phase } from '../../../src/service/types';
+import { GetAvailableDatasetsForImportQuery } from "../../../src/features/dataset/import/api/api.generated";
 
 type Response = {
   status: number,
@@ -127,10 +127,6 @@ export class Mock {
     await this.page.route(API_URL.dataset.list, route => route.fulfill({ status: 200, json }))
   }
 
-  public async datasetDetail() {
-    await this.page.route(API_URL.dataset.detail, route => route.fulfill({ status: 200, json: DATASET }))
-  }
-
   public async labelSets(empty: boolean = false) {
     const json = empty ? [] : [ LABEL.set ]
     await this.page.route(API_URL.label.list, route => route.fulfill({ status: 200, json }))
@@ -147,11 +143,6 @@ export class Mock {
 
   public async confidenceSetDetail() {
     await this.page.route(API_URL.confidence.detail, route => route.fulfill({ status: 200, json: CONFIDENCE.set }))
-  }
-
-  public async datasetsToImport(empty: boolean = false) {
-    const json = empty ? [] : [ IMPORT_DATASET ]
-    await this.page.route(API_URL.dataset.list_to_import, route => route.fulfill({ status: 200, json }))
   }
 
   public async fileRanges(empty: boolean = false) {
@@ -198,5 +189,29 @@ export class Mock {
   async detectors(empty: boolean = false) {
     const json = empty ? [] : [ DETECTOR ]
     await this.page.route(API_URL.detector.list, route => route.fulfill({ status: 200, json }))
+  }
+}
+
+export const MOCK = {
+  getDatasetsAvailableForImport: {
+    empty: {
+      allDatasetsAvailableForImport: []
+    } as GetAvailableDatasetsForImportQuery,
+    filled: {
+      allDatasetsAvailableForImport: [ {
+        name: 'Test import dataset',
+        path: 'Test import dataset',
+        analysis: [
+          {
+            name: 'Test analysis 1',
+            path: 'Test analysis 1',
+          },
+          {
+            name: 'Test analysis 2',
+            path: 'Test analysis 2',
+          }
+        ]
+      } ]
+    } as GetAvailableDatasetsForImportQuery
   }
 }

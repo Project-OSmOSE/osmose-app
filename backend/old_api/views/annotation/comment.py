@@ -2,6 +2,7 @@
 from backend.api.serializers import (
     AnnotationCommentSerializer,
 )
+
 # pylint: disable=duplicate-code
 from django.db.models import QuerySet, Q
 from rest_framework import viewsets, permissions, filters, mixins

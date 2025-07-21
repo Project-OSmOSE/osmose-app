@@ -15,12 +15,16 @@ logger = logging.getLogger(__name__)
 
 
 class GraphQLPermissions(Enum):
-    is_authenticated = 1
-    is_staff_or_superuser = 2
-    is_superuser = 3
+    """GraphQL access permission"""
+
+    AUTHENTICATED = 1
+    STAFF_OR_SUPERUSER = 2
+    SUPERUSER = 3
 
 
-class GraphQLResolve(object):
+class GraphQLResolve:
+    """GraphQL resolver - handles permissions"""
+
     def __init__(self, permission: GraphQLPermissions):
         self.permission = permission
 
@@ -32,9 +36,7 @@ class GraphQLResolve(object):
 
             try:
                 return fn(*args, **kwargs)
-                print("no error")
             except Exception as e:
-                print("catch error")
                 print(traceback.format_exc())
 
                 # Capture the full traceback in your console
@@ -48,56 +50,31 @@ class GraphQLResolve(object):
     def check_permission(self, user: User):
         """Check user responds to the given permission"""
         if self.permission in [
-            GraphQLPermissions.is_authenticated,
-            GraphQLPermissions.is_staff_or_superuser,
-            GraphQLPermissions.is_superuser,
+            GraphQLPermissions.AUTHENTICATED,
+            GraphQLPermissions.STAFF_OR_SUPERUSER,
+            GraphQLPermissions.SUPERUSER,
         ]:
             if not user.is_authenticated:
                 raise APIException("Unauthorized", code=status.HTTP_401_UNAUTHORIZED)
 
-        if self.permission == GraphQLPermissions.is_staff_or_superuser:
+        if self.permission == GraphQLPermissions.STAFF_OR_SUPERUSER:
             if not (user.is_staff or user.is_superuser):
                 raise APIException("Forbidden", code=status.HTTP_403_FORBIDDEN)
-        if self.permission == GraphQLPermissions.is_superuser:
+        if self.permission == GraphQLPermissions.SUPERUSER:
             if not user.is_superuser:
                 raise APIException("Forbidden", code=status.HTTP_403_FORBIDDEN)
 
 
 class AuthenticatedDjangoConnectionField(DjangoPaginationConnectionField):
+    """Extended DjangoPaginationConnectionField - Only allow authenticated queries"""
+
+    # pylint: disable=too-many-positional-arguments, too-many-arguments
     @classmethod
     def resolve_queryset(
         cls, connection, iterable, info, args, filtering_args, filterset_class
     ):
         if not info.context.user.is_authenticated:
             raise APIException("Unauthorized", code=status.HTTP_401_UNAUTHORIZED)
-        return super().resolve_queryset(
-            connection, iterable, info, args, filtering_args, filterset_class
-        )
-
-
-class StaffGraphQLConnectionField(DjangoPaginationConnectionField):
-    @classmethod
-    def resolve_queryset(
-        cls, connection, iterable, info, args, filtering_args, filterset_class
-    ):
-        if not info.context.user.is_authenticated:
-            raise APIException("Unauthorized", code=status.HTTP_401_UNAUTHORIZED)
-        if not (info.context.user.is_staff or info.context.user.is_superuser):
-            raise APIException("Forbidden", code=status.HTTP_403_FORBIDDEN)
-        return super().resolve_queryset(
-            connection, iterable, info, args, filtering_args, filterset_class
-        )
-
-
-class SuperuserGraphQLConnectionField(DjangoPaginationConnectionField):
-    @classmethod
-    def resolve_queryset(
-        cls, connection, iterable, info, args, filtering_args, filterset_class
-    ):
-        if not info.context.user.is_authenticated:
-            raise APIException("Unauthorized", code=status.HTTP_401_UNAUTHORIZED)
-        if not info.context.user.is_superuser:
-            raise APIException("Forbidden", code=status.HTTP_403_FORBIDDEN)
         return super().resolve_queryset(
             connection, iterable, info, args, filtering_args, filterset_class
         )

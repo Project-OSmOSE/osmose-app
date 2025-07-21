@@ -36,7 +36,7 @@ class DatasetNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
-class ImportDatasetType(ObjectType):
+class ImportDatasetType(ObjectType):  # pylint: disable=too-few-public-methods
     """Type for import dataset"""
 
     name = NonNull(String)

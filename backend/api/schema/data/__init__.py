@@ -40,8 +40,8 @@ class APIDataQuery(graphene.ObjectType):  # pylint: disable=too-few-public-metho
 
     all_datasets_available_for_import = List(ImportDatasetType)
 
-    @GraphQLResolve(permission=GraphQLPermissions.is_staff_or_superuser)
-    def resolve_all_datasets_available_for_import(self, info):
+    @GraphQLResolve(permission=GraphQLPermissions.STAFF_OR_SUPERUSER)
+    def resolve_all_datasets_available_for_import(self, _):
         """Get all datasets for import"""
         datasets = resolve_all_datasets_available_for_import()
         legacy_datasets = legacy_resolve_all_datasets_available_for_import()
