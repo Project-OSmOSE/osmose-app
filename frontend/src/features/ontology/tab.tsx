@@ -60,7 +60,12 @@ export const OntologyTab: React.FC = () => {
   const update = useCallback((data: DataType) => {
     if (type === 'source') updateSource({ ...data, id: +data.id, parent_id: data.parent?.id ?? null })
     if (type === 'sound') updateSound({ ...data, id: +data.id, parent_id: data.parent?.id ?? null })
-  }, [ updateSource, updateSound ])
+  }, [ updateSource, updateSound, type ])
+
+  const deleteNode = useCallback((data: DataType) => {
+    if (type === 'source') deleteSource(data)
+    if (type === 'sound') deleteSound(data)
+  }, [ deleteSource, deleteSound, type ])
 
   const {
     nodes,
@@ -76,8 +81,7 @@ export const OntologyTab: React.FC = () => {
   } = useOntologyTreeFlow<DataType>({
     onNew: onNewNode,
     patch: update,
-    del: type === 'source' ? deleteSource : type === 'sound' ? deleteSound : () => {
-    }
+    del: deleteNode
   })
 
   useEffect(() => {
