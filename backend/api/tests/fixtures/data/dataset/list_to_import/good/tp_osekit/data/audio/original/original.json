@@ -1,0 +1,133 @@
+{
+    "data": {
+        "2022_07_17_00_25_46_000000+0000": {
+            "begin": "2022-07-17T00:25:46.000000+0000",
+            "end": "2022-07-17T00:25:56.000000+0000",
+            "files": {
+                "2022_07_17_00_25_46_000000+0000": {
+                    "begin": "2022_07_17_00_25_46_000000+0000",
+                    "end": "2022_07_17_00_25_56_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_00_25_46_seg000.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_05_53_30_000000+0000": {
+            "begin": "2022-07-17T05:53:30.000000+0000",
+            "end": "2022-07-17T05:53:40.000000+0000",
+            "files": {
+                "2022_07_17_05_53_30_000000+0000": {
+                    "begin": "2022_07_17_05_53_30_000000+0000",
+                    "end": "2022_07_17_05_53_40_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_05_53_30_seg069.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_09_10_09_000000+0000": {
+            "begin": "2022-07-17T09:10:09.000000+0000",
+            "end": "2022-07-17T09:10:19.000000+0000",
+            "files": {
+                "2022_07_17_09_10_09_000000+0000": {
+                    "begin": "2022_07_17_09_10_09_000000+0000",
+                    "end": "2022_07_17_09_10_19_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_09_10_09_seg272.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_10_15_42_000000+0000": {
+            "begin": "2022-07-17T10:15:42.000000+0000",
+            "end": "2022-07-17T10:15:52.000000+0000",
+            "files": {
+                "2022_07_17_10_15_42_000000+0000": {
+                    "begin": "2022_07_17_10_15_42_000000+0000",
+                    "end": "2022_07_17_10_15_52_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_10_15_42_seg235.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_19_00_06_000000+0000": {
+            "begin": "2022-07-17T19:00:06.000000+0000",
+            "end": "2022-07-17T19:00:16.000000+0000",
+            "files": {
+                "2022_07_17_19_00_06_000000+0000": {
+                    "begin": "2022_07_17_19_00_06_000000+0000",
+                    "end": "2022_07_17_19_00_16_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_19_00_06_seg063.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_21_11_11_000000+0000": {
+            "begin": "2022-07-17T21:11:11.000000+0000",
+            "end": "2022-07-17T21:11:21.000000+0000",
+            "files": {
+                "2022_07_17_21_11_11_000000+0000": {
+                    "begin": "2022_07_17_21_11_11_000000+0000",
+                    "end": "2022_07_17_21_11_21_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_21_11_11_seg012.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        },
+        "2022_07_17_23_22_17_000000+0000": {
+            "begin": "2022-07-17T23:22:17.000000+0000",
+            "end": "2022-07-17T23:22:27.000000+0000",
+            "files": {
+                "2022_07_17_23_22_17_000000+0000": {
+                    "begin": "2022_07_17_23_22_17_000000+0000",
+                    "end": "2022_07_17_23_22_27_000000+0000",
+                    "path": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original\\channelA_2022_07_17_23_22_17_seg180.wav"
+                }
+            },
+            "instrument": {
+                "end_to_end_db": 150.0,
+                "gain_db": 0.0,
+                "peak_voltage": 1.0,
+                "sensitivity": 1.0
+            },
+            "sample_rate": 128000
+        }
+    },
+    "folder": "C:\\Users\\morinel\\IdeaProjects\\osmose-app\\backend\\api\\tests\\fixtures\\data\\dataset\\list_to_import\\good\\tp_osekit\\data\\audio\\original",
+    "name": "original",
+    "suffix": ""
+}

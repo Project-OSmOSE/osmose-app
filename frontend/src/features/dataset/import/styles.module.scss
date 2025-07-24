@@ -1,0 +1,35 @@
+.importModal {
+  &.filled {
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  .content {
+    display: grid;
+    gap: 0.5rem;
+    overflow: auto;
+
+    .allDatasets, .dataset, .analysis {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      background-color: transparent;
+
+      &:hover:not(:has(.analysis:hover)) {
+        background-color: rgba(var(--ion-color-primary-rgb), 0.06);
+      }
+    }
+
+    .dataset {
+      .checkbox {
+        grid-row: 1 / 2;
+      }
+      .analysis {
+        grid-column: 2;
+      }
+    }
+  }
+}

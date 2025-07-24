@@ -1,0 +1,19 @@
+query getDatasets {
+    allDatasets {
+        results {
+            name
+            description
+            createdAt
+            legacy
+            spectrogramAnalysis {
+                results {
+                    startDate
+                    endDate
+                    spectrograms {
+                        totalCount
+                    }
+                }
+            }
+        }
+    }
+}

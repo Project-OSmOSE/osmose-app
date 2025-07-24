@@ -1,0 +1,15 @@
+- model: api.confidenceset
+  pk: 1
+  fields:
+    name: Confidence/NoConfidence
+    desc: Lorem ipsum
+- model: api.confidenceindicatorsetindicator
+  pk: 1
+  fields:
+    confidence: 1
+    confidence_set: 1
+- model: api.confidenceindicatorsetindicator
+  pk: 2
+  fields:
+    confidence: 2
+    confidence_set: 1

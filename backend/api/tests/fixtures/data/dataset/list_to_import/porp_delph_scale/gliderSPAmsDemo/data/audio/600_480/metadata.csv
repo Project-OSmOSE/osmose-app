@@ -1,0 +1,2 @@
+origin_sr,sample_bits,channel_count,audio_file_count,start_date,end_date,audio_file_origin_duration,audio_file_origin_volume,dataset_origin_volume,dataset_origin_duration,is_built,audio_file_dataset_overlap,lat,lon,depth,dataset_sr,audio_file_dataset_duration
+48000,['PCM-16'],1,9,2022-08-09T13:10:00.000000+0200,2022-08-09T13:25:00.000000+0200,30,2.88048,11.5,120,True,5,2,3,30,24000,13

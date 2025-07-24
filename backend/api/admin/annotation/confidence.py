@@ -1,18 +1,13 @@
-"""Admin for confidence indicators"""
+"""API annotation confidence administration"""
 from django.contrib import admin, messages
 from django.db import IntegrityError, transaction
-from django.utils.safestring import mark_safe
 
-from backend.api.models import (
-    ConfidenceIndicator,
-    ConfidenceIndicatorSet,
-    ConfidenceIndicatorSetIndicator,
-)
+from backend.api.models import Confidence
 
 
-@admin.register(ConfidenceIndicator)
-class ConfidenceIndicatorAdmin(admin.ModelAdmin):
-    """ConfidenceIndicator presentation in DjangoAdmin"""
+@admin.register(Confidence)
+class ConfidenceAdmin(admin.ModelAdmin):
+    """Confidence presentation in DjangoAdmin"""
 
     list_display = (
         "id",
@@ -27,30 +22,3 @@ class ConfidenceIndicatorAdmin(admin.ModelAdmin):
         except IntegrityError as error:
             messages.set_level(request, messages.ERROR)
             messages.error(request, error)
-
-
-class ConfidenceRelationInline(admin.TabularInline):
-    """Confidence entry with relation related fields"""
-
-    model = ConfidenceIndicatorSetIndicator
-
-
-@admin.register(ConfidenceIndicatorSet)
-class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
-    """ConfidenceIndicatorSet presentation in DjangoAdmin"""
-
-    list_display = ("id", "name", "desc", "get_indicators")
-    inlines = (ConfidenceRelationInline,)
-
-    @admin.display(description="Indicators")
-    def get_indicators(self, confidence_set: ConfidenceIndicatorSet):
-        """Get indicators"""
-        array = []
-        relation: ConfidenceIndicatorSetIndicator
-        for relation in confidence_set.indicator_relations.all():
-            if relation.is_default:
-                array.append(f"<b>{relation.confidence_indicator.label}</b>")
-            else:
-                array.append(relation.confidence_indicator.label)
-
-        return mark_safe(", ".join(array))

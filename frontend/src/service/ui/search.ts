@@ -2,10 +2,10 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QueryParams } from "@/service/type.ts";
 
-export const useSearchedData = <T>({ items, search, fields, sortField, sortDirection }: {
+export const useSearchedData = <T>({ items, search, mapping, sortField, sortDirection }: {
   items: T[],
   search?: string,
-  fields: (keyof T)[]
+  mapping: (data: T) => string[],
   sortField?: keyof T,
   sortDirection?: 'ASC' | 'DESC'
 }): T[] => {
@@ -15,8 +15,8 @@ export const useSearchedData = <T>({ items, search, fields, sortField, sortDirec
       const searchItems = search.toLowerCase().split(' ')
       return searchItems.reduce((previous, searchItem) => {
         let actual = false;
-        for (const field of fields) {
-          actual = actual || `${ item[field] }`.toLowerCase().includes(searchItem);
+        for (const str of mapping(item)) {
+          actual = actual || str.toLowerCase().includes(searchItem);
         }
         return previous && actual
       }, true)
@@ -32,7 +32,7 @@ export const useSearchedData = <T>({ items, search, fields, sortField, sortDirec
       });
     }
     return result
-  }, [ fields, items, search, sortField, sortDirection ])
+  }, [ mapping, items, search, sortField, sortDirection ])
 }
 
 export const useAppSearchParams = <T extends QueryParams>(): {

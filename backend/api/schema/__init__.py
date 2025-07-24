@@ -1,15 +1,15 @@
-"""GraphQL Schema for API"""
+"""API GraphQL schemas"""
 import graphene
-from graphene_django_pagination import DjangoPaginationConnectionField
 
-from .annotation_result import AnnotationResultNode
-from .label import ApiLabelNode
+from .annotation import APIAnnotationQuery
+from .common import APICommonQuery
+from .data import APIDataQuery
 
 
-class ApiQuery(graphene.ObjectType):
-    """API query"""
-
-    # pylint: disable=too-few-public-methods
-
-    all_api_annotation_results = DjangoPaginationConnectionField(AnnotationResultNode)
-    all_api_labels = DjangoPaginationConnectionField(ApiLabelNode)
+class APIQuery(
+    APIAnnotationQuery,
+    APICommonQuery,
+    APIDataQuery,
+    graphene.ObjectType,
+):  # pylint: disable=too-few-public-methods
+    """API GraphQL queries"""

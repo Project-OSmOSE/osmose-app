@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "graphene_django",
+    "django_filters",
     "rest_framework",
     "drf_spectacular",
     "backend.api.apps.ApiConfig",
@@ -165,6 +166,9 @@ SPECTACULAR_SETTINGS = {
 FIXTURE_DIRS = (
     BASE_DIR / "backend/tests/fixtures",
     BASE_DIR / "backend/api/tests/fixtures",
+    BASE_DIR / "backend/api/tests/fixtures/annotation",
+    BASE_DIR / "backend/api/tests/fixtures/common",
+    BASE_DIR / "backend/api/tests/fixtures/data",
     BASE_DIR / "backend/osmosewebsite/tests/fixtures",
 )
 
@@ -184,4 +188,5 @@ TINYMCE_DEFAULT_CONFIG = {
 GRAPHENE = {
     "SCHEMA": "backend.schema.schema",
     "MIDDLEWARE": ["graphene_django.debug.middleware.DjangoDebugMiddleware"],
+    "TESTING_ENDPOINT": "/api/graphql/public",
 }

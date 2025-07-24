@@ -3,20 +3,17 @@ import re
 
 from django.db import migrations, models
 
-from backend.api.models import AudioMetadatum
-from backend.api.models.metadata import FileSubtype
-
 
 def migrate_sample_bits(apps, schema_editor):
-    file_subtype: FileSubtype = apps.get_model("api", "FileSubtype")
-    audio_metadatum: AudioMetadatum = apps.get_model("api", "AudioMetadatum")
+    file_subtype = apps.get_model("api", "FileSubtype")
+    audio_metadatum = apps.get_model("api", "AudioMetadatum")
     for meta in audio_metadatum.objects.all():
         subtype, _ = file_subtype.objects.get_or_create(name=str(meta.sample_bits))
         meta.files_subtypes.add(subtype)
 
 
 def migrate_files_subtype(apps, schema_editor):
-    audio_metadatum: AudioMetadatum = apps.get_model("api", "AudioMetadatum")
+    audio_metadatum = apps.get_model("api", "AudioMetadatum")
     for meta in audio_metadatum.objects.all():
         if meta.files_subtypes.count() < 1:
             continue
