@@ -316,8 +316,7 @@
     display: grid;
     align-items: start;
     align-content: stretch;
-    //padding-left: 1rem;
-    //padding-right: 3rem;
+    grid-template-rows: auto 1fr;
     min-height: 0;
     overflow: hidden;
     gap: 2rem;

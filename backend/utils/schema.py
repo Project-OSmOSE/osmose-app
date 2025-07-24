@@ -6,10 +6,19 @@ from enum import Enum
 import graphene_django_optimizer as gql_optimizer
 from graphene import ID
 from graphene_django import DjangoObjectType
+from graphene_django.views import GraphQLView
 from graphene_django_pagination import DjangoPaginationConnectionField
 from graphql import GraphQLResolveInfo
 from rest_framework import status
+from rest_framework.decorators import (
+    permission_classes,
+    authentication_classes,
+    api_view,
+)
 from rest_framework.exceptions import APIException
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.settings import api_settings
 from typing_extensions import Optional
 
 from backend.aplose.models import User
@@ -95,3 +104,20 @@ class ApiObjectType(DjangoObjectType):
     @classmethod
     def get_queryset(cls, queryset, info):
         return gql_optimizer.query(queryset, info)
+
+
+class DRFAuthenticatedGraphQLView(GraphQLView):
+    """Allow GraphQL to handle REST authenticated users"""
+
+    def parse_body(self, request):
+        if isinstance(request, Request):
+            return request.data
+        return super().parse_body(request)
+
+    @classmethod
+    def as_view(cls, *args, **kwargs):
+        view = super().as_view(*args, **kwargs)
+        view = permission_classes((IsAuthenticated,))(view)
+        view = authentication_classes(api_settings.DEFAULT_AUTHENTICATION_CLASSES)(view)
+        view = api_view(["GET", "POST"])(view)
+        return view

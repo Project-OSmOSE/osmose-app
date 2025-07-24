@@ -6,7 +6,7 @@ export type GetAllDeploymentsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetAllDeploymentsQuery = { __typename?: 'Query', allDeployments?: { __typename?: 'DeploymentNodeNodeConnection', results: Array<{ __typename?: 'DeploymentNode', id: string, name?: string | null, project: { __typename?: 'ProjectNode', id: string, name: string } } | null> } | null };
+export type GetAllDeploymentsQuery = { __typename?: 'Query', allDeployments?: { __typename?: 'DeploymentNodeNodeConnection', results: Array<{ __typename?: 'DeploymentNode', id: string, name?: string | null, project: { __typename?: 'ProjectNodeOverride', id: string, name: string } } | null> } | null };
 
 
 export const GetAllDeploymentsDocument = `
