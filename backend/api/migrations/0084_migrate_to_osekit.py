@@ -272,7 +272,7 @@ class Migration(migrations.Migration):
                 (
                     "related_channel_configurations",
                     models.ManyToManyField(
-                        related_name="datasets", to="metadatax.ChannelConfiguration"
+                        related_name="datasets", to="acquisition.ChannelConfiguration"
                     ),
                 ),
             ],
@@ -1028,7 +1028,7 @@ class Migration(migrations.Migration):
             model_name="spectrogram",
             name="format",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="metadatax.fileformat"
+                on_delete=django.db.models.deletion.PROTECT, to="data.fileformat"
             ),
         ),
         migrations.RenameField(
