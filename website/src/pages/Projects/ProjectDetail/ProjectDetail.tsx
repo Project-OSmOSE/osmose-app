@@ -11,6 +11,28 @@ import { DeploymentsTimeline } from "../../../components/DeploymentsTimeline";
 import './ProjectDetail.css';
 import { gql } from "graphql-request";
 
+export type Contact = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  website: string;
+}
+export type Institution = {
+  id: string;
+  name: string;
+  website: string;
+}
+export type ContactRole = {
+  id: string;
+  role: string;
+} & ({
+  contact: Contact
+  institution: null
+} | {
+  institution: Institution
+  contact: null
+})
+
 export type Deployment = {
   id: string;
   name: number;
@@ -23,15 +45,7 @@ export type Deployment = {
     projectGoal: string;
     contacts: {
       edges: {
-        node: {
-          id: string;
-          role: string;
-          contact: {
-            id: string;
-            name: string;
-            website: string;
-          }
-        }
+        node: ContactRole
       }[]
     }
   }
@@ -55,15 +69,7 @@ export type Deployment = {
   description: string;
   contacts: {
     edges: {
-      node: {
-        id: string;
-        role: string;
-        contact: {
-          id: string;
-          name: string;
-          website: string;
-        }
-      }
+      node: ContactRole
     }[]
   }
   channelConfigurations: {
@@ -101,6 +107,23 @@ export const ProjectDetail: React.FC = () => {
                         name
                         accessibility
                         projectGoal
+                        contacts {
+                            edges {
+                                node {
+                                    id
+                                    role
+                                    contact {
+                                        id
+                                        firstName
+                                        lastName
+                                    }
+                                    institution {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
                     }
                     site {
                         id
@@ -126,6 +149,11 @@ export const ProjectDetail: React.FC = () => {
                                 id
                                 role
                                 contact {
+                                    id
+                                    firstName
+                                    lastName
+                                }
+                                institution {
                                     id
                                     name
                                 }

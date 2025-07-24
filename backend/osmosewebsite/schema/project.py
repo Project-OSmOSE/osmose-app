@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from backend.osmosewebsite.models import Project
 
 
-class ProjectNode(DjangoObjectType):
+class WebsiteProjectNode(DjangoObjectType):
     """Project node"""
 
     id = graphene.ID(required=True)
@@ -17,3 +17,9 @@ class ProjectNode(DjangoObjectType):
         fields = "__all__"
         filter_fields = ["id"]
         interfaces = (relay.Node,)
+
+    # Important!
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        print("get_queryset", queryset, info)
+        return queryset

@@ -28,82 +28,84 @@ export const Projects: React.FC = () => {
   const [ selectedDeployment, setSelectedDeployment ] = useState<Deployment | undefined>();
 
   const fetchProjects = useFetchArray<{ count: number, results: Array<Project> }>('/api/projects');
-  const fetchDeployments = useFetchGql<{ allDeployments?: { results: Deployment[] } }>(gql`
-    query {
-        allDeployments {
-            results {
-                id,
-                name
-                latitude,
-                longitude
-                project {
-                    id
+    const fetchDeployments = useFetchGql<{ allDeployments?: { results: Deployment[] } }>(gql`
+        query {
+            allDeployments {
+                results {
+                    id,
                     name
-                    accessibility
-                    projectGoal
+                    latitude,
+                    longitude
+                    project {
+                        id
+                        name
+                        accessibility
+                        projectGoal
+                        contacts {
+                            edges {
+                                node {
+                                    id
+                                    contact {
+                                        id
+                                        firstName
+                                        lastName
+                                        website
+                                    }
+                                    role
+                                }
+                            }
+                        }
+                        websiteProject {
+                            id
+                        }
+                    }
+                    site {
+                        id
+                        name
+                    }
+                    campaign {
+                        id
+                        name
+                    }
+                    deploymentDate
+                    deploymentVessel
+                    recoveryDate
+                    recoveryVessel
+                    bathymetricDepth
+                    platform {
+                        id
+                        name
+                    }
+                    description
                     contacts {
                         edges {
                             node {
                                 id
+                                role
                                 contact {
                                     id
-                                    name
+                                    firstName
+                                    lastName
                                     website
                                 }
-                                role
                             }
                         }
                     }
-                    websiteProject {
-                        id
-                    }
-                }
-                site {
-                    id
-                    name
-                }
-                campaign {
-                    id
-                    name
-                }
-                deploymentDate
-                deploymentVessel
-                recoveryDate
-                recoveryVessel
-                bathymetricDepth
-                platform {
-                    id
-                    name
-                }
-                description
-                contacts {
-                    edges {
-                        node {
-                            id
-                            role
-                            contact {
+                    channelConfigurations {
+                        edges {
+                            node {
                                 id
-                                name
-                                website
-                            }
-                        }
-                    }
-                }
-                channelConfigurations {
-                    edges {
-                        node {
-                            id
-                            recorderSpecification {
-                                id
-                                samplingFrequency
+                                recorderSpecification {
+                                    id
+                                    samplingFrequency
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-  `)
+    `)
 
   useEffect(() => {
     let isMounted = true;
