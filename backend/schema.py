@@ -42,7 +42,7 @@ class DeploymentNode(MetadataxDeploymentNode):
 class ProjectNodeOverride(MetadataxProjectNode):
     website_project = Field(WebsiteProjectNode)
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
         model = Project
         fields = "__all__"
         filterset_class = ProjectFilter
