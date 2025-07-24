@@ -28,6 +28,7 @@ class LabelAdmin(admin.ModelAdmin):
     """Label presentation in DjangoAdmin"""
 
     list_display = ["name"]
+    autocomplete_fields = ["metadatax_label"]
 
 
 class LabelSetAdmin(admin.ModelAdmin):

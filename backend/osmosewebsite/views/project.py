@@ -1,6 +1,6 @@
 """ project DRF-Viewset file"""
 from metadatax.acquisition.views import DeploymentViewSet
-from metadatax.models import Accessibility
+from metadatax.common.models import Accessibility
 from rest_framework import viewsets, permissions, decorators, response
 
 from backend.osmosewebsite.models import Project

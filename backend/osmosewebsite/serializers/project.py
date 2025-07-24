@@ -1,11 +1,11 @@
 """Project DRF serializers file"""
 from collections import Counter
 
+from metadatax.acquisition.models import Deployment
 from metadatax.acquisition.serializers import (
     DeploymentExportSerializer,
     ProjectSerializer as SourceMetadataxProjectSerializer,
 )
-from metadatax.models import Deployment
 from rest_framework import serializers
 
 from backend.osmosewebsite.models import Project

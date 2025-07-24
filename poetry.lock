@@ -257,6 +257,18 @@ files = [
 ]
 
 [[package]]
+name = "django-better-admin-arrayfield"
+version = "1.4.2"
+description = "Better ArrayField widget for admin"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django-better-admin-arrayfield-1.4.2.tar.gz", hash = "sha256:b45423e51bbc0aa31ef658248c058ca8b533a541be4dee9fb8bcd059f8a10a58"},
+    {file = "django_better_admin_arrayfield-1.4.2-py2.py3-none-any.whl", hash = "sha256:bfeaa0fa8210a7ea95ee996a6caaa59ecd0c923269f573e6d8319c28dcac5c88"},
+]
+
+[[package]]
 name = "django-debug-toolbar"
 version = "4.3.0"
 description = "A configurable set of panels that display various debug information about the current request/response."
@@ -271,6 +283,21 @@ files = [
 [package.dependencies]
 django = ">=3.2.4"
 sqlparse = ">=0.2"
+
+[[package]]
+name = "django-durationwidget"
+version = "1.0.5"
+description = "Django Duration field widget to handle duration field in the form"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django-durationwidget-1.0.5.tar.gz", hash = "sha256:a77bba14c173cbfe50071ae08759ca37218acb8567639687b0119647cb78c53f"},
+    {file = "django_durationwidget-1.0.5-py3-none-any.whl", hash = "sha256:7d14d5dfcf46c444fb203fe911cd058f78ba482c81ea2f0665db08369a1eff47"},
+]
+
+[package.dependencies]
+Django = ">=1.11"
 
 [[package]]
 name = "django-filter"
@@ -603,18 +630,20 @@ files = [
 
 [[package]]
 name = "metadatax"
-version = "0.4.8"
+version = "0.4.9"
 description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
 files = [
-    {file = "metadatax-0.4.8.tar.gz", hash = "sha256:c35914166c4f71cd52a204512056a665be73f3a2e57f9717515ec18e0e3f2182"},
+    {file = "metadatax-0.4.9.tar.gz", hash = "sha256:68c654d85c592f2c9fd01cc693166a362e431785b381b97a4c47780ac3c44cdf"},
 ]
 
 [package.dependencies]
 Django = ">=3.2,<4.0"
 django-admin-multiple-choice-list-filter = ">=0.1.1,<0.2.0"
+django-better-admin-arrayfield = ">=1.4.2,<2.0.0"
+django-durationwidget = ">=1.0.5,<2.0.0"
 django-filter = ">=2"
 django-model-prefix = ">=1.1.0,<2.0.0"
 djangorestframework = ">=3.15.1,<4.0.0"
@@ -625,7 +654,7 @@ python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.8/metadatax-0.4.8.tar.gz"
+url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.9/metadatax-0.4.9.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1350,4 +1379,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "3d2ca62247ed66f0cacb99a8691ae64e4d30979020d6cb2106d3201dda3f646b"
+content-hash = "ddb4aee2e1c1f0a40a7f2c49bc0fd1bd3a73fe63cb1c4e4e5e011c940cd6d825"
