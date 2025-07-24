@@ -8,7 +8,7 @@ from backend.api.models import Label
 class LabelAdmin(admin.ModelAdmin):
     """Label presentation in DjangoAdmin"""
 
-    list_display = (
-        "id",
-        "name",
-    )
+    list_display = ("id", "name", "metadatax_label")
+    autocomplete_fields = [
+        "metadatax_label",
+    ]

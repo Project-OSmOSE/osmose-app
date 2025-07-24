@@ -1,6 +1,6 @@
 """Datasets models"""
 from django.db import models
-from metadatax.models import ChannelConfiguration
+from metadatax.acquisition.models import ChannelConfiguration
 
 from .__abstract_dataset import AbstractDataset
 

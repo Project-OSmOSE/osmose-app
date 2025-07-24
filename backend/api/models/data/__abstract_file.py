@@ -1,6 +1,6 @@
 """File model - Abstract"""
 from django.db import models
-from metadatax.models.data import FileFormat
+from metadatax.data.models import FileFormat
 
 
 class AbstractFile(models.Model):

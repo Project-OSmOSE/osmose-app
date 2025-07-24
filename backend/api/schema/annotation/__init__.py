@@ -41,5 +41,5 @@ class APIAnnotationQuery(graphene.ObjectType):  # pylint: disable=too-few-public
     all_detector_configurations = AuthenticatedDjangoConnectionField(
         DetectorConfigurationNode
     )
-    all_labels = AuthenticatedDjangoConnectionField(LabelNode)
+    all_annotation_labels = AuthenticatedDjangoConnectionField(LabelNode)
     all_label_sets = AuthenticatedDjangoConnectionField(LabelSetNode)
