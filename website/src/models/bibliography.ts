@@ -24,7 +24,7 @@ export type Bibliography = {
 
 export type ArticleInformation = {
   journal: string;
-  volumes: string;
+  volumes: string | null;
   pages_from: number | null;
   pages_to: number | null;
   issue_nb: number | null;

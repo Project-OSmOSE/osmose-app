@@ -4,7 +4,7 @@ import styles from './panel.module.scss'
 import { useFetchGql } from "../../../utils";
 import { gql } from "graphql-request";
 import { Deployment } from '../../../pages/Projects/ProjectDetail/ProjectDetail'
-import { ContactLink } from "../ContactLink";
+import { ContactLink, InstitutionLink } from "../ContactLink";
 
 export const DeploymentPanel: React.FC<{
   deployment: Deployment | undefined,
@@ -18,26 +18,26 @@ export const DeploymentPanel: React.FC<{
 
   const [ labels, setLabels ] = useState<Array<any>>([]);
   const isOpenAccess = useMemo(() => deployment?.project.accessibility === 'Open access', [ deployment ]);
-  const fetchLabels = useFetchGql(gql`
-      query {
-          allApiLabels(annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${ deployment?.id }, orderBy: "id") {
-              results {
-                  id
-                  name
-                  annotationresultSet(annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${deployment?.id}) {
-                      totalCount
-                  }
-              }
-          }
-      }
-  `)
+    const fetchLabels = useFetchGql(gql`
+        query {
+            allApiLabels(annotationresult_AnnotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${ deployment?.id }, orderBy: "id") {
+                results {
+                    id
+                    name
+                    annotationresultSet(annotationCampaignPhase_AnnotationCampaign_Datasets_RelatedChannelConfiguration_DeploymentId: ${deployment?.id}) {
+                        totalCount
+                    }
+                }
+            }
+        }
+    `)
 
   useEffect(() => {
     if (!deployment) return;
     fetchLabels().then((data: any) => {
       setLabels((data?.allApiLabels?.results ?? []).filter((d: any) => !!d) as Deployment[])
     })
-  }, [deployment ]);
+  }, [ deployment ]);
 
   if (!deployment) return <div className={ [ styles.panel, styles.empty, styles.deployment ].join(' ') }/>
 
@@ -93,9 +93,9 @@ const DownloadAction: React.FC<{ deployment: Deployment }> = ({ deployment }) =>
 }
 
 const Project: React.FC<{ project: Deployment['project'], disableProjectLink: boolean }> = ({
-                                                                                                  project,
-                                                                                                  disableProjectLink
-                                                                                                }) => {
+                                                                                              project,
+                                                                                              disableProjectLink
+                                                                                            }) => {
   return <Fragment>
     <small>Project</small>
     <p>
@@ -108,7 +108,10 @@ const Project: React.FC<{ project: Deployment['project'], disableProjectLink: bo
       </Fragment> }
       { project.contacts.edges.map(e => <Fragment key={ e!.node!.id }>
         <br/>
-        <small>({ e!.node!.role }: <ContactLink contact={ e!.node!.contact }/>)</small>
+        <small>({ e!.node!.role }:
+          { e!.node!.contact && <ContactLink contact={ e!.node!.contact! }/> }
+          { e!.node!.institution && <InstitutionLink institution={ e!.node!.institution! }/> }
+          )</small>
       </Fragment>) }
     </p>
   </Fragment>
@@ -131,7 +134,9 @@ const DeploymentInfo: React.FC<{ deployment: Deployment }> = ({ deployment }) =>
     <p>
       { deployment.name }
       { deployment.contacts.edges.map(e => <small key={ e!.node!.id }>
-        <br/>({ e!.node!.role }: <ContactLink contact={ e!.node!.contact }/>)
+        <br/>({ e!.node!.role }:
+        { e!.node!.contact && <ContactLink contact={ e!.node!.contact! }/> }
+        { e!.node!.institution && <InstitutionLink institution={ e!.node!.institution! }/> }
       </small>) }
     </p>
   </Fragment>

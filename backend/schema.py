@@ -2,17 +2,19 @@
 
 import graphene
 from django_filters import NumberFilter
-from graphene import relay
+from graphene import relay, Field
 from graphene_django_pagination import DjangoPaginationConnectionField
-from metadatax.acquisition.models import Deployment
+from metadatax.acquisition.models import Deployment, Project
 from metadatax.acquisition.schema.deployment import (
     DeploymentNode as MetadataxDeploymentNode,
     DeploymentFilter as MetadataxDeploymentFilter,
 )
-from metadatax.schema import Query as MetadataxQuery, Mutation as MetadataxMutation
+from metadatax.acquisition.schema.project import ProjectFilter
+from metadatax.acquisition.schema.project import ProjectNode as MetadataxProjectNode
+from metadatax.schema import Mutation as MetadataxMutation, Query as MetadataxQuery
 
 from .api.schema import ApiQuery
-from .osmosewebsite.schema import OSmOSEWebsiteQuery
+from .osmosewebsite.schema import OSmOSEWebsiteQuery, WebsiteProjectNode
 
 
 class DeploymentFilter(MetadataxDeploymentFilter):
@@ -37,6 +39,16 @@ class DeploymentNode(MetadataxDeploymentNode):
         interfaces = (relay.Node,)
 
 
+class ProjectNodeOverride(MetadataxProjectNode):
+    website_project = Field(WebsiteProjectNode)
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        model = Project
+        fields = "__all__"
+        filterset_class = ProjectFilter
+        interfaces = (relay.Node,)
+
+
 class Query(
     ApiQuery,
     OSmOSEWebsiteQuery,
@@ -48,6 +60,7 @@ class Query(
     # pylint: disable=too-few-public-methods
 
     all_deployments = DjangoPaginationConnectionField(DeploymentNode)
+    all_projects = DjangoPaginationConnectionField(ProjectNodeOverride)
 
 
 class Mutation(

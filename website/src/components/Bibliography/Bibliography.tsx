@@ -61,7 +61,7 @@ export const ArticleDetail: React.FC<{ info: ArticleInformation }> = ({ info }) 
   const details = useMemo(() => {
     const d = [];
     d.push(info.journal)
-    d.push(info.volumes)
+    if (info.volumes) d.push(info.volumes)
     if (info.pages_from) {
       if (info.pages_to) d.push(`p${ info.pages_from }-${ info.pages_to }`);
       else d.push(`p${ info.pages_from }`);
