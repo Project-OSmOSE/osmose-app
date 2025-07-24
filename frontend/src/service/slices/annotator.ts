@@ -205,7 +205,7 @@ export const AnnotatorSlice = createSlice({
     addPresenceResult: (state, { payload: { label, phaseID } }: { payload: { label: string, phaseID: number } }) => {
       const existingPresence = state.results?.find(r => r.label === label && r.type === 'Weak')
       if (existingPresence) {
-        _focusResult(state, { payload: existing - Presence.id })
+        _focusResult(state, { payload: existingPresence.id })
         return
       }
       const newResult: AnnotationResult = {
