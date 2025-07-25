@@ -630,13 +630,13 @@ files = [
 
 [[package]]
 name = "metadatax"
-version = "0.4.10"
+version = "0.4.11"
 description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
 files = [
-    {file = "metadatax-0.4.10.tar.gz", hash = "sha256:360541f264ede70efb7f245b912974388ccc0803d3c36a6239f35f7042af8381"},
+    {file = "metadatax-0.4.11.tar.gz", hash = "sha256:e46bc15d4b6a2f088f3447fe3c1c6dcb03a28b5244f35a89e99cbceccb6a07e8"},
 ]
 
 [package.dependencies]
@@ -654,7 +654,7 @@ python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.10/metadatax-0.4.10.tar.gz"
+url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.11/metadatax-0.4.11.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1379,4 +1379,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "0e4c9a2b22ce36fd75e8edf7f73db2e0834150b5c6b1818c95ba7ca2d365b5bc"
+content-hash = "b0a9600f4415f98a6a37a2afa421241f40f2c9f7e25deabd217476d0740768cf"
