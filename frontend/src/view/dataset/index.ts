@@ -1,1 +1,2 @@
-export * from "./List.tsx";
+export * from "./Detail";
+export * from "./List";

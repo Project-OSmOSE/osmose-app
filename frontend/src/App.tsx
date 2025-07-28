@@ -12,7 +12,7 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 
 import { AppStore, useAppSelector } from "@/service/app";
 
-import { DatasetList } from '@/view/dataset';
+import { DatasetDetail, DatasetList } from '@/view/dataset';
 import { AnnotationCampaignDetail, AnnotationCampaignList } from "@/view/campaign";
 import { AnnotationCampaignDetailInfo, AnnotationCampaignPhaseDetail } from "@/view/campaign/details";
 import { Home } from "@/view/home/Home.tsx";
@@ -67,6 +67,7 @@ const AppContent: React.FC = () => {
 
           <Route path='dataset' element={ <AploseSkeleton/> }>
               <Route index element={ <DatasetList/> }/>
+              <Route path=':datasetID' element={ <DatasetDetail/> }/>
           </Route>
 
           <Route path='annotation-campaign' element={ <AploseSkeleton/> }>
