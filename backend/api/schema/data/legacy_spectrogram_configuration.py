@@ -12,5 +12,12 @@ class LegacySpectrogramConfigurationNode(ApiObjectType):
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = LegacySpectrogramConfiguration
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {}
         interfaces = (relay.Node,)
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+
+        return super().get_queryset(queryset, info)
+
+
