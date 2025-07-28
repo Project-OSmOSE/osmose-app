@@ -105,6 +105,13 @@ class ApiObjectType(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return gql_optimizer.query(queryset, info)
 
+    @classmethod
+    def _get_query_field_names(cls, info):
+        query_fields = info.field_nodes[0].selection_set.selections
+        if "results" in [f.name.value for f in query_fields]:
+            query_fields = query_fields[0].selection_set.selections
+        return [f.name.value for f in query_fields]
+
 
 class DRFAuthenticatedGraphQLView(GraphQLView):
     """Allow GraphQL to handle REST authenticated users"""

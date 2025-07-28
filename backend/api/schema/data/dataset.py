@@ -5,9 +5,10 @@ from os.path import isfile, join, exists
 from pathlib import Path
 
 from django.conf import settings
-from django.db.models import Count, Min
+from django.db.models import Count, Min, QuerySet
 from django_filters import FilterSet, OrderingFilter
 from graphene import relay, List, NonNull, String, Boolean, ObjectType, Int, Date
+from graphql import GraphQLResolveInfo
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
 )
@@ -52,15 +53,42 @@ class DatasetNode(ApiObjectType):
         interfaces = (relay.Node,)
 
     @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(
-            queryset.annotate(
-                analysis_count=Count("spectrogram_analysis", distinct=True),
-                files_count=Count("spectrogram_analysis__spectrograms", distinct=True),
-                start=Min("spectrogram_analysis__start_date"),
-                end=Min("spectrogram_analysis__end_date"),
-            ),
-            info,
+    def get_queryset(cls, queryset: QuerySet[Dataset], info: GraphQLResolveInfo):
+        field_names = cls._get_query_field_names(info)
+
+        annotations = {}
+        prefetch = []
+        if "analysisCount" in field_names:
+            annotations = {
+                **annotations,
+                "analysis_count": Count("spectrogram_analysis", distinct=True),
+            }
+            prefetch.append("spectrogram_analysis")
+        if "filesCount" in field_names:
+            annotations = {
+                **annotations,
+                "files_count": Count(
+                    "spectrogram_analysis__spectrograms", distinct=True
+                ),
+            }
+            prefetch.append("spectrogram_analysis__spectrograms")
+        if "start" in field_names:
+            annotations = {
+                **annotations,
+                "start": Min("spectrogram_analysis__start_date"),
+            }
+            prefetch.append("spectrogram_analysis")
+        if "end" in field_names:
+            annotations = {
+                **annotations,
+                "end": Min("spectrogram_analysis__end_date"),
+            }
+            prefetch.append("spectrogram_analysis")
+        return (
+            super()
+            .get_queryset(queryset, info)
+            .prefetch_related(*prefetch)
+            .annotate(**annotations)
         )
 
 
