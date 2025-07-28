@@ -39,10 +39,12 @@ export const DatasetDetail: React.FC = () => {
     <Head title={ dataset?.name }
           subtitle='Dataset'
           canGoBack>
-      <DatasetTimeInfo dataset={ dataset }/>
+      { dataset?.description && <p>{ dataset.description }</p> }
     </Head>
 
-    <div></div>
+    <div>
+      <DatasetTimeInfo dataset={ dataset }/>
+    </div>
 
     <DatasetImportNote dataset={ dataset }/>
   </Fragment>

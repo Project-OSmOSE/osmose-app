@@ -36,5 +36,6 @@ query getDatasetByID($id: ID!) {
         owner {
             displayName
         }
+        description
     }
 }
