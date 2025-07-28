@@ -48,3 +48,5 @@ class AllDatasetsTestCase(GraphQLTestCase):
         self.assertEqual(content[0]["name"], "SPM Aural A 2010")
         self.assertEqual(content[0]["analysisCount"], 2)
         self.assertEqual(content[0]["filesCount"], 11)
+        self.assertEqual(content[0]["start"], "2012-10-03T10:00:00+00:00")
+        self.assertEqual(content[0]["end"], "2012-10-03T20:15:00+00:00")

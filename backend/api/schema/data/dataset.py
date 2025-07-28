@@ -5,7 +5,7 @@ from os.path import isfile, join, exists
 from pathlib import Path
 
 from django.conf import settings
-from django.db.models import Count, Min, QuerySet
+from django.db.models import Count, Min, QuerySet, Max
 from django_filters import FilterSet, OrderingFilter
 from graphene import (
     relay,
@@ -15,9 +15,9 @@ from graphene import (
     Boolean,
     ObjectType,
     Int,
-    Date,
     ID,
     Field,
+    DateTime,
 )
 from graphql import GraphQLResolveInfo
 from osekit.public_api.dataset import (
@@ -58,8 +58,8 @@ class DatasetNode(ApiObjectType):
     analysis_count = Int()
     files_count = Int()
 
-    start = Date()
-    end = Date()
+    start = DateTime()
+    end = DateTime()
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
@@ -91,15 +91,15 @@ class DatasetNode(ApiObjectType):
         if "start" in field_names:
             annotations = {
                 **annotations,
-                "start": Min("spectrogram_analysis__start_date"),
+                "start": Min("spectrogram_analysis__spectrograms__start"),
             }
-            prefetch.append("spectrogram_analysis")
+            prefetch.append("spectrogram_analysis__spectrograms")
         if "end" in field_names:
             annotations = {
                 **annotations,
-                "end": Min("spectrogram_analysis__end_date"),
+                "end": Max("spectrogram_analysis__spectrograms__end"),
             }
-            prefetch.append("spectrogram_analysis")
+            prefetch.append("spectrogram_analysis__spectrograms")
         return (
             super()
             .get_queryset(queryset, info)
