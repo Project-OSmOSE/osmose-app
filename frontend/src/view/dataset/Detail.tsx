@@ -1,6 +1,6 @@
 import React, { Fragment, useMemo } from 'react';
 import { useParams } from "react-router-dom";
-import { DatasetAPI } from "@/features/data/dataset";
+import { DatasetAPI, DatasetImportNote, DatasetTimeInfo } from "@/features/data/dataset";
 import { Head } from "@/components/ui/Page.tsx";
 import { IonSpinner } from "@ionic/react";
 import { WarningText } from "@/components/ui";
@@ -37,6 +37,13 @@ export const DatasetDetail: React.FC = () => {
 
   return <Fragment>
     { head }
-    <WarningText>Dataset not found</WarningText>
+
+    <div>
+      <DatasetTimeInfo dataset={ dataset }/>
+
+
+    </div>
+
+    <DatasetImportNote dataset={ dataset }/>
   </Fragment>
 }

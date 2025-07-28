@@ -1,0 +1,19 @@
+.info {
+  justify-self: center;
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto auto 1fr;
+  gap: 0 1rem;
+
+  > :first-child {
+    // Icon
+    $size: 1.25rem;
+    width: $size;
+    height: $size;
+    grid-row: 1 / 3;
+  }
+}
+
+.importNote {
+  justify-self: center;
+}

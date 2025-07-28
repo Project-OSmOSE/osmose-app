@@ -1,1 +1,2 @@
-export { DatasetNameAccessLink } from './NameAccess.tsx'
+export * from './Infos'
+export * from './NameAccess'
