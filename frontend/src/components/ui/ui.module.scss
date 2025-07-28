@@ -274,10 +274,13 @@
 
   }
 
-  .content {
+  .content, .buttons {
     display: grid;
     align-items: center;
     gap: 1rem;
+  }
+
+  .buttons {
     grid-auto-flow: column;
   }
 }

@@ -117,3 +117,25 @@ export function formatCSVToTable(content: string, separator: string): string[][]
   const lines = content.replaceAll('\r', '').split('\n').map(l => [ l ]);
   return lines.map(l => l.flatMap(l => l.split(separator))).filter(d => d.length > 1);
 }
+
+export function dateToString(date?: Date | string): string | undefined {
+  if (!date) return undefined;
+  if (typeof date === 'string') date = new Date(date);
+  return date.toLocaleDateString('en', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+export function datetimeToString(date?: Date | string): string | undefined {
+  if (!date) return undefined;
+  if (typeof date === 'string') date = new Date(date);
+  return date.toLocaleDateString('en', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}

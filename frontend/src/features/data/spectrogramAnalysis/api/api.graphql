@@ -1,0 +1,20 @@
+query getSpectrogramAnalysis($datasetID: Decimal, $annotationCampaignID: Decimal) {
+    allSpectrogramAnalysis(orderBy: "-createdAt", datasetId: $datasetID, annotationCampaigns_Id: $annotationCampaignID) {
+        results {
+            name
+            description
+            createdAt
+            legacy
+            filesCount
+            start
+            end
+            dataDuration
+            fft {
+                samplingFrequency
+                nfft
+                windowSize
+                overlap
+            }
+        }
+    }
+}

@@ -18,11 +18,12 @@ from .fft import FFTNode
 from .legacy_spectrogram_configuration import LegacySpectrogramConfigurationNode
 from .scales import LinearScaleNode, MultiLinearScaleNode
 from .spectrogram import SpectrogramNode
-from .spectrogram_analysis import SpectrogramAnalysisNode
+from .spectrogram_analysis import SpectrogramAnalysisNode, SpectrogramAnalysisQuery
 
 
 class APIDataQuery(
     DatasetQuery,
+    SpectrogramAnalysisQuery,
     graphene.ObjectType,
 ):  # pylint: disable=too-few-public-methods
     """API GraphQL queries"""
@@ -38,6 +39,4 @@ class APIDataQuery(
     all_linear_scales = AuthenticatedDjangoConnectionField(LinearScaleNode)
     all_multi_linear_scales = AuthenticatedDjangoConnectionField(MultiLinearScaleNode)
     all_spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
-    all_spectrogram_analysis = AuthenticatedDjangoConnectionField(
-        SpectrogramAnalysisNode
-    )
+

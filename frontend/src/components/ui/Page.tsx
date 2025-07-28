@@ -7,8 +7,9 @@ export const Head: React.FC<{
   title?: string;
   subtitle?: string;
   children?: ReactNode;
+  buttons?: ReactNode;
   canGoBack?: boolean;
-}> = ({ title, subtitle, children, canGoBack }) => {
+}> = ({ title, subtitle, children, buttons, canGoBack }) => {
 
   return <div className={ styles.head }>
     <div className={ styles.title }>
@@ -20,6 +21,10 @@ export const Head: React.FC<{
 
     <div className={ styles.content }>
       { children }
+    </div>
+
+    <div className={ styles.buttons }>
+      { buttons }
     </div>
 
   </div>

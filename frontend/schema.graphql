@@ -1093,6 +1093,27 @@ type Query {
     isActive: Boolean
     dateJoined: DateTime
   ): UserNodeNodeConnection
+  allSpectrogramAnalysis(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeNodeConnection
   allDatasets(
     """Query limit"""
     limit: Int
@@ -1106,13 +1127,6 @@ type Query {
     after: String
     first: Int
     last: Int
-    createdAt: DateTime
-    name: String
-    description: String
-    path: String
-    owner: ID
-    legacy: Boolean
-    relatedChannelConfigurations: ID
 
     """Ordering"""
     orderBy: String
@@ -1236,35 +1250,6 @@ type Query {
     end: DateTime
     analysis: ID
   ): SpectrogramNodeNodeConnection
-  allSpectrogramAnalysis(
-    """Query limit"""
-    limit: Int
-
-    """Query offset"""
-    offset: Int
-
-    """Query order"""
-    ordering: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-    createdAt: DateTime
-    name: String
-    description: String
-    path: String
-    legacy: Boolean
-    startDate: Date
-    endDate: Date
-    owner: ID
-    dataset: ID
-    dataDuration: Float
-    fft: ID
-    colormap: ID
-    legacyConfiguration: ID
-    dynamicMin: Float
-    dynamicMax: Float
-  ): SpectrogramAnalysisNodeNodeConnection
   allArchives(
     """Query limit"""
     limit: Int
@@ -2471,7 +2456,20 @@ type AnnotationCampaignNode implements Node {
   labelsWithAcousticFeatures(offset: Int, before: String, after: String, first: Int, last: Int, name: String, metadataxLabel: ID): LabelNodeConnection!
   allowPointAnnotation: Boolean!
   dataset: DatasetNode!
-  analysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  analysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
   allowImageTuning: Boolean!
   allowColormapTuning: Boolean!
   colormapDefault: String
@@ -2514,21 +2512,13 @@ type DatasetNode implements Node {
     after: String
     first: Int
     last: Int
-    createdAt: DateTime
-    name: String
-    description: String
-    path: String
-    legacy: Boolean
-    startDate: Date
-    endDate: Date
-    owner: ID
-    dataset: ID
-    dataDuration: Float
-    fft: ID
-    colormap: ID
-    legacyConfiguration: ID
-    dynamicMin: Float
-    dynamicMax: Float
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
   ): SpectrogramAnalysisNodeNodeConnection
   annotationCampaigns(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
   analysisCount: Int
@@ -2568,18 +2558,24 @@ type UserNode implements Node {
     after: String
     first: Int
     last: Int
-    createdAt: DateTime
-    name: String
-    description: String
-    path: String
-    owner: ID
-    legacy: Boolean
-    relatedChannelConfigurations: ID
 
     """Ordering"""
     orderBy: String
   ): DatasetNodeConnection!
-  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
   annotationcampaignSet(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
   createdPhases(offset: Int, before: String, after: String, first: Int, last: Int, phase: ApiAnnotationPhasePhaseChoices, annotationCampaign: ID, createdAt: DateTime, createdBy: ID, endedAt: DateTime, endedBy: ID): AnnotationPhaseNodeConnection!
   endedPhases(offset: Int, before: String, after: String, first: Int, last: Int, phase: ApiAnnotationPhasePhaseChoices, annotationCampaign: ID, createdAt: DateTime, createdBy: ID, endedAt: DateTime, endedBy: ID): AnnotationPhaseNodeConnection!
@@ -2691,6 +2687,8 @@ type SpectrogramAnalysisNode implements Node {
   ): SpectrogramNodeNodeConnection
   annotationCampaigns(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
   filesCount: Int
+  start: DateTime
+  end: DateTime
 }
 
 """FFT schema"""
@@ -2703,14 +2701,40 @@ type FFTNode implements Node {
   samplingFrequency: Int!
   scaling: String
   legacy: Boolean!
-  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
 }
 
 """Colormap schema"""
 type ColormapNode implements Node {
   id: ID!
   name: String!
-  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
 }
 
 """LegacySpectrogramConfiguration schema"""
@@ -2729,7 +2753,20 @@ type LegacySpectrogramConfigurationNode implements Node {
   temporalResolution: Float
   linearFrequencyScale: LinearScaleNode
   multiLinearFrequencyScale: MultiLinearScaleNode
-  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
 }
 
 """LinearScale schema"""
@@ -2820,7 +2857,20 @@ type SpectrogramNode implements Node {
   filename: String!
   start: DateTime!
   end: DateTime!
-  analysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  analysis(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    datasetId: Decimal
+    datasetId_In: [ID]
+    annotationCampaigns_Id: Decimal
+    annotationCampaigns_Id_In: [ID]
+
+    """Ordering"""
+    orderBy: String
+  ): SpectrogramAnalysisNodeConnection!
   annotations(offset: Int, before: String, after: String, first: Int, last: Int, type: ApiAnnotationTypeChoices, startTime: Float, endTime: Float, startFrequency: Float, endFrequency: Float, label: ID, confidence: ID, annotationPhase: ID, annotator: ID, annotatorExpertiseLevel: ApiAnnotationAnnotatorExpertiseLevelChoices, spectrogram: ID, detectorConfiguration: ID, acousticFeatures: ID, isUpdateOf: ID, createdAt: DateTime, lastUpdatedAt: DateTime): AnnotationNodeConnection!
   annotationComments(offset: Int, before: String, after: String, first: Int, last: Int, comment: String, annotation: ID, annotationPhase: ID, author: ID, spectrogram: ID): AnnotationCommentNodeConnection!
   annotationTasks(offset: Int, before: String, after: String, first: Int, last: Int, status: ApiAnnotationTaskStatusChoices, annotationPhase: ID, annotator: ID, spectrogram: ID, sessions: [ID]): AnnotationTaskNodeConnection!
@@ -2983,13 +3033,6 @@ type ChannelConfigurationNode implements Node {
     after: String
     first: Int
     last: Int
-    createdAt: DateTime
-    name: String
-    description: String
-    path: String
-    owner: ID
-    legacy: Boolean
-    relatedChannelConfigurations: ID
 
     """Ordering"""
     orderBy: String

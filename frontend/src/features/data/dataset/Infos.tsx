@@ -1,23 +1,22 @@
 import React, { useMemo } from "react";
 import styles from './styles.module.scss'
-import { DetailedDataset } from "@/features/data/dataset";
+import { DetailedDataset } from "@/features/data/dataset/index.ts";
 import { IonNote } from "@ionic/react";
 import { Calendar } from '@solar-icons/react'
+import { datetimeToString, dateToString } from "@/service/function.ts";
 
 export const DatasetTimeInfo: React.FC<{
   dataset: DetailedDataset;
-}> = ({ dataset }) => {
-  const start = useMemo(() => new Date(dataset.start), [ dataset ])
-  const end = useMemo(() => new Date(dataset.end), [ dataset ])
-
-  return <div className={ styles.info }>
+}> = ({ dataset }) => (
+  <div className={ styles.info }>
     <Calendar/>
     <IonNote>Start:</IonNote>
-    <p>{ start.toLocaleString() }</p>
+    <p>{ datetimeToString(dataset.start) }</p>
     <IonNote>End:</IonNote>
-    <p>{ end.toLocaleString() }</p>
+    <p>{ datetimeToString(dataset.end) }</p>
   </div>
-}
+)
+
 
 export const DatasetImportNote: React.FC<{
   dataset: DetailedDataset;
@@ -25,6 +24,6 @@ export const DatasetImportNote: React.FC<{
   const createdAt = useMemo(() => new Date(dataset.createdAt), [ dataset ])
 
   return <IonNote className={ styles.importNote } color='medium'>
-    Dataset imported on { createdAt.toLocaleString() } by { dataset.owner.displayName }
+    Dataset imported on { dateToString(createdAt) } by { dataset.owner.displayName }
   </IonNote>
 }

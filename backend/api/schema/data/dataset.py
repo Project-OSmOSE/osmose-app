@@ -46,7 +46,7 @@ class DatasetFilter(FilterSet):
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = Dataset
-        fields = "__all__"
+        fields = {}
 
     order_by = OrderingFilter(fields=("created_at",))
 

@@ -239,25 +239,15 @@ export type AnnotationCampaignNode = Node & {
 /** AnnotationCampaign schema */
 export type AnnotationCampaignNodeAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1358,17 +1348,10 @@ export type ChannelConfigurationNode = Node & {
 export type ChannelConfigurationNodeDatasetsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Scalars['String']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  relatedChannelConfigurations?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1548,25 +1531,15 @@ export type ColormapNode = Node & {
 /** Colormap schema */
 export type ColormapNodeSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ColormapNodeNodeConnection = {
@@ -2098,27 +2071,17 @@ export type DatasetNodeRelatedChannelConfigurationsArgs = {
 /** Dataset schema */
 export type DatasetNodeSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
   ordering?: InputMaybe<Scalars['String']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
 };
 
 export type DatasetNodeConnection = {
@@ -2773,25 +2736,15 @@ export type FftNode = Node & {
 /** FFT schema */
 export type FftNodeSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type FftNodeNodeConnection = {
@@ -3647,25 +3600,15 @@ export type LegacySpectrogramConfigurationNode = Node & {
 /** LegacySpectrogramConfiguration schema */
 export type LegacySpectrogramConfigurationNodeSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LegacySpectrogramConfigurationNodeConnection = {
@@ -5262,19 +5205,12 @@ export type QueryAllContactsArgs = {
 export type QueryAllDatasetsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Scalars['String']['input']>;
   ordering?: InputMaybe<Scalars['String']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  relatedChannelConfigurations?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -6037,27 +5973,17 @@ export type QueryAllSourcesArgs = {
 /** Global query */
 export type QueryAllSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
   ordering?: InputMaybe<Scalars['String']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
@@ -6801,6 +6727,7 @@ export type SpectrogramAnalysisNode = Node & {
   description?: Maybe<Scalars['String']['output']>;
   dynamicMax: Scalars['Float']['output'];
   dynamicMin: Scalars['Float']['output'];
+  end?: Maybe<Scalars['DateTime']['output']>;
   endDate?: Maybe<Scalars['Date']['output']>;
   fft: FftNode;
   filesCount?: Maybe<Scalars['Int']['output']>;
@@ -6811,6 +6738,7 @@ export type SpectrogramAnalysisNode = Node & {
   owner: UserNode;
   path: Scalars['String']['output'];
   spectrograms?: Maybe<SpectrogramNodeNodeConnection>;
+  start?: Maybe<Scalars['DateTime']['output']>;
   startDate?: Maybe<Scalars['Date']['output']>;
 };
 
@@ -6902,25 +6830,15 @@ export type SpectrogramNode = Node & {
 /** Spectrogram schema */
 export type SpectrogramNodeAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -7297,17 +7215,10 @@ export type UserNodeCreatedPhasesArgs = {
 export type UserNodeDatasetSetArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Scalars['String']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  relatedChannelConfigurations?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -7328,25 +7239,15 @@ export type UserNodeEndedPhasesArgs = {
 
 export type UserNodeSpectrogramAnalysisArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaigns_Id?: InputMaybe<Scalars['Decimal']['input']>;
+  annotationCampaigns_Id_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   before?: InputMaybe<Scalars['String']['input']>;
-  colormap?: InputMaybe<Scalars['ID']['input']>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  dataDuration?: InputMaybe<Scalars['Float']['input']>;
-  dataset?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
-  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  fft?: InputMaybe<Scalars['ID']['input']>;
+  datasetId?: InputMaybe<Scalars['Decimal']['input']>;
+  datasetId_In?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  legacy?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  owner?: InputMaybe<Scalars['ID']['input']>;
-  path?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserNodeNodeConnection = {

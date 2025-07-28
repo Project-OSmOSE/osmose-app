@@ -5,6 +5,7 @@ import { Head } from "@/components/ui/Page.tsx";
 import { IonSpinner } from "@ionic/react";
 import { WarningText } from "@/components/ui";
 import { getErrorMessage } from "@/service/function.ts";
+import { SpectrogramAnalysisTable } from "@/features/data/spectrogramAnalysis";
 
 
 export const DatasetDetail: React.FC = () => {
@@ -19,6 +20,7 @@ export const DatasetDetail: React.FC = () => {
           subtitle={ dataset?.path }
           canGoBack>
       { dataset?.description && <p>{ dataset.description }</p> }
+      { dataset && <DatasetTimeInfo dataset={ dataset }/> }
     </Head>
   ), [ dataset ]);
 
@@ -39,9 +41,10 @@ export const DatasetDetail: React.FC = () => {
 
   return <Fragment>
     { head }
-    
+
     <div>
-      <DatasetTimeInfo dataset={ dataset }/>
+
+      <SpectrogramAnalysisTable datasetID={ datasetID }/>
     </div>
 
     <DatasetImportNote dataset={ dataset }/>

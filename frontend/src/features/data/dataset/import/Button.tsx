@@ -10,7 +10,7 @@ export const ImportDatasetButton: React.FC = () => {
 
   return <Fragment>
     <IonButton color='primary' fill='clear'
-               style={ { zIndex: 2 } }
+               style={ { zIndex: 2, justifySelf: 'center' } }
                onClick={ modal.toggle }>
       <IonIcon icon={ downloadOutline } slot='start'/>
       Import dataset
