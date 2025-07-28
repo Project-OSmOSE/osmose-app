@@ -31,11 +31,22 @@ class SpectrogramAnalysisNode(ApiObjectType):
 
     @classmethod
     def get_queryset(cls, queryset, info):
-        return super().get_queryset(
-            queryset.annotate(
-                files_count=Count("spectrograms"),
-            ),
-            info,
+        field_names = cls._get_query_field_names(info)
+
+        annotations = {}
+        prefetch = []
+
+        if "filesCount" in field_names:
+            annotations = {
+                **annotations,
+                "files_count": Count("spectrograms", distinct=True),
+            }
+            prefetch.append("spectrograms")
+        return (
+            super()
+            .get_queryset(queryset, info)
+            .prefetch_related(*prefetch)
+            .annotate(**annotations)
         )
 
 
