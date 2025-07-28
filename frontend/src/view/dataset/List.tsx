@@ -4,8 +4,9 @@ import { Head } from "@/components/ui/Page.tsx";
 
 
 export const DatasetList: React.FC = () => (<Fragment>
-    <Head title='Datasets'
-          content={ <ImportDatasetButton/> }/>
+    <Head title='Datasets'>
+      <ImportDatasetButton/>
+    </Head>
 
     <DatasetTable/>
 

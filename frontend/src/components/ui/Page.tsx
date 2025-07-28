@@ -6,21 +6,21 @@ import { BackButton } from "@/components/ui/Button.tsx";
 export const Head: React.FC<{
   title?: string;
   subtitle?: string;
-  content?: ReactNode;
+  children?: ReactNode;
   canGoBack?: boolean;
-}> = ({ title, subtitle, content, canGoBack }) => {
+}> = ({ title, subtitle, children, canGoBack }) => {
 
   return <div className={ styles.head }>
     <div className={ styles.title }>
       <h2>{ title ?? '' }</h2>
       { subtitle && <IonNote color='medium'>{ subtitle }</IonNote> }
+
+      { canGoBack && <BackButton/> }
     </div>
 
     <div className={ styles.content }>
-      { content }
+      { children }
     </div>
-
-    { canGoBack && <BackButton/> }
 
   </div>
 }

@@ -265,13 +265,13 @@
 
 .head {
   display: grid;
-  justify-items: center;
   gap: 1rem;
-  position: relative;
 
   .title {
     display: grid;
     justify-items: center;
+    position: relative;
+
   }
 
   .content {

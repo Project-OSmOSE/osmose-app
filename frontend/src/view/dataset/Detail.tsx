@@ -36,13 +36,13 @@ export const DatasetDetail: React.FC = () => {
   </Fragment>
 
   return <Fragment>
-    { head }
-
-    <div>
+    <Head title={ dataset?.name }
+          subtitle='Dataset'
+          canGoBack>
       <DatasetTimeInfo dataset={ dataset }/>
+    </Head>
 
-
-    </div>
+    <div></div>
 
     <DatasetImportNote dataset={ dataset }/>
   </Fragment>
