@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("ontology", "0002_link_to_bibliography"),
         ("metadatax", "0025_migrate_database"),
+        ("osmosewebsite", "0032_update_bibliography_model"),
     ]
 
     operations = [
