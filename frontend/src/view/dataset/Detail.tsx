@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import styles from './styles.module.scss'
 import { IonNote } from "@ionic/react";
 import { useParams } from "react-router-dom";
+import { BackButton } from "@/components/ui";
 
 
 export const DatasetDetail: React.FC = () => {
@@ -14,6 +15,7 @@ export const DatasetDetail: React.FC = () => {
       <h2>{ datasetID }</h2>
       <IonNote color='medium'>Dataset</IonNote>
 
+      <BackButton/>
     </div>
 
   </Fragment>
