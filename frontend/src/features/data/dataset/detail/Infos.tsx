@@ -25,6 +25,6 @@ export const DatasetImportNote: React.FC<{
   const createdAt = useMemo(() => new Date(dataset.createdAt), [ dataset ])
 
   return <IonNote className={ styles.importNote } color='medium'>
-    Imported on { createdAt.toLocaleString() } by { dataset.owner.displayName }
+    Dataset imported on { createdAt.toLocaleString() } by { dataset.owner.displayName }
   </IonNote>
 }

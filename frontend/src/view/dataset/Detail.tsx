@@ -16,8 +16,10 @@ export const DatasetDetail: React.FC = () => {
 
   const head = useMemo(() => (
     <Head title={ dataset?.name }
-          subtitle='Dataset'
-          canGoBack/>
+          subtitle={ dataset?.path }
+          canGoBack>
+      { dataset?.description && <p>{ dataset.description }</p> }
+    </Head>
   ), [ dataset ]);
 
   if (isLoading) return <Fragment>
@@ -36,12 +38,8 @@ export const DatasetDetail: React.FC = () => {
   </Fragment>
 
   return <Fragment>
-    <Head title={ dataset?.name }
-          subtitle='Dataset'
-          canGoBack>
-      { dataset?.description && <p>{ dataset.description }</p> }
-    </Head>
-
+    { head }
+    
     <div>
       <DatasetTimeInfo dataset={ dataset }/>
     </div>
