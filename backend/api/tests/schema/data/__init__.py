@@ -1,2 +1,2 @@
 """API data GraphQL tests"""
-from .list_dataset_for_import import AllDatasetsAvailableForImportTestCase
+from .all_datasets_available_for_import import AllDatasetsAvailableForImportTestCase

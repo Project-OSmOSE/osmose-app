@@ -6,6 +6,7 @@ from os.path import join
 from django.conf import settings
 from django.test import override_settings
 from graphene_django.utils.testing import GraphQLTestCase
+from rest_framework import status
 
 IMPORT_FIXTURES = settings.FIXTURE_DIRS[1] / "data" / "dataset" / "list_to_import"
 
@@ -35,9 +36,7 @@ class AllDatasetsAvailableForImportTestCase(GraphQLTestCase):
 
     def test_not_connected(self):
         response = self.query(QUERY)
-        self.assertResponseHasErrors(response)
-        content = json.loads(response.content)
-        self.assertEqual(content["errors"][0]["message"], "Unauthorized")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_connected_not_staff(self):
         self.client.login(username="user1", password="osmose29")
