@@ -262,3 +262,21 @@
     }
   }
 }
+
+.head {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+
+  .title {
+    display: grid;
+    justify-items: center;
+  }
+
+  .content {
+    display: grid;
+    align-items: center;
+    gap: 1rem;
+    grid-auto-flow: column;
+  }
+}
