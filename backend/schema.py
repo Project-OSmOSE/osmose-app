@@ -14,6 +14,7 @@ from metadatax.acquisition.schema.project import ProjectNode as MetadataxProject
 from metadatax.schema import Mutation as MetadataxMutation, Query as MetadataxQuery
 
 from .api.schema import APIQuery
+from .aplose.schema import AploseQuery
 from .osmosewebsite.schema import OSmOSEWebsiteQuery, WebsiteProjectNode
 
 
@@ -51,6 +52,7 @@ class ProjectNodeOverride(MetadataxProjectNode):
 
 class Query(
     APIQuery,
+    AploseQuery,
     OSmOSEWebsiteQuery,
     MetadataxQuery,
     graphene.ObjectType,
