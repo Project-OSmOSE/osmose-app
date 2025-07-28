@@ -4,7 +4,7 @@ import { getErrorMessage } from "@/service/function.ts";
 import { Table, TableContent, TableDivider, TableHead, WarningText } from "@/components/ui";
 import styles from "./styles.module.scss";
 import { DatasetAPI } from "@/features/data/dataset/api";
-import { DatasetNameAccess } from "@/features/data";
+import { DatasetNameAccessLink } from "../detail";
 
 export const DatasetTable: React.FC = () => {
 
@@ -25,7 +25,7 @@ export const DatasetTable: React.FC = () => {
 
     { datasets.map(d => <Fragment key={ d.name }>
       <TableContent isFirstColumn={ true }>
-        <DatasetNameAccess dataset={ d }/>
+        <DatasetNameAccessLink dataset={ d }/>
       </TableContent>
       <TableContent>{ new Date(d.createdAt).toLocaleDateString() }</TableContent>
       <TableContent>{ d.analysisCount }</TableContent>

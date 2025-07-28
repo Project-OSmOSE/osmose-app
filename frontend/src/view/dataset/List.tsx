@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import styles from './styles.module.scss'
-import { DatasetTable, ImportDatasetButton } from "@/features/data";
+import { DatasetTable, ImportDatasetButton } from "@/features/data/dataset";
 
 
 export const DatasetList: React.FC = () => (<Fragment>
