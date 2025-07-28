@@ -190,6 +190,11 @@ class DatasetQuery(ObjectType):
 
     dataset_by_id = Field(DatasetNode, id=ID(required=True))
 
+    @GraphQLResolve(permission=GraphQLPermissions.AUTHENTICATED)
+    def resolve_dataset_by_id(self, info, id: int):
+        """Get dataset by id"""
+        return DatasetNode.get_node(info, id)
+
     all_datasets_available_for_import = List(ImportDatasetType)
 
     @GraphQLResolve(permission=GraphQLPermissions.STAFF_OR_SUPERUSER)
