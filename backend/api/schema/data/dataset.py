@@ -7,7 +7,18 @@ from pathlib import Path
 from django.conf import settings
 from django.db.models import Count, Min, QuerySet
 from django_filters import FilterSet, OrderingFilter
-from graphene import relay, List, NonNull, String, Boolean, ObjectType, Int, Date
+from graphene import (
+    relay,
+    List,
+    NonNull,
+    String,
+    Boolean,
+    ObjectType,
+    Int,
+    Date,
+    ID,
+    Field,
+)
 from graphql import GraphQLResolveInfo
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
@@ -15,7 +26,12 @@ from osekit.public_api.dataset import (
 from typing_extensions import deprecated, Optional
 
 from backend.api.models import Dataset
-from backend.utils.schema import AuthenticatedDjangoConnectionField, ApiObjectType
+from backend.utils.schema import (
+    AuthenticatedDjangoConnectionField,
+    ApiObjectType,
+    GraphQLResolve,
+    GraphQLPermissions,
+)
 from .spectrogram_analysis import (
     ImportSpectrogramAnalysisType,
     legacy_resolve_all_spectrogram_analysis_available_for_import,
@@ -165,3 +181,20 @@ def legacy_resolve_all_datasets_available_for_import() -> [ImportDatasetType]:
             if len(available_dataset.analysis) > 0:
                 available_datasets.append(available_dataset)
     return available_datasets
+
+
+class DatasetQuery(ObjectType):
+    """Dataset queries"""
+
+    all_datasets = AuthenticatedDjangoConnectionField(DatasetNode)
+
+    dataset_by_id = Field(DatasetNode, id=ID(required=True))
+
+    all_datasets_available_for_import = List(ImportDatasetType)
+
+    @GraphQLResolve(permission=GraphQLPermissions.STAFF_OR_SUPERUSER)
+    def resolve_all_datasets_available_for_import(self, _):
+        """Get all datasets for import"""
+        datasets = resolve_all_datasets_available_for_import()
+        legacy_datasets = legacy_resolve_all_datasets_available_for_import()
+        return datasets + legacy_datasets
