@@ -38,6 +38,8 @@ class LegacySpectrogramConfiguration(models.Model):
     audio_files_subtypes = ArrayField(
         models.CharField(max_length=255), blank=True, null=True
     )
+    channel_count = models.IntegerField(blank=True, null=True)
+    file_overlap = models.IntegerField(blank=True, null=True)
     zoom_level = models.IntegerField()
     hp_filter_min_frequency = models.IntegerField()
     data_normalization = models.CharField(max_length=255)

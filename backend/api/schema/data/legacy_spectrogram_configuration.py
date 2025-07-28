@@ -14,10 +14,3 @@ class LegacySpectrogramConfigurationNode(ApiObjectType):
         fields = "__all__"
         filter_fields = {}
         interfaces = (relay.Node,)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-
-        return super().get_queryset(queryset, info)
-
-

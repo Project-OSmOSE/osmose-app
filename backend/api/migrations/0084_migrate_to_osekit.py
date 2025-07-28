@@ -191,6 +191,8 @@ class Migration(migrations.Migration):
                         size=None,
                     ),
                 ),
+                ("channel_count", models.IntegerField(blank=True, null=True)),
+                ("file_overlap", models.IntegerField(blank=True, null=True)),
                 ("zoom_level", models.IntegerField()),
                 ("hp_filter_min_frequency", models.IntegerField()),
                 ("data_normalization", models.CharField(max_length=255)),
@@ -249,11 +251,13 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunSQL(
-            sql="""INSERT INTO api_legacyspectrogramconfiguration (id, folder, audio_files_subtypes, zoom_level, hp_filter_min_frequency, data_normalization, spectrogram_normalization, frequency_resolution, zscore_duration, window_type, peak_voltage, "sensitivity_dB", temporal_resolution, linear_frequency_scale_id, multi_linear_frequency_scale_id)
+            sql="""INSERT INTO api_legacyspectrogramconfiguration (id, folder, audio_files_subtypes, channel_count, file_overlap, zoom_level, hp_filter_min_frequency, data_normalization, spectrogram_normalization, frequency_resolution, zscore_duration, window_type, peak_voltage, "sensitivity_dB", temporal_resolution, linear_frequency_scale_id, multi_linear_frequency_scale_id)
                     SELECT
                         c.id,
                         c.name,
                         array_agg(af.name),
+                        a.channel_count,
+                        c.audio_file_dataset_overlap,
                         c.zoom_level,
                         c.hp_filter_min_freq,
                         c.data_normalization,
@@ -272,7 +276,7 @@ class Migration(migrations.Migration):
                     LEFT JOIN audio_metadata a on d.audio_metadatum_id = a.id
                     LEFT JOIN audio_metadata_files_subtypes afs on a.id = afs.audiometadatum_id
                     LEFT JOIN api_filesubtype af on afs.filesubtype_id = af.id
-                    GROUP BY c.id, wt.id
+                    GROUP BY c.id, wt.id, a.id
             """,
             reverse_sql="",
         ),
