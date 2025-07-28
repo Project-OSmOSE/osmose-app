@@ -231,6 +231,7 @@ export type AnnotationCampaignNode = Node & {
   labelSet?: Maybe<LabelSetNode>;
   labelsWithAcousticFeatures: LabelNodeConnection;
   name: Scalars['String']['output'];
+  owner: UserNode;
   phases: AnnotationPhaseNodeConnection;
 };
 
@@ -318,6 +319,7 @@ export type AnnotationCommentNode = Node & {
   __typename?: 'AnnotationCommentNode';
   annotation?: Maybe<AnnotationNode>;
   annotationPhase: AnnotationPhaseNode;
+  author: UserNode;
   comment: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   spectrogram: SpectrogramNode;
@@ -353,6 +355,7 @@ export type AnnotationCommentNodeNodeConnection = {
 export type AnnotationFileRangeNode = Node & {
   __typename?: 'AnnotationFileRangeNode';
   annotationPhase: AnnotationPhaseNode;
+  annotator: UserNode;
   filesCount: Scalars['Int']['output'];
   firstFileIndex: Scalars['Int']['output'];
   fromDatetime: Scalars['DateTime']['output'];
@@ -394,6 +397,7 @@ export type AnnotationNode = Node & {
   acousticFeatures?: Maybe<AcousticFeaturesNode>;
   annotationComments: AnnotationCommentNodeConnection;
   annotationPhase: AnnotationPhaseNode;
+  annotator?: Maybe<UserNode>;
   /** Expertise level of the annotator. */
   annotatorExpertiseLevel?: Maybe<ApiAnnotationAnnotatorExpertiseLevelChoices>;
   confidence?: Maybe<ConfidenceNode>;
@@ -504,7 +508,9 @@ export type AnnotationPhaseNode = Node & {
   annotationFileRanges: AnnotationFileRangeNodeConnection;
   annotationTasks: AnnotationTaskNodeConnection;
   createdAt: Scalars['DateTime']['output'];
+  createdBy: UserNode;
   endedAt?: Maybe<Scalars['DateTime']['output']>;
+  endedBy?: Maybe<UserNode>;
   id: Scalars['ID']['output'];
   phase: ApiAnnotationPhasePhaseChoices;
   results: AnnotationNodeConnection;
@@ -613,6 +619,7 @@ export type AnnotationPhaseNodeNodeConnection = {
 export type AnnotationTaskNode = Node & {
   __typename?: 'AnnotationTaskNode';
   annotationPhase: AnnotationPhaseNode;
+  annotator: UserNode;
   id: Scalars['ID']['output'];
   spectrogram: SpectrogramNode;
   status: ApiAnnotationTaskStatusChoices;
@@ -648,6 +655,7 @@ export type AnnotationTaskNodeNodeConnection = {
 export type AnnotationValidationNode = Node & {
   __typename?: 'AnnotationValidationNode';
   annotation: AnnotationNode;
+  annotator: UserNode;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   isValid?: Maybe<Scalars['Boolean']['output']>;
@@ -732,8 +740,26 @@ export enum ApiAnnotationTypeChoices {
 export type ArchiveNode = Node & {
   __typename?: 'ArchiveNode';
   annotationCampaign?: Maybe<AnnotationCampaignNode>;
+  byUser?: Maybe<UserNode>;
   date: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+};
+
+export type ArchiveNodeConnection = {
+  __typename?: 'ArchiveNodeConnection';
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ArchiveNodeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+};
+
+/** A Relay edge containing a `ArchiveNode` and its cursor. */
+export type ArchiveNodeEdge = {
+  __typename?: 'ArchiveNodeEdge';
+  /** A cursor for use in pagination */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of the edge */
+  node?: Maybe<ArchiveNode>;
 };
 
 export type ArchiveNodeNodeConnection = {
@@ -1982,15 +2008,16 @@ export type DatasetNode = Node & {
   annotationCampaigns: AnnotationCampaignNodeConnection;
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
-  end?: Maybe<Scalars['Date']['output']>;
+  end?: Maybe<Scalars['DateTime']['output']>;
   filesCount?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   legacy: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  owner: UserNode;
   path: Scalars['String']['output'];
   relatedChannelConfigurations: ChannelConfigurationNodeConnection;
   spectrogramAnalysis?: Maybe<SpectrogramAnalysisNodeNodeConnection>;
-  start?: Maybe<Scalars['Date']['output']>;
+  start?: Maybe<Scalars['DateTime']['output']>;
 };
 
 
@@ -4667,6 +4694,7 @@ export type Query = {
   allSpectrograms?: Maybe<SpectrogramNodeNodeConnection>;
   allStorageSpecifications?: Maybe<StorageSpecificationNodeNodeConnection>;
   allTags?: Maybe<TagNodeNodeConnection>;
+  allUsers?: Maybe<UserNodeNodeConnection>;
   allWebsiteProjects?: Maybe<WebsiteProjectNodeNodeConnection>;
   audioPropertyById?: Maybe<AudioPropertiesNode>;
   authorById?: Maybe<AuthorNode>;
@@ -4681,6 +4709,7 @@ export type Query = {
   channelConfigurationRecorderSpecificationById?: Maybe<ChannelConfigurationRecorderSpecificationNode>;
   contactById?: Maybe<ContactNode>;
   contactRoleById?: Maybe<ContactRoleNode>;
+  datasetById?: Maybe<DatasetNode>;
   deploymentById?: Maybe<DeploymentNode>;
   deploymentMobilePositionById?: Maybe<DeploymentMobilePositionNode>;
   detectionPropertyById?: Maybe<DetectionPropertiesNode>;
@@ -6082,6 +6111,30 @@ export type QueryAllTagsArgs = {
 
 
 /** Global query */
+export type QueryAllUsersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  dateJoined?: InputMaybe<Scalars['DateTime']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  groups?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isStaff?: InputMaybe<Scalars['Boolean']['input']>;
+  isSuperuser?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  lastLogin?: InputMaybe<Scalars['DateTime']['input']>;
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  ordering?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  userPermissions?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Global query */
 export type QueryAllWebsiteProjectsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -6168,6 +6221,12 @@ export type QueryContactByIdArgs = {
 
 /** Global query */
 export type QueryContactRoleByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Global query */
+export type QueryDatasetByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6749,6 +6808,7 @@ export type SpectrogramAnalysisNode = Node & {
   legacy: Scalars['Boolean']['output'];
   legacyConfiguration?: Maybe<LegacySpectrogramConfigurationNode>;
   name: Scalars['String']['output'];
+  owner: UserNode;
   path: Scalars['String']['output'];
   spectrograms?: Maybe<SpectrogramNodeNodeConnection>;
   startDate?: Maybe<Scalars['Date']['output']>;
@@ -7064,6 +7124,237 @@ export type TagNodeNodeConnection = {
   pageInfo: PageInfoExtra;
   /** Contains the nodes in this connection. */
   results: Array<Maybe<TagNode>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type UserNode = Node & {
+  __typename?: 'UserNode';
+  annotationComments: AnnotationCommentNodeConnection;
+  annotationFileRanges: AnnotationFileRangeNodeConnection;
+  annotationResultsValidation: AnnotationValidationNodeConnection;
+  annotationTasks: AnnotationTaskNodeConnection;
+  annotationcampaignSet: AnnotationCampaignNodeConnection;
+  annotations: AnnotationNodeConnection;
+  archives: ArchiveNodeConnection;
+  createdPhases: AnnotationPhaseNodeConnection;
+  datasetSet: DatasetNodeConnection;
+  dateJoined: Scalars['DateTime']['output'];
+  displayName?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  endedPhases: AnnotationPhaseNodeConnection;
+  firstName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** Designates whether this user should be treated as active. Unselect this instead of deleting accounts. */
+  isActive: Scalars['Boolean']['output'];
+  /** Designates whether the user can log into this admin site. */
+  isStaff: Scalars['Boolean']['output'];
+  /** Designates that this user has all permissions without explicitly assigning them. */
+  isSuperuser: Scalars['Boolean']['output'];
+  lastLogin?: Maybe<Scalars['DateTime']['output']>;
+  lastName: Scalars['String']['output'];
+  password: Scalars['String']['output'];
+  spectrogramAnalysis: SpectrogramAnalysisNodeConnection;
+  /** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
+  username: Scalars['String']['output'];
+};
+
+
+export type UserNodeAnnotationCommentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotation?: InputMaybe<Scalars['ID']['input']>;
+  annotationPhase?: InputMaybe<Scalars['ID']['input']>;
+  author?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  comment?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  spectrogram?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type UserNodeAnnotationFileRangesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotationPhase?: InputMaybe<Scalars['ID']['input']>;
+  annotator?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  filesCount?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  firstFileIndex?: InputMaybe<Scalars['Int']['input']>;
+  fromDatetime?: InputMaybe<Scalars['DateTime']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  lastFileIndex?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+
+export type UserNodeAnnotationResultsValidationArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotation?: InputMaybe<Scalars['ID']['input']>;
+  annotator?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  isValid?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  lastUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type UserNodeAnnotationTasksArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotationPhase?: InputMaybe<Scalars['ID']['input']>;
+  annotator?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  sessions?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  spectrogram?: InputMaybe<Scalars['ID']['input']>;
+  status?: InputMaybe<ApiAnnotationTaskStatusChoices>;
+};
+
+
+export type UserNodeAnnotationcampaignSetArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  allowColormapTuning?: InputMaybe<Scalars['Boolean']['input']>;
+  allowImageTuning?: InputMaybe<Scalars['Boolean']['input']>;
+  allowPointAnnotation?: InputMaybe<Scalars['Boolean']['input']>;
+  analysis?: InputMaybe<Scalars['ID']['input']>;
+  archive?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  colormapDefault?: InputMaybe<Scalars['String']['input']>;
+  colormapInvertedDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  confidenceSet?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  dataset?: InputMaybe<Scalars['ID']['input']>;
+  deadline?: InputMaybe<Scalars['Date']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  instructionsUrl?: InputMaybe<Scalars['String']['input']>;
+  labelSet?: InputMaybe<Scalars['ID']['input']>;
+  labelsWithAcousticFeatures?: InputMaybe<Scalars['ID']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  owner?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type UserNodeAnnotationsArgs = {
+  acousticFeatures?: InputMaybe<Scalars['ID']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotationPhase?: InputMaybe<Scalars['ID']['input']>;
+  annotator?: InputMaybe<Scalars['ID']['input']>;
+  annotatorExpertiseLevel?: InputMaybe<ApiAnnotationAnnotatorExpertiseLevelChoices>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  confidence?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  detectorConfiguration?: InputMaybe<Scalars['ID']['input']>;
+  endFrequency?: InputMaybe<Scalars['Float']['input']>;
+  endTime?: InputMaybe<Scalars['Float']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  isUpdateOf?: InputMaybe<Scalars['ID']['input']>;
+  label?: InputMaybe<Scalars['ID']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  lastUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  spectrogram?: InputMaybe<Scalars['ID']['input']>;
+  startFrequency?: InputMaybe<Scalars['Float']['input']>;
+  startTime?: InputMaybe<Scalars['Float']['input']>;
+  type?: InputMaybe<ApiAnnotationTypeChoices>;
+};
+
+
+export type UserNodeArchivesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  byUser?: InputMaybe<Scalars['ID']['input']>;
+  date?: InputMaybe<Scalars['DateTime']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type UserNodeCreatedPhasesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaign?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  createdBy?: InputMaybe<Scalars['ID']['input']>;
+  endedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  endedBy?: InputMaybe<Scalars['ID']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<ApiAnnotationPhasePhaseChoices>;
+};
+
+
+export type UserNodeDatasetSetArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  legacy?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  owner?: InputMaybe<Scalars['ID']['input']>;
+  path?: InputMaybe<Scalars['String']['input']>;
+  relatedChannelConfigurations?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type UserNodeEndedPhasesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  annotationCampaign?: InputMaybe<Scalars['ID']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  createdBy?: InputMaybe<Scalars['ID']['input']>;
+  endedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  endedBy?: InputMaybe<Scalars['ID']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<ApiAnnotationPhasePhaseChoices>;
+};
+
+
+export type UserNodeSpectrogramAnalysisArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  colormap?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  dataDuration?: InputMaybe<Scalars['Float']['input']>;
+  dataset?: InputMaybe<Scalars['ID']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dynamicMax?: InputMaybe<Scalars['Float']['input']>;
+  dynamicMin?: InputMaybe<Scalars['Float']['input']>;
+  endDate?: InputMaybe<Scalars['Date']['input']>;
+  fft?: InputMaybe<Scalars['ID']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  legacy?: InputMaybe<Scalars['Boolean']['input']>;
+  legacyConfiguration?: InputMaybe<Scalars['ID']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  owner?: InputMaybe<Scalars['ID']['input']>;
+  path?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['Date']['input']>;
+};
+
+export type UserNodeNodeConnection = {
+  __typename?: 'UserNodeNodeConnection';
+  /** Pagination data for this connection. */
+  pageInfo: PageInfoExtra;
+  /** Contains the nodes in this connection. */
+  results: Array<Maybe<UserNode>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 

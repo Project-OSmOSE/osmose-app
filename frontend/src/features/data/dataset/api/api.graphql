@@ -25,3 +25,16 @@ query getAvailableDatasetsForImport {
         }
     }
 }
+
+query getDatasetByID($id: ID!) {
+    datasetById(id: $id) {
+        name
+        createdAt
+        legacy
+        start
+        end
+        owner {
+            displayName
+        }
+    }
+}

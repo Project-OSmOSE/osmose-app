@@ -1067,8 +1067,7 @@ type Query {
     id: ID
   ): WebsiteProjectNodeNodeConnection
   websiteProjetById(pk: ID!): WebsiteProjectNode
-  _debug: DjangoDebug
-  allColormaps(
+  allUsers(
     """Query limit"""
     limit: Int
 
@@ -1081,8 +1080,19 @@ type Query {
     after: String
     first: Int
     last: Int
-    name: String
-  ): ColormapNodeNodeConnection
+    password: String
+    lastLogin: DateTime
+    isSuperuser: Boolean
+    groups: [ID]
+    userPermissions: [ID]
+    username: String
+    firstName: String
+    lastName: String
+    email: String
+    isStaff: Boolean
+    isActive: Boolean
+    dateJoined: DateTime
+  ): UserNodeNodeConnection
   allDatasets(
     """Query limit"""
     limit: Int
@@ -1107,6 +1117,24 @@ type Query {
     """Ordering"""
     orderBy: String
   ): DatasetNodeNodeConnection
+  datasetById(id: ID!): DatasetNode
+  allDatasetsAvailableForImport: [ImportDatasetType]
+  _debug: DjangoDebug
+  allColormaps(
+    """Query limit"""
+    limit: Int
+
+    """Query offset"""
+    offset: Int
+
+    """Query order"""
+    ordering: String
+    before: String
+    after: String
+    first: Int
+    last: Int
+    name: String
+  ): ColormapNodeNodeConnection
   allFfts(
     """Query limit"""
     limit: Int
@@ -1237,7 +1265,6 @@ type Query {
     dynamicMin: Float
     dynamicMax: Float
   ): SpectrogramAnalysisNodeNodeConnection
-  allDatasetsAvailableForImport: [ImportDatasetType]
   allArchives(
     """Query limit"""
     limit: Int
@@ -2334,6 +2361,7 @@ type AnnotationNode implements Node {
   label: LabelNode!
   confidence: ConfidenceNode
   annotationPhase: AnnotationPhaseNode!
+  annotator: UserNode
 
   """Expertise level of the annotator."""
   annotatorExpertiseLevel: ApiAnnotationAnnotatorExpertiseLevelChoices
@@ -2448,6 +2476,7 @@ type AnnotationCampaignNode implements Node {
   allowColormapTuning: Boolean!
   colormapDefault: String
   colormapInvertedDefault: Boolean
+  owner: UserNode!
   confidenceSet: ConfidenceSetNode
   archive: ArchiveNode
   phases(offset: Int, before: String, after: String, first: Int, last: Int, phase: ApiAnnotationPhasePhaseChoices, annotationCampaign: ID, createdAt: DateTime, createdBy: ID, endedAt: DateTime, endedBy: ID): AnnotationPhaseNodeConnection!
@@ -2469,6 +2498,7 @@ type DatasetNode implements Node {
   name: String!
   description: String
   path: String!
+  owner: UserNode!
   legacy: Boolean!
   relatedChannelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], storages_Id: Decimal, storages_Id_In: [ID]): ChannelConfigurationNodeConnection!
   spectrogramAnalysis(
@@ -2503,69 +2533,36 @@ type DatasetNode implements Node {
   annotationCampaigns(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
   analysisCount: Int
   filesCount: Int
-  start: Date
-  end: Date
+  start: DateTime
+  end: DateTime
 }
 
-type ChannelConfigurationNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ChannelConfigurationNodeEdge]!
-}
-
-"""A Relay edge containing a `ChannelConfigurationNode` and its cursor."""
-type ChannelConfigurationNodeEdge {
-  """The item at the end of the edge"""
-  node: ChannelConfigurationNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type ChannelConfigurationNode implements Node {
+type UserNode implements Node {
   id: ID!
-  deployment: DeploymentNode!
-
-  """Each specification is dedicated to one file."""
-  recorderSpecification: ChannelConfigurationRecorderSpecificationNode
-
-  """Each specification is dedicated to one file."""
-  detectorSpecification: ChannelConfigurationDetectorSpecificationNode
-  storages(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], model: String, model_Icontains: String, serialNumber: String, serialNumber_Icontains: String, ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], storageSpecification_Isnull: Boolean, recorderSpecification_Isnull: Boolean, hydrophoneSpecification_Isnull: Boolean, acousticDetectorSpecification_Isnull: Boolean, purchaseDate: Date, purchaseDate_Lt: Date, purchaseDate_Lte: Date, purchaseDate_Gt: Date, purchaseDate_Gte: Date, name: String, name_Icontains: String, batterySlotsCount: Int, batterySlotsCount_Lt: Int, batterySlotsCount_Lte: Int, batterySlotsCount_Gt: Int, batterySlotsCount_Gte: Int, batteryType: String, batteryType_Icontains: String, cables: String, cables_Icontains: String, channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], channelConfigurationHydrophoneSpecifications_Id: Decimal, channelConfigurationHydrophoneSpecifications_Id_In: [ID], channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID]): EquipmentNodeConnection!
+  password: String!
+  lastLogin: DateTime
 
   """
-  Boolean indicating if the record is continuous (1) or has a duty cycle (0).
+  Designates that this user has all permissions without explicitly assigning them.
   """
-  continuous: Boolean
+  isSuperuser: Boolean!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+
+  """Designates whether the user can log into this admin site."""
+  isStaff: Boolean!
 
   """
-  If it's not Continuous, time length (in second) during which the recorder is on.
+  Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
   """
-  dutyCycleOn: Int
-
-  """
-  If it's not Continuous, time length (in second) during which the recorder is off.
-  """
-  dutyCycleOff: Int
-
-  """Immersion depth of instrument (in positive meters)."""
-  instrumentDepth: Int
-  timezone: String
-  extraInformation: String
-
-  """
-  Harvest start date at which the channel configuration was idle to record (in UTC).
-  """
-  harvestStartingDate: DateTime
-
-  """
-  Harvest stop date at which the channel configuration finished to record in (in UTC).
-  """
-  harvestEndingDate: DateTime
-  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
-  datasets(
+  isActive: Boolean!
+  dateJoined: DateTime!
+  archives(offset: Int, before: String, after: String, first: Int, last: Int, date: DateTime, byUser: ID): ArchiveNodeConnection!
+  datasetSet(
     offset: Int
     before: String
     after: String
@@ -2582,224 +2579,58 @@ type ChannelConfigurationNode implements Node {
     """Ordering"""
     orderBy: String
   ): DatasetNodeConnection!
-}
-
-type ChannelConfigurationRecorderSpecificationNode implements Node {
-  id: ID!
-  recorder: EquipmentNode!
-  hydrophone: EquipmentNode!
-  recordingFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
-
-  """Sampling frequency of the recording channel (in Hertz)."""
-  samplingFrequency: Int!
-
-  """
-  Number of quantization bits used to represent each sample by the recorder channel (in bits).
-  """
-  sampleDepth: Int!
-
-  """
-  Gain of the channel (recorder), with correction factors if applicable, without hydrophone sensibility (in dB). If end-to-end calibration with hydrophone sensibility, set it in Sensitivity and set Gain to 0 dB.<br>Gain G of the channel such that : data(uPa) = data(volt)*10^((-Sh-G)/20). See Sensitivity for Sh definition.
-  """
-  gain: Float!
-
-  """Name of the channel used for recording."""
-  channelName: String
-  channelConfiguration: ChannelConfigurationNode
-}
-
-type FileFormatNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [FileFormatNodeEdge]!
-}
-
-"""A Relay edge containing a `FileFormatNode` and its cursor."""
-type FileFormatNodeEdge {
-  """The item at the end of the edge"""
-  node: FileFormatNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type FileFormatNode implements Node {
-  id: ID!
-
-  """Format of the file"""
-  name: String!
-
-  """Format of the audio file."""
-  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
-  channelConfigurationDetectorSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], detectorId: ID, detectorId_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], outputFormats: String): ChannelConfigurationDetectorSpecificationNodeConnection!
-  channelConfigurationRecorderSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], hydrophoneId: ID, hydrophoneId_In: [ID], recorderId: ID, recorderId_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], recordingFormats: String): ChannelConfigurationRecorderSpecificationNodeConnection!
-  spectrogramSet(offset: Int, before: String, after: String, first: Int, last: Int, format: ID, filename: String, start: DateTime, end: DateTime, analysis: ID): SpectrogramNodeConnection!
-}
-
-type FileNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [FileNodeEdge]!
-}
-
-"""A Relay edge containing a `FileNode` and its cursor."""
-type FileNodeEdge {
-  """The item at the end of the edge"""
-  node: FileNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type FileNode implements Node {
-  id: ID!
-
-  """Name of the file, with extension."""
-  filename: String!
-
-  """Format of the audio file."""
-  format: FileFormatNode!
-
-  """Each property is dedicated to one file."""
-  audioProperties: AudioPropertiesNode
-
-  """Each property is dedicated to one file."""
-  detectionProperties: DetectionPropertiesNode
-
-  """Description of the path to access the data."""
-  storageLocation: String
-
-  """Total number of bytes of the audio file (in bytes)."""
-  fileSize: BigInt
-  accessibility: AccessibilityEnum
-  channelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], storages_Id: Decimal, storages_Id_In: [ID]): ChannelConfigurationNodeConnection!
-}
-
-type AudioPropertiesNode implements Node {
-  id: ID!
-
-  """
-  Sampling frequency of the audio file (in Hertz). If it is different from the channel sampling frequency, resampling has been performed.
-  """
-  samplingFrequency: Int!
-
-  """Date and time of the audio file start (in UTC)."""
-  initialTimestamp: DateTime!
-
-  """Duration of the audio file (in seconds)."""
-  duration: Int!
-
-  """
-  Number of quantization bits used to represent each sample (in bits). If it is different from the channel sampling frequency, re-quantization has been performed.
-  """
-  sampleDepth: Int
-  file: FileNode
-}
-
-type DetectionPropertiesNode implements Node {
-  id: ID!
-
-  """Start of the detection file covering (in UTC)."""
-  start: DateTime!
-
-  """End of the detection file covering (in UTC)."""
-  end: DateTime!
-  file: FileNode
-}
-
-"""
-The `BigInt` scalar type represents non-fractional whole numeric values.
-`BigInt` is not constrained to 32-bit like the `Int` type and thus is a less
-compatible type.
-"""
-scalar BigInt
-
-type ChannelConfigurationDetectorSpecificationNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ChannelConfigurationDetectorSpecificationNodeEdge]!
-}
-
-"""
-A Relay edge containing a `ChannelConfigurationDetectorSpecificationNode` and its cursor.
-"""
-type ChannelConfigurationDetectorSpecificationNodeEdge {
-  """The item at the end of the edge"""
-  node: ChannelConfigurationDetectorSpecificationNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type ChannelConfigurationDetectorSpecificationNode implements Node {
-  id: ID!
-  detector: EquipmentNode!
-  outputFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
-  labels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], shape: SignalShapeEnum, plurality: SignalPluralityEnum, minFrequency: Int, minFrequency_Lt: Int, minFrequency_Lte: Int, minFrequency_Gt: Int, minFrequency_Gte: Int, maxFrequency: Int, maxFrequency_Lt: Int, maxFrequency_Lte: Int, maxFrequency_Gt: Int, maxFrequency_Gte: Int, meanDuration: Float, meanDuration_Lt: Float, meanDuration_Lte: Float, meanDuration_Gt: Float, meanDuration_Gte: Float, labels_Id: Decimal): LabelNodeConnection!
-
-  """Minimum frequency (in Hertz)."""
-  minFrequency: Int
-
-  """Maximum frequency (in Hertz)."""
-  maxFrequency: Int
-  filter: String
-  configuration: String
-  channelConfiguration: ChannelConfigurationNode
-}
-
-type ChannelConfigurationRecorderSpecificationNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ChannelConfigurationRecorderSpecificationNodeEdge]!
-}
-
-"""
-A Relay edge containing a `ChannelConfigurationRecorderSpecificationNode` and its cursor.
-"""
-type ChannelConfigurationRecorderSpecificationNodeEdge {
-  """The item at the end of the edge"""
-  node: ChannelConfigurationRecorderSpecificationNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type SpectrogramNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [SpectrogramNodeEdge]!
-}
-
-"""A Relay edge containing a `SpectrogramNode` and its cursor."""
-type SpectrogramNodeEdge {
-  """The item at the end of the edge"""
-  node: SpectrogramNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-"""Spectrogram schema"""
-type SpectrogramNode implements Node {
-  id: ID!
-  format: FileFormatNode!
-  filename: String!
-  start: DateTime!
-  end: DateTime!
-  analysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  spectrogramAnalysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  annotationcampaignSet(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, instructionsUrl: String, deadline: Date, labelSet: ID, labelsWithAcousticFeatures: ID, allowPointAnnotation: Boolean, dataset: ID, analysis: ID, allowImageTuning: Boolean, allowColormapTuning: Boolean, colormapDefault: String, colormapInvertedDefault: Boolean, owner: ID, confidenceSet: ID, archive: ID): AnnotationCampaignNodeConnection!
+  createdPhases(offset: Int, before: String, after: String, first: Int, last: Int, phase: ApiAnnotationPhasePhaseChoices, annotationCampaign: ID, createdAt: DateTime, createdBy: ID, endedAt: DateTime, endedBy: ID): AnnotationPhaseNodeConnection!
+  endedPhases(offset: Int, before: String, after: String, first: Int, last: Int, phase: ApiAnnotationPhasePhaseChoices, annotationCampaign: ID, createdAt: DateTime, createdBy: ID, endedAt: DateTime, endedBy: ID): AnnotationPhaseNodeConnection!
   annotations(offset: Int, before: String, after: String, first: Int, last: Int, type: ApiAnnotationTypeChoices, startTime: Float, endTime: Float, startFrequency: Float, endFrequency: Float, label: ID, confidence: ID, annotationPhase: ID, annotator: ID, annotatorExpertiseLevel: ApiAnnotationAnnotatorExpertiseLevelChoices, spectrogram: ID, detectorConfiguration: ID, acousticFeatures: ID, isUpdateOf: ID, createdAt: DateTime, lastUpdatedAt: DateTime): AnnotationNodeConnection!
   annotationComments(offset: Int, before: String, after: String, first: Int, last: Int, comment: String, annotation: ID, annotationPhase: ID, author: ID, spectrogram: ID): AnnotationCommentNodeConnection!
   annotationTasks(offset: Int, before: String, after: String, first: Int, last: Int, status: ApiAnnotationTaskStatusChoices, annotationPhase: ID, annotator: ID, spectrogram: ID, sessions: [ID]): AnnotationTaskNodeConnection!
+  annotationFileRanges(offset: Int, before: String, after: String, first: Int, last: Int, firstFileIndex: Int, lastFileIndex: Int, fromDatetime: DateTime, toDatetime: DateTime, filesCount: Int, annotator: ID, annotationPhase: ID): AnnotationFileRangeNodeConnection!
+  annotationResultsValidation(offset: Int, before: String, after: String, first: Int, last: Int, annotation: ID, annotator: ID, isValid: Boolean, createdAt: DateTime, lastUpdatedAt: DateTime): AnnotationValidationNodeConnection!
+  displayName: String
+}
+
+type ArchiveNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ArchiveNodeEdge]!
+}
+
+"""A Relay edge containing a `ArchiveNode` and its cursor."""
+type ArchiveNodeEdge {
+  """The item at the end of the edge"""
+  node: ArchiveNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""Archive schema"""
+type ArchiveNode implements Node {
+  id: ID!
+  date: DateTime!
+  byUser: UserNode
+  annotationCampaign: AnnotationCampaignNode
+}
+
+type DatasetNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [DatasetNodeEdge]!
+}
+
+"""A Relay edge containing a `DatasetNode` and its cursor."""
+type DatasetNodeEdge {
+  """The item at the end of the edge"""
+  node: DatasetNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 type SpectrogramAnalysisNodeConnection {
@@ -2829,6 +2660,7 @@ type SpectrogramAnalysisNode implements Node {
   legacy: Boolean!
   startDate: Date
   endDate: Date
+  owner: UserNode!
   dataset: DatasetNode!
 
   """Duration of the segmented data (in s)"""
@@ -2981,6 +2813,301 @@ type SpectrogramNodeNodeConnection {
   totalCount: Int
 }
 
+"""Spectrogram schema"""
+type SpectrogramNode implements Node {
+  id: ID!
+  format: FileFormatNode!
+  filename: String!
+  start: DateTime!
+  end: DateTime!
+  analysis(offset: Int, before: String, after: String, first: Int, last: Int, createdAt: DateTime, name: String, description: String, path: String, legacy: Boolean, startDate: Date, endDate: Date, owner: ID, dataset: ID, dataDuration: Float, fft: ID, colormap: ID, legacyConfiguration: ID, dynamicMin: Float, dynamicMax: Float): SpectrogramAnalysisNodeConnection!
+  annotations(offset: Int, before: String, after: String, first: Int, last: Int, type: ApiAnnotationTypeChoices, startTime: Float, endTime: Float, startFrequency: Float, endFrequency: Float, label: ID, confidence: ID, annotationPhase: ID, annotator: ID, annotatorExpertiseLevel: ApiAnnotationAnnotatorExpertiseLevelChoices, spectrogram: ID, detectorConfiguration: ID, acousticFeatures: ID, isUpdateOf: ID, createdAt: DateTime, lastUpdatedAt: DateTime): AnnotationNodeConnection!
+  annotationComments(offset: Int, before: String, after: String, first: Int, last: Int, comment: String, annotation: ID, annotationPhase: ID, author: ID, spectrogram: ID): AnnotationCommentNodeConnection!
+  annotationTasks(offset: Int, before: String, after: String, first: Int, last: Int, status: ApiAnnotationTaskStatusChoices, annotationPhase: ID, annotator: ID, spectrogram: ID, sessions: [ID]): AnnotationTaskNodeConnection!
+}
+
+type FileFormatNode implements Node {
+  id: ID!
+
+  """Format of the file"""
+  name: String!
+
+  """Format of the audio file."""
+  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
+  channelConfigurationDetectorSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], detectorId: ID, detectorId_In: [ID], labels_Id: Decimal, labels_Id_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], outputFormats: String): ChannelConfigurationDetectorSpecificationNodeConnection!
+  channelConfigurationRecorderSpecifications(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], hydrophoneId: ID, hydrophoneId_In: [ID], recorderId: ID, recorderId_In: [ID], channelConfiguration_Id: Decimal, channelConfiguration_Id_In: [ID], recordingFormats: String): ChannelConfigurationRecorderSpecificationNodeConnection!
+  spectrogramSet(offset: Int, before: String, after: String, first: Int, last: Int, format: ID, filename: String, start: DateTime, end: DateTime, analysis: ID): SpectrogramNodeConnection!
+}
+
+type FileNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileNodeEdge]!
+}
+
+"""A Relay edge containing a `FileNode` and its cursor."""
+type FileNodeEdge {
+  """The item at the end of the edge"""
+  node: FileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type FileNode implements Node {
+  id: ID!
+
+  """Name of the file, with extension."""
+  filename: String!
+
+  """Format of the audio file."""
+  format: FileFormatNode!
+
+  """Each property is dedicated to one file."""
+  audioProperties: AudioPropertiesNode
+
+  """Each property is dedicated to one file."""
+  detectionProperties: DetectionPropertiesNode
+
+  """Description of the path to access the data."""
+  storageLocation: String
+
+  """Total number of bytes of the audio file (in bytes)."""
+  fileSize: BigInt
+  accessibility: AccessibilityEnum
+  channelConfigurations(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], recorderSpecification_Isnull: Boolean, detectorSpecification_Isnull: Boolean, deploymentId: ID, deploymentId_In: [ID], continuous: Boolean, dutyCycleOn: Int, dutyCycleOn_Lt: Int, dutyCycleOn_Lte: Int, dutyCycleOn_Gt: Int, dutyCycleOn_Gte: Int, dutyCycleOff: Int, dutyCycleOff_Lt: Int, dutyCycleOff_Lte: Int, dutyCycleOff_Gt: Int, dutyCycleOff_Gte: Int, instrumentDepth: Int, instrumentDepth_Lt: Int, instrumentDepth_Lte: Int, instrumentDepth_Gt: Int, instrumentDepth_Gte: Int, timezone: String, harvestStartingDate: DateTime, harvestStartingDate_Lt: DateTime, harvestStartingDate_Lte: DateTime, harvestStartingDate_Gt: DateTime, harvestStartingDate_Gte: DateTime, harvestEndingDate: DateTime, harvestEndingDate_Lt: DateTime, harvestEndingDate_Lte: DateTime, harvestEndingDate_Gt: DateTime, harvestEndingDate_Gte: DateTime, files_Id: Decimal, files_Id_In: [ID], storages_Id: Decimal, storages_Id_In: [ID]): ChannelConfigurationNodeConnection!
+}
+
+type AudioPropertiesNode implements Node {
+  id: ID!
+
+  """
+  Sampling frequency of the audio file (in Hertz). If it is different from the channel sampling frequency, resampling has been performed.
+  """
+  samplingFrequency: Int!
+
+  """Date and time of the audio file start (in UTC)."""
+  initialTimestamp: DateTime!
+
+  """Duration of the audio file (in seconds)."""
+  duration: Int!
+
+  """
+  Number of quantization bits used to represent each sample (in bits). If it is different from the channel sampling frequency, re-quantization has been performed.
+  """
+  sampleDepth: Int
+  file: FileNode
+}
+
+type DetectionPropertiesNode implements Node {
+  id: ID!
+
+  """Start of the detection file covering (in UTC)."""
+  start: DateTime!
+
+  """End of the detection file covering (in UTC)."""
+  end: DateTime!
+  file: FileNode
+}
+
+"""
+The `BigInt` scalar type represents non-fractional whole numeric values.
+`BigInt` is not constrained to 32-bit like the `Int` type and thus is a less
+compatible type.
+"""
+scalar BigInt
+
+type ChannelConfigurationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationNodeEdge]!
+}
+
+"""A Relay edge containing a `ChannelConfigurationNode` and its cursor."""
+type ChannelConfigurationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationNode implements Node {
+  id: ID!
+  deployment: DeploymentNode!
+
+  """Each specification is dedicated to one file."""
+  recorderSpecification: ChannelConfigurationRecorderSpecificationNode
+
+  """Each specification is dedicated to one file."""
+  detectorSpecification: ChannelConfigurationDetectorSpecificationNode
+  storages(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], model: String, model_Icontains: String, serialNumber: String, serialNumber_Icontains: String, ownerId: ID, ownerId_In: [ID], providerId: ID, providerId_In: [ID], storageSpecification_Isnull: Boolean, recorderSpecification_Isnull: Boolean, hydrophoneSpecification_Isnull: Boolean, acousticDetectorSpecification_Isnull: Boolean, purchaseDate: Date, purchaseDate_Lt: Date, purchaseDate_Lte: Date, purchaseDate_Gt: Date, purchaseDate_Gte: Date, name: String, name_Icontains: String, batterySlotsCount: Int, batterySlotsCount_Lt: Int, batterySlotsCount_Lte: Int, batterySlotsCount_Gt: Int, batterySlotsCount_Gte: Int, batteryType: String, batteryType_Icontains: String, cables: String, cables_Icontains: String, channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], channelConfigurationHydrophoneSpecifications_Id: Decimal, channelConfigurationHydrophoneSpecifications_Id_In: [ID], channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID], maintenances_Id: Decimal, maintenances_Id_In: [ID]): EquipmentNodeConnection!
+
+  """
+  Boolean indicating if the record is continuous (1) or has a duty cycle (0).
+  """
+  continuous: Boolean
+
+  """
+  If it's not Continuous, time length (in second) during which the recorder is on.
+  """
+  dutyCycleOn: Int
+
+  """
+  If it's not Continuous, time length (in second) during which the recorder is off.
+  """
+  dutyCycleOff: Int
+
+  """Immersion depth of instrument (in positive meters)."""
+  instrumentDepth: Int
+  timezone: String
+  extraInformation: String
+
+  """
+  Harvest start date at which the channel configuration was idle to record (in UTC).
+  """
+  harvestStartingDate: DateTime
+
+  """
+  Harvest stop date at which the channel configuration finished to record in (in UTC).
+  """
+  harvestEndingDate: DateTime
+  files(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], filename: String, filename_Icontains: String, format: String, audioPropertiesId: ID, audioPropertiesId_In: [ID], detectionPropertiesId: ID, detectionPropertiesId_In: [ID], storageLocation: String, storageLocation_Icontains: String, fileSize: BigInt, fileSize_Lt: BigInt, fileSize_Lte: BigInt, fileSize_Gt: BigInt, fileSize_Gte: BigInt, accessibility: AccessibilityEnum, channelConfigurations_Id: Decimal, channelConfigurations_Id_In: [ID]): FileNodeConnection!
+  datasets(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    createdAt: DateTime
+    name: String
+    description: String
+    path: String
+    owner: ID
+    legacy: Boolean
+    relatedChannelConfigurations: ID
+
+    """Ordering"""
+    orderBy: String
+  ): DatasetNodeConnection!
+}
+
+type ChannelConfigurationRecorderSpecificationNode implements Node {
+  id: ID!
+  recorder: EquipmentNode!
+  hydrophone: EquipmentNode!
+  recordingFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
+
+  """Sampling frequency of the recording channel (in Hertz)."""
+  samplingFrequency: Int!
+
+  """
+  Number of quantization bits used to represent each sample by the recorder channel (in bits).
+  """
+  sampleDepth: Int!
+
+  """
+  Gain of the channel (recorder), with correction factors if applicable, without hydrophone sensibility (in dB). If end-to-end calibration with hydrophone sensibility, set it in Sensitivity and set Gain to 0 dB.<br>Gain G of the channel such that : data(uPa) = data(volt)*10^((-Sh-G)/20). See Sensitivity for Sh definition.
+  """
+  gain: Float!
+
+  """Name of the channel used for recording."""
+  channelName: String
+  channelConfiguration: ChannelConfigurationNode
+}
+
+type FileFormatNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileFormatNodeEdge]!
+}
+
+"""A Relay edge containing a `FileFormatNode` and its cursor."""
+type FileFormatNodeEdge {
+  """The item at the end of the edge"""
+  node: FileFormatNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationDetectorSpecificationNode implements Node {
+  id: ID!
+  detector: EquipmentNode!
+  outputFormats(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], name: String, name_Icontains: String, channelConfigurationRecorderSpecifications_Id: Decimal, channelConfigurationRecorderSpecifications_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], files_Id: Decimal, files_Id_In: [ID]): FileFormatNodeConnection!
+  labels(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, id_In: [ID], sourceId: ID, sourceId_In: [ID], soundId: ID, soundId_In: [ID], parentId: ID, parentId_In: [ID], children_Id: Decimal, children_Id_In: [ID], nickname: String, nickname_Icontains: String, acousticDetectors_Id: Decimal, acousticDetectors_Id_In: [ID], channelConfigurationDetectorSpecifications_Id: Decimal, channelConfigurationDetectorSpecifications_Id_In: [ID], shape: SignalShapeEnum, plurality: SignalPluralityEnum, minFrequency: Int, minFrequency_Lt: Int, minFrequency_Lte: Int, minFrequency_Gt: Int, minFrequency_Gte: Int, maxFrequency: Int, maxFrequency_Lt: Int, maxFrequency_Lte: Int, maxFrequency_Gt: Int, maxFrequency_Gte: Int, meanDuration: Float, meanDuration_Lt: Float, meanDuration_Lte: Float, meanDuration_Gt: Float, meanDuration_Gte: Float, labels_Id: Decimal): LabelNodeConnection!
+
+  """Minimum frequency (in Hertz)."""
+  minFrequency: Int
+
+  """Maximum frequency (in Hertz)."""
+  maxFrequency: Int
+  filter: String
+  configuration: String
+  channelConfiguration: ChannelConfigurationNode
+}
+
+type ChannelConfigurationDetectorSpecificationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationDetectorSpecificationNodeEdge]!
+}
+
+"""
+A Relay edge containing a `ChannelConfigurationDetectorSpecificationNode` and its cursor.
+"""
+type ChannelConfigurationDetectorSpecificationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationDetectorSpecificationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ChannelConfigurationRecorderSpecificationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ChannelConfigurationRecorderSpecificationNodeEdge]!
+}
+
+"""
+A Relay edge containing a `ChannelConfigurationRecorderSpecificationNode` and its cursor.
+"""
+type ChannelConfigurationRecorderSpecificationNodeEdge {
+  """The item at the end of the edge"""
+  node: ChannelConfigurationRecorderSpecificationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type SpectrogramNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [SpectrogramNodeEdge]!
+}
+
+"""A Relay edge containing a `SpectrogramNode` and its cursor."""
+type SpectrogramNodeEdge {
+  """The item at the end of the edge"""
+  node: SpectrogramNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
 """An enumeration."""
 enum ApiAnnotationAnnotatorExpertiseLevelChoices {
   """Expert"""
@@ -3016,6 +3143,7 @@ type AnnotationCommentNode implements Node {
   comment: String!
   annotation: AnnotationNode
   annotationPhase: AnnotationPhaseNode!
+  author: UserNode!
   spectrogram: SpectrogramNode!
 }
 
@@ -3025,7 +3153,9 @@ type AnnotationPhaseNode implements Node {
   phase: ApiAnnotationPhasePhaseChoices!
   annotationCampaign: AnnotationCampaignNode!
   createdAt: DateTime!
+  createdBy: UserNode!
   endedAt: DateTime
+  endedBy: UserNode
   results(offset: Int, before: String, after: String, first: Int, last: Int, type: ApiAnnotationTypeChoices, startTime: Float, endTime: Float, startFrequency: Float, endFrequency: Float, label: ID, confidence: ID, annotationPhase: ID, annotator: ID, annotatorExpertiseLevel: ApiAnnotationAnnotatorExpertiseLevelChoices, spectrogram: ID, detectorConfiguration: ID, acousticFeatures: ID, isUpdateOf: ID, createdAt: DateTime, lastUpdatedAt: DateTime): AnnotationNodeConnection!
   annotationComments(offset: Int, before: String, after: String, first: Int, last: Int, comment: String, annotation: ID, annotationPhase: ID, author: ID, spectrogram: ID): AnnotationCommentNodeConnection!
   annotationTasks(offset: Int, before: String, after: String, first: Int, last: Int, status: ApiAnnotationTaskStatusChoices, annotationPhase: ID, annotator: ID, spectrogram: ID, sessions: [ID]): AnnotationTaskNodeConnection!
@@ -3063,6 +3193,7 @@ type AnnotationTaskNode implements Node {
   id: ID!
   status: ApiAnnotationTaskStatusChoices!
   annotationPhase: AnnotationPhaseNode!
+  annotator: UserNode!
   spectrogram: SpectrogramNode!
 }
 
@@ -3100,40 +3231,8 @@ type AnnotationFileRangeNode implements Node {
   fromDatetime: DateTime!
   toDatetime: DateTime!
   filesCount: Int!
+  annotator: UserNode!
   annotationPhase: AnnotationPhaseNode!
-}
-
-type DatasetNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [DatasetNodeEdge]!
-}
-
-"""A Relay edge containing a `DatasetNode` and its cursor."""
-type DatasetNodeEdge {
-  """The item at the end of the edge"""
-  node: DatasetNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type SpectrogramAnalysisNodeNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfoExtra!
-
-  """Contains the nodes in this connection."""
-  results: [SpectrogramAnalysisNode]!
-  totalCount: Int
-}
-
-"""Archive schema"""
-type ArchiveNode implements Node {
-  id: ID!
-  date: DateTime!
-  annotationCampaign: AnnotationCampaignNode
 }
 
 type AnnotationPhaseNodeConnection {
@@ -3151,6 +3250,42 @@ type AnnotationPhaseNodeEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
+}
+
+type AnnotationValidationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [AnnotationValidationNodeEdge]!
+}
+
+"""A Relay edge containing a `AnnotationValidationNode` and its cursor."""
+type AnnotationValidationNodeEdge {
+  """The item at the end of the edge"""
+  node: AnnotationValidationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""AnnotationValidation schema"""
+type AnnotationValidationNode implements Node {
+  id: ID!
+  annotation: AnnotationNode!
+  annotator: UserNode!
+  isValid: Boolean
+  createdAt: DateTime!
+  lastUpdatedAt: DateTime!
+}
+
+type SpectrogramAnalysisNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [SpectrogramAnalysisNode]!
+  totalCount: Int
 }
 
 """AcousticFeatures schema"""
@@ -3191,32 +3326,6 @@ enum ApiAcousticFeaturesTrendChoices {
 
   """Modulated"""
   MOD
-}
-
-type AnnotationValidationNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [AnnotationValidationNodeEdge]!
-}
-
-"""A Relay edge containing a `AnnotationValidationNode` and its cursor."""
-type AnnotationValidationNodeEdge {
-  """The item at the end of the edge"""
-  node: AnnotationValidationNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-"""AnnotationValidation schema"""
-type AnnotationValidationNode implements Node {
-  id: ID!
-  annotation: AnnotationNode!
-  isValid: Boolean
-  createdAt: DateTime!
-  lastUpdatedAt: DateTime!
 }
 
 type DeploymentMobilePositionNodeConnection {
@@ -3676,6 +3785,38 @@ type WebsiteProjectNodeNodeConnection {
   totalCount: Int
 }
 
+type UserNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [UserNode]!
+  totalCount: Int
+}
+
+type DatasetNodeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfoExtra!
+
+  """Contains the nodes in this connection."""
+  results: [DatasetNode]!
+  totalCount: Int
+}
+
+"""Type for import dataset"""
+type ImportDatasetType {
+  name: String!
+  path: String!
+  legacy: Boolean
+  analysis: [ImportSpectrogramAnalysisType]
+}
+
+"""Type for import dataset"""
+type ImportSpectrogramAnalysisType {
+  name: String!
+  path: String!
+}
+
 """Debugging information for the current query."""
 type DjangoDebug {
   """Executed SQL queries for this API query."""
@@ -3751,15 +3892,6 @@ type ColormapNodeNodeConnection {
   totalCount: Int
 }
 
-type DatasetNodeNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfoExtra!
-
-  """Contains the nodes in this connection."""
-  results: [DatasetNode]!
-  totalCount: Int
-}
-
 type FFTNodeNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfoExtra!
@@ -3794,20 +3926,6 @@ type MultiLinearScaleNodeNodeConnection {
   """Contains the nodes in this connection."""
   results: [MultiLinearScaleNode]!
   totalCount: Int
-}
-
-"""Type for import dataset"""
-type ImportDatasetType {
-  name: String!
-  path: String!
-  legacy: Boolean
-  analysis: [ImportSpectrogramAnalysisType]
-}
-
-"""Type for import dataset"""
-type ImportSpectrogramAnalysisType {
-  name: String!
-  path: String!
 }
 
 type ArchiveNodeNodeConnection {
