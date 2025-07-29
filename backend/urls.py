@@ -30,7 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from backend.api.urls import router
+from backend.api.urls import api_router
 from backend.aplose.urls import aplose_router
 from backend.osmosewebsite.urls import website_router
 from backend.sql.urls import sql_router
@@ -50,7 +50,7 @@ if settings.DEBUG:
 api_urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("", include(router.urls)),
+    path("", include(api_router.urls)),
     path("", include(aplose_router.urls)),
     path("", include(website_router.urls)),
     path("", include(sql_router.urls)),
