@@ -50,6 +50,7 @@ class LegacySpectrogramConfiguration(models.Model):
     peak_voltage = models.FloatField(null=True, blank=True)
     sensitivity_dB = models.FloatField(null=True, blank=True)
     temporal_resolution = models.FloatField(null=True, blank=True)
+    gain_dB = models.FloatField(null=True, blank=True)
 
     linear_frequency_scale = models.ForeignKey(
         LinearScale, on_delete=models.SET_NULL, blank=True, null=True

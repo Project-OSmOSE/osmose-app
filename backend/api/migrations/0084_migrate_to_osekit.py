@@ -209,6 +209,7 @@ class Migration(migrations.Migration):
                 ("peak_voltage", models.FloatField(blank=True, null=True)),
                 ("sensitivity_dB", models.FloatField(blank=True, null=True)),
                 ("temporal_resolution", models.FloatField(blank=True, null=True)),
+                ("gain_dB", models.FloatField(blank=True, null=True)),
                 (
                     "linear_frequency_scale",
                     models.ForeignKey(
@@ -251,7 +252,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunSQL(
-            sql="""INSERT INTO api_legacyspectrogramconfiguration (id, folder, audio_files_subtypes, channel_count, file_overlap, zoom_level, hp_filter_min_frequency, data_normalization, spectrogram_normalization, frequency_resolution, zscore_duration, window_type, peak_voltage, "sensitivity_dB", temporal_resolution, linear_frequency_scale_id, multi_linear_frequency_scale_id)
+            sql="""INSERT INTO api_legacyspectrogramconfiguration (id, folder, audio_files_subtypes, channel_count, file_overlap, zoom_level, hp_filter_min_frequency, data_normalization, spectrogram_normalization, frequency_resolution, zscore_duration, window_type, peak_voltage, "sensitivity_dB", temporal_resolution, linear_frequency_scale_id, multi_linear_frequency_scale_id, "gain_dB")
                     SELECT
                         c.id,
                         c.name,
@@ -269,7 +270,8 @@ class Migration(migrations.Migration):
                         c."sensitivity_dB",
                         c.temporal_resolution,
                         c.linear_frequency_scale_id,
-                        c.multi_linear_frequency_scale_id
+                        c.multi_linear_frequency_scale_id,
+                        c."gain_dB"
                         FROM api_spectrogramconfiguration c
                     LEFT JOIN api_windowtype wt on c.window_type_id = wt.id
                     LEFT JOIN datasets d on c.dataset_id = d.id
