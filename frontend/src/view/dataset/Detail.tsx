@@ -42,7 +42,7 @@ export const DatasetDetail: React.FC = () => {
   return <Fragment>
     { head }
 
-    <div>
+    <div style={ { overflowX: 'hidden' } }>
 
       <SpectrogramAnalysisTable datasetID={ datasetID }/>
     </div>

@@ -7,7 +7,7 @@ export type GetSpectrogramAnalysisQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetSpectrogramAnalysisQuery = { __typename?: 'Query', allSpectrogramAnalysis?: { __typename?: 'SpectrogramAnalysisNodeNodeConnection', results: Array<{ __typename?: 'SpectrogramAnalysisNode', name: string, description?: string | null, createdAt: any, legacy: boolean, filesCount?: number | null, start?: any | null, end?: any | null, dataDuration?: number | null, fft: { __typename?: 'FFTNode', samplingFrequency: number, nfft: number, windowSize: number, overlap: any } } | null> } | null };
+export type GetSpectrogramAnalysisQuery = { __typename?: 'Query', allSpectrogramAnalysis?: { __typename?: 'SpectrogramAnalysisNodeNodeConnection', results: Array<{ __typename?: 'SpectrogramAnalysisNode', id: string, name: string, description?: string | null, createdAt: any, legacy: boolean, filesCount?: number | null, start?: any | null, end?: any | null, dataDuration?: number | null, fft: { __typename?: 'FFTNode', samplingFrequency: number, nfft: number, windowSize: number, overlap: any } } | null> } | null };
 
 
 export const GetSpectrogramAnalysisDocument = `
@@ -18,6 +18,7 @@ export const GetSpectrogramAnalysisDocument = `
     annotationCampaigns_Id: $annotationCampaignID
   ) {
     results {
+      id
       name
       description
       createdAt

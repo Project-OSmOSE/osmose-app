@@ -146,6 +146,7 @@
   grid-template-columns: 1fr repeat(calc(var(--content-columns, 1) - 1), auto);
   gap: 0.25rem 0;
   overflow-x: auto;
+  max-width: 100%;
 
   &.uniqueColumn {
     grid-template-columns: 1fr;
