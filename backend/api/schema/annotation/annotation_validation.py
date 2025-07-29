@@ -1,14 +1,12 @@
 """AnnotationValidation schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import AnnotationValidation
+from backend.utils.schema import ApiObjectType
 
 
-class AnnotationValidationNode(DjangoObjectType):
+class AnnotationValidationNode(ApiObjectType):
     """AnnotationValidation schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

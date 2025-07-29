@@ -1,14 +1,12 @@
 """Spectrogram schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import Spectrogram
+from backend.utils.schema import ApiObjectType
 
 
-class SpectrogramNode(DjangoObjectType):
+class SpectrogramNode(ApiObjectType):
     """Spectrogram schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

@@ -1,4 +1,5 @@
 """Spectrogram model"""
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from .scales import LinearScale, MultiLinearScale
@@ -34,6 +35,11 @@ class LegacySpectrogramConfiguration(models.Model):
         return self.folder
 
     folder = models.CharField(max_length=255)
+    audio_files_subtypes = ArrayField(
+        models.CharField(max_length=255), blank=True, null=True
+    )
+    channel_count = models.IntegerField(blank=True, null=True)
+    file_overlap = models.IntegerField(blank=True, null=True)
     zoom_level = models.IntegerField()
     hp_filter_min_frequency = models.IntegerField()
     data_normalization = models.CharField(max_length=255)
@@ -44,6 +50,7 @@ class LegacySpectrogramConfiguration(models.Model):
     peak_voltage = models.FloatField(null=True, blank=True)
     sensitivity_dB = models.FloatField(null=True, blank=True)
     temporal_resolution = models.FloatField(null=True, blank=True)
+    gain_dB = models.FloatField(null=True, blank=True)
 
     linear_frequency_scale = models.ForeignKey(
         LinearScale, on_delete=models.SET_NULL, blank=True, null=True

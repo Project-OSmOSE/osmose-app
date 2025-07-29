@@ -3,8 +3,9 @@ from os import listdir
 from os.path import join, isfile, exists
 
 from django.conf import settings
-from graphene import relay, ID, ObjectType, NonNull, String
-from graphene_django import DjangoObjectType
+from django.db.models import Count, Min, Max
+from django_filters import OrderingFilter, FilterSet, NumberFilter
+from graphene import relay, ObjectType, NonNull, String, Int, DateTime
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
     SpectroDataset as OSEkitSpectroDataset,
@@ -12,22 +13,67 @@ from osekit.public_api.dataset import (
 from typing_extensions import deprecated
 
 from backend.api.models import SpectrogramAnalysis
-from backend.utils.schema import AuthenticatedDjangoConnectionField
+from backend.utils.schema import AuthenticatedDjangoConnectionField, ApiObjectType
 from .spectrogram import SpectrogramNode
 
 
-class SpectrogramAnalysisNode(DjangoObjectType):
+class SpectrogramAnalysisFilter(FilterSet):
+    """SpectrogramAnalysis filters"""
+
+    dataset_id = NumberFilter()
+    annotation_campaigns__id = NumberFilter()
+
+    class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
+        model = SpectrogramAnalysis
+        fields = {
+            "dataset_id": ["exact", "in"],
+            "annotation_campaigns__id": ["exact", "in"],
+        }
+
+    order_by = OrderingFilter(fields=("created_at",))
+
+
+class SpectrogramAnalysisNode(ApiObjectType):
     """SpectrogramAnalysis schema"""
 
-    id = ID(required=True)
     spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
+    files_count = Int()
+
+    start = DateTime()
+    end = DateTime()
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = SpectrogramAnalysis
         fields = "__all__"
-        filter_fields = "__all__"
+        filterset_class = SpectrogramAnalysisFilter
         interfaces = (relay.Node,)
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        field_names = cls._get_query_field_names(info)
+
+        cls._init_queryset_extensions()
+        if "filesCount" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "files_count": Count("spectrograms", distinct=True),
+            }
+            cls.prefetch.append("spectrograms")
+        if "start" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "start": Min("spectrograms__start"),
+            }
+            cls.prefetch.append("spectrograms")
+        if "end" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "end": Max("spectrograms__end"),
+            }
+            cls.prefetch.append("spectrograms")
+        return cls._finalize_queryset(super().get_queryset(queryset, info))
 
 
 class ImportSpectrogramAnalysisType(
@@ -104,3 +150,11 @@ def legacy_resolve_all_spectrogram_analysis_available_for_import(
         )
         available_analyses.append(analysis)
     return available_analyses
+
+
+class SpectrogramAnalysisQuery(ObjectType):  # pylint: disable=too-few-public-methods
+    """SpectrogramAnalysis queries"""
+
+    all_spectrogram_analysis = AuthenticatedDjangoConnectionField(
+        SpectrogramAnalysisNode
+    )

@@ -7,7 +7,7 @@ import {
   AnnotationCampaignArchiveButton,
   AnnotationCampaignInstructionsButton,
 } from "@/components/AnnotationCampaign";
-import { pluralize } from "@/service/function.ts";
+import { dateToString, pluralize } from "@/service/function.ts";
 import { AudioMetadataModalButton } from "@/components/Dataset/AudioMetadata";
 import { SpectrogramMetadataModalButton } from "@/components/Dataset/SpectrogramMetadata";
 import { IonSpinner } from "@ionic/react";
@@ -37,12 +37,12 @@ export const AnnotationCampaignDetailInfo: React.FC = () => {
     <AnnotationCampaignArchiveButton/>
     { campaign.archive && <FadedText>
         Archived
-        on { new Date(campaign.archive.date).toLocaleDateString() } by { campaign.archive?.by_user.display_name }
+        on { dateToString(campaign.archive.date) } by { campaign.archive?.by_user.display_name }
     </FadedText> }
     <AnnotationCampaignInstructionsButton/>
     { campaign.deadline && <div>
         <FadedText>Deadline</FadedText>
-        <p>{ new Date(campaign.deadline).toLocaleDateString() }</p>
+        <p>{ dateToString(campaign.deadline) }</p>
     </div> }
 
     {/* DATA */ }
@@ -113,7 +113,7 @@ export const AnnotationCampaignDetailInfo: React.FC = () => {
     {/* PROGRESS */ }
     { phases && phases.map(p => <div key={ p.id } className={ styles.bloc }>
       <FadedText>{ p.phase } progress</FadedText>
-      <PhaseGlobalProgress phase={ p } withoutLabel className={styles.progress}/>
+      <PhaseGlobalProgress phase={ p } withoutLabel className={ styles.progress }/>
     </div>) }
   </div>
 }

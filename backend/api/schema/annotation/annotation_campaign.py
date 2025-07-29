@@ -1,14 +1,12 @@
 """AnnotationCampaign schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import AnnotationCampaign
+from backend.utils.schema import ApiObjectType
 
 
-class AnnotationCampaignNode(DjangoObjectType):
+class AnnotationCampaignNode(ApiObjectType):
     """AnnotationCampaign schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

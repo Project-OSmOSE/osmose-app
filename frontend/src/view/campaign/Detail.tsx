@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useToast } from "@/service/ui";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import { FadedText, Link, WarningText } from "@/components/ui";
-import { getErrorMessage } from "@/service/function.ts";
+import { dateToString, getErrorMessage } from "@/service/function.ts";
 import { mailOutline } from "ionicons/icons";
 import styles from "./styles.module.scss";
 import { CampaignPhaseTab } from "@/components/AnnotationCampaign/Phase";
@@ -36,7 +36,7 @@ export const AnnotationCampaignDetail: React.FC = () => {
     <div className={ styles.header }>
       <h2>{ campaign.name }</h2>
       <FadedText>
-        Created on { new Date(campaign.created_at).toLocaleDateString() } by { campaign.owner.display_name }
+        Created on { dateToString(campaign.created_at) } by { campaign.owner.display_name }
         { campaign.owner.email && <Fragment>
             &nbsp;
             <IonButton fill='clear' color='medium' size='small'

@@ -1,14 +1,12 @@
 """scales schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import LinearScale, MultiLinearScale
+from backend.utils.schema import ApiObjectType
 
 
-class LinearScaleNode(DjangoObjectType):
+class LinearScaleNode(ApiObjectType):
     """LinearScale schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
@@ -18,10 +16,8 @@ class LinearScaleNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
-class MultiLinearScaleNode(DjangoObjectType):
+class MultiLinearScaleNode(ApiObjectType):
     """MultiLinearScale schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

@@ -1,14 +1,12 @@
 """AnnotationComment schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import AnnotationComment
+from backend.utils.schema import ApiObjectType
 
 
-class AnnotationCommentNode(DjangoObjectType):
+class AnnotationCommentNode(ApiObjectType):
     """AnnotationComment schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

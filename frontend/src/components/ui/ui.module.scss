@@ -146,6 +146,7 @@
   grid-template-columns: 1fr repeat(calc(var(--content-columns, 1) - 1), auto);
   gap: 0.25rem 0;
   overflow-x: auto;
+  max-width: 100%;
 
   &.uniqueColumn {
     grid-template-columns: 1fr;
@@ -260,5 +261,27 @@
     ion-icon {
       pointer-events: auto;
     }
+  }
+}
+
+.head {
+  display: grid;
+  gap: 1rem;
+
+  .title {
+    display: grid;
+    justify-items: center;
+    position: relative;
+
+  }
+
+  .content, .buttons {
+    display: grid;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .buttons {
+    grid-auto-flow: column;
   }
 }

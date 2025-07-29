@@ -1,14 +1,12 @@
 """Detector schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import Detector
+from backend.utils.schema import ApiObjectType
 
 
-class DetectorNode(DjangoObjectType):
+class DetectorNode(ApiObjectType):
     """Detector schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods

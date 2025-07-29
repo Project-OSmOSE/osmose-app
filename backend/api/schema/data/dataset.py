@@ -5,15 +5,33 @@ from os.path import isfile, join, exists
 from pathlib import Path
 
 from django.conf import settings
-from graphene import relay, ID, List, NonNull, String, Boolean, ObjectType
-from graphene_django import DjangoObjectType
+from django.db.models import Count, Min, QuerySet, Max
+from django_filters import FilterSet, OrderingFilter
+from graphene import (
+    relay,
+    List,
+    NonNull,
+    String,
+    Boolean,
+    ObjectType,
+    Int,
+    ID,
+    Field,
+    DateTime,
+)
+from graphql import GraphQLResolveInfo
 from osekit.public_api.dataset import (
     Dataset as OSEkitDataset,
 )
 from typing_extensions import deprecated, Optional
 
 from backend.api.models import Dataset
-from backend.utils.schema import AuthenticatedDjangoConnectionField
+from backend.utils.schema import (
+    AuthenticatedDjangoConnectionField,
+    ApiObjectType,
+    GraphQLResolve,
+    GraphQLPermissions,
+)
 from .spectrogram_analysis import (
     ImportSpectrogramAnalysisType,
     legacy_resolve_all_spectrogram_analysis_available_for_import,
@@ -22,18 +40,66 @@ from .spectrogram_analysis import (
 from .spectrogram_analysis import SpectrogramAnalysisNode
 
 
-class DatasetNode(DjangoObjectType):
+class DatasetFilter(FilterSet):
+    """Dataset filters"""
+
+    class Meta:
+        # pylint: disable=missing-class-docstring, too-few-public-methods
+        model = Dataset
+        fields = {}
+
+    order_by = OrderingFilter(fields=("created_at",))
+
+
+class DatasetNode(ApiObjectType):
     """Dataset schema"""
 
-    id = ID(required=True)
     spectrogram_analysis = AuthenticatedDjangoConnectionField(SpectrogramAnalysisNode)
+    analysis_count = Int()
+    files_count = Int()
+
+    start = DateTime()
+    end = DateTime()
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = Dataset
         fields = "__all__"
-        filter_fields = "__all__"
+        filterset_class = DatasetFilter
         interfaces = (relay.Node,)
+
+    @classmethod
+    def get_queryset(cls, queryset: QuerySet[Dataset], info: GraphQLResolveInfo):
+        field_names = cls._get_query_field_names(info)
+
+        cls._init_queryset_extensions()
+        if "analysisCount" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "analysis_count": Count("spectrogram_analysis", distinct=True),
+            }
+            cls.prefetch.append("spectrogram_analysis")
+        if "filesCount" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "files_count": Count(
+                    "spectrogram_analysis__spectrograms", distinct=True
+                ),
+            }
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
+        if "start" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "start": Min("spectrogram_analysis__spectrograms__start"),
+            }
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
+        if "end" in field_names:
+            cls.annotations = {
+                **cls.annotations,
+                "end": Max("spectrogram_analysis__spectrograms__end"),
+            }
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
+        return cls._finalize_queryset(super().get_queryset(queryset, info))
 
 
 class ImportDatasetType(ObjectType):  # pylint: disable=too-few-public-methods
@@ -109,3 +175,25 @@ def legacy_resolve_all_datasets_available_for_import() -> [ImportDatasetType]:
             if len(available_dataset.analysis) > 0:
                 available_datasets.append(available_dataset)
     return available_datasets
+
+
+class DatasetQuery(ObjectType):
+    """Dataset queries"""
+
+    all_datasets = AuthenticatedDjangoConnectionField(DatasetNode)
+
+    dataset_by_id = Field(DatasetNode, id=ID(required=True))
+
+    @GraphQLResolve(permission=GraphQLPermissions.AUTHENTICATED)
+    def resolve_dataset_by_id(self, info, id: int):  # pylint: disable=redefined-builtin
+        """Get dataset by id"""
+        return DatasetNode.get_node(info, id)
+
+    all_datasets_available_for_import = List(ImportDatasetType)
+
+    @GraphQLResolve(permission=GraphQLPermissions.STAFF_OR_SUPERUSER)
+    def resolve_all_datasets_available_for_import(self, _):
+        """Get all datasets for import"""
+        datasets = resolve_all_datasets_available_for_import()
+        legacy_datasets = legacy_resolve_all_datasets_available_for_import()
+        return datasets + legacy_datasets

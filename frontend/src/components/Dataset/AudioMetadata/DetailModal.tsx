@@ -12,7 +12,7 @@ import {
 } from "@/components/ui";
 import styles from "./styles.module.scss";
 import { IonButton, IonIcon, IonNote, IonSpinner } from "@ionic/react";
-import { getErrorMessage } from "@/service/function.ts";
+import { datetimeToString, getErrorMessage } from "@/service/function.ts";
 import { downloadOutline } from "ionicons/icons";
 import { ID } from "@/service/type.ts";
 import { useModal } from "@/service/ui/modal.ts";
@@ -42,7 +42,11 @@ export const AudioMetadataModal: React.FC<{
   datasetID?: ID;
   campaignID?: ID;
 }> = ({ onClose, canDownload = false, campaignID, datasetID, filename }) => {
-  const { data: metadata, isLoading, error: loadingError } = AudioMetadataAPI.endpoints.listAudioMetadata.useQuery({ campaignID, datasetID });
+  const {
+    data: metadata,
+    isLoading,
+    error: loadingError
+  } = AudioMetadataAPI.endpoints.listAudioMetadata.useQuery({ campaignID, datasetID });
   const [ download, { error: downloadError } ] = AudioMetadataAPI.endpoints.downloadAudioMetadata.useMutation()
   const toast = useToast();
 
@@ -82,11 +86,11 @@ export const AudioMetadataModal: React.FC<{
           <TableDivider/>
 
           <TableHead isFirstColumn={ true }>Start</TableHead>
-        { metadata.map(c => <TableContent key={ c.id }>{ new Date(c.start).toLocaleString() }</TableContent>) }
+        { metadata.map(c => <TableContent key={ c.id }>{ datetimeToString(c.start) }</TableContent>) }
           <TableDivider/>
 
           <TableHead isFirstColumn={ true }>End</TableHead>
-        { metadata.map(c => <TableContent key={ c.id }>{ new Date(c.end).toLocaleString() }</TableContent>) }
+        { metadata.map(c => <TableContent key={ c.id }>{ datetimeToString(c.end) }</TableContent>) }
           <TableDivider/>
 
           <TableHead isFirstColumn={ true }>Dataset sample rate</TableHead>

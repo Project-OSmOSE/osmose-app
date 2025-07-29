@@ -7,16 +7,17 @@ export function getTokenFromCookie(): Token | undefined {
   return tokenCookie?.split('=').pop();
 }
 
+export function prepareHeaders(headers: Headers) {
+  // Set Authorization
+  const token = getTokenFromCookie();
+  if (token) headers.set('Authorization', `Bearer ${ token }`);
+
+  return headers;
+}
+
 const baseQueryWithHeaders = fetchBaseQuery({
   baseUrl: '/api/',
-  prepareHeaders: (headers: Headers) => {
-
-    // Set Authorization
-    const token = getTokenFromCookie();
-    if (token) headers.set('Authorization', `Bearer ${ token }`);
-
-    return headers;
-  },
+  prepareHeaders: prepareHeaders,
 })
 
 const baseQueryWithReauth: BaseQueryFn<

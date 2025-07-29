@@ -1,18 +1,16 @@
 """LegacySpectrogramConfiguration schema"""
-from graphene import relay, ID
-from graphene_django import DjangoObjectType
+from graphene import relay
 
 from backend.api.models import LegacySpectrogramConfiguration
+from backend.utils.schema import ApiObjectType
 
 
-class LegacySpectrogramConfigurationNode(DjangoObjectType):
+class LegacySpectrogramConfigurationNode(ApiObjectType):
     """LegacySpectrogramConfiguration schema"""
-
-    id = ID(required=True)
 
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         model = LegacySpectrogramConfiguration
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {}
         interfaces = (relay.Node,)

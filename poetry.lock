@@ -671,6 +671,18 @@ rest-framework = ["djangorestframework (>=3.6.3)"]
 test = ["coveralls", "django-filter (>=22.1)", "djangorestframework (>=3.6.3)", "mock", "pytest (>=7.3.1)", "pytest-cov", "pytest-django (>=4.5.2)", "pytest-random-order", "pytz"]
 
 [[package]]
+name = "graphene-django-optimizer"
+version = "0.10.0"
+description = "Optimize database access inside graphene queries."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "graphene-django-optimizer-0.10.0.tar.gz", hash = "sha256:5a5d9d1e1abda3571bdff77a71af5e71b994e5e9d97d17a576df89181284075d"},
+    {file = "graphene_django_optimizer-0.10.0-py2.py3-none-any.whl", hash = "sha256:5b81aaa114514c9a89d064aaaf09c8e00c27d1cf6f734993f0ea5afe776041b9"},
+]
+
+[[package]]
 name = "graphene-django-pagination"
 version = "0.0.3"
 description = "This package adds offset-based pagination to Graphene-Django without using Graphene Relay."
@@ -2148,4 +2160,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "10072a1d535b1347bd606f75c711013731fdf387b519e3ce4fe8b89a575cc540"
+content-hash = "d5205f271332f87187efecaff21f572f05b5eddc29a05164a2f65319e6dee1c6"

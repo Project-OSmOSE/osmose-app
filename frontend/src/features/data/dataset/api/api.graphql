@@ -1,0 +1,41 @@
+query getDatasets {
+    allDatasets(orderBy: "-createdAt") {
+        results {
+            id
+            name
+            description
+            createdAt
+            legacy
+            analysisCount
+            filesCount
+            start
+            end
+        }
+    }
+}
+
+query getAvailableDatasetsForImport {
+    allDatasetsAvailableForImport {
+        name
+        path
+        legacy
+        analysis {
+            name
+            path
+        }
+    }
+}
+
+query getDatasetByID($id: ID!) {
+    datasetById(id: $id) {
+        name
+        path
+        description
+        start
+        end
+        createdAt
+        owner {
+            displayName
+        }
+    }
+}

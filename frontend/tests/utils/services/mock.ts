@@ -20,7 +20,7 @@ import {
 } from '../../fixtures';
 import { Paginated } from '../../../src/service/type';
 import { AnnotationCampaign, AnnotationFile, Phase } from '../../../src/service/types';
-import { GetAvailableDatasetsForImportQuery } from "../../../src/features/dataset/import/api/api.generated";
+import { GetAvailableDatasetsForImportQuery } from "../../../src/features/data/import/api/api.generated";
 
 type Response = {
   status: number,
