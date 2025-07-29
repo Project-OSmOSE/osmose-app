@@ -1,3 +1,5 @@
+"""Fixtures util consts"""
+
 DATA_FIXTURES = [
     "colormap",
     "dataset",

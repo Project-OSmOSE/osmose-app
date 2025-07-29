@@ -55,7 +55,7 @@ class DownloadViewSet(ViewSet):
                     
                     fft = ShortTimeFFT(
                         mfft={analysis.fft.nfft},
-                        win=np.array({list([int(item) for item in analysis.fft.window])}),
+                        win=np.array({list(int(item) for item in analysis.fft.window)}),
                         hop={round(analysis.fft.window_size * (1 - analysis.fft.overlap))},
                         fs={analysis.fft.sampling_frequency},
                         scale_to={analysis.fft.scaling if analysis.fft.scaling in ["magnitude", "psd"] else None},

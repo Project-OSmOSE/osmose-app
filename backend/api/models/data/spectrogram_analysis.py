@@ -147,40 +147,44 @@ class SpectrogramAnalysis(AbstractAnalysis, models.Model):
         ]
         data = [header]
         config_data = []
-        for label in header:
-            if label == "dataset_name":
-                config_data.append(self.dataset.name)
-            elif label == "analysis_name":
-                config_data.append(self.name)
-            elif label == "dataset_sr":
-                config_data.append(str(self.fft.sampling_frequency))
-            elif label == "nfft":
-                config_data.append(str(self.fft.nfft))
-            elif label == "window_size":
-                config_data.append(str(self.fft.window_size))
-            elif label == "overlap":
-                config_data.append(str(self.fft.overlap * 100))
-            elif label == "colormap":
-                config_data.append(self.colormap.name)
-            elif label == "dynamic_min":
-                config_data.append(str(self.dynamic_min))
-            elif label == "dynamic_max":
-                config_data.append(str(self.dynamic_max))
-            elif label == "spectro_duration":
-                config_data.append(str(self.data_duration))
-            elif label == "spectro_normalization":
-                config_data.append(
-                    str(self.legacy_configuration.spectrogram_normalization)
-                )
-            elif label == "hp_filter_min_freq":
-                config_data.append(
-                    str(self.legacy_configuration.hp_filter_min_frequency)
-                )
-            elif label == "audio_file_dataset_overlap":
-                config_data.append(str(self.legacy_configuration.file_overlap))
-            else:
-                config_data.append(str(getattr(self.legacy_configuration, label)))
-
+        config_data.append(self.dataset.name)  # dataset_name
+        config_data.append(self.name)  # analysis_name
+        config_data.append(str(self.fft.sampling_frequency))  # dataset_sr
+        config_data.append(str(self.fft.nfft))  # nfft
+        config_data.append(str(self.fft.window_size))  # window_size
+        config_data.append(str(self.fft.overlap * 100))  # overlap
+        config_data.append(self.colormap.name)  # colormap
+        config_data.append(str(self.legacy_configuration.zoom_level))  # zoom_level
+        config_data.append(str(self.dynamic_min))  # dynamic_min
+        config_data.append(str(self.dynamic_max))  # dynamic_max
+        config_data.append(str(self.data_duration))  # spectro_duration
+        config_data.append(
+            str(self.legacy_configuration.data_normalization)
+        )  # data_normalization
+        config_data.append(
+            str(self.legacy_configuration.hp_filter_min_frequency)
+        )  # hp_filter_min_freq
+        config_data.append(
+            str(self.legacy_configuration.sensitivity_dB)
+        )  # sensitivity_dB
+        config_data.append(str(self.legacy_configuration.peak_voltage))  # peak_voltage
+        config_data.append(str(self.legacy_configuration.gain_dB))  # gain_dB
+        config_data.append(
+            str(self.legacy_configuration.spectrogram_normalization)
+        )  # spectro_normalization
+        config_data.append(
+            str(self.legacy_configuration.zscore_duration)
+        )  # zscore_duration
+        config_data.append(str(self.legacy_configuration.window_type))  # window_type
+        config_data.append(
+            str(self.legacy_configuration.frequency_resolution)
+        )  # frequency_resolution
+        config_data.append(
+            str(self.legacy_configuration.temporal_resolution)
+        )  # temporal_resolution
+        config_data.append(
+            str(self.legacy_configuration.file_overlap)
+        )  # audio_file_dataset_overlap
         data.append(config_data)
 
         return "\n".join([",".join(line) for line in data])

@@ -97,6 +97,10 @@ class ApiObjectType(DjangoObjectType):
 
     id = ID(required=True)
 
+    annotations = {}
+    prefetch = []
+    select = []
+
     class Meta:
         # pylint: disable=missing-class-docstring, too-few-public-methods
         abstract = True
@@ -111,6 +115,18 @@ class ApiObjectType(DjangoObjectType):
         if "results" in [f.name.value for f in query_fields]:
             query_fields = query_fields[0].selection_set.selections
         return [f.name.value for f in query_fields]
+
+    @classmethod
+    def _init_queryset_extensions(cls):
+        """Initialize select, prefetch and annotations"""
+        cls.annotations = {}
+        cls.prefetch = []
+        cls.select = []
+
+    @classmethod
+    def _finalize_queryset(cls, queryset):
+        """Finalize queryset select, prefetch, annotation"""
+        return queryset.select_related(*cls.select).prefetch_related(*cls.prefetch).annotate(**cls.annotations)
 
 
 class DRFAuthenticatedGraphQLView(GraphQLView):

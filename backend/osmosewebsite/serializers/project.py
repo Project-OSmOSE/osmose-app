@@ -1,6 +1,5 @@
 """Project DRF serializers file"""
 
-from metadatax.acquisition.models import Deployment
 from metadatax.acquisition.serializers import (
     DeploymentExportSerializer,
     ProjectSerializer as SourceMetadataxProjectSerializer,

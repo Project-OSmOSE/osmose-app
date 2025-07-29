@@ -72,40 +72,34 @@ class DatasetNode(ApiObjectType):
     def get_queryset(cls, queryset: QuerySet[Dataset], info: GraphQLResolveInfo):
         field_names = cls._get_query_field_names(info)
 
-        annotations = {}
-        prefetch = []
+        cls._init_queryset_extensions()
         if "analysisCount" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "analysis_count": Count("spectrogram_analysis", distinct=True),
             }
-            prefetch.append("spectrogram_analysis")
+            cls.prefetch.append("spectrogram_analysis")
         if "filesCount" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "files_count": Count(
                     "spectrogram_analysis__spectrograms", distinct=True
                 ),
             }
-            prefetch.append("spectrogram_analysis__spectrograms")
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
         if "start" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "start": Min("spectrogram_analysis__spectrograms__start"),
             }
-            prefetch.append("spectrogram_analysis__spectrograms")
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
         if "end" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "end": Max("spectrogram_analysis__spectrograms__end"),
             }
-            prefetch.append("spectrogram_analysis__spectrograms")
-        return (
-            super()
-            .get_queryset(queryset, info)
-            .prefetch_related(*prefetch)
-            .annotate(**annotations)
-        )
+            cls.prefetch.append("spectrogram_analysis__spectrograms")
+        return cls._finalize_queryset(super().get_queryset(queryset, info))
 
 
 class ImportDatasetType(ObjectType):  # pylint: disable=too-few-public-methods
@@ -191,7 +185,7 @@ class DatasetQuery(ObjectType):
     dataset_by_id = Field(DatasetNode, id=ID(required=True))
 
     @GraphQLResolve(permission=GraphQLPermissions.AUTHENTICATED)
-    def resolve_dataset_by_id(self, info, id: int):
+    def resolve_dataset_by_id(self, info, id: int):  # pylint: disable=redefined-builtin
         """Get dataset by id"""
         return DatasetNode.get_node(info, id)
 

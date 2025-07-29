@@ -54,32 +54,26 @@ class SpectrogramAnalysisNode(ApiObjectType):
     def get_queryset(cls, queryset, info):
         field_names = cls._get_query_field_names(info)
 
-        annotations = {}
-        prefetch = []
+        cls._init_queryset_extensions()
         if "filesCount" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "files_count": Count("spectrograms", distinct=True),
             }
-            prefetch.append("spectrograms")
+            cls.prefetch.append("spectrograms")
         if "start" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "start": Min("spectrograms__start"),
             }
-            prefetch.append("spectrograms")
+            cls.prefetch.append("spectrograms")
         if "end" in field_names:
-            annotations = {
-                **annotations,
+            cls.annotations = {
+                **cls.annotations,
                 "end": Max("spectrograms__end"),
             }
-            prefetch.append("spectrograms")
-        return (
-            super()
-            .get_queryset(queryset, info)
-            .prefetch_related(*prefetch)
-            .annotate(**annotations)
-        )
+            cls.prefetch.append("spectrograms")
+        return cls._finalize_queryset(super().get_queryset(queryset, info))
 
 
 class ImportSpectrogramAnalysisType(
@@ -158,7 +152,7 @@ def legacy_resolve_all_spectrogram_analysis_available_for_import(
     return available_analyses
 
 
-class SpectrogramAnalysisQuery(ObjectType):
+class SpectrogramAnalysisQuery(ObjectType):  # pylint: disable=too-few-public-methods
     """SpectrogramAnalysis queries"""
 
     all_spectrogram_analysis = AuthenticatedDjangoConnectionField(

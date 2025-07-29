@@ -39,4 +39,3 @@ class APIDataQuery(
     all_linear_scales = AuthenticatedDjangoConnectionField(LinearScaleNode)
     all_multi_linear_scales = AuthenticatedDjangoConnectionField(MultiLinearScaleNode)
     all_spectrograms = AuthenticatedDjangoConnectionField(SpectrogramNode)
-
