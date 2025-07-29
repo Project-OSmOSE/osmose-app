@@ -125,6 +125,7 @@ export function dateToString(date?: Date | string): string | undefined {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: "UTC"
   })
 }
 
@@ -136,6 +137,9 @@ export function datetimeToString(date?: Date | string): string | undefined {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    hourCycle: "h24",
+    timeZoneName: "short",
+    timeZone: "UTC"
   })
 }
