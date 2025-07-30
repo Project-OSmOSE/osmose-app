@@ -482,6 +482,18 @@ rest-framework = ["djangorestframework (>=3.6.3)"]
 test = ["coveralls", "django-filter (>=22.1)", "djangorestframework (>=3.6.3)", "mock", "pytest (>=7.3.1)", "pytest-cov", "pytest-django (>=4.5.2)", "pytest-random-order", "pytz"]
 
 [[package]]
+name = "graphene-django-optimizer"
+version = "0.10.0"
+description = "Optimize database access inside graphene queries."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "graphene-django-optimizer-0.10.0.tar.gz", hash = "sha256:5a5d9d1e1abda3571bdff77a71af5e71b994e5e9d97d17a576df89181284075d"},
+    {file = "graphene_django_optimizer-0.10.0-py2.py3-none-any.whl", hash = "sha256:5b81aaa114514c9a89d064aaaf09c8e00c27d1cf6f734993f0ea5afe776041b9"},
+]
+
+[[package]]
 name = "graphene-django-pagination"
 version = "0.0.3"
 description = "This package adds offset-based pagination to Graphene-Django without using Graphene Relay."
@@ -630,13 +642,13 @@ files = [
 
 [[package]]
 name = "metadatax"
-version = "0.4.11"
+version = "0.4.12"
 description = "PAM acquisition metadata"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
 files = [
-    {file = "metadatax-0.4.11.tar.gz", hash = "sha256:e46bc15d4b6a2f088f3447fe3c1c6dcb03a28b5244f35a89e99cbceccb6a07e8"},
+    {file = "metadatax-0.4.12.tar.gz", hash = "sha256:7ac47909a26c5366d9486c894d611c318450392d1737d0763f0a4a94ec2a4a9c"},
 ]
 
 [package.dependencies]
@@ -648,13 +660,14 @@ django-filter = ">=2"
 django-model-prefix = ">=1.1.0,<2.0.0"
 djangorestframework = ">=3.15.1,<4.0.0"
 graphene-django = ">=3.2.3,<4.0.0"
+graphene-django-optimizer = ">=0.10.0,<0.11.0"
 graphene-django-pagination = {url = "https://github.com/instruct-br/graphene-django-pagination/archive/master.zip"}
 psycopg2-binary = ">=2.8.6,<3.0.0"
 python-dotenv = ">=1.0.1,<2.0.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.11/metadatax-0.4.11.tar.gz"
+url = "https://github.com/PAM-Standardization/metadatax/releases/download/v0.4.12/metadatax-0.4.12.tar.gz"
 
 [[package]]
 name = "more-itertools"
@@ -1379,4 +1392,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "b0a9600f4415f98a6a37a2afa421241f40f2c9f7e25deabd217476d0740768cf"
+content-hash = "06202ae566d9ae98d689ecba7cf63270dca5b1422e99f7fc8f5c36aaf776895c"
