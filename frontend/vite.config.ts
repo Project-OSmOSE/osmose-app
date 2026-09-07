@@ -1,6 +1,7 @@
 import { ConfigEnv, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path'
+import { devtools } from '@tanstack/devtools-vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import dts from 'vite-plugin-dts'
 
@@ -19,6 +20,7 @@ export default (_: ConfigEnv): UserConfig => {
             cors: false,
         },
         plugins: [
+            devtools(),
             tanstackRouter({
                 target: 'react',
                 autoCodeSplitting: true,

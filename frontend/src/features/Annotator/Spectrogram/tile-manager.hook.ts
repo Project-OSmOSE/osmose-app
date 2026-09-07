@@ -105,7 +105,6 @@ export const useTileManager = ({
             loadedTileIndexesRef.current.set(index, image);
         } catch (error) {
             console.error(`Failed to load tile ${ zoomRef.current }-${ index }:`, error);
-            throw error;
         }
     }, [ analysisRef, spectrogramRef, zoomRef, loadedTileIndexesRef, getZoomLevelToLoad, getTileURL ])
 
