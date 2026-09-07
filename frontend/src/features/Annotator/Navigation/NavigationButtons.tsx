@@ -69,7 +69,7 @@ export const NavigationButtons: React.FC = () => {
                     </Popover.Trigger>
                     <Popover.Content>
                         <Popover.Title>Shortcut</Popover.Title>
-                        <Kbd keys={ [ 'ctrl', 'enter' ] }/> : Submit & load next recording
+                        <Kbd keys={ 'enter' }/> : Submit & load next recording
                     </Popover.Content>
                 </Popover.Root> }
 
