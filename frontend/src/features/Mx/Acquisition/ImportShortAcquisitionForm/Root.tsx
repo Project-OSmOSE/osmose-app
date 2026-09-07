@@ -254,7 +254,7 @@ export const Root: React.FC<Pick<HTMLProps<HTMLDivElement>, 'children'>> = ({ ch
                 },
                 recorderSpecification: hasRecorderSpecification ? {
                     channelName: sheetFormData.get(`${ index }-recorderSpec-channelName`),
-                    gain: sheetFormData.getNumber(`${ index }-recorderSpec-gain`)!,
+                    gain: sheetFormData.getNumber(`${ index }-recorderSpec-gain`),
                     sampleDepth: sheetFormData.getNumber(`${ index }-recorderSpec-sampleDepth`)!,
                     samplingFrequency: sheetFormData.getNumber(`${ index }-recorderSpec-samplingFrequency`)!,
                     hydrophone: sheetFormData.getAll(`${ index }-recorderSpec-hydrophone`).filter(data => !!data)[0],
