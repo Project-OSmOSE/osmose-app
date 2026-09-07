@@ -22,8 +22,8 @@ query (
     $to: DateTime
 
     $withAnnotations: Boolean
-    $annotationLabel: String
-    $annotationConfidence: String
+    $annotationLabel: ID
+    $annotationConfidence: ID
     $annotationDetector: ID
     $annotationAnnotator: ID
     $withAcousticFeatures: Boolean
@@ -51,8 +51,8 @@ query (
 
         # Annotation filters
         annotations_Exists: $withAnnotations
-        annotations_LabelName: $annotationLabel
-        annotations_Confidence_Label: $annotationConfidence
+        annotations_Label: $annotationLabel
+        annotations_Confidence: $annotationConfidence
         annotations_Detector: $annotationDetector
         annotations_Annotator: $annotationAnnotator
         annotations_AcousticFeatures_Exists: $withAcousticFeatures
@@ -73,8 +73,8 @@ query (
                 status
                 annotations: userAnnotations(
                     annotator: $annotationAnnotator
-                    label_Name: $annotationLabel
-                    confidence_Label: $annotationConfidence
+                    label: $annotationLabel
+                    confidence: $annotationConfidence
                     detectorConfiguration_Detector: $annotationDetector
                     acousticFeatures_Exists: $withAcousticFeatures
                 ) {
@@ -83,8 +83,8 @@ query (
                 validatedAnnotations: annotationsToCheck(
                     isValidatedBy: $annotatorID
                     annotator: $annotationAnnotator
-                    label_Name: $annotationLabel
-                    confidence_Label: $annotationConfidence
+                    label: $annotationLabel
+                    confidence: $annotationConfidence
                     detectorConfiguration_Detector: $annotationDetector
                     acousticFeatures_Exists: $withAcousticFeatures
                 ) {
@@ -319,7 +319,7 @@ class AllAnnotationSpectrogramsTestCase(ExtendedTestCase):
                 **VARIABLES,
                 "annotatorID": 1,
                 "withAnnotations": True,
-                "annotationLabel": "Boat",
+                "annotationLabel": 3,
             },
         )
         self.assertResponseNoErrors(response)
@@ -335,7 +335,7 @@ class AllAnnotationSpectrogramsTestCase(ExtendedTestCase):
                 **VARIABLES,
                 "annotatorID": 1,
                 "withAnnotations": True,
-                "annotationLabel": "Odoncetes",
+                "annotationLabel": 2,
             },
         )
         self.assertResponseNoErrors(response)
@@ -351,7 +351,7 @@ class AllAnnotationSpectrogramsTestCase(ExtendedTestCase):
                 **VARIABLES,
                 "annotatorID": 1,
                 "withAnnotations": True,
-                "annotationConfidence": "wrong",
+                "annotationConfidence": 3,
             },
         )
         self.assertResponseNoErrors(response)
@@ -367,7 +367,7 @@ class AllAnnotationSpectrogramsTestCase(ExtendedTestCase):
                 **VARIABLES,
                 "annotatorID": 1,
                 "withAnnotations": True,
-                "annotationConfidence": "confident",
+                "annotationConfidence": 1,
             },
         )
         self.assertResponseNoErrors(response)

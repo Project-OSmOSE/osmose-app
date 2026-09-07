@@ -24,8 +24,8 @@ class AnnotationSpectrogramFilterSet(ExtendedFilterSet):
     annotation_tasks__status = filter.TypedFilter(AnnotationTaskStatus, method="fake")
 
     annotations__exists = filters.BooleanFilter(method="fake")
-    annotations__confidence__label = filters.CharFilter(method="fake")
-    annotations__label_name = filters.CharFilter(method="fake")
+    annotations__confidence = IDFilter(method="fake")
+    annotations__label = IDFilter(method="fake")
     annotations__acoustic_features__exists = filters.BooleanFilter(method="fake")
     annotations__detector = IDFilter(method="fake")
     annotations__annotator = IDFilter(method="fake")
@@ -86,13 +86,13 @@ class AnnotationSpectrogramFilterSet(ExtendedFilterSet):
                 )
             )
 
-            label = self.data.get("annotations__label_name")
+            label = self.data.get("annotations__label")
             if label:
-                annotations = annotations.filter(label__name=label)
+                annotations = annotations.filter(label__id=label)
 
-            confidence = self.data.get("annotations__confidence__label")
+            confidence = self.data.get("annotations__confidence")
             if confidence:
-                annotations = annotations.filter(confidence__label=confidence)
+                annotations = annotations.filter(confidence__id=confidence)
 
             features_exists = self.data.get("annotations__acoustic_features__exists")
             if features_exists:

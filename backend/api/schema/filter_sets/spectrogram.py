@@ -110,7 +110,7 @@ class SpectrogramFilterSet(ExtendedFilterSet):
                 Exists(
                     Subquery(
                         compatible_annotations.filter(
-                            label__name=OuterRef("annotated_with_label"),
+                            label__id=OuterRef("annotated_with_label"),
                         )
                     )
                 )
@@ -120,7 +120,7 @@ class SpectrogramFilterSet(ExtendedFilterSet):
                 Exists(
                     Subquery(
                         compatible_annotations.filter(
-                            confidence__label=OuterRef("annotated_with_confidence"),
+                            confidence__id=OuterRef("annotated_with_confidence"),
                         )
                     )
                 )

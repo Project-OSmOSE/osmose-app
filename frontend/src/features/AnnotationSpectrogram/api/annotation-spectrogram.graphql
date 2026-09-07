@@ -20,8 +20,8 @@ query allAnnotationSpectrograms(
 
     $onlyAssigned: Boolean
     $withAnnotations: Boolean
-    $annotationLabel: String
-    $annotationConfidence: String
+    $annotationLabel: ID
+    $annotationConfidence: ID
     $annotationDetector: ID
     $annotationAnnotator: ID
     $withAcousticFeatures: Boolean
@@ -50,8 +50,8 @@ query allAnnotationSpectrograms(
 
         # Annotation filters
         annotations_Exists: $withAnnotations
-        annotations_LabelName: $annotationLabel
-        annotations_Confidence_Label: $annotationConfidence
+        annotations_Label: $annotationLabel
+        annotations_Confidence: $annotationConfidence
         annotations_Detector: $annotationDetector
         annotations_Annotator: $annotationAnnotator
         annotations_AcousticFeatures_Exists: $withAcousticFeatures
@@ -72,8 +72,8 @@ query allAnnotationSpectrograms(
 
                 userAnnotations(
                     annotator: $annotationAnnotator
-                    label_Name: $annotationLabel
-                    confidence_Label: $annotationConfidence
+                    label: $annotationLabel
+                    confidence: $annotationConfidence
                     detectorConfiguration_Detector: $annotationDetector
                     acousticFeatures_Exists: $withAcousticFeatures
                 ) {
@@ -82,8 +82,8 @@ query allAnnotationSpectrograms(
                 annotationsToCheck(
                     annotator: $annotationAnnotator
                     isUpdated: false # Since I need the count, if it is updated it will be counted on 'userAnnotation'
-                    label_Name: $annotationLabel
-                    confidence_Label: $annotationConfidence
+                    label: $annotationLabel
+                    confidence: $annotationConfidence
                     detectorConfiguration_Detector: $annotationDetector
                     acousticFeatures_Exists: $withAcousticFeatures
                 ) {
@@ -93,8 +93,8 @@ query allAnnotationSpectrograms(
                 validAnnotationsToCheck: annotationsToCheck(
                     annotator: $annotationAnnotator
                     isValidatedBy: $annotatorID
-                    label_Name: $annotationLabel
-                    confidence_Label: $annotationConfidence
+                    label: $annotationLabel
+                    confidence: $annotationConfidence
                     detectorConfiguration_Detector: $annotationDetector
                     acousticFeatures_Exists: $withAcousticFeatures
                 ) {
@@ -120,8 +120,8 @@ query getAnnotationSpectrogram(
 
     $onlyAssigned: Boolean
     $withAnnotations: Boolean
-    $annotationLabel: String
-    $annotationConfidence: String
+    $annotationLabel: ID
+    $annotationConfidence: ID
     $annotationDetector: ID
     $annotationAnnotator: ID
     $withAcousticFeatures: Boolean
@@ -290,8 +290,8 @@ query getAnnotationSpectrogram(
 
         # Annotation filters
         annotations_Exists: $withAnnotations
-        annotations_LabelName: $annotationLabel
-        annotations_Confidence_Label: $annotationConfidence
+        annotations_Label: $annotationLabel
+        annotations_Confidence: $annotationConfidence
         annotations_Detector: $annotationDetector
         annotations_Annotator: $annotationAnnotator
         annotations_AcousticFeatures_Exists: $withAcousticFeatures
