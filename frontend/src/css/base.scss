@@ -3,14 +3,16 @@
 
 $backdrop-background-image: linear-gradient(to bottom, rgba(var(--color-dark-rgb), 15%) 0, rgba(var(--color-dark-rgb), 20%) 50%);
 
+$fonts: (
+    base: "'Exo 2', Roboto, sans-serif",
+    data: Space Mono,
+);
 
 $color_bases: (
     primary: #238583,
-
     success: #85B14D,
     warning: #CC8229,
     danger: #D86045,
-
     light: #fff,
     medium: #6C757D,
     dark: #061D38,
@@ -25,7 +27,6 @@ $colors: (
         background: color.adjust(map.get($color_bases, 'primary'), $lightness: -1%),
         background-contrast: map.get($color_bases, 'light'),
     ),
-
     success: (
         tint: color.adjust(map.get($color_bases, 'success'), $lightness: +5%),
         text: color.adjust(map.get($color_bases, 'success'), $lightness: -14%),
@@ -50,7 +51,6 @@ $colors: (
         background: color.adjust(map.get($color_bases, 'danger'), $lightness: -7%),
         background-contrast: map.get($color_bases, 'light'),
     ),
-
     light: (
         tint: color.adjust(map.get($color_bases, 'light'), $lightness: +5%),
         text: map.get($color_bases, 'light'),

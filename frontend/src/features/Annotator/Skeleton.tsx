@@ -37,7 +37,7 @@ export const AnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children
     </PointerProvider>
 )
 
-export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
+const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const { user } = useLoaderData({ from: '/_authenticated' })
     const {
         campaign,

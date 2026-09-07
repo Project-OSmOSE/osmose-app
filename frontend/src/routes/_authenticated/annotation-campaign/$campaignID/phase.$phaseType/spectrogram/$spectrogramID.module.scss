@@ -20,8 +20,7 @@
     .spectrogramNavigation {
       display: grid;
       align-items: center;
-      grid-auto-flow: column;
-      justify-content: space-between;
+      grid-template-columns: 1fr auto 1fr;
       font-size: 0.9rem;
       justify-items: center;
 
