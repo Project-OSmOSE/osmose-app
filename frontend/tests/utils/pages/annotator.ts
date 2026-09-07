@@ -118,7 +118,7 @@ export class AnnotatorPage {
         await this.submitButton.click()
         break;
       case 'shortcut':
-        await this.page.keyboard.press('Control+Enter')
+        await this.page.keyboard.press('Enter')
         break;
     }
   }
