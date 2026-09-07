@@ -19,5 +19,6 @@
 
   &.data {
     font-family: map.get(base.$fonts, 'data');
+    font-size: 0.8rem
   }
 }
