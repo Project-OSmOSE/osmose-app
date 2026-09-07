@@ -91,7 +91,6 @@ export function ComboboxSelect<Value, Multiple extends boolean = false>({
                     if (!newData) return;
                     setSelected([ ...(selected ?? []) as Value[], newData ] as FinalValue<Value, Multiple>)
                 }).finally(() => {
-                    console.debug('create finally')
                     setIsCreating(false)
                 })
                 setQuery('');
@@ -105,7 +104,6 @@ export function ComboboxSelect<Value, Multiple extends boolean = false>({
                 if (!newData) return;
                 setSelected(newData as FinalValue<Value, Multiple>)
             }).finally(() => {
-                console.debug('create finally')
                 setIsCreating(false)
             })
             setQuery('');

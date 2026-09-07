@@ -90,7 +90,6 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
 
     useEffect(() => {
         // On spectrogram updated
-        console.debug('spectro updated', data)
         if (!data) return
         dispatch(AnnotatorUXSlice.actions.initSpectrogram({ zoomLevel }))
 
@@ -111,7 +110,6 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
         }))
         resetBrightness()
         resetContrast()
-        console.debug('will call resetZoom')
         resetZoom()
     }, [ data ]);
 
