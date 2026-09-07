@@ -96,10 +96,8 @@ export const KEYS: Record<KeyType, Key[]> = {
         'contacts-contactId',
     ],
     recordingRequired: [
-        'recorderSpec-gain',
         'recorderSpec-sampleDepth',
         'recorderSpec-samplingFrequency',
-        'recorderSpec-recordingFormats',
     ],
     allForRecording: [
         'recorderSpec-channelName',
