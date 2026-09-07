@@ -1,11 +1,10 @@
-import React, { Fragment, useEffect, useMemo, useRef } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { createFileRoute, notFound } from '@tanstack/react-router'
 
 import { AnnotationPhaseType } from '@/api';
-import { CurrentTime, PlaybackRateSelect, PlayPauseButton, useAudio } from '@/features/Audio';
+import { CurrentTime, PlaybackRateSelect, PlayPauseButton } from '@/features/Audio';
 import { usePointer } from '@/features/Annotator/Pointer';
 import { AnnotatorSkeleton } from '@/features/Annotator/Skeleton';
-import { useAnnotatorAnalysis } from '@/features/Annotator/Analysis';
 import { AnnotatorCanvasWindow } from '@/features/Annotator/Canvas';
 import { NavigationButtons } from '@/features/Annotator/Navigation';
 import { FocusedAnnotationBloc } from '@/features/Annotator/Annotation';
@@ -18,44 +17,12 @@ import styles from './$spectrogramID.module.scss';
 import { type AllSpectrogramsFilters, AnnotationSpectrogramAPI } from '@/features/AnnotationSpectrogram';
 import { ensureValidQueryData } from '@/api/utils';
 import { UserAPI } from '@/features/User';
-import { useQuery } from '@tanstack/react-query';
 import { ConfigBar } from '@/features/Annotator/ConfigBar';
 import { DownloadButtons } from '@/features/Annotator/DownloadButtons';
 import { CampaignAPI } from '@/features/AnnotationCampaign';
 
 const AnnotatorPage: React.FC = () => {
-    const campaignID = Route.useParams({ select: ({ campaignID }) => campaignID });
     const { spectrogram, isEditionAuthorized } = Route.useLoaderData()
-
-    const { selectedAnalysis } = useAnnotatorAnalysis()
-    const {
-        data: paths,
-    } = useQuery({
-        ...AnnotationSpectrogramAPI.getPathQuery({
-            spectrogramID: spectrogram.id,
-            analysisID: selectedAnalysis?.id ?? '',
-        }),
-        enabled: !!selectedAnalysis,
-        refetchOnMount: true,
-    });
-    const audio = useAudio()
-
-    useEffect(() => {
-        if (paths?.audioPath) audio.setSource(paths.audioPath)
-        else audio.clearSource()
-
-        return () => {
-            audio.clearSource() // TODO: check behavior when navigating between files
-        }
-    }, [ paths ]);
-
-    const previousCampaignID = useRef<string | undefined>()
-    useEffect(() => {
-        if (previousCampaignID.current !== campaignID) {
-            previousCampaignID.current = campaignID
-            audio.setPlaybackRate(1)
-        }
-    }, [ campaignID ]);
 
     const pointer = usePointer()
     useEffect(() => {
