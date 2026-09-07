@@ -122,7 +122,6 @@ export const ZoomRoot: React.FC<Props> = ({ children, campaign, analysis }) => {
     }, [ zoomLevel, zoomOutLevel, signal, maxPreProcessedZoomLevel ])
 
     const resetZoom = useCallback(() => {
-        console.debug('resetZoom to 1')
         signal.emit({
             previousLevel: zoomLevel,
             level: 1,

@@ -5,7 +5,7 @@ export type LinearScale = Pick<LinearScaleNode, 'minValue' | 'maxValue' | 'ratio
 
 export class LinearScaleService implements ScaleService {
 
-    private MIN_SMALL_STEPS_RANGE_PX = 14;
+    private MIN_SMALL_STEPS_RANGE_PX = 16;
     private MIN_BIG_STEPS_RANGE_PX = 30;
 
     get minValue(): number {

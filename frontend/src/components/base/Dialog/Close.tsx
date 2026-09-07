@@ -5,6 +5,5 @@ import { Button, type ButtonProps } from '@/components/base/Button';
 export type DialogCloseProps = Omit<BaseProps, 'render'> & ButtonProps
 
 export const Close: React.FC<DialogCloseProps> = (props) => (
-    <Dialog.Close render={ (props) => <Button  { ...props }/> }
-                  { ...props }/>
+    <Dialog.Close render={ <Button/> } { ...props }/>
 )

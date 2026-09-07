@@ -10,13 +10,15 @@ export const useAxis = ({ canvas, steps, orientation, pixelSize, valueToString, 
   displaySmallStepValue: boolean;
 }) => {
 
-  const draw = useCallback(() => {
+  const draw = useCallback(async () => {
     const context = canvas?.getContext('2d');
     if (!canvas || !context || !pixelSize) return;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = 'rgba(0, 0, 0)';
-    context.font = '500 10px \'Exo 2\'';
+    const font = '400 10px "Space Mono"'
+    await document.fonts.load(font)
+    context.font = font;
 
     const scaleSteps = steps.sort((a: Step, b: Step) => (a.correspondingRatio ?? 0) - (b.correspondingRatio ?? 0));
     const realSteps = new Array<Step>();

@@ -21,6 +21,7 @@ import { Zoom } from './Zoom';
 import type { OnZoomInfoCallback } from '@/features/Annotator/Zoom/Root';
 import { ImageSettings } from './ImageSettings';
 import type { Colormap } from '@/features/Colormap';
+import { useAudio } from '@/features/Audio';
 
 export const AnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => (
     <PointerProvider>
@@ -36,7 +37,7 @@ export const AnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children
     </PointerProvider>
 )
 
-export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
+const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const { user } = useLoaderData({ from: '/_authenticated' })
     const {
         campaign,
@@ -46,6 +47,7 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
     const {
         info,
         isEditionAuthorized,
+        spectrogram,
     } = useLoaderData({ from: '/_authenticated/annotation-campaign/$campaignID/phase/$phaseType/spectrogram/$spectrogramID' })
     //TODO!!
     // const canNavigate = useAnnotatorCanNavigate()
@@ -74,8 +76,21 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
         setColormap, setIsColormapInverted,
         resetBrightness, resetContrast,
     } = ImageSettings.useContext()
+    const { selectedAnalysis } = useAnnotatorAnalysis()
+    const {
+        data: paths,
+    } = useQuery({
+        ...AnnotationSpectrogramAPI.getPathQuery({
+            spectrogramID: spectrogram.id,
+            analysisID: selectedAnalysis?.id ?? '',
+        }),
+        enabled: !!selectedAnalysis,
+        refetchOnMount: true,
+    });
+    const audio = useAudio()
     const dispatch = useAppDispatch()
 
+    // On campaign updated
     useEffect(() => {
         dispatch(AnnotatorAnnotationSlice.actions.initCampaign())
         dispatch(AnnotatorConfidenceSlice.actions.initCampaign({
@@ -86,11 +101,13 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
         // Set default colormap & inversion
         setColormap((campaign.colormapDefault ?? null) as Colormap | null)
         setIsColormapInverted(campaign.colormapInvertedDefault ?? false)
+
+        // Reset audio
+        audio.setPlaybackRate(1)
     }, [ campaign ]);
 
+    // On spectrogram updated
     useEffect(() => {
-        // On spectrogram updated
-        console.debug('spectro updated', data)
         if (!data) return
         dispatch(AnnotatorUXSlice.actions.initSpectrogram({ zoomLevel }))
 
@@ -111,9 +128,18 @@ export const InnerAnnotatorSkeleton: React.FC<{ children?: ReactNode }> = ({ chi
         }))
         resetBrightness()
         resetContrast()
-        console.debug('will call resetZoom')
         resetZoom()
     }, [ data ]);
+
+    // On paths updated
+    useEffect(() => {
+        if (paths?.audioPath) audio.setSource(paths.audioPath)
+        else audio.clearSource()
+
+        return () => {
+            audio.clearSource() // TODO: check behavior when navigating between files
+        }
+    }, [paths]);
 
     // Handle zoom updates
     const onZoomUpdated: OnZoomInfoCallback = useCallback(({ level }) => {

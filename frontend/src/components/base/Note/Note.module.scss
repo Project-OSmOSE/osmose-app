@@ -16,4 +16,9 @@
     display: flex;
     align-items: center;
   }
+
+  &.data {
+    font-family: map.get(base.$fonts, 'data');
+    font-size: 0.8rem
+  }
 }
