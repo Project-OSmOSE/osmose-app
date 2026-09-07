@@ -9,8 +9,8 @@ class AnnotationTaskFilterSet(ExtendedFilterSet):
     """Annotation filters"""
 
     annotations__exists = BooleanFilter(method="fake_filter")
-    annotations__confidence__label = CharFilter(method="fake_filter")
-    annotations__label_name = CharFilter(method="fake_filter")
+    annotations__confidence = CharFilter(method="fake_filter")
+    annotations__label = CharFilter(method="fake_filter")
     annotations__acoustic_features__exists = BooleanFilter(method="fake_filter")
     annotations__detector = IDFilter(method="fake_filter")
     annotations__annotator = IDFilter(method="fake_filter")
@@ -36,13 +36,13 @@ class AnnotationTaskFilterSet(ExtendedFilterSet):
         if self.data.get("annotations__exists") is not None:
             compatible_annotations = Annotation.objects.all()
 
-            if self.data.get("annotations__label_name"):
+            if self.data.get("annotations__label"):
                 compatible_annotations = compatible_annotations.filter(
-                    label__name=self.data.get("annotations__label_name")
+                    label__id=self.data.get("annotations__label")
                 )
-            if self.data.get("annotations__confidence__label"):
+            if self.data.get("annotations__confidence"):
                 compatible_annotations = compatible_annotations.filter(
-                    confidence__label=self.data.get("annotations__confidence__label")
+                    confidence__id=self.data.get("annotations__confidence")
                 )
             if self.data.get("annotations__acoustic_features__exists"):
                 compatible_annotations = compatible_annotations.filter(

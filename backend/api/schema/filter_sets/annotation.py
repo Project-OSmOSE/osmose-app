@@ -18,8 +18,8 @@ class AnnotationFilterSet(ExtendedFilterSet):
     class Meta:
         model = Annotation
         fields = {
-            "confidence__label": ("exact",),
-            "label__name": ("exact",),
+            "confidence": ("exact",),
+            "label": ("exact",),
             "detector_configuration__detector": ("exact",),
         }
 

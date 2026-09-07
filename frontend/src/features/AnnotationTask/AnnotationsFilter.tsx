@@ -63,13 +63,14 @@ export const AnnotationsFilterModal: React.FC = () => {
     const onSubmit = useCallback((event: BaseUIEvent<FormEvent<HTMLFormElement>>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
+        console.debug([...formData.entries()])
         if (tmpWithAnnotations == true) {
             const withAcousticFeatures = formData.get('withAcousticFeatures') as string || undefined
             update({
                 withAnnotations: true,
                 withAcousticFeatures: withAcousticFeatures === undefined ? undefined : withAcousticFeatures === 'true',
-                annotationLabel: labels.find(l => l.name == formData.get('annotationLabel') as string)?.id,
-                annotationConfidence: confidences.find(c => c.label == formData.get('annotationConfidence') as string)?.id,
+                annotationLabel: formData.get('annotationLabel') as string,
+                annotationConfidence: formData.get('annotationConfidence') as string,
                 annotationDetector: formData.get('annotationDetector') as string,
                 annotationAnnotator: formData.get('annotationAnnotator') as string,
             })
@@ -115,14 +116,14 @@ export const AnnotationsFilterModal: React.FC = () => {
                 <Field.Label>Filter by label</Field.Label>
                 <LabelComponent.Select items={ labels }
                                        disabled={ tmpWithAnnotations !== true }
-                                       defaultValue={ labels.find(l => l.name == annotationLabel) }/>
+                                       defaultValueString={ annotationLabel ?? undefined }/>
             </Field.Root>
 
             { campaign.confidenceSet && <Field.Root name="annotationConfidence" horizontal>
                 <Field.Label>Filter by confidence</Field.Label>
                 <ConfidenceComponent.Select items={ confidences }
                                             disabled={ tmpWithAnnotations !== true }
-                                            defaultValue={ confidences.find(c => c.label == annotationConfidence) }/>
+                                            defaultValueString={ annotationConfidence ?? undefined }/>
             </Field.Root> }
 
 
@@ -132,14 +133,14 @@ export const AnnotationsFilterModal: React.FC = () => {
                     <Field.Label>Filter by detector</Field.Label>
                     <DetectorComponent.Select items={ cleanGqlList(campaign.detectors) }
                                               disabled={ tmpWithAnnotations !== true }
-                                              defaultValue={ campaign.detectors?.find(d => d?.id == annotationDetector) }/>
+                                              defaultValueString={ annotationDetector ?? undefined }/>
                 </Field.Root>
 
                 <Field.Root name="annotationAnnotator" horizontal>
                     <Field.Label>Filter by annotator</Field.Label>
                     <UserComponent.Select items={ cleanGqlList(campaign.annotators) }
                                           disabled={ tmpWithAnnotations !== true }
-                                          defaultValue={ campaign.annotators?.find(a => a?.id == annotationAnnotator) }/>
+                                          defaultValueString={ annotationAnnotator ?? undefined }/>
                 </Field.Root>
 
             </Fragment> }
