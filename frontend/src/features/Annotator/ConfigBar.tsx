@@ -38,13 +38,13 @@ export const ConfigBar: React.FC = () => {
             <ImageSettings.UpdateSpinner/>
         </ButtonGroup>
 
-        { pointer.position && <ButtonGroup smallGap>
+        { pointer.position && <ButtonGroup>
             <Note color="medium" flex><Target weight="BoldDuotone" size={ 16 }/></Note>
-            <Note color="dark">{ pointer.position.frequency.toFixed(2) }Hz
+            <Note data color="dark">{ pointer.position.frequency.toFixed(2) }Hz
                 / { formatTime(pointer.position.time, (spectrogram?.duration ?? 0) < 60) }</Note>
         </ButtonGroup> }
 
-        <ButtonGroup smallGap>
+        <ButtonGroup>
             <Note color="medium" flex><CalendarMinimalistic weight="BoldDuotone" size={ 16 }/></Note>
             <Note color="dark">{ new Date(spectrogram.start).toUTCString() }</Note>
         </ButtonGroup>
