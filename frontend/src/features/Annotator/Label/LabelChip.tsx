@@ -9,6 +9,7 @@ import {
     useGetAnnotation,
     useRemoveAnnotation,
     useUpdateAnnotation,
+    useValidateAnnotation,
 } from '@/features/Annotator/Annotation';
 import { AnnotationType } from '@/api';
 import { selectDefaultConfidence } from '@/features/Annotator/Confidence';
@@ -34,6 +35,7 @@ export const LabelChip: React.FC<{
     const defaultConfidence = useAppSelector(selectDefaultConfidence);
     const addAnnotation = useAddAnnotation()
     const updateAnnotation = useUpdateAnnotation()
+    const validateAnnotation = useValidateAnnotation()
     const focusedAnnotation = useAppSelector(selectAnnotation)
     const allAnnotations = useAppSelector(selectAllAnnotations)
     const getAnnotation = useGetAnnotation()
@@ -41,7 +43,11 @@ export const LabelChip: React.FC<{
     const index = useMemo(() => labels.map(l => l.name).indexOf(label), [ labels, label ])
     const numberShortcuts = useMemo(() => (index + 1).toString()?.split('') as Hotkey[], [ index ]);
     const keyShortcuts = useMemo(() => (index + 1).toString()?.split('').map(i => AlphanumericKeys[+i]) as Hotkey[], [ index ]);
-    const isUsed = useMemo(() => allAnnotations.some(a => a.label === label), [ allAnnotations, label ])
+    const isUsed = useMemo(() => allAnnotations.some(a => {
+        if (a.label !== label) return false
+        if (!a.validation) return true
+        return a.validation.isValid
+    }), [ allAnnotations, label ])
     const isHidden = useMemo(() => hiddenLabels.includes(label), [ hiddenLabels, label ])
     const dispatch = useAppDispatch()
 
@@ -69,10 +75,11 @@ export const LabelChip: React.FC<{
             }
         }
         if (weak) {
-            // If there is no focused strong annotation: focus existing weak annotation
+            // If there is no focused strong annotation
+            if (!weak.validation?.isValid) validateAnnotation(weak)
             dispatch(focusAnnotation(weak))
         }
-    }, [ focusedAnnotation, updateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence, removeAnnotation ])
+    }, [ focusedAnnotation, updateAnnotation, validateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence, removeAnnotation ])
     useHotkeySequence(numberShortcuts, () => select())
     useHotkeySequence(keyShortcuts, () => select())
 

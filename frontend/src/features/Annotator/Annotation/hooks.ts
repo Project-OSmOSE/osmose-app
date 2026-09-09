@@ -130,8 +130,10 @@ export const useInvalidateAnnotation = () => {
                     validation: _updateValidation(false, a.validation),
                 }))
             }
+            dispatch(blur())
+        } else {
+            dispatch(focusAnnotation(annotation))
         }
-        dispatch(focusAnnotation(annotation))
         return annotation
     }, [ dispatch, allAnnotations, _updateValidation ])
 }
