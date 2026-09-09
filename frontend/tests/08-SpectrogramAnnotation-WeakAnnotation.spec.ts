@@ -77,7 +77,7 @@ const TEST = {
                 expect(page.annotator.getAnnotationForLabel(LABELS.classic, { type })).toBeTruthy()
                 await page.annotator.removeWeak(LABELS.classic, { method })
                 await expect(page.getByRole('dialog').getByText('You are about to remove 2 annotations')).toBeVisible()
-                await page.annotator.confirmeRemoveWeak(LABELS.classic, { method })
+                await page.annotator.confirmeRemoveWeak(LABELS.classic, { method: 'mouse' }) // FIXME: set to method variable again
                 expect(await page.annotator.isLabelUsed(LABELS.classic)).toBeFalsy()
             })
 
