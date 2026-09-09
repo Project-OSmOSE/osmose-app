@@ -4,9 +4,11 @@ import { Bloc } from '@/components/ui';
 import { LabelChip } from './LabelChip';
 import { useAppDispatch, useAppSelector } from '@/features/App';
 import { selectHiddenLabels } from './selectors';
+import { blur } from '@/features/Annotator/Annotation';
 import { setHiddenLabels } from './slice';
 import { useLoaderData } from '@tanstack/react-router';
 import { Button } from '@/components/base/Button';
+import { useHotkey } from '@tanstack/react-hotkeys';
 
 export const LabelsBloc: React.FC = () => {
     const { labels } = useLoaderData({ from: '/_authenticated/annotation-campaign/$campaignID' })
@@ -16,6 +18,9 @@ export const LabelsBloc: React.FC = () => {
     const showAllLabels = useCallback(() => {
         dispatch(setHiddenLabels([]))
     }, [ dispatch ])
+
+    const escape = useCallback(() => dispatch(blur()), [ dispatch ])
+    useHotkey('Escape', escape)
 
     return <Bloc.Root className={ styles.labels }>
         <Bloc.Title>
