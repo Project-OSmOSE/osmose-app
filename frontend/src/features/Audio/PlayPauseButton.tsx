@@ -3,6 +3,7 @@ import { Kbd } from '@/components/ui';
 import { useAudio } from './context';
 import { Popover } from '@/components/base/Popover';
 import { Pause, Play } from '@solar-icons/react';
+import { useHotkey } from '@tanstack/react-hotkeys';
 
 export const PlayPauseButton: React.FC = () => {
     const audio = useAudio()
@@ -17,6 +18,7 @@ export const PlayPauseButton: React.FC = () => {
                 break;
         }
     }, [ audio ])
+    useHotkey('Space', toggle)
 
     if (!audio.source) return <Fragment/>
     return <Popover.Root>
