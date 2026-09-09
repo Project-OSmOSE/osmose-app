@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@/features/App';
 import { MouseEvent, PointerEvent, useCallback } from 'react';
-import { clearTempAnnotation, setTempAnnotation } from './slice';
+import { blur, clearTempAnnotation, setTempAnnotation } from './slice';
 import { selectTempAnnotation } from './selectors';
 import { useFrequencyScale, useTimeScale } from '@/features/Annotator/Axis';
 import { AnnotationType } from '@/api';
@@ -137,6 +137,8 @@ export const useTempAnnotationsEvents = () => {
                     label: focusedLabel,
                     confidence: defaultConfidence ?? focusedConfidence ?? undefined,
                 })
+            } else {
+                dispatch(blur())
             }
         }
         dispatch(clearTempAnnotation())

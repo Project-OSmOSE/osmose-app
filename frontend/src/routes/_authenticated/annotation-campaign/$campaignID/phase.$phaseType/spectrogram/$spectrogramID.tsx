@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from 'react';
+import React, { Fragment, MouseEvent, useCallback, useEffect, useMemo, useRef } from 'react';
 import { createFileRoute, notFound } from '@tanstack/react-router'
 
 import { AnnotationPhaseType } from '@/api';
@@ -7,7 +7,7 @@ import { usePointer } from '@/features/Annotator/Pointer';
 import { AnnotatorSkeleton } from '@/features/Annotator/Skeleton';
 import { AnnotatorCanvasWindow } from '@/features/Annotator/Canvas';
 import { NavigationButtons } from '@/features/Annotator/Navigation';
-import { FocusedAnnotationBloc } from '@/features/Annotator/Annotation';
+import { blur, FocusedAnnotationBloc } from '@/features/Annotator/Annotation';
 import { LabelsBloc } from '@/features/Annotator/Label';
 import { ConfidenceBloc } from '@/features/Annotator/Confidence';
 import { CommentBloc } from '@/features/Annotator/Comment';
@@ -20,9 +20,12 @@ import { UserAPI } from '@/features/User';
 import { ConfigBar } from '@/features/Annotator/ConfigBar';
 import { DownloadButtons } from '@/features/Annotator/DownloadButtons';
 import { CampaignAPI } from '@/features/AnnotationCampaign';
+import { useAppDispatch } from '@/features/App';
 
 const AnnotatorPage: React.FC = () => {
     const { spectrogram, isEditionAuthorized } = Route.useLoaderData()
+    const dispatch = useAppDispatch()
+    const safeEscapeSpacesRef = useRef<Array<Element | null>>([])
 
     const pointer = usePointer()
     useEffect(() => {
@@ -33,17 +36,26 @@ const AnnotatorPage: React.FC = () => {
         }
     }, [ pointer.position ]);
 
+    const escape = useCallback((event: MouseEvent) => {
+        const inSafeSpace = safeEscapeSpacesRef.current.reduce((prev, el) => prev || event.target === el, false)
+        if (inSafeSpace) dispatch(blur())
+    }, [ dispatch ])
+
     return useMemo(() => {
         return <AnnotatorSkeleton>
-            <div className={ styles.annotator }>
+            <div className={ styles.annotator }
+                 ref={ el => safeEscapeSpacesRef.current.push(el) }
+                 onClick={ escape }>
 
-                <div className={ styles.spectrogramContainer }>
+                <div className={ styles.spectrogramContainer }
+                     ref={ el => safeEscapeSpacesRef.current.push(el) }>
 
                     <ConfigBar/>
 
                     <AnnotatorCanvasWindow/>
 
-                    <div className={ styles.spectrogramNavigation }>
+                    <div className={ styles.spectrogramNavigation }
+                         ref={ el => safeEscapeSpacesRef.current.push(el) }>
                         <div className={ styles.audioNavigation }>
                             <PlayPauseButton/>
                             <PlaybackRateSelect/>
@@ -53,7 +65,8 @@ const AnnotatorPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className={ styles.blocContainer }>
+                <div className={ styles.blocContainer }
+                     ref={ el => safeEscapeSpacesRef.current.push(el) }>
                     { isEditionAuthorized && <Fragment>
                         <FocusedAnnotationBloc/>
                         <LabelsBloc/>
@@ -66,7 +79,7 @@ const AnnotatorPage: React.FC = () => {
                 <DownloadButtons/>
             </div>
         </AnnotatorSkeleton>
-    }, [ spectrogram, isEditionAuthorized ])
+    }, [ spectrogram, isEditionAuthorized, escape ])
 }
 
 export const Route = createFileRoute(
