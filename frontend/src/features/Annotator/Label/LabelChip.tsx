@@ -68,10 +68,7 @@ export const LabelChip: React.FC<{
                 return
             }
         }
-        if (focusedAnnotation && focusedAnnotation.type !== AnnotationType.Weak) {
-            // If focused annotation is strong: update its label
-            updateAnnotation(focusedAnnotation, { label })
-        } else if (weak) {
+        if (weak) {
             // If there is no focused strong annotation: focus existing weak annotation
             dispatch(focusAnnotation(weak))
         }
