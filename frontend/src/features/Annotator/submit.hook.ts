@@ -68,7 +68,7 @@ export const useAnnotatorSubmit = () => {
         }
         realSubmit()
     }, [ toastManager, realSubmit, isEditionAuthorized, allFileIsSeen ])
-    useHotkey('Control+Enter', () => submit())
+    useHotkey('Enter', () => submit())
 
     useEffect(() => {
         if (!isSuccess) return;
