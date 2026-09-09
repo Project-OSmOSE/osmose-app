@@ -1,13 +1,12 @@
 import React, { createContext, type HTMLProps, useCallback, useContext, useMemo, useState } from 'react';
 import { Signal } from 'signal-ts';
-import type { Point } from '@/service/type';
 import type { CampaignAnalysisFragment, GetCampaignQuery } from '@/features/AnnotationCampaign';
+import type { TimeFreqPosition } from '@/features/Annotator/Pointer';
 
 type ZoomInfo = {
-    previousLevel: number;
     level: number;
     type: 'preprocessed' | 'digital';
-    origin?: Point;
+    origin?: TimeFreqPosition;
 }
 export type OnZoomInfoCallback = (zoomInfo: ZoomInfo) => void;
 
@@ -17,11 +16,11 @@ type ZoomContext = {
 
     canZoomIn: boolean | 'digital';
     zoomInLevel: number | null;
-    zoomIn: (origin?: Point) => void;
+    zoomIn: (origin?: TimeFreqPosition) => void;
 
     canZoomOut: boolean | 'digital';
     zoomOutLevel: number | null;
-    zoomOut: (origin?: Point) => void;
+    zoomOut: (origin?: TimeFreqPosition) => void;
 
     resetZoom: () => void;
 
@@ -100,35 +99,33 @@ export const ZoomRoot: React.FC<Props> = ({ children, campaign, analysis }) => {
         return null
     }, [ zoomLevel ])
 
-    const zoomIn = useCallback((origin?: Point) => {
+    const zoomIn = useCallback((origin?: TimeFreqPosition) => {
+        console.debug('zoomIn', origin)
         if (zoomInLevel === null) return;
         signal.emit({
-            previousLevel: zoomLevel,
             level: zoomInLevel,
             type: zoomInLevel > maxPreProcessedZoomLevel ? 'digital' : 'preprocessed',
             origin,
         })
         setZoomLevel(zoomInLevel)
-    }, [ zoomLevel, zoomInLevel, signal, maxPreProcessedZoomLevel ])
-    const zoomOut = useCallback((origin?: Point) => {
+    }, [ zoomInLevel, signal, maxPreProcessedZoomLevel ])
+    const zoomOut = useCallback((origin?: TimeFreqPosition) => {
         if (zoomOutLevel === null) return;
         signal.emit({
-            previousLevel: zoomLevel,
             level: zoomOutLevel,
             type: zoomOutLevel > maxPreProcessedZoomLevel ? 'digital' : 'preprocessed',
             origin,
         })
         setZoomLevel(zoomOutLevel)
-    }, [ zoomLevel, zoomOutLevel, signal, maxPreProcessedZoomLevel ])
+    }, [ zoomOutLevel, signal, maxPreProcessedZoomLevel ])
 
     const resetZoom = useCallback(() => {
         signal.emit({
-            previousLevel: zoomLevel,
             level: 1,
             type: 'preprocessed',
         })
         setZoomLevel(1)
-    }, [ signal, zoomLevel ])
+    }, [ signal ])
 
     return <ZoomContext.Provider value={ {
         zoomLevel,

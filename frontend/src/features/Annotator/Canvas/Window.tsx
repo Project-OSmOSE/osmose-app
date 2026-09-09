@@ -10,7 +10,7 @@ import {
     useTempAnnotationsEvents,
 } from '@/features/Annotator/Annotation';
 import { useWindowContainerWidth, useWindowHeight, useWindowWidth, Y_AXIS_WIDTH } from './window.hooks';
-import { useGetCoords, useGetFreqTime, useIsHoverCanvas, usePointer } from '@/features/Annotator/Pointer';
+import { useGetFreqTime, useIsHoverCanvas, usePointer } from '@/features/Annotator/Pointer';
 import { Zoom } from '@/features/Annotator/Zoom';
 import { useAudio } from '@/features/Audio';
 import { useAnnotatorCanvasContext } from '@/features/Annotator/Canvas/context';
@@ -35,7 +35,6 @@ export const AnnotatorCanvasWindow: React.FC = () => {
     } = useAnnotatorCanvasContext()
     const { onStartTempAnnotation } = useTempAnnotationsEvents()
     const getFreqTime = useGetFreqTime()
-    const getCoords = useGetCoords()
     const {
         zoomLevel,
         zoomType,
@@ -87,11 +86,11 @@ export const AnnotatorCanvasWindow: React.FC = () => {
         // Disable zoom if the user wants horizontal scroll
         if (event.shiftKey) return;
 
-        const origin = getCoords(event);
+        const origin = getFreqTime(event);
         if (!origin) return;
         if (event.deltaY < 0) zoomIn(origin)
         else if (event.deltaY > 0) zoomOut(origin)
-    }, [ zoomIn, zoomOut, getCoords ])
+    }, [ zoomIn, zoomOut, getFreqTime ])
 
     const seekAudio = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
         seek(getFreqTime(event)?.time ?? 0)
@@ -133,7 +132,7 @@ export const AnnotatorCanvasWindow: React.FC = () => {
 
     // Zoom update
     const isHoverCanvas = useIsHoverCanvas()
-    const onZoomUpdated: OnZoomInfoCallback = useCallback(({ previousLevel, level, origin }) => {
+    const onZoomUpdated: OnZoomInfoCallback = useCallback(({ level, origin }) => {
         const mainBounds = interactionCanvasRef?.current?.getBoundingClientRect()
         if (!window || !spectrogram || !mainBounds) return;
 
@@ -143,23 +142,17 @@ export const AnnotatorCanvasWindow: React.FC = () => {
         // Compute new center (before resizing)
         let newCenter: number;
         if (origin) {
-            // x-coordinate has been given, center on it
-            newCenter = (origin.x - mainBounds.left) * level / previousLevel;
-            const coords = {
-                clientX: origin.x,
-                clientY: origin.y,
-            }
-            if (isHoverCanvas(coords)) {
-                const data = getFreqTime(coords);
-                if (data) pointer.setPosition(data)
-            }
+            newCenter = origin.time * newTimePxRatio
         } else {
             // If no x-coordinate: center on currentTime
             newCenter = oldTime.current * newTimePxRatio;
         }
-        window.scrollTo({ left: Math.floor(newCenter - containerWidth / 2) })
+        const left = Math.floor(newCenter - containerWidth / 2)
+        setTimeout(() => requestAnimationFrame(() => {
+            windowCanvasRef?.current?.scrollTo({ left, behavior: 'instant' })
+        }))
         refreshInteractionCanvas()
-    }, [ refreshInteractionCanvas, isHoverCanvas, pointer, getFreqTime, interactionCanvasRef, spectrogram, containerWidth ])
+    }, [ refreshInteractionCanvas, isHoverCanvas, pointer, getFreqTime, interactionCanvasRef, spectrogram, containerWidth, windowCanvasRef ])
     useEffect(() => {
         onZoomUpdatedSignal.add(onZoomUpdated)
         return () => {
@@ -168,7 +161,6 @@ export const AnnotatorCanvasWindow: React.FC = () => {
     }, [ onZoomUpdatedSignal ]);
     useEffect(() => {
         onZoomUpdated({
-            previousLevel: zoomLevel,
             level: zoomLevel,
             type: zoomType,
         })
