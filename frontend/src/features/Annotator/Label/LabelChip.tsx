@@ -9,6 +9,7 @@ import {
     useGetAnnotation,
     useRemoveAnnotation,
     useUpdateAnnotation,
+    useValidateAnnotation,
 } from '@/features/Annotator/Annotation';
 import { AnnotationType } from '@/api';
 import { selectDefaultConfidence } from '@/features/Annotator/Confidence';
@@ -34,6 +35,7 @@ export const LabelChip: React.FC<{
     const defaultConfidence = useAppSelector(selectDefaultConfidence);
     const addAnnotation = useAddAnnotation()
     const updateAnnotation = useUpdateAnnotation()
+    const validateAnnotation = useValidateAnnotation()
     const focusedAnnotation = useAppSelector(selectAnnotation)
     const allAnnotations = useAppSelector(selectAllAnnotations)
     const getAnnotation = useGetAnnotation()
@@ -73,10 +75,11 @@ export const LabelChip: React.FC<{
             }
         }
         if (weak) {
-            // If there is no focused strong annotation: focus existing weak annotation
+            // If there is no focused strong annotation
+            if (!weak.validation?.isValid) validateAnnotation(weak)
             dispatch(focusAnnotation(weak))
         }
-    }, [ focusedAnnotation, updateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence, removeAnnotation ])
+    }, [ focusedAnnotation, updateAnnotation, validateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence, removeAnnotation ])
     useHotkeySequence(numberShortcuts, () => select())
     useHotkeySequence(keyShortcuts, () => select())
 
