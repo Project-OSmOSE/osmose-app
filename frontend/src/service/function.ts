@@ -93,14 +93,22 @@ function downloadFile(filename: string, type: string, blob: Blob) {
     a.click();
 }
 
-export async function downloadResponseHandler(response: Response, filename: string) {
+export async function downloadResponseHandler(response: Response, filename?: string) {
     // TODO: reject errors correctly (catchable) - like a standard API error
+    console.debug(response.headers)
     if (response.status !== 200) return `[${ response.status }] ${ response.statusText }`;
     const type = response.headers.get('content-type')
     if (!type) throw new Error('No file type provided')
+    if (!filename) {
+        const contentDispositionHeader = response.headers.get('content-disposition')
+        if (!contentDispositionHeader) throw new Error('No Content-Disposition header')
+        const filenameRegExp = new RegExp(/filename="(\S*)"/g).exec(contentDispositionHeader)
+        if (!filenameRegExp) throw new Error('No filename in Content-Disposition header')
+        filename = filenameRegExp[1]
+    }
     downloadFile(filename, type, await response.blob())
 }
 
-export function getDownloadResponseHandler(filename: string) {
+export function getDownloadResponseHandler(filename?: string) {
     return (response: Response) => downloadResponseHandler(response, filename)
 }
