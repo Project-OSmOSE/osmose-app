@@ -377,7 +377,7 @@ class DownloadViewSet(ViewSet):
         url_path="analysis-export/(?P<pk>[^/.]+)",
         url_name="analysis-export",
     )
-    def download_analysis_export(self, request, pk=None):
+    def download_analysis_export(self, _request, pk=None):
         """
         Download analysis export
         For legacy analysis: audio metadata and spectro config csv
@@ -431,7 +431,7 @@ class DownloadViewSet(ViewSet):
         campaign = phase.annotation_campaign
 
         response = HttpResponse(content_type="text/csv")
-        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
+        filename = f"{campaign.name.replace(' ', '_')}_{AnnotationPhase.Type(phase.phase).label}_annotations.csv"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         validate_users = list(
@@ -451,7 +451,7 @@ class DownloadViewSet(ViewSet):
         writer = csv.DictWriter(response, fieldnames=headers)
         writer.writeheader()
 
-        def map_validations(user: str) -> [str, Case]:
+        def map_validations(user: str) -> tuple[str, Case]:
             validation_sub = AnnotationValidation.objects.filter(
                 annotator__username=user,
                 annotation_id=OuterRef("id"),
@@ -465,7 +465,7 @@ class DownloadViewSet(ViewSet):
                 default=None,
                 output_field=models.BooleanField(null=True),
             )
-            return [user, query]
+            return user, query
 
         results = (
             _get_annotations_for_report(phase)
@@ -497,7 +497,7 @@ class DownloadViewSet(ViewSet):
         campaign = phase.annotation_campaign
 
         response = HttpResponse(content_type="text/csv")
-        filename = f"{campaign.name.replace(' ', '_')}_status.csv"
+        filename = f"{campaign.name.replace(' ', '_')}_{AnnotationPhase.Type(phase.phase).label}_status.csv"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         # Headers
@@ -521,7 +521,7 @@ class DownloadViewSet(ViewSet):
             status=AnnotationTask.Status.FINISHED,
         )
 
-        def map_annotators(user: str) -> [str, Case]:
+        def map_annotators(user: str) -> tuple[str, Case]:
             task_sub = finished_tasks.filter(
                 spectrogram_id=OuterRef("pk"), annotator__username=user
             )
@@ -536,7 +536,7 @@ class DownloadViewSet(ViewSet):
                 default=models.Value("UNASSIGNED"),
                 output_field=models.CharField(),
             )
-            return [user, query]
+            return user, query
 
         data = dict(map(map_annotators, annotators))
 
