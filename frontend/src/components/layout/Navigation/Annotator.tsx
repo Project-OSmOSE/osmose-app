@@ -38,7 +38,8 @@ export const Annotator: React.FC<{ className?: string, children: ReactNode, load
             <NavigationMenu.Item>
                 <Link to="/annotation-campaign/$campaignID/phase/$phaseType"
                       params={ { campaignID: campaign.id, phaseType } }
-                      search={ search }>
+                      search={ search }
+                      replace>
                     Back to campaign
                 </Link>
             </NavigationMenu.Item>

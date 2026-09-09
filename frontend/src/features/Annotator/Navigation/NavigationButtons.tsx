@@ -25,12 +25,12 @@ export const NavigationButtons: React.FC = () => {
     const navPrevious = useCallback(async () => {
         if (isPending) return;
         if (!info?.previousSpectrogramId) return;
-        if (await canNavigate()) openAnnotator(info.previousSpectrogramId, { replace: true })
+        if (await canNavigate()) openAnnotator(info.previousSpectrogramId)
     }, [ openAnnotator, isPending, info, canNavigate ])
     const navNext = useCallback(async () => {
         if (isPending) return;
         if (!info?.nextSpectrogramId) return;
-        if (await canNavigate()) openAnnotator(info.nextSpectrogramId, { replace: true })
+        if (await canNavigate()) openAnnotator(info.nextSpectrogramId)
     }, [ canNavigate, openAnnotator, isPending, info ])
 
     useHotkey('ArrowLeft', navPrevious)

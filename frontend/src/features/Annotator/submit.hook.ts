@@ -73,11 +73,11 @@ export const useAnnotatorSubmit = () => {
     useEffect(() => {
         if (!isSuccess) return;
         if (info?.nextSpectrogramId) {
-            openAnnotator(info.nextSpectrogramId, { replace: true });
+            openAnnotator(info.nextSpectrogramId);
         } else {
             navigate({
                 to: '/annotation-campaign/$campaignID/phase/$phaseType',
-                params, search,
+                params, search, replace: true
             })
         }
     }, [ isSuccess, navigate ]);
