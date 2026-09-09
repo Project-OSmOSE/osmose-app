@@ -50,10 +50,29 @@ export const LabelChip: React.FC<{
             type: AnnotationType.Weak,
             label,
         }
+
         const weak = getAnnotation(weakProperties)
-        if (weak) return dispatch(focusAnnotation(weak))
-        addAnnotation({ ...weakProperties, confidence: defaultConfidence })
-    }, [ focusedAnnotation, updateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence ])
+        if (!weak) {
+            // Create weak if it doesn't exist
+            addAnnotation({ ...weakProperties, confidence: defaultConfidence })
+        }
+
+        if (focusedAnnotation) {
+            // If focused annotation exists
+            if (focusedAnnotation.type !== AnnotationType.Weak) {
+                // If focused annotation is strong => update its label
+                updateAnnotation(focusedAnnotation, { label })
+            } else if (focusedAnnotation.label === label) {
+                // If focused annotation is weak and has selected label => remove weak annotation
+                removeAnnotation(focusedAnnotation)
+                return
+            }
+        }
+        if (weak) {
+            // If there is no focused strong annotation: focus existing weak annotation
+            dispatch(focusAnnotation(weak))
+        }
+    }, [ focusedAnnotation, updateAnnotation, label, getAnnotation, dispatch, addAnnotation, defaultConfidence, removeAnnotation ])
     useHotkeySequence(numberShortcuts, () => select())
     useHotkeySequence(keyShortcuts, () => select())
 
