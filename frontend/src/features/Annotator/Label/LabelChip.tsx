@@ -41,7 +41,11 @@ export const LabelChip: React.FC<{
     const index = useMemo(() => labels.map(l => l.name).indexOf(label), [ labels, label ])
     const numberShortcuts = useMemo(() => (index + 1).toString()?.split('') as Hotkey[], [ index ]);
     const keyShortcuts = useMemo(() => (index + 1).toString()?.split('').map(i => AlphanumericKeys[+i]) as Hotkey[], [ index ]);
-    const isUsed = useMemo(() => allAnnotations.some(a => a.label === label), [ allAnnotations, label ])
+    const isUsed = useMemo(() => allAnnotations.some(a => {
+        if (a.label !== label) return false
+        if (!a.validation) return true
+        return a.validation.isValid
+    }), [ allAnnotations, label ])
     const isHidden = useMemo(() => hiddenLabels.includes(label), [ hiddenLabels, label ])
     const dispatch = useAppDispatch()
 
